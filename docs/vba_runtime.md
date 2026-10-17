@@ -332,7 +332,10 @@ assignments coerce the right-hand side without aliasing its source variable;
 named index arguments remain distinct from the assigned value. Empty-parenthesis
 calls to the current function recurse, rather than reading its result slot.
 
-These behaviors replay 263 uninstrumented native controls in
+Host and language constants remain values rather than implicit variables, so
+passing them to a typed ByRef parameter uses an appropriately coerced temporary.
+Existing UDT marshalling diagnostics retain priority over general argument checks.
+These behaviors replay 268 uninstrumented native controls in
 `call_compilation.json`, remeasured by `scripts/measure_call_compilation.py`.
 Resolved expression types are memoized so long member chains do not expand
 compiler work repeatedly. Full host/library signatures, object/interface

@@ -1234,9 +1234,9 @@ class Interpreter:
         from pyopenvba.interpreter._references import validate_references
 
         program = module.program_for(procedure)
+        validate_record_arguments(self, module, procedure)
         validate_references(self, module, procedure, program)
         validate_numeric_loops(self, module, procedure, program.arrays)
-        validate_record_arguments(self, module, procedure)
         module.initialise()
         frame = Frame(procedure=procedure, module=module, me=me, program=program)
         try:

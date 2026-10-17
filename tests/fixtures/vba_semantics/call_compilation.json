@@ -8,7 +8,7 @@
       "compile_error": true,
       "name": "call_compilation_standard_missing",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:28.705607+00:00"
+      "measured_at": "2026-10-17T09:46:58.814877+00:00"
     },
     {
       "modules": [],
@@ -16,14 +16,14 @@
       "compile_error": true,
       "name": "call_compilation_standard_bare",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:28.968685+00:00"
+      "measured_at": "2026-10-17T09:46:59.124980+00:00"
     },
     {
       "modules": [],
       "source": "Public Function Alpha(ByVal n As Long, Optional ByVal tail As Long=5) As String\nAlpha=CStr(n) & \":\" & CStr(tail)\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_standard_valid",
-      "measured_at": "2026-10-17T09:38:29.159298+00:00"
+      "measured_at": "2026-10-17T09:46:59.314114+00:00"
     },
     {
       "modules": [],
@@ -31,14 +31,14 @@
       "compile_error": true,
       "name": "call_compilation_standard_too_many",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:38:29.501491+00:00"
+      "measured_at": "2026-10-17T09:46:59.602367+00:00"
     },
     {
       "modules": [],
       "source": "Public Function Alpha(ByVal n As Long, Optional ByVal tail As Long=5) As String\nAlpha=CStr(n) & \":\" & CStr(tail)\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(n:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_standard_named",
-      "measured_at": "2026-10-17T09:38:29.689427+00:00"
+      "measured_at": "2026-10-17T09:46:59.791624+00:00"
     },
     {
       "modules": [],
@@ -46,7 +46,7 @@
       "compile_error": true,
       "name": "call_compilation_standard_missing_named",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:30.029183+00:00"
+      "measured_at": "2026-10-17T09:47:00.128386+00:00"
     },
     {
       "modules": [],
@@ -54,7 +54,7 @@
       "compile_error": true,
       "name": "call_compilation_standard_unknown_named",
       "compiler_message": "Compile error:\n\nNamed argument not found",
-      "measured_at": "2026-10-17T09:38:30.323190+00:00"
+      "measured_at": "2026-10-17T09:47:00.425491+00:00"
     },
     {
       "modules": [],
@@ -62,7 +62,7 @@
       "compile_error": true,
       "name": "call_compilation_standard_omitted",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:30.566542+00:00"
+      "measured_at": "2026-10-17T09:47:00.677874+00:00"
     },
     {
       "modules": [],
@@ -70,7 +70,7 @@
       "compile_error": true,
       "name": "call_compilation_standard_duplicate_named",
       "compiler_message": "Compile error:\n\nNamed argument already specified",
-      "measured_at": "2026-10-17T09:38:30.819677+00:00"
+      "measured_at": "2026-10-17T09:47:00.938682+00:00"
     },
     {
       "modules": [],
@@ -78,7 +78,7 @@
       "compile_error": true,
       "name": "call_compilation_standard_positional_after_named",
       "compiler_message": "Compile error:\n\nSyntax error",
-      "measured_at": "2026-10-17T09:38:31.069595+00:00"
+      "measured_at": "2026-10-17T09:47:01.187237+00:00"
     },
     {
       "modules": [
@@ -92,7 +92,7 @@
       "compile_error": true,
       "name": "call_compilation_box_missing",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:31.373440+00:00"
+      "measured_at": "2026-10-17T09:47:01.717978+00:00"
     },
     {
       "modules": [
@@ -106,7 +106,7 @@
       "compile_error": true,
       "name": "call_compilation_box_bare",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:31.897567+00:00"
+      "measured_at": "2026-10-17T09:47:02.246939+00:00"
     },
     {
       "modules": [
@@ -119,7 +119,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_box_valid",
-      "measured_at": "2026-10-17T09:38:32.150179+00:00"
+      "measured_at": "2026-10-17T09:47:02.514045+00:00"
     },
     {
       "modules": [
@@ -133,7 +133,7 @@
       "compile_error": true,
       "name": "call_compilation_box_too_many",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:38:32.674685+00:00"
+      "measured_at": "2026-10-17T09:47:03.057752+00:00"
     },
     {
       "modules": [
@@ -146,7 +146,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(n:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_box_named",
-      "measured_at": "2026-10-17T09:38:32.936354+00:00"
+      "measured_at": "2026-10-17T09:47:03.337678+00:00"
     },
     {
       "modules": [
@@ -160,7 +160,7 @@
       "compile_error": true,
       "name": "call_compilation_box_missing_named",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:33.448447+00:00"
+      "measured_at": "2026-10-17T09:47:03.835411+00:00"
     },
     {
       "modules": [
@@ -174,7 +174,7 @@
       "compile_error": true,
       "name": "call_compilation_box_unknown_named",
       "compiler_message": "Compile error:\n\nNamed argument not found",
-      "measured_at": "2026-10-17T09:38:33.726588+00:00"
+      "measured_at": "2026-10-17T09:47:04.352924+00:00"
     },
     {
       "modules": [
@@ -188,7 +188,7 @@
       "compile_error": true,
       "name": "call_compilation_box_omitted",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:38:34.267165+00:00"
+      "measured_at": "2026-10-17T09:47:04.871595+00:00"
     },
     {
       "modules": [
@@ -202,7 +202,7 @@
       "compile_error": true,
       "name": "call_compilation_box_duplicate_named",
       "compiler_message": "Compile error:\n\nNamed argument already specified",
-      "measured_at": "2026-10-17T09:38:34.804623+00:00"
+      "measured_at": "2026-10-17T09:47:05.449420+00:00"
     },
     {
       "modules": [
@@ -216,7 +216,7 @@
       "compile_error": true,
       "name": "call_compilation_box_positional_after_named",
       "compiler_message": "Compile error:\n\nSyntax error",
-      "measured_at": "2026-10-17T09:38:35.333195+00:00"
+      "measured_at": "2026-10-17T09:47:05.965217+00:00"
     },
     {
       "modules": [
@@ -229,7 +229,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha())\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!449",
       "name": "call_compilation_object_missing",
-      "measured_at": "2026-10-17T09:38:35.546902+00:00"
+      "measured_at": "2026-10-17T09:47:06.225786+00:00"
     },
     {
       "modules": [
@@ -242,7 +242,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!449",
       "name": "call_compilation_object_bare",
-      "measured_at": "2026-10-17T09:38:35.769951+00:00"
+      "measured_at": "2026-10-17T09:47:06.479121+00:00"
     },
     {
       "modules": [
@@ -255,7 +255,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_object_valid",
-      "measured_at": "2026-10-17T09:38:35.991536+00:00"
+      "measured_at": "2026-10-17T09:47:06.758222+00:00"
     },
     {
       "modules": [
@@ -268,7 +268,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1,2,3))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!450",
       "name": "call_compilation_object_too_many",
-      "measured_at": "2026-10-17T09:38:36.224312+00:00"
+      "measured_at": "2026-10-17T09:47:07.028998+00:00"
     },
     {
       "modules": [
@@ -281,7 +281,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(n:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_object_named",
-      "measured_at": "2026-10-17T09:38:36.447769+00:00"
+      "measured_at": "2026-10-17T09:47:07.282044+00:00"
     },
     {
       "modules": [
@@ -294,7 +294,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(tail:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!450",
       "name": "call_compilation_object_missing_named",
-      "measured_at": "2026-10-17T09:38:36.667029+00:00"
+      "measured_at": "2026-10-17T09:47:07.546203+00:00"
     },
     {
       "modules": [
@@ -307,7 +307,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(bad:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "call_compilation_object_unknown_named",
-      "measured_at": "2026-10-17T09:38:36.877663+00:00"
+      "measured_at": "2026-10-17T09:47:07.810579+00:00"
     },
     {
       "modules": [
@@ -320,7 +320,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(,2))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!449",
       "name": "call_compilation_object_omitted",
-      "measured_at": "2026-10-17T09:38:37.093354+00:00"
+      "measured_at": "2026-10-17T09:47:08.064532+00:00"
     },
     {
       "modules": [
@@ -333,7 +333,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(n:=1,n:=2))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "call_compilation_object_duplicate_named",
-      "measured_at": "2026-10-17T09:38:37.298170+00:00"
+      "measured_at": "2026-10-17T09:47:08.336850+00:00"
     },
     {
       "modules": [
@@ -347,7 +347,7 @@
       "compile_error": true,
       "name": "call_compilation_object_positional_after_named",
       "compiler_message": "Compile error:\n\nSyntax error",
-      "measured_at": "2026-10-17T09:38:37.663981+00:00"
+      "measured_at": "2026-10-17T09:47:08.841786+00:00"
     },
     {
       "modules": [
@@ -360,7 +360,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha())\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!449",
       "name": "call_compilation_variant_missing",
-      "measured_at": "2026-10-17T09:38:37.878624+00:00"
+      "measured_at": "2026-10-17T09:47:09.115237+00:00"
     },
     {
       "modules": [
@@ -373,7 +373,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!449",
       "name": "call_compilation_variant_bare",
-      "measured_at": "2026-10-17T09:38:38.102291+00:00"
+      "measured_at": "2026-10-17T09:47:09.386357+00:00"
     },
     {
       "modules": [
@@ -386,7 +386,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_variant_valid",
-      "measured_at": "2026-10-17T09:38:38.324828+00:00"
+      "measured_at": "2026-10-17T09:47:09.652981+00:00"
     },
     {
       "modules": [
@@ -399,7 +399,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1,2,3))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!450",
       "name": "call_compilation_variant_too_many",
-      "measured_at": "2026-10-17T09:38:38.542512+00:00"
+      "measured_at": "2026-10-17T09:47:09.910595+00:00"
     },
     {
       "modules": [
@@ -412,7 +412,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(n:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:5",
       "name": "call_compilation_variant_named",
-      "measured_at": "2026-10-17T09:38:38.773873+00:00"
+      "measured_at": "2026-10-17T09:47:10.162760+00:00"
     },
     {
       "modules": [
@@ -425,7 +425,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(tail:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!450",
       "name": "call_compilation_variant_missing_named",
-      "measured_at": "2026-10-17T09:38:39.005814+00:00"
+      "measured_at": "2026-10-17T09:47:10.409868+00:00"
     },
     {
       "modules": [
@@ -438,7 +438,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(bad:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "call_compilation_variant_unknown_named",
-      "measured_at": "2026-10-17T09:38:39.224672+00:00"
+      "measured_at": "2026-10-17T09:47:10.670241+00:00"
     },
     {
       "modules": [
@@ -451,7 +451,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(,2))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!449",
       "name": "call_compilation_variant_omitted",
-      "measured_at": "2026-10-17T09:38:39.451335+00:00"
+      "measured_at": "2026-10-17T09:47:10.934861+00:00"
     },
     {
       "modules": [
@@ -464,7 +464,7 @@
       "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(n:=1,n:=2))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "call_compilation_variant_duplicate_named",
-      "measured_at": "2026-10-17T09:38:39.670674+00:00"
+      "measured_at": "2026-10-17T09:47:11.200571+00:00"
     },
     {
       "modules": [
@@ -478,59 +478,59 @@
       "compile_error": true,
       "name": "call_compilation_variant_positional_after_named",
       "compiler_message": "Compile error:\n\nSyntax error",
-      "measured_at": "2026-10-17T09:38:40.041201+00:00"
+      "measured_at": "2026-10-17T09:47:11.780609+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nvalue=value+1\nAlpha=CStr(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value) & \":\" & CStr(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_compilation_byref_integer_False",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:40.319040+00:00"
+      "measured_at": "2026-10-17T09:47:12.302653+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nvalue=value+1\nAlpha=CStr(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha((value)) & \":\" & CStr(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:0",
       "name": "call_compilation_byref_integer_True",
-      "measured_at": "2026-10-17T09:38:40.491853+00:00"
+      "measured_at": "2026-10-17T09:47:12.512173+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nvalue=value+1\nAlpha=CStr(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value) & \":\" & CStr(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:1",
       "name": "call_compilation_byref_long_False",
-      "measured_at": "2026-10-17T09:38:40.661170+00:00"
+      "measured_at": "2026-10-17T09:47:12.715245+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nvalue=value+1\nAlpha=CStr(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha((value)) & \":\" & CStr(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:0",
       "name": "call_compilation_byref_long_True",
-      "measured_at": "2026-10-17T09:38:40.834776+00:00"
+      "measured_at": "2026-10-17T09:47:12.908696+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nvalue=value+1\nAlpha=CStr(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value) & \":\" & CStr(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_compilation_byref_variant_False",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:41.106397+00:00"
+      "measured_at": "2026-10-17T09:47:13.377765+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nvalue=value+1\nAlpha=CStr(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha((value)) & \":\" & CStr(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "1:",
       "name": "call_compilation_byref_variant_True",
-      "measured_at": "2026-10-17T09:38:41.268459+00:00"
+      "measured_at": "2026-10-17T09:47:13.586299+00:00"
     },
     {
       "modules": [],
       "source": "Public Function Alpha() As Collection\nDim result As New Collection\nresult.Add \"x\"\nSet Alpha=result\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_collection_standard_False",
-      "measured_at": "2026-10-17T09:38:41.431527+00:00"
+      "measured_at": "2026-10-17T09:47:13.781601+00:00"
     },
     {
       "modules": [],
       "source": "Public Function Alpha() As Collection\nDim result As New Collection\nresult.Add \"x\"\nSet Alpha=result\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_collection_standard_True",
-      "measured_at": "2026-10-17T09:38:41.599507+00:00"
+      "measured_at": "2026-10-17T09:47:13.978124+00:00"
     },
     {
       "modules": [
@@ -543,7 +543,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_collection_box_False",
-      "measured_at": "2026-10-17T09:38:41.795092+00:00"
+      "measured_at": "2026-10-17T09:47:14.241737+00:00"
     },
     {
       "modules": [
@@ -556,7 +556,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_collection_box_True",
-      "measured_at": "2026-10-17T09:38:42.001649+00:00"
+      "measured_at": "2026-10-17T09:47:14.508837+00:00"
     },
     {
       "modules": [
@@ -569,7 +569,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_collection_object_False",
-      "measured_at": "2026-10-17T09:38:42.219170+00:00"
+      "measured_at": "2026-10-17T09:47:14.779244+00:00"
     },
     {
       "modules": [
@@ -582,14 +582,14 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "returned_default_calls_collection_object_True",
-      "measured_at": "2026-10-17T09:38:42.419980+00:00"
+      "measured_at": "2026-10-17T09:47:15.035687+00:00"
     },
     {
       "modules": [],
       "source": "Public Function Alpha() As Object\nDim result As New Collection\nresult.Add \"x\"\nSet Alpha=result\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_object_standard_False",
-      "measured_at": "2026-10-17T09:38:42.575149+00:00"
+      "measured_at": "2026-10-17T09:47:15.233527+00:00"
     },
     {
       "modules": [],
@@ -597,7 +597,7 @@
       "compile_error": true,
       "name": "returned_default_calls_object_standard_True",
       "compiler_message": "Compile error:\n\nNamed argument not found",
-      "measured_at": "2026-10-17T09:38:42.948612+00:00"
+      "measured_at": "2026-10-17T09:47:15.752754+00:00"
     },
     {
       "modules": [
@@ -610,7 +610,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_object_box_False",
-      "measured_at": "2026-10-17T09:38:43.164723+00:00"
+      "measured_at": "2026-10-17T09:47:16.007329+00:00"
     },
     {
       "modules": [
@@ -624,7 +624,7 @@
       "compile_error": true,
       "name": "returned_default_calls_object_box_True",
       "compiler_message": "Compile error:\n\nNamed argument not found",
-      "measured_at": "2026-10-17T09:38:43.493820+00:00"
+      "measured_at": "2026-10-17T09:47:16.545388+00:00"
     },
     {
       "modules": [
@@ -637,7 +637,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_object_object_False",
-      "measured_at": "2026-10-17T09:38:43.727154+00:00"
+      "measured_at": "2026-10-17T09:47:16.830379+00:00"
     },
     {
       "modules": [
@@ -650,7 +650,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "returned_default_calls_object_object_True",
-      "measured_at": "2026-10-17T09:38:43.952581+00:00"
+      "measured_at": "2026-10-17T09:47:17.095491+00:00"
     },
     {
       "modules": [],
@@ -658,7 +658,7 @@
       "compile_error": true,
       "name": "returned_default_calls_string_standard_False",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:38:44.282596+00:00"
+      "measured_at": "2026-10-17T09:47:17.580724+00:00"
     },
     {
       "modules": [],
@@ -666,7 +666,7 @@
       "compile_error": true,
       "name": "returned_default_calls_string_standard_True",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:38:44.506862+00:00"
+      "measured_at": "2026-10-17T09:47:17.855311+00:00"
     },
     {
       "modules": [
@@ -680,7 +680,7 @@
       "compile_error": true,
       "name": "returned_default_calls_string_box_False",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:38:44.780373+00:00"
+      "measured_at": "2026-10-17T09:47:18.390659+00:00"
     },
     {
       "modules": [
@@ -694,7 +694,7 @@
       "compile_error": true,
       "name": "returned_default_calls_string_box_True",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:38:45.051564+00:00"
+      "measured_at": "2026-10-17T09:47:18.921422+00:00"
     },
     {
       "modules": [
@@ -707,7 +707,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!451",
       "name": "returned_default_calls_string_object_False",
-      "measured_at": "2026-10-17T09:38:45.273586+00:00"
+      "measured_at": "2026-10-17T09:47:19.197268+00:00"
     },
     {
       "modules": [
@@ -720,14 +720,14 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "returned_default_calls_string_object_True",
-      "measured_at": "2026-10-17T09:38:45.495947+00:00"
+      "measured_at": "2026-10-17T09:47:19.469192+00:00"
     },
     {
       "modules": [],
       "source": "Public Function Alpha() As Variant\nDim result As New Collection\nresult.Add \"x\"\nSet Alpha=result\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_variant_standard_False",
-      "measured_at": "2026-10-17T09:38:45.669454+00:00"
+      "measured_at": "2026-10-17T09:47:19.685923+00:00"
     },
     {
       "modules": [],
@@ -735,7 +735,7 @@
       "compile_error": true,
       "name": "returned_default_calls_variant_standard_True",
       "compiler_message": "Compile error:\n\nNamed arguments not allowed",
-      "measured_at": "2026-10-17T09:38:46.089840+00:00"
+      "measured_at": "2026-10-17T09:47:19.949845+00:00"
     },
     {
       "modules": [
@@ -748,7 +748,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_variant_box_False",
-      "measured_at": "2026-10-17T09:38:46.298779+00:00"
+      "measured_at": "2026-10-17T09:47:20.200894+00:00"
     },
     {
       "modules": [
@@ -762,7 +762,7 @@
       "compile_error": true,
       "name": "returned_default_calls_variant_box_True",
       "compiler_message": "Compile error:\n\nNamed arguments not allowed",
-      "measured_at": "2026-10-17T09:38:46.640353+00:00"
+      "measured_at": "2026-10-17T09:47:20.790424+00:00"
     },
     {
       "modules": [
@@ -775,7 +775,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "x",
       "name": "returned_default_calls_variant_object_False",
-      "measured_at": "2026-10-17T09:38:46.884280+00:00"
+      "measured_at": "2026-10-17T09:47:21.063853+00:00"
     },
     {
       "modules": [
@@ -788,1154 +788,1154 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=CStr(obj.Alpha(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!448",
       "name": "returned_default_calls_variant_object_True",
-      "measured_at": "2026-10-17T09:38:47.105261+00:00"
+      "measured_at": "2026-10-17T09:47:21.331392+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Byte",
       "name": "call_details_byte_from_byte",
-      "measured_at": "2026-10-17T09:38:47.271938+00:00"
+      "measured_at": "2026-10-17T09:47:21.529087+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:47.702840+00:00"
+      "measured_at": "2026-10-17T09:47:21.800839+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:47.977816+00:00"
+      "measured_at": "2026-10-17T09:47:22.072663+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:48.199770+00:00"
+      "measured_at": "2026-10-17T09:47:22.341676+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:48.471888+00:00"
+      "measured_at": "2026-10-17T09:47:22.614815+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:48.733896+00:00"
+      "measured_at": "2026-10-17T09:47:22.887044+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:49.010001+00:00"
+      "measured_at": "2026-10-17T09:47:23.150109+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:49.289338+00:00"
+      "measured_at": "2026-10-17T09:47:23.414902+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:49.510917+00:00"
+      "measured_at": "2026-10-17T09:47:23.676892+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:49.785662+00:00"
+      "measured_at": "2026-10-17T09:47:23.944992+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:50.053899+00:00"
+      "measured_at": "2026-10-17T09:47:24.212760+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Byte) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_byte_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:50.323665+00:00"
+      "measured_at": "2026-10-17T09:47:24.485406+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:50.557711+00:00"
+      "measured_at": "2026-10-17T09:47:25.017785+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Integer",
       "name": "call_details_integer_from_integer",
-      "measured_at": "2026-10-17T09:38:50.731224+00:00"
+      "measured_at": "2026-10-17T09:47:25.225757+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:51.106748+00:00"
+      "measured_at": "2026-10-17T09:47:25.544715+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:51.381739+00:00"
+      "measured_at": "2026-10-17T09:47:26.070689+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:51.609592+00:00"
+      "measured_at": "2026-10-17T09:47:26.331254+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:51.881632+00:00"
+      "measured_at": "2026-10-17T09:47:26.587541+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:52.154562+00:00"
+      "measured_at": "2026-10-17T09:47:26.855919+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:52.425658+00:00"
+      "measured_at": "2026-10-17T09:47:27.114588+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:52.704682+00:00"
+      "measured_at": "2026-10-17T09:47:27.379580+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:52.973468+00:00"
+      "measured_at": "2026-10-17T09:47:27.633357+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:53.240006+00:00"
+      "measured_at": "2026-10-17T09:47:27.889621+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Integer) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_integer_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:53.480135+00:00"
+      "measured_at": "2026-10-17T09:47:28.193848+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:53.753857+00:00"
+      "measured_at": "2026-10-17T09:47:28.440033+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:53.987139+00:00"
+      "measured_at": "2026-10-17T09:47:28.697888+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Long",
       "name": "call_details_long_from_long",
-      "measured_at": "2026-10-17T09:38:54.155308+00:00"
+      "measured_at": "2026-10-17T09:47:28.893199+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:54.528484+00:00"
+      "measured_at": "2026-10-17T09:47:29.250795+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:54.798502+00:00"
+      "measured_at": "2026-10-17T09:47:29.762645+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:55.067919+00:00"
+      "measured_at": "2026-10-17T09:47:30.018094+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:55.347182+00:00"
+      "measured_at": "2026-10-17T09:47:30.267743+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:55.617716+00:00"
+      "measured_at": "2026-10-17T09:47:30.528595+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:55.855435+00:00"
+      "measured_at": "2026-10-17T09:47:30.783796+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:56.128184+00:00"
+      "measured_at": "2026-10-17T09:47:31.081842+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:56.399570+00:00"
+      "measured_at": "2026-10-17T09:47:31.329953+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_long_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:56.636436+00:00"
+      "measured_at": "2026-10-17T09:47:31.581668+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:56.910571+00:00"
+      "measured_at": "2026-10-17T09:47:31.837894+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:57.185004+00:00"
+      "measured_at": "2026-10-17T09:47:32.144954+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:57.415212+00:00"
+      "measured_at": "2026-10-17T09:47:32.406031+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "LongLong",
       "name": "call_details_longlong_from_longlong",
-      "measured_at": "2026-10-17T09:38:57.576210+00:00"
+      "measured_at": "2026-10-17T09:47:32.604803+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "LongLong",
       "name": "call_details_longlong_from_longptr",
-      "measured_at": "2026-10-17T09:38:57.740663+00:00"
+      "measured_at": "2026-10-17T09:47:32.815026+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:57.975484+00:00"
+      "measured_at": "2026-10-17T09:47:33.174172+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:58.233122+00:00"
+      "measured_at": "2026-10-17T09:47:33.432622+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:58.511422+00:00"
+      "measured_at": "2026-10-17T09:47:33.738951+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:58.732901+00:00"
+      "measured_at": "2026-10-17T09:47:34.256237+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:59.012847+00:00"
+      "measured_at": "2026-10-17T09:47:34.510522+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:59.286762+00:00"
+      "measured_at": "2026-10-17T09:47:34.767942+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongLong) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longlong_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:59.559691+00:00"
+      "measured_at": "2026-10-17T09:47:35.029688+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:38:59.788681+00:00"
+      "measured_at": "2026-10-17T09:47:35.285925+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:00.061296+00:00"
+      "measured_at": "2026-10-17T09:47:35.540675+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:00.331456+00:00"
+      "measured_at": "2026-10-17T09:47:35.841179+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "LongLong",
       "name": "call_details_longptr_from_longlong",
-      "measured_at": "2026-10-17T09:39:00.494804+00:00"
+      "measured_at": "2026-10-17T09:47:36.033112+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "LongLong",
       "name": "call_details_longptr_from_longptr",
-      "measured_at": "2026-10-17T09:39:00.669936+00:00"
+      "measured_at": "2026-10-17T09:47:36.226479+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:00.881714+00:00"
+      "measured_at": "2026-10-17T09:47:36.632932+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:01.153903+00:00"
+      "measured_at": "2026-10-17T09:47:36.865758+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:01.375216+00:00"
+      "measured_at": "2026-10-17T09:47:37.139518+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:01.662110+00:00"
+      "measured_at": "2026-10-17T09:47:37.384815+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:01.942524+00:00"
+      "measured_at": "2026-10-17T09:47:37.670764+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:02.164305+00:00"
+      "measured_at": "2026-10-17T09:47:37.947361+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As LongPtr) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_longptr_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:02.437743+00:00"
+      "measured_at": "2026-10-17T09:47:38.180242+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:02.713518+00:00"
+      "measured_at": "2026-10-17T09:47:38.461107+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:02.989749+00:00"
+      "measured_at": "2026-10-17T09:47:38.735330+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:03.217090+00:00"
+      "measured_at": "2026-10-17T09:47:38.969393+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:03.489327+00:00"
+      "measured_at": "2026-10-17T09:47:39.242710+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:03.768252+00:00"
+      "measured_at": "2026-10-17T09:47:39.528630+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Single",
       "name": "call_details_single_from_single",
-      "measured_at": "2026-10-17T09:39:03.942540+00:00"
+      "measured_at": "2026-10-17T09:47:39.698483+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:04.268508+00:00"
+      "measured_at": "2026-10-17T09:47:40.024488+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:04.540416+00:00"
+      "measured_at": "2026-10-17T09:47:40.314003+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:04.811891+00:00"
+      "measured_at": "2026-10-17T09:47:40.594694+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:05.087672+00:00"
+      "measured_at": "2026-10-17T09:47:40.862266+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:05.354394+00:00"
+      "measured_at": "2026-10-17T09:47:41.085820+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Single) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_single_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:05.629131+00:00"
+      "measured_at": "2026-10-17T09:47:41.359359+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:05.857704+00:00"
+      "measured_at": "2026-10-17T09:47:41.635637+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:06.134918+00:00"
+      "measured_at": "2026-10-17T09:47:41.913557+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:06.413195+00:00"
+      "measured_at": "2026-10-17T09:47:42.140883+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:06.641257+00:00"
+      "measured_at": "2026-10-17T09:47:42.415456+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:06.913560+00:00"
+      "measured_at": "2026-10-17T09:47:42.690237+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:07.182596+00:00"
+      "measured_at": "2026-10-17T09:47:42.924115+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Double",
       "name": "call_details_double_from_double",
-      "measured_at": "2026-10-17T09:39:07.350631+00:00"
+      "measured_at": "2026-10-17T09:47:43.076619+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:07.722555+00:00"
+      "measured_at": "2026-10-17T09:47:43.452404+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:07.986472+00:00"
+      "measured_at": "2026-10-17T09:47:43.739438+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:08.262232+00:00"
+      "measured_at": "2026-10-17T09:47:43.984264+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:08.486438+00:00"
+      "measured_at": "2026-10-17T09:47:44.265377+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Double) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_double_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:08.761243+00:00"
+      "measured_at": "2026-10-17T09:47:44.543876+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:09.038187+00:00"
+      "measured_at": "2026-10-17T09:47:44.816099+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:09.313786+00:00"
+      "measured_at": "2026-10-17T09:47:45.042903+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:09.542528+00:00"
+      "measured_at": "2026-10-17T09:47:45.315741+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:09.812557+00:00"
+      "measured_at": "2026-10-17T09:47:45.557637+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:10.081788+00:00"
+      "measured_at": "2026-10-17T09:47:45.830062+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:10.361021+00:00"
+      "measured_at": "2026-10-17T09:47:46.099439+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:10.596005+00:00"
+      "measured_at": "2026-10-17T09:47:46.375912+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Currency",
       "name": "call_details_currency_from_currency",
-      "measured_at": "2026-10-17T09:39:10.747701+00:00"
+      "measured_at": "2026-10-17T09:47:46.552786+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:11.132110+00:00"
+      "measured_at": "2026-10-17T09:47:46.875535+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:11.414717+00:00"
+      "measured_at": "2026-10-17T09:47:47.157713+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:11.695927+00:00"
+      "measured_at": "2026-10-17T09:47:47.442081+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Currency) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_currency_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:11.928968+00:00"
+      "measured_at": "2026-10-17T09:47:47.683514+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:12.209977+00:00"
+      "measured_at": "2026-10-17T09:47:47.960250+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:12.444584+00:00"
+      "measured_at": "2026-10-17T09:47:48.237858+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:12.751697+00:00"
+      "measured_at": "2026-10-17T09:47:48.462333+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:12.982172+00:00"
+      "measured_at": "2026-10-17T09:47:48.735730+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:13.255967+00:00"
+      "measured_at": "2026-10-17T09:47:49.018712+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:13.535818+00:00"
+      "measured_at": "2026-10-17T09:47:49.291690+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:13.764655+00:00"
+      "measured_at": "2026-10-17T09:47:49.512091+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:14.040540+00:00"
+      "measured_at": "2026-10-17T09:47:49.790331+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Date",
       "name": "call_details_date_from_date",
-      "measured_at": "2026-10-17T09:39:14.204062+00:00"
+      "measured_at": "2026-10-17T09:47:49.954871+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:14.579251+00:00"
+      "measured_at": "2026-10-17T09:47:50.320838+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:14.854668+00:00"
+      "measured_at": "2026-10-17T09:47:50.598596+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Date) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_date_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:15.111481+00:00"
+      "measured_at": "2026-10-17T09:47:50.828098+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:15.358770+00:00"
+      "measured_at": "2026-10-17T09:47:51.099881+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:15.647657+00:00"
+      "measured_at": "2026-10-17T09:47:51.376243+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:15.912354+00:00"
+      "measured_at": "2026-10-17T09:47:51.659938+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:16.148507+00:00"
+      "measured_at": "2026-10-17T09:47:51.884897+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:16.436258+00:00"
+      "measured_at": "2026-10-17T09:47:52.158234+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:16.720237+00:00"
+      "measured_at": "2026-10-17T09:47:52.429163+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:16.942300+00:00"
+      "measured_at": "2026-10-17T09:47:52.708768+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:17.229900+00:00"
+      "measured_at": "2026-10-17T09:47:52.982812+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:17.509440+00:00"
+      "measured_at": "2026-10-17T09:47:53.205231+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Boolean",
       "name": "call_details_boolean_from_boolean",
-      "measured_at": "2026-10-17T09:39:17.689449+00:00"
+      "measured_at": "2026-10-17T09:47:53.363876+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_string",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:18.020936+00:00"
+      "measured_at": "2026-10-17T09:47:53.735568+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Boolean) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_boolean_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:18.268552+00:00"
+      "measured_at": "2026-10-17T09:47:54.014368+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_byte",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:18.560340+00:00"
+      "measured_at": "2026-10-17T09:47:54.291055+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_integer",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:18.844897+00:00"
+      "measured_at": "2026-10-17T09:47:54.517063+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_long",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:19.062033+00:00"
+      "measured_at": "2026-10-17T09:47:54.790045+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_longlong",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:19.345966+00:00"
+      "measured_at": "2026-10-17T09:47:55.063894+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_longptr",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:19.635503+00:00"
+      "measured_at": "2026-10-17T09:47:55.338506+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_single",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:19.874777+00:00"
+      "measured_at": "2026-10-17T09:47:55.612268+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_double",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:20.166625+00:00"
+      "measured_at": "2026-10-17T09:47:55.838163+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_currency",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:20.396839+00:00"
+      "measured_at": "2026-10-17T09:47:56.116587+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_date",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:20.682186+00:00"
+      "measured_at": "2026-10-17T09:47:56.401726+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_boolean",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:20.917572+00:00"
+      "measured_at": "2026-10-17T09:47:56.623592+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "String",
       "name": "call_details_string_from_string",
-      "measured_at": "2026-10-17T09:39:21.088254+00:00"
+      "measured_at": "2026-10-17T09:47:56.797623+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_details_string_from_variant",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:21.472526+00:00"
+      "measured_at": "2026-10-17T09:47:57.174171+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Byte\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Byte",
       "name": "call_details_variant_from_byte",
-      "measured_at": "2026-10-17T09:39:21.650855+00:00"
+      "measured_at": "2026-10-17T09:47:57.341491+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Integer\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Integer",
       "name": "call_details_variant_from_integer",
-      "measured_at": "2026-10-17T09:39:21.824027+00:00"
+      "measured_at": "2026-10-17T09:47:57.500821+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Long",
       "name": "call_details_variant_from_long",
-      "measured_at": "2026-10-17T09:39:21.996368+00:00"
+      "measured_at": "2026-10-17T09:47:57.674659+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongLong\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "LongLong",
       "name": "call_details_variant_from_longlong",
-      "measured_at": "2026-10-17T09:39:22.188815+00:00"
+      "measured_at": "2026-10-17T09:47:57.832941+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As LongPtr\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "LongLong",
       "name": "call_details_variant_from_longptr",
-      "measured_at": "2026-10-17T09:39:22.370730+00:00"
+      "measured_at": "2026-10-17T09:47:58.003756+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Single\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Single",
       "name": "call_details_variant_from_single",
-      "measured_at": "2026-10-17T09:39:22.561831+00:00"
+      "measured_at": "2026-10-17T09:47:58.182755+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Double\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Double",
       "name": "call_details_variant_from_double",
-      "measured_at": "2026-10-17T09:39:22.728127+00:00"
+      "measured_at": "2026-10-17T09:47:58.381134+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Currency\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Currency",
       "name": "call_details_variant_from_currency",
-      "measured_at": "2026-10-17T09:39:22.895918+00:00"
+      "measured_at": "2026-10-17T09:47:58.550605+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Date\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Date",
       "name": "call_details_variant_from_date",
-      "measured_at": "2026-10-17T09:39:23.065204+00:00"
+      "measured_at": "2026-10-17T09:48:03.718339+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Boolean\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Boolean",
       "name": "call_details_variant_from_boolean",
-      "measured_at": "2026-10-17T09:39:23.240698+00:00"
+      "measured_at": "2026-10-17T09:48:03.944376+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As String\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "String",
       "name": "call_details_variant_from_string",
-      "measured_at": "2026-10-17T09:39:23.431044+00:00"
+      "measured_at": "2026-10-17T09:48:04.123923+00:00"
     },
     {
       "source": "Function Alpha(ByRef value As Variant) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Variant\nOn Error GoTo Failed\nProbe=Alpha(value)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "Empty",
       "name": "call_details_variant_from_variant",
-      "measured_at": "2026-10-17T09:39:23.605153+00:00"
+      "measured_at": "2026-10-17T09:48:04.299140+00:00"
     },
     {
       "source": "Enum First\nA=0\nEnd Enum\nEnum Second\nB=0\nEnd Enum\nFunction Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As First\nProbe=Alpha(value)\nEnd Function",
       "result": "Long",
       "name": "call_details_long_from_first",
-      "measured_at": "2026-10-17T09:39:23.780579+00:00"
+      "measured_at": "2026-10-17T09:48:04.460396+00:00"
     },
     {
       "source": "Enum First\nA=0\nEnd Enum\nEnum Second\nB=0\nEnd Enum\nFunction Alpha(ByRef value As First) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Long\nProbe=Alpha(value)\nEnd Function",
       "result": "Long",
       "name": "call_details_first_from_long",
-      "measured_at": "2026-10-17T09:39:23.964010+00:00"
+      "measured_at": "2026-10-17T09:48:04.628808+00:00"
     },
     {
       "source": "Enum First\nA=0\nEnd Enum\nEnum Second\nB=0\nEnd Enum\nFunction Alpha(ByRef value As First) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As Second\nProbe=Alpha(value)\nEnd Function",
       "result": "Long",
       "name": "call_details_first_from_second",
-      "measured_at": "2026-10-17T09:39:24.132533+00:00"
+      "measured_at": "2026-10-17T09:48:04.795533+00:00"
     },
     {
       "source": "Enum First\nA=0\nEnd Enum\nEnum Second\nB=0\nEnd Enum\nFunction Alpha(ByRef value As First) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim value As First\nProbe=Alpha(value)\nEnd Function",
       "result": "Long",
       "name": "call_details_first_from_first",
-      "measured_at": "2026-10-17T09:39:24.304669+00:00"
+      "measured_at": "2026-10-17T09:48:04.957938+00:00"
     },
     {
       "source": "Function Alpha() As Long\nStatic calls As Long\ncalls=calls+1\nIf calls=1 Then\nAlpha=Alpha()\nElse\nAlpha=7\nEnd If\nEnd Function\nFunction Probe() As String\nProbe=CStr(Alpha())\nEnd Function",
       "result": "7",
       "name": "call_details_recursive_empty_parens",
-      "measured_at": "2026-10-17T09:39:24.486777+00:00"
+      "measured_at": "2026-10-17T09:48:05.114069+00:00"
     },
     {
       "source": "Function Alpha(ParamArray values() As Variant) As String\nAlpha=CStr(UBound(values))\nEnd Function\nFunction Probe() As String\nProbe=Alpha(values:=1)\nEnd Function",
       "compile_error": true,
       "name": "call_details_paramarray_named",
       "compiler_message": "Compile error:\n\nArgument in ParamArray may not be named",
-      "measured_at": "2026-10-17T09:39:24.926302+00:00"
+      "measured_at": "2026-10-17T09:48:05.590051+00:00"
     },
     {
       "source": "Function Alpha(ParamArray values() As Variant) As String\nAlpha=CStr(UBound(values))\nEnd Function\nFunction Probe() As String\nProbe=Alpha(1,,)\nEnd Function",
       "compile_error": true,
       "name": "call_details_paramarray_omitted",
       "compiler_message": "Compile error:\n\nSyntax error",
-      "measured_at": "2026-10-17T09:39:25.150539+00:00"
+      "measured_at": "2026-10-17T09:48:05.857167+00:00"
     },
     {
       "source": "Function Alpha(values() As Integer) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Alpha(values)\nEnd Function",
       "result": "Integer()",
       "name": "call_arrays_integer_array_from_integer_False",
-      "measured_at": "2026-10-17T09:39:25.336050+00:00"
+      "measured_at": "2026-10-17T09:48:06.026740+00:00"
     },
     {
       "source": "Function Alpha(values() As Integer) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Alpha(values())\nEnd Function",
       "result": "Integer()",
       "name": "call_arrays_integer_array_from_integer_True",
-      "measured_at": "2026-10-17T09:39:25.512898+00:00"
+      "measured_at": "2026-10-17T09:48:06.207798+00:00"
     },
     {
       "source": "Function Alpha(values() As Integer) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Long\nProbe=Alpha(values)\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_integer_array_from_long_False",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:25.952645+00:00"
+      "measured_at": "2026-10-17T09:48:06.633438+00:00"
     },
     {
       "source": "Function Alpha(values() As Integer) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Long\nProbe=Alpha(values())\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_integer_array_from_long_True",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:26.239301+00:00"
+      "measured_at": "2026-10-17T09:48:06.918580+00:00"
     },
     {
       "source": "Function Alpha(values() As Integer) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Variant\nProbe=Alpha(values)\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_integer_array_from_variant_False",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:26.496684+00:00"
+      "measured_at": "2026-10-17T09:48:07.143650+00:00"
     },
     {
       "source": "Function Alpha(values() As Integer) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Variant\nProbe=Alpha(values())\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_integer_array_from_variant_True",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:26.744553+00:00"
+      "measured_at": "2026-10-17T09:48:07.416137+00:00"
     },
     {
       "source": "Function Alpha(values() As Long) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Alpha(values)\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_long_array_from_integer_False",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:27.035913+00:00"
+      "measured_at": "2026-10-17T09:48:07.683378+00:00"
     },
     {
       "source": "Function Alpha(values() As Long) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Alpha(values())\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_long_array_from_integer_True",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:27.274252+00:00"
+      "measured_at": "2026-10-17T09:48:07.955090+00:00"
     },
     {
       "source": "Function Alpha(values() As Long) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Long\nProbe=Alpha(values)\nEnd Function",
       "result": "Long()",
       "name": "call_arrays_long_array_from_long_False",
-      "measured_at": "2026-10-17T09:39:27.451024+00:00"
+      "measured_at": "2026-10-17T09:48:08.119812+00:00"
     },
     {
       "source": "Function Alpha(values() As Long) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Long\nProbe=Alpha(values())\nEnd Function",
       "result": "Long()",
       "name": "call_arrays_long_array_from_long_True",
-      "measured_at": "2026-10-17T09:39:27.628650+00:00"
+      "measured_at": "2026-10-17T09:48:08.292902+00:00"
     },
     {
       "source": "Function Alpha(values() As Long) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Variant\nProbe=Alpha(values)\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_long_array_from_variant_False",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:28.070708+00:00"
+      "measured_at": "2026-10-17T09:48:08.764443+00:00"
     },
     {
       "source": "Function Alpha(values() As Long) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Variant\nProbe=Alpha(values())\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_long_array_from_variant_True",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:28.327044+00:00"
+      "measured_at": "2026-10-17T09:48:08.994157+00:00"
     },
     {
       "source": "Function Alpha(values() As Variant) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Alpha(values)\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_variant_array_from_integer_False",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:28.622261+00:00"
+      "measured_at": "2026-10-17T09:48:09.286254+00:00"
     },
     {
       "source": "Function Alpha(values() As Variant) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Alpha(values())\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_variant_array_from_integer_True",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:28.876329+00:00"
+      "measured_at": "2026-10-17T09:48:09.505593+00:00"
     },
     {
       "source": "Function Alpha(values() As Variant) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Long\nProbe=Alpha(values)\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_variant_array_from_long_False",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:29.122446+00:00"
+      "measured_at": "2026-10-17T09:48:09.782859+00:00"
     },
     {
       "source": "Function Alpha(values() As Variant) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Long\nProbe=Alpha(values())\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_variant_array_from_long_True",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:29.377490+00:00"
+      "measured_at": "2026-10-17T09:48:10.058686+00:00"
     },
     {
       "source": "Function Alpha(values() As Variant) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Variant\nProbe=Alpha(values)\nEnd Function",
       "result": "Variant()",
       "name": "call_arrays_variant_array_from_variant_False",
-      "measured_at": "2026-10-17T09:39:29.556764+00:00"
+      "measured_at": "2026-10-17T09:48:10.238188+00:00"
     },
     {
       "source": "Function Alpha(values() As Variant) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Variant\nProbe=Alpha(values())\nEnd Function",
       "result": "Variant()",
       "name": "call_arrays_variant_array_from_variant_True",
-      "measured_at": "2026-10-17T09:39:29.736602+00:00"
+      "measured_at": "2026-10-17T09:48:10.408234+00:00"
     },
     {
       "modules": [
@@ -1948,7 +1948,7 @@
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim obj As New Box\nProbe=Alpha(obj.value)\nEnd Function",
       "result": "Long",
       "name": "call_arrays_byref_field",
-      "measured_at": "2026-10-17T09:39:29.960967+00:00"
+      "measured_at": "2026-10-17T09:48:10.638843+00:00"
     },
     {
       "modules": [
@@ -1961,52 +1961,52 @@
       "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim obj As New Box\nProbe=Alpha(obj.value)\nEnd Function",
       "result": "Long",
       "name": "call_arrays_byref_property",
-      "measured_at": "2026-10-17T09:39:30.181857+00:00"
+      "measured_at": "2026-10-17T09:48:10.904442+00:00"
     },
     {
       "source": "Function Alpha() As Variant\nAlpha=Array(7)\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(0))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "7",
       "name": "call_arrays_return_variant_array",
-      "measured_at": "2026-10-17T09:39:30.364711+00:00"
+      "measured_at": "2026-10-17T09:48:11.076664+00:00"
     },
     {
       "source": "Function Alpha() As Variant\nAlpha=\"text\"\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(0))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!13",
       "name": "call_arrays_return_variant_string",
-      "measured_at": "2026-10-17T09:39:30.552339+00:00"
+      "measured_at": "2026-10-17T09:48:11.245285+00:00"
     },
     {
       "source": "Function Alpha() As Integer()\nDim values(0) As Integer\nvalues(0)=7\nAlpha=values\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(0))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "compile_error": true,
       "name": "call_arrays_return_integerarray_array",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:39:30.977390+00:00"
+      "measured_at": "2026-10-17T09:48:11.640869+00:00"
     },
     {
       "source": "Function Alpha() As Variant\nAlpha=7\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nProbe=CStr(Alpha(0))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!13",
       "name": "call_edge_cases_variant_number_result",
-      "measured_at": "2026-10-17T09:39:31.154760+00:00"
+      "measured_at": "2026-10-17T09:48:11.819905+00:00"
     },
     {
       "source": "Function Alpha(values() As Integer) As String\nAlpha=TypeName(values)\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Alpha((values))\nEnd Function",
       "compile_error": true,
       "name": "call_edge_cases_array_group",
       "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
-      "measured_at": "2026-10-17T09:39:31.499908+00:00"
+      "measured_at": "2026-10-17T09:48:12.155359+00:00"
     },
     {
       "source": "Function Values() As Integer()\nDim data(0) As Integer\nValues=data\nEnd Function\nFunction Alpha(data() As Integer) As String\nAlpha=TypeName(data)\nEnd Function\nFunction Probe() As String\nProbe=Alpha(Values())\nEnd Function",
       "result": "Integer()",
       "name": "call_edge_cases_array_function_argument",
-      "measured_at": "2026-10-17T09:39:31.684168+00:00"
+      "measured_at": "2026-10-17T09:48:12.327375+00:00"
     },
     {
       "source": "Type Box\nvalue As Integer\nEnd Type\nFunction Alpha(ByRef value As Long) As String\nAlpha=TypeName(value)\nEnd Function\nFunction Probe() As String\nDim obj As Box\nProbe=Alpha(obj.value)\nEnd Function",
       "compile_error": true,
       "name": "call_edge_cases_record_field_mismatch",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:32.025646+00:00"
+      "measured_at": "2026-10-17T09:48:12.707541+00:00"
     },
     {
       "modules": [
@@ -2020,7 +2020,7 @@
       "compile_error": true,
       "name": "call_edge_cases_module_field_mismatch",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:32.312763+00:00"
+      "measured_at": "2026-10-17T09:48:13.251009+00:00"
     },
     {
       "modules": [
@@ -2033,7 +2033,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nobj.Item(1)=7\nProbe=CStr(obj.Item(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "7",
       "name": "call_properties_setter_box_False",
-      "measured_at": "2026-10-17T09:39:32.554986+00:00"
+      "measured_at": "2026-10-17T09:48:13.485095+00:00"
     },
     {
       "modules": [
@@ -2046,7 +2046,7 @@
       "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nobj.Item(Index:=1)=7\nProbe=CStr(obj.Item(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "7",
       "name": "call_properties_setter_box_True",
-      "measured_at": "2026-10-17T09:39:32.792588+00:00"
+      "measured_at": "2026-10-17T09:48:13.727415+00:00"
     },
     {
       "modules": [
@@ -2059,7 +2059,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nobj.Item(1)=7\nProbe=CStr(obj.Item(1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "7",
       "name": "call_properties_setter_object_False",
-      "measured_at": "2026-10-17T09:39:33.021534+00:00"
+      "measured_at": "2026-10-17T09:48:13.960705+00:00"
     },
     {
       "modules": [
@@ -2072,7 +2072,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nobj.Item(Index:=1)=7\nProbe=CStr(obj.Item(Index:=1))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "7",
       "name": "call_properties_setter_object_True",
-      "measured_at": "2026-10-17T09:39:33.264212+00:00"
+      "measured_at": "2026-10-17T09:48:14.190919+00:00"
     },
     {
       "modules": [
@@ -2085,7 +2085,7 @@
       "source": "Function Probe() As String\nDim obj As New Box, value As Integer\nvalue=3\nobj.Value=value\nProbe=CStr(obj.Stored) & \":\" & CStr(value)\nEnd Function",
       "result": "3:3",
       "name": "call_properties_setter_byref_rhs",
-      "measured_at": "2026-10-17T09:39:33.545123+00:00"
+      "measured_at": "2026-10-17T09:48:14.426654+00:00"
     },
     {
       "modules": [
@@ -2099,7 +2099,7 @@
       "compile_error": true,
       "name": "call_properties_paramarray_named_box",
       "compiler_message": "Compile error:\n\nArgument in ParamArray may not be named",
-      "measured_at": "2026-10-17T09:39:33.882455+00:00"
+      "measured_at": "2026-10-17T09:48:14.826534+00:00"
     },
     {
       "modules": [
@@ -2112,7 +2112,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=obj.Alpha(values:=1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!446",
       "name": "call_properties_paramarray_named_object",
-      "measured_at": "2026-10-17T09:39:34.126541+00:00"
+      "measured_at": "2026-10-17T09:48:15.063916+00:00"
     },
     {
       "source": "Sub Alpha(value As Long)\nEnd Sub\nSub Unused()\nAlpha\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
@@ -2120,7 +2120,7 @@
       "compile_error": true,
       "name": "call_properties_demand_missing",
       "compiler_message": "Compile error:\n\nArgument not optional",
-      "measured_at": "2026-10-17T09:39:34.674658+00:00"
+      "measured_at": "2026-10-17T09:48:15.579303+00:00"
     },
     {
       "source": "Sub Alpha(value As Long)\nEnd Sub\nSub Unused()\nDim value As Integer\nAlpha value\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
@@ -2128,7 +2128,7 @@
       "compile_error": true,
       "name": "call_properties_demand_byref",
       "compiler_message": "Compile error:\n\nByRef argument type mismatch",
-      "measured_at": "2026-10-17T09:39:35.211484+00:00"
+      "measured_at": "2026-10-17T09:48:16.131681+00:00"
     },
     {
       "source": "Sub Alpha()\nEnd Sub\nSub Unused()\nAlpha 1\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
@@ -2136,7 +2136,7 @@
       "compile_error": true,
       "name": "call_properties_demand_too_many",
       "compiler_message": "Compile error:\n\nWrong number of arguments or invalid property assignment",
-      "measured_at": "2026-10-17T09:39:35.727074+00:00"
+      "measured_at": "2026-10-17T09:48:16.649191+00:00"
     },
     {
       "modules": [],
@@ -2144,7 +2144,7 @@
       "compile_error": true,
       "name": "call_more_paramarray_prefix_standard",
       "compiler_message": "Compile error:\n\nArgument in ParamArray may not be named",
-      "measured_at": "2026-10-17T09:39:36.006593+00:00"
+      "measured_at": "2026-10-17T09:48:16.944588+00:00"
     },
     {
       "modules": [
@@ -2158,7 +2158,7 @@
       "compile_error": true,
       "name": "call_more_paramarray_prefix_Box",
       "compiler_message": "Compile error:\n\nArgument in ParamArray may not be named",
-      "measured_at": "2026-10-17T09:39:36.544330+00:00"
+      "measured_at": "2026-10-17T09:48:17.443074+00:00"
     },
     {
       "modules": [
@@ -2171,7 +2171,7 @@
       "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=obj.Alpha(first:=1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
       "result": "!446",
       "name": "call_more_paramarray_prefix_Object",
-      "measured_at": "2026-10-17T09:39:36.759484+00:00"
+      "measured_at": "2026-10-17T09:48:17.685415+00:00"
     },
     {
       "modules": [
@@ -2184,8 +2184,38 @@
       "source": "Function Probe() As String\nDim obj As New Box\nProbe=CStr(obj.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Child.Value) & \"|\" & CStr(obj.calls)\nEnd Function",
       "result": "1|24",
       "name": "call_more_deep_chain",
-      "measured_at": "2026-10-17T09:39:36.991235+00:00"
+      "measured_at": "2026-10-17T09:48:17.956166+00:00"
+    },
+    {
+      "name": "constant_xlFormulas",
+      "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value) & \":\" & CStr(Len(CStr(value)))\nEnd Function\nFunction Probe() As String\nProbe=Alpha(xlFormulas)\nEnd Function",
+      "result": "Long:5",
+      "measured_at": "2026-10-17T09:48:18.130553+00:00"
+    },
+    {
+      "name": "constant_xlValues",
+      "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value) & \":\" & CStr(Len(CStr(value)))\nEnd Function\nFunction Probe() As String\nProbe=Alpha(xlValues)\nEnd Function",
+      "result": "Long:5",
+      "measured_at": "2026-10-17T09:48:18.307358+00:00"
+    },
+    {
+      "name": "constant_vbMonday",
+      "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value) & \":\" & CStr(Len(CStr(value)))\nEnd Function\nFunction Probe() As String\nProbe=Alpha(vbMonday)\nEnd Function",
+      "result": "Long:1",
+      "measured_at": "2026-10-17T09:48:18.491573+00:00"
+    },
+    {
+      "name": "constant_vbKeyA",
+      "source": "Function Alpha(ByRef value As Long) As String\nAlpha=TypeName(value) & \":\" & CStr(Len(CStr(value)))\nEnd Function\nFunction Probe() As String\nProbe=Alpha(vbKeyA)\nEnd Function",
+      "result": "Long:2",
+      "measured_at": "2026-10-17T09:48:18.676879+00:00"
+    },
+    {
+      "name": "constant_vbCrLf",
+      "source": "Function Alpha(ByRef value As String) As String\nAlpha=TypeName(value) & \":\" & CStr(Len(CStr(value)))\nEnd Function\nFunction Probe() As String\nProbe=Alpha(vbCrLf)\nEnd Function",
+      "result": "String:2",
+      "measured_at": "2026-10-17T09:48:18.844903+00:00"
     }
   ],
-  "measured_at": "2026-10-17T09:39:36.991257+00:00"
+  "measured_at": "2026-10-17T09:48:18.844924+00:00"
 }

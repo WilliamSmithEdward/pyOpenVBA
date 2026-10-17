@@ -50,7 +50,7 @@ controls, including early/late-bound members, ByRef calls, setters and literal
 CallByName names. Intrinsic typing is measured incrementally; full call-argument,
 constant-expression and host reference validation remain open.
 User-call argument compilation and returned-default-member calls now replay
-263 native controls, including primitive/array ByRef matrices, early/late
+268 native controls, including constants, primitive/array ByRef matrices, early/late
 binding, named setters, ParamArray, recursion and deferred unused errors.
 Memoized expression typing covers deep member chains. Host/library signature
 coverage and complete object/interface compatibility remain separate gaps.

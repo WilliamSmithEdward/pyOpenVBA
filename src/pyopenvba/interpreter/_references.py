@@ -22,6 +22,8 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
     cacheable = id(procedure) in module.programs
     if cacheable and module.reference_checks.get(id(procedure)) == scope:
         return
+    from pyopenvba.interpreter._runtime import UNRESOLVED, vba_constant
+
     body = list(nodes(procedure.body))
     program.late_bound_members.clear()
     local = {name: info for owner in interpreter.modules.values() if not owner.is_class and owner is not module
@@ -87,6 +89,12 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             called = owner.procedure(key)
             if not owner.is_class and called is not None and called.scope == 'public':
                 return called.returns, called.returns_array, owner
+        constant = interpreter.host.constant(key)
+        if constant is UNRESOLVED:
+            constant = vba_constant(key)
+        if constant is not UNRESOLVED:
+            constants[key] = type_name(constant), False, module
+            return constants[key]
         if declare and not module.parsed.option_explicit and runtime_for(key) is None:
             local[key] = default_type(name, module.parsed.default_types), False, module
             return local[key]

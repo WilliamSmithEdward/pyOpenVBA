@@ -12,7 +12,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
   compatibility and typed array arguments. Late-bound calls retain runtime
   errors. Parameterless functions can apply arguments to returned default
   members; empty-parenthesis recursion and named property indices also work.
-  A 263-case native matrix covers binding, coercion, ParamArray, deferred
+  A 268-case native matrix covers binding, coercion, ParamArray, constants, deferred
   unused routines and deep member chains; memoized type resolution bounds
   compilation work. Full host/library signatures and interface typing remain
   incremental.

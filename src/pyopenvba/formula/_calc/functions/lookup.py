@@ -259,7 +259,7 @@ def LOOKUP(context: Context, value: Scalar, lookup: Value, result: Value | None 
     return answers[position] if position < len(answers) else NA
 
 
-@function("INDEX", A, V, V, V, minimum=1, legacy_first=(1, 2, 3))
+@function("INDEX", A, V, V, V, minimum=1, legacy_first=(1, 2, 3), reference_result=True)
 def INDEX(
     context: Context, array: Value, row: Scalar | None = None, column: Scalar | None = None, area: Scalar | None = None
 ) -> Value:
@@ -283,7 +283,7 @@ def INDEX(
             return REF_ERROR
         top, bottom = (block.top, block.bottom) if down == 0 else (block.top + down - 1,) * 2
         left, right = (block.left, block.right) if across == 0 else (block.left + across - 1,) * 2
-        return Reference.of(Area(block.sheet, top, left, bottom, right))
+        return Reference((Area(block.sheet, top, left, bottom, right),), indirect=array.indirect)
     grid = matrix(context, array)
     if column is None and grid.height == 1:
         down, across = 1, down
@@ -298,7 +298,7 @@ def INDEX(
     return grid
 
 
-@function("OFFSET", REF, V, V, V, V, minimum=3)
+@function("OFFSET", REF, V, V, V, V, minimum=3, reference_result=True)
 def OFFSET(
     context: Context,
     reference: Reference,
@@ -326,7 +326,7 @@ def OFFSET(
         left = left + wide + 1
     if top < 1 or left < 1 or bottom > MAX_ROW or right > MAX_COLUMN:
         return REF_ERROR
-    return Reference.of(Area(area.sheet, top, left, bottom, right))
+    return Reference((Area(area.sheet, top, left, bottom, right),), indirect=reference.indirect)
 
 
 _R1C1 = re.compile(
@@ -365,7 +365,7 @@ def _r1c1(text: str, context: Context) -> Node | None:
     return parse(prefix + ":".join(corners))
 
 
-@function("INDIRECT", V, V, minimum=1, volatile=True)
+@function("INDIRECT", V, V, minimum=1, volatile=True, reference_result=True)
 def INDIRECT(context: Context, text: Scalar, a1: Scalar | None = None) -> Value:
     source = context.text(text).strip()
     style_a1 = a1 is None or isinstance(a1, Empty) or context.logical(a1)
@@ -376,7 +376,7 @@ def INDIRECT(context: Context, text: Scalar, a1: Scalar | None = None) -> Value:
     if not isinstance(node, (CellReference, AreaReference, AxisReference, NameReference)):
         return REF_ERROR
     found = context.evaluate(node)
-    return found if isinstance(found, Reference) else REF_ERROR
+    return Reference(found.areas, indirect=True) if isinstance(found, Reference) else REF_ERROR
 
 
 @function("ADDRESS", V, V, V, V, V, minimum=2)

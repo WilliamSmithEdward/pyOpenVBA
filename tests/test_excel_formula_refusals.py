@@ -28,9 +28,7 @@ SETUP: str = RECORD["setup"]
 FORMS = [(name, formula) for name, formulas in RECORD["forms"].items() for formula in formulas]
 
 #: Values the model does not show as Excel does, and why.
-VALUE_GAPS: dict[str, str] = {
-    "=GETPIVOTDATA(A1,A1,A1)": "GETPIVOTDATA is not implemented",
-}
+VALUE_GAPS: dict[str, str] = {}
 
 
 def _app(*, manual: bool) -> ExcelApplication:

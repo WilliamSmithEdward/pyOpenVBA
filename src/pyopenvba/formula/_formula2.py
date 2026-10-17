@@ -76,7 +76,7 @@ _ROLES: Final[dict[str, str]] = {
     "ERFC": "R", "ERFC.PRECISE": "R", "EXPAND": "AVVV", "F.TEST": "AA", "FACTDOUBLE": "R", "FILTER": "AAV",
     "FORECAST": "VAA", "FORECAST.ETS": "VAA", "FORECAST.ETS.CONFINT": "VAA", "FORECAST.ETS.SEASONALITY": "AA",
     "FORECAST.ETS.STAT": "AAV", "FORECAST.LINEAR": "VAA", "FORMULATEXT": "R", "FREQUENCY": "AA", "FTEST": "AA",
-    "FVSCHEDULE": "RR", "GCD": "RRR", "GEOMEAN": "RRR", "GESTEP": "RR", "GETPIVOTDATA": "RR", "GROUPBY": "AAA",
+    "FVSCHEDULE": "RR", "GCD": "RRR", "GEOMEAN": "RRR", "GESTEP": "RR", "GETPIVOTDATA": "RRVV", "GROUPBY": "AAA",
     "GROWTH": "AAA", "HARMEAN": "RRR", "HEX2BIN": "RR", "HEX2DEC": "R", "HEX2OCT": "RR", "HLOOKUP": "VRVV",
     "HSTACK": "AAA", "IF": "VRR", "IFERROR": "VR", "IFNA": "VR", "IFS": "VRVRVR", "IMABS": "R", "IMAGINARY": "R",
     "IMARGUMENT": "R", "IMCONJUGATE": "R", "IMCOS": "R", "IMCOSH": "R", "IMCOT": "R", "IMCSC": "R", "IMCSCH": "R",
@@ -144,6 +144,8 @@ class _Walk:
     body: str = ""
     merging: bool = False
     merged: set[int] = field(default_factory=lambda: set())
+    reference_handoff: int = 0
+    array_evaluation: bool = False
 
     def visit(self, node: Node | None, where: str) -> bool:
         """Mark where ``node`` takes an @ standing ``where``, and say whether it can give several values then."""
@@ -290,11 +292,38 @@ class _Walk:
         many: list[bool] = []
         handed = False
         for index, argument in enumerate(node.args):
+            if key == 'GETPIVOTDATA' and index == 0:
+                if isinstance(argument, NameNode):
+                    self.array_evaluation |= _value_array(argument, self.named)
+                source = FUNCTIONS.get(function_key(argument.name)) if isinstance(argument, Call) else None
+                if source is not None and source.reference_result:
+                    self.array_evaluation |= _value_array(argument, self.named)
+                    self.reference_handoff += 1
+                    try:
+                        many.append(self.visit(argument, WHOLE))
+                    finally:
+                        self.reference_handoff -= 1
+                    continue
+                if isinstance(argument, Call):
+                    self.reference_handoff += 1
+                    try:
+                        many.append(self.visit(argument, WHOLE if where == WHOLE else VALUE))
+                    finally:
+                        self.reference_handoff -= 1
+                    continue
             if chosen is not None and chosen(index):
                 handed = self.visit(argument, HANDED) or handed
                 many.append(False)
                 continue
             role = {"V": VALUE, "R": RANGE, "A": WHOLE}[_role(key, index)]
+            if key == 'GETPIVOTDATA' and index == 0 and isinstance(argument, (ArrayLiteral, Call)):
+                # References in the data-field position are rejected unchanged;
+                # literal value arrays are cut as scalars by legacy formulas.
+                role = VALUE
+            if key == 'GETPIVOTDATA' and index == 0 and where == WHOLE:
+                role = WHOLE
+            if self.reference_handoff:
+                role = WHOLE
             if where == WHOLE and role == VALUE and not _as_cell(entry, index):
                 # Worked out whole, a function runs over an array given where it takes one value, as ABS does
                 # inside SUMPRODUCT; only the places a legacy formula cuts even there take an @.
@@ -331,6 +360,54 @@ def _role(key: str, index: int) -> str:
     repeat = max(1, entry.repeat if entry is not None else 1)
     tail = roles[-repeat:]
     return tail[(index - len(roles)) % len(tail)]
+
+
+def _value_array(node: Node | None, named: Callable[[str], str | None] | None = None,
+                 seen: frozenset[str] = frozenset()) -> bool:
+    """Whether a reference-capable expression can hand on an array of values.
+
+    GETPIVOTDATA needs array evaluation for these even where Formula and
+    Formula2 have identical text. Raw reference results remain #REF!.
+    """
+    if isinstance(node, ArrayLiteral):
+        return True
+    if isinstance(node, NameNode) and named is not None:
+        key = node.name if not node.sheet else f'{node.sheet}!{node.name}'
+        if key.casefold() in seen:
+            return False
+        formula = named(key)
+        if formula is None:
+            return False
+        try:
+            return _value_array(parse(formula), named, seen | {key.casefold()})
+        except FormulaError:
+            return False
+    if isinstance(node, Call):
+        key = function_key(node.name)
+        if key == 'INDEX':
+            return bool(node.args and _value_array(node.args[0], named, seen) and
+                        any(not _whole_number(argument) for argument in node.args[1:3]))
+        if key == 'IF':
+            return any(_value_array(argument, named, seen) for argument in node.args)
+        if key == 'CHOOSE':
+            return any(_value_array(argument, named, seen) for argument in node.args)
+        return key in _ARRAYS and key not in ('INDIRECT', 'OFFSET')
+    if isinstance(node, Binary) and node.op not in (':', ' ', ','):
+        return _value_array(node.left, named, seen) or _value_array(node.right, named, seen) or any(
+            isinstance(side, Reference) and ':' in side.text for side in (node.left, node.right))
+    return False
+
+
+def array_evaluation(formula: str, named: Callable[[str], str | None]) -> bool:
+    """Array evaluation needed independently of implicit-intersection spelling."""
+    if 'GETPIVOTDATA' not in formula.upper():
+        return False
+    def inspect() -> bool:
+        tree, starts = parse_placed(formula)
+        walk = _Walk(starts, named)
+        walk.visit(tree, VALUE)
+        return walk.array_evaluation
+    return deep(inspect)
 
 
 def _as_cell(entry: object, index: int) -> bool:

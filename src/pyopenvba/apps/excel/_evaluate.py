@@ -71,6 +71,8 @@ class _FromNoCell(EngineBook):
     """The workbook as Evaluate reads it: from no cell, so a column named without its table has no table to be in,
     and Evaluate("[Qty]") is an error (tests/fixtures/structured_references/)."""
 
+    pivot_evaluate = True
+
     def table_at(self, sheet: str, row: int, column: int) -> TableShape | None:
         return None
 

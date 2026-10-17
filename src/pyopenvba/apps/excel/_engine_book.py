@@ -45,6 +45,7 @@ from pyopenvba.formula._values import BLANK, ExcelError
 from pyopenvba.interpreter._values import EMPTY as NOTHING_THERE, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._pivot_reports import PivotReport
     from pyopenvba.apps.excel._calc import Calculator
     from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.formula._calc.evaluator import Context
@@ -96,6 +97,8 @@ def model_value(value: Scalar) -> object:
 class EngineBook:
     """The Book protocol over a workbook's calculator."""
 
+    pivot_evaluate = False
+
     def __init__(self, calculator: Calculator) -> None:
         self.calculator = calculator
         self.book = calculator.book
@@ -122,6 +125,20 @@ class EngineBook:
 
     def sheet_order(self) -> list[str]:
         return [sheet.name for sheet in self.book.sheets_]
+
+    def pivot_reports(self, sheet: str) -> list[PivotReport]:
+        from pyopenvba.apps.excel._pivot_reports import read_report
+
+        formats = self.book.stylesheet.number_formats
+        reports: list[PivotReport] = []
+        for table in self._sheet(sheet).pivot_tables:
+            if not table.report_loaded:
+                table.report_metadata = read_report(table, lambda identifier: formats.get(identifier, 'General'),
+                                                    epoch_1904=self.epoch_1904)
+                table.report_loaded = True
+            if table.report_metadata is not None:
+                reports.append(table.report_metadata)
+        return reports
 
     def table_names(self) -> list[str]:
         """Every table of the workbook, which the file form of a formula spells its references to with []."""

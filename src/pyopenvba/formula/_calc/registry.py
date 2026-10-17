@@ -39,8 +39,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
-from pyopenvba.formula._calc.nodes import Missing, Node
-from pyopenvba.formula._calc.values import EMPTY, VALUE, Array, ExcelError, Reference, Scalar, Value
+from pyopenvba.formula._calc.nodes import Call, Missing, NameReference, Node, Paren
+from pyopenvba.formula._calc.values import EMPTY, REF as REF_ERROR, VALUE, Array, ExcelError, Reference, Scalar, Value
 
 if TYPE_CHECKING:
     from pyopenvba.formula._calc.evaluator import Context
@@ -84,6 +84,11 @@ class Function:
     legacy_cell: frozenset[int] = frozenset()
     legacy_corner: frozenset[int] = frozenset()
     legacy_as_cell: bool = False
+    #: Scalar positions that reject a reference with #REF! instead of reading
+    #: its cells. Native GETPIVOTDATA treats its data-field argument this way.
+    reject_references: frozenset[int] = frozenset()
+    #: Reference-capable functions hand their result on without value coercion.
+    reference_result: bool = False
 
     def kind(self, index: int) -> Kind:
         if index < len(self.kinds):
@@ -106,6 +111,8 @@ def function(
     legacy_cell: tuple[int, ...] = (),
     legacy_corner: tuple[int, ...] = (),
     legacy_as_cell: bool = False,
+    reject_references: tuple[int, ...] = (),
+    reference_result: bool = False,
 ) -> Callable[[Implementation], Implementation]:
     """Register an implementation under ``name``. With no ``minimum`` every
     declared argument is required; with no ``maximum`` no more are allowed.
@@ -124,6 +131,8 @@ def function(
             frozenset(legacy_cell),
             frozenset(legacy_corner),
             legacy_as_cell,
+            frozenset(reject_references),
+            reference_result,
         )
         return implementation
 
@@ -151,6 +160,15 @@ def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
             continue
         whole = kind is Kind.ARRAY and not (context.legacy and index in entry.legacy_cell)
         value = context.evaluate_array(node) if whole else context.evaluate(node)
+        if index in entry.reject_references and isinstance(value, Reference):
+            return REF_ERROR
+        if index in entry.reject_references and isinstance(value, Array) and not context.array:
+            expression = node
+            while isinstance(expression, Paren):
+                expression = expression.inner
+            source = FUNCTIONS.get(expression.function) if isinstance(expression, Call) else None
+            if isinstance(expression, NameReference) or (source is not None and source.reference_result):
+                return VALUE
         if kind is Kind.VALUE:
             if context.legacy and index in entry.legacy_corner and isinstance(value, Reference) \
                     and value.area is not None and not context.array:

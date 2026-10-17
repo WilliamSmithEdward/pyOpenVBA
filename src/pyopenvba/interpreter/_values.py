@@ -1580,6 +1580,21 @@ def compare(op: str, left: object, right: object, *, text_compare: bool = False,
     raise error(ERR_TYPE_MISMATCH, f"unknown comparison {op!r}")
 
 
+def utf16_text(text: str) -> str:
+    """One Python spelling for equivalent UTF-16 strings, retaining unpaired units."""
+    return text if text.isascii() else text.encode('utf-16-le', 'surrogatepass').decode('utf-16-le', 'surrogatepass')
+
+
+def string_order(first: str, second: str, *, text_compare: bool = False) -> int:
+    if text_compare:
+        first, second = utf16_text(first).upper(), utf16_text(second).upper()
+    if first.isascii() and second.isascii():
+        return (first > second) - (first < second)
+    left = first.encode('utf-16-be', 'surrogatepass')
+    right = second.encode('utf-16-be', 'surrogatepass')
+    return (left > right) - (left < right)
+
+
 def _order(left: object, right: object, *, text_compare: bool, kinds: tuple[str, str] | None = None) -> int:
     from pyopenvba.interpreter._objects import VBAObject
 
@@ -1588,8 +1603,7 @@ def _order(left: object, right: object, *, text_compare: bool, kinds: tuple[str,
     if isinstance(right, VBAObject):
         right = right.vba_value()
     if isinstance(left, str) and isinstance(right, str):
-        first, second = (left.upper(), right.upper()) if text_compare else (left, right)
-        return (first > second) - (first < second)
+        return string_order(left, right, text_compare=text_compare)
     if isinstance(left, str) != isinstance(right, str):
         # A number against a string reads the string as a number, so
         # 1 < "1" is False rather than True.  Measured against Excel;

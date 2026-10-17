@@ -95,6 +95,13 @@ would have got wrong:
 - `Len(n)` is 4 for a Long holding 12345 and 5 for a Variant holding the
   same number: `Len` is a size in bytes for anything that is not a
   String.
+- String `Len`/`LenB`, `Left`, `Right`, `Mid` and `AscW` use UTF-16 units,
+  including supplementary characters read from Excel. Native boundary controls
+  and text/formula save/recalculation gates are in
+  `tests/fixtures/cell_strings/controls.json`. Wider Unicode search, replacement,
+  assignment and collation behavior remains incomplete.
+  Binary string comparisons and binary `StrComp` use UTF-16 unit order,
+  including equivalence between a supplementary character and its surrogate pair.
 - A Double prints in full while its digits fit in 15 character
   positions and in exponent form otherwise, so `999999999999999` is
   written out and `1E+15` is not, and `0.000000000000001` is written out

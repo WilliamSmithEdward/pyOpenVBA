@@ -28,6 +28,7 @@ from pyopenvba._xml import escape_text as _escape_text
 from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
+from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _encode_string
 from pyopenvba.exceptions import PyOpenVBAError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
@@ -154,7 +155,7 @@ def _shared_strings(package: OpcFile) -> list[str]:
     if not package.has("xl/sharedStrings.xml"):
         return []
     text = package.read("xl/sharedStrings.xml").decode("utf-8", errors="replace")
-    return ["".join(_unescape(piece) for piece in _TEXT.findall(item)) for item in _SHARED_ITEM.findall(text)]
+    return ["".join(_cell_text(piece) for piece in _TEXT.findall(item)) for item in _SHARED_ITEM.findall(text)]
 
 
 @lru_cache(maxsize=1)
@@ -303,10 +304,14 @@ def _read_spills(sheet: Worksheet, dynamic: dict[tuple[int, int], Area], rich: d
             sheet.spills[(row, column)] = Spill(Area(row, column, row, column), blocked=True)
 
 
+def _cell_text(raw: str) -> str:
+    return _decode_string(_unescape(raw.replace('\r\n', '\n').replace('\r', '\n')))
+
+
 def _cell_value(cell_xml: str, kind: str, strings: list[str]) -> object:
     if kind == "inlineStr":
         inline = _INLINE.search(cell_xml)
-        return "".join(_unescape(piece) for piece in _TEXT.findall(inline.group(1))) if inline else ""
+        return "".join(_cell_text(piece) for piece in _TEXT.findall(inline.group(1))) if inline else ""
     raw = _VALUE.search(cell_xml)
     if raw is None or (raw.group(1) is None and kind != "str"):
         return EMPTY
@@ -317,7 +322,7 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str]) -> object:
         except (ValueError, IndexError):
             return ""
     if kind == "str":
-        return text
+        return _cell_text(raw.group(1) or "")
     if kind == "b":
         return text.strip() not in ("0", "")
     if kind == "e":
@@ -1872,13 +1877,12 @@ def _formula_xml(text: str, tables: Collection[str]) -> str:
     (pyopenvba.formula._prefixes), a line break as Excel writes one there, CR LF, and a carriage return on its own
     as _x000D_ (tests/fixtures/structured_references/)."""
     spelled = prefixes.in_file(in_file("=" + text, tables))
-    return _escape_text(spelled[1:]).replace("\r", "_x000D_").replace("\n", "\r\n")
+    return _escape_text(_encode_string(spelled[1:])).replace("\n", "\r\n")
 
 
 def _formula_read(body: str) -> str:
     """A formula a file spells between <f> tags, or in a defined name, as Range.Formula spells it."""
-    text = _unescape(body).replace("\r\n", "\n")
-    return prefixes.from_file(from_file("=" + re.sub(r"_x000[dD]_", "\r", text)))
+    return prefixes.from_file(from_file("=" + _cell_text(body)))
 
 
 def _formula_value(cell: Cell, *, keep_stale: bool = False) -> tuple[str, str]:
@@ -1893,12 +1897,12 @@ def _formula_value(cell: Cell, *, keep_stale: bool = False) -> tuple[str, str]:
     if isinstance(value, bool):
         return ' t="b"', f"<v>{1 if value else 0}</v>"
     if isinstance(value, str):
-        return ' t="str"', f"<v>{_escape_text(value)}</v>"
+        return ' t="str"', f"<v>{_escape_text(_encode_string(value))}</v>"
     if isinstance(value, VBADate):
         return "", f"<v>{_number_text(value.serial)}</v>"
     if isinstance(value, (int, float)):
         return "", f"<v>{_number_text(value)}</v>"
-    return ' t="str"', f"<v>{_escape_text(to_text(value))}</v>"
+    return ' t="str"', f"<v>{_escape_text(_encode_string(to_text(value)))}</v>"
 
 
 def _value_body(value: object) -> tuple[str, str]:
@@ -1921,7 +1925,7 @@ def _value_body(value: object) -> tuple[str, str]:
         return "", f"<v>{_number_text(value.serial)}</v>"
     if isinstance(value, (int, float)):
         return "", f"<v>{_number_text(value)}</v>"
-    return ' t="inlineStr"', f"<is><t xml:space=\"preserve\">{_escape(to_text(value))}</t></is>"
+    return ' t="inlineStr"', f"<is><t xml:space=\"preserve\">{_escape_text(_encode_string(to_text(value)))}</t></is>"
 
 
 def _number_text(value: float) -> str:

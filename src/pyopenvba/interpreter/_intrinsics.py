@@ -53,6 +53,7 @@ from pyopenvba.interpreter._values import (
     number_text,
     parse_date_text,
     round_half_even,
+    string_order,
     condition,
     decimal_of,
     to_bool,
@@ -524,7 +525,8 @@ def vba_len(interpreter: Interpreter, value: object) -> object:
         value = value.vba_value()
     if value is EMPTY:
         return VBAInt(0, "Long")
-    return VBAInt(len(to_text(value)), "Long")
+    body = to_text(value)
+    return VBAInt(len(body) if body.isascii() else len(_string_bytes(body)) // 2, "Long")
 
 
 def _string_bytes(value: object) -> bytes:
@@ -610,7 +612,8 @@ def vba_lenb(interpreter: Interpreter, value: object) -> object:
         return VBAInt(value.record_layout(binary=True)[0], 'Long')
     if value is NULL:
         return NULL
-    return VBAInt(len(to_text(value)) * 2, "Long")
+    body = to_text(value)
+    return VBAInt(len(body) * 2 if body.isascii() else len(_string_bytes(body)), "Long")
 
 
 @intrinsic("Left", "String", "Length", minimum=2)
@@ -620,7 +623,8 @@ def vba_left(interpreter: Interpreter, text: object, length: object) -> object:
     count = int(to_integer(length, "Long"))
     if count < 0:
         raise error(ERR_INVALID_PROCEDURE_CALL)
-    return to_text(text)[:count]
+    body = to_text(text)
+    return body[:count] if body.isascii() else _bytes_string(_string_bytes(body)[:count * 2])
 
 
 @intrinsic("Right", "String", "Length", minimum=2)
@@ -631,7 +635,10 @@ def vba_right(interpreter: Interpreter, text: object, length: object) -> object:
     if count < 0:
         raise error(ERR_INVALID_PROCEDURE_CALL)
     body = to_text(text)
-    return body[max(0, len(body) - count) :] if count else ""
+    if body.isascii():
+        return body[max(0, len(body) - count) :] if count else ""
+    data = _string_bytes(body)
+    return _bytes_string(data[max(0, len(data) - count * 2):]) if count else ""
 
 
 @intrinsic("Mid", "String", "Start", "Length", minimum=2)
@@ -643,11 +650,13 @@ def vba_mid(interpreter: Interpreter, text: object, start: object, length: objec
     if first < 1:
         raise error(ERR_INVALID_PROCEDURE_CALL)
     if length is MISSING:
-        return body[first - 1 :]
+        return body[first - 1:] if body.isascii() else _bytes_string(_string_bytes(body)[(first - 1) * 2:])
     count = int(to_integer(length, "Long"))
     if count < 0:
         raise error(ERR_INVALID_PROCEDURE_CALL)
-    return body[first - 1 : first - 1 + count]
+    if body.isascii():
+        return body[first - 1:first - 1 + count]
+    return _bytes_string(_string_bytes(body)[(first - 1) * 2:(first - 1 + count) * 2])
 
 
 @intrinsic("LTrim", "String", minimum=1)
@@ -788,6 +797,8 @@ def vba_ascw(interpreter: Interpreter, text: object) -> object:
         raise error(ERR_INVALID_PROCEDURE_CALL)
     # An Integer, so code points past 32767 come back negative: AscW(ChrW(&HFFFF)) is -1 (native probes).
     code = ord(body[0])
+    if code > 0xFFFF:
+        code = 0xD800 + ((code - 0x10000) >> 10)
     return VBAInt(code - 65536 if code > 32767 else code, "Integer")
 
 
@@ -873,11 +884,8 @@ def vba_text_mode(interpreter: Interpreter, compare: object) -> bool:
 def vba_strcomp(interpreter: Interpreter, first: object, second: object, compare: object) -> object:
     if first is NULL or second is NULL:
         return NULL
-    left = to_text(first)
-    right = to_text(second)
-    if vba_text_mode(interpreter, compare):
-        left, right = left.upper(), right.upper()
-    return VBAInt((left > right) - (left < right), "Integer")
+    return VBAInt(string_order(to_text(first), to_text(second),
+                              text_compare=vba_text_mode(interpreter, compare)), "Integer")
 
 
 @intrinsic("Replace", "Expression", "Find", "Replace", "Start", "Count", "Compare", minimum=3)

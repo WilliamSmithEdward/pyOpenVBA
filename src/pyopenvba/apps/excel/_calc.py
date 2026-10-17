@@ -8,16 +8,18 @@ writes somewhere. Evaluate, WorksheetFunction, a validation's formula, a
 control's link and the format a formula gives its cell go through the
 same engine.
 
-Calculation is on demand.  Reading a stale cell computes it, and
-computing it computes whatever it reads, so nothing is ordered up front
-and a formula that reaches through INDIRECT is no harder than one that
-does not. Manual mode keeps cached values until explicit calculation,
-except that entering a UDF formula obtains its initial value immediately.
+Calculation retains learned dependency order and resolves new references
+on demand, including INDIRECT. Manual mode keeps caches after input edits;
+explicit formula assignments obtain initial values. Pending UDF references
+can defer a provisional call until the remaining scheduled cells are ready.
 """
 
 from __future__ import annotations
 
 import datetime as _dt
+from collections import deque
+from collections.abc import Generator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -54,6 +56,10 @@ class _Deeper(BaseException):
         self.column = column
 
 
+class _UDFWaiting(_Deeper):
+    """A provisional UDF call ran before its pending UDF precedent was ready."""
+
+
 @dataclass(slots=True)
 class Compiled:
     """One cell's formula, parsed once; no node for one the parser cannot read, which keeps the value it has."""
@@ -67,7 +73,7 @@ class Compiled:
     udf_volatile: bool = False
     #: New UDF formulas get their initial value immediately, then join the next calculation.
     udf_pending: bool = False
-    udf_initial: bool = True
+    visibility_sensitive: bool = False
     #: Why the parser could not read the formula.
     unread: str = ""
     #: A dynamic-array formula, worked out whole and spilled (see _spills).
@@ -85,6 +91,8 @@ class Calculator:
         #: The formulas that call a function Excel does not have, which are worked out as they are written.
         self._user_calls: set[CellKey] = set()
         self._volatile_udfs: set[CellKey] = set()
+        self._volatile_formulas: set[CellKey] = set()
+        self._visibility_formulas: set[CellKey] = set()
         #: Which formulas read each cell a formula names on its own, and the blocks of cells each other formula reads,
         #: so that a change finds what reads it without going through every formula.
         self._readers: dict[CellKey, set[CellKey]] = {}
@@ -97,6 +105,15 @@ class Calculator:
         self._working: set[CellKey] = set()
         self._depth = 0
         self._calculation_depth = 0
+        self._entries: set[CellKey] = set()
+        self._active_formulas: list[CellKey] = []
+        self._udf_waiting: dict[CellKey, CellKey] = {}
+        self._calculation_order: dict[CellKey, None] = {}
+        self._full_calculation_depth = 0
+        self._udf_depth = 0
+        self._provisional_disabled = 0
+        self._provisional_errors: list[bool] = []
+        self._cached_inputs: set[CellKey] = set()
         #: The cells put off until a cell too deep to work out inside them is worked out.
         self._waiting: set[CellKey] = set()
 
@@ -175,7 +192,8 @@ class Calculator:
         precedents = self.engine_book.precedents(node, sheet, row, column)
         user = calls_user(node)
         return Compiled(node=node, precedents=precedents, volatile=volatile(node), calls_user=user,
-                        udf_pending=user and not self.automatic)
+                        udf_pending=user and not self.automatic,
+                        visibility_sensitive=self.engine_book.visibility_sensitive(node, sheet))
 
     def forget(self, sheet: str, row: int, column: int) -> None:
         """A cell is gone: forget its formula, and take back what it spilled."""
@@ -187,6 +205,10 @@ class Calculator:
         old = self.compiled.pop(key, None)
         self._user_calls.discard(key)
         self._volatile_udfs.discard(key)
+        self._volatile_formulas.discard(key)
+        self._visibility_formulas.discard(key)
+        self._entries.discard(key)
+        self._calculation_order.pop(key, None)
         if old is not None:
             for area in old.precedents:
                 readers = self._readers.get((area.sheet.lower(), area.top, area.left))
@@ -196,6 +218,10 @@ class Calculator:
         if compiled is None:
             return
         self.compiled[key] = compiled
+        if compiled.volatile:
+            self._volatile_formulas.add(key)
+        if compiled.visibility_sensitive:
+            self._visibility_formulas.add(key)
         if compiled.calls_user:
             self._user_calls.add(key)
         blocks: list[Area] = []
@@ -214,7 +240,7 @@ class Calculator:
                      if any(area.sheet.lower() == name and area.contains(row, column) for area in blocks))
         return found
 
-    def rebuild(self) -> None:
+    def rebuild(self, *, keep_pending: bool = False) -> None:
         """Forget every parsed formula and mark them all for another look.
 
         Deleting a row moves what every formula was pointing at, and
@@ -223,12 +249,19 @@ class Calculator:
         """
         from pyopenvba.apps.excel._spills import reconcile
 
+        pending = {key: compiled.udf_pending for key, compiled in self.compiled.items()} if keep_pending else {}
+        order = self._calculation_order.copy() if keep_pending else {}
+
         for owner in self.book.sheets_:
             if owner.spills or any(cell.spilled_from is not None for cell in owner.cells_.values()):
                 reconcile(owner)
         self.compiled.clear()
         self._user_calls.clear()
         self._volatile_udfs.clear()
+        self._volatile_formulas.clear()
+        self._visibility_formulas.clear()
+        self._entries.clear()
+        self._calculation_order.clear()
         self._readers.clear()
         self._blocks.clear()
         self.circular.clear()
@@ -237,6 +270,11 @@ class Calculator:
             for cell in sheet.cells_.values():
                 if cell.formula:
                     cell.stale = True
+        if keep_pending:
+            self.build()
+            for key, compiled in self.compiled.items():
+                compiled.udf_pending = pending.get(key, False)
+            self._calculation_order.update((key, None) for key in order if key in self.compiled)
 
     def wrote(self, sheet: str, row: int, column: int) -> None:
         """A cell changed: mark whatever reads it as needing another look, and a dynamic-array formula whose answer
@@ -331,7 +369,8 @@ class Calculator:
         return self.book.application.calculation != -4135  # xlCalculationManual
 
     def calculate_all(self, only: Worksheet | None = None, *, volatile: bool = True,
-                      settled: set[CellKey] | None = None, udf_volatile: bool | None = None) -> list[Worksheet]:
+                      settled: set[CellKey] | None = None, udf_volatile: bool | None = None,
+                      full: bool = False, background: bool = False) -> list[Worksheet]:
         """Work out stale and volatile formulas, even in manual mode; report sheets actually calculated.
 
         only limits the work to one sheet, as Worksheet.Calculate does;
@@ -344,7 +383,8 @@ class Calculator:
         for key, compiled in self.compiled.items():
             if only is not None and key[0] != only.name.lower():
                 continue
-            if (compiled.udf_pending or (volatile_users and compiled.udf_volatile)) and key not in (settled or ()):
+            if (full or compiled.udf_pending or (volatile and compiled.volatile)
+                    or (volatile_users and compiled.udf_volatile)) and key not in (settled or ()):
                 cell = self._cell(key)
                 if cell is not None:
                     cell.stale = True
@@ -352,26 +392,66 @@ class Calculator:
         self._spoil(roots, set(roots))
         worked: list[Worksheet] = []
         self._calculation_depth += 1
+        self._full_calculation_depth += int(full)
+        self._provisional_errors.append(False)
         try:
             for sheet in self.book.sheets_ if only is None else [only]:
                 did = False
                 # Excel's newly entered independent UDFs calculate in reverse entry order.
-                for (row, column), cell in reversed(list(sheet.cells_.items())):
-                    if not cell.formula:
+                name = sheet.name.lower()
+                new = [(row, column) for (row, column), cell in reversed(list(sheet.cells_.items()))
+                       if cell.formula and (name, row, column) not in self._calculation_order]
+                known = [(row, column) for owner, row, column in self._calculation_order if owner == name]
+                queue = deque(new + known)
+                deferred: set[tuple[int, int]] = set()
+                while queue:
+                    row, column = queue.popleft()
+                    cell = sheet.cells_.get((row, column))
+                    if cell is None or not cell.formula:
                         continue
-                    compiled = self.compiled.get((sheet.name.lower(), row, column))
-                    if cell.stale or (volatile and compiled is not None and compiled.volatile):
-                        self.value_of(sheet.name, row, column, force=True)
+                    if cell.stale:
+                        try:
+                            self.value_of(sheet.name, row, column, force=True)
+                        except _UDFWaiting:
+                            if (row, column) not in deferred:
+                                deferred.add((row, column))
+                                queue.append((row, column))
+                                continue
+                            # No progress through a deferred cycle: use the
+                            # ordinary reference path and circular detection.
+                            self._provisional_disabled += 1
+                            try:
+                                self.value_of(sheet.name, row, column, force=True)
+                            finally:
+                                self._provisional_disabled -= 1
+                        except VBAUnsupportedError:
+                            compiled = self.compiled.get((name, row, column))
+                            if not background or (compiled is not None and self._user_unsupported(compiled)):
+                                raise
+                            continue
+                        deferred.clear()
                         did = True
                 if did:
                     worked.append(sheet)
         finally:
             self._calculation_depth -= 1
+            self._full_calculation_depth -= int(full)
+            if self._provisional_errors.pop():
+                interpreter = self.book.application.interpreter
+                if interpreter is not None:
+                    interpreter.err.number = 40040
+                    interpreter.err.description = 'Application-defined or object-defined error'
+                if self._provisional_errors:
+                    self._provisional_errors[-1] = True
         return worked
 
     @property
     def has_volatile_udfs(self) -> bool:
         return bool(self._volatile_udfs)
+
+    @property
+    def has_volatile_formulas(self) -> bool:
+        return bool(self._volatile_formulas or self._volatile_udfs)
 
     @property
     def has_pending_udfs(self) -> bool:
@@ -393,28 +473,73 @@ class Calculator:
             else:
                 self._volatile_udfs.discard(key)
 
-    def settle_user_calls(self) -> set[CellKey]:
-        """Work out the waiting formulas that call a VBA Function now, as Excel works one out when it is written:
-        the function runs then, and what it leaves in Err the macro sees (native probes)."""
+    def settle_entries(self) -> set[CellKey]:
+        """Give explicit formula assignments their initial result, including in manual mode.
+
+        Copied caches are not entries. Existing stale UDFs also settle here in
+        automatic mode, before the edit's events are dispatched.
+        """
         worked: set[CellKey] = set()
-        for name, row, column in sorted(self._user_calls):
+        entries, self._entries = self._entries, set()
+        candidates = self._user_calls | entries if self.automatic else entries
+        for name, row, column in sorted(candidates):
             cell = self._cell((name, row, column))
             owner = self._sheet_named(name)
             compiled = self.compiled.get((name, row, column))
             if cell is not None and cell.stale and owner is not None and compiled is not None \
-                    and (self.automatic or compiled.udf_initial):
-                if not self.automatic:
-                    from pyopenvba.apps.excel._udf import has_user_function
-
-                    if not has_user_function(self.book, compiled.node):
-                        continue
-                self.value_of(owner.name, row, column, force=True)
+                    and (self.automatic or (name, row, column) in entries) \
+                    and (compiled.calls_user or not self.automatic):
+                try:
+                    self.value_of(owner.name, row, column, force=True)
+                except VBAUnsupportedError:
+                    if self._user_unsupported(compiled):
+                        raise
+                    # Preserve valid formula text the engine cannot yet evaluate.
+                    continue
                 worked.add((name, row, column))
         return worked
 
+    def _user_unsupported(self, compiled: Compiled) -> bool:
+        if not compiled.calls_user:
+            return False
+        from pyopenvba.apps.excel._udf import has_user_function
+
+        return has_user_function(self.book, compiled.node)
+
+    def entered(self, sheet: str, row: int, column: int) -> None:
+        """An explicit formula assignment needs its initial result even in manual mode."""
+        self._entries.add((sheet.lower(), row, column))
+
+    @contextmanager
+    def user_call(self) -> Generator[None, None, None]:
+        self._udf_depth += 1
+        try:
+            yield
+        finally:
+            self._udf_depth -= 1
+
+    def after_udf(self, *, error: bool = False) -> None:
+        if self._active_formulas:
+            pending = self._udf_waiting.pop(self._active_formulas[-1], None)
+            if pending is not None:
+                if error and self._provisional_errors:
+                    self._provisional_errors[-1] = True
+                raise _UDFWaiting(*pending)
+
+    def invalidate_visibility(self) -> None:
+        """Row visibility is an input to subtotal formulas even when no cell value changed."""
+        self.build()
+        roots = self._visibility_formulas.copy()
+        for key in self._visibility_formulas:
+            cell = self._cell(key)
+            if cell is not None:
+                cell.stale = True
+                roots.update(self._members(key))
+        self._spoil(roots, set(roots))
+
     def recalculated(self, *, settled: set[CellKey] | None = None) -> list[Worksheet]:
         """Calculate after an edit, unless the application is in manual mode."""
-        return self.calculate_all(settled=settled) if self.automatic else []
+        return self.calculate_all(settled=settled, background=True) if self.automatic else []
 
     def value_of(self, sheet: str, row: int, column: int, *, force: bool = False) -> object:
         """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array.
@@ -433,6 +558,8 @@ class Calculator:
             while True:
                 try:
                     value = self._value(*wanted[-1])
+                except _UDFWaiting:
+                    raise
                 except _Deeper as deeper:
                     top = wanted[-1]
                     waiting.append((top[0].lower(), top[1], top[2]))
@@ -469,9 +596,20 @@ class Calculator:
         if compiled is None:
             self.remember(sheet, row, column, cell)
             compiled = self.compiled[key]
-        if not (cell.stale or compiled.volatile or force):
+        if self._calculation_depth and self._udf_depth and not self._provisional_disabled \
+                and self._active_formulas and cell.stale and compiled.calls_user \
+                and (compiled.udf_pending or self._full_calculation_depth) \
+                and key not in self._working and key not in self._waiting:
+            caller = self._active_formulas[-1]
+            calling = self.compiled[caller]
+            if calling.calls_user and (calling.udf_pending or self._full_calculation_depth):
+                self._udf_waiting[caller] = key
+                return EMPTY
+        if not (cell.stale or force):
             return cell.value
         if not self.automatic and not force and not self._calculation_depth:
+            if self._active_formulas:
+                self._cached_inputs.add(self._active_formulas[-1])
             return cell.value
         if key in self._working or key in self._waiting:
             self.circular.add(key)
@@ -480,16 +618,23 @@ class Calculator:
             raise _Deeper(sheet, row, column)
         self._working.add(key)
         self._depth += 1
+        self._active_formulas.append(key)
+        self._cached_inputs.discard(key)
+        cached = False
         try:
             value = self._computed(compiled, sheet, row, column)
         finally:
+            cached = key in self._cached_inputs
+            self._cached_inputs.discard(key)
             self._depth -= 1
             self._working.discard(key)
+            self._active_formulas.pop()
+            self._udf_waiting.pop(key, None)
         cell.value = value
-        cell.stale = False
-        compiled.udf_initial = False
+        cell.stale = cached
         if self._calculation_depth:
             compiled.udf_pending = False
+            self._calculation_order.setdefault(key, None)
         from pyopenvba.apps.excel._controls import cell_changed
 
         owner = next(one for one in self.book.sheets_ if one.name.lower() == sheet.lower())

@@ -250,6 +250,17 @@ class EngineBook:
                     found.append(ModelArea(table.top, table.left, table.bottom, table.right, table.sheet))
         return found
 
+    def visibility_sensitive(self, node: Node, sheet: str, names: frozenset[str] = frozenset()) -> bool:
+        """SUBTOTAL and AGGREGATE also depend on row visibility, including through defined names."""
+        for one in walk(node):
+            if isinstance(one, Call) and one.function in _SUBTOTALS:
+                return True
+            if isinstance(one, NameReference) and one.name.casefold() not in names:
+                formula = self._name_formula(one, sheet)
+                if formula is not None and self.visibility_sensitive(formula, sheet, names | {one.name.casefold()}):
+                    return True
+        return False
+
     def _name_formula(self, node: NameReference, sheet: str) -> Node | None:
         """The formula of the defined name a name in a formula stands for, found as the engine finds it: the
         sheet's own name first, then the workbook's."""

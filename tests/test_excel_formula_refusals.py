@@ -52,7 +52,7 @@ def _app(*, manual: bool) -> ExcelApplication:
 
 @pytest.fixture(scope="module")
 def manual() -> ExcelApplication:
-    """A workbook in manual calculation, as the measurement wrote its formulas, so none is worked out."""
+    """Manual mode: explicit entries obtain initial caches; later input edits await calculation."""
     return _app(manual=True)
 
 

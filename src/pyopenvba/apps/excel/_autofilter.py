@@ -683,6 +683,7 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
         raise VBAUnsupportedError("AutoFilter's SubField is not implemented")
     hidden_button = visible_dropdown is not MISSING and not to_bool(visible_dropdown)
     existing = sheet.auto_filter
+    filtered = existing is not None and bool(existing.fields)
     if field_argument is MISSING:
         if hidden_button:
             raise VBAUnsupportedError("hiding every drop-down of a filter is not implemented")
@@ -692,6 +693,10 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
         else:
             _new_filter(sheet, _filter_area(target))
         _changed(sheet)
+        if existing is not None and filtered:
+            from pyopenvba.apps.excel import _events
+
+            _events.visibility_changed(sheet.book)
         return True
     asked = _filter_area(target) if existing is None else existing.area
     # Filtering takes in the rows of data grown on below the range.
@@ -716,6 +721,9 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
         existing.fields[index] = made
     existing.apply(sheet)
     _changed(sheet)
+    from pyopenvba.apps.excel import _events
+
+    _events.visibility_changed(sheet.book)
     if operator is not MISSING and int(to_integer(operator, "Long")) == VALUES:
         return float(index)
     return True
@@ -729,6 +737,9 @@ def show_all_data(sheet: Worksheet) -> None:
     found.fields.clear()
     found.show_all(sheet)
     _changed(sheet)
+    from pyopenvba.apps.excel import _events
+
+    _events.visibility_changed(sheet.book)
 
 
 def set_mode(sheet: Worksheet, value: object) -> None:
@@ -736,9 +747,14 @@ def set_mode(sheet: Worksheet, value: object) -> None:
     if to_bool(value):
         raise VBAUnsupportedError("setting AutoFilterMode to True is not implemented")
     if sheet.auto_filter is not None:
+        filtered = bool(sheet.auto_filter.fields)
         sheet.auto_filter.show_all(sheet)
         sheet.auto_filter = None
         _changed(sheet)
+        if filtered:
+            from pyopenvba.apps.excel import _events
+
+            _events.visibility_changed(sheet.book)
 
 
 # --- reading the file ----------------------------------------------------------------------------------------
@@ -903,6 +919,9 @@ class AutoFilter(ExcelObject):
             found.area = area
             _changed(self.sheet)
         found.apply(self.sheet)
+        from pyopenvba.apps.excel import _events
+
+        _events.visibility_changed(self.sheet.book)
         return EMPTY
 
     @method

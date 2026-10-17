@@ -178,6 +178,9 @@ class Application(ExcelObject):
 
     vba_type_name = "Application"
 
+    def vba_information_value(self) -> object:
+        return self.Name()
+
     def __init__(self) -> None:
         self.workbooks_ = Workbooks(self)
         self.screen_updating = True
@@ -467,6 +470,21 @@ class Application(ExcelObject):
     def Calculate(self) -> object:
         for book in self.workbooks_.books:
             worked = book.calculator.calculate_all()
+            _events.calculated_all(book, worked)
+        return EMPTY
+
+    @method
+    def CalculateFull(self) -> object:
+        for book in self.workbooks_.books:
+            worked = book.calculator.calculate_all(full=True)
+            _events.calculated_all(book, worked)
+        return EMPTY
+
+    @method
+    def CalculateFullRebuild(self) -> object:
+        for book in self.workbooks_.books:
+            book.calculator.rebuild(keep_pending=True)
+            worked = book.calculator.calculate_all(full=True)
             _events.calculated_all(book, worked)
         return EMPTY
 
@@ -1721,6 +1739,16 @@ class Range(ExcelObject):
 
     vba_type_name = "Range"
 
+    def vba_information_value(self) -> object:
+        if self.sheet not in self.sheet.book.sheets_ or self.sheet.book not in self.sheet.book.application.workbooks_.books:
+            return self
+        try:
+            return self.vba_get("Value")
+        except VBARuntimeError:
+            # Native information functions retain object identity when a
+            # deleted range can no longer supply its default value.
+            return self
+
     def __init__(self, sheet: Worksheet, areas: list[Area], *, whole: str = "") -> None:
         self.sheet = sheet
         self.areas = areas or [Area(1, 1, 1, 1, sheet.name)]
@@ -2370,7 +2398,10 @@ class Range(ExcelObject):
         worked = False
         for row, column in self.cell_positions():
             if self.sheet.cells_[(row, column)].formula:
-                calculator.value_of(self.sheet.name, row, column, force=True)
+                compiled = calculator.compiled.get((self.sheet.name.lower(), row, column))
+                force = not calculator.automatic or compiled is None or not compiled.calls_user \
+                    or compiled.volatile or compiled.udf_volatile or compiled.udf_pending
+                calculator.value_of(self.sheet.name, row, column, force=force)
                 worked = True
         if worked:
             # Range("A1").Calculate on a formula raises the sheet's Calculate (native probe).
@@ -2649,7 +2680,9 @@ class Range(ExcelObject):
 
     @setter("RowHeight")
     def _set_row_height(self, value: object) -> None:
+        before = _dimensions.visibility_state(self)
         _dimensions.write_row_height(self, value)
+        _dimensions.recalculate_visibility(self, before)
 
     @member
     def Width(self) -> object:
@@ -2673,7 +2706,9 @@ class Range(ExcelObject):
 
     @setter("Hidden")
     def _set_hidden(self, value: object) -> None:
+        before = _dimensions.visibility_state(self)
         _dimensions.write_hidden(self, value)
+        _dimensions.recalculate_visibility(self, before)
 
     @member
     def UseStandardHeight(self) -> object:
@@ -2681,7 +2716,9 @@ class Range(ExcelObject):
 
     @setter("UseStandardHeight")
     def _set_use_standard_height(self, value: object) -> None:
+        before = _dimensions.visibility_state(self)
         _dimensions.write_use_standard_height(self, value)
+        _dimensions.recalculate_visibility(self, before)
 
     @member
     def UseStandardWidth(self) -> object:
@@ -3449,6 +3486,7 @@ class Range(ExcelObject):
             except VBARuntimeError:
                 return False
             self._put_formula(row, column, formula)
+            self.sheet.book.calculator.settle_entries()
         else:
             self._store(row, column, replaced(text, self.sheet.style_at(row, column).number_format,
                                               prefixed=prefixed))
@@ -3623,6 +3661,7 @@ class Range(ExcelObject):
         cell.dynamic = dynamic
         cell.spilled_from = None
         self.sheet.cell_changed(row, column)
+        self.sheet.book.calculator.entered(self.sheet.name, row, column)
         return True
 
     def _share(self, placed: list[tuple[int, int]], formula: str) -> None:

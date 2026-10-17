@@ -1101,9 +1101,9 @@ follows the sheet's content.
 **Formulas are calculated.** A cell's formula is worked out by
 `pyopenvba.formula._calc`, pyOfficeEditor's formula engine taken into
 the library; the workbook keeps track of which cells are stale and what
-feeds what.  Calculation is on demand: reading a stale cell works it out, and
-working it out works out whatever it reads, so nothing is ordered up
-front and INDIRECT is no harder than a plain reference.  A cell more than
+feeds what. Calculation retains the order learned from prior passes and
+resolves newly encountered dependencies on demand, including INDIRECT.
+Reading a stale cell in automatic mode works it out. A cell more than
 24 cells down is put off, worked out on its own and the cell that wanted
 it tried again, so a running total thousands of rows long comes out as
 in Excel without running Python out of stack; a formula whose tree is
@@ -1111,11 +1111,45 @@ deeper than Python's stack, as the deepest Excel takes are, is read,
 spelled and worked out again on a thread with room enough
 (`pyopenvba.formula._deep`).  Writing a cell
 spoils whatever reads it, found through an index of which formulas read
-each cell, a volatile function is recomputed every time,
-a formula written to a block or copied has its relative references
+each cell. Volatile formulas and their dependents recalculate once per
+calculation pass; repeated reads use their cached results.
+A formula written to a block or copied has its relative references
 moved, a circular reference leaves a zero and is recorded, and manual
-calculation mode keeps the old value until something calls Calculate,
-which is what Excel shows until F9.
+calculation mode keeps the old value after input edits until something
+calls Calculate. Explicit Formula, Formula2 and Value formula assignments
+receive their initial result even in manual mode; copied caches remain
+cached. An initial result remains dirty when it read dirty cached inputs,
+so subsequent calculation refreshes the dependent too. Bulk entry computes against the caches available during entry,
+including formulas later in the assigned block.
+
+`Application.CalculateFull` calculates every formula in each open workbook;
+`CalculateFullRebuild` also rebuilds parsed formulas and dependency indexes
+without restarting already settled UDFs as fresh entries. Pending UDF
+precedents can produce a provisional call with Empty (zero in numeric
+arguments), followed by dependency calculation and retry. A provisional
+runtime error does not poison the eventual result; the macro retains error
+40040. Excel Range information intrinsics inspect its Value, including
+IsEmpty and VarType, while TypeName retains the object's identity.
+`tests/fixtures/full_calculation.json` records 404
+native cases, including manual entry, Replace, clean automatic range
+calculation, full/rebuild passes, learned order and visibility invalidation, plus six native XLSM
+files and native readback of model-written files with changed inputs.
+Stateful traces preserve only the alternative results actually measured.
+Repeated groups ran five times per session across three fresh Excel sessions
+each, totaling 390 additional observations. Excel
+can revise its calculation chain; independent stateful UDF execution order
+is not a fixed contract (see [Microsoft's calculation documentation](https://learn.microsoft.com/en-us/office/client-developer/excel/excel-recalculation)).
+Broader graph scheduling, cross-workbook dependencies, iterative calculation
+and complex UDF/error interactions remain incomplete.
+
+Changing row visibility, including through RowHeight or UseStandardHeight,
+invalidates SUBTOTAL, AGGREGATE and their dependents. Nested defined names
+retain this sensitivity. Filter application, reapplication and removal also
+refresh those formulas. Automatic mode calculates immediately; manual mode
+keeps the previous values until calculation. Hiding columns, changing only a
+row's nonzero height, setting an unchanged Hidden value and adding unused
+filter buttons do not trigger a calculation. These distinctions and all
+eight AGGREGATE options are measured with UDF call counters.
 
 A dynamic-array formula, one `Formula2` writes whose legacy reading would
 cut cells to one value, is worked out whole and spills (`_spills`): the

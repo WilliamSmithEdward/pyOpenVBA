@@ -33,24 +33,22 @@ def save_native_files(excel: ExcelSession, record: dict) -> None:
         case = next(case for case in record['probes'] if case['name'] == name)
         source = case['macro'] + '\n' + READ_SAVED
         excel.new_document()
-        for index, step in enumerate(case['steps']):
-            result = (excel.run_vba(source, step['entry'], module_name='Harness', line_numbers=False)
-                      if index == 0 else excel.run_macro('Harness.' + step['entry']))
-            assert result.ok and not result.dialogs and result.value == step['result'], result
+        excel.add_module('Harness', source, line_numbers=False)
+        for step in case['steps']:
+            result = excel.run_raw('Harness.' + step['entry'])
+            assert not excel.events[-1].get('dialogs') and result == step['result'], result
         path = folder / (name + '.xlsm')
         save = ('Sub SaveFixture()\nApplication.DisplayAlerts = False\nApplication.CalculateBeforeSave = False\n'
                 'ActiveWorkbook.SaveAs "' + str(path).replace('"', '""') + '", 52\nEnd Sub')
         result = excel.run_vba(save, 'SaveFixture')
         assert result.ok and not result.dialogs, result
         excel.open_document(path)
-        read = excel.run_macro('Harness.ReadSaved')
-        assert read.ok and not read.dialogs, read
-        calculated = excel.run_macro('Harness.CalculateNow')
-        assert calculated.ok and not calculated.dialogs, calculated
-        after = excel.run_macro('Harness.ReadSaved')
-        assert after.ok and not after.dialogs, after
+        read = excel.run_raw('Harness.ReadSaved')
+        excel.run_raw('Harness.CalculateNow')
+        after = excel.run_raw('Harness.ReadSaved')
+        assert not any(event.get('dialogs') for event in excel.events), excel.events[-1]
         files.append({'name': name, 'file': path.relative_to(OUT.parent).as_posix(),
-                      'result': read.value, 'calculated': after.value,
+                      'result': read, 'calculated': after,
                       'calculation': -4135 if '_manual_' in name else -4105})
     record['files'] = files
     record['read_saved'] = READ_SAVED
@@ -72,11 +70,11 @@ def main() -> None:
             if selected and case['name'] not in selected:
                 continue
             excel.new_document()
-            for index, step in enumerate(case['steps']):
-                result = (excel.run_vba(case['macro'], step['entry'], module_name='Harness', line_numbers=False, timeout=30.0)
-                          if index == 0 else excel.run_macro('Harness.' + step['entry'], timeout=30.0))
-                assert result.ok and not result.dialogs, (case['name'], step['entry'], result)
-                step['result'] = result.value
+            excel.add_module('Harness', case['macro'], line_numbers=False)
+            for step in case['steps']:
+                result = excel.run_raw('Harness.' + step['entry'], timeout=30.0)
+                assert not excel.events[-1].get('dialogs'), (case['name'], step['entry'], result)
+                step['result'] = result
             print(case['name'], [step['result'] for step in case['steps']], flush=True)
         save_native_files(excel, record)
         record['measured_at'] = datetime.now(timezone.utc).isoformat()

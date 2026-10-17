@@ -1308,6 +1308,20 @@ def read_row_height(target: Range) -> object:
     return _compared(target, True, height, dims.sized_rows())
 
 
+def visibility_state(target: Range) -> tuple[bool, frozenset[int]]:
+    """Row visibility, independent of records kept only for sizing or formatting."""
+    dims = _dims(target)
+    return dims.zero_height, frozenset(row for row, record in dims.rows.items()
+                                       if record.hidden != dims.zero_height)
+
+
+def recalculate_visibility(target: Range, before: tuple[bool, frozenset[int]]) -> None:
+    if visibility_state(target) != before:
+        from pyopenvba.apps.excel import _events
+
+        _events.visibility_changed(target.sheet.book)
+
+
 def write_row_height(target: Range, value: object) -> None:
     points = _size(value)
     if points < 0 or _c_round(points * 20) > MOST_TWIPS:

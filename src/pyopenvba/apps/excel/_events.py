@@ -137,7 +137,7 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
     them out after each edit, which only shows through this event, so the
     work is done here only when a module is listening for it.
     """
-    if not (book.calculator.has_volatile_udfs or book.calculator.has_pending_udfs) \
+    if not (book.calculator.has_volatile_formulas or book.calculator.has_pending_udfs) \
             and (not _on(book) or not _listening_for_calculate(book)):
         return
     worked = book.calculator.recalculated(settled=settled)
@@ -147,6 +147,13 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
             continue
         if _on(book):
             _both(sheet, "Calculate", [])
+
+
+def visibility_changed(book: Workbook) -> None:
+    """Visibility edits calculate subtotal formulas, their dependents and volatile formulas, without Change."""
+    book.calculator.invalidate_visibility()
+    if book.calculator.automatic:
+        calculated_all(book, book.calculator.calculate_all(background=True))
 
 
 def calculated_all(book: Workbook, worked: list[Worksheet]) -> None:
@@ -162,16 +169,18 @@ def after_edit(target: Range, *, calculate_first: bool = True) -> None:
     spills is in place after the edit, as Excel spills it, events or none."""
     book = target.sheet.book
     book.calculator.settle_spills()
-    settled = book.calculator.settle_user_calls()
+    settled = book.calculator.settle_entries()
+    settled_names = {key[0] for key in settled}
+    calculated = {sheet for sheet in book.sheets_ if sheet.name.lower() in settled_names}
     if not _on(book):
-        recalculated(book, settled=settled)
+        recalculated(book, settled=settled, already_calculated=calculated)
         return
     if calculate_first:
-        recalculated(book, settled=settled)
+        recalculated(book, settled=settled, already_calculated=calculated)
         changed(target)
     else:
         changed(target)
-        recalculated(book, settled=settled)
+        recalculated(book, settled=settled, already_calculated=calculated)
 
 
 def activated(book: Workbook, before: Worksheet | None, after: Worksheet) -> None:

@@ -210,10 +210,10 @@ def replace(target: Range, what: object, replacement: object, look_at: object = 
         before = cell.formula or edit_text(cell.value, cell.number_format)
         after = _substituted(pattern, before, new) if before else None
         if after is not None:
-            array = array_at(sheet, row, column)
             if not target.replaced_in(row, column, after):
                 break
-            if array is not None and array_at(sheet, row, column) is not None and calculated is not None:
+            current = sheet.cells_.get((row, column))
+            if current is not None and current.formula and calculated is not None:
                 calculated.add(sheet)
     return True
 

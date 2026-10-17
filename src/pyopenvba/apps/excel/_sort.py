@@ -142,6 +142,8 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
 
     lines = list(range(first, last + 1))
     block = Area(area.top, first, area.bottom, last) if across else Area(first, area.left, last, area.right)
+    if any(not spill.blocked and _merges.intersects(block, spill.area) for spill in sheet.spills.values()):
+        raise error(1004, "You can't change part of an array")
     if filtering(sheet):
         # A filtered sheet sorts its visible rows among themselves, into the rows they fill, and none
         # when none shows: measured for Range.Sort and the Sort object.

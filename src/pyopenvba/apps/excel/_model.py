@@ -3075,6 +3075,10 @@ class Range(ExcelObject):
                 for (down, across), source in sources.items():
                     copy = Cell(**{field_.name: getattr(source, field_.name) for field_ in _CELL_FIELDS})
                     copy.shared = None
+                    # Spill children are cached output, not independent cell contents. A copied anchor
+                    # calculates a fresh spill; copying only its children copies empty contents.
+                    if copy.spilled_from is not None:
+                        copy.value, copy.spilled_from = EMPTY, None
                     if copy.formula:
                         copy.formula = shift_text(formulas.get((down, across), copy.formula), tile_row - area.top, tile_column - area.left)
                         copy.stale = True

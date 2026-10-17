@@ -262,6 +262,22 @@ class Calculator:
         for key in [key for key in self.compiled if key[0] == name and area.contains(key[1], key[2])]:
             self._keep(key, None)
         reading: set[CellKey] = set()
+        owner = self._sheet_named(sheet)
+        if owner is not None and owner.spills:
+            from pyopenvba.apps.excel._spills import reconcile
+
+            reconcile(owner)
+            # A bulk write can obstruct an existing spill just as a single-cell write can.
+            # Recalculate its anchor before newly copied formulas try to spill over its old output.
+            for anchor, spill in owner.spills.items():
+                if (area.top <= spill.area.bottom and spill.area.top <= area.bottom
+                        and area.left <= spill.area.right and spill.area.left <= area.right):
+                    cell = owner.cells_.get(anchor)
+                    if cell is not None:
+                        cell.stale = True
+                        key = (name, *anchor)
+                        reading.add(key)
+                        reading.update(self._members(key))
         for key, compiled in self.compiled.items():
             if any(one.sheet.lower() == name and one.top <= area.bottom and area.top <= one.bottom
                    and one.left <= area.right and area.left <= one.right for one in compiled.precedents):

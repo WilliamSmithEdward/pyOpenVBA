@@ -709,14 +709,9 @@ def _children(xml: str, section: str) -> list[str]:
 
 def _dxf_append_position(text: str) -> int:
     """Position after the last direct dxf, never inside an unknown extension."""
-    from xml.parsers import expat
-
-    from pyopenvba.apps.excel._charts_file import xml_tree
-
-    # Apply the shared DTD/entity refusal before the offset-only parser runs.
-    xml_tree(text)
+    from pyopenvba.apps.excel._charts_file import xml_parser
     raw = text.encode('utf-8')
-    parser = expat.ParserCreate(namespace_separator='}')
+    parser = xml_parser()
     depth = 0
     inside = False
     position = 0
@@ -739,7 +734,6 @@ def _dxf_append_position(text: str) -> int:
         depth -= 1
 
     parser.StartElementHandler, parser.EndElementHandler = start, end
-    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
     parser.Parse(raw, True)
     return len(raw[:position].decode('utf-8'))
 

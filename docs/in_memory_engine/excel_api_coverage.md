@@ -77,7 +77,9 @@ support. See the [host coverage plan](../host_completeness.md) and
 
 OOXML persistence preserves many untouched parts and writes supported edits back
 to workbooks. Feature completeness also requires native Excel to accept the
-generated workbook and reproduce the intended behavior. Passing the current
+generated workbook and reproduce the intended behavior. Tree and offset readers
+share the same XML parser factory, which rejects DTDs and declared entities
+directly, including UTF-16 input. Passing the current
 tests does not prove that every combination of Excel features works.
 
 Native fixtures cover imported `PivotField.Function` getters for all eleven

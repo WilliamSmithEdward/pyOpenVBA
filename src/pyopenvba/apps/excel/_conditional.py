@@ -11,10 +11,9 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
-from xml.parsers import expat
 
 from pyopenvba._a1 import Area, parse_area
-from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_tree
+from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_parser, xml_tree
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._xstring import decode, encode_text
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -60,7 +59,6 @@ def read_rules(xml: str) -> list[Rule]:
 
 def with_rules(xml: str, rules: list[Rule]) -> str:
     """Replace standard rules while retaining container and extension metadata."""
-    xml_tree(xml)  # Reject DTD/entity declarations before the span-only parse.
     groups: list[tuple[XmlElement | None, list[Area], XmlElement]] = []
     for rule in rules:
         if rule.deleted or not rule.areas:
@@ -77,7 +75,7 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
         before = next((i for i, entry in enumerate(group) if entry.tag == NS + 'extLst'), len(group))
         group.insert(before, deepcopy(rule.root))
     data = xml.encode('utf-8')
-    parser = expat.ParserCreate(namespace_separator='}')
+    parser = xml_parser()
     depth, active = 0, None
     root_start = 0
     spans: list[tuple[int, int]] = []

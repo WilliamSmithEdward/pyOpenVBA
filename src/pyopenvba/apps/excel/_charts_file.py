@@ -84,9 +84,21 @@ def xml_bytes(root: XmlElement) -> bytes:
                        encoding='utf-8', xml_declaration=True)
 
 
+def xml_parser() -> expat.XMLParserType:
+    """Create the shared namespace-aware parser with DTD/entity handling refused."""
+    parser = expat.ParserCreate(namespace_separator='}')
+    def refuse(*_args: object) -> NoReturn:
+        raise ValueError('Office XML must not contain DTDs or declared entities')
+    parser.StartDoctypeDeclHandler = refuse
+    parser.EntityDeclHandler = refuse
+    parser.ExternalEntityRefHandler = refuse
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    return parser
+
+
 def xml_tree(data: str | bytes) -> ET.Element:
     """Build a read-only tree with DTDs and all declared entities refused."""
-    parser = expat.ParserCreate(namespace_separator='}')
+    parser = xml_parser()
     builder = ET.TreeBuilder()
     declarations: dict[str, str] = {}
     def namespace(prefix: str | None, uri: str | None) -> None:
@@ -98,16 +110,10 @@ def xml_tree(data: str | bytes) -> ET.Element:
         declarations.clear()
     def end(name: str) -> None:
         builder.end(expanded(name))
-    def refuse(*_args: object) -> NoReturn:
-        raise ValueError('Office XML must not contain DTDs or declared entities')
     parser.StartElementHandler = start
     parser.StartNamespaceDeclHandler = namespace
     parser.EndElementHandler = end
     parser.CharacterDataHandler = builder.data
-    parser.StartDoctypeDeclHandler = refuse
-    parser.EntityDeclHandler = refuse
-    parser.ExternalEntityRefHandler = refuse
-    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
     parser.Parse(data, True)
     return builder.close()
 

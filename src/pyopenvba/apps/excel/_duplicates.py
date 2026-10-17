@@ -52,9 +52,16 @@ def remove_duplicates(target: Range, columns: object, header: object) -> object:
         raise error(1004, "RemoveDuplicates works on one block")
     sheet = target.sheet
     area = current_region(sheet, target.first.top, target.first.left) if target.single else target.first
+    from pyopenvba.apps.excel._arrays import met, PART_OF_AN_ARRAY
+
     kept = NO if header is MISSING else int(to_integer(header, "Long"))
     if kept not in (GUESS, YES, NO):
         raise error(1004, "Header takes xlYes, xlNo or xlGuess")
+    first = area.top + (1 if kept == YES or (kept == GUESS and guessed_header(sheet, area, False)) else 0)
+    if first <= area.bottom:
+        arrays, partial_arrays = met(sheet, [Area(first, area.left, area.bottom, area.right)])
+        if arrays or partial_arrays:
+            raise error(1004, PART_OF_AN_ARRAY)
     picked = _columns(columns, area.columns)
     if not picked:
         return EMPTY
@@ -76,7 +83,6 @@ def remove_duplicates(target: Range, columns: object, header: object) -> object:
                                          or area.top not in (box.top, box.top + 1)):
         # Measured over a filter's whole range and over all of it but its header; nothing else.
         raise VBAUnsupportedError("RemoveDuplicates over part of a filter's range is not implemented")
-    first = area.top + (1 if kept == YES or (kept == GUESS and guessed_header(sheet, area, False)) else 0)
     last = min(area.bottom, used[2])
     seen: set[tuple[tuple[object, ...], ...]] = set()
     rows: list[int] = []

@@ -61,7 +61,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
-from pyopenvba.apps.excel import _merges
+from pyopenvba.apps.excel import _arrays, _merges
 from pyopenvba.apps.excel._typing import date_time_codes, is_date_format
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._display import excel_date
@@ -120,8 +120,48 @@ def autofill(source: Range, destination: object, kind_argument: object) -> objec
 
         refuse_growth(sheet, filled, "AutoFill into")
     _check_modelled(sheet, area, target)
+    source_arrays, partial_source = _arrays.met(sheet, [area])
+    replaced_arrays, partial_destination = _arrays.met(sheet, [filled])
+    if partial_source or partial_destination:
+        raise error(1004, _arrays.PART_OF_AN_ARRAY)
+    array_plans: list[tuple[Area, str]] = []
+    if kind != FORMATS:
+        period = area.rows if down else area.columns
+        low, high = (filled.top, filled.bottom) if down else (filled.left, filled.right)
+        for anchor in source_arrays:
+            original = sheet.array_formulas[anchor]
+            first, last = (original.top, original.bottom) if down else (original.left, original.right)
+            for repeat in range((low - last) // period, (high - first) // period + 1):
+                if repeat == 0:
+                    continue
+                dy, dx = (repeat * period, 0) if down else (0, repeat * period)
+                top, left = max(original.top + dy, filled.top), max(original.left + dx, filled.left)
+                bottom, right = min(original.bottom + dy, filled.bottom), min(original.right + dx, filled.right)
+                if top <= bottom and left <= right:
+                    block = Area(top, left, bottom, right)
+                    cell = sheet.cells_.get(anchor)
+                    assert cell is not None
+                    array_plans.append((block, shift_text(cell.formula, top - original.top, left - original.left)))
     plan = _Plan(sheet, area, target, down, kind)
-    plan.fill()
+
+    def retire_arrays() -> None:
+        if kind != FORMATS:
+            for anchor in replaced_arrays:
+                sheet.array_formulas.pop(anchor, None)
+
+    plan.fill(before_write=retire_arrays)
+    for block, formula in array_plans:
+        anchor = (block.top, block.left)
+        cell = sheet.cell(*anchor, create=True)
+        assert cell is not None
+        cell.formula, cell.shared, cell.dynamic, cell.spilled_from = formula, None, False, None
+        cell.stale = True
+        if sheet.book.calculator.automatic:
+            cell.value = EMPTY
+        sheet.array_formulas[anchor] = block
+        sheet.book.calculator.remember(sheet.name, *anchor, cell)
+    if array_plans:
+        sheet.book.calculator.wrote_area(sheet.name, filled)
     return True
 
 
@@ -335,6 +375,8 @@ class _Plan:
         return None if table is None else table.columns
 
     def item(self, row: int, column: int) -> _Item:
+        if _arrays.array_at(self.sheet, row, column) is not None:
+            return _Item("copy")
         return _read(self.cells.get((row, column)), self.sheet.style_at(row, column).number_format)
 
     def crossed(self) -> set[tuple[int, int]]:
@@ -351,7 +393,7 @@ class _Plan:
                     marked.update(positions[member] for member in run)
         return marked
 
-    def fill(self) -> None:
+    def fill(self, *, before_write: Callable[[], None] | None = None) -> None:
         crossed = self.crossed()
         lines = range(self.area.left, self.area.right + 1) if self.down else range(self.area.top, self.area.bottom + 1)
         first, last = (self.target.top, self.target.bottom) if self.down else (self.target.left, self.target.right)
@@ -380,6 +422,8 @@ class _Plan:
                     content = series(place + repeat * size)
                 at = (spot, line) if self.down else (line, spot)
                 writes.append((at, positions[slot], content))
+        if before_write is not None:
+            before_write()
         for at, origin, content in writes:
             self.write(at, origin, content)
         if self.length == 1:
@@ -399,6 +443,8 @@ class _Plan:
             if content is _COPIED:
                 filled.setdefault(origin, []).append(at)
         for origin, places in filled.items():
+            if _arrays.array_at(self.sheet, *origin) is not None:
+                continue
             source = self.cells.get(origin)
             cells = [cell for at in places if (cell := self.sheet.cells_.get(at)) is not None and cell.formula]
             if source is None or not source.formula or len(cells) != len(places) or not _shared.shares(source.formula):
@@ -442,6 +488,8 @@ class _Plan:
                 value = source.value
         else:
             value = content
+        if formula and not sheet.book.calculator.automatic and source is not None:
+            value = source.value
         cell = Cell(value=value, formula=formula, stale=bool(formula), style=None if style == default else style)
         sheet.book.stylesheet.meet(cell.style)
         sheet.cells_[at] = cell

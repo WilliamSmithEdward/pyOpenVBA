@@ -33,7 +33,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import MISSING, NOTHING, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._model import Range, Worksheet
 
 
 @dataclass
@@ -163,7 +163,7 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
 def replace(target: Range, what: object, replacement: object, look_at: object = MISSING,
             order: object = MISSING, match_case: object = MISSING, match_byte: object = MISSING,
             search_format: object = MISSING, replace_format: object = MISSING,
-            formula_version: object = MISSING) -> object:
+            formula_version: object = MISSING, *, calculated: set[Worksheet] | None = None) -> object:
     from pyopenvba.apps.excel._typing import edit_text
 
     if what is MISSING or replacement is MISSING:
@@ -181,17 +181,22 @@ def replace(target: Range, what: object, replacement: object, look_at: object = 
     if whole not in {1, 2} or traversal not in {1, 2}:
         raise error(9)
     case = False if match_case is MISSING else to_bool(match_case)
-    state.look_in, state.look_at, state.order, state.what, state.match_case = -4123, whole, traversal, what, case
     text, new = _sought(what), _sought(replacement)
+    if len(text) > 255 or len(new) > 255:
+        raise error(13)
+    state.look_in, state.look_at, state.order, state.what, state.match_case = -4123, whole, traversal, what, case
     if not _parts(text):
         return True
     pattern = _pattern(text, whole == 1, case)
     # On a filtered sheet only the visible cells change, as _visible has it.
     target = visible(target)
     sheet = target.sheet
+    from pyopenvba.apps.excel._arrays import array_at
+
     cells: list[tuple[int, int]] = []
     for area in target.areas:
-        inside = [position for position in sheet.cells_ if area.contains(*position)]
+        inside = [position for position in sheet.cells_ if area.contains(*position)
+                  and ((array := array_at(sheet, *position)) is None or array[0] == position)]
         inside.sort(key=(lambda position: position) if traversal == 1 else (lambda position: position[::-1]))
         cells += inside
     first = (target.first.top, target.first.left)
@@ -204,8 +209,12 @@ def replace(target: Range, what: object, replacement: object, look_at: object = 
             continue
         before = cell.formula or edit_text(cell.value, cell.number_format)
         after = _substituted(pattern, before, new) if before else None
-        if after is not None and not target.replaced_in(row, column, after):
-            break
+        if after is not None:
+            array = array_at(sheet, row, column)
+            if not target.replaced_in(row, column, after):
+                break
+            if array is not None and array_at(sheet, row, column) is not None and calculated is not None:
+                calculated.add(sheet)
     return True
 
 

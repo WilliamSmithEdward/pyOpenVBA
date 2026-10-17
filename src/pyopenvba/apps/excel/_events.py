@@ -129,7 +129,8 @@ def selected(sheet: Worksheet, target: Range) -> None:
     _both(sheet, "SelectionChange", [target])
 
 
-def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = None) -> None:
+def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = None,
+                 already_calculated: set[Worksheet] | None = None) -> None:
     """Work out what an edit left to work out, and raise Calculate for each sheet it worked out formulas on.
 
     The model works a formula out when something reads it; Excel works
@@ -138,7 +139,11 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
     """
     if not book.calculator.has_volatile_udfs and (not _on(book) or not _listening_for_calculate(book)):
         return
-    for sheet in book.calculator.recalculated(settled=settled):
+    worked = book.calculator.recalculated(settled=settled)
+    prior = already_calculated or set()
+    for sheet in book.sheets_:
+        if sheet not in worked and (not book.calculator.automatic or sheet not in prior):
+            continue
         if _on(book):
             _both(sheet, "Calculate", [])
 
@@ -188,6 +193,8 @@ def new_sheet(book: Workbook, sheet: Worksheet, left: Worksheet | None) -> None:
 
 
 def _listening_for_calculate(book: Workbook) -> bool:
+    from pyopenvba.apps.excel._vbide import VBProject
+
     interpreter = book.application.interpreter
     if interpreter is not None:
         if interpreter.listens_for_event(book, "SheetCalculate") or interpreter.listens_for_event(book.application, "SheetCalculate"):
@@ -195,6 +202,13 @@ def _listening_for_calculate(book: Workbook) -> bool:
         if any(interpreter.listens_for_event(sheet, "Calculate") for sheet in book.sheets_):
             return True
     for owner in [book, *book.sheets_]:
+        if isinstance(book.vbide_project, VBProject):
+            entry = next((entry for entry in book.vbide_project.components.entries
+                          if entry.name.casefold() == owner.code_name.casefold()), None)
+            name = 'Workbook_SheetCalculate' if owner is book else 'Worksheet_Calculate'
+            if entry is not None and entry.pending and any(row[0].casefold() == name.casefold()
+                                                           for row in entry.code_module.procedures()):
+                return True
         document = owner.vba_document
         if document is not None and (document.module.procedure("Worksheet_Calculate") is not None
                                      or document.module.procedure("Workbook_SheetCalculate") is not None):

@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
+    from pyopenvba.apps.excel._conditional import Rule as ConditionalRule
     from pyopenvba.formula._structured import TableShape
     from pyopenvba.interpreter._runtime import Interpreter
 
@@ -1086,6 +1087,8 @@ class Worksheet(ExcelObject):
         self.validations: list[ValidationRule] = []
         #: True once a rule is added, changed or removed, so a save writes the rules again.
         self.validations_changed = False
+        self.conditional_formats: list[ConditionalRule] = []
+        self.conditional_changed = False
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
@@ -1904,6 +1907,12 @@ class Range(ExcelObject):
         cell = self.sheet.cell(self.first.top, self.first.left)
         if cell is None:
             return ""
+        if self.sheet.conditional_formats:
+            from pyopenvba.apps.excel._conditional_eval import conditional_number_format
+
+            style = self.sheet.style_at(self.first.top, self.first.left)
+            cell = replace(cell, style=replace(style, number_format=conditional_number_format(
+                self.sheet, self.first.top, self.first.left)))
         dims = self.sheet.dims
         return _display_text(cell, _dimensions.characters_read(dims.column_shown_pixels(self.first.left)))
 
@@ -2158,6 +2167,18 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._validation import Validation
 
         return Validation(self)
+
+    @member
+    def FormatConditions(self) -> object:
+        from pyopenvba.apps.excel._conditional import FormatConditions
+
+        return FormatConditions(self)
+
+    @member
+    def DisplayFormat(self) -> object:
+        from pyopenvba.apps.excel._conditional_display import DisplayFormat
+
+        return DisplayFormat(self)
 
     @member
     def ListObject(self) -> object:
@@ -3105,6 +3126,9 @@ class Range(ExcelObject):
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
         written = Area(target.top, target.left, bottom, right)
+        from pyopenvba.apps.excel._clipboard import conditional_copy_admitted
+
+        conditional_copy_admitted(self.sheet, [area], Destination.sheet, [written])
         if Destination.sheet.tables:
             from pyopenvba.apps.excel._tables import refuse_growth
 

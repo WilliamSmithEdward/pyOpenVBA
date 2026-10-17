@@ -139,6 +139,17 @@ def copy(target: Range) -> object:
     return True
 
 
+def conditional_copy_admitted(source: Worksheet, areas: list[Area], destination: Worksheet,
+                              landed: list[Area]) -> None:
+    """A format-bearing copy must not silently drop or replace conditional rules."""
+    for sheet, touched in ((source, areas), (destination, landed)):
+        for rule in sheet.conditional_formats:
+            if not rule.deleted and any(not (area.bottom < part.top or part.bottom < area.top
+                                            or area.right < part.left or part.right < area.left)
+                                        for area in rule.areas for part in touched):
+                raise VBAUnsupportedError('Range copying conditional formatting is not implemented')
+
+
 def copy_range(target: Range, destination: object) -> object:
     """Range.Copy with a destination: on a filtered sheet, the visible cells into the visible cells.
 
@@ -154,6 +165,7 @@ def copy_range(target: Range, destination: object) -> object:
     source = visible(target)
     made = block_of(source.areas)
     landed = landing_of(made, destination)
+    conditional_copy_admitted(target.sheet, list(source.areas), destination.sheet, [landed])
     whole(destination.sheet, [landed], "Copying")
     landing = visible_areas(destination)
     if landing is None:
@@ -191,6 +203,7 @@ def paste_block(sheet: Worksheet, made: Block, destination: Range) -> object:
                                                                                                     made.columns)):
         raise VBAUnsupportedError("pasting several copied areas over a range of another size is not implemented")
     landing = Area(corner.top, corner.left, corner.top + made.rows - 1, corner.left + made.columns - 1)
+    conditional_copy_admitted(sheet, [area for area, _, _ in made.parts], destination.sheet, [landing])
     if landing.bottom > MAX_ROWS or landing.right > MAX_COLUMNS:
         raise error(1004, "The paste would run past the edge of the worksheet")
     if destination.sheet is sheet and any(_merges.intersects(landing, area) for area, _, _ in made.parts):
@@ -228,6 +241,8 @@ def cut(target: Range, destination: object) -> object:
         raise error(1004, "Cut needs a range to move to")
     whole(target.sheet, [target.first], "Cut")
     whole(destination.sheet, [landing_of(block_of([target.first]), destination)], "Cut")
+    conditional_copy_admitted(target.sheet, [target.first], destination.sheet,
+                              [landing_of(block_of([target.first]), destination)])
     move(target, target.first, destination)
     return True
 
@@ -296,6 +311,8 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     from pyopenvba.apps.excel import _arrays
 
     landing = Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1)
+    if kind in _EVERYTHING | {FORMATS}:
+        conditional_copy_admitted(source_sheet, [part for part, _, _ in made.parts], sheet, [landing])
     covered, divided = _arrays.met(sheet, [landing]) if kind in _CONTENT_FORMULAS | _CONTENT_VALUES or op else ([], [])
     if divided or op and covered:
         raise error(1004, _arrays.PART_OF_AN_ARRAY)
@@ -474,6 +491,19 @@ def move(source: Range, area: Area, destination: Range) -> None:
     landing = Area(top, left, top + area.rows - 1, left + area.columns - 1, target.name)
     if landing.bottom > MAX_ROWS or landing.right > MAX_COLUMNS:
         raise error(1004, "The cells would move past the edge of the worksheet")
+    conditional_copy_admitted(sheet, [area], target, [landing])
+    from pyopenvba.apps.excel._conditional import NS
+    from pyopenvba.apps.excel._xstring import decode
+
+    for owner in sheet.book.sheets_:
+        for rule in owner.conditional_formats:
+            if rule.deleted:
+                continue
+            for node in rule.root.findall(NS + 'formula'):
+                text = decode(node.text or '')
+                if moved_references(text, owner.name, sheet.name, area, target.name, landing,
+                                    top - area.top, left - area.left) != text:
+                    raise VBAUnsupportedError('Cut rewriting conditional formatting formulas is not implemented')
     if any(_merges.intersects(area, one) for one in sheet.merged_areas) or any(
             _merges.intersects(landing, one) for one in target.merged_areas):
         raise VBAUnsupportedError("cutting merged cells is not implemented")

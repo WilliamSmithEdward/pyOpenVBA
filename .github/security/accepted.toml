@@ -80,8 +80,9 @@ where = [
 ]
 reason = """
 The chart reader uses ElementTree only as a TreeBuilder, never as an XML
-parser. All three tree-reading sites call xml_tree, whose actual Expat
-parser raises from StartDoctypeDeclHandler before a DTD's internal subset,
+parser. Tree readers call xml_tree; tree and byte-offset readers obtain their
+actual Expat parser from xml_parser, whose rejecting handlers are installed
+before it is returned. It raises from StartDoctypeDeclHandler before a DTD's internal subset,
 EntityDeclHandler and ExternalEntityRefHandler. Parameter entity parsing
 is XML_PARAM_ENTITY_PARSING_NEVER; no resolver or child parser is created.
 Thus declared entities, external DTDs and file/network entity resolution

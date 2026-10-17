@@ -1099,7 +1099,7 @@ class Interpreter:
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
         """Parse ``source`` and add it to the project."""
-        parsed = parse_module(source, name=name, kind=kind)
+        parsed = parse_module(source, name=name, kind=kind, retain_body_errors=True)
         if not parsed.name:
             parsed.name = name or f"Module{len(self.modules) + 1}"
         runtime = ModuleRuntime(parsed, self)

@@ -294,8 +294,24 @@ parameter restrictions and demand-compilation controls replay 105 native
 compiler/runtime probes in
 `tests/fixtures/vba_semantics/default_types.json`, remeasured with
 `scripts/measure_default_types.py`. The compiler checks these measured paths;
-it does not yet implement complete VBA type and reference checking or deferred
-parsing of every possible body syntax error.
+it does not yet implement complete VBA type and reference checking.
+
+Runtime module loading retains body syntax diagnostics instead of rejecting
+unrelated valid calls. The selected procedure fails before its body executes;
+module and procedure-header syntax errors remain eager. The standalone `parse_module`
+API remains strict by default, with `retain_body_errors=True` available for
+runtime callers. Recovery requires a recognizable procedure terminator;
+arbitrary malformed module boundaries remain outside this measured coverage.
+
+An ampersand attached to an identifier or decimal literal is the Long type
+character. `Total&(1)` is a typed call; `text &otherText` concatenates.
+`1 & 2` is valid, while `1 &2` is invalid numeric-literal syntax. Known
+variable references with conflicting type characters fail compilation.
+These paths replay 53 native execution/compilation controls in
+`body_demand.json` and `ampersand_syntax.json`, recorded by
+`scripts/measure_parser_demand.py`. One input string is repaired by VBE on
+import; its original and actual imported source are recorded separately.
+Raw-source parsing remains distinct from that editor normalization.
 
 `On Error GoTo` does not unwind the stack: the handler runs where the
 error happened, so `Resume Next` hands control back to the statement

@@ -13,8 +13,8 @@ goes wrong:
   number in ``Print #1``.  A ``#`` is a date only when the rest of the
   line closes it and what is between reads as a date.
 * ``&`` is both concatenation and the Long type suffix.  It is a suffix
-  only where an expression cannot continue, so ``1&`` is a Long and
-  ``1 & 2`` is "12".
+  when attached to an identifier or decimal literal. ``1&`` is a Long;
+  ``1 & 2`` concatenates, while ``1 &2`` is invalid literal syntax.
 * ``Rem`` is a comment, but only where a statement may begin: ``Rem`` is
   a perfectly good variable name in the middle of an expression.
 """
@@ -116,21 +116,7 @@ def _ends_statement(token: Token | None) -> bool:
     return token.kind == "ident" and token.lower in ("then", "else")
 
 
-def _expression_may_follow(text: str, at: int) -> bool:
-    """Whether what comes after position ``at`` could continue an expression.
-
-    Used to tell the Long suffix in ``1&`` from the concatenation in
-    ``1 & x``: an operand may follow the operator, so an ampersand with
-    an operand behind it is an operator.
-    """
-    rest = text[at:]
-    stripped = rest.lstrip(" \t")
-    if not stripped:
-        return False
-    return bool(re.match(_CONTINUES, stripped))
-
-
-def tokenize(source: str, *, module: str = "") -> list[Token]:
+def tokenize(source: str, *, module: str = "", retain_errors: bool = False) -> list[Token]:
     """Every token in ``source``, ending with one of kind ``eof``."""
     tokens: list[Token] = []
     position = 0
@@ -168,7 +154,11 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
                 line += 1
                 position = after
                 continue
-            raise fail("a line continuation has to be the last thing on its line")
+            if not retain_errors:
+                raise fail("a line continuation has to be the last thing on its line")
+            add(Token('invalid', 'a line continuation has to be the last thing on its line', line))
+            position += 1
+            continue
 
         if char in "\r\n":
             if char == "\r" and position + 1 < length and source[position + 1] == "\n":
@@ -186,19 +176,25 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
         if char == '"':
             end = position + 1
             pieces: list[str] = []
+            closed = False
             while True:
                 if end >= length or source[end] in "\r\n":
-                    raise fail("a string literal is not closed before the end of the line")
+                    if not retain_errors:
+                        raise fail("a string literal is not closed before the end of the line")
+                    add(Token('invalid', 'a string literal is not closed before the end of the line', line))
+                    break
                 if source[end] == '"':
                     if end + 1 < length and source[end + 1] == '"':
                         pieces.append('"')
                         end += 2
                         continue
                     end += 1
+                    closed = True
                     break
                 pieces.append(source[end])
                 end += 1
-            add(Token("string", "".join(pieces), line))
+            if closed:
+                add(Token("string", "".join(pieces), line))
             position = end
             continue
 
@@ -215,6 +211,13 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
                 add(Token("bracket", match.group(1), line))
                 position = match.end()
                 continue
+
+        if char == '&' and position + 1 < length and source[position + 1].isdigit():
+            if not retain_errors:
+                raise fail('invalid numeric literal after &')
+            add(Token('invalid', 'invalid numeric literal after &', line))
+            position += 1
+            continue
 
         if char == "&" and position + 1 < length and source[position + 1] in "hHoO":
             match = _HEX.match(source, position) or _OCTAL.match(source, position)
@@ -246,9 +249,8 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
             declared = ""
             if position < length and source[position] in TYPE_SUFFIXES:
                 suffix = source[position]
-                if suffix != "&" or not _expression_may_follow(source, position + 1):
-                    declared = SUFFIX_TYPES[suffix]
-                    position += 1
+                declared = SUFFIX_TYPES[suffix]
+                position += 1
             if not declared:
                 if "." in text or "e" in text.lower():
                     declared = "Double"
@@ -276,10 +278,9 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
             declared = ""
             if position < length and source[position] in TYPE_SUFFIXES:
                 suffix = source[position]
-                if suffix != "&" or not _expression_may_follow(source, position + 1):
-                    declared = SUFFIX_TYPES[suffix]
-                    name += suffix
-                    position += 1
+                declared = SUFFIX_TYPES[suffix]
+                name += suffix
+                position += 1
             add(Token("ident", name, line, declared))
             continue
 
@@ -294,7 +295,10 @@ def tokenize(source: str, *, module: str = "") -> list[Token]:
                 position += len(operator)
                 break
         else:
-            raise fail(f"cannot read {char!r}")
+            if not retain_errors:
+                raise fail(f"cannot read {char!r}")
+            add(Token('invalid', f'cannot read {char!r}', line))
+            position += 1
 
     add(Token("eos", "\n", line))
     add(Token("eof", "", line))

@@ -32,7 +32,11 @@ variables, arrays, parameters and function returns, with explicit type
 precedence, ReDim declaration/retyping rules and compiler restrictions over
 105 additional native probes. Project edits refresh cached bindings. This
 remains partial language coverage: full compiler type checking, references
-and object lifetime need further conformance work.
+and object lifetime need further conformance work. Runtime parsing now retains
+malformed-body diagnostics without blocking unrelated valid calls, while the
+explicit parser stays strict. Fifty-three additional native controls cover body
+recovery and ampersand syntax; malformed module boundaries, broader reference
+typing and VBE import normalization remain further work.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

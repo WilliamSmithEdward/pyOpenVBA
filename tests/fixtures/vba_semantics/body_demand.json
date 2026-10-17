@@ -1,0 +1,86 @@
+{
+  "instrumentation": "none",
+  "measured_at": "2026-10-17T08:11:08.508309+00:00",
+  "oracle": "direct Application.Run with an invalid unused body, fresh session",
+  "probes": [
+    {
+      "name": "missing_expression",
+      "source": "Sub Unused()\nx =\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T08:09:21.700131+00:00"
+    },
+    {
+      "name": "unclosed_string",
+      "source": "Sub Unused()\r\nDebug.Print \"broken\"\r\nEnd Sub\r\nFunction Probe() As String\r\nProbe = \"done\"\r\nEnd Function",
+      "result": "done",
+      "input_source": "Sub Unused()\nDebug.Print \"broken\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "selected_result": null,
+      "measured_at": "2026-10-17T08:09:30.673701+00:00"
+    },
+    {
+      "name": "invalid_character",
+      "source": "Sub Unused()\n@\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T08:09:42.164730+00:00"
+    },
+    {
+      "name": "missing_endif",
+      "source": "Sub Unused()\nIf True Then\nx=1\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nBlock If without End If",
+      "measured_at": "2026-10-17T08:09:53.693224+00:00"
+    },
+    {
+      "name": "missing_next",
+      "source": "Sub Unused()\nFor i=1 To 2\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nFor without Next",
+      "measured_at": "2026-10-17T08:10:04.446766+00:00"
+    },
+    {
+      "name": "missing_endwith",
+      "source": "Sub Unused()\nWith Nothing\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nExpected End With",
+      "measured_at": "2026-10-17T08:10:14.732689+00:00"
+    },
+    {
+      "name": "missing_label",
+      "source": "Sub Unused()\nGoTo\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T08:10:22.715879+00:00"
+    },
+    {
+      "name": "bad_dim",
+      "source": "Sub Unused()\nDim = 1\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T08:10:33.050071+00:00"
+    },
+    {
+      "name": "number_ampersand",
+      "source": "Sub Unused()\nx = 1 &2\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T08:10:43.716073+00:00"
+    },
+    {
+      "name": "suffix_ampersand",
+      "source": "Sub Unused()\nx = 1& 2\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T08:10:58.345762+00:00"
+    },
+    {
+      "name": "nested_procedure",
+      "source": "Sub Unused()\nFunction Nested()\nEnd Function\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "compiler_message": "Compile error:\n\nExpected End Sub",
+      "measured_at": "2026-10-17T08:11:08.508282+00:00"
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

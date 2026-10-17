@@ -118,11 +118,12 @@ _RIGHT_ASSOCIATIVE: Final[frozenset[str]] = frozenset()
 class Parser:
     """A recursive-descent parser over one module's tokens."""
 
-    def __init__(self, tokens: list[Token], *, module: str = "", kind: str = "standard") -> None:
+    def __init__(self, tokens: list[Token], *, module: str = "", kind: str = "standard", retain_body_errors: bool = False) -> None:
         self.tokens = tokens
         self.at = 0
         self.module_name = module
         self.module_kind = kind
+        self.retain_body_errors = retain_body_errors
         self._pending_next: list[str] = []
         self.default_types: dict[str, str] = {}
         self._declarations_started = False
@@ -146,6 +147,8 @@ class Parser:
 
     def advance(self) -> Token:
         token = self.tokens[self.at]
+        if token.kind == 'invalid':
+            self.fail(token.text)
         if token.kind != "eof":
             self.at += 1
         return token
@@ -538,7 +541,19 @@ class Parser:
                 procedure.returns_array = True
         self.end_statement()
         closing = "sub" if kind == "sub" else ("function" if kind == "function" else "property")
-        procedure.body = self._parse_block(ends=(closing,))
+        body_start = self.at
+        state = (list(self._pending_next), self._inline, self._with_depth)
+        try:
+            procedure.body = self._parse_block(ends=(closing,))
+        except VBACompileError as failure:
+            if not self.retain_body_errors:
+                raise
+            end = self._procedure_end(body_start, closing)
+            if end is None:
+                raise
+            procedure.body_error = (failure.message, failure.where)
+            self.at = end
+            self._pending_next, self._inline, self._with_depth = state
         self.expect_word("end")
         self.expect_word(closing)
         self.end_statement()
@@ -546,6 +561,18 @@ class Parser:
             if isinstance(statement, A.Unsupported) and statement.text.lower().startswith("attribute "):
                 continue
         return procedure
+
+    def _procedure_end(self, start: int, closing: str) -> int | None:
+        """Find a statement-level terminator without parsing a broken body."""
+        for index in range(start, len(self.tokens) - 1):
+            token, following = self.tokens[index:index + 2]
+            if token.kind != 'ident' or token.lower != 'end' or following.kind != 'ident' or following.lower != closing:
+                continue
+            label = index > start and self.tokens[index - 1].kind == 'number' and (
+                index == start + 1 or self.tokens[index - 2].kind == 'eos')
+            if index == start or self.tokens[index - 1].kind == 'eos' or label:
+                return index
+        return None
 
     # --- statements ------------------------------------------------------------------
 
@@ -1357,12 +1384,16 @@ def _number_value(token: Token) -> object:
     return float(text)
 
 
-def parse_module(source: str, *, name: str = "", kind: str = "standard") -> A.Module:
-    """Parse one module's source, raising VBACompileError if it is not VBA."""
+def parse_module(source: str, *, name: str = "", kind: str = "standard", retain_body_errors: bool = False) -> A.Module:
+    """Parse source strictly, or retain body diagnostics for runtime demand.
+
+    Module and procedure-header parsing failures remain eager in both modes.
+    """
     from pyopenvba.interpreter._preprocess import strip_directives
 
     prepared = strip_directives(source, module=name)
-    return Parser(tokenize(prepared, module=name), module=name, kind=kind).parse_module(source)
+    return Parser(tokenize(prepared, module=name, retain_errors=retain_body_errors), module=name, kind=kind,
+                  retain_body_errors=retain_body_errors).parse_module(source)
 
 
 def parse_expression(source: str, *, name: str = "") -> A.Expr:

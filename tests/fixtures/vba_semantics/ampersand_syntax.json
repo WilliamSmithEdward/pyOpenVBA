@@ -1,0 +1,280 @@
+{
+  "instrumentation": "none",
+  "probes": [
+    {
+      "name": "_long_function_empty",
+      "source": "Function Alpha() As Long\nEnd Function\nFunction Probe() As String\nProbe = CStr(Alpha&())\nEnd Function",
+      "result": "0",
+      "measured_at": "2026-10-17T08:11:12.771447+00:00"
+    },
+    {
+      "name": "_long_function_arg",
+      "source": "Function Alpha(ByVal n As Long) As Long\nAlpha=n+1\nEnd Function\nFunction Probe() As String\nProbe = CStr(Alpha&(1))\nEnd Function",
+      "result": "2",
+      "measured_at": "2026-10-17T08:11:16.969932+00:00"
+    },
+    {
+      "name": "_long_function_arg_space",
+      "source": "Function Alpha(ByVal n As Long) As Long\nAlpha=n+1\nEnd Function\nFunction Probe() As String\nProbe = CStr(Alpha& (1))\nEnd Function",
+      "result": "2",
+      "measured_at": "2026-10-17T08:11:21.157089+00:00"
+    },
+    {
+      "name": "_long_array",
+      "source": "Function Probe() As String\nDim alpha(0) As Long\nalpha(0)=1\nProbe = CStr(alpha&(0))\nEnd Function",
+      "result": "1",
+      "measured_at": "2026-10-17T08:11:25.358020+00:00"
+    },
+    {
+      "name": "_string_var",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(alpha&beta)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:11:34.823815+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_string_literal",
+      "source": "Function Probe() As String\nDim alpha As String\nalpha=\"a\"\nProbe = CStr(alpha&\"b\")\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:11:39.312129+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_string_paren_literal",
+      "source": "Function Probe() As String\nDim alpha As String\nalpha=\"a\"\nProbe = CStr(alpha&(\"b\"))\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:11:43.774355+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    },
+    {
+      "name": "_string_op_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(alpha &(beta))\nEnd Function",
+      "result": "ab",
+      "measured_at": "2026-10-17T08:11:48.023299+00:00"
+    },
+    {
+      "name": "_numbers_number_attached",
+      "source": "Function Probe() As String\nProbe = CStr(1&2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:11:52.532307+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_number_before_space",
+      "source": "Function Probe() As String\nProbe = CStr(1 &2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:11:57.087133+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_number_after_space",
+      "source": "Function Probe() As String\nProbe = CStr(1& 2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:01.696937+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_number_both_space",
+      "source": "Function Probe() As String\nProbe = CStr(1 & 2)\nEnd Function",
+      "result": "12",
+      "measured_at": "2026-10-17T08:12:06.029803+00:00"
+    },
+    {
+      "name": "_numbers_paren_attached",
+      "source": "Function Probe() As String\nProbe = CStr((1)&2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:10.818522+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_fraction_attached",
+      "source": "Function Probe() As String\nProbe = CStr(1.5&2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:15.434659+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_hex_attached",
+      "source": "Function Probe() As String\nProbe = CStr(&H1&2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:19.938945+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_hex_space",
+      "source": "Function Probe() As String\nProbe = CStr(&H1 & 2)\nEnd Function",
+      "result": "12",
+      "measured_at": "2026-10-17T08:12:24.232869+00:00"
+    },
+    {
+      "name": "_numbers_octal_attached",
+      "source": "Function Probe() As String\nProbe = CStr(&O1&2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:28.779622+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_double_ampersand",
+      "source": "Function Probe() As String\nProbe = CStr(1&&2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:33.195038+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_numbers_literals",
+      "source": "Function Probe() As String\nProbe = CStr(\"a\"&\"b\")\nEnd Function",
+      "result": "ab",
+      "measured_at": "2026-10-17T08:12:37.389778+00:00"
+    },
+    {
+      "name": "_numbers_call_attached",
+      "source": "Function Probe() As String\nProbe = CStr(CLng(1)&2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:41.791778+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_spacing_paren_after_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr((1)& 2)\nEnd Function",
+      "result": "12",
+      "measured_at": "2026-10-17T08:12:45.929911+00:00"
+    },
+    {
+      "name": "_spacing_paren_before_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr((1) &2)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:12:50.301485+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_spacing_call_after_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(CLng(1)& 2)\nEnd Function",
+      "result": "12",
+      "measured_at": "2026-10-17T08:12:54.448780+00:00"
+    },
+    {
+      "name": "_spacing_literal_var",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(\"a\"&beta)\nEnd Function",
+      "result": "ab",
+      "measured_at": "2026-10-17T08:12:58.728520+00:00"
+    },
+    {
+      "name": "_spacing_literal_var_before_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(\"a\" &beta)\nEnd Function",
+      "result": "ab",
+      "measured_at": "2026-10-17T08:13:02.797411+00:00"
+    },
+    {
+      "name": "_spacing_literal_var_after_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(\"a\"& beta)\nEnd Function",
+      "result": "ab",
+      "measured_at": "2026-10-17T08:13:07.031844+00:00"
+    },
+    {
+      "name": "_spacing_var_before_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(alpha &beta)\nEnd Function",
+      "result": "ab",
+      "measured_at": "2026-10-17T08:13:11.215414+00:00"
+    },
+    {
+      "name": "_spacing_var_after_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(alpha& beta)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:13:15.624618+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_spacing_var_both_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(alpha & beta)\nEnd Function",
+      "result": "ab",
+      "measured_at": "2026-10-17T08:13:19.789463+00:00"
+    },
+    {
+      "name": "_spacing_literal_call",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(\"a\"&CStr(1))\nEnd Function",
+      "result": "a1",
+      "measured_at": "2026-10-17T08:13:24.092762+00:00"
+    },
+    {
+      "name": "_spacing_literal_call_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(\"a\"& CStr(1))\nEnd Function",
+      "result": "a1",
+      "measured_at": "2026-10-17T08:13:28.294040+00:00"
+    },
+    {
+      "name": "_spacing_literal_hex",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(\"a\" &H1)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:13:32.655732+00:00",
+      "compiler_message": "Compile error:\n\nSyntax error"
+    },
+    {
+      "name": "_spacing_literal_hex_space",
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(\"a\" & &H1)\nEnd Function",
+      "result": "a1",
+      "measured_at": "2026-10-17T08:13:36.846603+00:00"
+    },
+    {
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(alpha&(beta))\nEnd Function",
+      "compile_error": true,
+      "name": "_string_paren",
+      "measured_at": "2026-10-17T08:13:41.280650+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    },
+    {
+      "source": "Function Probe() As String\nDim alpha As String, beta As String\nalpha=\"a\"\nbeta=\"b\"\nProbe = CStr(alpha& (beta))\nEnd Function",
+      "compile_error": true,
+      "name": "_string_after_space",
+      "measured_at": "2026-10-17T08:13:45.699738+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    },
+    {
+      "name": "reference_reference_string",
+      "source": "Function Probe() As String\nDim alpha As Integer\nProbe = TypeName(alpha$)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:14:25.319505+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    },
+    {
+      "name": "reference_reference_long",
+      "source": "Function Probe() As String\nDim alpha As Integer\nProbe = TypeName(alpha&)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:14:25.855383+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    },
+    {
+      "name": "reference_reference_integer",
+      "source": "Function Probe() As String\nDim alpha As Integer\nProbe = TypeName(alpha%)\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T08:14:26.057196+00:00"
+    },
+    {
+      "name": "reference_enum_reference",
+      "source": "Enum Style\nLow = 1\nEnd Enum\nFunction Probe() As String\nDim alpha As Style\nProbe = TypeName(alpha&)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:14:26.363664+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    },
+    {
+      "name": "fixed_name",
+      "source": "Function Probe() As String\nDim value As String * 3\nvalue$=\"a\"\nProbe = TypeName(value$) & \":\" & value$\nEnd Function",
+      "result": "String:a  ",
+      "measured_at": "2026-10-17T08:20:22.344678+00:00"
+    },
+    {
+      "name": "fixed_array",
+      "source": "Function Probe() As String\nDim value(0) As String * 3\nvalue$(0)=\"a\"\nProbe = TypeName(value$(0)) & \":\" & value$(0)\nEnd Function",
+      "result": "String:a  ",
+      "measured_at": "2026-10-17T08:20:22.344692+00:00"
+    },
+    {
+      "name": "fixed_wrong",
+      "source": "Function Probe() As String\nDim value As String * 3\nProbe = TypeName(value%)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:20:22.344695+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    }
+  ],
+  "measured_at": "2026-10-17T08:13:45.699767+00:00",
+  "excel_version_build": "16.0|20430"
+}

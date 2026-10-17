@@ -367,6 +367,7 @@ class Procedure:
     params: list[Param] = field(default_factory=lambda: [])
     body: list[Stmt] = field(default_factory=lambda: [])
     returns: str = "Variant"
+    body_error: tuple[str, str] | None = None
     #: True for a function declared ``As Long()``, which returns an array of that type.
     returns_array: bool = False
     scope: str = "public"

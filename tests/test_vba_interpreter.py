@@ -473,12 +473,16 @@ def test_err_raise_carries_its_description() -> None:
 
 def test_source_that_is_not_vba_is_a_compile_error() -> None:
     with pytest.raises(VBACompileError):
-        Interpreter().add_module("Sub Main()\n    If Then\nEnd Sub\n", name="Module1")
+        runtime = Interpreter()
+        runtime.add_module("Sub Main()\n    If Then\nEnd Sub\n", name="Module1")
+        runtime.run('Module1.Main')
 
 
 def test_an_unclosed_block_is_a_compile_error_naming_the_block() -> None:
     with pytest.raises(VBACompileError) as raised:
-        Interpreter().add_module("Sub Main()\n    If 1 = 1 Then\nEnd Sub\n", name="Module1")
+        runtime = Interpreter()
+        runtime.add_module("Sub Main()\n    If 1 = 1 Then\nEnd Sub\n", name="Module1")
+        runtime.run('Module1.Main')
     assert "End If" in str(raised.value)
 
 

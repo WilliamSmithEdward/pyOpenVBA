@@ -1,7 +1,7 @@
 # Excel API coverage
 
 Snapshot: **17 October 2026**, covering the current source tree, including the
-PivotCache creation work in progress. This is a functionality summary for the
+worksheet-source PivotCache creation implementation. This is a functionality summary for the
 in-memory Excel engine. **No functional area is complete yet.** Common worksheet
 operations have substantially more support than advanced Excel automation.
 
@@ -25,7 +25,7 @@ is a percentage of working macros or complete functionality.
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
 | Application, workbooks and worksheets | Partial | 125 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Many application services, workbook features and host-specific behaviors remain. |
-| Cells and ranges | Partial | 110 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
+| Cells and ranges | Partial | 110 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native Currency assignment probes cover two-decimal Value rounding and Value2 precision. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 86 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Rich text, gradients, display formats and remaining formatting APIs need work. |
@@ -37,7 +37,7 @@ is a percentage of working macros or complete functionality.
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
 | Shapes and worksheet controls | Partial | 54 / 2,025 | 0 | Basic shapes/text boxes and nine Forms control types, with measured values, links and persistence. Rich drawing APIs, grouping/copying, pictures and newer controls remain incomplete. |
 | Charts and sparklines | Partial | 30 / 951 | 0 | Embedded charts, basic series/titles and eight persisted chart kinds. Axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
-| PivotTables and slicers | Partial | 64 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata and empty-report creation with table/named sources, events and persistence that preserves unrecognized pivot parts. Aggregation, refresh, layout edits, grouping and slicers remain incomplete. |
+| PivotTables and slicers | Partial | 64 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata and empty-report creation with table/named sources, events and persistence that preserves unrecognized pivot parts. Native record probes cover date/time serials, Currency, typed values and modern-error rich-cache snapshots across saves. Aggregation, refresh, layout edits, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
 | Queries and external data | Partial | 8 / 278 | 0 | Workbook queries plus local Power Query evaluation, refresh and sheet loading. Connection objects, remote connectors, QueryTables and full query semantics remain incomplete. |
 | Data model and OLAP | Missing | 0 / 261 | 0 | No in-memory Power Pivot model, relationships/measures or cube automation. Reading some external-pivot metadata does not implement these operations. |
 | XML mapping | Missing | 0 / 75 | 0 | No XmlMaps, schema/namespace binding or mapped-data import/export API. |

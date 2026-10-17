@@ -72,6 +72,14 @@ def read(book: Workbook) -> None:
             continue
         cache = PivotCache(book, part, xml_tree(package.read(part)), len(book.pivot_caches) + 1)
         cache.cache_id = int(entry.get('cacheId', '0'))
+        cache.rich_records = bool(_parts(package, part, 'richPivotRecords'))
+        if cache.rich_records:
+            from pyopenvba.apps.excel._pivot_rich import datasets
+
+            info = cache.root.find(f'{NS}extLst/{NS}ext/'
+                                   '{http://schemas.microsoft.com/office/spreadsheetml/2022/pivotRichData}richInfo')
+            cache.rich_guid = info.get('pivotCacheGuid', '') if info is not None else ''
+            cache.rich_columns = datasets(package).get(cache.rich_guid)
         book.pivot_caches.append(cache)
         by_part[part] = cache
     for sheet in book.sheets_:
@@ -148,6 +156,9 @@ class PivotCache(ExcelObject):
         self.cache_id = 0
         self.records: XmlElement | None = None
         self.records_part = ''
+        self.rich_records = False
+        self.rich_guid = ''
+        self.rich_columns: dict[str, list[str | None]] | None = None
         self.changed = False
 
     @method
@@ -528,6 +539,8 @@ class PivotField(ExcelObject):
             rows = self.table.cache.records
             if rows is None and package is not None:
                 records = _parts(package, self.table.cache.part, 'pivotCacheRecords')
+                if not records:
+                    records = _parts(package, self.table.cache.part, 'richPivotRecords')
                 if records:
                     rows = xml_tree(package.read(records[0][1]))
             if rows is not None:

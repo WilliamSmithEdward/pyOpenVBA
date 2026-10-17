@@ -5,6 +5,7 @@ import math
 import datetime as dt
 import posixpath
 import re
+import uuid
 from dataclasses import replace
 from decimal import Decimal
 from html import escape
@@ -186,6 +187,8 @@ def materialize(cache: PivotCache) -> None:
     records = node('pivotCacheRecords', {'count': str(area.rows - 1)})
     kinds: list[set[str]] = [set() for _ in headers]
     numbers: list[list[float]] = [[] for _ in headers]
+    cache.rich_records = False
+    rich_columns: dict[str, list[str | None]] = {}
     for row in range(area.top + 1, area.bottom + 1):
         entry = node('r')
         for column in range(area.left, area.right + 1):
@@ -193,6 +196,11 @@ def materialize(cache: PivotCache) -> None:
             value = (cache.book.calculator.value_of(selected.sheet.name, row, column) if cell is not None and cell.formula
                      else cell.value if cell is not None else EMPTY)
             stored = record_value(value, selected.sheet.style_at(row, column).number_format)
+            if stored.tag == NS + 's' and isinstance(value, (VBAErrorValue, ExcelError)):
+                cache.rich_records = True
+                rich_column = rich_columns.setdefault(headers[column - area.left], [])
+                rich_column.extend([None] * (row - area.top - 1 - len(rich_column)))
+                rich_column.append(stored.get('v'))
             entry.append(stored)
             kind = stored.tag[len(NS):]
             kinds[column - area.left].add(kind)
@@ -207,7 +215,9 @@ def materialize(cache: PivotCache) -> None:
                               'containsNonDate': str(int(bool(types - {'d', 'm'}))),
                               'containsMixedTypes': str(int(len(types - {'m'}) > 1)),
                               'containsSemiMixedTypes': str(int(bool(types & {'s', 'b', 'e'})))})
-        if numbers[index]:
+        # Numeric bounds are invalid for a field containing date records: Excel
+        # refuses the workbook rather than ignoring the contradictory summary.
+        if numbers[index] and 'd' not in types:
             shared.set('containsInteger', str(int(all(value.is_integer() for value in numbers[index]))))
             shared.set('minValue', repr(min(numbers[index])))
             shared.set('maxValue', repr(max(numbers[index])))
@@ -217,6 +227,11 @@ def materialize(cache: PivotCache) -> None:
     cache.root.append(fields)
     cache.root.set('recordCount', str(area.rows - 1))
     cache.records = records
+    if cache.rich_records:
+        cache.rich_guid = '{' + str(uuid.uuid4()).upper() + '}'
+        for values in rich_columns.values():
+            values.extend([None] * (area.rows - 1 - len(values)))
+        cache.rich_columns = rich_columns
     origin = cache.root.find(f'{NS}cacheSource/{NS}worksheetSource')
     if origin is not None and origin.get('name') is not None:
         cache.source_text = origin.get('name')
@@ -232,20 +247,27 @@ def record_value(value: object, code: str = 'General') -> XmlElement:
         from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS
         text = value.name if isinstance(value, ExcelError) else next(
             (name for name, number in ERROR_NUMBERS.items() if number == value.number), '#VALUE!')
-        return node('e', {'v': text})
+        return node('s' if text in ('#SPILL!', '#CALC!') else 'e', {'v': text})
     if isinstance(value, VBADate):
         value = value.serial
     if isinstance(value, (int, float, Decimal)):
         value = float(value)
         if not math.isfinite(value):
             raise error(1004)
-        from pyopenvba.apps.excel._typing import is_date_format
-        if is_date_format(code):
-            from pyopenvba.formula._calc.dates import calendar
-            year, month, day = calendar(math.floor(value))
-            if day != 0 and (year, month, day) != (1900, 2, 29):
-                clock = dt.datetime(year, month, day) + dt.timedelta(days=value - math.floor(value))
-                return node('d', {'v': clock.isoformat(timespec='milliseconds')})
+        from pyopenvba.apps.excel._typing import date_time_codes, is_date_format
+        if date_time_codes(code):
+            if value < 0:
+                if is_date_format(code):
+                    raise error(5)
+                return node('n', {'v': repr(value)})
+            try:
+                VBADate(value)  # The cache's OLE-date conversion has the VBA Date bounds.
+                days = math.trunc(value)
+                fraction = abs(value - days)
+                clock = dt.datetime(1899, 12, 30) + dt.timedelta(days=days, milliseconds=round(fraction * 86400000))
+            except (ValueError, OverflowError, VBARuntimeError):
+                raise error(440) from None
+            return node('d', {'v': clock.isoformat(timespec='milliseconds')})
         return node('n', {'v': repr(float(value))})
     return node('s', {'v': encoded(to_text(value))})
 
@@ -374,11 +396,13 @@ def write(book: Workbook, package: OpcFile) -> None:
         while any(package.has(part) for part in (
                 f'xl/pivotCache/pivotCacheDefinition{number}.xml',
                 f'xl/pivotCache/pivotCacheRecords{number}.xml',
+                f'xl/pivotCache/richPivotRecords{number}.xml',
                 f'xl/pivotCache/_rels/pivotCacheDefinition{number}.xml.rels',
                 f'xl/pivotCache/_rels/pivotCacheRecords{number}.xml.rels')):
             number += 1
         cache.part = f'xl/pivotCache/pivotCacheDefinition{number}.xml'
-        cache.records_part = f'xl/pivotCache/pivotCacheRecords{number}.xml'
+        records_kind = 'richPivotRecords' if cache.rich_records else 'pivotCacheRecords'
+        cache.records_part = f'xl/pivotCache/{records_kind}{number}.xml'
         cache.cache_id = max([0, *[other.cache_id for other in book.pivot_caches]]) + 1
         rid = add_relationship(package, 'xl/_rels/workbook.xml.rels', LINK + 'pivotCacheDefinition',
                                f'pivotCache/pivotCacheDefinition{number}.xml')
@@ -392,13 +416,34 @@ def write(book: Workbook, package: OpcFile) -> None:
             text = text[:match.start()] + '<pivotCaches>' + entry + '</pivotCaches>' + text[match.start():]
         package.write('xl/workbook.xml', text.encode('utf-8'))
         records_id = add_relationship(package, f'xl/pivotCache/_rels/pivotCacheDefinition{number}.xml.rels',
-                                      LINK + 'pivotCacheRecords', f'pivotCacheRecords{number}.xml')
-        cache.root.set(REL + 'id', records_id)
+                                      LINK + records_kind, f'{records_kind}{number}.xml')
+        if cache.rich_records:
+            cache.root.set('invalid', '1')
+            guid = cache.rich_guid
+            cache.root.set('{http://schemas.microsoft.com/office/spreadsheetml/2014/revision}uid', guid)
+            extensions = node('extLst')
+            version = node('ext', {'uri': '{9F748A41-CAEA-4470-BF7A-CE61E8FFA7F9}'})
+            version_ns = '{http://schemas.microsoft.com/office/spreadsheetml/2022/pivotVersionInfo}'
+            info = XmlElement(version_ns + 'cacheVersionInfo')
+            feature = XmlElement(version_ns + 'lastRefreshFeature')
+            feature.text = 'RichData'
+            info.append(feature)
+            version.append(info)
+            extensions.append(version)
+            rich = node('ext', {'uri': '{2C874A73-7782-4A18-856F-96AC7E287872}'})
+            rich.append(XmlElement('{http://schemas.microsoft.com/office/spreadsheetml/2022/pivotRichData}richInfo',
+                                   {'pivotCacheGuid': guid, 'pivotIgnoreInvalidCache': '1', REL + 'id': records_id}))
+            extensions.append(rich)
+            cache.root.append(extensions)
+        else:
+            cache.root.set(REL + 'id', records_id)
         package.write(cache.part, xml_bytes(cache.root))
         assert cache.records is not None
         package.write(cache.records_part, xml_bytes(cache.records))
-        for part, kind in ((cache.part, 'pivotCacheDefinition'), (cache.records_part, 'pivotCacheRecords')):
-            add_content_type(package, part, f'application/vnd.openxmlformats-officedocument.spreadsheetml.{kind}+xml')
+        add_content_type(package, cache.part,
+                         'application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml')
+        add_content_type(package, cache.records_part,
+                         'application/vnd.openxmlformats-officedocument.spreadsheetml.' + records_kind + '+xml')
         cache.changed = False
     for sheet in book.sheets_:
         added = False

@@ -1169,6 +1169,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
             # A dynamic-array formula's cm and vm number the metadata the save writes afresh, so its sheet is
             # written afresh too.
             sheet.dirty = True
+        if any(not cell.formula and isinstance(cell.value, ExcelError) and cell.value.name in ('#SPILL!', '#CALC!')
+               for cell in sheet.cells_.values()):
+            sheet.dirty = True
         if sheet.notes_changed:
             # A note's row and cell are written in the sheet (see _notes_file).
             sheet.dirty = True
@@ -1188,6 +1191,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
     collector.write(package)
+    from pyopenvba.apps.excel._pivot_rich import write as write_rich_pivots
+
+    write_rich_pivots(book, package)
     if book.names_.changed:
         _write_names(book, package)
     if book.protection_changed and package.has("xl/workbook.xml"):
@@ -1589,7 +1595,12 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
     dynamic: dict[tuple[int, int], tuple[str, str | None]] = {}
     from pyopenvba.apps.excel._pivot_create import rich_errors
 
-    for position, rich_error in rich_errors(sheet).items():
+    pivot_errors = rich_errors(sheet)
+    for position, cell in sheet.cells_.items():
+        if cell.formula or cell.spilled_from is not None or not isinstance(cell.value, ExcelError) \
+                or cell.value.name not in ('#SPILL!', '#CALC!'):
+            continue
+        rich_error = pivot_errors.get(position, RichError(cell.value.name, 0))
         index = (collector or Collector()).value(rich_error)
         dynamic[position] = (f' vm="{index}"', '<v>#VALUE!</v>')
     for position, cell in sheet.cells_.items():

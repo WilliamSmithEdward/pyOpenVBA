@@ -114,14 +114,14 @@ def _rich_values(package: OpcFile) -> dict[int, RichError]:
     """Each rich value that is an error a dynamic array has, by its place."""
     if not package.has(_RICH_VALUES) or not package.has(_STRUCTURES):
         return {}
-    structures = [re.findall(r'<k\b[^>]*\bn="([^"]*)"', body) for body in re.findall(
-        r"<s\b[^>]*>(.*?)</s>", package.read(_STRUCTURES).decode("utf-8", errors="replace"), re.DOTALL)]
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    structures = [[key.get('n', '') for key in entry] for entry in xml_tree(package.read(_STRUCTURES))]
     out: dict[int, RichError] = {}
-    values = package.read(_RICH_VALUES).decode("utf-8", errors="replace")
-    for index, (structure, body) in enumerate(re.findall(r'<rv\b[^>]*\bs="(\d+)"[^>]*>(.*?)</rv>', values,
-                                                         re.DOTALL)):
-        keys = structures[int(structure)] if int(structure) < len(structures) else []
-        fields = dict(zip(keys, re.findall(r"<v\b[^>]*>([^<]*)</v>", body), strict=False))
+    for index, value in enumerate(xml_tree(package.read(_RICH_VALUES))):
+        structure = int(value.get('s', '-1'))
+        keys = structures[structure] if 0 <= structure < len(structures) else []
+        fields = dict(zip(keys, (entry.text or '' for entry in value), strict=False))
         try:
             number = {key: int(text) for key, text in fields.items()}
         except ValueError:

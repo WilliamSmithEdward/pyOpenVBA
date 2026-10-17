@@ -1956,6 +1956,18 @@ Resume Next`, is dropped here; and `Log = Log & (x Is Nothing)`, where `x`
 is a fresh `As New` variable whose `Class_Initialize` also appends to `Log`,
 leaves `FalseFalse` natively and `False` here.
 
+In manual calculation mode, structural edits and copies carry a dynamic array's
+cached results without evaluating its formula. Partial copies carry only their
+copied output; edits to a spill child immediately invalidate that cached spill.
+Explicit calculation rebuilds the answer. One hundred ten native probes cover these
+cases and `Application.CalculateBeforeSave`, including preservation of that flag
+when calculation mode changes. Nine Excel-authored files and native readback
+of model-written files cover saved caches, errors and calculation settings.
+The first ordinary workbook supplies calculation mode; subsequent workbooks use
+the application's existing mode. `CalculateBeforeSave=False` retains cached
+results on save; True calculates pending results first. These measured cases do
+not establish complete calculation scheduling, iteration, or event conformance.
+
 ## What is not
 
 - **Dynamic arrays still need broader edit conformance.** Thirty-five native
@@ -1964,7 +1976,7 @@ leaves `FalseFalse` natively and `False` here.
   (`tests/fixtures/spill_edits.json`). A
   dynamic-array formula spills, grows, shrinks and is #SPILL! as Excel's
   is (`tests/fixtures/dynamic_arrays.json`); interactions with tables,
-  merged cells, filtering, manual calculation and more complex dependencies
+  merged cells, filtering and more complex dependencies
   during structural edits still need measurements.
   Implicit intersection is applied wherever a formula wants one value,
   as Excel's `@` does; `Range.Formula2` reads a formula back with that

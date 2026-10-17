@@ -449,6 +449,9 @@ def move(source: Range, area: Area, destination: Range) -> None:
     down, across = top - area.top, left - area.left
     moving = {position: cell for position, cell in sheet.cells_.items() if area.contains(*position)}
     book = sheet.book
+    from pyopenvba.apps.excel._spills import cached, restore
+
+    caches = cached(sheet) + (cached(target) if target is not sheet else [])
     # Every formula and name follows the cells before any cell moves.
     for owner in book.sheets_:
         for position, cell in owner.cells_.items():
@@ -469,7 +472,7 @@ def move(source: Range, area: Area, destination: Range) -> None:
         del target.cells_[position]
     for (row, column), cell in moving.items():
         cell.stale = bool(cell.formula)
-        if cell.formula:
+        if cell.formula and book.calculator.automatic:
             cell.value = EMPTY
         target.cells_[(row + down, column + across)] = cell
     if sheet.notes or target.notes:
@@ -484,6 +487,7 @@ def move(source: Range, area: Area, destination: Range) -> None:
 
     filter_moved(sheet, area, target, down, across)
     for owner in {sheet, target}:
+        restore(owner, caches)
         owner.touched()
         owner.book.calculator.rebuild()
     book.calculator.settle_spills()

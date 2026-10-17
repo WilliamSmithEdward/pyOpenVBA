@@ -29,7 +29,7 @@ Application,AutoPercentEntry,property,As Boolean,,MISSING,,
 Application,AutoRecover,"property, read-only",As AutoRecover,,MISSING,,
 Application,Build,"property, read-only",As Long,,UNASSESSED,,
 Application,Calculate,method,Calculate(),,UNASSESSED,,
-Application,CalculateBeforeSave,property,As Boolean,,MISSING,,
+Application,CalculateBeforeSave,property,As Boolean,,PARTIAL,tests/fixtures/manual_spill_edits.json,Manual save flags and mode switching; nine native files. Wider save-event and external-workbook interactions remain partial.
 Application,CalculateFull,method,CalculateFull(),,MISSING,,
 Application,CalculateFullRebuild,method,CalculateFullRebuild(),,MISSING,,
 Application,CalculateUntilAsyncQueriesDone,method,CalculateUntilAsyncQueriesDone(),,MISSING,,

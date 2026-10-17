@@ -145,7 +145,7 @@ class Calculator:
 
     def _settle(self, owner: Worksheet) -> None:
         """Work out the stale dynamic-array formulas of a sheet, so what each spills is in place."""
-        if not self.automatic:
+        if not self.automatic and not self._calculation_depth:
             return
         name = owner.name.lower()
         for row, column in list(owner.spills):
@@ -162,9 +162,9 @@ class Calculator:
             return
         from pyopenvba.apps.excel._spills import remove
 
-        self._spilled_changed(sheet, remove(owner, (row, column)))
+        self.spilled_changed(sheet, remove(owner, (row, column)))
 
-    def _spilled_changed(self, sheet: str, positions: set[tuple[int, int]]) -> None:
+    def spilled_changed(self, sheet: str, positions: set[tuple[int, int]]) -> None:
         """Cells a spill changed: mark whatever reads them as needing another look."""
         if positions:
             name = sheet.lower()
@@ -245,14 +245,16 @@ class Calculator:
         changed = {(sheet.lower(), row, column)}
         owner = self._sheet_named(sheet)
         if owner is not None and owner.spills:
-            from pyopenvba.apps.excel._spills import wanted
+            from pyopenvba.apps.excel._spills import block_cached, wanted
 
             for anchor in wanted(owner, row, column):
                 cell = owner.cells_.get(anchor)
-                if cell is not None and not cell.stale:
+                if cell is not None:
                     cell.stale = True
                     changed.add((sheet.lower(), *anchor))
                     changed.update(self._members((sheet.lower(), *anchor)))
+                    if not self.automatic:
+                        changed.update((sheet.lower(), *position) for position in block_cached(owner, anchor))
         self._spoil(changed, set())
 
     def wrote_area(self, sheet: str, area: Area) -> None:
@@ -538,7 +540,7 @@ class Calculator:
         from pyopenvba.apps.excel._spills import place
 
         value, changed = place(owner, (row, column), answer)
-        self._spilled_changed(owner.name, changed)
+        self.spilled_changed(owner.name, changed)
         return value
 
     def _members(self, key: CellKey) -> set[CellKey]:

@@ -125,6 +125,15 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
     read_book_protection(book, workbook_xml)
     _read_queries(book, path)
+    from pyopenvba.apps.excel._calculation_settings import read as read_calculation
+
+    read_calculation(book, workbook_xml)
+    calc_pr = re.search(r'<calcPr\b[^>]*>', workbook_xml)
+    if calc_pr and _attributes(calc_pr.group(0)).get('calcCompleted') in ('0', 'false'):
+        for sheet in book.sheets_:
+            for cell in sheet.cells_.values():
+                if cell.formula:
+                    cell.stale = True
     book.saved = True
     return book
 
@@ -1199,6 +1208,12 @@ def save_workbook(book: Workbook, target: Path) -> None:
     _write_notes(book, package)
     _write_links(book, package, str(target.resolve().parent))
     _write_styles(book, package)
+    from pyopenvba.apps.excel._calculation_settings import write as write_calculation
+
+    text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
+    calculated_xml = write_calculation(book, text)
+    if calculated_xml != text:
+        package.write("xl/workbook.xml", calculated_xml.encode("utf-8"))
     from pyopenvba.apps.excel._vba_save import persist_project
 
     package = persist_project(book, package)
@@ -1580,7 +1595,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
             formulas[position] = f"<f{volatile}>{spell(cell.formula[1:])}</f>"
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
-                                    formulas, dynamic)
+                                    formulas, dynamic, keep_stale=not sheet.book.calculator.automatic)
     for row in set(sheet.dims.rows) | sheet.dims.shaped_rows() | {row for row, _ in sheet.notes}:
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
@@ -1718,13 +1733,14 @@ def _dynamic_element(sheet: Worksheet, position: tuple[int, int], cell: Cell, sp
     spill = sheet.spills.get(position)
     marks = f' cm="{collector.cell()}"'
     value = cell.value
-    if not cell.stale and isinstance(value, ExcelError) and value.name == "#SPILL!":
+    cached = not cell.stale or not sheet.book.calculator.automatic
+    if cached and isinstance(value, ExcelError) and value.name == "#SPILL!":
         wanted = spill.area if spill is not None else Area(row, column, row, column)
         why = spill.why if spill is not None else OBSTRUCTED
         reach = (0, 0) if why == BEYOND_THE_EDGE else (wanted.rows - 1, wanted.columns - 1)
         index = collector.value(RichError("#SPILL!", why, *reach))
         return f'<f t="array" aca="1" ref="{here}" ca="1">{text}</f>', (f'{marks} vm="{index}"', "<v>#VALUE!</v>")
-    if not cell.stale and isinstance(value, ExcelError) and value.name == "#CALC!":
+    if cached and isinstance(value, ExcelError) and value.name == "#CALC!":
         index = collector.value(RichError("#CALC!", EMPTY_ARRAY))
         return f'<f t="array" ref="{here}">{text}</f>', (f'{marks} vm="{index}"', "<v>#VALUE!</v>")
     block = spill.area if spill is not None and not spill.blocked else Area(row, column, row, column)
@@ -1736,7 +1752,7 @@ def _dynamic_element(sheet: Worksheet, position: tuple[int, int], cell: Cell, sp
 
 def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], stylesheet: Stylesheet,
                     formulas: dict[tuple[int, int], str],
-                    dynamic: dict[tuple[int, int], tuple[str, str | None]] | None = None) -> str:
+                    dynamic: dict[tuple[int, int], tuple[str, str | None]] | None = None, *, keep_stale: bool = False) -> str:
     """A row with the model's cells written into it in column order, in place of the ones it had.
 
     ``formulas`` is the ``<f>`` of each formula cell, a shared formula's included, and ``dynamic`` what each
@@ -1748,20 +1764,20 @@ def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], style
     rest = "" if closed else _CELL.sub("", row_xml[head_end + 1 : row_xml.rindex("</row>")])
     extras = dynamic or {}
     written = "".join(_cell_xml(f"{column_letter(column)}{row}", cell, _style_for(cell, stylesheet),
-                                formulas.get((row, column)), extras.get((row, column)))
+                                formulas.get((row, column)), extras.get((row, column)), keep_stale=keep_stale)
                       for column, cell in cells)
     return f"{opening}{written}{rest}</row>"
 
 
 def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None,
-              dynamic: tuple[str, str | None] | None = None) -> str:
+              dynamic: tuple[str, str | None] | None = None, *, keep_stale: bool = False) -> str:
     """A cell's <c>; ``dynamic`` for a dynamic-array formula's: its cm and vm, and the <v> of an error only a dynamic
     array has, #VALUE! with the rich value its vm names (see _dynamic_file)."""
     attributes = f' s="{style}"' if style else ""
     if cell.formula:
         # A formula cell carries its last value in a <v>, never as an
         # inline string: a formula whose answer is text is t="str".
-        kind, body = _formula_value(cell)
+        kind, body = _formula_value(cell, keep_stale=keep_stale)
         extra = ""
         if dynamic is not None:
             extra, rich = dynamic
@@ -1771,7 +1787,7 @@ def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None
         return f'<c r="{reference}"{attributes}{kind}{extra}>{element}{body}</c>'
     if cell.spilled_from is not None:
         # A cell a formula spilled into keeps its value as a formula's is kept: text is t="str".
-        kind, body = _formula_value(cell)
+        kind, body = _formula_value(cell, keep_stale=keep_stale)
         return f'<c r="{reference}"{attributes}{kind}>{body}</c>' if body else f'<c r="{reference}"{attributes}/>'
     kind, body = _value_body(cell.value)
     if formula is not None:
@@ -1806,6 +1822,11 @@ def _calculated(book: Workbook) -> None:
 
     calculator = book.calculator
     if not calculator.automatic:
+        if book.application.calculate_before_save:
+            worked = calculator.calculate_all()
+            from pyopenvba.apps.excel._events import calculated_all
+
+            calculated_all(book, worked)
         return
     for sheet in book.sheets_:
         for (row, column), cell in list(sheet.cells_.items()):
@@ -1831,11 +1852,11 @@ def _formula_read(body: str) -> str:
     return prefixes.from_file(from_file("=" + re.sub(r"_x000[dD]_", "\r", text)))
 
 
-def _formula_value(cell: Cell) -> tuple[str, str]:
+def _formula_value(cell: Cell, *, keep_stale: bool = False) -> tuple[str, str]:
     """The type and the ``<v>`` a formula cell carries beside its formula."""
     from pyopenvba.formula._values import ExcelError
 
-    if cell.stale or cell.value is EMPTY:
+    if cell.stale and not keep_stale or cell.value is EMPTY:
         return "", ""
     value = cell.value
     if isinstance(value, ExcelError):

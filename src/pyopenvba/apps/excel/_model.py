@@ -184,6 +184,7 @@ class Application(ExcelObject):
         self.display_alerts = True
         self.enable_events = True
         self.calculation = -4105  # xlCalculationAutomatic
+        self.calculate_before_save = True
         self.status_bar: object = False
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
@@ -268,6 +269,14 @@ class Application(ExcelObject):
     @member
     def Calculation(self) -> object:
         return VBAInt(self.calculation, "Long")
+
+    @member
+    def CalculateBeforeSave(self) -> object:
+        return self.calculate_before_save
+
+    @setter("CalculateBeforeSave")
+    def _set_calculate_before_save(self, value: object) -> None:
+        self.calculate_before_save = to_bool(value)
 
     @member
     def Caller(self, Index: object = MISSING) -> object:
@@ -2839,8 +2848,8 @@ class Range(ExcelObject):
         """Every value and formula gone; a cell left with nothing to say goes with them."""
         for row, column in self.cell_positions():
             cell = self.sheet.cells_.get((row, column))
-            if cell is None or cell.spilled_from is not None:
-                # Clearing a cell a formula spilled into leaves the spill as it is; clearing the formula takes it.
+            if cell is None or cell.spilled_from is not None and self.sheet.book.calculator.automatic:
+                # Automatic mode restores a cleared child; manual mode invalidates its cached spill.
                 continue
             cell.value = EMPTY
             cell.formula = ""
@@ -3040,6 +3049,13 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("copying part of an array formula, or over part of one, is not implemented")
         # Snapshot before clearing or writing: source and destination can overlap.
         arrays = [self.sheet.array_formulas[anchor] for anchor in carried]
+        from pyopenvba.apps.excel._spills import CachedSpill, cached, restore
+        from pyopenvba.formula._calc.values import Array as FormulaArray
+
+        source_caches = cached(self.sheet)
+        destination_caches = source_caches if Destination.sheet is self.sheet else cached(Destination.sheet)
+        by_cell = {id(cache.cell): cache for cache in source_caches}
+        copied_caches: list[CachedSpill] = []
         sources = {(row - area.top, column - area.left): cell
                    for (row, column), cell in self.sheet.cells_.items() if area.contains(row, column)}
         from pyopenvba.apps.excel._row_formats import shown_formats
@@ -3082,7 +3098,17 @@ class Range(ExcelObject):
                     if copy.formula:
                         copy.formula = shift_text(formulas.get((down, across), copy.formula), tile_row - area.top, tile_column - area.left)
                         copy.stale = True
-                        copy.value = EMPTY
+                        if Destination.sheet.book.calculator.automatic:
+                            copy.value = EMPTY
+                    source_cache = by_cell.get(id(source))
+                    if source_cache is not None:
+                        height = min(source_cache.area.bottom, area.bottom) - source_cache.area.top + 1
+                        width = min(source_cache.area.right, area.right) - source_cache.area.left + 1
+                        answer = None if source_cache.answer is None else FormulaArray(
+                            [line[:width] for line in source_cache.answer.rows[:height]])
+                        copied_caches.append(CachedSpill(copy, Area(1, 1, height, width), answer,
+                                                        source_cache.value, source_cache.why))
+                        copy.value = source_cache.value
                     Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
                     Destination.sheet.settle(tile_row + down, tile_column + across)
                 # An array copied whole is an array where it lands.
@@ -3132,6 +3158,7 @@ class Range(ExcelObject):
                      for tile_row in range(target.top, bottom + 1, area.rows)
                      for tile_column in range(target.left, right + 1, area.columns)}
             _notes.copied(Destination.sheet, notes, [written])
+        restore(Destination.sheet, copied_caches + destination_caches)
         if names_brought:
             # Names the copy brought can change what any formula means.
             Destination.sheet.shape_changed()

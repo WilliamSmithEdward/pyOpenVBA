@@ -21,13 +21,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
-from pyopenvba.apps.excel._engine_book import model_value
+from pyopenvba.apps.excel._engine_book import model_value, scalar
 from pyopenvba.formula._calc.values import Array
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._values import EMPTY, NOTHING
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range, Worksheet
+    from pyopenvba.apps.excel._model import Cell, Range, Worksheet
 
 #: What a formula whose answer cannot spill shows.
 SPILL = ExcelError("#SPILL!")
@@ -48,6 +48,63 @@ class Spill:
     area: Area
     blocked: bool = False
     why: int = OBSTRUCTED
+
+
+@dataclass
+class CachedSpill:
+    """An already calculated result, attached to the formula cell rather than its old coordinates."""
+
+    cell: Cell
+    area: Area
+    answer: Array | None
+    value: object
+    why: int = OBSTRUCTED
+
+
+def cached(sheet: Worksheet) -> list[CachedSpill]:
+    """Snapshot manual-mode results before an edit moves their cells; never evaluate a formula."""
+    if sheet.book.calculator.automatic:
+        return []
+    result: list[CachedSpill] = []
+    for anchor, spill in sheet.spills.items():
+        cell = sheet.cells_.get(anchor)
+        if cell is None or not cell.dynamic or not cell.formula:
+            continue
+        answer = None if spill.blocked else Array([
+            [scalar(sheet.cells_[(row, column)].value) if (row, column) in sheet.cells_ else scalar(EMPTY)
+             for column in range(spill.area.left, spill.area.right + 1)]
+            for row in range(spill.area.top, spill.area.bottom + 1)])
+        result.append(CachedSpill(cell, spill.area, answer, cell.value, spill.why))
+    for (row, column), cell in sheet.cells_.items():
+        if cell.dynamic and cell.formula and (row, column) not in sheet.spills and cell.value is not EMPTY:
+            result.append(CachedSpill(cell, Area(row, column, row, column), Array([[scalar(cell.value)]]), cell.value))
+    return result
+
+
+def restore(sheet: Worksheet, caches: list[CachedSpill]) -> None:
+    """Reattach cached output after movement, checking obstructions without recalculating its formula."""
+    if not caches:
+        return
+    before = {position: cell.value for position, cell in sheet.cells_.items() if cell.spilled_from is not None}
+    positions = {id(cell): position for position, cell in sheet.cells_.items() if cell.dynamic and cell.formula}
+    surviving = [(cache, positions[id(cache.cell)]) for cache in caches if id(cache.cell) in positions]
+    for position, cell in list(sheet.cells_.items()):
+        if cell.spilled_from is not None:
+            cell.value, cell.spilled_from = EMPTY, None
+            sheet.settle(*position)
+    sheet.spills.clear()
+    # Reserve every old footprint first: a copied spill can conflict with a still-live original spill.
+    for cache, (row, column) in surviving:
+        sheet.spills[(row, column)] = Spill(Area(row, column, row + cache.area.rows - 1,
+                                               column + cache.area.columns - 1), cache.answer is None, cache.why)
+    for cache, anchor in surviving:
+        cache.cell.value = cache.value if cache.answer is None else place(sheet, anchor, cache.answer)[0]
+        cache.cell.stale = True
+    after = {position: cell.value for position, cell in sheet.cells_.items() if cell.spilled_from is not None}
+    changed = {position for position in before.keys() | after.keys()
+               if before.get(position, EMPTY) != after.get(position, EMPTY)}
+    changed.update(anchor for cache, anchor in surviving if cache.cell.value != cache.value)
+    sheet.book.calculator.spilled_changed(sheet.name, changed)
 
 
 def spilled(sheet: Worksheet, row: int, column: int) -> tuple[tuple[int, int], Area] | None:
@@ -107,6 +164,19 @@ def remove(sheet: Worksheet, anchor: tuple[int, int]) -> set[tuple[int, int]]:
     return emptied
 
 
+def block_cached(sheet: Worksheet, anchor: tuple[int, int]) -> set[tuple[int, int]]:
+    """A manual-mode edit to an output cell invalidates its spill immediately, without evaluation."""
+    spill = sheet.spills.get(anchor)
+    if spill is None or spill.blocked:
+        return set()
+    emptied = remove(sheet, anchor)
+    sheet.spills[anchor] = Spill(spill.area, blocked=True)
+    cell = sheet.cells_.get(anchor)
+    if cell is not None:
+        cell.value, cell.stale = SPILL, True
+    return emptied
+
+
 def reconcile(sheet: Worksheet) -> None:
     """After cells moved, as a cut or an inserted row moves them: forget each spill whose first cell holds no
     dynamic-array formula now, with what it spilled, and empty each cell showing an answer no formula spills there.
@@ -147,7 +217,8 @@ def keeps(sheet: Worksheet, row: int, column: int, value: object) -> bool:
     """Whether writing ``value`` to a cell leaves it as it is: an empty string or nothing written where an answer
     spilled."""
     cell = sheet.cells_.get((row, column))
-    return cell is not None and cell.spilled_from is not None and (value is EMPTY or value == "")
+    return (sheet.book.calculator.automatic and cell is not None and cell.spilled_from is not None
+            and (value is EMPTY or value == ""))
 
 
 def has_spill(target: Range) -> object:

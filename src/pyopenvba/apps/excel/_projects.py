@@ -100,7 +100,7 @@ class ExcelInterpreter(Interpreter):
 
         if self.bridge.workbook is not None:
             materialize(self.bridge.workbook)
-        parsed = parse_module(source, name=name, kind=kind)
+        parsed = parse_module(source, name=name, kind=kind, retain_body_errors=True)
         if not parsed.name:
             parsed.name = "ThisWorkbook" if kind == "document" else name or f"Module{len(self.modules) + 1}"
         key = parsed.name.casefold()
@@ -153,7 +153,7 @@ class ExcelInterpreter(Interpreter):
             owner = self.bridge.global_object(module.name.lower())
             if kind == "class" and isinstance(owner, VBAObject) and owner is not self.bridge.application:
                 kind = "document"
-            staged.append(ModuleRuntime(parse_module(module.source, name=module.name, kind=kind), self))
+            staged.append(ModuleRuntime(parse_module(module.source, name=module.name, kind=kind, retain_body_errors=True), self))
         # Parse every module first so a syntax error cannot silently leave a
         # half-imported project. Install all names before binding documents
         # so their declarations can refer to classes that follow them.

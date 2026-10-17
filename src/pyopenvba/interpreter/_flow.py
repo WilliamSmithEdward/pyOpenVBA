@@ -7,7 +7,7 @@ from typing import cast
 
 from pyopenvba.exceptions import VBACompileError
 from pyopenvba.interpreter import _ast as A
-from pyopenvba.interpreter._lex import default_type, strip_suffix
+from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
 
 
 @dataclass(slots=True)
@@ -55,6 +55,8 @@ def nested_bodies(statement: A.Stmt) -> Iterator[list[A.Stmt]]:
 
 def compile_program(procedure: A.Procedure, where: str, global_declarations: Sequence[A.Dim] = (),
                     value_type: Callable[[str], bool] | None = None, defaults: Mapping[str, str] | None = None) -> Program:
+    if procedure.body_error is not None:
+        raise VBACompileError(procedure.body_error[0], where=procedure.body_error[1])
     for parameter in procedure.params:
         if parameter.param_array and (not parameter.is_array or parameter.declared != 'Variant'):
             raise VBACompileError('ParamArray must be an array of Variant', where=where)
@@ -82,8 +84,15 @@ def compile_program(procedure: A.Procedure, where: str, global_declarations: Seq
 
     used: set[str] = set()
 
+    def check_suffix(value: A.Name) -> None:
+        declared = declarations.get(strip_suffix(value.name).lower())
+        suffix = SUFFIX_TYPES.get(value.name[-1:])
+        if declared is not None and suffix is not None and declared[0].casefold() != suffix.casefold():
+            raise VBACompileError('Type-declaration character does not match declared data type', where=where)
+
     def read_names(value: object) -> None:
         if isinstance(value, A.Name):
+            check_suffix(value)
             used.add(strip_suffix(value.name).lower())
         elif isinstance(value, (list, tuple)):
             for child in cast(Sequence[object], value):
@@ -91,6 +100,7 @@ def compile_program(procedure: A.Procedure, where: str, global_declarations: Seq
         elif isinstance(value, (A.Expr, A.Argument, A.CaseClause, A.VarDecl)):
             for field_ in fields(value):
                 if isinstance(value, A.Index) and field_.name == 'target' and isinstance(value.target, A.Name):
+                    check_suffix(value.target)
                     continue  # A call's bare name is not an implicit scalar.
                 read_names(getattr(value, field_.name))
 

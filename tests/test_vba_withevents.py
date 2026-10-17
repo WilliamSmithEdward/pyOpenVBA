@@ -32,4 +32,8 @@ def test_excel_class_events(probe: dict[str, str]) -> None:
 ])
 def test_invalid_event_variable_declaration(source: str, kind: str) -> None:
     with pytest.raises(VBACompileError, match="WithEvents"):
-        Interpreter().add_module(source, kind=kind)
+        runtime = Interpreter()
+        module = runtime.add_module(source, kind=kind)
+        procedure = module.procedure('Main')
+        if procedure is not None:
+            runtime.call(procedure, module, [], {})

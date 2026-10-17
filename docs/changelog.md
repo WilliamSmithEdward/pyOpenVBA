@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Runtime module loading retains malformed-body diagnostics for compilation
+  on demand, preserving valid calls beside unused invalid routines. Explicit
+  parsing stays strict and module/header syntax failures remain eager. Ampersand
+  type characters, numeric-literal boundaries and known-variable suffix
+  conflicts match 50 native controls. The recorded VBE string-import repair
+  is distinguished from raw-source validation.
+
 - VBA DefType directives now supply module-local type defaults for untyped
   declarations, implicit variables, parameters, function returns and arrays.
   Explicit types take precedence and constants retain expression inference.

@@ -49,6 +49,11 @@ Declaration suffix/As conflicts and typed references now replay 73 native
 controls, including early/late-bound members, ByRef calls, setters and literal
 CallByName names. Intrinsic typing is measured incrementally; full call-argument,
 constant-expression and host reference validation remain open.
+User-call argument compilation and returned-default-member calls now replay
+268 native controls, including constants, primitive/array ByRef matrices, early/late
+binding, named setters, ParamArray, recursion and deferred unused errors.
+Memoized expression typing covers deep member chains. Host/library signature
+coverage and complete object/interface compatibility remain separate gaps.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

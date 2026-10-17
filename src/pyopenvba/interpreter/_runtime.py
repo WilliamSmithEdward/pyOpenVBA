@@ -810,7 +810,7 @@ class StandardModuleNamespace(VBAObject):
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         procedure = self.procedure(name, 'get') or self.procedure(name)
         if procedure is not None and procedure.kind in ('get', 'function', 'sub'):
-            return self.interpreter.call(procedure, self.module, list(args), named or {})
+            return self.interpreter.call_value(procedure, self.module, list(args), named or {})
         slot = self.variable(name)
         if slot is not None:
             value = slot.get()
@@ -835,7 +835,7 @@ class StandardModuleNamespace(VBAObject):
                 named: dict[str, object] | None = None, *, by_ref: bool = False) -> None:
         procedure = self.procedure(name, 'set' if by_ref else 'let')
         if procedure is not None:
-            self.interpreter.call(procedure, self.module, [*args, value], named or {})
+            self.interpreter.call_setter(procedure, self.module, list(args), named or {}, value)
             return
         slot = self.variable(name)
         if slot is None:
@@ -886,11 +886,7 @@ class UserClassInstance(VBAObject):
     def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         procedure = self.module.procedure(name, "get") or self.module.procedure(name)
         if procedure is not None and procedure.kind in ("get", "function", "sub"):
-            if (args or named) and not procedure.params:
-                # Arguments a member takes none of go to what it returns: b.All(3)
-                # is the third item of the Collection All returns (native probe).
-                return _call_value(self.interpreter.call(procedure, self.module, [], {}, me=self), list(args), named or {})
-            return self.interpreter.call(procedure, self.module, list(args), named or {}, me=self)
+            return self.interpreter.call_value(procedure, self.module, list(args), named or {}, me=self)
         slot = self.variables.get(name.lower())
         if slot is not None:
             value = slot.get()
@@ -916,7 +912,7 @@ class UserClassInstance(VBAObject):
         if procedure is None and by_ref:
             procedure = self.module.procedure(name, "let")
         if procedure is not None:
-            self.interpreter.call(procedure, self.module, [*args, value], named or {}, me=self)
+            self.interpreter.call_setter(procedure, self.module, list(args), named or {}, value, me=self)
             return
         slot = self.variables.get(name.lower())
         if slot is None:
@@ -1235,12 +1231,12 @@ class Interpreter:
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
             raise error(28)
         from pyopenvba.interpreter._compile import validate_numeric_loops, validate_record_arguments
-        from pyopenvba.interpreter._references import validate_type_characters
+        from pyopenvba.interpreter._references import validate_references
 
         program = module.program_for(procedure)
-        validate_type_characters(self, module, procedure, program.arrays)
-        validate_numeric_loops(self, module, procedure, program.arrays)
         validate_record_arguments(self, module, procedure)
+        validate_references(self, module, procedure, program)
+        validate_numeric_loops(self, module, procedure, program.arrays)
         module.initialise()
         frame = Frame(procedure=procedure, module=module, me=me, program=program)
         try:
@@ -1280,6 +1276,28 @@ class Interpreter:
         if procedure.kind in ("function", "get"):
             return frame.locals[procedure.name.lower()].get()
         return EMPTY
+
+    def call_value(self, procedure: A.Procedure, module: ModuleRuntime, args: list[object],
+                   named: dict[str, object], *, me: object = None) -> object:
+        """Expression arguments may belong to a returned object's default member."""
+        if (args or named) and not procedure.params and procedure.kind in ('function', 'get'):
+            result = self.call(procedure, module, [], {}, me=me)
+            if result is NOTHING:
+                raise error(91)
+            if procedure.returns == 'Variant' and not isinstance(result, (VBAObject, VBAArray)):
+                raise error(13)
+            if procedure.returns != 'Variant' and not isinstance(result, (VBAObject, VBAArray)):
+                raise error(451, 'Property let procedure not defined and property get procedure did not return an object')
+            return _call_value(result, args, named)
+        return self.call(procedure, module, args, named, me=me)
+
+    def call_setter(self, procedure: A.Procedure, module: ModuleRuntime, args: list[object],
+                    named: dict[str, object], value: object, *, me: object = None) -> object:
+        if named and procedure.params:
+            named = {**named, procedure.params[-1].name: value}
+        else:
+            args = [*args, value]
+        return self.call(procedure, module, args, named, me=me)
 
     def _bind_arguments(
         self, frame: Frame, procedure: A.Procedure, args: list[object], named: dict[str, object]
@@ -1332,6 +1350,11 @@ class Interpreter:
                 frame.locals[parameter.name.lower()] = given
                 continue
             value = self._by_value(given)
+            if parameter.is_array:
+                if not isinstance(value, VBAArray):
+                    raise error(13)
+                frame.locals[parameter.name.lower()] = Slot(copy_value(value), 'Variant', declared)
+                continue
             frame.locals[parameter.name.lower()] = Slot(
                 copy_value(coerce(as_declared(value, declared), declared)), declared
             )
@@ -2155,6 +2178,20 @@ class Interpreter:
             target = self._member_target(callee, frame)
             procedure = target.procedure(strip_suffix(callee.name)) if isinstance(target, StandardModuleNamespace) else target.module.procedure(strip_suffix(callee.name)) if isinstance(target, UserClassInstance) else None
             positional, named = self._arguments(args, frame, procedure=procedure, target=target, name=callee.name)
+            if (procedure is not None and isinstance(target, UserClassInstance) and named and frame is not None
+                    and frame.program is not None and id(callee) in frame.program.late_bound_members):
+                if any(parameter.param_array for parameter in procedure.params):
+                    raise error(446)
+                parameters = {parameter.name.lower(): index for index, parameter in enumerate(procedure.params)}
+                occupied = set(range(len(positional)))
+                for name in named:
+                    index = parameters.get(name.lower())
+                    if index is None or index in occupied:
+                        raise error(448, 'Named argument not found or already specified')
+                    occupied.add(index)
+                if any(index not in occupied and not parameter.optional and not parameter.param_array
+                       for index, parameter in enumerate(procedure.params)):
+                    raise error(450)
             return _dispatch_get(target, callee.name, positional, named)
         if isinstance(callee, A.Index):
             inner = self.evaluate_call(callee.target, callee.args, frame)
@@ -2174,13 +2211,13 @@ class Interpreter:
     ) -> object:
         key = _bare(callee.name)
         if frame is not None:
-            if args and key == frame.procedure.name.lower() and frame.procedure.kind in ("function", "get"):
+            if key == frame.procedure.name.lower() and frame.procedure.kind in ("function", "get"):
                 # Inside a Function, its own name with an argument list
                 # is a recursive call; without one it is the return
                 # value.  That is VBA's rule, and it is what makes
                 # Fact = n * Fact(n - 1) work.
                 positional, named = self._arguments(args, frame, procedure=frame.procedure)
-                return self.call(frame.procedure, frame.module, positional, named, me=frame.me)
+                return self.call_value(frame.procedure, frame.module, positional, named, me=frame.me)
             slot = frame.locals.get(key)
             if slot is not None:
                 return self._index_or_call(slot.get(), args, frame)
@@ -2195,7 +2232,7 @@ class Interpreter:
             procedure = module.procedure(key)
             if procedure is not None:
                 positional, named = self._arguments(args, frame, procedure=procedure)
-                return self.call(procedure, module, positional, named, me=frame.me if module.is_class else None)
+                return self.call_value(procedure, module, positional, named, me=frame.me if module.is_class else None)
             host = _host_of(frame)
             if host is not None and host.vba_member(key) is not None:
                 positional, named = self._arguments(args, frame, target=host, name=key)
@@ -2214,7 +2251,7 @@ class Interpreter:
             procedure = runtime.procedure(key)
             if procedure is not None and procedure.scope != "private":
                 positional, named = self._arguments(args, frame, procedure=procedure)
-                return self.call(procedure, runtime, positional, named)
+                return self.call_value(procedure, runtime, positional, named)
             if key in runtime.declares and runtime.declares[key].name:
                 raise VBAUnsupportedError(
                     f"{runtime.declares[key].name} is a Declare into "
@@ -2313,8 +2350,11 @@ class Interpreter:
                     slot = self.member_variable(owner, expression.target.name, frame)
                 array = slot.get() if slot is not None else None
                 if isinstance(array, VBAArray):
-                    indices, _ = self._arguments(expression.args, frame)
-                    value = ArrayElementSlot(array, [int(to_integer(one, 'Long')) for one in indices])
+                    if expression.args:
+                        indices, _ = self._arguments(expression.args, frame)
+                        value = ArrayElementSlot(array, [int(to_integer(one, 'Long')) for one in indices])
+                    else:
+                        value = slot
                 elif owner is not None and isinstance(expression.target, A.Member):
                     procedure = owner.procedure(strip_suffix(expression.target.name)) if isinstance(owner, StandardModuleNamespace) else owner.module.procedure(strip_suffix(expression.target.name)) if isinstance(owner, UserClassInstance) else None
                     positional_inner, named_inner = self._arguments(expression.args, frame, procedure=procedure)
@@ -2324,6 +2364,8 @@ class Interpreter:
             else:
                 value = self.evaluate(argument.value, frame, want_object=True)
             if argument.name:
+                if any(key.lower() == argument.name.lower() for key in named):
+                    raise error(448, 'Named argument already specified')
                 named[argument.name] = value
             else:
                 positional.append(value)
@@ -2560,7 +2602,7 @@ class Interpreter:
         procedure = module.procedure(name, "set" if by_ref else "let") or module.procedure(name, "let")
         if procedure is None:
             raise error(ERR_MEMBER_NOT_FOUND, f"{name} has no Property Let")
-        self.call(procedure, module, [*args, value], named)
+        self.call_setter(procedure, module, args, named, value)
 
     def record_type(self, declared: str, module: ModuleRuntime) -> tuple[A.TypeDef, ModuleRuntime] | None:
         """Resolve a record together with the module that defines its fields."""

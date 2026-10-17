@@ -27,6 +27,7 @@ class Program:
     instructions: list[Instruction] = field(default_factory=lambda: [])
     labels: dict[str, int] = field(default_factory=lambda: {})
     arrays: list[A.VarDecl] = field(default_factory=lambda: [])
+    late_bound_members: set[int] = field(default_factory=lambda: set())
 
 
 @dataclass(slots=True)

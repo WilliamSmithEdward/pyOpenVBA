@@ -34,23 +34,74 @@ XmlElement = ET.Element
 
 
 def xml_bytes(root: XmlElement) -> bytes:
-    """Serialize an already constructed tree; this never parses XML."""
-    return ET.tostring(root, encoding='utf-8', xml_declaration=True)
+    """Serialize with local namespace scopes, including aliases in QName values.
+
+    ElementTree's automatic prefix replacement cannot update arbitrary attribute
+    values such as mc:Ignorable or Choice Requires. Retain parsed declarations
+    and choose lexical element/attribute names against those same local scopes.
+    New namespaces receive unused prefixes without changing global ET state.
+    """
+    reserved = {key[6:] for entry in root.iter() for key in entry.attrib if key.startswith('xmlns:')}
+    counter = 0
+
+    def copy(entry: XmlElement, inherited: dict[str, str]) -> XmlElement:
+        nonlocal counter
+        scope = dict(inherited)
+        declarations = {key: value for key, value in entry.attrib.items()
+                        if key == 'xmlns' or key.startswith('xmlns:')}
+        for key, value in declarations.items():
+            scope['' if key == 'xmlns' else key[6:]] = value
+        if not entry.tag.startswith('{') and scope.get(''):
+            declarations['xmlns'] = ''
+            scope[''] = ''
+
+        def name(expanded: str, *, attribute: bool = False) -> str:
+            nonlocal counter
+            if not expanded.startswith('{'):
+                return expanded
+            uri, local = expanded[1:].split('}', 1)
+            prefix = next((prefix for prefix, value in scope.items()
+                           if value == uri and (prefix or not attribute)), None)
+            if prefix is None:
+                while 'ns' + str(counter) in reserved:
+                    counter += 1
+                prefix = 'ns' + str(counter)
+                counter += 1
+                reserved.add(prefix)
+                scope[prefix] = uri
+                declarations['xmlns:' + prefix] = uri
+            return prefix + ':' + local if prefix else local
+
+        tag = name(entry.tag)
+        attrs = {name(key, attribute=True): value for key, value in entry.attrib.items()
+                 if key != 'xmlns' and not key.startswith('xmlns:')}
+        cloned = XmlElement(tag, {**declarations, **attrs})
+        cloned.text, cloned.tail = entry.text, entry.tail
+        cloned.extend(copy(child, scope) for child in entry)
+        return cloned
+
+    return ET.tostring(copy(root, {'xml': 'http://www.w3.org/XML/1998/namespace'}),
+                       encoding='utf-8', xml_declaration=True)
 
 
 def xml_tree(data: str | bytes) -> ET.Element:
     """Build a read-only tree with DTDs and all declared entities refused."""
     parser = expat.ParserCreate(namespace_separator='}')
     builder = ET.TreeBuilder()
+    declarations: dict[str, str] = {}
+    def namespace(prefix: str | None, uri: str | None) -> None:
+        declarations['xmlns:' + prefix if prefix else 'xmlns'] = uri or ''
     def expanded(name: str) -> str:
         return '{' + name if '}' in name else name
     def start(name: str, attrs: dict[str, str]) -> None:
-        builder.start(expanded(name), {expanded(key): value for key, value in attrs.items()})
+        builder.start(expanded(name), {**declarations, **{expanded(key): value for key, value in attrs.items()}})
+        declarations.clear()
     def end(name: str) -> None:
         builder.end(expanded(name))
     def refuse(*_args: object) -> NoReturn:
         raise ValueError('Office XML must not contain DTDs or declared entities')
     parser.StartElementHandler = start
+    parser.StartNamespaceDeclHandler = namespace
     parser.EndElementHandler = end
     parser.CharacterDataHandler = builder.data
     parser.StartDoctypeDeclHandler = refuse

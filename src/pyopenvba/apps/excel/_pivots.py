@@ -2,7 +2,7 @@
 
 Relationship traversal follows pyOfficeEditor's pivot reader. Untouched XML stays
 in the package unchanged. Worksheet sources can build caches, empty reports and
-data-only aggregate reports. Refresh, grouping and axis layout edits remain unsupported.
+compact aggregate reports and multi-axis field ranges. Refresh, grouping and arbitrary layout edits remain incomplete.
 """
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, utf16_text
 
 if TYPE_CHECKING:
+    from pyopenvba.interpreter._objects import MemberSpec
     from pyopenvba.apps.excel._pivot_reports import PivotReport
     from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.powerquery._opc import OpcFile
@@ -364,20 +365,22 @@ class PivotTable(ExcelObject):
     @member
     def TableRange2(self) -> object:
         if self.root.findall(f'{NS}pageFields/{NS}pageField'):
+            from pyopenvba.apps.excel._pivot_ranges import page_range
+
             location = self.root.find(NS + 'location')
             if location is None:
                 raise error(1004)
             area = parse_area(location.get('ref', 'A1'))
-            count = int(location.get('rowPageCount', '0'))
-            return Range(self.sheet, [Area(max(1, area.top - count - 1), area.left, area.bottom,
-                                           max(area.right, area.left + 1), self.sheet.name)])
+            pages = page_range(self).first
+            return Range(self.sheet, [Area(pages.top, area.left, area.bottom,
+                                           max(area.right, pages.right), self.sheet.name)])
         return self._range('all')
 
     @member
     def PageRange(self) -> object:
-        if self.root.findall(f'{NS}pageFields/{NS}pageField'):
-            raise VBAUnsupportedError('PivotTable.PageRange with page fields is not implemented')
-        raise error(1004)
+        from pyopenvba.apps.excel._pivot_ranges import page_range
+
+        return page_range(self)
 
     @member
     def DataBodyRange(self) -> object:
@@ -462,6 +465,14 @@ class PivotField(ExcelObject):
     def __init__(self, table: PivotTable, index: int, root: XmlElement, data: bool = False) -> None:
         self.table, self.index, self.root, self.data = table, index, root, data
 
+    def check_alive(self) -> None:
+        if self.data and self.root not in self.table.root.findall(f'{NS}dataFields/{NS}dataField'):
+            raise error(424)
+
+    def vba_member(self, name: str) -> MemberSpec | None:
+        self.check_alive()
+        return super().vba_member(name)
+
     @member
     def SourceName(self) -> object:
         if self.index == -2:
@@ -471,6 +482,8 @@ class PivotField(ExcelObject):
 
     @member
     def Name(self) -> object:
+        if self.index == -2:
+            return decode_text(self.table.root.get('dataCaption', 'Values'))
         name = self.root.get('name')
         return decode_text(name) if name is not None else self.SourceName()
 
@@ -480,6 +493,11 @@ class PivotField(ExcelObject):
 
     @member
     def Orientation(self) -> object:
+        if self.index == -2:
+            for name, orientation in (('rowFields', 1), ('colFields', 2)):
+                if any(entry.get('x') == '-2' for entry in self.table.root.findall(f'{NS}{name}/{NS}field')):
+                    return VBAInt(orientation, 'Long')
+            return VBAInt(0, 'Long')
         return VBAInt(4 if self.data else
                       {'axisRow': 1, 'axisCol': 2, 'axisPage': 3}.get(self.root.get('axis', ''), 0), 'Long')
 
@@ -501,6 +519,8 @@ class PivotField(ExcelObject):
                 if (self.data and field is self.root) or (not self.data and int(field.get('x', field.get('fld', '-1'))) == self.index):
                     count = len(self.table.root.findall(f'{NS}{axis}/*'))
                     return VBAInt(count + 1 - position if axis == 'pageFields' else position, 'Long')
+        if self.index == -2:
+            raise error(1004)
         return VBAErrorValue(2042)
 
     @member
@@ -520,52 +540,9 @@ class PivotField(ExcelObject):
         return self.table.sheet.book.stylesheet.number_formats.get(identifier, 'General')
 
     def _range(self, label: bool) -> object:
-        root = self.table.root
-        row_fields = root.findall(f'{NS}rowFields/{NS}field')
-        no_axes = not row_fields and not root.findall(f'{NS}pageFields/{NS}pageField') and all(
-            entry.get('x') == '-2' for entry in root.findall(f'{NS}colFields/{NS}field'))
-        if no_axes:
-            location = root.find(NS + 'location')
-            if location is None:
-                raise error(1004)
-            area = parse_area(location.get('ref', 'A1'))
-            dr = int(location.get('firstDataRow', '0'))
-            if self.index == -2:
-                if int(self.Orientation()) == 0:
-                    raise error(1004)
-                row = area.top - 1 if label else area.top + dr
-                column = area.left
-            elif self.data:
-                count = len(root.findall(f'{NS}dataFields/{NS}dataField'))
-                row = area.top if label and count > 1 else area.top + dr
-                column = area.left + int(self.Position()) - 1
-            else:
-                raise error(1004)
-            if row < 1:
-                raise error(1004)
-            return Range(self.table.sheet, [Area(row, column, row, column, self.table.sheet.name)])
-        if len(row_fields) != 1 or root.find(NS + 'colFields') is not None or root.find(NS + 'pageFields') is not None:
-            raise VBAUnsupportedError('PivotField ranges for multi-axis reports are not implemented')
-        location = root.find(NS + 'location')
-        if location is None:
-            raise error(1004)
-        area = parse_area(location.get('ref', 'A1'))
-        dr, dc = int(location.get('firstDataRow', '0')), int(location.get('firstDataCol', '0'))
-        if self.data:
-            column = area.left + dc + int(self.Position()) - 1
-        elif int(self.Orientation()) == 1:
-            column = area.left
-        else:
-            raise error(1004)
-        if label:
-            top = bottom = area.top + dr - 1
-        else:
-            top = area.top + dr
-            rows = root.findall(f'{NS}rowItems/{NS}i')
-            bottom = area.bottom - int(bool(rows and rows[-1].get('t') == 'grand'))
-        if bottom < top:
-            raise error(1004)
-        return Range(self.table.sheet, [Area(top, column, bottom, column, self.table.sheet.name)])
+        from pyopenvba.apps.excel._pivot_ranges import field_range
+
+        return field_range(self, label)
 
     @member
     def DataRange(self) -> object:

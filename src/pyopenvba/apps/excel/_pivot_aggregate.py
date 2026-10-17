@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import math
 import datetime as dt
+from copy import deepcopy
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -133,7 +134,8 @@ def aggregate(values: list[XmlElement], function: str) -> object:
     return (0.0 if result == 0 else result) if math.isfinite(result) else ExcelError('#NUM!')
 
 
-def add_data_field(table: PivotTable, source: object, caption: object, function: object) -> PivotField:
+def add_data_field(table: PivotTable, source: object, caption: object, function: object,
+                   *, keep_source_axis: bool = False) -> PivotField:
     table = table.entry
     if int(table.cache.SourceType()) != 1:
         raise VBAUnsupportedError('Aggregating external or consolidated pivot sources is not implemented')
@@ -186,7 +188,19 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
     if axes:
         from pyopenvba.apps.excel._pivot_layout import render
 
-        render(table, table.root, reports)
+        definition = deepcopy(table.root)
+        if not keep_source_axis:
+            # AddDataField moves its source off a label/filter axis. Assigning
+            # Orientation=xlDataField instead leaves that source axis intact.
+            for axis, attribute in (('rowFields', 'x'), ('colFields', 'x'), ('pageFields', 'fld')):
+                container = definition.find(NS + axis)
+                if container is not None:
+                    container[:] = [entry for entry in container if int(entry.get(attribute, '0')) != index]
+                    container.set('count', str(len(container)))
+            pivot_fields = definition.find(NS + 'pivotFields')
+            assert pivot_fields is not None
+            pivot_fields[index].attrib.pop('axis', None)
+        render(table, definition, reports)
         return PivotField(table, index, new, True)
     results = [aggregate([row[int(entry.get('fld', '0'))] for row in rows], entry.get('subtotal', 'sum'))
                for entry in reports]

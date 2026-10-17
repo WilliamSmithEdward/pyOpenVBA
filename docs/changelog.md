@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- AutoFill carries legacy CSE arrays through repeated and clipped blocks,
+  rebases their references and retains manual caches; partial array edits
+  fail before mutation. Replace operates on the array anchor and reports
+  the whole changed block, immediately computes replacement array formulas,
+  and converts literal replacements into ordinary cells. RemoveDuplicates
+  refuses array data rows but permits arrays confined to excluded headers.
+  Calculate events include already-computed replacements and newly installed
+  worksheet handlers. Coverage adds 155 native probes (eight event traces)
+  and twelve native workbooks, with native readback of model-written files.
+
 - Legacy CSE array fragments copy as arrays with their own ranges and
   correctly rebased references. Whole-array cuts and cell shifts carry
   metadata, including overlaps and cross-sheet moves; partial cuts, split

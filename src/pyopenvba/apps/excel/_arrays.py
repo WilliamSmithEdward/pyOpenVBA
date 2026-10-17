@@ -129,7 +129,7 @@ def refuse(sheet: Worksheet, areas: list[Area], doing: str) -> None:
         raise VBAUnsupportedError(f"{doing} cells of an array formula is not implemented")
 
 
-def put(target: Range, formula: str) -> None:
+def put(target: Range, formula: str, *, limit: int = LONGEST) -> None:
     """Range.FormulaArray written: the formula, already spelled, over the range as one array."""
     sheet = target.sheet
     from pyopenvba.apps.excel._spills import remove, spilled
@@ -138,7 +138,7 @@ def put(target: Range, formula: str) -> None:
     if len(target.areas) != 1:
         raise VBAUnsupportedError("FormulaArray over several areas is not implemented")
     area = target.first
-    if len(formula) > LONGEST:
+    if len(formula) > limit:
         raise error(1004, "Unable to set the FormulaArray property of the Range class")
     found = array_at(sheet, area.top, area.left) if area.rows == area.columns == 1 else None
     if found is None and area.rows == area.columns == 1:

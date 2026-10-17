@@ -1242,9 +1242,20 @@ A single-cell FormulaArray write in a live dynamic spill converts its whole
 footprint to CSE; multi-cell replacements retain the measured overlap and
 obstruction behavior, including dependent invalidation.
 These paths have 189 native cases and fourteen native file gates in
-`tests/fixtures/cse_array_edits.json`. Filling, replacing and removing
-duplicates still have explicit gaps; multi-area/protected/filtered
-combinations, broader argument and event behavior need further work.
+`tests/fixtures/cse_array_edits.json`. AutoFill repeats whole source arrays,
+including clipped final blocks and fills up or left, rebases references and
+retains manual-mode caches. Partial source or destination arrays are refused;
+formats-only fills preserve destination array contents. Replace searches only
+an array's anchor, changes the whole block even from an anchor-only range,
+and calculates a replacement formula immediately in manual mode too. A literal
+replacement dissolves the array and fills its cells. Replacement fragments
+are limited to 255 characters, but may produce a longer formula.
+RemoveDuplicates refuses arrays in its data rows before mutation, even when
+no rows would be removed, while an array confined to an excluded header is
+allowed. These paths have another 155 native probes, including eight event
+traces, and twelve native files in `tests/fixtures/cse_fill_replace.json`.
+Multi-area/protected/filtered combinations, broader argument and event
+behavior still need further work.
 
 `Evaluate`, `[...]` and `Worksheet.Evaluate` work an expression out as
 Excel's Evaluate does (`tests/fixtures/evaluate.json`, 91 cases). What

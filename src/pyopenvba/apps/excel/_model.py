@@ -3183,8 +3183,6 @@ class Range(ExcelObject):
     def AutoFill(self, Destination: object = MISSING, Type: object = MISSING) -> object:
         from pyopenvba.apps.excel._autofill import autofill
 
-        _arrays.refuse(self.sheet, self.areas + (Destination.areas if isinstance(Destination, Range) else []),
-                       "Filling")
         answer = autofill(self, Destination, Type)
         if isinstance(Destination, Range) and len(Destination.areas) == 1:
             # Excel selects what it filled, then reports the cells it filled as changed.
@@ -3323,7 +3321,6 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse
 
         refuse(self.sheet, APPLICATION_DEFINED)
-        _arrays.refuse(self.sheet, self.areas, "Removing duplicates from")
         return remove_duplicates(self, Columns, Header)
 
     @method
@@ -3406,11 +3403,11 @@ class Range(ExcelObject):
         if enforced(self.sheet) is not None:
             # A protected sheet's Replace answers True and changes nothing, unlocked cells included.
             return True
-        _arrays.refuse(self.sheet, self.areas, "Replacing in")
+        calculated: set[Worksheet] = set()
         answer = replace(self, What, Replacement, LookAt, SearchOrder, MatchCase, MatchByte, SearchFormat,
-                         ReplaceFormat, FormulaVersion)
+                         ReplaceFormat, FormulaVersion, calculated=calculated)
         # Each cell replaced was reported as it changed; the calculation comes after them all.
-        _events.recalculated(self.sheet.book)
+        _events.recalculated(self.sheet.book, already_calculated=calculated)
         return answer
 
     def replaced_in(self, row: int, column: int, text: str) -> bool:
@@ -3424,6 +3421,26 @@ class Range(ExcelObject):
         if not _merges.writable(self.sheet, row, column):
             return True
         cell = self.sheet.cell(row, column)
+        array = _arrays.array_at(self.sheet, row, column)
+        if array is not None:
+            anchor, block = array
+            if anchor != (row, column):
+                return True
+            target = Range(self.sheet, [block])
+            if _is_formula(text):
+                try:
+                    formula = spelled_formula(self.sheet, text, row, column)
+                except VBARuntimeError:
+                    return False
+                _arrays.put(target, formula, limit=LONGEST_FORMULA)
+                self.sheet.book.calculator.value_of(self.sheet.name, *anchor, force=True)
+            else:
+                _arrays.clear_admitted(target)
+                for each_row, each_column in target.cell_positions():
+                    target._store(each_row, each_column, replaced(text, self.sheet.style_at(each_row, each_column).number_format,
+                                                                prefixed=False))
+            _events.changed(target)
+            return True
         prefixed = cell is not None and not cell.formula and isinstance(cell.value, str) \
             and cell.style is not None and cell.style.quote_prefix
         if _is_formula(text) and not prefixed:

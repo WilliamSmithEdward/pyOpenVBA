@@ -1,0 +1,104 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-17T05:01:14.782334+00:00",
+  "sink": "Public WithEvents Sheet As Worksheet\nPublic WithEvents Book As Workbook\nPublic WithEvents App As Application\nPrivate Sub Sheet_Calculate()\nLog = Log & \"sheet;\"\nEnd Sub\nPrivate Sub Book_SheetCalculate(ByVal Sh As Object)\nLog = Log & \"book;\"\nEnd Sub\nPrivate Sub App_SheetCalculate(ByVal Sh As Object)\nLog = Log & \"app;\"\nEnd Sub",
+  "helpers": "Public Log As String\nPublic Calls As Long\nFunction Tick(ByVal x As Double) As Double\nCalls = Calls + 1\nTick = x * 2\nEnd Function",
+  "probes": [
+    {
+      "mode": -4135,
+      "owner": "Sheet",
+      "formula": "=A1*2",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=A1*2\"\nApplication.Calculate\nApplication.Calculation = -4135\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Sheet = ActiveSheet\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "manual_sheet_ordinary",
+      "result": "2:0|2:0|10:0:sheet;"
+    },
+    {
+      "mode": -4135,
+      "owner": "Sheet",
+      "formula": "=Tick(A1)",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=Tick(A1)\"\nApplication.Calculate\nApplication.Calculation = -4135\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Sheet = ActiveSheet\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "manual_sheet_udf",
+      "result": "2:1|2:1|10:2:sheet;"
+    },
+    {
+      "mode": -4135,
+      "owner": "Book",
+      "formula": "=A1*2",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=A1*2\"\nApplication.Calculate\nApplication.Calculation = -4135\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Book = ActiveWorkbook\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "manual_book_ordinary",
+      "result": "2:0|2:0|10:0:book;"
+    },
+    {
+      "mode": -4135,
+      "owner": "Book",
+      "formula": "=Tick(A1)",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=Tick(A1)\"\nApplication.Calculate\nApplication.Calculation = -4135\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Book = ActiveWorkbook\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "manual_book_udf",
+      "result": "2:1|2:1|10:2:book;"
+    },
+    {
+      "mode": -4135,
+      "owner": "App",
+      "formula": "=A1*2",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=A1*2\"\nApplication.Calculate\nApplication.Calculation = -4135\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.App = Application\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "manual_app_ordinary",
+      "result": "2:0|2:0|10:0:app;"
+    },
+    {
+      "mode": -4135,
+      "owner": "App",
+      "formula": "=Tick(A1)",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=Tick(A1)\"\nApplication.Calculate\nApplication.Calculation = -4135\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.App = Application\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "manual_app_udf",
+      "result": "2:1|2:1|10:2:app;"
+    },
+    {
+      "mode": -4105,
+      "owner": "Sheet",
+      "formula": "=A1*2",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=A1*2\"\nApplication.Calculate\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Sheet = ActiveSheet\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "auto_sheet_ordinary",
+      "result": "10:0|10:0|10:0:sheet;"
+    },
+    {
+      "mode": -4105,
+      "owner": "Sheet",
+      "formula": "=Tick(A1)",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=Tick(A1)\"\nApplication.Calculate\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Sheet = ActiveSheet\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "auto_sheet_udf",
+      "result": "10:2|10:2|10:2:sheet;"
+    },
+    {
+      "mode": -4105,
+      "owner": "Book",
+      "formula": "=A1*2",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=A1*2\"\nApplication.Calculate\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Book = ActiveWorkbook\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "auto_book_ordinary",
+      "result": "10:0|10:0|10:0:book;"
+    },
+    {
+      "mode": -4105,
+      "owner": "Book",
+      "formula": "=Tick(A1)",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=Tick(A1)\"\nApplication.Calculate\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.Book = ActiveWorkbook\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "auto_book_udf",
+      "result": "10:2|10:2|10:2:book;"
+    },
+    {
+      "mode": -4105,
+      "owner": "App",
+      "formula": "=A1*2",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=A1*2\"\nApplication.Calculate\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.App = Application\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "auto_app_ordinary",
+      "result": "10:0|10:0|10:0:app;"
+    },
+    {
+      "mode": -4105,
+      "owner": "App",
+      "formula": "=Tick(A1)",
+      "source": "Function Probe() As String\nApplication.EnableEvents = False\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 1\nRange(\"B1\").Formula = \"=Tick(A1)\"\nApplication.Calculate\nApplication.Calculation = -4105\nRange(\"A1\").Value2 = 5\nDim before As String\nbefore = CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nDim listener As New ExcelSink\nSet listener.App = Application\nProbe = before & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls)\nApplication.EnableEvents = True\nLog = \"\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(Range(\"B1\").Value2) & \":\" & CStr(Calls) & \":\" & Log\nApplication.EnableEvents = False\nEnd Function",
+      "name": "auto_app_udf",
+      "result": "10:2|10:2|10:2:app;"
+    }
+  ]
+}

@@ -34,7 +34,7 @@ precedence, ReDim declaration/retyping rules and compiler restrictions over
 remains partial language coverage: full compiler type checking, references
 and object lifetime need further conformance work. Runtime parsing now retains
 malformed-body diagnostics without blocking unrelated valid calls, while the
-explicit parser stays strict. Fifty additional native controls cover body
+explicit parser stays strict. Fifty-three additional native controls cover body
 recovery and ampersand syntax; malformed module boundaries, broader reference
 typing and VBE import normalization remain further work.
 

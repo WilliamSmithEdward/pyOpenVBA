@@ -87,7 +87,10 @@ def compile_program(procedure: A.Procedure, where: str, global_declarations: Seq
     def check_suffix(value: A.Name) -> None:
         declared = declarations.get(strip_suffix(value.name).lower())
         suffix = SUFFIX_TYPES.get(value.name[-1:])
-        if declared is not None and suffix is not None and declared[0].casefold() != suffix.casefold():
+        kind = declared[0] if declared is not None else ''
+        if kind.casefold().startswith('string*'):
+            kind = 'String'
+        if declared is not None and suffix is not None and kind.casefold() != suffix.casefold():
             raise VBACompileError('Type-declaration character does not match declared data type', where=where)
 
     def read_names(value: object) -> None:

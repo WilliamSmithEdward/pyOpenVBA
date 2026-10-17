@@ -254,6 +254,25 @@
       "compile_error": true,
       "measured_at": "2026-10-17T08:14:26.363664+00:00",
       "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
+    },
+    {
+      "name": "fixed_name",
+      "source": "Function Probe() As String\nDim value As String * 3\nvalue$=\"a\"\nProbe = TypeName(value$) & \":\" & value$\nEnd Function",
+      "result": "String:a  ",
+      "measured_at": "2026-10-17T08:20:22.344678+00:00"
+    },
+    {
+      "name": "fixed_array",
+      "source": "Function Probe() As String\nDim value(0) As String * 3\nvalue$(0)=\"a\"\nProbe = TypeName(value$(0)) & \":\" & value$(0)\nEnd Function",
+      "result": "String:a  ",
+      "measured_at": "2026-10-17T08:20:22.344692+00:00"
+    },
+    {
+      "name": "fixed_wrong",
+      "source": "Function Probe() As String\nDim value As String * 3\nProbe = TypeName(value%)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T08:20:22.344695+00:00",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type"
     }
   ],
   "measured_at": "2026-10-17T08:13:45.699767+00:00",

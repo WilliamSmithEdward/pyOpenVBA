@@ -307,7 +307,7 @@ An ampersand attached to an identifier or decimal literal is the Long type
 character. `Total&(1)` is a typed call; `text &otherText` concatenates.
 `1 & 2` is valid, while `1 &2` is invalid numeric-literal syntax. Known
 variable references with conflicting type characters fail compilation.
-These paths replay 50 native execution/compilation controls in
+These paths replay 53 native execution/compilation controls in
 `body_demand.json` and `ampersand_syntax.json`, recorded by
 `scripts/measure_parser_demand.py`. One input string is repaired by VBE on
 import; its original and actual imported source are recorded separately.

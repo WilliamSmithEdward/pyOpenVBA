@@ -79,11 +79,14 @@ def call_user_function(book: Workbook, context: Context, name: str, nodes: tuple
                 return None
             args = [_argument(book, context, node) for node in nodes]
             # A call like any other: it starts with no error, and what it leaves in Err the macro sees.
-            result = interpreter.call(procedure, runtime, args, {})
+            with book.calculator.user_call():
+                result = interpreter.call(procedure, runtime, args, {})
+            book.calculator.after_udf()
     except VBARuntimeError:
         # An error the function does not handle leaves 40040 in the macro's Err, and the cell #VALUE!.
         interpreter.err.number = 40040
         interpreter.err.description = "Application-defined or object-defined error"
+        book.calculator.after_udf(error=True)
         return VALUE
     return _value(result)
 

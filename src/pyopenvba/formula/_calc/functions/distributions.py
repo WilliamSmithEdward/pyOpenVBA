@@ -1275,7 +1275,10 @@ def MULTINOMIAL(context: Context, *args: Value) -> Value:
         below = 0.0
         for value in values:
             below += float(special.lgamma(D(value + 1)))
-    return checked(math.exp(top - below))
+    try:
+        return checked(math.exp(top - below))
+    except OverflowError:
+        return NUM
 
 
 __all__ = ["normal_cdf", "normal_inverse", "t_cdf", "t_inverse"]

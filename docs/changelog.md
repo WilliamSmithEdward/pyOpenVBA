@@ -7,6 +7,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Explicit formula assignments obtain initial values in manual mode,
+  including scalar/bulk Formula, Formula2, Value and replacement formulas.
+  Volatile formulas retain caches between reads, invalidate their dependents
+  for calculation, and settle once per pass. Calculation retains learned
+  dependency order and retries provisional UDF calls on unresolved UDF
+  precedents. Application.CalculateFull and CalculateFullRebuild force
+  calculation of every formula, with the latter rebuilding dependencies.
+  Provisional errors retry without poisoning final results, and Range
+  information intrinsics inspect their default values. MULTINOMIAL overflow
+  returns #NUM! rather than escaping as a Python exception. Valid formula
+  text remains editable when its calculation is unsupported.
+  Row visibility and filter operations invalidate SUBTOTAL, AGGREGATE,
+  nested defined names and dependents while retaining manual caches and
+  leaving unrelated nonvolatile UDFs cached. Coverage adds
+  404 native probes, 390 additional scheduling observations,
+  and six XLSM fixtures with native changed-input readback. Lifecycle and
+  file measurements now use direct native calls between observations to
+  avoid dispatcher rewrites resetting VBA globals; all prior 88 lifecycle
+  results were reproduced. Wider graph/iteration/external-link behavior
+  remains incomplete.
+
 - VBA function source edits invalidate UDF results and their dependents
   while preserving cached reads. Worksheet functions retain edited bindings
   during the editing macro and refresh project text/globals on subsequent

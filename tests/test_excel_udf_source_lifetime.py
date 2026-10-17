@@ -84,9 +84,9 @@ def test_native_excel_reads_model_udf_source_files(tmp_path: Path) -> None:
             mode = excel.run_vba('Sub SetMode()\nApplication.Calculation = ' + str(case['calculation']) + '\nEnd Sub', 'SetMode')
             assert mode.ok and not mode.dialogs, mode
             excel.open_document(path)
-            before = excel.run_macro('Harness.ReadSaved')
-            assert before.ok and not before.dialogs and before.value == case['result'], before
-            calculated = excel.run_macro('Harness.CalculateNow')
-            assert calculated.ok and not calculated.dialogs, calculated
-            after = excel.run_macro('Harness.ReadSaved')
-            assert after.ok and not after.dialogs and after.value == case['calculated'], after
+            before = excel.run_raw('Harness.ReadSaved')
+            assert not excel.events[-1].get('dialogs') and before == case['result'], before
+            excel.run_raw('Harness.CalculateNow')
+            after = excel.run_raw('Harness.ReadSaved')
+            assert not excel.events[-1].get('dialogs') and after == case['calculated'], after
+        assert not any(event.get('dialogs') for event in excel.events), excel.events[-1]

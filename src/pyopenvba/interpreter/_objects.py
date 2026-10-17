@@ -284,6 +284,10 @@ class VBAObject:
             raise error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name} has no default member")
         return spec.getter(self, *([MISSING] * len(spec.parameters)))
 
+    def vba_information_value(self) -> object:
+        """The value VBA's information intrinsics inspect; most objects retain identity."""
+        return self
+
     def vba_iterate(self) -> Iterator[object]:
         """What ``For Each`` walks.  Not every object has one."""
         raise error(451, f"{self.vba_type_name} cannot be walked by For Each")

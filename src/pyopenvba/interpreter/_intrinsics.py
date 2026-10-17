@@ -1304,14 +1304,18 @@ def vba_datepart(
 # --- tests and information ------------------------------------------------------------------
 
 
+def _information_value(value: object) -> object:
+    return value.vba_information_value() if isinstance(value, VBAObject) else value
+
+
 @intrinsic("IsNull", "Expression", minimum=1)
 def vba_isnull(interpreter: Interpreter, value: object) -> object:
-    return value is NULL
+    return _information_value(value) is NULL
 
 
 @intrinsic("IsEmpty", "Expression", minimum=1)
 def vba_isempty(interpreter: Interpreter, value: object) -> object:
-    return value is EMPTY
+    return _information_value(value) is EMPTY
 
 
 @intrinsic("IsMissing", "ArgName", minimum=1)
@@ -1323,6 +1327,7 @@ def vba_ismissing(interpreter: Interpreter, value: object) -> object:
 def vba_isnumeric(interpreter: Interpreter, value: object) -> object:
     """Whether CDbl would read the value: the same text forms, measured. Empty
     is numeric, as zero is; Null and a Date are not (native probes)."""
+    value = _information_value(value)
     if isinstance(value, (bool, int, float, Decimal)):
         return True
     if value is EMPTY:
@@ -1338,6 +1343,7 @@ def vba_isnumeric(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("IsDate", "Expression", minimum=1)
 def vba_isdate(interpreter: Interpreter, value: object) -> object:
+    value = _information_value(value)
     if isinstance(value, VBADate):
         return True
     if isinstance(value, str):
@@ -1358,7 +1364,7 @@ def vba_isobject(interpreter: Interpreter, value: object) -> object:
 
 @intrinsic("IsError", "Expression", minimum=1)
 def vba_iserror(interpreter: Interpreter, value: object) -> object:
-    return isinstance(value, VBAErrorValue)
+    return isinstance(_information_value(value), VBAErrorValue)
 
 
 @intrinsic("TypeName", "VarName", minimum=1)
@@ -1369,6 +1375,8 @@ def vba_typename(interpreter: Interpreter, value: object) -> object:
 @intrinsic("VarType", "VarName", minimum=1)
 def vba_vartype(interpreter: Interpreter, value: object) -> object:
     from pyopenvba.interpreter._values import VAR_TYPES, holds_objects
+
+    value = _information_value(value)
 
     if isinstance(value, VBAArray):
         return VBAInt(8192 + (9 if holds_objects(value) else VAR_TYPES.get(value.element_type, 12)), "Integer")

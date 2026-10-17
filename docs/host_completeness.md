@@ -35,6 +35,10 @@ from earlier disabled or limited calculation cycles.
 Another 12 native traces verify that attaching sheet, workbook or application
 listeners retains dirty manual-mode caches and UDF call counts until the next
 calculation request, including the listener's subsequent Calculate event.
+Eighteen native traces distinguish EnableEvents changes within an emitted
+event from suppression of the following workbook/application notification.
+Another 42 cover bounded Calculate-handler reentry, input edits, volatile UDF
+call counts and the following calculation cycle.
 Another 12 native traces verify that attaching sheet, workbook or application
 listeners retains dirty manual-mode caches and UDF call counts until the next
 calculation request, including the listener's subsequent Calculate event.

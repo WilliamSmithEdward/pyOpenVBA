@@ -56,9 +56,9 @@ class VBAError(PyOpenVBAError):
 class VBACompileError(VBAError):
     """Raised for source VBA itself would refuse to compile.
 
-    The VBA IDE reports these before anything runs, and so does this: a
-    module is parsed whole when it is loaded, not statement by statement
-    as execution reaches it.
+    Module declarations are checked on load. Procedure-specific checks run
+    on demand, before the affected procedure executes. Unlike a run-time
+    error, this cannot be trapped by On Error.
     """
 
 

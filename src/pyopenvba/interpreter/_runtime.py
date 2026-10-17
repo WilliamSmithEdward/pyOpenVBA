@@ -291,6 +291,7 @@ class ModuleRuntime:
         self._initialised = False
         self.record_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
         self.programs: dict[int, F.Program] = {}
+        self.program_errors: dict[int, tuple[str, str]] = {}
         self.public_variables = {item.name.lower() for group in parsed.variables if group.scope in ('public', 'global') for item in group.decls}
         self.public_constants = {name.lower() for group in parsed.constants if group.scope == 'public' for name, _, _ in group.names}
         self.public_enum_members = {name.lower() for definition in parsed.enums if definition.scope == 'public' for name, _ in definition.members}
@@ -339,13 +340,32 @@ class ModuleRuntime:
         if self.programs_compiled and self.program_scope == scope:
             return
         self.programs.clear()
+        self.program_errors.clear()
         for procedure in self.parsed.procedures:
             key = id(procedure)
-            if key not in self.programs:
+            try:
                 self.programs[key] = F.compile_program(procedure, f'{self.name}.{procedure.name}',
                                                        self.flow_declarations(), self.flow_value_type, self.parsed.default_types)
+            except VBACompileError as failure:
+                # Native compile-on-demand permits valid calls beside an
+                # unused invalid procedure. Do not retain traceback frames.
+                self.program_errors[key] = (failure.message, failure.where)
         self.programs_compiled = True
         self.program_scope = scope
+
+    def program_for(self, procedure: A.Procedure) -> F.Program:
+        self.compile_programs()
+        key = id(procedure)
+        failure = self.program_errors.get(key)
+        if failure is not None:
+            raise VBACompileError(failure[0], where=failure[1])
+        program = self.programs.get(key)
+        if program is not None:
+            return program
+        # Synthetic procedures supplied by a host are not retained by the
+        # parsed module; do not leave their reusable ids in the cache.
+        return F.compile_program(procedure, f'{self.name}.{procedure.name}',
+                                 self.flow_declarations(), self.flow_value_type, self.parsed.default_types)
 
     def flow_declarations(self) -> list[A.Dim]:
         # Resolve project globals before treating ReDim as a local declaration.
@@ -1213,9 +1233,10 @@ class Interpreter:
             raise error(28)
         from pyopenvba.interpreter._compile import validate_record_arguments
 
+        program = module.program_for(procedure)
         validate_record_arguments(self, module, procedure)
         module.initialise()
-        frame = Frame(procedure=procedure, module=module, me=me)
+        frame = Frame(procedure=procedure, module=module, me=me, program=program)
         try:
             self._bind_arguments(frame, procedure, args, named)
         except BaseException:
@@ -1314,12 +1335,7 @@ class Interpreter:
         return given.get() if isinstance(given, Slot) else given
 
     def _run_body(self, frame: Frame) -> None:
-        key = id(frame.procedure)
-        program = frame.module.programs.get(key)
-        if program is None:
-            program = F.compile_program(frame.procedure, f'{frame.module.name}.{frame.procedure.name}',
-                                        frame.module.flow_declarations(), frame.module.flow_value_type, frame.module.parsed.default_types)
-            frame.module.programs[key] = program
+        program = frame.program or frame.module.program_for(frame.procedure)
         frame.program = program
         self._declare_locals(frame, frame.procedure.body)
         for declaration in program.arrays:

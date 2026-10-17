@@ -78,3 +78,15 @@ def test_native_excel_reads_default_type_project(tmp_path: Path) -> None:
         assert excel.run_raw('Harness.ReadStored') == expected
         assert excel.run_raw('Harness.Probe') == expected
         assert not any(event.get('dialogs') for event in excel.events)
+
+
+@pytest.mark.parametrize('name', ['demand_missing_label', 'demand_invalid_exit', 'demand_optional_default', 'demand_deftype_body'])
+def test_deferred_procedure_error_still_fails_when_called(name: str) -> None:
+    case = next(case for case in RECORD['probes'] if case['name'] == name)
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(case['source'], name='Harness')
+    assert app.run('Harness.Probe') == 'done'
+    with pytest.raises(VBACompileError):
+        app.run('Harness.Unused')
+    assert app.run('Harness.Probe') == 'done'

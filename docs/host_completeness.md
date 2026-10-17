@@ -30,7 +30,7 @@ With context, array enumeration locks, header coercion and Select Case value
 capture. Module-level DefType defaults now apply to declarations, implicit
 variables, arrays, parameters and function returns, with explicit type
 precedence, ReDim declaration/retyping rules and compiler restrictions over
-93 additional native probes. Project edits refresh cached bindings. This
+105 additional native probes. Project edits refresh cached bindings. This
 remains partial language coverage: full compiler type checking, references
 and object lifetime need further conformance work.
 

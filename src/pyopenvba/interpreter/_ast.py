@@ -119,6 +119,13 @@ class Stmt:
 
 
 @dataclass(slots=True)
+class InvalidStmt(Stmt):
+    """A recognized procedure-body error, diagnosed on compilation demand."""
+
+    message: str = ''
+
+
+@dataclass(slots=True)
 class VarDecl:
     name: str = ""
     declared: str = "Variant"

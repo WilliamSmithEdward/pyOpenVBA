@@ -260,8 +260,8 @@ loop state and the destination's lexical `With` context. Entering a block
 skips its header; an uninitialized `With` member raises 91 and an
 uninitialized enumerator raises 92. Leaving `For Each` by `GoTo` retains its
 array lock until completion, `Exit For` or procedure exit. Duplicate and
-missing labels and invalid `Exit` statements fail compilation, including in
-unused procedures. Numeric line labels normalize leading zeroes.
+missing labels and invalid `Exit` statements fail when the affected procedure
+is compiled for a call. An unused invalid procedure does not block valid calls. Numeric line labels normalize leading zeroes.
 
 `For` captures bounds and steps as values at its header and coerces them to
 the counter's declared type. Variant counters use native loop promotion,
@@ -290,10 +290,12 @@ an array. An explicitly declared scalar Variant can hold a typed array and
 change its element type on ordinary `ReDim`; `Preserve` reports error 13 for
 a type change. Existing declared arrays retain their element types. Cached
 procedure bindings refresh when project modules change. These rules and
-parameter restrictions replay 93 native compiler/runtime probes in
+parameter restrictions and demand-compilation controls replay 105 native
+compiler/runtime probes in
 `tests/fixtures/vba_semantics/default_types.json`, remeasured with
 `scripts/measure_default_types.py`. The compiler checks these measured paths;
-it does not yet implement complete VBA type and reference checking.
+it does not yet implement complete VBA type and reference checking or deferred
+parsing of every possible body syntax error.
 
 `On Error GoTo` does not unwind the stack: the handler runs where the
 error happened, so `Resume Next` hands control back to the statement

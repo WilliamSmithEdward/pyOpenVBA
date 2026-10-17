@@ -22,6 +22,11 @@ def main() -> None:
             for module in case.get('modules', []):
                 excel.add_module(module['name'], module['source'], kind=module['kind'], line_numbers=False)
             excel.add_module('Harness', case['source'], line_numbers=False)
+            if case.get('compile_mode') == 'on-demand':
+                assert excel.run_raw('Harness.Probe', timeout=20) == case['result'], case['name']
+                case['measured_at'] = datetime.now(timezone.utc).isoformat()
+                print(case['name'], case['result'], flush=True)
+                continue
             compiled = excel.compile_project(watch_seconds=20)
             assert compiled.outcome in ('accepted', 'rejected'), (case['name'], compiled)
             assert compiled.ok != bool(case.get('compile_error')), (case['name'], compiled)

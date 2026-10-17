@@ -1,8 +1,8 @@
 """The VBA parser: tokens in, a :class:`~pyopenvba.interpreter._ast.Module` out.
 
-A module is parsed whole when it is loaded, the way the VBA compiler
-does it, so bad source is refused before anything runs rather than when
-execution happens to reach it.
+A module is parsed whole when it is loaded. Recognized procedure-specific
+diagnostics can be retained for native compile-on-demand behavior; the
+remaining parser is strict about body syntax rather than fully deferred.
 
 Statements this understands but does not implement -- the file I/O verbs
 and the handful of others listed in ``_UNSUPPORTED`` -- parse into an
@@ -506,8 +506,6 @@ class Parser:
                 param.optional = True
             if param.param_array and (not param.is_array or param.declared != 'Variant'):
                 self.fail('ParamArray must be an array of Variant')
-            if param.optional and param.default is None and param.declared != 'Variant':
-                self.fail('Optional typed arguments require a default value')
             params.append(param)
             if not self.accept_op(","):
                 break
@@ -599,7 +597,10 @@ class Parser:
         token = self.token
 
         if self._at_def_type() or self.at_word('deftype'):
-            self.fail('DefType is invalid inside a procedure')
+            while not self.at_eos():
+                self.advance()
+            self.end_statement()
+            return A.InvalidStmt(line=line, message='DefType is invalid inside a procedure')
 
         if token.kind == "number":
             # An old-style line number, which is a label: "10 x = 1", "40: x = 1"

@@ -55,6 +55,11 @@ def nested_bodies(statement: A.Stmt) -> Iterator[list[A.Stmt]]:
 
 def compile_program(procedure: A.Procedure, where: str, global_declarations: Sequence[A.Dim] = (),
                     value_type: Callable[[str], bool] | None = None, defaults: Mapping[str, str] | None = None) -> Program:
+    for parameter in procedure.params:
+        if parameter.param_array and (not parameter.is_array or parameter.declared != 'Variant'):
+            raise VBACompileError('ParamArray must be an array of Variant', where=where)
+        if parameter.optional and parameter.default is None and parameter.declared != 'Variant':
+            raise VBACompileError('Optional typed arguments require a default value', where=where)
     program = Program()
     loops: list[Loop] = []
     declarations = {item.name.lower(): (item.declared, item.is_array)
@@ -141,6 +146,8 @@ def compile_program(procedure: A.Procedure, where: str, global_declarations: Seq
 
     def block(body: Sequence[A.Stmt], scopes: tuple[int, ...]) -> None:
         for statement in body:
+            if isinstance(statement, A.InvalidStmt):
+                raise VBACompileError(statement.message, where=f'{where} line {statement.line}')
             if isinstance(statement, A.Label):
                 key = label_key(statement.name)
                 if key in program.labels:

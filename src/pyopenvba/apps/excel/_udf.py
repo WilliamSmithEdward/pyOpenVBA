@@ -13,7 +13,7 @@ calls one (tests/fixtures/excel_vba_udfs.json, native probes):
   array (its corner in a legacy formula), an Error value as that error;
 - a run-time error the function does not handle makes the cell #VALUE!;
 - while it runs, Application.Caller is the cell and a write to a cell is
-  error 1004; it is called as any procedure is, starting with no error and
+  error 1004; it is called as any procedure is, preserving the current Err and
   leaving what it ends with in Err, and an error it does not handle leaves
   40040 there. A formula that calls one is worked out as it is written.
 """
@@ -78,7 +78,7 @@ def call_user_function(book: Workbook, context: Context, name: str, nodes: tuple
             if procedure is None or runtime is None or procedure.kind != "function":
                 return None
             args = [_argument(book, context, node) for node in nodes]
-            # A call like any other: it starts with no error, and what it leaves in Err the macro sees.
+            # Like an ordinary call, it preserves Err and leaves its final state visible to the macro.
             with book.calculator.user_call():
                 result = interpreter.call(procedure, runtime, args, {})
             book.calculator.after_udf()

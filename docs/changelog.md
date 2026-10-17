@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Ordinary VBA calls and successful worksheet UDFs preserve Err. Raw native
+  remeasurement corrects five lifetime expectations and one class/UDF control
+  each that had reflected injected On Error handlers. Probe recording now
+  defaults to uninstrumented source. Event callbacks recover locally; an error
+  escaping a callback bypasses caller/raiser error handlers and stops delivery,
+  verified by 78 native host/custom traces and their persistent workbook state.
+  Ten further raw controls correct Erl clearing on On Error, Resume and active
+  handler exit while retaining it for Err.Clear and Err.Number = 0.
+
 - Handlers that disable EnableEvents suppress later workbook and application
   notifications while completing the current event's callbacks. Eighteen native
   traces cover Calculate, Change and SelectionChange at each listener stage;

@@ -62,7 +62,7 @@ def _handle(owner: VBAObject, procedure: str, args: list[object]) -> None:
         return
     found = document.module.procedure(procedure)
     if found is not None:
-        document.interpreter.call(found, document.module, args, {}, me=document)
+        document.interpreter.call_event_handler(found, document.module, args, me=document)
 
 
 def _sinks(book: Workbook, source: VBAObject, event: str, args: list[object]) -> None:

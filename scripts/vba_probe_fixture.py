@@ -21,14 +21,14 @@ VERSION_PROBE = ('Function VersionBuild() As String\n'
 
 
 def record(modules: dict[str, str], out: Path, classes: dict[str, str] | None = None, *,
-           line_numbers: bool = True) -> None:
+           line_numbers: bool = False) -> None:
     """Run every module's Probe in native Excel and write the fixture to ``out``.
 
     ``classes`` are class modules every probe can use, added to each session
     after a first macro has run (the harness installs its runner then) and
-    kept in the fixture for the tests to add the same way. ``line_numbers``
-    False stops the harness numbering every line for its error reports, which
-    Erl would otherwise read.
+    kept in the fixture for the tests to add the same way. Conformance uses
+    uninstrumented source by default: the harness's ``line_numbers`` option
+    also injects On Error handlers, changing Err and error propagation.
     """
     probes: list[dict[str, object]] = []
     version_value = None
@@ -39,7 +39,7 @@ def record(modules: dict[str, str], out: Path, classes: dict[str, str] | None = 
                 excel = ExcelSession(HarnessConfig(lock_wait_s=30.0))
                 excel.__enter__()
                 excel.new_document()
-                version = excel.run_vba(VERSION_PROBE, 'VersionBuild')
+                version = excel.run_vba(VERSION_PROBE, 'VersionBuild', line_numbers=False)
                 assert version.ok and not version.dialogs, version
                 version_value = version.value
                 for class_name, source in (classes or {}).items():
@@ -60,4 +60,5 @@ def record(modules: dict[str, str], out: Path, classes: dict[str, str] | None = 
         if excel is not None:
             excel.__exit__(None, None, None)
     out.write_text(json.dumps({'excel_version_build': version_value, 'measured_at': datetime.now(timezone.utc).isoformat(),
+                               'instrumentation': 'error-handler injection' if line_numbers else 'none',
                                'classes': classes or {}, 'probes': probes}, indent=2) + '\n', encoding='utf-8')

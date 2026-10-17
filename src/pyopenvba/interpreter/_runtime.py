@@ -401,14 +401,17 @@ class ErrObject(VBAObject):
         self.reset()
         return EMPTY
 
-    def reset(self) -> None:
-        """No error, as VBA leaves Err on entering a procedure, on an On Error statement, on Resume and on leaving
-        an error handler (tests/fixtures/vba_semantics/err_lifetime.json)."""
+    def reset(self, *, clear_erl: bool = False) -> None:
+        """Clear Err; language-control transitions also clear Erl, unlike Err.Clear."""
         self.number = 0
         self.description = ""
         self.source = ""
         self.help_file = ""
         self.help_context = 0
+        self._raised_help = None
+
+        if clear_erl:
+            self.erl = 0
 
     @method
     def Raise(
@@ -1142,7 +1145,7 @@ class Interpreter:
         named: dict[str, object],
         *,
         me: object = None,
-        reset_error: bool = True,
+        reset_error: bool = False,
     ) -> object:
         """Call one procedure and give back what it returns."""
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
@@ -1158,12 +1161,10 @@ class Interpreter:
             for array in frame.locked_arrays:
                 array.borrowed_elements -= 1
             raise
-        # A procedure starts with no error, whatever its caller's Err held; what it leaves in Err stays after it.
-        # A class object's member is the exception: it starts with the caller's Err, early or late bound
-        # (native probes, tests/fixtures/vba_class_objects.json).
-        if reset_error and not (isinstance(me, UserClassInstance) and me.host is None):
-            self.err.reset()
-            self.err.erl = 0
+        # Ordinary calls preserve Err. On Error statements clear it; native
+        # conformance probes must not inject handlers at procedure entry.
+        if reset_error:
+            self.err.reset(clear_erl=True)
         if procedure.kind in ("function", "get"):
             frame.locals[procedure.name.lower()] = self.make_slot(
                 A.VarDecl(name=procedure.name, declared=procedure.returns, is_array=procedure.returns_array), module
@@ -1321,7 +1322,7 @@ class Interpreter:
             failure.args = (f"{failure.where}: {failure.message}",)
         if not failure.source:
             failure.source = self.project_name
-        if frame.in_handler or frame.handler == "none":
+        if failure.unhandled_event or frame.in_handler or frame.handler == "none":
             return "raise"
         self.err.capture(failure)
         self.err.erl = frame.line_number
@@ -1335,7 +1336,7 @@ class Interpreter:
             self._execute_block(frame.procedure.body, frame, start=index)
         except _ResumeSignal as resume:
             frame.in_handler = False
-            self.err.reset()
+            self.err.reset(clear_erl=True)
             if resume.mode == "next":
                 return "next"
             if resume.mode == "same":
@@ -1346,12 +1347,12 @@ class Interpreter:
             raise
         except _ExitSignal:
             # Leaving the procedure from its handler leaves no error behind.
-            self.err.reset()
+            self.err.reset(clear_erl=True)
             raise
         finally:
             if frame.in_handler:
                 frame.in_handler = False
-        self.err.reset()
+        self.err.reset(clear_erl=True)
         raise _ExitSignal(_exit_word(frame.procedure.kind))
 
     @classmethod
@@ -1656,7 +1657,7 @@ class Interpreter:
 
     def _do_on_error(self, statement: A.OnError, frame: Frame) -> None:
         # Every On Error statement clears Err (tests/fixtures/vba_semantics/err_lifetime.json).
-        self.err.reset()
+        self.err.reset(clear_erl=True)
         if statement.mode == "reset":
             # On Error GoTo -1: the current error is over, so a new On Error
             # can take effect inside the handler (native probes).
@@ -1730,7 +1731,16 @@ class Interpreter:
                 continue
             handler = owner.module.procedure(f"{key}_{name}")
             if handler is not None:
-                owner.interpreter.call(handler, owner.module, args, {}, me=owner)
+                owner.interpreter.call_event_handler(handler, owner.module, args, me=owner)
+
+    def call_event_handler(self, procedure: A.Procedure, module: ModuleRuntime,
+                           args: list[object], *, me: object) -> None:
+        """Event handlers recover locally; an escaped error aborts event delivery."""
+        try:
+            self.call(procedure, module, args, {}, me=me)
+        except VBARuntimeError as failure:
+            failure.unhandled_event = True
+            raise
 
     def listens_for_event(self, source: object, name: str) -> bool:
         return any(owner is not None and owner.variables[key].get() is source

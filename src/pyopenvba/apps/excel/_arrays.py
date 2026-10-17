@@ -9,6 +9,9 @@ first cell holds the formula; every cell of the block reports it as its
 Formula and HasFormula, and a file keeps it in the first cell with the
 block beside it.
 
+Copy/cut/shift/sort/PasteSpecial behavior and conversions from dynamic
+spills are replayed from tests/fixtures/cse_array_edits.json.
+
 Excel guards the block as one thing:
 
 * FormulaArray written to one of its cells rewrites the whole block's
@@ -21,7 +24,10 @@ Excel guards the block as one thing:
 * Inserting or deleting rows or columns through it is error 1004; the
   block moves with an insert before it and goes with a delete of all of
   it.
-* Copying the whole block copies the array.
+* Copying any part creates an array of the copied size, with references
+  rebased from the original array's anchor; a manual copy retains the
+  copied cells' cached values. Whole-array cuts carry the block, and a
+  partial cut or paste over part of an array is error 1004.
 
 HasArray is True when a range meets one array and its first cell is in
 it, False when it meets none, and Null otherwise. FormulaArray follows
@@ -75,6 +81,24 @@ def met(sheet: Worksheet, areas: list[Area]) -> tuple[list[tuple[int, int]], lis
     return whole, part
 
 
+def copy_fragments(sheet: Worksheet, area: Area) -> list[tuple[Area, Area]]:
+    """Each copied array's original block and its intersection with the source range."""
+    return [(block, Area(max(block.top, area.top), max(block.left, area.left),
+                         min(block.bottom, area.bottom), min(block.right, area.right)))
+            for block in sheet.array_formulas.values() if _meets(block, area)]
+
+
+def shift_admitted(sheet: Worksheet, area: Area, region: Area, *, delete: bool) -> None:
+    """A cell shift may carry or delete an entire array, but cannot split one."""
+    for block in sheet.array_formulas.values():
+        if not _meets(block, region):
+            continue
+        if delete and _covers(area, block):
+            continue
+        if not _covers(region, block) or delete and _meets(area, block):
+            raise error(1004, PART_OF_AN_ARRAY)
+
+
 def write_admitted(target: Range) -> bool:
     """Whether a Value or Formula write goes ahead: not when it meets part of an array, which it leaves as it was.
 
@@ -108,19 +132,28 @@ def refuse(sheet: Worksheet, areas: list[Area], doing: str) -> None:
 def put(target: Range, formula: str) -> None:
     """Range.FormulaArray written: the formula, already spelled, over the range as one array."""
     sheet = target.sheet
+    from pyopenvba.apps.excel._spills import remove, spilled
+
+    cleared: set[tuple[int, int]] = set()
     if len(target.areas) != 1:
         raise VBAUnsupportedError("FormulaArray over several areas is not implemented")
     area = target.first
     if len(formula) > LONGEST:
         raise error(1004, "Unable to set the FormulaArray property of the Range class")
     found = array_at(sheet, area.top, area.left) if area.rows == area.columns == 1 else None
+    if found is None and area.rows == area.columns == 1:
+        found = spilled(sheet, area.top, area.left)
     if found is not None:
-        # One cell of an array rewrites the whole array's formula.
+        # One cell of a CSE array or a live dynamic spill rewrites its entire block.
         anchor, block = found
+        cleared.update(remove(sheet, anchor))
+        sheet.array_formulas[anchor] = block
     else:
         whole, part = met(sheet, [area])
         if part:
             raise error(1004, PART_OF_AN_ARRAY)
+        for one in [anchor for anchor in sheet.spills if area.contains(*anchor)]:
+            cleared.update(remove(sheet, one))
         for one in whole:
             del sheet.array_formulas[one]
         block = Area(area.top, area.left, area.bottom, area.right)
@@ -128,14 +161,17 @@ def put(target: Range, formula: str) -> None:
         for position in [position for position in sheet.cells_ if block.contains(*position)]:
             cell = sheet.cells_[position]
             cell.value, cell.formula, cell.stale, cell.shared = EMPTY, "", False, None
+            cell.dynamic, cell.spilled_from = False, None
             sheet.settle(*position)
         sheet.array_formulas[anchor] = block
     cell = sheet.cell(*anchor, create=True)
     assert cell is not None
     cell.formula, cell.stale, cell.value, cell.shared = formula, True, EMPTY, None
+    cell.dynamic, cell.spilled_from = False, None
     for row in range(block.top, block.bottom + 1):
         for column in range(block.left, block.right + 1):
             sheet.cell_changed(row, column)
+    sheet.book.calculator.spilled_changed(sheet.name, cleared)
 
 
 def has_array(target: Range) -> object:

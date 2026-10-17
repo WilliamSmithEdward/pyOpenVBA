@@ -123,6 +123,8 @@ def ERROR_TYPE(context: Context, value: Scalar) -> Value:
 
 
 def _where(context: Context, reference: Value | None, *, row: bool) -> Value:
+    if isinstance(reference, CellError):
+        return reference
     if reference is None:
         # An array formula's own row is a one-item array: Evaluate("ROW()") is one (pyOpenVBA's
         # tests/fixtures/evaluate.json).

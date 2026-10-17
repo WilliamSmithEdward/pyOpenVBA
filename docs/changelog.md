@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Legacy CSE array fragments copy as arrays with their own ranges and
+  correctly rebased references. Whole-array cuts and cell shifts carry
+  metadata, including overlaps and cross-sheet moves; partial cuts, split
+  destinations and sorting array cells are refused before mutation with
+  error 1004. PasteSpecial preserves array fragments and transposition,
+  handles value/formula/format and arithmetic cases, and retains manual
+  caches. FormulaArray entry computes its initial result in manual mode.
+  ROW/COLUMN preserve reference errors after copies invalidate a reference.
+  Coverage includes 189 native API cases and fourteen native file gates; the
+  older partial-array-copy expected failure is now a passing regression.
+
 - Manual-calculation edits retain cached spill results while rows, columns
   and partial cells move. Copies carry only the copied cached output,
   including partial and overlapping copies; edits to spill children

@@ -2087,6 +2087,10 @@ class Range(ExcelObject):
             raise error(1004, "Unable to set the FormulaArray property of the Range class")
         whole(self.sheet, self.areas, "Changing")
         _arrays.put(self, _array_formula_text(self.sheet, text, self.first.top, self.first.left))
+        if not self.sheet.book.calculator.automatic:
+            found = _arrays.array_at(self.sheet, self.first.top, self.first.left)
+            assert found is not None
+            self.sheet.book.calculator.value_of(self.sheet.name, *found[0], force=True)
         _events.after_edit(self)
 
     @member
@@ -3043,12 +3047,13 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("Copy involving merged cells is not implemented")
         if rows * columns > 1048576:
             raise VBAUnsupportedError("Copy destinations larger than 1048576 cells are not implemented")
-        carried, split = _arrays.met(self.sheet, [area])
         covered, cut = _arrays.met(Destination.sheet, [written])
-        if split or cut:
-            raise VBAUnsupportedError("copying part of an array formula, or over part of one, is not implemented")
+        if cut:
+            raise error(1004, _arrays.PART_OF_AN_ARRAY)
         # Snapshot before clearing or writing: source and destination can overlap.
-        arrays = [self.sheet.array_formulas[anchor] for anchor in carried]
+        fragments = _arrays.copy_fragments(self.sheet, area)
+        arrays = [fragment for _, fragment in fragments]
+        origins = {(fragment.top - area.top, fragment.left - area.left): original for original, fragment in fragments}
         from pyopenvba.apps.excel._spills import CachedSpill, cached, restore
         from pyopenvba.formula._calc.values import Array as FormulaArray
 
@@ -3058,6 +3063,10 @@ class Range(ExcelObject):
         copied_caches: list[CachedSpill] = []
         sources = {(row - area.top, column - area.left): cell
                    for (row, column), cell in self.sheet.cells_.items() if area.contains(row, column)}
+        for position, original in origins.items():
+            anchor = self.sheet.cells_.get((original.top, original.left))
+            assert anchor is not None
+            sources[position] = replace(sources.get(position, Cell()), formula=anchor.formula, shared=None, dynamic=False)
         from pyopenvba.apps.excel._row_formats import shown_formats
 
         whole_rows, whole_columns = area.whole_rows and written.whole_rows, area.whole_columns and written.whole_columns
@@ -3096,7 +3105,10 @@ class Range(ExcelObject):
                     if copy.spilled_from is not None:
                         copy.value, copy.spilled_from = EMPTY, None
                     if copy.formula:
-                        copy.formula = shift_text(formulas.get((down, across), copy.formula), tile_row - area.top, tile_column - area.left)
+                        original = origins.get((down, across))
+                        row_shift = tile_row - area.top if original is None else tile_row + down - original.top
+                        column_shift = tile_column - area.left if original is None else tile_column + across - original.left
+                        copy.formula = shift_text(formulas.get((down, across), copy.formula), row_shift, column_shift)
                         copy.stale = True
                         if Destination.sheet.book.calculator.automatic:
                             copy.value = EMPTY
@@ -3111,7 +3123,7 @@ class Range(ExcelObject):
                         copy.value = source_cache.value
                     Destination.sheet.cells_[(tile_row + down, tile_column + across)] = copy
                     Destination.sheet.settle(tile_row + down, tile_column + across)
-                # An array copied whole is an array where it lands.
+                # A copied array fragment becomes an array of its own where it lands.
                 for block in arrays:
                     down, across = tile_row - area.top, tile_column - area.left
                     Destination.sheet.array_formulas[(block.top + down, block.left + across)] = Area(
@@ -3289,7 +3301,6 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._sort import range_sort
 
         check_sort(self)
-        _arrays.refuse(self.sheet, self.areas, "Sorting")
         answer = range_sort(self, [(Key1, Order1, DataOption1), (Key2, Order2, DataOption2),
                                    (Key3, Order3, DataOption3)], Header, OrderCustom, MatchCase, Orientation)
         # A sort changes no cell as far as Change goes; what it moved is worked out again.

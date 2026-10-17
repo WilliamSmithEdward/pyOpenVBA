@@ -129,7 +129,14 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
         first, last = area.left + (1 if header else 0), min(area.right, used[3])
     else:
         first, last = area.top + (1 if header else 0), min(area.bottom, used[2])
-    if first >= last:
+    block = (Area(area.top, first, area.bottom, last) if across else Area(first, area.left, last, area.right)) if first <= last else None
+    from pyopenvba.apps.excel._arrays import met, PART_OF_AN_ARRAY
+
+    if block is not None:
+        arrays, partial_arrays = met(sheet, [block])
+        if arrays or partial_arrays:
+            raise error(1004, PART_OF_AN_ARRAY)
+    if block is None or first >= last:
         return
     calculator = sheet.book.calculator
 
@@ -141,7 +148,6 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
         return calculator.value_of(sheet.name, row, column) if cell.formula else cell.value
 
     lines = list(range(first, last + 1))
-    block = Area(area.top, first, area.bottom, last) if across else Area(first, area.left, last, area.right)
     if any(not spill.blocked and _merges.intersects(block, spill.area) for spill in sheet.spills.values()):
         raise error(1004, "You can't change part of an array")
     if filtering(sheet):
@@ -354,9 +360,6 @@ class SortObject(ExcelObject):
         target = state.area
         if len(target.areas) != 1:
             raise VBAUnsupportedError("sorting several areas is not implemented")
-        from pyopenvba.apps.excel._arrays import refuse
-
-        refuse(target.sheet, target.areas, "Sorting")
         area = target.first
         across = state.orientation == LEFT_TO_RIGHT
         keys = [_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long"))

@@ -1593,6 +1593,11 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
         if cell.formula and position not in formulas:
             volatile = ' ca="1"' if always(cell.formula) else ""
             formulas[position] = f"<f{volatile}>{spell(cell.formula[1:])}</f>"
+        if cell.formula and cell.stale and not sheet.book.calculator.automatic \
+                and not re.search(r'\bca="', formulas[position]):
+            # Excel marks cached dirty formulas themselves, including dependents;
+            # calcCompleted alone does not make native manual calculation revisit them.
+            formulas[position] = formulas[position].replace('<f', '<f ca="1"', 1)
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
                                     formulas, dynamic, keep_stale=not sheet.book.calculator.automatic)

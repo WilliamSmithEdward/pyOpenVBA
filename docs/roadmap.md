@@ -149,13 +149,15 @@ supported.
 5. Add the Access object model, bridge and measured probe file using the
    pattern established by the other hosts.
 
-Known Excel gaps include `WithEvents` and document-module events,
-spilling array formulas, object-model members such as pivot tables,
-creating groups, pictures and charts, and the unimplemented portions of
-the M library (the registered and missing names are counted by the
-coverage audit). These are starting
-points for the completeness audit, not an exhaustive checklist. The
-current runtime limits are recorded in [`vba_runtime.md`](vba_runtime.md).
+Known Excel gaps include broader event signatures and sources, general
+calculation scheduling and iterative calculation, mixed-feature array edits,
+external workbook/project links, pivot tables and caches, grouping and
+pictures, richer imported-chart editing and formatting, and the unimplemented
+portions of the M library. WithEvents, document events, dynamic spills and
+basic chart creation have measured support; their remaining limits are
+recorded in [`vba_runtime.md`](vba_runtime.md) and the operation checklist.
+These are starting points for the completeness audit, not an exhaustive
+list or a claim of feature completeness.
 
 ## Out of scope (no current plans)
 

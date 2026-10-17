@@ -1,0 +1,1219 @@
+{
+  "probes": [
+    {
+      "name": "during_replace_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_replace_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_replace_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_replace_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_replace_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_replace_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_replace_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|8:9"
+        }
+      ]
+    },
+    {
+      "name": "during_replace_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|8:9"
+        }
+      ]
+    },
+    {
+      "name": "during_delete_insert_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.DeleteLines 2\npart.CodeModule.InsertLines 2, \"MyCalc = value * 3\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|8:9"
+        }
+      ]
+    },
+    {
+      "name": "during_insert_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|8:9"
+        }
+      ]
+    },
+    {
+      "name": "during_rename_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\npart.Name = \"RenamedCode\"\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|6:7"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "during_remove_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Parent.VBProject.VBComponents.Remove part\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7|6:7|#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "after_none_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_none_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_none_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_none_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_none_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_none_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\n\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|8:8:9"
+        }
+      ]
+    },
+    {
+      "name": "after_replace_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|9:9:10"
+        }
+      ]
+    },
+    {
+      "name": "after_replace_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|9:9:10"
+        }
+      ]
+    },
+    {
+      "name": "after_replace_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_replace_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|9:9:10"
+        }
+      ]
+    },
+    {
+      "name": "after_replace_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|9:9:10"
+        }
+      ]
+    },
+    {
+      "name": "after_replace_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\npart.CodeModule.ReplaceLine 2, \"MyCalc = value * 3\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|12:12:13"
+        }
+      ]
+    },
+    {
+      "name": "after_insert_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|8:8:9"
+        }
+      ]
+    },
+    {
+      "name": "after_insert_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|8:8:9"
+        }
+      ]
+    },
+    {
+      "name": "after_insert_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_insert_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|8:8:9"
+        }
+      ]
+    },
+    {
+      "name": "after_insert_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|8:8:9"
+        }
+      ]
+    },
+    {
+      "name": "after_insert_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\npart.CodeModule.InsertLines 2, \"value = value + 1\"\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|10:10:11"
+        }
+      ]
+    },
+    {
+      "name": "after_remove_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nws.Parent.VBProject.VBComponents.Remove part\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|Error 2029:#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "after_remove_manual_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nws.Parent.VBProject.VBComponents.Remove part\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|Error 2029:#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "after_remove_manual_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\n\nws.Parent.VBProject.VBComponents.Remove part\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|6:6:7"
+        }
+      ]
+    },
+    {
+      "name": "after_remove_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nws.Parent.VBProject.VBComponents.Remove part\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|Error 2029:#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "after_remove_auto_range",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nws.Parent.VBProject.VBComponents.Remove part\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"B1:C1\").Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|Error 2029:#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "after_remove_auto_input",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Function MyCalc(value As Double) As Double\" & vbCrLf & \"MyCalc = value * 2\" & vbCrLf & \"End Function\"\nws.Range(\"A1\").Value = 3\nws.Range(\"B1\").Formula = \"=MyCalc(A1)\"\nws.Range(\"C1\").Formula = \"=B1+1\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nws.Parent.VBProject.VBComponents.Remove part\nProbe = ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nws.Range(\"A1\").Value = 4\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2) & \":\" & ws.Range(\"B1\").Text & \":\" & ws.Range(\"C1\").Text\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "6:7"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "6:6:7|Error 2029:#NAME?:#NAME?"
+        }
+      ]
+    },
+    {
+      "name": "counter_none_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\n\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_none_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\n\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        }
+      ]
+    },
+    {
+      "name": "counter_none_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\n\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_none_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\n\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_blank_component_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_blank_component_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        }
+      ]
+    },
+    {
+      "name": "counter_blank_component_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_blank_component_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_insert_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.InsertLines 2, \"Unused = 5\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_insert_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.InsertLines 2, \"Unused = 5\"\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_insert_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.InsertLines 2, \"Unused = 5\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_insert_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.InsertLines 2, \"Unused = 5\"\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_replace_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.ReplaceLine 2, \"Unused = 5\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_replace_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.ReplaceLine 2, \"Unused = 5\"\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_replace_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.ReplaceLine 2, \"Unused = 5\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_replace_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.CodeModule.ReplaceLine 2, \"Unused = 5\"\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_remove_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nws.Parent.VBProject.VBComponents.Remove helper\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_remove_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nws.Parent.VBProject.VBComponents.Remove helper\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_remove_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nws.Parent.VBProject.VBComponents.Remove helper\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_remove_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nws.Parent.VBProject.VBComponents.Remove helper\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_rename_manual_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.Name = \"RenamedHelpers\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_rename_manual_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\n\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.Name = \"RenamedHelpers\"\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "2|2"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_rename_auto_calculate",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.Name = \"RenamedHelpers\"\nApplication.Calculate\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nApplication.Calculate\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    },
+    {
+      "name": "counter_unused_rename_auto_unrelated",
+      "macro": "Function Probe() As String\nApplication.Calculation = xlCalculationManual\nDim ws As Worksheet, part As Object, helper As Object\nSet ws = Worksheets.Add\nws.Name = \"Target\"\nSet part = ws.Parent.VBProject.VBComponents.Add(1)\npart.Name = \"UserCode\"\npart.CodeModule.AddFromString \"Private Hits As Long\" & vbCrLf & \"Function Tick() As Long\" & vbCrLf & \"Hits = Hits + 1\" & vbCrLf & \"Tick = Hits\" & vbCrLf & \"End Function\"\nSet helper = ws.Parent.VBProject.VBComponents.Add(1)\nhelper.Name = \"Helpers\"\nhelper.CodeModule.AddFromString \"Function Unused() As Long\" & vbCrLf & \"Unused = 1\" & vbCrLf & \"End Function\"\nApplication.Run \"Helpers.Unused\"\nws.Range(\"B1\").Formula = \"=Tick()\"\nApplication.Calculate\nApplication.Calculation = xlCalculationAutomatic\nProbe = CStr(ws.Range(\"B1\").Value2)\nhelper.Name = \"RenamedHelpers\"\nws.Range(\"D1\").Value = 5\nProbe = Probe & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\nFunction AfterReturn() As String\nDim ws As Worksheet\nSet ws = Worksheets(\"Target\")\nAfterReturn = CStr(ws.Range(\"B1\").Value2)\nws.Range(\"D1\").Value = 5\nAfterReturn = AfterReturn & \"|\" & CStr(ws.Range(\"B1\").Value2)\nEnd Function\n",
+      "steps": [
+        {
+          "entry": "Probe",
+          "result": "2|3"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "3|1"
+        },
+        {
+          "entry": "AfterReturn",
+          "result": "1|1"
+        }
+      ]
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-17T02:19:30.393988+00:00",
+  "files": [
+    {
+      "name": "after_replace_manual_input",
+      "file": "udf_source_files/after_replace_manual_input.xlsm",
+      "result": "|6:6:=MyCalc(A1)|7:7:=B1+1",
+      "calculated": "|12:12:=MyCalc(A1)|13:13:=B1+1",
+      "calculation": -4135
+    },
+    {
+      "name": "after_insert_manual_input",
+      "file": "udf_source_files/after_insert_manual_input.xlsm",
+      "result": "|6:6:=MyCalc(A1)|7:7:=B1+1",
+      "calculated": "|10:10:=MyCalc(A1)|11:11:=B1+1",
+      "calculation": -4135
+    },
+    {
+      "name": "after_remove_manual_input",
+      "file": "udf_source_files/after_remove_manual_input.xlsm",
+      "result": "|6:6:=MyCalc(A1)|7:7:=B1+1",
+      "calculated": "|Error 2029:#NAME?:=MyCalc(A1)|Error 2029:#NAME?:=B1+1",
+      "calculation": -4135
+    },
+    {
+      "name": "after_replace_auto_calculate",
+      "file": "udf_source_files/after_replace_auto_calculate.xlsm",
+      "result": "|9:9:=MyCalc(A1)|10:10:=B1+1",
+      "calculated": "|9:9:=MyCalc(A1)|10:10:=B1+1",
+      "calculation": -4105
+    },
+    {
+      "name": "after_insert_auto_calculate",
+      "file": "udf_source_files/after_insert_auto_calculate.xlsm",
+      "result": "|8:8:=MyCalc(A1)|9:9:=B1+1",
+      "calculated": "|8:8:=MyCalc(A1)|9:9:=B1+1",
+      "calculation": -4105
+    },
+    {
+      "name": "after_remove_auto_calculate",
+      "file": "udf_source_files/after_remove_auto_calculate.xlsm",
+      "result": "|Error 2029:#NAME?:=MyCalc(A1)|Error 2029:#NAME?:=B1+1",
+      "calculated": "|Error 2029:#NAME?:=MyCalc(A1)|Error 2029:#NAME?:=B1+1",
+      "calculation": -4105
+    }
+  ],
+  "read_saved": "Function ReadSaved() As String\nDim cell As Range\nFor Each cell In Worksheets(\"Target\").Range(\"B1:C1\")\nReadSaved = ReadSaved & \"|\" & CStr(cell.Value2) & \":\" & cell.Text & \":\" & cell.Formula\nNext cell\nEnd Function\nSub CalculateNow()\nApplication.Calculate\nEnd Sub\nSub SetSaveFlag()\nApplication.CalculateBeforeSave = False\nEnd Sub\n"
+}

@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- VBA function source edits invalidate UDF results and their dependents
+  while preserving cached reads. Worksheet functions retain edited bindings
+  during the editing macro and refresh project text/globals on subsequent
+  calculation; removed functions become #NAME?. Ordinary macro calls keep
+  their separate compiled-code behavior. Manual Range.Text shows cached
+  values, and saved dirty formula dependents carry native recalculation
+  markers. Coverage adds 88 native lifecycle probes and six macro-enabled
+  source/cache files, including native Excel readback of model-written files.
+
 - AutoFill carries legacy CSE arrays through repeated and clipped blocks,
   rebases their references and retains manual caches; partial array edits
   fail before mutation. Replace operates on the array anchor and reports

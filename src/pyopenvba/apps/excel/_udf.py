@@ -55,7 +55,7 @@ def has_user_function(book: Workbook, node: Node | None) -> bool:
     interpreter = attach_project(book)
     if interpreter is None or node is None:
         return False
-    interpreter.initialise()
+    _initialise(book)
     for entry in walk(node):
         if isinstance(entry, Call) and '.' not in entry.name:
             procedure, runtime = interpreter.find_procedure(entry.name)
@@ -71,13 +71,13 @@ def call_user_function(book: Workbook, context: Context, name: str, nodes: tuple
     interpreter = attach_project(book)
     if interpreter is None or "." in name:
         return None
-    interpreter.initialise()
-    procedure, runtime = interpreter.find_procedure(name)
-    if procedure is None or runtime is None or procedure.kind != "function":
-        return None
-    args = [_argument(book, context, node) for node in nodes]
+    _initialise(book)
     try:
-        with running(book.application, _cell(book, context)):
+        with interpreter.udf_bindings(), running(book.application, _cell(book, context)):
+            procedure, runtime = interpreter.find_procedure(name)
+            if procedure is None or runtime is None or procedure.kind != "function":
+                return None
+            args = [_argument(book, context, node) for node in nodes]
             # A call like any other: it starts with no error, and what it leaves in Err the macro sees.
             result = interpreter.call(procedure, runtime, args, {})
     except VBARuntimeError:
@@ -86,6 +86,17 @@ def call_user_function(book: Workbook, context: Context, name: str, nodes: tuple
         interpreter.err.description = "Application-defined or object-defined error"
         return VALUE
     return _value(result)
+
+
+def _initialise(book: Workbook) -> None:
+    from pyopenvba.apps.excel._projects import attach_project
+    from pyopenvba.apps.excel._vbide import VBProject
+
+    interpreter = attach_project(book)
+    assert interpreter is not None
+    if isinstance(book.vbide_project, VBProject):
+        book.vbide_project.compile_pending(for_udf=True)
+    interpreter.initialise()
 
 
 @contextmanager

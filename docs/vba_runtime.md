@@ -1926,8 +1926,21 @@ their initial value even in manual mode; subsequent input edits remain
 cached until calculation. Returning to automatic calculates volatile UDFs
 in the active workbook. Event suppression does not suppress calculation.
 Each cell uses its owning VBA project, including source added through
-VBIDE. General calculation-chain ordering, source-edit lifetime, external
-project lookup and wider UDF/error interactions remain incomplete.
+VBIDE. Eighty-eight native source-lifetime probes in
+`tests/fixtures/udf_source_lifetime.json` cover edits, removal, renaming,
+unrelated modules, repeated macro calls and project-global counters. Source
+edits schedule user formulas and their dependents for calculation without
+discarding cached reads. UDFs retain edited bindings while the editing macro
+runs; after it returns, their next calculation reloads project text with
+fresh globals. Ordinary macro calls retain their separately measured
+ReplaceLine behavior. Removed functions report #NAME? on calculation.
+Manual `Range.Text` displays cached values even when a formula is dirty.
+Six native macro-enabled files cover edited source and caches across
+save/reopen, with native Excel readback of model-written files. Dirty cached
+formula dependents carry Excel's `ca="1"` marker, so native manual calculation
+revisits them too. General calculation-chain ordering, broader source-edit
+and class-instance lifetime, external project lookup and wider UDF/error
+interactions remain incomplete.
 
 `Format` is VBA's own engine, `pyopenvba/interpreter/_format.py`, held to
 245 native calls in `tests/fixtures/vba_format.json`. A section with a `0`

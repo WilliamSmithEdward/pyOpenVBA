@@ -1,0 +1,13 @@
+{
+  "measured_at": "2026-10-17T15:00:45.151507+00:00",
+  "creation_result": "Function1:-4157:-4157;Function2:-4112:-4112;Function3:-4113:11;Function4:-4106:-4106;Function5:-4139:-4139;Function6:-4136:-4136;Function7:-4149:-4149;Function8:-4155:-4155;Function9:-4156:-4156;Function10:-4164:-4164;Function11:-4165:-4165;",
+  "inspection_source": "Function InspectFunctions() As String\nDim p As PivotTable,f As PivotField\nFor Each p In Worksheets(1).PivotTables\nSet f=p.DataFields(1)\nInspectFunctions=InspectFunctions & p.Name & \":\" & f.Name & \":\" & CStr(f.Function) & \":\" & CStr(p.DataBodyRange.Cells(1,1).Value2) & \";\"\nNext\nEnd Function",
+  "inspection_result": "Function4:Average of Amount:-4106:30;Function3:Count of Amount:11:5;Function8:StdDev of Amount:-4155:15.8113883008419;Function2:Count of Amount:-4112:5;Function7:Product of Amount:-4149:12000000;Function1:Sum of Amount:-4157:150;Function6:Max of Amount:-4136:50;Function11:Varp of Amount:-4165:200;Function10:Var of Amount:-4164:250;Function5:Min of Amount:-4139:10;Function9:StdDevp of Amount:-4156:14.142135623731;",
+  "instrumentation": "none",
+  "excel_version_build": "16.0|20430",
+  "repeated_open_observations": [
+    "Function1:Sum of Amount:-4157:150;Function6:Max of Amount:-4136:50;Function11:Varp of Amount:-4165:200;Function10:Var of Amount:-4164:250;Function5:Min of Amount:-4139:10;Function9:StdDevp of Amount:-4156:14.142135623731;Function4:Average of Amount:-4106:30;Function3:Count of Amount:11:5;Function8:StdDev of Amount:-4155:15.8113883008419;Function2:Count of Amount:-4112:5;Function7:Product of Amount:-4149:12000000;",
+    "Function10:Var of Amount:-4164:250;Function5:Min of Amount:-4139:10;Function9:StdDevp of Amount:-4156:14.142135623731;Function4:Average of Amount:-4106:30;Function3:Count of Amount:11:5;Function8:StdDev of Amount:-4155:15.8113883008419;Function2:Count of Amount:-4112:5;Function7:Product of Amount:-4149:12000000;Function1:Sum of Amount:-4157:150;Function6:Max of Amount:-4136:50;Function11:Varp of Amount:-4165:200;",
+    "Function4:Average of Amount:-4106:30;Function3:Count of Amount:11:5;Function8:StdDev of Amount:-4155:15.8113883008419;Function2:Count of Amount:-4112:5;Function7:Product of Amount:-4149:12000000;Function1:Sum of Amount:-4157:150;Function6:Max of Amount:-4136:50;Function11:Varp of Amount:-4165:200;Function10:Var of Amount:-4164:250;Function5:Min of Amount:-4139:10;Function9:StdDevp of Amount:-4156:14.142135623731;"
+  ]
+}

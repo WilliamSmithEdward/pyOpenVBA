@@ -71,6 +71,15 @@ to workbooks. Feature completeness also requires native Excel to accept the
 generated workbook and reproduce the intended behavior. Passing the current
 tests does not prove that every combination of Excel features works.
 
+Native fixtures cover imported `PivotField.Function` getters for all eleven
+aggregate functions, including Count Numbers returning `11` rather than the
+`xlCountNums` input constant. Native PivotTables enumeration can change across
+repeated opens of the same workbook; name-based comparisons establish content
+fidelity without claiming identical collection order. The model currently uses
+deterministic relationship-ID order on import. See
+[aggregate getter tests](../../tests/test_excel_pivot_functions.py) and their
+[native measurement](../../tests/fixtures/pivots/functions.json).
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in

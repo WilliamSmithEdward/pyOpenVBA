@@ -477,8 +477,9 @@ def write(book: Workbook, package: OpcFile) -> None:
                        and posixpath.normpath(posixpath.join(folder, entry.get('Target', ''))).lstrip('/') in known]
             if all(re.fullmatch(r'rId[0-9]+', entry.get('Id', '')) for entry in reports):
                 reports.sort(key=lambda entry: int(entry.get('Id', '')[3:]))
-            # Excel enumerates reports by relationship id. Reassign only their
-            # targets, preserving unrelated ids used in worksheet XML.
+            # Preserve the model's deterministic report order across its own
+            # saves; native Excel enumeration can vary across repeated opens.
+            # Reassign only known targets, preserving unrelated worksheet ids.
             targets = {entry.get('Id', ''): posixpath.relpath(table.part, folder)
                        for entry, table in zip(reports, sheet.pivot_tables)}
 

@@ -254,8 +254,24 @@ Excel probes in `tests/fixtures/vba_semantics/gosub.json`, recorded by
 before checking 0–255; larger values cause error 5, Integer overflow error 6.
 Procedure and subroutine nesting share the interpreter's 160-entry safety
 limit, which reports error 28 rather than exhausting Python's stack.
-Jump targets inside structured blocks remain unsupported: currently targets
-must be labels in the procedure's outer body, for both `GoTo` and `GoSub`.
+Labels inside structured blocks work for `GoTo`, `GoSub`, computed jumps,
+error handlers and `Resume`. Procedure-wide instructions preserve the path's
+loop state and the destination's lexical `With` context. Entering a block
+skips its header; an uninitialized `With` member raises 91 and an
+uninitialized enumerator raises 92. Leaving `For Each` by `GoTo` retains its
+array lock until completion, `Exit For` or procedure exit. Duplicate and
+missing labels and invalid `Exit` statements fail compilation, including in
+unused procedures. Numeric line labels normalize leading zeroes.
+
+`For` captures bounds and steps as values at its header and coerces them to
+the counter's declared type. Variant counters use native loop promotion,
+including Single becoming Double and the asymmetric Decimal start/limit
+case. `Select Case` captures a default member's value once. These behaviors,
+jump reentry and error-handler continuations replay 253 uninstrumented native
+Excel traces in `tests/fixtures/vba_semantics/structured_jumps.json`, recorded
+by `scripts/measure_structured_jumps.py`. This covers the measured cases;
+complete compiler type checking, `DefType` defaults and object lifetime
+conformance remain open work.
 
 `On Error GoTo` does not unwind the stack: the handler runs where the
 error happened, so `Resume Next` hands control back to the statement
@@ -1912,8 +1928,8 @@ native probes, `scripts/measure_vba_builtins.py`):
 - VBA's `Collection.Count` is a method: `CallByName(c, "Count", VbMethod)`
   reads it and `VbGet` is error 438.
 
-Under `On Error Resume Next`, VBA resumes a `For Each` over an unallocated
-array inside the loop's body; this resumes after the loop.
+Under `On Error Resume Next`, an unallocated `For Each` enters the body
+after error 92 and reaches its uninitialized `Next`, as native VBA does.
 
 Null as a condition (If, ElseIf, While, Do, IIf, Case) is False rather than
 error 94 (`tests/fixtures/vba_language.json`). `Erl` is the last numbered

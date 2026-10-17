@@ -32,9 +32,7 @@ def test_native_file_retains_cse_fill_and_replace(case: dict[str, Any]) -> None:
     assert app.evaluate('Application.Calculation') == case['calculation']
     assert app.run('ReadSaved') == case['result']
     app.run('CalculateNow')
-    name = case['name'].rsplit('_', 1)[0] + '_calculated'
-    expected = next(probe for probe in PROBES if probe['name'] == name)
-    assert app.run('ReadSaved') == '0|' + expected['result'].split('|', 1)[1]
+    assert app.run('ReadSaved') == case['after_calculate']
 
 
 def _make_file(case: dict[str, Any], path: Path) -> ExcelApplication:
@@ -54,8 +52,10 @@ def test_model_cse_fill_replace_file_reopens(case: dict[str, Any], tmp_path: Pat
     app = _make_file(case, path)
     assert app.run('ReadSaved') == case['result']
     reopened = ExcelApplication.open(path)
-    reopened.add_module(RECORD['read_saved'], name='Readback')
+    reopened.add_module(RECORD['read_saved'] + '\nSub CalculateNow()\nApplication.Calculate\nEnd Sub', name='Readback')
     assert reopened.run('ReadSaved') == case['result']
+    reopened.run('CalculateNow')
+    assert reopened.run('ReadSaved') == case['after_calculate']
 
 
 @pytest.mark.skipif(os.environ.get('RUN_LIVE_EXCEL') != '1' or importlib.util.find_spec('pyvbaharness') is None,
@@ -73,6 +73,8 @@ def test_native_excel_opens_cse_fill_replace_files(tmp_path: Path) -> None:
             mode = excel.run_vba('Sub SetMode()\nApplication.Calculation = ' + str(case['calculation']) + '\nEnd Sub', 'SetMode')
             assert mode.ok and not mode.dialogs, mode
             excel.open_document(path)
-            result = excel.run_vba(RECORD['read_saved'], 'ReadSaved', timeout=60.0)
-            assert result.ok and not result.dialogs, result
-            assert result.value == case['result']
+            excel.add_module('Readback', RECORD['read_saved'] + '\nSub CalculateNow()\nApplication.Calculate\nEnd Sub', line_numbers=False)
+            assert excel.run_raw('Readback.ReadSaved') == case['result']
+            excel.run_raw('Readback.CalculateNow')
+            assert excel.run_raw('Readback.ReadSaved') == case['after_calculate']
+            assert not any(event.get('dialogs') for event in excel.events)

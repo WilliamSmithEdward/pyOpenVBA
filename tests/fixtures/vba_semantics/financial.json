@@ -1,0 +1,1809 @@
+{
+  "instrumentation": "none",
+  "probes": [
+    {
+      "name": "rate_basic",
+      "expression": "Rate(12,-100,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.029228540769133997,
+      "measured_at": "2026-10-17T10:12:29.461185+00:00"
+    },
+    {
+      "name": "rate_long",
+      "expression": "Rate(360,-1000,150000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(360,-1000,150000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.005850253376759651,
+      "measured_at": "2026-10-17T10:12:29.668187+00:00"
+    },
+    {
+      "name": "rate_due",
+      "expression": "Rate(12,-100,1000,0,1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1000,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.03503153036227749,
+      "measured_at": "2026-10-17T10:12:29.875172+00:00"
+    },
+    {
+      "name": "rate_zero",
+      "expression": "Rate(12,-100,1200)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1200)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:30.081650+00:00"
+    },
+    {
+      "name": "rate_zero_guess",
+      "expression": "Rate(12,-100,1200,0,0,0)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1200,0,0,0)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.0,
+      "measured_at": "2026-10-17T10:12:35.293918+00:00"
+    },
+    {
+      "name": "rate_negative_periods",
+      "expression": "Rate(-12,-100,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(-12,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:35.527138+00:00"
+    },
+    {
+      "name": "rate_no_periods",
+      "expression": "Rate(0,-100,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(0,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:35.719277+00:00"
+    },
+    {
+      "name": "rate_no_payment",
+      "expression": "Rate(12,0,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,0,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.8570896896517559,
+      "measured_at": "2026-10-17T10:12:35.917521+00:00"
+    },
+    {
+      "name": "rate_future",
+      "expression": "Rate(12,-100,1000,200)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1000,200)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:36.109201+00:00"
+    },
+    {
+      "name": "rate_negative_guess",
+      "expression": "Rate(12,-100,1000,0,0,-0.1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1000,0,0,-0.1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:36.312792+00:00"
+    },
+    {
+      "name": "rate_below_minus_one",
+      "expression": "Rate(12,-100,1000,0,0,-2)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1000,0,0,-2)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:36.506999+00:00"
+    },
+    {
+      "name": "rate_fractional",
+      "expression": "Rate(12.5,-100,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12.5,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.034766629918671924,
+      "measured_at": "2026-10-17T10:12:36.710201+00:00"
+    },
+    {
+      "name": "rate_due_half",
+      "expression": "Rate(12,-100,1000,0,0.5)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1000,0,0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.029228540769133997,
+      "measured_at": "2026-10-17T10:12:36.910343+00:00"
+    },
+    {
+      "name": "rate_due_onehalf",
+      "expression": "Rate(12,-100,1000,0,1.5)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(12,-100,1000,0,1.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.03503153036227749,
+      "measured_at": "2026-10-17T10:12:37.092519+00:00"
+    },
+    {
+      "name": "rate_null",
+      "expression": "Rate(Null,-100,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(Null,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!94",
+      "measured_at": "2026-10-17T10:12:37.286637+00:00"
+    },
+    {
+      "name": "rate_text",
+      "expression": "Rate(\"bad\",-100,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(\"bad\",-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!13",
+      "measured_at": "2026-10-17T10:12:37.491820+00:00"
+    },
+    {
+      "name": "irr_basic",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1306623862918074,
+      "measured_at": "2026-10-17T10:12:37.689058+00:00"
+    },
+    {
+      "name": "mirr_basic",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12782977438973497,
+      "measured_at": "2026-10-17T10:12:37.892493+00:00"
+    },
+    {
+      "name": "npv_basic",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 3.756574004507888,
+      "measured_at": "2026-10-17T10:12:38.082861+00:00"
+    },
+    {
+      "name": "irr_long",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=-1000\nvalues(1)=200\nvalues(2)=300\nvalues(3)=400\nvalues(4)=500\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12825726900167297,
+      "measured_at": "2026-10-17T10:12:38.269926+00:00"
+    },
+    {
+      "name": "mirr_long",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=-1000\nvalues(1)=200\nvalues(2)=300\nvalues(3)=400\nvalues(4)=500\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12561385514337053,
+      "measured_at": "2026-10-17T10:12:38.465976+00:00"
+    },
+    {
+      "name": "npv_long",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=-1000\nvalues(1)=200\nvalues(2)=300\nvalues(3)=400\nvalues(4)=500\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 65.2588310535172,
+      "measured_at": "2026-10-17T10:12:38.665710+00:00"
+    },
+    {
+      "name": "irr_zero_prefix",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=0\nvalues(1)=0\nvalues(2)=-100\nvalues(3)=60\nvalues(4)=60\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.13066238629169344,
+      "measured_at": "2026-10-17T10:12:38.922076+00:00"
+    },
+    {
+      "name": "mirr_zero_prefix",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=0\nvalues(1)=0\nvalues(2)=-100\nvalues(3)=60\nvalues(4)=60\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.11382797227790453,
+      "measured_at": "2026-10-17T10:12:39.114186+00:00"
+    },
+    {
+      "name": "npv_zero_prefix",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=0\nvalues(1)=0\nvalues(2)=-100\nvalues(3)=60\nvalues(4)=60\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 3.104606615295775,
+      "measured_at": "2026-10-17T10:12:39.313276+00:00"
+    },
+    {
+      "name": "irr_no_positive",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=-20\nvalues(2)=-30\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:39.508563+00:00"
+    },
+    {
+      "name": "mirr_no_positive",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=-20\nvalues(2)=-30\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -1.0,
+      "measured_at": "2026-10-17T10:12:39.707643+00:00"
+    },
+    {
+      "name": "npv_no_positive",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=-20\nvalues(2)=-30\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -129.97746055597295,
+      "measured_at": "2026-10-17T10:12:39.900378+00:00"
+    },
+    {
+      "name": "irr_no_negative",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=100\nvalues(1)=20\nvalues(2)=30\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:40.098180+00:00"
+    },
+    {
+      "name": "mirr_no_negative",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=100\nvalues(1)=20\nvalues(2)=30\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!11",
+      "measured_at": "2026-10-17T10:12:40.287617+00:00"
+    },
+    {
+      "name": "npv_no_negative",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=100\nvalues(1)=20\nvalues(2)=30\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 129.97746055597295,
+      "measured_at": "2026-10-17T10:12:40.470032+00:00"
+    },
+    {
+      "name": "irr_all_zero",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=0\nvalues(1)=0\nvalues(2)=0\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:40.640551+00:00"
+    },
+    {
+      "name": "mirr_all_zero",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=0\nvalues(1)=0\nvalues(2)=0\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!11",
+      "measured_at": "2026-10-17T10:12:40.848230+00:00"
+    },
+    {
+      "name": "npv_all_zero",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=0\nvalues(1)=0\nvalues(2)=0\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.0,
+      "measured_at": "2026-10-17T10:12:41.041932+00:00"
+    },
+    {
+      "name": "irr_single",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 0) As Double\nvalues(0)=-100\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:41.220999+00:00"
+    },
+    {
+      "name": "mirr_single",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 0) As Double\nvalues(0)=-100\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:41.424085+00:00"
+    },
+    {
+      "name": "npv_single",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 0) As Double\nvalues(0)=-100\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -90.9090909090909,
+      "measured_at": "2026-10-17T10:12:41.619650+00:00"
+    },
+    {
+      "name": "irr_multiple_roots",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=230\nvalues(2)=-132\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1,
+      "measured_at": "2026-10-17T10:12:41.819252+00:00"
+    },
+    {
+      "name": "mirr_multiple_roots",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=230\nvalues(2)=-132\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.10995495404092881,
+      "measured_at": "2026-10-17T10:12:42.018916+00:00"
+    },
+    {
+      "name": "npv_multiple_roots",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=230\nvalues(2)=-132\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 4.85722573273506e-17,
+      "measured_at": "2026-10-17T10:12:42.211864+00:00"
+    },
+    {
+      "name": "irr_negative_root",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=20\nvalues(2)=20\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:42.400469+00:00"
+    },
+    {
+      "name": "mirr_negative_root",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=20\nvalues(2)=20\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.3488471761560117,
+      "measured_at": "2026-10-17T10:12:42.590737+00:00"
+    },
+    {
+      "name": "npv_negative_root",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=20\nvalues(2)=20\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -59.353869271224646,
+      "measured_at": "2026-10-17T10:12:42.774346+00:00"
+    },
+    {
+      "name": "irr_lower",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(-3 To -1) As Double\nvalues(-3)=-100\nvalues(-2)=60\nvalues(-1)=60\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1306623862918074,
+      "measured_at": "2026-10-17T10:12:42.964305+00:00"
+    },
+    {
+      "name": "irr_rank2",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2,0 To 0) As Double\nvalues(0,0)=-100\nvalues(1,0)=60\nvalues(2,0)=60\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:43.154732+00:00"
+    },
+    {
+      "name": "irr_unallocated",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values() As Double\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:43.340338+00:00"
+    },
+    {
+      "name": "irr_integer",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Integer\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:12:43.790354+00:00"
+    },
+    {
+      "name": "irr_variant",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Variant\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:12:44.084987+00:00"
+    },
+    {
+      "name": "mirr_lower",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(-3 To -1) As Double\nvalues(-3)=-100\nvalues(-2)=60\nvalues(-1)=60\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12782977438973497,
+      "measured_at": "2026-10-17T10:12:44.279981+00:00"
+    },
+    {
+      "name": "mirr_rank2",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2,0 To 0) As Double\nvalues(0,0)=-100\nvalues(1,0)=60\nvalues(2,0)=60\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:44.474512+00:00"
+    },
+    {
+      "name": "mirr_unallocated",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values() As Double\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:44.668965+00:00"
+    },
+    {
+      "name": "mirr_integer",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Integer\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:12:45.107917+00:00"
+    },
+    {
+      "name": "mirr_variant",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Variant\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:12:45.365504+00:00"
+    },
+    {
+      "name": "npv_lower",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(-3 To -1) As Double\nvalues(-3)=-100\nvalues(-2)=60\nvalues(-1)=60\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 3.756574004507888,
+      "measured_at": "2026-10-17T10:12:45.572247+00:00"
+    },
+    {
+      "name": "npv_rank2",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2,0 To 0) As Double\nvalues(0,0)=-100\nvalues(1,0)=60\nvalues(2,0)=60\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:45.766640+00:00"
+    },
+    {
+      "name": "npv_unallocated",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values() As Double\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:45.954001+00:00"
+    },
+    {
+      "name": "npv_integer",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Integer\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:12:46.173036+00:00"
+    },
+    {
+      "name": "npv_variant",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Variant\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:12:46.432749+00:00"
+    },
+    {
+      "name": "irr_guess_-2",
+      "expression": "IRR(values,-2)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values,-2)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:46.598543+00:00"
+    },
+    {
+      "name": "irr_guess_-1",
+      "expression": "IRR(values,-1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values,-1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:46.749786+00:00"
+    },
+    {
+      "name": "irr_guess_-0.9",
+      "expression": "IRR(values,-0.9)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values,-0.9)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.13066238629180746,
+      "measured_at": "2026-10-17T10:12:46.915803+00:00"
+    },
+    {
+      "name": "irr_guess_0",
+      "expression": "IRR(values,0)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values,0)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.13066238629170782,
+      "measured_at": "2026-10-17T10:12:47.082598+00:00"
+    },
+    {
+      "name": "irr_guess_0.5",
+      "expression": "IRR(values,0.5)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values,0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.13066238629180832,
+      "measured_at": "2026-10-17T10:12:47.244081+00:00"
+    },
+    {
+      "name": "irr_guess_10",
+      "expression": "IRR(values,10)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=IRR(values,10)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:47.418484+00:00"
+    },
+    {
+      "name": "npv_rate_-2",
+      "expression": "NPV(-2,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(-2,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 100.0,
+      "measured_at": "2026-10-17T10:12:47.588908+00:00"
+    },
+    {
+      "name": "mirr_finance_-2",
+      "expression": "MIRR(values,-2,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,-2,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12782977438973497,
+      "measured_at": "2026-10-17T10:12:47.756302+00:00"
+    },
+    {
+      "name": "mirr_reinvest_-2",
+      "expression": "MIRR(values,0.1,-2)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,-2)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -1.0,
+      "measured_at": "2026-10-17T10:12:47.928393+00:00"
+    },
+    {
+      "name": "npv_rate_-1",
+      "expression": "NPV(-1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(-1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:48.094585+00:00"
+    },
+    {
+      "name": "mirr_finance_-1",
+      "expression": "MIRR(values,-1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,-1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:48.253251+00:00"
+    },
+    {
+      "name": "mirr_reinvest_-1",
+      "expression": "MIRR(values,0.1,-1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,-1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:48.421597+00:00"
+    },
+    {
+      "name": "npv_rate_0",
+      "expression": "NPV(0,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(0,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 20.0,
+      "measured_at": "2026-10-17T10:12:48.593599+00:00"
+    },
+    {
+      "name": "mirr_finance_0",
+      "expression": "MIRR(values,0,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12782977438973497,
+      "measured_at": "2026-10-17T10:12:48.770362+00:00"
+    },
+    {
+      "name": "mirr_reinvest_0",
+      "expression": "MIRR(values,0.1,0)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,0)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.09544511501033215,
+      "measured_at": "2026-10-17T10:12:48.942026+00:00"
+    },
+    {
+      "name": "npv_rate_0.1",
+      "expression": "NPV(0.1,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 3.756574004507888,
+      "measured_at": "2026-10-17T10:12:49.116685+00:00"
+    },
+    {
+      "name": "mirr_finance_0.1",
+      "expression": "MIRR(values,0.1,0.12)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12782977438973497,
+      "measured_at": "2026-10-17T10:12:49.286659+00:00"
+    },
+    {
+      "name": "mirr_reinvest_0.1",
+      "expression": "MIRR(values,0.1,0.1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=MIRR(values,0.1,0.1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12249721603218267,
+      "measured_at": "2026-10-17T10:12:49.453085+00:00"
+    },
+    {
+      "name": "ipmt_basic",
+      "expression": "IPmt(.01,1,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,1,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -10.0,
+      "measured_at": "2026-10-17T10:12:49.615799+00:00"
+    },
+    {
+      "name": "ipmt_second",
+      "expression": "IPmt(.01,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -9.211512113216584,
+      "measured_at": "2026-10-17T10:12:49.795037+00:00"
+    },
+    {
+      "name": "ipmt_last",
+      "expression": "IPmt(.01,12,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,12,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.8796909770132878,
+      "measured_at": "2026-10-17T10:12:49.954043+00:00"
+    },
+    {
+      "name": "ipmt_due_first",
+      "expression": "IPmt(.01,1,12,1000,0,1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,1,12,1000,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.0,
+      "measured_at": "2026-10-17T10:12:50.115205+00:00"
+    },
+    {
+      "name": "ipmt_due_second",
+      "expression": "IPmt(.01,2,12,1000,0,1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,2,12,1000,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -9.120309022986717,
+      "measured_at": "2026-10-17T10:12:50.296198+00:00"
+    },
+    {
+      "name": "ipmt_zero",
+      "expression": "IPmt(0,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(0,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.0,
+      "measured_at": "2026-10-17T10:12:50.463966+00:00"
+    },
+    {
+      "name": "ipmt_period_zero",
+      "expression": "IPmt(.01,0,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,0,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:50.630640+00:00"
+    },
+    {
+      "name": "ipmt_period_extra",
+      "expression": "IPmt(.01,13,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,13,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:50.796606+00:00"
+    },
+    {
+      "name": "ipmt_fractional",
+      "expression": "IPmt(.01,12.5,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,12.5,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.4409396382834682,
+      "measured_at": "2026-10-17T10:12:50.953140+00:00"
+    },
+    {
+      "name": "ipmt_negative_rate",
+      "expression": "IPmt(-.01,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(-.01,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 9.119835522694238,
+      "measured_at": "2026-10-17T10:12:51.115806+00:00"
+    },
+    {
+      "name": "ipmt_minus_one",
+      "expression": "IPmt(-1,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(-1,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.0,
+      "measured_at": "2026-10-17T10:12:51.290799+00:00"
+    },
+    {
+      "name": "ipmt_no_periods",
+      "expression": "IPmt(.01,1,0,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,1,0,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:51.454232+00:00"
+    },
+    {
+      "name": "ipmt_future",
+      "expression": "IPmt(.01,2,12,1000,100)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,2,12,1000,100)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -9.13266332453824,
+      "measured_at": "2026-10-17T10:12:51.613158+00:00"
+    },
+    {
+      "name": "ipmt_due_half",
+      "expression": "IPmt(.01,2,12,1000,0,.5)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(.01,2,12,1000,0,.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -9.211512113216584,
+      "measured_at": "2026-10-17T10:12:51.780463+00:00"
+    },
+    {
+      "name": "ipmt_null",
+      "expression": "IPmt(Null,1,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IPmt(Null,1,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!94",
+      "measured_at": "2026-10-17T10:12:51.948679+00:00"
+    },
+    {
+      "name": "ppmt_basic",
+      "expression": "PPmt(.01,1,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,1,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -78.84878867834168,
+      "measured_at": "2026-10-17T10:12:52.116289+00:00"
+    },
+    {
+      "name": "ppmt_second",
+      "expression": "PPmt(.01,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -79.63727656512509,
+      "measured_at": "2026-10-17T10:12:52.293954+00:00"
+    },
+    {
+      "name": "ppmt_last",
+      "expression": "PPmt(.01,12,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,12,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -87.9690977013284,
+      "measured_at": "2026-10-17T10:12:52.454964+00:00"
+    },
+    {
+      "name": "ppmt_due_first",
+      "expression": "PPmt(.01,1,12,1000,0,1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,1,12,1000,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -87.9690977013284,
+      "measured_at": "2026-10-17T10:12:52.615500+00:00"
+    },
+    {
+      "name": "ppmt_due_second",
+      "expression": "PPmt(.01,2,12,1000,0,1)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,2,12,1000,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -78.84878867834168,
+      "measured_at": "2026-10-17T10:12:52.790881+00:00"
+    },
+    {
+      "name": "ppmt_zero",
+      "expression": "PPmt(0,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(0,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -83.33333333333333,
+      "measured_at": "2026-10-17T10:12:52.948316+00:00"
+    },
+    {
+      "name": "ppmt_period_zero",
+      "expression": "PPmt(.01,0,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,0,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:53.118600+00:00"
+    },
+    {
+      "name": "ppmt_period_extra",
+      "expression": "PPmt(.01,13,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,13,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:53.295147+00:00"
+    },
+    {
+      "name": "ppmt_fractional",
+      "expression": "PPmt(.01,12.5,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,12.5,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -88.40784904005821,
+      "measured_at": "2026-10-17T10:12:53.454781+00:00"
+    },
+    {
+      "name": "ppmt_negative_rate",
+      "expression": "PPmt(-.01,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(-.01,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -87.13628325327025,
+      "measured_at": "2026-10-17T10:12:53.614494+00:00"
+    },
+    {
+      "name": "ppmt_minus_one",
+      "expression": "PPmt(-1,2,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(-1,2,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.0,
+      "measured_at": "2026-10-17T10:12:53.786944+00:00"
+    },
+    {
+      "name": "ppmt_no_periods",
+      "expression": "PPmt(.01,1,0,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,1,0,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:53.946902+00:00"
+    },
+    {
+      "name": "ppmt_future",
+      "expression": "PPmt(.01,2,12,1000,100)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,2,12,1000,100)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -87.6010042216376,
+      "measured_at": "2026-10-17T10:12:54.135171+00:00"
+    },
+    {
+      "name": "ppmt_due_half",
+      "expression": "PPmt(.01,2,12,1000,0,.5)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(.01,2,12,1000,0,.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -79.63727656512509,
+      "measured_at": "2026-10-17T10:12:54.303249+00:00"
+    },
+    {
+      "name": "ppmt_null",
+      "expression": "PPmt(Null,1,12,1000)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PPmt(Null,1,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!94",
+      "measured_at": "2026-10-17T10:12:54.464595+00:00"
+    },
+    {
+      "name": "rate_random_0",
+      "expression": "Rate(28,-351.9378309479342,3226.1095016642075)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(28,-351.9378309479342,3226.1095016642075)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.101878733053945,
+      "measured_at": "2026-10-17T10:12:54.622335+00:00"
+    },
+    {
+      "name": "irr_random_0",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-2908.5424860586536\nvalues(1)=623.7096916246654\nvalues(2)=2487.773420139338\nvalues(3)=709.5590067558447\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.14628415577205528,
+      "measured_at": "2026-10-17T10:12:54.800608+00:00"
+    },
+    {
+      "name": "mirr_random_0",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-2908.5424860586536\nvalues(1)=623.7096916246654\nvalues(2)=2487.773420139338\nvalues(3)=709.5590067558447\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.13382244667405607,
+      "measured_at": "2026-10-17T10:12:54.959813+00:00"
+    },
+    {
+      "name": "npv_random_0",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-2908.5424860586536\nvalues(1)=623.7096916246654\nvalues(2)=2487.773420139338\nvalues(3)=709.5590067558447\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 398.5915241664985,
+      "measured_at": "2026-10-17T10:12:55.120802+00:00"
+    },
+    {
+      "name": "rate_random_1",
+      "expression": "Rate(77,-814.0232132054247,9361.24870835044)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(77,-814.0232132054247,9361.24870835044)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:55.303062+00:00"
+    },
+    {
+      "name": "irr_random_1",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-5423.616389300974\nvalues(1)=2657.854552611018\nvalues(2)=2753.9278924462315\nvalues(3)=2590.8783887360187\nvalues(4)=2436.0788511000683\nvalues(5)=1537.4945247551686\nvalues(6)=2150.3317585045293\nvalues(7)=2820.480357301211\nvalues(8)=1523.4218737549843\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.43758617795040455,
+      "measured_at": "2026-10-17T10:12:55.473759+00:00"
+    },
+    {
+      "name": "mirr_random_1",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-5423.616389300974\nvalues(1)=2657.854552611018\nvalues(2)=2753.9278924462315\nvalues(3)=2590.8783887360187\nvalues(4)=2436.0788511000683\nvalues(5)=1537.4945247551686\nvalues(6)=2150.3317585045293\nvalues(7)=2820.480357301211\nvalues(8)=1523.4218737549843\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.22850837822979564,
+      "measured_at": "2026-10-17T10:12:55.640938+00:00"
+    },
+    {
+      "name": "npv_random_1",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-5423.616389300974\nvalues(1)=2657.854552611018\nvalues(2)=2753.9278924462315\nvalues(3)=2590.8783887360187\nvalues(4)=2436.0788511000683\nvalues(5)=1537.4945247551686\nvalues(6)=2150.3317585045293\nvalues(7)=2820.480357301211\nvalues(8)=1523.4218737549843\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 8047.959375808589,
+      "measured_at": "2026-10-17T10:12:55.803851+00:00"
+    },
+    {
+      "name": "rate_random_2",
+      "expression": "Rate(53,-639.2190945231168,2232.384409639433)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(53,-639.2190945231168,2232.384409639433)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:55.975596+00:00"
+    },
+    {
+      "name": "irr_random_2",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-3485.583120990699\nvalues(1)=2218.117563220662\nvalues(2)=2460.703835282762\nvalues(3)=1630.7839747054588\nvalues(4)=1039.504797073148\nvalues(5)=2739.46537487623\nvalues(6)=960.7276182618364\nvalues(7)=83.11481232121051\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.5432400980074645,
+      "measured_at": "2026-10-17T10:12:56.139684+00:00"
+    },
+    {
+      "name": "mirr_random_2",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-3485.583120990699\nvalues(1)=2218.117563220662\nvalues(2)=2460.703835282762\nvalues(3)=1630.7839747054588\nvalues(4)=1039.504797073148\nvalues(5)=2739.46537487623\nvalues(6)=960.7276182618364\nvalues(7)=83.11481232121051\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.2510373755988986,
+      "measured_at": "2026-10-17T10:12:56.303597+00:00"
+    },
+    {
+      "name": "npv_random_2",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-3485.583120990699\nvalues(1)=2218.117563220662\nvalues(2)=2460.703835282762\nvalues(3)=1630.7839747054588\nvalues(4)=1039.504797073148\nvalues(5)=2739.46537487623\nvalues(6)=960.7276182618364\nvalues(7)=83.11481232121051\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 5145.860525054764,
+      "measured_at": "2026-10-17T10:12:56.474084+00:00"
+    },
+    {
+      "name": "rate_random_3",
+      "expression": "Rate(96,-399.6872203334558,8386.328097975012)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(96,-399.6872203334558,8386.328097975012)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.04708404844461417,
+      "measured_at": "2026-10-17T10:12:56.645741+00:00"
+    },
+    {
+      "name": "irr_random_3",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 9) As Double\nvalues(0)=-9411.008904620565\nvalues(1)=1598.1303098835278\nvalues(2)=1906.2207242175916\nvalues(3)=1639.0882606682435\nvalues(4)=491.9552498693389\nvalues(5)=2192.3060559807395\nvalues(6)=1581.9927505226385\nvalues(7)=430.17255991463344\nvalues(8)=1163.2754232767747\nvalues(9)=2184.3787706489925\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.07541536517502304,
+      "measured_at": "2026-10-17T10:12:56.813923+00:00"
+    },
+    {
+      "name": "mirr_random_3",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 9) As Double\nvalues(0)=-9411.008904620565\nvalues(1)=1598.1303098835278\nvalues(2)=1906.2207242175916\nvalues(3)=1639.0882606682435\nvalues(4)=491.9552498693389\nvalues(5)=2192.3060559807395\nvalues(6)=1581.9927505226385\nvalues(7)=430.17255991463344\nvalues(8)=1163.2754232767747\nvalues(9)=2184.3787706489925\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.09346861698963549,
+      "measured_at": "2026-10-17T10:12:56.981007+00:00"
+    },
+    {
+      "name": "npv_random_3",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 9) As Double\nvalues(0)=-9411.008904620565\nvalues(1)=1598.1303098835278\nvalues(2)=1906.2207242175916\nvalues(3)=1639.0882606682435\nvalues(4)=491.9552498693389\nvalues(5)=2192.3060559807395\nvalues(6)=1581.9927505226385\nvalues(7)=430.17255991463344\nvalues(8)=1163.2754232767747\nvalues(9)=2184.3787706489925\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 197.33546346991733,
+      "measured_at": "2026-10-17T10:12:57.145690+00:00"
+    },
+    {
+      "name": "rate_random_4",
+      "expression": "Rate(6,-693.8913635407017,4970.456252503547)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(6,-693.8913635407017,4970.456252503547)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.04839184054914367,
+      "measured_at": "2026-10-17T10:12:57.313842+00:00"
+    },
+    {
+      "name": "irr_random_4",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=-7673.866791142482\nvalues(1)=1086.7570439477608\nvalues(2)=406.2954872421208\nvalues(3)=1181.4600002224015\nvalues(4)=-96.1645895138142\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:57.487767+00:00"
+    },
+    {
+      "name": "mirr_random_4",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=-7673.866791142482\nvalues(1)=1086.7570439477608\nvalues(2)=406.2954872421208\nvalues(3)=1181.4600002224015\nvalues(4)=-96.1645895138142\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.19216348602002264,
+      "measured_at": "2026-10-17T10:12:57.654550+00:00"
+    },
+    {
+      "name": "npv_random_4",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 4) As Double\nvalues(0)=-7673.866791142482\nvalues(1)=1086.7570439477608\nvalues(2)=406.2954872421208\nvalues(3)=1181.4600002224015\nvalues(4)=-96.1645895138142\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -5058.1981344130345,
+      "measured_at": "2026-10-17T10:12:57.819010+00:00"
+    },
+    {
+      "name": "rate_random_5",
+      "expression": "Rate(100,-634.8185688726597,8317.471178468562)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(100,-634.8185688726597,8317.471178468562)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:12:57.987628+00:00"
+    },
+    {
+      "name": "irr_random_5",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-2575.52079894261\nvalues(1)=2773.3129849363804\nvalues(2)=784.342967208299\nvalues(3)=1222.6881806909048\nvalues(4)=1145.9469675867017\nvalues(5)=2919.3913460927815\nvalues(6)=2259.053855349378\nvalues(7)=821.8737158444491\nvalues(8)=545.4262823385154\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.7132564853647507,
+      "measured_at": "2026-10-17T10:12:58.172652+00:00"
+    },
+    {
+      "name": "mirr_random_5",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-2575.52079894261\nvalues(1)=2773.3129849363804\nvalues(2)=784.342967208299\nvalues(3)=1222.6881806909048\nvalues(4)=1145.9469675867017\nvalues(5)=2919.3913460927815\nvalues(6)=2259.053855349378\nvalues(7)=821.8737158444491\nvalues(8)=545.4262823385154\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.2859373959205871,
+      "measured_at": "2026-10-17T10:12:58.344581+00:00"
+    },
+    {
+      "name": "npv_random_5",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-2575.52079894261\nvalues(1)=2773.3129849363804\nvalues(2)=784.342967208299\nvalues(3)=1222.6881806909048\nvalues(4)=1145.9469675867017\nvalues(5)=2919.3913460927815\nvalues(6)=2259.053855349378\nvalues(7)=821.8737158444491\nvalues(8)=545.4262823385154\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 6532.527662229714,
+      "measured_at": "2026-10-17T10:12:58.507178+00:00"
+    },
+    {
+      "name": "rate_random_6",
+      "expression": "Rate(11,-282.5031517979063,5580.772542434053)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(11,-282.5031517979063,5580.772542434053)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.08677508853523436,
+      "measured_at": "2026-10-17T10:12:58.684414+00:00"
+    },
+    {
+      "name": "irr_random_6",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 5) As Double\nvalues(0)=-7445.39409979889\nvalues(1)=1130.2113430528877\nvalues(2)=1920.4772938908964\nvalues(3)=676.2503705895749\nvalues(4)=2186.3995623315514\nvalues(5)=361.88409468677656\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.05834014600529272,
+      "measured_at": "2026-10-17T10:12:58.849904+00:00"
+    },
+    {
+      "name": "mirr_random_6",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 5) As Double\nvalues(0)=-7445.39409979889\nvalues(1)=1130.2113430528877\nvalues(2)=1920.4772938908964\nvalues(3)=676.2503705895749\nvalues(4)=2186.3995623315514\nvalues(5)=361.88409468677656\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.013564366108404169,
+      "measured_at": "2026-10-17T10:12:59.013036+00:00"
+    },
+    {
+      "name": "npv_random_6",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 5) As Double\nvalues(0)=-7445.39409979889\nvalues(1)=1130.2113430528877\nvalues(2)=1920.4772938908964\nvalues(3)=676.2503705895749\nvalues(4)=2186.3995623315514\nvalues(5)=361.88409468677656\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -2087.5408539693,
+      "measured_at": "2026-10-17T10:12:59.184506+00:00"
+    },
+    {
+      "name": "rate_random_7",
+      "expression": "Rate(97,-84.17715731165325,3446.328518999263)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(97,-84.17715731165325,3446.328518999263)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.02124727705971817,
+      "measured_at": "2026-10-17T10:12:59.351271+00:00"
+    },
+    {
+      "name": "irr_random_7",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-581.7449292928058\nvalues(1)=698.671863593402\nvalues(2)=67.98646831120121\nvalues(3)=956.256059238468\nvalues(4)=1812.65947193982\nvalues(5)=278.6106572983934\nvalues(6)=2219.9812259446567\nvalues(7)=2343.8584399489546\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1.1137357339589784,
+      "measured_at": "2026-10-17T10:12:59.528060+00:00"
+    },
+    {
+      "name": "mirr_random_7",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-581.7449292928058\nvalues(1)=698.671863593402\nvalues(2)=67.98646831120121\nvalues(3)=956.256059238468\nvalues(4)=1812.65947193982\nvalues(5)=278.6106572983934\nvalues(6)=2219.9812259446567\nvalues(7)=2343.8584399489546\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.5118679689555237,
+      "measured_at": "2026-10-17T10:12:59.708425+00:00"
+    },
+    {
+      "name": "npv_random_7",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-581.7449292928058\nvalues(1)=698.671863593402\nvalues(2)=67.98646831120121\nvalues(3)=956.256059238468\nvalues(4)=1812.65947193982\nvalues(5)=278.6106572983934\nvalues(6)=2219.9812259446567\nvalues(7)=2343.8584399489546\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 5076.271476909158,
+      "measured_at": "2026-10-17T10:12:59.874388+00:00"
+    },
+    {
+      "name": "rate_random_8",
+      "expression": "Rate(53,-768.7496340426308,5921.598187246348)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(53,-768.7496340426308,5921.598187246348)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:00.059285+00:00"
+    },
+    {
+      "name": "irr_random_8",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-7677.663995089462\nvalues(1)=2297.9679360881323\nvalues(2)=137.66066141684388\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:00.233440+00:00"
+    },
+    {
+      "name": "mirr_random_8",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-7677.663995089462\nvalues(1)=2297.9679360881323\nvalues(2)=137.66066141684388\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.40825744571873124,
+      "measured_at": "2026-10-17T10:13:00.409959+00:00"
+    },
+    {
+      "name": "npv_random_8",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-7677.663995089462\nvalues(1)=2297.9679360881323\nvalues(2)=137.66066141684388\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -5055.880613943168,
+      "measured_at": "2026-10-17T10:13:00.581182+00:00"
+    },
+    {
+      "name": "rate_random_9",
+      "expression": "Rate(15,-531.0410859695304,6107.072701859476)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(15,-531.0410859695304,6107.072701859476)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.035210491770927846,
+      "measured_at": "2026-10-17T10:13:00.752851+00:00"
+    },
+    {
+      "name": "irr_random_9",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 5) As Double\nvalues(0)=-7298.539700755737\nvalues(1)=2858.174597458452\nvalues(2)=2230.751315833559\nvalues(3)=1012.174352890883\nvalues(4)=829.0274139797679\nvalues(5)=1957.5815801336485\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.08033548088389163,
+      "measured_at": "2026-10-17T10:13:00.934067+00:00"
+    },
+    {
+      "name": "mirr_random_9",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 5) As Double\nvalues(0)=-7298.539700755737\nvalues(1)=2858.174597458452\nvalues(2)=2230.751315833559\nvalues(3)=1012.174352890883\nvalues(4)=829.0274139797679\nvalues(5)=1957.5815801336485\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.09547634954897632,
+      "measured_at": "2026-10-17T10:13:01.109036+00:00"
+    },
+    {
+      "name": "npv_random_9",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 5) As Double\nvalues(0)=-7298.539700755737\nvalues(1)=2858.174597458452\nvalues(2)=2230.751315833559\nvalues(3)=1012.174352890883\nvalues(4)=829.0274139797679\nvalues(5)=1957.5815801336485\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 164.02012724702058,
+      "measured_at": "2026-10-17T10:13:01.297049+00:00"
+    },
+    {
+      "name": "rate_random_10",
+      "expression": "Rate(19,-341.0746648423088,8829.568275475784)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(19,-341.0746648423088,8829.568275475784)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.02918522558591504,
+      "measured_at": "2026-10-17T10:13:01.465507+00:00"
+    },
+    {
+      "name": "irr_random_10",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 9) As Double\nvalues(0)=-7445.016731470704\nvalues(1)=2329.5985184797664\nvalues(2)=-0.33654342506903845\nvalues(3)=2697.104568139042\nvalues(4)=2296.8968772120475\nvalues(5)=2145.9314804696905\nvalues(6)=2036.1961049715583\nvalues(7)=2730.954409135964\nvalues(8)=145.2711091573288\nvalues(9)=2005.4463414180873\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.19557809428462858,
+      "measured_at": "2026-10-17T10:13:01.631316+00:00"
+    },
+    {
+      "name": "mirr_random_10",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 9) As Double\nvalues(0)=-7445.016731470704\nvalues(1)=2329.5985184797664\nvalues(2)=-0.33654342506903845\nvalues(3)=2697.104568139042\nvalues(4)=2296.8968772120475\nvalues(5)=2145.9314804696905\nvalues(6)=2036.1961049715583\nvalues(7)=2730.954409135964\nvalues(8)=145.2711091573288\nvalues(9)=2005.4463414180873\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.14836144393015416,
+      "measured_at": "2026-10-17T10:13:01.807554+00:00"
+    },
+    {
+      "name": "npv_random_10",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 9) As Double\nvalues(0)=-7445.016731470704\nvalues(1)=2329.5985184797664\nvalues(2)=-0.33654342506903845\nvalues(3)=2697.104568139042\nvalues(4)=2296.8968772120475\nvalues(5)=2145.9314804696905\nvalues(6)=2036.1961049715583\nvalues(7)=2730.954409135964\nvalues(8)=145.2711091573288\nvalues(9)=2005.4463414180873\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 4157.681946226765,
+      "measured_at": "2026-10-17T10:13:01.983095+00:00"
+    },
+    {
+      "name": "rate_random_11",
+      "expression": "Rate(8,-251.22920412928173,6187.779596951303)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(8,-251.22920412928173,6187.779596951303)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.19900523721488475,
+      "measured_at": "2026-10-17T10:13:02.155145+00:00"
+    },
+    {
+      "name": "irr_random_11",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-328.6121163781721\nvalues(1)=369.62813091629386\nvalues(2)=289.9680438902259\nvalues(3)=195.76797408748257\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.7992621260600943,
+      "measured_at": "2026-10-17T10:13:02.327465+00:00"
+    },
+    {
+      "name": "mirr_random_11",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-328.6121163781721\nvalues(1)=369.62813091629386\nvalues(2)=289.9680438902259\nvalues(3)=195.76797408748257\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.43598771667363945,
+      "measured_at": "2026-10-17T10:13:02.496014+00:00"
+    },
+    {
+      "name": "npv_random_11",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-328.6121163781721\nvalues(1)=369.62813091629386\nvalues(2)=289.9680438902259\nvalues(3)=195.76797408748257\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 401.78414584266545,
+      "measured_at": "2026-10-17T10:13:02.678548+00:00"
+    },
+    {
+      "name": "rate_random_12",
+      "expression": "Rate(74,-200.56626137430112,8805.213179234848)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(74,-200.56626137430112,8805.213179234848)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.015457495415798439,
+      "measured_at": "2026-10-17T10:13:02.846933+00:00"
+    },
+    {
+      "name": "irr_random_12",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-9382.082867615449\nvalues(1)=1536.3472440308751\nvalues(2)=2489.76478543545\nvalues(3)=2170.9424893648784\nvalues(4)=577.4611550669532\nvalues(5)=2733.123695430339\nvalues(6)=2752.3061490884506\nvalues(7)=932.1796822627357\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.09433166610810412,
+      "measured_at": "2026-10-17T10:13:03.009751+00:00"
+    },
+    {
+      "name": "mirr_random_12",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-9382.082867615449\nvalues(1)=1536.3472440308751\nvalues(2)=2489.76478543545\nvalues(3)=2170.9424893648784\nvalues(4)=577.4611550669532\nvalues(5)=2733.123695430339\nvalues(6)=2752.3061490884506\nvalues(7)=932.1796822627357\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1019330935038516,
+      "measured_at": "2026-10-17T10:13:03.216328+00:00"
+    },
+    {
+      "name": "npv_random_12",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-9382.082867615449\nvalues(1)=1536.3472440308751\nvalues(2)=2489.76478543545\nvalues(3)=2170.9424893648784\nvalues(4)=577.4611550669532\nvalues(5)=2733.123695430339\nvalues(6)=2752.3061490884506\nvalues(7)=932.1796822627357\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 751.6473266826814,
+      "measured_at": "2026-10-17T10:13:03.382272+00:00"
+    },
+    {
+      "name": "rate_random_13",
+      "expression": "Rate(75,-899.234451473467,7995.998644898636)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(75,-899.234451473467,7995.998644898636)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.11242246946084963,
+      "measured_at": "2026-10-17T10:13:03.568163+00:00"
+    },
+    {
+      "name": "irr_random_13",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-9942.365700595732\nvalues(1)=1574.9495810162014\nvalues(2)=1409.3287581614184\nvalues(3)=864.0127392440148\nvalues(4)=1185.6274918276254\nvalues(5)=2014.4059133164606\nvalues(6)=1009.4288584944702\nvalues(7)=2212.7842053396744\nvalues(8)=317.78306365661587\nvalues(9)=1616.0459893693408\nvalues(10)=1353.4413222871365\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.06133688442005686,
+      "measured_at": "2026-10-17T10:13:03.742841+00:00"
+    },
+    {
+      "name": "mirr_random_13",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-9942.365700595732\nvalues(1)=1574.9495810162014\nvalues(2)=1409.3287581614184\nvalues(3)=864.0127392440148\nvalues(4)=1185.6274918276254\nvalues(5)=2014.4059133164606\nvalues(6)=1009.4288584944702\nvalues(7)=2212.7842053396744\nvalues(8)=317.78306365661587\nvalues(9)=1616.0459893693408\nvalues(10)=1353.4413222871365\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.08644122330219584,
+      "measured_at": "2026-10-17T10:13:03.932132+00:00"
+    },
+    {
+      "name": "npv_random_13",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-9942.365700595732\nvalues(1)=1574.9495810162014\nvalues(2)=1409.3287581614184\nvalues(3)=864.0127392440148\nvalues(4)=1185.6274918276254\nvalues(5)=2014.4059133164606\nvalues(6)=1009.4288584944702\nvalues(7)=2212.7842053396744\nvalues(8)=317.78306365661587\nvalues(9)=1616.0459893693408\nvalues(10)=1353.4413222871365\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -365.2445120108299,
+      "measured_at": "2026-10-17T10:13:04.112916+00:00"
+    },
+    {
+      "name": "rate_random_14",
+      "expression": "Rate(99,-714.0448985968708,1712.0176195039594)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(99,-714.0448985968708,1712.0176195039594)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:04.287013+00:00"
+    },
+    {
+      "name": "irr_random_14",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-3647.7412421063427\nvalues(1)=2576.5338937363126\nvalues(2)=2128.9574554379333\nvalues(3)=581.8618320158654\nvalues(4)=1240.5557096868276\nvalues(5)=-78.59301952614402\nvalues(6)=368.1785310136368\nvalues(7)=517.208158743988\nvalues(8)=1557.2445069267565\nvalues(9)=2555.5805278175867\nvalues(10)=2445.5311511433497\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.43385047375120794,
+      "measured_at": "2026-10-17T10:13:04.456524+00:00"
+    },
+    {
+      "name": "mirr_random_14",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-3647.7412421063427\nvalues(1)=2576.5338937363126\nvalues(2)=2128.9574554379333\nvalues(3)=581.8618320158654\nvalues(4)=1240.5557096868276\nvalues(5)=-78.59301952614402\nvalues(6)=368.1785310136368\nvalues(7)=517.208158743988\nvalues(8)=1557.2445069267565\nvalues(9)=2555.5805278175867\nvalues(10)=2445.5311511433497\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.20298076592254266,
+      "measured_at": "2026-10-17T10:13:04.629410+00:00"
+    },
+    {
+      "name": "npv_random_14",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-3647.7412421063427\nvalues(1)=2576.5338937363126\nvalues(2)=2128.9574554379333\nvalues(3)=581.8618320158654\nvalues(4)=1240.5557096868276\nvalues(5)=-78.59301952614402\nvalues(6)=368.1785310136368\nvalues(7)=517.208158743988\nvalues(8)=1557.2445069267565\nvalues(9)=2555.5805278175867\nvalues(10)=2445.5311511433497\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 5693.555368805076,
+      "measured_at": "2026-10-17T10:13:04.800734+00:00"
+    },
+    {
+      "name": "rate_random_15",
+      "expression": "Rate(99,-724.961039670952,1795.8888736490148)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(99,-724.961039670952,1795.8888736490148)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:04.974031+00:00"
+    },
+    {
+      "name": "irr_random_15",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-4174.240888682249\nvalues(1)=1367.5323025572602\nvalues(2)=2866.135390044312\nvalues(3)=2637.0065245355554\nvalues(4)=427.45464957370507\nvalues(5)=1646.6705003674022\nvalues(6)=1334.3679509349495\nvalues(7)=1165.0620429305698\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.39102440040534475,
+      "measured_at": "2026-10-17T10:13:05.145648+00:00"
+    },
+    {
+      "name": "mirr_random_15",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-4174.240888682249\nvalues(1)=1367.5323025572602\nvalues(2)=2866.135390044312\nvalues(3)=2637.0065245355554\nvalues(4)=427.45464957370507\nvalues(5)=1646.6705003674022\nvalues(6)=1334.3679509349495\nvalues(7)=1165.0620429305698\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.21852629974532012,
+      "measured_at": "2026-10-17T10:13:05.318362+00:00"
+    },
+    {
+      "name": "npv_random_15",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-4174.240888682249\nvalues(1)=1367.5323025572602\nvalues(2)=2866.135390044312\nvalues(3)=2637.0065245355554\nvalues(4)=427.45464957370507\nvalues(5)=1646.6705003674022\nvalues(6)=1334.3679509349495\nvalues(7)=1165.0620429305698\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 4555.745205652982,
+      "measured_at": "2026-10-17T10:13:05.491109+00:00"
+    },
+    {
+      "name": "rate_random_16",
+      "expression": "Rate(89,-669.337484261892,3908.5272488965666)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(89,-669.337484261892,3908.5272488965666)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:05.670355+00:00"
+    },
+    {
+      "name": "irr_random_16",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-9688.366709109536\nvalues(1)=2489.9850187299785\nvalues(2)=2364.250433470647\nvalues(3)=2654.628408119733\nvalues(4)=218.86279390961664\nvalues(5)=148.38960589063686\nvalues(6)=-25.470880078157194\nvalues(7)=1632.1497982063522\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.007182550127613887,
+      "measured_at": "2026-10-17T10:13:05.829522+00:00"
+    },
+    {
+      "name": "mirr_random_16",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-9688.366709109536\nvalues(1)=2489.9850187299785\nvalues(2)=2364.250433470647\nvalues(3)=2654.628408119733\nvalues(4)=218.86279390961664\nvalues(5)=148.38960589063686\nvalues(6)=-25.470880078157194\nvalues(7)=1632.1497982063522\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.06199741088654487,
+      "measured_at": "2026-10-17T10:13:06.008376+00:00"
+    },
+    {
+      "name": "npv_random_16",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-9688.366709109536\nvalues(1)=2489.9850187299785\nvalues(2)=2364.250433470647\nvalues(3)=2654.628408119733\nvalues(4)=218.86279390961664\nvalues(5)=148.38960589063686\nvalues(6)=-25.470880078157194\nvalues(7)=1632.1497982063522\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -1735.5746006744757,
+      "measured_at": "2026-10-17T10:13:06.177406+00:00"
+    },
+    {
+      "name": "rate_random_17",
+      "expression": "Rate(78,-396.3030953003927,400.4204052252033)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(78,-396.3030953003927,400.4204052252033)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:06.353567+00:00"
+    },
+    {
+      "name": "irr_random_17",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-6711.656709083499\nvalues(1)=192.5063603830045\nvalues(2)=2359.887092393391\nvalues(3)=2727.6664082561397\nvalues(4)=22.97057830614804\nvalues(5)=1409.2267674868579\nvalues(6)=72.14346040637642\nvalues(7)=2740.3686992854095\nvalues(8)=2114.020054857655\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1288351923587134,
+      "measured_at": "2026-10-17T10:13:06.525141+00:00"
+    },
+    {
+      "name": "mirr_random_17",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-6711.656709083499\nvalues(1)=192.5063603830045\nvalues(2)=2359.887092393391\nvalues(3)=2727.6664082561397\nvalues(4)=22.97057830614804\nvalues(5)=1409.2267674868579\nvalues(6)=72.14346040637642\nvalues(7)=2740.3686992854095\nvalues(8)=2114.020054857655\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.11999151857525359,
+      "measured_at": "2026-10-17T10:13:06.700840+00:00"
+    },
+    {
+      "name": "npv_random_17",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-6711.656709083499\nvalues(1)=192.5063603830045\nvalues(2)=2359.887092393391\nvalues(3)=2727.6664082561397\nvalues(4)=22.97057830614804\nvalues(5)=1409.2267674868579\nvalues(6)=72.14346040637642\nvalues(7)=2740.3686992854095\nvalues(8)=2114.020054857655\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1647.9993106208701,
+      "measured_at": "2026-10-17T10:13:06.871121+00:00"
+    },
+    {
+      "name": "rate_random_18",
+      "expression": "Rate(17,-83.61356311321958,4427.964159085924)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(17,-83.61356311321958,4427.964159085924)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.10456305216028221,
+      "measured_at": "2026-10-17T10:13:07.056933+00:00"
+    },
+    {
+      "name": "irr_random_18",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-8553.119339509765\nvalues(1)=1631.479705120505\nvalues(2)=1177.7245083208086\nvalues(3)=222.98301290965605\nvalues(4)=506.47420966510083\nvalues(5)=2777.2731173400725\nvalues(6)=1411.7105336947716\nvalues(7)=2065.8234367662367\nvalues(8)=1496.9048639189996\nvalues(9)=582.409037589857\nvalues(10)=1811.0735261000411\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.09068313058583385,
+      "measured_at": "2026-10-17T10:13:07.226973+00:00"
+    },
+    {
+      "name": "mirr_random_18",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-8553.119339509765\nvalues(1)=1631.479705120505\nvalues(2)=1177.7245083208086\nvalues(3)=222.98301290965605\nvalues(4)=506.47420966510083\nvalues(5)=2777.2731173400725\nvalues(6)=1411.7105336947716\nvalues(7)=2065.8234367662367\nvalues(8)=1496.9048639189996\nvalues(9)=582.409037589857\nvalues(10)=1811.0735261000411\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.10031338135270595,
+      "measured_at": "2026-10-17T10:13:07.401510+00:00"
+    },
+    {
+      "name": "npv_random_18",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 10) As Double\nvalues(0)=-8553.119339509765\nvalues(1)=1631.479705120505\nvalues(2)=1177.7245083208086\nvalues(3)=222.98301290965605\nvalues(4)=506.47420966510083\nvalues(5)=2777.2731173400725\nvalues(6)=1411.7105336947716\nvalues(7)=2065.8234367662367\nvalues(8)=1496.9048639189996\nvalues(9)=582.409037589857\nvalues(10)=1811.0735261000411\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 826.8209201882003,
+      "measured_at": "2026-10-17T10:13:07.571343+00:00"
+    },
+    {
+      "name": "rate_random_19",
+      "expression": "Rate(24,-207.16909801343863,3820.765571351054)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(24,-207.16909801343863,3820.765571351054)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.02223950490968407,
+      "measured_at": "2026-10-17T10:13:07.742459+00:00"
+    },
+    {
+      "name": "irr_random_19",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-8742.28165794412\nvalues(1)=1374.2497020653925\nvalues(2)=1709.3101246432436\nvalues(3)=238.0235473906876\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:07.923479+00:00"
+    },
+    {
+      "name": "mirr_random_19",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-8742.28165794412\nvalues(1)=1374.2497020653925\nvalues(2)=1709.3101246432436\nvalues(3)=238.0235473906876\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -0.24059993307647187,
+      "measured_at": "2026-10-17T10:13:08.081467+00:00"
+    },
+    {
+      "name": "npv_random_19",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 3) As Double\nvalues(0)=-8742.28165794412\nvalues(1)=1374.2497020653925\nvalues(2)=1709.3101246432436\nvalues(3)=238.0235473906876\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -5393.140527212326,
+      "measured_at": "2026-10-17T10:13:08.241213+00:00"
+    },
+    {
+      "name": "rate_random_20",
+      "expression": "Rate(43,-949.1426221198211,1892.2671521314958)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(43,-949.1426221198211,1892.2671521314958)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:08.433064+00:00"
+    },
+    {
+      "name": "irr_random_20",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-5189.6029574694385\nvalues(1)=1115.4318427542191\nvalues(2)=1165.4227279308711\nvalues(3)=1622.1647948717123\nvalues(4)=2357.875406298996\nvalues(5)=510.7604265013084\nvalues(6)=22.35421493585946\nvalues(7)=1477.4109606753689\nvalues(8)=2084.077755335325\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1828281615321872,
+      "measured_at": "2026-10-17T10:13:08.613587+00:00"
+    },
+    {
+      "name": "mirr_random_20",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-5189.6029574694385\nvalues(1)=1115.4318427542191\nvalues(2)=1165.4227279308711\nvalues(3)=1622.1647948717123\nvalues(4)=2357.875406298996\nvalues(5)=510.7604265013084\nvalues(6)=22.35421493585946\nvalues(7)=1477.4109606753689\nvalues(8)=2084.077755335325\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.14432002621238715,
+      "measured_at": "2026-10-17T10:13:08.789784+00:00"
+    },
+    {
+      "name": "npv_random_20",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-5189.6029574694385\nvalues(1)=1115.4318427542191\nvalues(2)=1165.4227279308711\nvalues(3)=1622.1647948717123\nvalues(4)=2357.875406298996\nvalues(5)=510.7604265013084\nvalues(6)=22.35421493585946\nvalues(7)=1477.4109606753689\nvalues(8)=2084.077755335325\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 2341.9007431691093,
+      "measured_at": "2026-10-17T10:13:08.959225+00:00"
+    },
+    {
+      "name": "rate_random_21",
+      "expression": "Rate(50,-175.95216071022082,2320.897309993922)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(50,-175.95216071022082,2320.897309993922)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.07364044858254465,
+      "measured_at": "2026-10-17T10:13:09.128015+00:00"
+    },
+    {
+      "name": "irr_random_21",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-6787.463531544857\nvalues(1)=2301.948752605859\nvalues(2)=2266.861733139295\nvalues(3)=218.88375653279132\nvalues(4)=72.33643668707842\nvalues(5)=1361.044467724564\nvalues(6)=2350.746058560604\nvalues(7)=2035.2127531791816\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12772448201891412,
+      "measured_at": "2026-10-17T10:13:09.299881+00:00"
+    },
+    {
+      "name": "mirr_random_21",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-6787.463531544857\nvalues(1)=2301.948752605859\nvalues(2)=2266.861733139295\nvalues(3)=218.88375653279132\nvalues(4)=72.33643668707842\nvalues(5)=1361.044467724564\nvalues(6)=2350.746058560604\nvalues(7)=2035.2127531791816\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.118642634519466,
+      "measured_at": "2026-10-17T10:13:09.475365+00:00"
+    },
+    {
+      "name": "npv_random_21",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 7) As Double\nvalues(0)=-6787.463531544857\nvalues(1)=2301.948752605859\nvalues(2)=2266.861733139295\nvalues(3)=218.88375653279132\nvalues(4)=72.33643668707842\nvalues(5)=1361.044467724564\nvalues(6)=2350.746058560604\nvalues(7)=2035.2127531791816\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1291.5422498395867,
+      "measured_at": "2026-10-17T10:13:09.646964+00:00"
+    },
+    {
+      "name": "rate_random_22",
+      "expression": "Rate(21,-963.0560316968035,1497.2373581728937)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(21,-963.0560316968035,1497.2373581728937)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:09.846233+00:00"
+    },
+    {
+      "name": "irr_random_22",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-4143.726751633804\nvalues(1)=491.1531031654488\nvalues(2)=1041.4660476220286\nvalues(3)=614.5162437469114\nvalues(4)=2974.1331529188074\nvalues(5)=-62.86479989826407\nvalues(6)=999.7735853096722\nvalues(7)=547.2104275802105\nvalues(8)=2630.72862323038\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1895906992816149,
+      "measured_at": "2026-10-17T10:13:10.022386+00:00"
+    },
+    {
+      "name": "mirr_random_22",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-4143.726751633804\nvalues(1)=491.1531031654488\nvalues(2)=1041.4660476220286\nvalues(3)=614.5162437469114\nvalues(4)=2974.1331529188074\nvalues(5)=-62.86479989826407\nvalues(6)=999.7735853096722\nvalues(7)=547.2104275802105\nvalues(8)=2630.72862323038\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.15202412991045344,
+      "measured_at": "2026-10-17T10:13:10.205142+00:00"
+    },
+    {
+      "name": "npv_random_22",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-4143.726751633804\nvalues(1)=491.1531031654488\nvalues(2)=1041.4660476220286\nvalues(3)=614.5162437469114\nvalues(4)=2974.1331529188074\nvalues(5)=-62.86479989826407\nvalues(6)=999.7735853096722\nvalues(7)=547.2104275802105\nvalues(8)=2630.72862323038\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 2325.966963794655,
+      "measured_at": "2026-10-17T10:13:10.381554+00:00"
+    },
+    {
+      "name": "rate_random_23",
+      "expression": "Rate(97,-100.73569746158407,1354.4144729249845)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(97,-100.73569746158407,1354.4144729249845)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:10.568556+00:00"
+    },
+    {
+      "name": "irr_random_23",
+      "expression": "IRR(values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-268.41679128212263\nvalues(1)=1547.602780687292\nvalues(2)=2887.4372244881465\nvalues(3)=839.621680782325\nvalues(4)=2926.3111014954843\nvalues(5)=1995.5480375620655\nvalues(6)=1558.8123494615131\nvalues(7)=1324.8319537558648\nvalues(8)=1540.8965397859226\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 6.323515440154704,
+      "measured_at": "2026-10-17T10:13:10.756962+00:00"
+    },
+    {
+      "name": "mirr_random_23",
+      "expression": "MIRR(values,0.08,0.11)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-268.41679128212263\nvalues(1)=1547.602780687292\nvalues(2)=2887.4372244881465\nvalues(3)=839.621680782325\nvalues(4)=2926.3111014954843\nvalues(5)=1995.5480375620655\nvalues(6)=1558.8123494615131\nvalues(7)=1324.8319537558648\nvalues(8)=1540.8965397859226\nProbe=MIRR(values,0.08,0.11)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.735908433352179,
+      "measured_at": "2026-10-17T10:13:10.943282+00:00"
+    },
+    {
+      "name": "npv_random_23",
+      "expression": "NPV(0.07,values)",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 8) As Double\nvalues(0)=-268.41679128212263\nvalues(1)=1547.602780687292\nvalues(2)=2887.4372244881465\nvalues(3)=839.621680782325\nvalues(4)=2926.3111014954843\nvalues(5)=1995.5480375620655\nvalues(6)=1558.8123494615131\nvalues(7)=1324.8319537558648\nvalues(8)=1540.8965397859226\nProbe=NPV(0.07,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 10094.528785075343,
+      "measured_at": "2026-10-17T10:13:11.118566+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1306623862918074,
+      "name": "signature_irr_Double",
+      "measured_at": "2026-10-17T10:13:11.290806+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Integer\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_irr_Integer",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:11.771717+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Variant\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_irr_Variant",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:12.006283+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values As Variant\nvalues=Array(-100,60,60)\nOn Error GoTo Failed\nProbe=IRR(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_irr_held_variant",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:12.286877+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=IRR(Array(-100,60,60))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_irr_literal",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:12.521112+00:00"
+    },
+    {
+      "source": "Function Values() As Double()\nDim data(0 To 2) As Double\ndata(0)=-100\ndata(1)=60\ndata(2)=60\nValues=data\nEnd Function\nFunction Probe() As Variant\nOn Error GoTo Failed\nProbe=IRR(Values())\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1306623862918074,
+      "name": "signature_irr_returned_array",
+      "measured_at": "2026-10-17T10:13:12.704242+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12782977438973497,
+      "name": "signature_mirr_Double",
+      "measured_at": "2026-10-17T10:13:12.877202+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Integer\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_mirr_Integer",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:13.319194+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Variant\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_mirr_Variant",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:13.610862+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values As Variant\nvalues=Array(-100,60,60)\nOn Error GoTo Failed\nProbe=MIRR(values,0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_mirr_held_variant",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:13.860959+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=MIRR(Array(-100,60,60),0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_mirr_literal",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:14.112630+00:00"
+    },
+    {
+      "source": "Function Values() As Double()\nDim data(0 To 2) As Double\ndata(0)=-100\ndata(1)=60\ndata(2)=60\nValues=data\nEnd Function\nFunction Probe() As Variant\nOn Error GoTo Failed\nProbe=MIRR(Values(),0.1,0.12)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.12782977438973497,
+      "name": "signature_mirr_returned_array",
+      "measured_at": "2026-10-17T10:13:14.296067+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 3.756574004507888,
+      "name": "signature_npv_Double",
+      "measured_at": "2026-10-17T10:13:14.470295+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Integer\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_npv_Integer",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:14.909732+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Variant\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_npv_Variant",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:15.200155+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values As Variant\nvalues=Array(-100,60,60)\nOn Error GoTo Failed\nProbe=NPV(0.1,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_npv_held_variant",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:15.472044+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPV(0.1,Array(-100,60,60))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_npv_literal",
+      "compiler_message": "Compile error:\n\nType mismatch: array or user-defined type expected",
+      "measured_at": "2026-10-17T10:13:15.749165+00:00"
+    },
+    {
+      "source": "Function Values() As Double()\nDim data(0 To 2) As Double\ndata(0)=-100\ndata(1)=60\ndata(2)=60\nValues=data\nEnd Function\nFunction Probe() As Variant\nOn Error GoTo Failed\nProbe=NPV(0.1,Values())\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 3.756574004507888,
+      "name": "signature_npv_returned_array",
+      "measured_at": "2026-10-17T10:13:15.936564+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(NPer:=12,Pmt:=-100,PV:=1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.029228540769133997,
+      "name": "signature_rate_named",
+      "measured_at": "2026-10-17T10:13:16.119875+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate#(12,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.029228540769133997,
+      "name": "signature_rate_suffix_double",
+      "measured_at": "2026-10-17T10:13:16.310332+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate%(12,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_rate_suffix_integer",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T10:13:16.798746+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=IRR(ValueArray:=values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1306623862918074,
+      "name": "signature_irr_named",
+      "measured_at": "2026-10-17T10:13:16.966821+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=IRR#(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 0.1306623862918074,
+      "name": "signature_irr_suffix_double",
+      "measured_at": "2026-10-17T10:13:17.138636+00:00"
+    },
+    {
+      "source": "Function Probe() As Variant\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nOn Error GoTo Failed\nProbe=IRR%(values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "name": "signature_irr_suffix_integer",
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T10:13:17.566547+00:00"
+    },
+    {
+      "name": "timing_pmt_0",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,0)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -88.84878867834168,
+      "measured_at": "2026-10-17T10:13:17.749648+00:00"
+    },
+    {
+      "name": "timing_pmt_0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -88.84878867834168,
+      "measured_at": "2026-10-17T10:13:17.928945+00:00"
+    },
+    {
+      "name": "timing_pmt_1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -87.9690977013284,
+      "measured_at": "2026-10-17T10:13:18.097242+00:00"
+    },
+    {
+      "name": "timing_pmt_1.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,1.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -87.9690977013284,
+      "measured_at": "2026-10-17T10:13:18.265050+00:00"
+    },
+    {
+      "name": "timing_pmt_-0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,-0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -88.84878867834168,
+      "measured_at": "2026-10-17T10:13:18.471362+00:00"
+    },
+    {
+      "name": "timing_pmt_-1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,-1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -87.9690977013284,
+      "measured_at": "2026-10-17T10:13:18.634599+00:00"
+    },
+    {
+      "name": "timing_pmt_2147483648",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,2147483648)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!6",
+      "measured_at": "2026-10-17T10:13:18.867435+00:00"
+    },
+    {
+      "name": "timing_pmt_Null",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0.01,12,1000,0,Null)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!94",
+      "measured_at": "2026-10-17T10:13:19.047037+00:00"
+    },
+    {
+      "name": "timing_fv_0",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,0)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 141.42527118772793,
+      "measured_at": "2026-10-17T10:13:19.210395+00:00"
+    },
+    {
+      "name": "timing_fv_0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 141.42527118772793,
+      "measured_at": "2026-10-17T10:13:19.374639+00:00"
+    },
+    {
+      "name": "timing_fv_1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 154.10777420092492,
+      "measured_at": "2026-10-17T10:13:19.551165+00:00"
+    },
+    {
+      "name": "timing_fv_1.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,1.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 154.10777420092492,
+      "measured_at": "2026-10-17T10:13:19.731257+00:00"
+    },
+    {
+      "name": "timing_fv_-0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,-0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 141.42527118772793,
+      "measured_at": "2026-10-17T10:13:19.912000+00:00"
+    },
+    {
+      "name": "timing_fv_-1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,-1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 154.10777420092492,
+      "measured_at": "2026-10-17T10:13:20.080570+00:00"
+    },
+    {
+      "name": "timing_fv_2147483648",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,2147483648)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!6",
+      "measured_at": "2026-10-17T10:13:20.258417+00:00"
+    },
+    {
+      "name": "timing_fv_Null",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV(0.01,12,-100,1000,Null)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!94",
+      "measured_at": "2026-10-17T10:13:20.432504+00:00"
+    },
+    {
+      "name": "timing_pv_0",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,0)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1125.5077473484635,
+      "measured_at": "2026-10-17T10:13:20.608653+00:00"
+    },
+    {
+      "name": "timing_pv_0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1125.5077473484635,
+      "measured_at": "2026-10-17T10:13:20.775797+00:00"
+    },
+    {
+      "name": "timing_pv_1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1136.762824821948,
+      "measured_at": "2026-10-17T10:13:20.949834+00:00"
+    },
+    {
+      "name": "timing_pv_1.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,1.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1136.762824821948,
+      "measured_at": "2026-10-17T10:13:21.114626+00:00"
+    },
+    {
+      "name": "timing_pv_-0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,-0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1125.5077473484635,
+      "measured_at": "2026-10-17T10:13:21.290808+00:00"
+    },
+    {
+      "name": "timing_pv_-1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,-1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 1136.762824821948,
+      "measured_at": "2026-10-17T10:13:21.453776+00:00"
+    },
+    {
+      "name": "timing_pv_2147483648",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,2147483648)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!6",
+      "measured_at": "2026-10-17T10:13:21.619130+00:00"
+    },
+    {
+      "name": "timing_pv_Null",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=PV(0.01,12,-100,0,Null)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!94",
+      "measured_at": "2026-10-17T10:13:21.787799+00:00"
+    },
+    {
+      "name": "timing_nper_0",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,0)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 10.588644459423275,
+      "measured_at": "2026-10-17T10:13:21.957417+00:00"
+    },
+    {
+      "name": "timing_nper_0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 10.588644459423275,
+      "measured_at": "2026-10-17T10:13:22.138441+00:00"
+    },
+    {
+      "name": "timing_nper_1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 10.478145085116774,
+      "measured_at": "2026-10-17T10:13:22.312397+00:00"
+    },
+    {
+      "name": "timing_nper_1.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,1.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 10.478145085116774,
+      "measured_at": "2026-10-17T10:13:22.485652+00:00"
+    },
+    {
+      "name": "timing_nper_-0.5",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,-0.5)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 10.588644459423275,
+      "measured_at": "2026-10-17T10:13:22.659163+00:00"
+    },
+    {
+      "name": "timing_nper_-1",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,-1)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": 10.478145085116774,
+      "measured_at": "2026-10-17T10:13:22.831194+00:00"
+    },
+    {
+      "name": "timing_nper_2147483648",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,2147483648)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!6",
+      "measured_at": "2026-10-17T10:13:23.004135+00:00"
+    },
+    {
+      "name": "timing_nper_Null",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=NPer(0.01,-100,1000,0,Null)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!94",
+      "measured_at": "2026-10-17T10:13:23.195124+00:00"
+    },
+    {
+      "name": "pmt_suffix",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt%(0.01,12,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T10:13:23.644801+00:00"
+    },
+    {
+      "name": "fv_suffix",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=FV%(0.01,12,-100)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T10:13:23.926727+00:00"
+    },
+    {
+      "name": "pmt_zero_periods",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Pmt(0,0,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!5",
+      "measured_at": "2026-10-17T10:13:24.107244+00:00"
+    },
+    {
+      "name": "rate_big",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nProbe=Rate(1E300,-100,1000)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "!6",
+      "measured_at": "2026-10-17T10:13:24.296775+00:00"
+    },
+    {
+      "name": "npv_big",
+      "source": "Function Probe() As Variant\nOn Error GoTo Failed\nDim values(0 To 2) As Double\nvalues(0)=-100\nvalues(1)=60\nvalues(2)=60\nProbe=NPV(1E300,values)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": -1e-298,
+      "measured_at": "2026-10-17T10:13:24.468070+00:00"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-17T10:13:24.468070+00:00"
+}

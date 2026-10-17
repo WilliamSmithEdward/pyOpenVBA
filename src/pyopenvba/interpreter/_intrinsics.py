@@ -100,12 +100,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "environ": "reads the machine's environment",
     "doevents": "yields to a message pump this does not have",
     "getobject": "attaches to a running application",
-    "rate": "is an iterative financial solver",
-    "irr": "is an iterative financial solver",
-    "mirr": "is an iterative financial solver",
-    "ipmt": "is not implemented yet",
-    "ppmt": "is not implemented yet",
-    "npv": "is not implemented yet",
     "qbcolor": "is not implemented yet",
     "partition": "is not implemented yet",
 }
@@ -1502,11 +1496,101 @@ def vba_createobject(interpreter: Interpreter, class_name: object, server: objec
 # --- finance ------------------------------------------------------------------------------------
 
 
+@intrinsic('Rate', 'NPer', 'Pmt', 'PV', 'FV', 'Due', 'Guess', minimum=3)
+def vba_rate(interpreter: Interpreter, periods: object, paid: object, present: object,
+             future: object, due: object, guess: object) -> object:
+    from pyopenvba.interpreter import _financial as financial
+
+    try:
+        return financial.rate(financial.number(periods), financial.number(paid), financial.number(present),
+                              0.0 if future is MISSING else financial.number(future),
+                              0 if due is MISSING else financial.due(due),
+                              0.1 if guess is MISSING else financial.number(guess))
+    except OverflowError:
+        raise error(6) from None
+    except (ValueError, ZeroDivisionError):
+        raise error(5) from None
+
+
+@intrinsic('IRR', 'ValueArray', 'Guess', minimum=1)
+def vba_irr(interpreter: Interpreter, values: object, guess: object) -> object:
+    from pyopenvba.interpreter import _financial as financial
+
+    try:
+        return financial.irr(financial.flows(values), 0.1 if guess is MISSING else financial.number(guess))
+    except OverflowError:
+        raise error(6) from None
+    except (ValueError, ZeroDivisionError):
+        raise error(5) from None
+
+
+@intrinsic('MIRR', 'ValueArray', 'FinanceRate', 'ReinvestRate', minimum=3)
+def vba_mirr(interpreter: Interpreter, values: object, finance: object, reinvest: object) -> object:
+    from pyopenvba.interpreter import _financial as financial
+
+    try:
+        return financial.mirr(financial.flows(values), financial.number(finance), financial.number(reinvest))
+    except OverflowError:
+        raise error(6) from None
+    except (ValueError, ZeroDivisionError):
+        raise error(5) from None
+
+
+@intrinsic('NPV', 'Rate', 'ValueArray', minimum=2)
+def vba_npv(interpreter: Interpreter, rate: object, values: object) -> object:
+    from pyopenvba.interpreter import _financial as financial
+
+    try:
+        return financial.npv(financial.number(rate), financial.flows(values))
+    except OverflowError:
+        raise error(6) from None
+    except (ValueError, ZeroDivisionError):
+        raise error(5) from None
+
+
+@intrinsic('IPmt', 'Rate', 'Per', 'NPer', 'PV', 'FV', 'Due', minimum=4)
+def vba_ipmt(interpreter: Interpreter, rate: object, period: object, periods: object,
+             present: object, future: object, due: object) -> object:
+    from pyopenvba.interpreter import _financial as financial
+
+    try:
+        return financial.interest(financial.number(rate), financial.number(period), financial.number(periods),
+                                  financial.number(present), 0.0 if future is MISSING else financial.number(future),
+                                  0 if due is MISSING else financial.due(due))
+    except OverflowError:
+        raise error(6) from None
+    except (ValueError, ZeroDivisionError):
+        raise error(5) from None
+
+
+@intrinsic('PPmt', 'Rate', 'Per', 'NPer', 'PV', 'FV', 'Due', minimum=4)
+def vba_ppmt(interpreter: Interpreter, rate: object, period: object, periods: object,
+             present: object, future: object, due: object) -> object:
+    from pyopenvba.interpreter import _financial as financial
+
+    r, at, n, pv = (financial.number(value) for value in (rate, period, periods, present))
+    fv, timing = 0.0 if future is MISSING else financial.number(future), 0 if due is MISSING else financial.due(due)
+    try:
+        return financial.payment(r, n, pv, fv, timing) - financial.interest(r, at, n, pv, fv, timing)
+    except OverflowError:
+        raise error(6) from None
+    except (ValueError, ZeroDivisionError):
+        raise error(5) from None
+
+
 def _annuity(rate: float, periods: float, present: float, future: float, due: int) -> float:
+    if periods == 0:
+        raise error(5)
     if rate == 0:
         return -(present + future) / periods
     growth = (1 + rate) ** periods
     return -(future + present * growth) / ((1 + rate * due) * (growth - 1) / rate)
+
+
+def _financial_due(value: object) -> int:
+    from pyopenvba.interpreter._financial import due
+
+    return 0 if value is MISSING else due(value)
 
 
 @intrinsic("Pmt", "Rate", "NPer", "PV", "FV", "Due", minimum=3)
@@ -1518,7 +1602,7 @@ def vba_pmt(
         float(to_number(periods)),
         float(to_number(present)),
         0.0 if future is MISSING else float(to_number(future)),
-        0 if due is MISSING else (1 if to_bool(due) else 0),
+        _financial_due(due),
     )
 
 
@@ -1530,7 +1614,7 @@ def vba_fv(
     n = float(to_number(periods))
     p = float(to_number(payment))
     pv = 0.0 if present is MISSING else float(to_number(present))
-    at_start = 0 if due is MISSING else (1 if to_bool(due) else 0)
+    at_start = _financial_due(due)
     if r == 0:
         return -(pv + p * n)
     growth = (1 + r) ** n
@@ -1545,7 +1629,7 @@ def vba_pv(
     n = float(to_number(periods))
     p = float(to_number(payment))
     fv = 0.0 if future is MISSING else float(to_number(future))
-    at_start = 0 if due is MISSING else (1 if to_bool(due) else 0)
+    at_start = _financial_due(due)
     if r == 0:
         return -(fv + p * n)
     growth = (1 + r) ** n
@@ -1560,7 +1644,7 @@ def vba_nper(
     p = float(to_number(payment))
     pv = float(to_number(present))
     fv = 0.0 if future is MISSING else float(to_number(future))
-    at_start = 0 if due is MISSING else (1 if to_bool(due) else 0)
+    at_start = _financial_due(due)
     if r == 0:
         if p == 0:
             raise error(5)

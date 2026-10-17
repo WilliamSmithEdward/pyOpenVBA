@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- VBA declarations reject a type character combined with an As clause,
+  including procedure, parameter and Declare headers. Invalid local
+  declarations stay deferred in unused routines. Typed function and member
+  references validate against their declared type, including enum identity
+  and fixed strings; implicit type conflicts fail before body execution.
+  Typed member dispatch preserves ByRef storage and property setters while
+  late-bound suffixes are ignored. Literal CallByName names remain exact.
+  Seventy-three native controls cover these rules, Me/New class contexts and measured intrinsic
+  exceptions; general compiler and library reference typing remain partial.
+
 - Numeric For counter validation runs before the selected procedure executes,
   rejecting nonnumeric or whole-array storage, class member properties,
   constants, function calls and indexed scalar Variants. Nested UDT fields,

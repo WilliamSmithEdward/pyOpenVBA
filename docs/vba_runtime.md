@@ -291,6 +291,27 @@ bindings. Invalid unused routines remain deferred, and project edits
 invalidate cached validation. This is incremental validation; it does not
 complete VBA's compiler or general reference typing.
 
+Declarations cannot combine a type character with an `As` clause, even
+when both specify the same type. This applies to variables, constants,
+parameters, function returns and `Declare` headers. Invalid local declarations
+remain deferred inside unused routines, while malformed module declarations
+and headers prevent loading. Typed references to known functions, module
+variables, UDT fields and early-bound class members must match the declared
+type; enum identity is distinct from Long storage, and fixed String fields
+accept `$`. A conflicting implicit type character fails before the body runs.
+
+Typed member lookup strips the syntax suffix while preserving ByRef argument
+metadata, array elements and property setters. Object/Variant member access
+ignores the suffix, matching late-bound native dispatch. Literal strings
+passed to `CallByName` retain their exact names. `Me` and `With New` also retain
+their declared class context. Member spelling remains intact in unsupported
+operation diagnostics. Seventy-three native controls in
+`type_characters.json`, remeasured by `scripts/measure_type_characters.py`,
+also distinguish measured intrinsic rules: core functions such as CLng and Abs
+can ignore type characters, while Trim/Left require their string suffix and
+Round rejects a suffix. The intrinsic catalog, general constant-expression
+typing, host member types and call-argument compilation remain incomplete.
+
 Module-level `DefBool`, `DefByte`, `DefInt`, `DefLng`, `DefLngLng`,
 `DefLngPtr`, `DefSng`, `DefDbl`, `DefCur`, `DefDate`, `DefStr`, `DefObj` and
 `DefVar` supply initial-letter defaults. They affect untyped declarations,

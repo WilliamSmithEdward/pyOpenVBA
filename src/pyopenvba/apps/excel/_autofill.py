@@ -124,7 +124,7 @@ def autofill(source: Range, destination: object, kind_argument: object) -> objec
     replaced_arrays, partial_destination = _arrays.met(sheet, [filled])
     if partial_source or partial_destination:
         raise error(1004, _arrays.PART_OF_AN_ARRAY)
-    array_plans: list[tuple[Area, str]] = []
+    array_plans: list[tuple[Area, str, bool]] = []
     if kind != FORMATS:
         period = area.rows if down else area.columns
         low, high = (filled.top, filled.bottom) if down else (filled.left, filled.right)
@@ -141,7 +141,8 @@ def autofill(source: Range, destination: object, kind_argument: object) -> objec
                     block = Area(top, left, bottom, right)
                     cell = sheet.cells_.get(anchor)
                     assert cell is not None
-                    array_plans.append((block, shift_text(cell.formula, top - original.top, left - original.left)))
+                    clipped_start = top != original.top + dy or left != original.left + dx
+                    array_plans.append((block, shift_text(cell.formula, top - original.top, left - original.left), clipped_start))
     plan = _Plan(sheet, area, target, down, kind)
 
     def retire_arrays() -> None:
@@ -150,12 +151,13 @@ def autofill(source: Range, destination: object, kind_argument: object) -> objec
                 sheet.array_formulas.pop(anchor, None)
 
     plan.fill(before_write=retire_arrays)
-    for block, formula in array_plans:
+    for block, formula, clipped_start in array_plans:
         anchor = (block.top, block.left)
         cell = sheet.cell(*anchor, create=True)
         assert cell is not None
         cell.formula, cell.shared, cell.dynamic, cell.spilled_from = formula, None, False, None
         cell.stale = True
+        cell.save_dirty = False if clipped_start and not sheet.book.calculator.automatic else None
         if sheet.book.calculator.automatic:
             cell.value = EMPTY
         sheet.array_formulas[anchor] = block

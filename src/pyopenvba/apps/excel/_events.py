@@ -18,7 +18,8 @@ Excel does.
 * Calculate: after an edit that worked formulas out, for each sheet
   whose formulas it worked out -- before the Change, except after an
   insert, which changes first, and after Replace, which calculates last.
-  Application.Calculate raises it for sheets with stale or volatile formulas.
+  Disabled calculation notifications wait for an enabled calculation cycle.
+  Manual range calculation retains its new notification for a later cycle.
 * SelectionChange: a Select that moves the selection.
 * Deactivate, then Activate: another sheet made active; a new sheet is
   NewSheet first, and deactivates the sheet it was placed beside, or the
@@ -137,16 +138,25 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
     them out after each edit, which only shows through this event, so the
     work is done here only when a module is listening for it.
     """
-    if not (book.calculator.has_volatile_formulas or book.calculator.has_pending_udfs) \
+    calculator = book.calculator
+    if not calculator.automatic:
+        return
+    calculator.automatic_pending = True
+    prior = already_calculated or set()
+    if not _on(book):
+        # Ordinary formulas can stay lazy, but native Excel calculated
+        # them and retains a notification for the next enabled cycle.
+        calculator.pending_notifications.update(prior)
+        calculator.pending_notifications.update(sheet for sheet in book.sheets_
+            if any(cell.formula and cell.stale for cell in sheet.cells_.values()))
+    if not (calculator.has_volatile_formulas or calculator.has_pending_udfs
+            or calculator.has_held_caches or calculator.pending_notifications) \
             and (not _on(book) or not _listening_for_calculate(book)):
         return
-    worked = book.calculator.recalculated(settled=settled)
-    prior = already_calculated or set()
-    for sheet in book.sheets_:
-        if sheet not in worked and (not book.calculator.automatic or sheet not in prior):
-            continue
-        if _on(book):
-            _both(sheet, "Calculate", [])
+    if not _on(book) and not (calculator.has_volatile_formulas or calculator.has_pending_udfs):
+        return
+    worked = calculator.recalculated(settled=settled)
+    calculated_all(book, list(set(worked) | prior))
 
 
 def visibility_changed(book: Workbook) -> None:
@@ -158,10 +168,13 @@ def visibility_changed(book: Workbook) -> None:
 
 def calculated_all(book: Workbook, worked: list[Worksheet]) -> None:
     """Application.Calculate: events for sheets with stale or volatile formulas."""
-    if not _on(book):
-        return
-    for sheet in worked:
-        _both(sheet, "Calculate", [])
+    pending = book.calculator.pending_notifications
+    pending.update(worked)
+    pending.intersection_update(book.sheets_)
+    for sheet in list(book.sheets_):
+        if sheet in pending and _on(book):
+            pending.remove(sheet)
+            _both(sheet, "Calculate", [])
 
 
 def after_edit(target: Range, *, calculate_first: bool = True) -> None:

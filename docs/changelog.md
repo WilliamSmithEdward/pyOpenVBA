@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Calculation scopes preserve foreign-sheet caches for worksheet requests
+  and resolve dependencies inside manual range requests. Automatic range
+  requests calculate the workbook. A shared queue spans tabs, learns
+  automatic UDF update order and includes recursively calculated sheets in
+  event reporting. Deferred Calculate notifications survive disabled events
+  and are delivered once on a later calculation request; manual range work
+  defers its notification, and manual entries retain initial caches while
+  joining the next requested pass. Native probes distinguish these behaviors
+  over 192 scope, cache, call-count and event traces, with 1,080 additional
+  UDF scheduling observations. Four native XLSM files and model-written
+  readback gates preserve partial caches and per-cell dirty flags; reopening
+  no longer dirties every formula merely because calcCompleted is false.
+  Thirteen native post-reopen CSE traces correct an assumed equivalence with
+  fresh calculation and preserve clipped-array dirty-state differences.
+
 - Explicit formula assignments obtain initial values in manual mode,
   including scalar/bulk Formula, Formula2, Value and replacement formulas.
   Volatile formulas retain caches between reads, invalidate their dependents

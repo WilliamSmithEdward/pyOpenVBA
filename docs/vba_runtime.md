@@ -1142,6 +1142,37 @@ is not a fixed contract (see [Microsoft's calculation documentation](https://lea
 Broader graph scheduling, cross-workbook dependencies, iterative calculation
 and complex UDF/error interactions remain incomplete.
 
+Calculation scope and deferred notifications have a separate native matrix
+in `tests/fixtures/calculation_scope.json`. Worksheet.Calculate reads cached
+foreign-sheet precedents; manual Range.Calculate resolves dependencies inside
+its areas and retains cached inputs outside them. An automatic range request
+calculates the workbook, including volatile formulas outside the range.
+The global queue spans tabs and learns automatic UDF recomputation order as
+well as explicit calculation order. Values left dirty outside a limited
+calculation stay cached until another calculation cycle.
+
+Excel retains Calculate notifications generated with EnableEvents=False.
+Enabling events or reading a value does not deliver them; a subsequent
+calculation request delivers each pending sheet's notification once, in tab
+order. Manual range calculations likewise retain their new notification for
+a later request. Manual formula entries have immediate cached values but
+still join the next requested calculation. The 192 measured cases distinguish
+these states with worksheet/workbook event traces, UDF call counters, forward
+references, empty ranges and blank sheets. Another 1,080 observations of the
+72 UDF probes, five repeats in each of three fresh Excel sessions, retain
+only actually observed scheduling alternatives. Four native XLSM files and
+native readback of model-written files cover partial caches, clean UDFs,
+per-cell calculation flags and the next calculation's event trace. A
+workbook's calcCompleted=False is a summary; it does not dirty every cached
+formula. Thirteen native post-reopen CSE readbacks also distinguish a clipped
+array's dirty runtime value from its saved flags: a fragment can calculate
+before saving yet retain its clipped cache after reopening. The writer keeps
+that distinction for fragments clipped at the beginning of a repeated block,
+as upward and leftward fills demonstrate. Fragments clipped at the end keep
+their dirty flags. Calculation or a new dependency change clears the saved
+override. Complete event error/reentrancy,
+project lifetime and cross-workbook scheduling remain separate gaps.
+
 Changing row visibility, including through RowHeight or UseStandardHeight,
 invalidates SUBTOTAL, AGGREGATE and their dependents. Nested defined names
 retain this sensitivity. Filter application, reapplication and removal also

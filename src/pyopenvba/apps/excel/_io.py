@@ -128,12 +128,6 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     from pyopenvba.apps.excel._calculation_settings import read as read_calculation
 
     read_calculation(book, workbook_xml)
-    calc_pr = re.search(r'<calcPr\b[^>]*>', workbook_xml)
-    if calc_pr and _attributes(calc_pr.group(0)).get('calcCompleted') in ('0', 'false'):
-        for sheet in book.sheets_:
-            for cell in sheet.cells_.values():
-                if cell.formula:
-                    cell.stale = True
     book.saved = True
     return book
 
@@ -231,6 +225,7 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
             xf = int(written) if written.isdigit() else 0
             style = stylesheet.style(xf) if xf else None
             formula = ""
+            calculate = False
             shared: int | None = None
             cell_meta, value_meta = attributes.get("cm", ""), attributes.get("vm", "")
             is_dynamic = metadata is not None and cell_meta.isdigit() and int(cell_meta) in metadata.dynamic
@@ -239,6 +234,7 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
                 body = (formula_match.group(2) or "").strip()
                 formula = _formula_read(body) if body else ""
                 element = _attributes(f"<f {formula_match.group(1)}>")
+                calculate = element.get('ca', '0').lower() in ('1', 'true')
                 if element.get("t") == "shared" and element.get("si", "").isdigit():
                     shared = int(element["si"])
                     if formula and element.get("ref"):
@@ -264,7 +260,7 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
             if style is None and stylesheet.default.number_format != "General":
                 # A cell on the default format still has to read that format.
                 style = stylesheet.default
-            cell = Cell(value=value, formula=formula, stale=bool(formula) and value is EMPTY, style=style,
+            cell = Cell(value=value, formula=formula, stale=formula_match is not None and (value is EMPTY or calculate), style=style,
                         xf=xf if style is not None else -1, shared=shared,
                         dynamic=bool(formula) and (row, column) in dynamic)
             sheet.cells_[(row, column)] = cell
@@ -277,7 +273,7 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
             continue
         top, left, text = first
         cell.formula = shift_text(text, row - top, column - left)
-        cell.stale = cell.value is EMPTY
+        cell.stale |= cell.value is EMPTY
     _read_spills(sheet, dynamic, rich)
     sheet.dims.settle_growth()
 
@@ -1593,7 +1589,8 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
         if cell.formula and position not in formulas:
             volatile = ' ca="1"' if always(cell.formula) else ""
             formulas[position] = f"<f{volatile}>{spell(cell.formula[1:])}</f>"
-        if cell.formula and cell.stale and not sheet.book.calculator.automatic \
+        dirty = cell.stale if cell.save_dirty is None else cell.save_dirty
+        if cell.formula and dirty and not sheet.book.calculator.automatic \
                 and not re.search(r'\bca="', formulas[position]):
             # Excel marks cached dirty formulas themselves, including dependents;
             # calcCompleted alone does not make native manual calculation revisit them.

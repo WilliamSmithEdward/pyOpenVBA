@@ -84,9 +84,26 @@ def event_macro(name: str, *, manual: bool) -> str:
                           'Probe = CStr(n) & ":" & ResultText(outcome) & Mid(ReadSaved(),2) & "|Trace:" & Trace')
 
 
+def readback(excel: ExcelSession, record: dict) -> None:
+    """Calculation after reopening can differ from calculation before saving a clipped array."""
+    for case in record['files']:
+        excel.new_document()
+        mode = excel.run_vba('Sub SetMode()\nApplication.Calculation = ' + str(case['calculation']) + '\nEnd Sub', 'SetMode')
+        assert mode.ok and not mode.dialogs, mode
+        excel.open_document(OUT.parent / case['file'])
+        excel.add_module('Readback', record['read_saved'] + '\nSub CalculateNow()\nApplication.Calculate\nEnd Sub', line_numbers=False)
+        before = excel.run_raw('Readback.ReadSaved')
+        assert before == case['result'], case['name']
+        excel.run_raw('Readback.CalculateNow')
+        case['after_calculate'] = excel.run_raw('Readback.ReadSaved')
+        assert not any(event.get('dialogs') for event in excel.events)
+        print(case['name'], 'reopened calculation recorded', flush=True)
+    record['readback_measured_at'] = datetime.now(timezone.utc).isoformat()
+
+
 def main() -> None:
     selected = [name for name in sys.argv[1:] if not name.startswith('--')]
-    previous = json.loads(OUT.read_text(encoding='utf-8')) if (selected or '--files-only' in sys.argv or '--events-only' in sys.argv) and OUT.exists() else None
+    previous = json.loads(OUT.read_text(encoding='utf-8')) if (selected or '--files-only' in sys.argv or '--events-only' in sys.argv or '--readback-only' in sys.argv) and OUT.exists() else None
     probes = previous['probes'] if previous is not None else []
     with ExcelSession(HarnessConfig(lock_wait_s=30.0)) as excel:
         excel.new_document()
@@ -94,6 +111,13 @@ def main() -> None:
         assert version.ok and not version.dialogs, version
         if previous is not None:
             assert previous['excel_version_build'] == version.value
+        if '--readback-only' in sys.argv:
+            assert previous is not None
+            readback(excel, previous)
+            temporary = OUT.with_suffix('.json.tmp')
+            temporary.write_text(json.dumps(previous, indent=2) + '\n', encoding='utf-8')
+            temporary.replace(OUT)
+            return
         for name in ([] if '--files-only' in sys.argv or '--events-only' in sys.argv else selected or OPERATIONS):
             setup, expression = OPERATIONS[name]
             for mode, manual, calculate in [('auto', False, False), ('manual', True, False), ('calculated', True, True)]:
@@ -123,7 +147,7 @@ def main() -> None:
         folder = OUT.parent / 'cse_fill_replace_files'
         folder.mkdir(exist_ok=True)
         helper = macro('', 'True', manual=False, calculate=False).split('Function Probe()')[0]
-        for name in ['fill_down_auto', 'fill_partial_manual', 'fill_up_partial_manual', 'fill_left_partial_calculated',
+        for name in ['fill_down_auto', 'fill_partial_manual', 'fill_up_partial_manual', 'fill_left_partial_calculated', 'fill_left_partial_manual',
                      'fill_mixed_auto', 'fill_type_3_auto', 'fill_type_4_manual', 'fill_over_array_auto',
                      'replace_whole_manual', 'replace_constant_value_auto', 'replace_long_formula_auto',
                      'duplicates_header_array_manual']:
@@ -140,9 +164,11 @@ def main() -> None:
             assert read.ok and not read.dialogs, read
             files.append({'name': name, 'file': path.relative_to(OUT.parent).as_posix(), 'result': read.value,
                           'calculation': -4105 if name.endswith('_auto') else -4135})
+        record = {'excel_version_build': version.value, 'measured_at': datetime.now(timezone.utc).isoformat(),
+                  'probes': probes, 'read_saved': helper, 'files': files}
+        readback(excel, record)
         temporary = OUT.with_suffix('.json.tmp')
-        temporary.write_text(json.dumps({'excel_version_build': version.value, 'measured_at': datetime.now(timezone.utc).isoformat(),
-                                        'probes': probes, 'read_saved': helper, 'files': files}, indent=2) + '\n', encoding='utf-8')
+        temporary.write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
         temporary.replace(OUT)
 
 

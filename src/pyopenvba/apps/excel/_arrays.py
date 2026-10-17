@@ -251,7 +251,8 @@ def elements(sheet: Worksheet, escape: Callable[[str], str],
 
     An array whose formula ``always`` works out whenever anything changes is ca="1", and each of its other cells
     carries <f ca="1"/> beside its value; it is aca="1" too, unless it covers several cells and calls RAND
-    (tests/fixtures/formula_prefixes/)."""
+    (tests/fixtures/formula_prefixes/). Dirty manual arrays also mark the
+    whole array and every member, so native Excel refreshes all cached values."""
     from pyopenvba.formula._prefixes import calls
 
     out: dict[tuple[int, int], str] = {}
@@ -260,11 +261,12 @@ def elements(sheet: Worksheet, escape: Callable[[str], str],
         if cell is None or not cell.formula:
             continue
         volatile = always(cell.formula)
-        whole = volatile and (block.rows * block.columns == 1 or not calls(cell.formula, "RAND"))
-        flags = (' aca="1"' if whole else "", ' ca="1"' if volatile else "")
+        dirty = not sheet.book.calculator.automatic and (cell.stale if cell.save_dirty is None else cell.save_dirty)
+        whole = dirty or volatile and (block.rows * block.columns == 1 or not calls(cell.formula, "RAND"))
+        flags = (' aca="1"' if whole else "", ' ca="1"' if volatile or dirty else "")
         out[(row, column)] = (f'<f t="array"{flags[0]} ref="{block.address(absolute=False)}"{flags[1]}>'
                               f'{escape(cell.formula[1:])}</f>')
-        if volatile:
+        if volatile or dirty:
             for member_row in range(block.top, block.bottom + 1):
                 for member_column in range(block.left, block.right + 1):
                     out.setdefault((member_row, member_column), '<f ca="1"/>')

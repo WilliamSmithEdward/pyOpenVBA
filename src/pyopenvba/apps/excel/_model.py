@@ -126,6 +126,8 @@ class Cell:
     dynamic: bool = False
     #: The first cell of the dynamic-array formula whose answer this cell shows, where it spilled here.
     spilled_from: tuple[int, int] | None = None
+    #: A clipped CSE fill can be dirty in memory but saved without a per-cell dirty flag.
+    save_dirty: bool | None = None
 
     @property
     def number_format(self) -> str:
@@ -292,6 +294,8 @@ class Application(ExcelObject):
     @setter("Calculation")
     def _set_calculation(self, value: object) -> None:
         before = self.calculation
+        for book in self.workbooks_.books:
+            book.calculator.settle_automatic_cache()
         self.calculation = int(to_integer(value, "Long"))
         if before != self.calculation and self.calculation == -4105:  # xlCalculationAutomatic
             # Back to automatic works out what manual mode left stale, with its
@@ -1520,9 +1524,8 @@ class Worksheet(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        """Work this sheet's stale and volatile formulas out, and raise its
-        Calculate if there were any (native probes: none for a sheet whose
-        formulas are worked out already)."""
+        """Calculate this sheet against foreign caches and deliver pending notifications."""
+        self.book.calculator.settle_automatic_cache()
         _events.calculated_all(self.book, self.book.calculator.calculate_all(self))
         return EMPTY
 
@@ -2395,17 +2398,21 @@ class Range(ExcelObject):
     def Calculate(self) -> object:
         """Work the range's formulas out again; Excel answers Null."""
         calculator = self.sheet.book.calculator
-        worked = False
-        for row, column in self.cell_positions():
-            if self.sheet.cells_[(row, column)].formula:
-                compiled = calculator.compiled.get((self.sheet.name.lower(), row, column))
-                force = not calculator.automatic or compiled is None or not compiled.calls_user \
-                    or compiled.volatile or compiled.udf_volatile or compiled.udf_pending
-                calculator.value_of(self.sheet.name, row, column, force=force)
-                worked = True
-        if worked:
-            # Range("A1").Calculate on a formula raises the sheet's Calculate (native probe).
-            _events.calculated_all(self.sheet.book, [self.sheet])
+        if calculator.automatic:
+            _events.calculated_all(self.sheet.book, calculator.calculate_all())
+        else:
+            # Deliver earlier notifications, then retain this limited
+            # calculation's notification until another calculation request.
+            _events.calculated_all(self.sheet.book, [])
+            worked = calculator.calculate_all(self.sheet, areas=tuple(self.areas), force=True, volatile=False)
+            calculator.pending_notifications.update(worked)
+            for (name, row, column), compiled in calculator.compiled.items():
+                if name == self.sheet.name.lower() \
+                        and any(area.contains(row, column) for area in self.areas):
+                    cell = self.sheet.cells_.get((row, column))
+                    if cell is not None:
+                        cell.stale = True
+                    compiled.udf_pending = compiled.calls_user
         return NULL
 
     @member
@@ -3656,6 +3663,7 @@ class Range(ExcelObject):
         assert cell is not None
         cell.formula = formula
         cell.stale = True
+        cell.save_dirty = None
         cell.value = EMPTY
         cell.shared = None
         cell.dynamic = dynamic

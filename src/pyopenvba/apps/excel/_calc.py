@@ -105,6 +105,12 @@ class Calculator:
         self._working: set[CellKey] = set()
         self._depth = 0
         self._calculation_depth = 0
+        self._learning_depth = 0
+        self._scopes: list[tuple[str | None, tuple[Area, ...] | None]] = []
+        self._calculated_sheets: list[set[Worksheet]] = []
+        self.pending_notifications: set[Worksheet] = set()
+        self._held_caches: set[CellKey] = set()
+        self.automatic_pending = False
         self._entries: set[CellKey] = set()
         self._active_formulas: list[CellKey] = []
         self._udf_waiting: dict[CellKey, CellKey] = {}
@@ -192,7 +198,6 @@ class Calculator:
         precedents = self.engine_book.precedents(node, sheet, row, column)
         user = calls_user(node)
         return Compiled(node=node, precedents=precedents, volatile=volatile(node), calls_user=user,
-                        udf_pending=user and not self.automatic,
                         visibility_sensitive=self.engine_book.visibility_sensitive(node, sheet))
 
     def forget(self, sheet: str, row: int, column: int) -> None:
@@ -208,6 +213,7 @@ class Calculator:
         self._volatile_formulas.discard(key)
         self._visibility_formulas.discard(key)
         self._entries.discard(key)
+        self._held_caches.discard(key)
         self._calculation_order.pop(key, None)
         if old is not None:
             for area in old.precedents:
@@ -261,6 +267,7 @@ class Calculator:
         self._volatile_formulas.clear()
         self._visibility_formulas.clear()
         self._entries.clear()
+        self._held_caches.clear()
         self._calculation_order.clear()
         self._readers.clear()
         self._blocks.clear()
@@ -270,6 +277,7 @@ class Calculator:
             for cell in sheet.cells_.values():
                 if cell.formula:
                     cell.stale = True
+                    cell.save_dirty = None
         if keep_pending:
             self.build()
             for key, compiled in self.compiled.items():
@@ -341,6 +349,8 @@ class Calculator:
             for name, row, column in changed:
                 for key in self._reading(name, row, column) - seen:
                     cell = self._cell(key)
+                    if cell is not None:
+                        cell.save_dirty = None
                     if cell is not None and not cell.stale:
                         cell.stale = True
                         following.add(key)
@@ -370,7 +380,8 @@ class Calculator:
 
     def calculate_all(self, only: Worksheet | None = None, *, volatile: bool = True,
                       settled: set[CellKey] | None = None, udf_volatile: bool | None = None,
-                      full: bool = False, background: bool = False) -> list[Worksheet]:
+                      full: bool = False, background: bool = False,
+                      areas: tuple[Area, ...] | None = None, force: bool = False) -> list[Worksheet]:
         """Work out stale and volatile formulas, even in manual mode; report sheets actually calculated.
 
         only limits the work to one sheet, as Worksheet.Calculate does;
@@ -378,62 +389,73 @@ class Calculator:
         formulas are settled without an edit (see Excel object vba_sink_attached).
         """
         self.build()
+        if only is None:
+            self.automatic_pending = False
+        if not self.compiled:
+            return []
         volatile_users = volatile if udf_volatile is None else udf_volatile
         roots: set[CellKey] = set()
         for key, compiled in self.compiled.items():
             if only is not None and key[0] != only.name.lower():
                 continue
-            if (full or compiled.udf_pending or (volatile and compiled.volatile)
+            if areas is not None and not any(area.contains(key[1], key[2]) for area in areas):
+                continue
+            if (force or full or compiled.udf_pending or (volatile and compiled.volatile)
                     or (volatile_users and compiled.udf_volatile)) and key not in (settled or ()):
                 cell = self._cell(key)
                 if cell is not None:
                     cell.stale = True
                     roots.add(key)
         self._spoil(roots, set(roots))
-        worked: list[Worksheet] = []
+        worked: set[Worksheet] = set()
+        self._scopes.append((None if only is None else only.name.lower(), areas))
+        self._calculated_sheets.append(worked)
         self._calculation_depth += 1
         self._full_calculation_depth += int(full)
         self._provisional_errors.append(False)
         try:
-            for sheet in self.book.sheets_ if only is None else [only]:
-                did = False
-                # Excel's newly entered independent UDFs calculate in reverse entry order.
-                name = sheet.name.lower()
-                new = [(row, column) for (row, column), cell in reversed(list(sheet.cells_.items()))
-                       if cell.formula and (name, row, column) not in self._calculation_order]
-                known = [(row, column) for owner, row, column in self._calculation_order if owner == name]
-                queue = deque(new + known)
-                deferred: set[tuple[int, int]] = set()
-                while queue:
-                    row, column = queue.popleft()
-                    cell = sheet.cells_.get((row, column))
-                    if cell is None or not cell.formula:
-                        continue
-                    if cell.stale:
+            owners = {sheet.name.lower(): sheet for sheet in self.book.sheets_ if only is None or sheet is only}
+            # One chain spans the workbook, so a deferred UDF can wait for a
+            # precedent on a later tab rather than retrying on its own tab.
+            new = [(name, row, column) for name, sheet in owners.items()
+                   for (row, column), cell in reversed(list(sheet.cells_.items()))
+                   if cell.formula and (name, row, column) not in self._calculation_order]
+            known = [key for key in self._calculation_order if key[0] in owners]
+            queue = deque(new + known)
+            deferred: set[CellKey] = set()
+            while queue:
+                key = queue.popleft()
+                name, row, column = key
+                sheet = owners[name]
+                cell = sheet.cells_.get((row, column))
+                if cell is None or not cell.formula:
+                    continue
+                if areas is not None and not any(area.contains(row, column) for area in areas):
+                    continue
+                if cell.stale:
+                    try:
+                        self.value_of(sheet.name, row, column, force=True)
+                    except _UDFWaiting:
+                        if key not in deferred:
+                            deferred.add(key)
+                            queue.append(key)
+                            continue
+                        # No progress through a deferred cycle: use the
+                        # ordinary reference path and circular detection.
+                        self._provisional_disabled += 1
                         try:
                             self.value_of(sheet.name, row, column, force=True)
-                        except _UDFWaiting:
-                            if (row, column) not in deferred:
-                                deferred.add((row, column))
-                                queue.append((row, column))
-                                continue
-                            # No progress through a deferred cycle: use the
-                            # ordinary reference path and circular detection.
-                            self._provisional_disabled += 1
-                            try:
-                                self.value_of(sheet.name, row, column, force=True)
-                            finally:
-                                self._provisional_disabled -= 1
-                        except VBAUnsupportedError:
-                            compiled = self.compiled.get((name, row, column))
-                            if not background or (compiled is not None and self._user_unsupported(compiled)):
-                                raise
-                            continue
-                        deferred.clear()
-                        did = True
-                if did:
-                    worked.append(sheet)
+                        finally:
+                            self._provisional_disabled -= 1
+                    except VBAUnsupportedError:
+                        compiled = self.compiled.get(key)
+                        if not background or (compiled is not None and self._user_unsupported(compiled)):
+                            raise
+                        continue
+                    deferred.clear()
         finally:
+            self._scopes.pop()
+            self._calculated_sheets.pop()
             self._calculation_depth -= 1
             self._full_calculation_depth -= int(full)
             if self._provisional_errors.pop():
@@ -443,7 +465,10 @@ class Calculator:
                     interpreter.err.description = 'Application-defined or object-defined error'
                 if self._provisional_errors:
                     self._provisional_errors[-1] = True
-        return worked
+            if only is not None:
+                self._held_caches.update(key for key in self.compiled
+                                         if (cell := self._cell(key)) is not None and cell.stale)
+        return [sheet for sheet in self.book.sheets_ if sheet in worked]
 
     @property
     def has_volatile_udfs(self) -> bool:
@@ -456,6 +481,15 @@ class Calculator:
     @property
     def has_pending_udfs(self) -> bool:
         return any(self.compiled[key].udf_pending for key in self._user_calls)
+
+    @property
+    def has_held_caches(self) -> bool:
+        return bool(self._held_caches)
+
+    def settle_automatic_cache(self) -> None:
+        """Materialize automatic work deferred while nobody observed its events."""
+        if self.automatic and self.automatic_pending:
+            self.calculate_all(volatile=False, background=True)
 
     def udf_source_changed(self) -> None:
         """Keep cached results, but reconsider user functions at the next calculation."""
@@ -490,13 +524,21 @@ class Calculator:
                     and (self.automatic or (name, row, column) in entries) \
                     and (compiled.calls_user or not self.automatic):
                 try:
-                    self.value_of(owner.name, row, column, force=True)
+                    self._learning_depth += int((name, row, column) not in entries)
+                    try:
+                        self.value_of(owner.name, row, column, force=True)
+                    finally:
+                        self._learning_depth -= int((name, row, column) not in entries)
                 except VBAUnsupportedError:
                     if self._user_unsupported(compiled):
                         raise
                     # Preserve valid formula text the engine cannot yet evaluate.
                     continue
                 worked.add((name, row, column))
+                if not self.automatic:
+                    # Initial manual values are available immediately, but
+                    # still participate in the next requested calculation.
+                    cell.stale = True
         return worked
 
     def _user_unsupported(self, compiled: Compiled) -> bool:
@@ -508,7 +550,11 @@ class Calculator:
 
     def entered(self, sheet: str, row: int, column: int) -> None:
         """An explicit formula assignment needs its initial result even in manual mode."""
-        self._entries.add((sheet.lower(), row, column))
+        key = (sheet.lower(), row, column)
+        self._entries.add(key)
+        compiled = self.compiled.get(key)
+        if compiled is not None and compiled.calls_user and not self.automatic:
+            compiled.udf_pending = True
 
     @contextmanager
     def user_call(self) -> Generator[None, None, None]:
@@ -577,6 +623,19 @@ class Calculator:
         self.build()
         key = (sheet.lower(), row, column)
         owner = self._sheet_named(sheet)
+        if self._scopes:
+            scope, areas = self._scopes[-1]
+            outside = scope is not None and scope != key[0]
+            outside |= areas is not None and not any(area.contains(row, column) for area in areas)
+            if outside:
+                cell = self._cell(key)
+                if cell is not None and cell.stale and self._active_formulas:
+                    caller = self._active_formulas[-1]
+                    # A sheet-only UDF call settles against its foreign
+                    # cached argument; ordinary expressions stay dirty.
+                    if areas is not None or not self.compiled[caller].calls_user:
+                        self._cached_inputs.add(caller)
+                return EMPTY if cell is None else cell.value
         if owner is not None and owner.array_formulas:
             found = array_at(owner, row, column)
             if found is not None and found[0] != (row, column):
@@ -607,6 +666,8 @@ class Calculator:
                 return EMPTY
         if not (cell.stale or force):
             return cell.value
+        if key in self._held_caches and not force and not self._calculation_depth:
+            return cell.value
         if not self.automatic and not force and not self._calculation_depth:
             if self._active_formulas:
                 self._cached_inputs.add(self._active_formulas[-1])
@@ -631,9 +692,15 @@ class Calculator:
             self._active_formulas.pop()
             self._udf_waiting.pop(key, None)
         cell.value = value
+        cell.save_dirty = None
+        self._held_caches.discard(key)
         cell.stale = cached
+        if owner is not None:
+            for sheets in self._calculated_sheets:
+                sheets.add(owner)
         if self._calculation_depth:
             compiled.udf_pending = False
+        if (self._calculation_depth or self._learning_depth) and (not self._scopes or self._scopes[-1][1] is None):
             self._calculation_order.setdefault(key, None)
         from pyopenvba.apps.excel._controls import cell_changed
 

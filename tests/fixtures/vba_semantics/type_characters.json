@@ -1,0 +1,615 @@
+{
+  "instrumentation": "none",
+  "probes": [
+    {
+      "name": "reference_string",
+      "source": "Function Probe() As String\nDim alpha As Integer\nProbe = TypeName(alpha$)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:06.303231+00:00"
+    },
+    {
+      "name": "reference_long",
+      "source": "Function Probe() As String\nDim alpha As Integer\nProbe = TypeName(alpha&)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:06.792052+00:00"
+    },
+    {
+      "name": "reference_integer",
+      "source": "Function Probe() As String\nDim alpha As Integer\nProbe = TypeName(alpha%)\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:06.984255+00:00"
+    },
+    {
+      "name": "decl_same",
+      "source": "Function Probe() As String\nDim alpha% As Integer\nProbe = TypeName(alpha%)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T09:08:07.344609+00:00"
+    },
+    {
+      "name": "decl_different",
+      "source": "Function Probe() As String\nDim alpha% As String\nProbe = TypeName(alpha%)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T09:08:07.601144+00:00"
+    },
+    {
+      "name": "function_same",
+      "source": "Function Alpha%() As Integer\nEnd Function\nFunction Probe() As String\nProbe = TypeName(Alpha())\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: end of statement",
+      "measured_at": "2026-10-17T09:08:07.853242+00:00"
+    },
+    {
+      "name": "function_suffix",
+      "source": "Function Alpha%()\nEnd Function\nFunction Probe() As String\nProbe = TypeName(Alpha())\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:08.045014+00:00"
+    },
+    {
+      "name": "function_reference",
+      "source": "Function Alpha%()\nEnd Function\nFunction Probe() As String\nProbe = TypeName(Alpha$())\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:08.368173+00:00"
+    },
+    {
+      "name": "implicit_reference",
+      "source": "Function Probe() As String\nalpha$ = \"x\"\nProbe = TypeName(alpha)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:08.573831+00:00"
+    },
+    {
+      "name": "implicit_conflict",
+      "source": "Function Probe() As String\nalpha$ = \"x\"\nalpha% = 2\nProbe = TypeName(alpha)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:08.919203+00:00"
+    },
+    {
+      "name": "default_reference",
+      "source": "DefInt A\nFunction Probe() As String\nDim alpha\nProbe = TypeName(alpha$)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:09.179397+00:00"
+    },
+    {
+      "name": "param_same",
+      "source": "Function Watch(ByVal alpha% As Integer) As String\nWatch = TypeName(alpha)\nEnd Function\nFunction Probe() As String\nProbe = Watch(1)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: list separator or )",
+      "measured_at": "2026-10-17T09:08:09.437391+00:00"
+    },
+    {
+      "name": "param_suffix",
+      "source": "Function Watch(ByVal alpha%) As String\nWatch = TypeName(alpha)\nEnd Function\nFunction Probe() As String\nProbe = Watch(1)\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:09.634327+00:00"
+    },
+    {
+      "name": "const_same",
+      "source": "Const alpha% As Integer = 1\nFunction Probe() As String\nProbe = TypeName(alpha)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: =",
+      "measured_at": "2026-10-17T09:08:09.988390+00:00"
+    },
+    {
+      "name": "const_suffix",
+      "source": "Const alpha% = 1\nFunction Probe() As String\nProbe = TypeName(alpha)\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:10.194857+00:00"
+    },
+    {
+      "name": "explicit_function_reference",
+      "source": "Function Alpha() As Integer\nEnd Function\nFunction Probe() As String\nProbe = TypeName(Alpha%())\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:10.381948+00:00"
+    },
+    {
+      "name": "variant_function_reference",
+      "source": "Function Alpha() As Variant\nEnd Function\nFunction Probe() As String\nProbe = TypeName(Alpha%())\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:10.743083+00:00"
+    },
+    {
+      "name": "enum_reference",
+      "source": "Enum Style\nLow = 1\nEnd Enum\nFunction Probe() As String\nDim alpha As Style\nProbe = TypeName(alpha&)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:11.012705+00:00"
+    },
+    {
+      "name": "enum_function_reference",
+      "source": "Enum Style\nLow = 1\nEnd Enum\nFunction Alpha() As Style\nEnd Function\nFunction Probe() As String\nProbe = TypeName(Alpha&())\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:11.268738+00:00"
+    },
+    {
+      "name": "intrinsic_valid",
+      "source": "Function Probe() As String\nProbe = TypeName(Trim$(\" x \"))\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:11.471530+00:00"
+    },
+    {
+      "name": "intrinsic_wrong",
+      "source": "Function Probe() As String\nProbe = TypeName(Trim%(\" x \"))\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSub or Function not defined",
+      "measured_at": "2026-10-17T09:08:11.831218+00:00"
+    },
+    {
+      "name": "member_var_valid",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer\nFunction Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nProbe = TypeName(Other.apple%)\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:12.076030+00:00"
+    },
+    {
+      "name": "member_var_wrong",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer\nFunction Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nProbe = TypeName(Other.apple$)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:12.593497+00:00"
+    },
+    {
+      "name": "member_call_valid",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer\nFunction Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nProbe = TypeName(Other.Alpha%())\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:12.854641+00:00"
+    },
+    {
+      "name": "member_call_wrong",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer\nFunction Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nProbe = TypeName(Other.Alpha$())\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:13.387667+00:00"
+    },
+    {
+      "name": "class_string_valid",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName = \"x\"\nEnd Property\nPublic Function Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As New Box\nProbe = TypeName(obj.Name$)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:13.646395+00:00"
+    },
+    {
+      "name": "class_string_wrong",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName = \"x\"\nEnd Property\nPublic Function Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As New Box\nProbe = TypeName(obj.Name%)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:14.168146+00:00"
+    },
+    {
+      "name": "class_int_valid",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName = \"x\"\nEnd Property\nPublic Function Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As New Box\nProbe = TypeName(obj.Alpha%())\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:14.431892+00:00"
+    },
+    {
+      "name": "class_int_wrong",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName = \"x\"\nEnd Property\nPublic Function Alpha() As Integer\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As New Box\nProbe = TypeName(obj.Alpha$())\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:15.005138+00:00"
+    },
+    {
+      "name": "clng_valid",
+      "source": "Function Probe() As String\nProbe=TypeName(CLng&(1))\nEnd Function",
+      "result": "Long",
+      "measured_at": "2026-10-17T09:08:15.209206+00:00"
+    },
+    {
+      "name": "clng_wrong",
+      "source": "Function Probe() As String\nProbe=TypeName(CLng%(1))\nEnd Function",
+      "result": "Long",
+      "measured_at": "2026-10-17T09:08:15.410539+00:00"
+    },
+    {
+      "name": "cstr_valid",
+      "source": "Function Probe() As String\nProbe=TypeName(CStr$(1))\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:20.609805+00:00"
+    },
+    {
+      "name": "cstr_wrong",
+      "source": "Function Probe() As String\nProbe=TypeName(CStr%(1))\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:20.834919+00:00"
+    },
+    {
+      "name": "abs_integer",
+      "source": "Function Probe() As String\nProbe=TypeName(Abs%(1))\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:21.031511+00:00"
+    },
+    {
+      "name": "abs_double",
+      "source": "Function Probe() As String\nProbe=TypeName(Abs#(1))\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:21.222833+00:00"
+    },
+    {
+      "name": "len_integer",
+      "source": "Function Probe() As String\nProbe=TypeName(Len%(\"x\"))\nEnd Function",
+      "result": "Long",
+      "measured_at": "2026-10-17T09:08:21.433183+00:00"
+    },
+    {
+      "name": "len_long",
+      "source": "Function Probe() As String\nProbe=TypeName(Len&(\"x\"))\nEnd Function",
+      "result": "Long",
+      "measured_at": "2026-10-17T09:08:21.627293+00:00"
+    },
+    {
+      "name": "left_string",
+      "source": "Function Probe() As String\nProbe=TypeName(Left$(\"x\",1))\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:21.827631+00:00"
+    },
+    {
+      "name": "left_wrong",
+      "source": "Function Probe() As String\nProbe=TypeName(Left%(\"x\",1))\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSub or Function not defined",
+      "measured_at": "2026-10-17T09:08:22.079936+00:00"
+    },
+    {
+      "name": "chr_string",
+      "source": "Function Probe() As String\nProbe=TypeName(Chr$(65))\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:22.271516+00:00"
+    },
+    {
+      "name": "int_double",
+      "source": "Function Probe() As String\nProbe=TypeName(Int#(1.5))\nEnd Function",
+      "result": "Double",
+      "measured_at": "2026-10-17T09:08:22.464722+00:00"
+    },
+    {
+      "name": "int_variant",
+      "source": "Function Probe() As String\nProbe=TypeName(Int%(1.5))\nEnd Function",
+      "result": "Double",
+      "measured_at": "2026-10-17T09:08:22.639499+00:00"
+    },
+    {
+      "name": "round_double",
+      "source": "Function Probe() As String\nProbe=TypeName(Round#(1.5))\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:22.867826+00:00"
+    },
+    {
+      "name": "val_double",
+      "source": "Function Probe() As String\nProbe=TypeName(Val#(\"1\"))\nEnd Function",
+      "result": "Double",
+      "measured_at": "2026-10-17T09:08:23.049302+00:00"
+    },
+    {
+      "name": "late_box_string",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName=\"x\"\nEnd Property"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=TypeName(obj.Name$)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:23.258926+00:00"
+    },
+    {
+      "name": "late_box_integer",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName=\"x\"\nEnd Property"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As Box\nSet obj=New Box\nOn Error GoTo Failed\nProbe=TypeName(obj.Name%)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:23.653054+00:00"
+    },
+    {
+      "name": "late_object_string",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName=\"x\"\nEnd Property"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=TypeName(obj.Name$)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:23.881027+00:00"
+    },
+    {
+      "name": "late_object_integer",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName=\"x\"\nEnd Property"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nOn Error GoTo Failed\nProbe=TypeName(obj.Name%)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:24.107794+00:00"
+    },
+    {
+      "name": "late_variant_string",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName=\"x\"\nEnd Property"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=TypeName(obj.Name$)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:24.353722+00:00"
+    },
+    {
+      "name": "late_variant_integer",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Property Get Name() As String\nName=\"x\"\nEnd Property"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As Variant\nSet obj=New Box\nOn Error GoTo Failed\nProbe=TypeName(obj.Name%)\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T09:08:24.578068+00:00"
+    },
+    {
+      "name": "const_expression",
+      "source": "Const apple=1+2\nFunction Probe() As String\nProbe=TypeName(apple%)\nEnd Function",
+      "modules": [],
+      "result": "Integer",
+      "measured_at": "2026-10-17T09:08:24.747845+00:00"
+    },
+    {
+      "name": "const_expression_wrong",
+      "source": "Const apple=1+2\nFunction Probe() As String\nProbe=TypeName(apple$)\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:24.984090+00:00"
+    },
+    {
+      "name": "redim_suffix_as",
+      "source": "Function Probe() As String\nReDim values%(0) As Integer\nProbe=TypeName(values)\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T09:08:25.225471+00:00"
+    },
+    {
+      "name": "module_byref",
+      "source": "Sub Increment(value As Integer)\nvalue=value+1\nEnd Sub\nFunction Probe() As String\nOther.apple%=2\nIncrement Other.apple%\nIncrement Other.values%(0)\nProbe=CStr(Other.apple%) & \":\" & CStr(Other.values%(0))\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer\nPublic values(0) As Integer"
+        }
+      ],
+      "result": "3:1",
+      "measured_at": "2026-10-17T09:08:25.446333+00:00"
+    },
+    {
+      "name": "class_byref",
+      "source": "Function Probe() As String\nDim obj As New Box, value As Integer\nProbe=CStr(obj.Increment%(value)) & \":\" & CStr(value)\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Function Increment(ByRef value As Integer) As Integer\nvalue=value+1\nIncrement=value\nEnd Function"
+        }
+      ],
+      "result": "1:1",
+      "measured_at": "2026-10-17T09:08:25.674681+00:00"
+    },
+    {
+      "name": "property_setter",
+      "source": "Function Probe() As String\nDim obj As New Box\nobj.Name$=\"changed\"\nWith obj\nProbe=.Name$\nEnd With\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Private text As String\nPublic Property Get Name() As String\nName=text\nEnd Property\nPublic Property Let Name(ByVal value As String)\ntext=value\nEnd Property"
+        }
+      ],
+      "result": "changed",
+      "measured_at": "2026-10-17T09:08:25.897545+00:00"
+    },
+    {
+      "name": "callbyname_literal",
+      "source": "Function Probe() As String\nDim obj As New Box\nOn Error GoTo Failed\nProbe=CStr(CallByName(obj,\"Alpha%\",vbMethod))\nExit Function\nFailed:\nProbe=\"!\" & CStr(Err.Number)\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Function Alpha() As Integer\nAlpha=1\nEnd Function"
+        }
+      ],
+      "result": "!438",
+      "measured_at": "2026-10-17T09:08:26.138198+00:00"
+    },
+    {
+      "name": "fixed_record",
+      "source": "Type Box\ntext As String*3\nEnd Type\nFunction Probe() As String\nDim obj As Box\nobj.text$=\"x\"\nProbe=obj.text$\nEnd Function",
+      "modules": [],
+      "result": "x  ",
+      "measured_at": "2026-10-17T09:08:26.322889+00:00"
+    },
+    {
+      "name": "unused_wrong_reference",
+      "source": "Function Alpha() As Integer\nEnd Function\nSub Unused()\nDim ignored As String\nignored=Alpha$()\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:26.834461+00:00",
+      "demand_result": "done"
+    },
+    {
+      "name": "local_duplicate",
+      "source": "Sub Unused()\nDim value% As Integer\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "demand_result": "done",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T09:08:27.354085+00:00"
+    },
+    {
+      "name": "local_constant_duplicate",
+      "source": "Sub Unused()\nConst value% As Integer=0\nEnd Sub\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "demand_result": "done",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T09:08:27.882733+00:00"
+    },
+    {
+      "name": "module_duplicate",
+      "source": "Public value% As Integer\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: end of statement",
+      "measured_at": "2026-10-17T09:08:28.118847+00:00"
+    },
+    {
+      "name": "module_constant_duplicate",
+      "source": "Public Const value% As Integer=0\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: =",
+      "measured_at": "2026-10-17T09:08:28.402778+00:00"
+    },
+    {
+      "name": "class_return_duplicate",
+      "source": "Function Probe() As String\nProbe=\"done\"\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Function Unused%() As Integer\nEnd Function"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: end of statement",
+      "measured_at": "2026-10-17T09:08:28.912661+00:00"
+    },
+    {
+      "name": "class_parameter_duplicate",
+      "source": "Function Probe() As String\nProbe=\"done\"\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Sub Unused(ByVal value% As Integer)\nEnd Sub"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: list separator or )",
+      "measured_at": "2026-10-17T09:08:29.438848+00:00"
+    },
+    {
+      "name": "writeonly_valid",
+      "source": "Function Probe() As String\nDim obj As New Box\nobj.Name$=\"x\"\nProbe=obj.Stored\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Stored As String\nPublic Property Let Name(ByVal text As String)\nStored=text\nEnd Property"
+        }
+      ],
+      "result": "x",
+      "measured_at": "2026-10-17T09:08:29.679598+00:00"
+    },
+    {
+      "name": "writeonly_wrong",
+      "source": "Function Probe() As String\nDim obj As New Box\nobj.Name%=\"x\"\nProbe=obj.Stored\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public Stored As String\nPublic Property Let Name(ByVal text As String)\nStored=text\nEnd Property"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T09:08:29.963501+00:00"
+    },
+    {
+      "name": "declare_duplicate",
+      "source": "Private Declare PtrSafe Function Stub% Lib \"kernel32\" () As Integer\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected: end of statement",
+      "measured_at": "2026-10-17T09:08:30.243322+00:00"
+    },
+    {
+      "name": "declare_valid",
+      "source": "Private Declare PtrSafe Function Stub% Lib \"kernel32\" ()\nFunction Probe() As String\nProbe=\"done\"\nEnd Function",
+      "result": "done",
+      "measured_at": "2026-10-17T09:08:30.424320+00:00"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-17T09:08:30.424320+00:00"
+}

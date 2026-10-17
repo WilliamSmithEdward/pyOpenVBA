@@ -363,6 +363,8 @@ class Parser:
         if require_as and (token.declared or not self.at_word('as')):
             self.fail('Type fields require an As clause without a type character')
         if self.accept_word("as"):
+            if token.declared:
+                self.fail('A type character cannot be combined with an As clause')
             explicit_type = True
             if self.accept_word("new"):
                 as_new = True
@@ -394,6 +396,8 @@ class Parser:
                 self.fail(f"expected a constant name but found {token.text!r}")
             declared = token.declared or "Variant"
             if self.accept_word("as"):
+                if token.declared:
+                    self.fail('A type character cannot be combined with an As clause')
                 declared = self._parse_type_name()
             self.expect_op("=")
             names.append((strip_suffix(token.text), declared, self._parse_expression()))
@@ -467,6 +471,8 @@ class Parser:
         params = self._parse_params()
         returns = default_type(name, self.default_types)
         if self.accept_word("as"):
+            if strip_suffix(name) != name:
+                self.fail('A type character cannot be combined with an As clause')
             returns = self._parse_type_name()
         self.end_statement()
         return A.DeclareDef(
@@ -503,6 +509,8 @@ class Parser:
                 self.expect_op(")")
                 param.is_array = True
             if self.accept_word("as"):
+                if token.declared:
+                    self.fail('A type character cannot be combined with an As clause')
                 param.declared = self._parse_type_name()
             if self.accept_op("="):
                 param.default = self._parse_expression()
@@ -535,6 +543,8 @@ class Parser:
         )
         procedure.params = self._parse_params()
         if self.accept_word("as"):
+            if name_token.declared:
+                self.fail('A type character cannot be combined with an As clause')
             procedure.returns = self._parse_type_name()
             if self.accept_op("("):
                 self.expect_op(")")

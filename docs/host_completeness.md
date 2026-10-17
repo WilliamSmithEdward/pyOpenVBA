@@ -45,6 +45,10 @@ implicit bindings. Validation rejects invalid counters before execution while
 preserving nested UDT fields, With temporaries and unused invalid routines;
 global source edits invalidate cached checks. General declaration and
 function/member reference typing still need work.
+Declaration suffix/As conflicts and typed references now replay 69 native
+controls, including early/late-bound members, ByRef calls, setters and literal
+CallByName names. Intrinsic typing is measured incrementally; full call-argument,
+constant-expression and host reference validation remain open.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

@@ -291,6 +291,7 @@ class ModuleRuntime:
         self._initialised = False
         self.record_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
         self.numeric_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
+        self.reference_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
         self.programs: dict[int, F.Program] = {}
         self.program_errors: dict[int, tuple[str, str]] = {}
         self.public_variables = {item.name.lower() for group in parsed.variables if group.scope in ('public', 'global') for item in group.decls}
@@ -1234,8 +1235,10 @@ class Interpreter:
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
             raise error(28)
         from pyopenvba.interpreter._compile import validate_numeric_loops, validate_record_arguments
+        from pyopenvba.interpreter._references import validate_type_characters
 
         program = module.program_for(procedure)
+        validate_type_characters(self, module, procedure, program.arrays)
         validate_numeric_loops(self, module, procedure, program.arrays)
         validate_record_arguments(self, module, procedure)
         module.initialise()
@@ -2150,7 +2153,7 @@ class Interpreter:
             return self._call_name(callee, args, frame, statement_context=statement_context)
         if isinstance(callee, A.Member):
             target = self._member_target(callee, frame)
-            procedure = target.procedure(callee.name) if isinstance(target, StandardModuleNamespace) else target.module.procedure(callee.name) if isinstance(target, UserClassInstance) else None
+            procedure = target.procedure(_bare(callee.name)) if isinstance(target, StandardModuleNamespace) else target.module.procedure(_bare(callee.name)) if isinstance(target, UserClassInstance) else None
             positional, named = self._arguments(args, frame, procedure=procedure, target=target, name=callee.name)
             return _dispatch_get(target, callee.name, positional, named)
         if isinstance(callee, A.Index):
@@ -2296,7 +2299,7 @@ class Interpreter:
                 slot = None
                 owner = None
                 if isinstance(expression.target, A.Name):
-                    key = expression.target.name.casefold()
+                    key = _bare(expression.target.name)
                     if frame is not None:
                         slot = frame.locals.get(key)
                         if slot is None and isinstance(frame.me, UserClassInstance):
@@ -2313,7 +2316,7 @@ class Interpreter:
                     indices, _ = self._arguments(expression.args, frame)
                     value = ArrayElementSlot(array, [int(to_integer(one, 'Long')) for one in indices])
                 elif owner is not None and isinstance(expression.target, A.Member):
-                    procedure = owner.procedure(expression.target.name) if isinstance(owner, StandardModuleNamespace) else owner.module.procedure(expression.target.name) if isinstance(owner, UserClassInstance) else None
+                    procedure = owner.procedure(_bare(expression.target.name)) if isinstance(owner, StandardModuleNamespace) else owner.module.procedure(_bare(expression.target.name)) if isinstance(owner, UserClassInstance) else None
                     positional_inner, named_inner = self._arguments(expression.args, frame, procedure=procedure)
                     value = _dispatch_get(owner, expression.target.name, positional_inner, named_inner)
                 else:
@@ -2327,6 +2330,7 @@ class Interpreter:
         return positional, named
 
     def member_variable(self, owner: object, name: str, frame: Frame | None) -> Slot | None:
+        name = _bare(name)
         if isinstance(owner, StandardModuleNamespace):
             return owner.variable(name)
         if isinstance(owner, UserTypeValue):
@@ -2773,6 +2777,7 @@ def _scalar(value: object) -> object:
 
 
 def _dispatch_get(target: object, name: str, args: list[object], named: dict[str, object]) -> object:
+    name = _bare(name)
     if isinstance(target, VBAObject):
         return target.vba_get(name, args, named)
     if target is NOTHING:
@@ -2783,6 +2788,7 @@ def _dispatch_get(target: object, name: str, args: list[object], named: dict[str
 def _dispatch_set(
     target: object, name: str, value: object, args: list[object], named: dict[str, object], by_ref: bool
 ) -> None:
+    name = _bare(name)
     if isinstance(target, VBAObject):
         target.vba_set(name, value, args, named, by_ref=by_ref)
         return

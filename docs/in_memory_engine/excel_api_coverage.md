@@ -25,7 +25,7 @@ is a percentage of working macros or complete functionality.
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
 | Application, workbooks and worksheets | Partial | 125 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Many application services, workbook features and host-specific behaviors remain. |
-| Cells and ranges | Partial | 110 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native Currency assignment probes cover two-decimal Value rounding and Value2 precision. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
+| Cells and ranges | Partial | 110 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 86 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Rich text, gradients, display formats and remaining formatting APIs need work. |
@@ -37,7 +37,7 @@ is a percentage of working macros or complete functionality.
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
 | Shapes and worksheet controls | Partial | 54 / 2,025 | 0 | Basic shapes/text boxes and nine Forms control types, with measured values, links and persistence. Rich drawing APIs, grouping/copying, pictures and newer controls remain incomplete. |
 | Charts and sparklines | Partial | 30 / 951 | 0 | Embedded charts, basic series/titles and eight persisted chart kinds. Axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
-| PivotTables and slicers | Partial | 64 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata and empty-report creation with table/named sources, events and persistence that preserves unrecognized pivot parts. Native record probes cover date/time serials, Currency, typed values and modern-error rich-cache snapshots across saves. Aggregation, refresh, layout edits, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
+| PivotTables and slicers | Partial | 65 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata, empty-report creation and data-only AddDataField totals using all eleven aggregate functions, with measured events, field ranges and saved-report edits. Native probes cover date/time serials, Currency, typed values, errors, numerical edge cases and immutable cache snapshots across saves. Axis aggregation, refresh, layout edits, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
 | Queries and external data | Partial | 8 / 278 | 0 | Workbook queries plus local Power Query evaluation, refresh and sheet loading. Connection objects, remote connectors, QueryTables and full query semantics remain incomplete. |
 | Data model and OLAP | Missing | 0 / 261 | 0 | No in-memory Power Pivot model, relationships/measures or cube automation. Reading some external-pivot metadata does not implement these operations. |
 | XML mapping | Missing | 0 / 75 | 0 | No XmlMaps, schema/namespace binding or mapped-data import/export API. |
@@ -46,7 +46,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Missing | 0 / 152 | 0 | No full PageSetup, print rendering, page-break or publishing automation. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,056 / 7,542** | **148** | **14.0% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,057 / 7,542** | **148** | **14.0% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 † Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -59,6 +59,14 @@ The shared VBA engine implements procedures, classes, arrays, error handling,
 events and much of the runtime library. Compiler/type checking, reference and
 object compatibility, lifetime behavior and remaining language edge cases are
 still partial. See [VBA runtime support](../vba_runtime.md).
+
+VBA string lengths, `Left`/`Right`/`Mid` boundaries and `AscW` now count UTF-16
+units when worksheet text contains supplementary Unicode characters. Binary
+comparisons and binary `StrComp` use the same unit order. Native
+[cell-string controls](../../tests/fixtures/cell_strings/controls.json) cover
+text and formula results before and after native saves and recalculation.
+Broader Unicode search, replacement, assignment and collation conformance still
+requires auditing; these controls do not establish complete string support.
 
 Cell-formula evaluation and Power Query's M evaluator also have execution paths
 beyond VBA object-member registrations. Formula registration does not prove full
@@ -92,7 +100,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,582 entries across 62 implemented model types**:
-148 verified, 486 partial, 426 unassessed, 1,519 missing and 3 excluded. Its 1,060
+148 verified, 487 partial, 426 unassessed, 1,518 missing and 3 excluded. Its 1,061
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

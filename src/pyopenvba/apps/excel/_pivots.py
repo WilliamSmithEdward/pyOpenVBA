@@ -1,8 +1,8 @@
 """Runtime PivotTable views and worksheet-source cache/report creation.
 
-Relationship traversal follows pyOfficeEditor's pivot reader. Original XML stays
-in the package unchanged. Worksheet sources can build new caches and empty
-reports. Refresh, aggregation, grouping and layout edits remain unsupported.
+Relationship traversal follows pyOfficeEditor's pivot reader. Untouched XML stays
+in the package unchanged. Worksheet sources can build caches, empty reports and
+data-only aggregate reports. Refresh, grouping and axis layout edits remain unsupported.
 """
 from __future__ import annotations
 
@@ -14,10 +14,11 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
+from pyopenvba.apps.excel._xstring import decode as decode_text
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import VBACollection, member, method
-from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, to_integer, to_text
+from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, utf16_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivot_reports import PivotReport
@@ -28,14 +29,12 @@ NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 REL = '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
 
 
-def decode_text(value: str) -> str:
-    return re.sub(r'_x([0-9A-Fa-f]{4})_', lambda match: chr(int(match.group(1), 16)), value)
-
-
 def _pivot_argument(value: object) -> str | float | bool:
     if isinstance(value, Range):
         value = value.vba_value()
-    if isinstance(value, (str, bool)):
+    if isinstance(value, str):
+        return utf16_text(value)
+    if isinstance(value, bool):
         return value
     if isinstance(value, VBADate):
         return value.serial
@@ -44,7 +43,7 @@ def _pivot_argument(value: object) -> str | float | bool:
     raise error(1004)
 
 
-def _parts(package: OpcFile, source: str, kind: str) -> list[tuple[str, str]]:
+def related_parts(package: OpcFile, source: str, kind: str) -> list[tuple[str, str]]:
     folder, name = posixpath.split(source)
     path = f'{folder}/_rels/{name}.rels'
     if not package.has(path):
@@ -64,7 +63,7 @@ def read(book: Workbook) -> None:
     """Read caches in workbook order, then each sheet's report relationships."""
     package = book.package
     by_part: dict[str, PivotCache] = {}
-    by_id = dict(_parts(package, 'xl/workbook.xml', 'pivotCacheDefinition'))
+    by_id = dict(related_parts(package, 'xl/workbook.xml', 'pivotCacheDefinition'))
     root = xml_tree(package.read('xl/workbook.xml'))
     for entry in root.findall(f'{NS}pivotCaches/{NS}pivotCache'):
         part = by_id.get(entry.get(REL + 'id', ''), '')
@@ -72,7 +71,7 @@ def read(book: Workbook) -> None:
             continue
         cache = PivotCache(book, part, xml_tree(package.read(part)), len(book.pivot_caches) + 1)
         cache.cache_id = int(entry.get('cacheId', '0'))
-        cache.rich_records = bool(_parts(package, part, 'richPivotRecords'))
+        cache.rich_records = bool(related_parts(package, part, 'richPivotRecords'))
         if cache.rich_records:
             from pyopenvba.apps.excel._pivot_rich import datasets
 
@@ -83,14 +82,14 @@ def read(book: Workbook) -> None:
         book.pivot_caches.append(cache)
         by_part[part] = cache
     for sheet in book.sheets_:
-        reports = _parts(package, sheet.part_name, 'pivotTable')
+        reports = related_parts(package, sheet.part_name, 'pivotTable')
         # Keep import order deterministic. Native enumeration can rotate across
         # repeated opens of an identical package, so its exact order is not a
         # reproducible contract. Foreign ids retain their source order.
         if all(re.fullmatch(r'rId[0-9]+', identifier) for identifier, _ in reports):
             reports.sort(key=lambda pair: int(pair[0][3:]))
         for _, part in reports:
-            caches = _parts(package, part, 'pivotCacheDefinition')
+            caches = related_parts(package, part, 'pivotCacheDefinition')
             cache = by_part.get(caches[0][1]) if caches else None
             if cache is not None:
                 table = PivotTable(sheet, cache, xml_tree(package.read(part)))
@@ -109,7 +108,7 @@ class _Collection(VBACollection, ExcelObject):
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
             for item in items:
-                if isinstance(item, ExcelObject) and str(item.vba_get('Name')).casefold() == index.casefold():
+                if isinstance(item, ExcelObject) and string_order(str(item.vba_get('Name')).casefold(), index.casefold()) == 0:
                     return item
         else:
             position = int(to_integer(index, 'Long'))
@@ -234,8 +233,8 @@ class PivotTable(ExcelObject):
         self.entry = report_owner if report_owner is not None else self
         self.part = ''
         self.changed = False
-        # Report definitions are immutable until layout/refresh writers exist.
-        # Cache metadata only: GETPIVOTDATA reads each result cell afresh.
+        # Supported layout edits invalidate this parsed view. GETPIVOTDATA reads
+        # each result cell afresh rather than caching its value here.
         self.report_metadata: PivotReport | None = None
         self.report_loaded = False
 
@@ -272,6 +271,12 @@ class PivotTable(ExcelObject):
     @method
     def PivotCache(self) -> object:
         return self.cache
+
+    @method
+    def AddDataField(self, Field: object, Caption: object = MISSING, Function: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_aggregate import add_data_field
+
+        return add_data_field(self, Field, Caption, Function)
 
     def report(self) -> PivotReport | None:
         from pyopenvba.apps.excel._pivot_reports import read_report
@@ -399,9 +404,10 @@ class PivotTable(ExcelObject):
         fields = PivotFields(self, items)
         return fields if index is MISSING else fields.Item(index)
 
-    def _data_pivot_field(self, axis: str) -> PivotField:
-        field = XmlElement(NS + 'pivotField', {'name': self.root.get('dataCaption', 'Values'),
-                                              'axis': 'axisRow' if axis == 'rowFields' else 'axisCol'})
+    def _data_pivot_field(self, axis: str | None) -> PivotField:
+        field = XmlElement(NS + 'pivotField', {'name': self.root.get('dataCaption', 'Values')})
+        if axis is not None:
+            field.set('axis', 'axisRow' if axis == 'rowFields' else 'axisCol')
         return PivotField(self, -2, field)
 
     @member
@@ -409,6 +415,8 @@ class PivotTable(ExcelObject):
         for axis in ('rowFields', 'colFields'):
             if any(field.get('x') == '-2' for field in self.root.findall(f'{NS}{axis}/{NS}field')):
                 return self._data_pivot_field(axis)
+        if self.root.find(NS + 'dataFields') is not None:
+            return self._data_pivot_field(None)
         raise VBAUnsupportedError('DataPivotField without a visible Values axis is not implemented')
 
     @member
@@ -497,6 +505,28 @@ class PivotField(ExcelObject):
     def _range(self, label: bool) -> object:
         root = self.table.root
         row_fields = root.findall(f'{NS}rowFields/{NS}field')
+        no_axes = not row_fields and not root.findall(f'{NS}pageFields/{NS}pageField') and all(
+            entry.get('x') == '-2' for entry in root.findall(f'{NS}colFields/{NS}field'))
+        if no_axes:
+            location = root.find(NS + 'location')
+            if location is None:
+                raise error(1004)
+            area = parse_area(location.get('ref', 'A1'))
+            dr = int(location.get('firstDataRow', '0'))
+            if self.index == -2:
+                if int(self.Orientation()) == 0:
+                    raise error(1004)
+                row = area.top - 1 if label else area.top + dr
+                column = area.left
+            elif self.data:
+                count = len(root.findall(f'{NS}dataFields/{NS}dataField'))
+                row = area.top if label and count > 1 else area.top + dr
+                column = area.left + int(self.Position()) - 1
+            else:
+                raise error(1004)
+            if row < 1:
+                raise error(1004)
+            return Range(self.table.sheet, [Area(row, column, row, column, self.table.sheet.name)])
         if len(row_fields) != 1 or root.find(NS + 'colFields') is not None or root.find(NS + 'pageFields') is not None:
             raise VBAUnsupportedError('PivotField ranges for multi-axis reports are not implemented')
         location = root.find(NS + 'location')
@@ -530,6 +560,9 @@ class PivotField(ExcelObject):
 
     @member
     def PivotItems(self, Index: object = MISSING) -> object:
+        if self.data:
+            collection = PivotItems(self, [])
+            return collection if Index is MISSING else collection.Item(Index)
         if self.index == -2:
             raise VBAUnsupportedError('Values-axis PivotItems are not implemented')
         fields = self.table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
@@ -540,9 +573,9 @@ class PivotField(ExcelObject):
             package = self.table.sheet.book.package
             rows = self.table.cache.records
             if rows is None and package is not None:
-                records = _parts(package, self.table.cache.part, 'pivotCacheRecords')
+                records = related_parts(package, self.table.cache.part, 'pivotCacheRecords')
                 if not records:
-                    records = _parts(package, self.table.cache.part, 'richPivotRecords')
+                    records = related_parts(package, self.table.cache.part, 'richPivotRecords')
                 if records:
                     rows = xml_tree(package.read(records[0][1]))
             if rows is not None:

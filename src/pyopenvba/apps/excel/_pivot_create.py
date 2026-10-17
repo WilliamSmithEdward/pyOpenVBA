@@ -15,6 +15,7 @@ from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, split_sheet
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_tree
 from pyopenvba.apps.excel._model import Range
 from pyopenvba.apps.excel._pivots import NS, REL, PivotCache, PivotTable
+from pyopenvba.apps.excel._xstring import encode_attribute as encoded
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._r1c1 import to_a1, from_a1
 from pyopenvba.formula._display import format_value
@@ -30,11 +31,6 @@ if TYPE_CHECKING:
 
 MAIN = NS[1:-1]
 LINK = REL[1:-1] + '/'
-
-
-def encoded(text: str) -> str:
-    text = re.sub(r'_x(?=[0-9a-fA-F]{4}_)', '_x005F_x', text)
-    return re.sub(r'[\x00-\x1f]', lambda match: f'_x{ord(match.group()):04X}_', text)
 
 
 def node(name: str, attributes: dict[str, str] | None = None) -> XmlElement:
@@ -178,10 +174,10 @@ def materialize(cache: PivotCache) -> None:
         used.add(name.casefold())
         headers.append(name)
     fields = node('cacheFields', {'count': str(len(headers))})
-    for index, header in enumerate(headers):
-        code = selected.sheet.style_at(area.top + 1, area.left + index).number_format
-        identifier = next((key for key, value in cache.book.stylesheet.number_formats.items() if value == code), 0)
-        field = node('cacheField', {'name': encoded(header), 'numFmtId': str(identifier)})
+    for header in headers:
+        # New pivot fields start as General; source cell formats still decide
+        # the typed cache records below, including Date and Currency handling.
+        field = node('cacheField', {'name': encoded(header), 'numFmtId': '0'})
         field.append(node('sharedItems'))
         fields.append(field)
     records = node('pivotCacheRecords', {'count': str(area.rows - 1)})
@@ -386,7 +382,7 @@ def rich_errors(sheet: Worksheet) -> dict[tuple[int, int], RichError]:
 
 
 def write(book: Workbook, package: OpcFile) -> None:
-    """Write new cache/report parts; imported parts remain untouched."""
+    """Write new caches and new or explicitly edited report definitions."""
     for cache in book.pivot_caches:
         if not cache.changed:
             continue
@@ -451,7 +447,9 @@ def write(book: Workbook, package: OpcFile) -> None:
             if not table.changed:
                 continue
             if table.part:
-                raise VBAUnsupportedError('Writing changed imported pivot layouts is not implemented')
+                package.write(table.part, xml_bytes(table.root))
+                table.changed = False
+                continue
             number = 1
             while package.has(f'xl/pivotTables/pivotTable{number}.xml') or package.has(
                     f'xl/pivotTables/_rels/pivotTable{number}.xml.rels'):

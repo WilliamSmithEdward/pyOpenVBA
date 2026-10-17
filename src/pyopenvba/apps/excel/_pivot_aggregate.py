@@ -25,6 +25,27 @@ FUNCTIONS = {-4157: ('sum', 'Sum'), -4112: ('count', 'Count'), -4113: ('countNum
              -4164: ('var', 'Var'), -4165: ('varp', 'Varp')}
 
 
+def hide_values_row(root: XmlElement) -> None:
+    """Preserve the native header geometry when Excel reopens the report."""
+    extensions = root.find(NS + 'extLst')
+    if extensions is None:
+        extensions = node('extLst')
+        root.append(extensions)
+    identifier = '{962EF5D1-5CA2-4c93-8EF4-DBF5C05439D2}'
+    extension = next((entry for entry in extensions if entry.get('uri') == identifier), None)
+    if extension is None:
+        extension = node('ext', {'uri': identifier})
+        extensions.append(extension)
+    tag = '{http://schemas.microsoft.com/office/spreadsheetml/2009/9/main}pivotTableDefinition'
+    options = extension.find(tag)
+    if options is None:
+        options = XmlElement(tag)
+        extension.append(options)
+    # Without this native default, Excel infers an extra Values-header row for
+    # data-field ranges after reopening even though cached cells use two rows.
+    options.set('hideValuesRow', '1')
+
+
 def records(cache: PivotCache) -> list[list[XmlElement]]:
     """Resolve cached shared-item references, never rereading worksheet source cells."""
     root = cache.records
@@ -118,8 +139,6 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
         raise VBAUnsupportedError('Aggregating external or consolidated pivot sources is not implemented')
     axes = table.root.findall(f'{NS}rowFields/{NS}field') + table.root.findall(f'{NS}pageFields/{NS}pageField')
     axes += [entry for entry in table.root.findall(f'{NS}colFields/{NS}field') if entry.get('x') != '-2']
-    if axes:
-        raise VBAUnsupportedError('Rebuilding pivot row, column and page axes is not implemented')
     if isinstance(source, Range):
         index = 0
     elif isinstance(source, PivotField):
@@ -164,6 +183,11 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
     new = node('dataField', {'name': encoded(name), 'fld': str(index), 'subtotal': kind,
                              'baseField': '0', 'baseItem': '0'})
     reports = [*previous, new]
+    if axes:
+        from pyopenvba.apps.excel._pivot_layout import render
+
+        render(table, table.root, reports)
+        return PivotField(table, index, new, True)
     results = [aggregate([row[int(entry.get('fld', '0'))] for row in rows], entry.get('subtotal', 'sum'))
                for entry in reports]
     location = table.root.find(NS + 'location')
@@ -207,23 +231,7 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
     position = list(table.root).index(pivot_fields) + 1
     for offset, child in enumerate(children):
         table.root.insert(position + offset, child)
-    extensions = table.root.find(NS + 'extLst')
-    if extensions is None:
-        extensions = node('extLst')
-        table.root.append(extensions)
-    identifier = '{962EF5D1-5CA2-4c93-8EF4-DBF5C05439D2}'
-    extension = next((entry for entry in extensions if entry.get('uri') == identifier), None)
-    if extension is None:
-        extension = node('ext', {'uri': identifier})
-        extensions.append(extension)
-    tag = '{http://schemas.microsoft.com/office/spreadsheetml/2009/9/main}pivotTableDefinition'
-    options = extension.find(tag)
-    if options is None:
-        options = XmlElement(tag)
-        extension.append(options)
-    # Without this native default, Excel infers an extra Values-header row for
-    # data-field ranges after reopening even though cached cells use two rows.
-    options.set('hideValuesRow', '1')
+    hide_values_row(table.root)
     location.attrib.update(ref=area.address(absolute=False), firstHeaderRow=str(int(len(reports) == 1)),
                            firstDataRow='1', firstDataCol='0')
     output = Range(table.sheet, [area])

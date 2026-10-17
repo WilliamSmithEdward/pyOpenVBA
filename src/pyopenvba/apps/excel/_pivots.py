@@ -17,7 +17,7 @@ from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.apps.excel._xstring import decode as decode_text
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import number_text
-from pyopenvba.interpreter._objects import VBACollection, member, method
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, utf16_text
 
 if TYPE_CHECKING:
@@ -244,12 +244,16 @@ class PivotTable(ExcelObject):
             raise error(1004)
         area = parse_area(location.get('ref', 'A1'))
         dr, dc = int(location.get('firstDataRow', '0')), int(location.get('firstDataCol', '0'))
+        if kind == 'all' and self.root.findall(f'{NS}pageFields/{NS}pageField') and not any(
+                self.root.findall(f'{NS}{name}/*') for name in ('rowFields', 'colFields', 'dataFields')):
+            raise error(1004)
         if kind == 'data':
-            area = Area(area.top + dr, area.left + dc, area.bottom, area.right)
+            area = Area(min(area.top + dr, area.bottom), min(area.left + dc, area.right), area.bottom, area.right)
         elif kind == 'row':
             if not self.root.findall(f'{NS}rowFields/{NS}field') or dc == 0:
                 raise error(1004)
-            area = Area(area.top, area.left, area.bottom, area.left + dc - 1)
+            area = Area(area.top + max(0, dr - 1), area.left,
+                        area.bottom, area.left + dc - 1)
         elif kind == 'column':
             if not self.root.findall(f'{NS}colFields/{NS}field') or dr == 0:
                 raise error(1004)
@@ -360,7 +364,13 @@ class PivotTable(ExcelObject):
     @member
     def TableRange2(self) -> object:
         if self.root.findall(f'{NS}pageFields/{NS}pageField'):
-            raise VBAUnsupportedError('PivotTable.TableRange2 with page fields is not implemented')
+            location = self.root.find(NS + 'location')
+            if location is None:
+                raise error(1004)
+            area = parse_area(location.get('ref', 'A1'))
+            count = int(location.get('rowPageCount', '0'))
+            return Range(self.sheet, [Area(max(1, area.top - count - 1), area.left, area.bottom,
+                                           max(area.right, area.left + 1), self.sheet.name)])
         return self._range('all')
 
     @member
@@ -473,6 +483,12 @@ class PivotField(ExcelObject):
         return VBAInt(4 if self.data else
                       {'axisRow': 1, 'axisCol': 2, 'axisPage': 3}.get(self.root.get('axis', ''), 0), 'Long')
 
+    @setter('Orientation')
+    def set_orientation(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_layout import orient
+
+        orient(self, value)
+
     @member
     def Parent(self) -> object:
         return self.table
@@ -483,7 +499,8 @@ class PivotField(ExcelObject):
         if axis is not None:
             for position, field in enumerate(self.table.root.findall(f'{NS}{axis}/*'), 1):
                 if (self.data and field is self.root) or (not self.data and int(field.get('x', field.get('fld', '-1'))) == self.index):
-                    return VBAInt(position, 'Long')
+                    count = len(self.table.root.findall(f'{NS}{axis}/*'))
+                    return VBAInt(count + 1 - position if axis == 'pageFields' else position, 'Long')
         return VBAErrorValue(2042)
 
     @member
@@ -564,7 +581,10 @@ class PivotField(ExcelObject):
             collection = PivotItems(self, [])
             return collection if Index is MISSING else collection.Item(Index)
         if self.index == -2:
-            raise VBAUnsupportedError('Values-axis PivotItems are not implemented')
+            items = [PivotItem(self, XmlElement(NS + 's', {'v': entry.get('name', '')}), position, True)
+                     for position, entry in enumerate(self.table.root.findall(f'{NS}dataFields/{NS}dataField'), 1)]
+            collection = PivotItems(self, items)
+            return collection if Index is MISSING else collection.Item(Index)
         fields = self.table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
         shared = fields[self.index].find(NS + 'sharedItems')
         entries = list(shared) if shared is not None else []

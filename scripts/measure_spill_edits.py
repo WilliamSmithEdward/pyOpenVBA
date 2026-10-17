@@ -41,10 +41,14 @@ OPERATIONS = {
     'sort_object': 'ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add Key:=ws.Range("B2"), Order:=xlDescending\nws.Sort.SetRange ws.Range("B2:C4")\nws.Sort.Header = xlNo\nws.Sort.Apply',
     'sort_unrelated': 'ws.Range("E2").Value = 5\nws.Range("E3").Value = 1\nws.Range("E2:F4").Sort Key1:=ws.Range("E2"), Header:=xlNo',
     'sort_blocked': 'ws.Range("C3").Value = 9\nws.Range("B2:C4").Sort Key1:=ws.Range("B2"), Order1:=xlDescending, Header:=xlNo',
+    'copy_whole_immediate': 'ws.Range("B2:C4").Copy Destination:=ws.Range("E2")',
+    'copy_overlap_immediate': 'ws.Range("B2:C4").Copy Destination:=ws.Range("C2")',
+    'copy_anchor_immediate': 'ws.Range("B2").Copy Destination:=ws.Range("E2")',
+    'cut_whole_immediate': 'ws.Range("B2:C4").Cut Destination:=ws.Range("E2")',
 }
 
-def macro(operation: str) -> str:
-    return '''Function Probe() As String
+def macro(operation: str, *, immediate: bool = False) -> str:
+    source = '''Function Probe() As String
 Dim ws As Worksheet, cell As Range, n As Long
 Set ws = Worksheets.Add
 ws.Range("B2").Formula2 = "=SEQUENCE(3,2)"
@@ -60,6 +64,10 @@ Probe = Probe & "|" & cell.Address(False,False) & ":" & CStr(cell.Value2) & ":" 
 Next
 End Function
 '''
+    if immediate:
+        source = source.replace('On Error GoTo 0\nApplication.Calculate', 'On Error GoTo 0')
+        source = source.replace('Probe = CStr(n)', 'Probe = CStr(n) & ":" & ws.Range("E3").Value2 & ":" & ws.Range("E3").HasSpill & ":" & ws.Range("D3").Value2')
+    return source
 
 def main() -> None:
     selected = sys.argv[1:]
@@ -67,7 +75,7 @@ def main() -> None:
     probes = previous['probes'] if previous is not None else []
     with ExcelSession(HarnessConfig(lock_wait_s=30.0)) as excel:
         for name in selected or OPERATIONS:
-            source = macro(OPERATIONS[name])
+            source = macro(OPERATIONS[name], immediate=name.endswith('_immediate'))
             excel.new_document()
             version = excel.run_vba('Function VersionBuild() As String\nVersionBuild = Application.Version & "|" & Application.Build\nEnd Function', 'VersionBuild')
             assert version.ok and not version.dialogs, version

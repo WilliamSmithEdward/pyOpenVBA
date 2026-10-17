@@ -44,13 +44,14 @@ def test_spill_edit_survives_save_reopen(probe: dict[str, str], tmp_path: Path) 
 def test_native_excel_opens_edited_spill(tmp_path: Path) -> None:
     harness = pytest.importorskip('pyvbaharness')
     saved: list[tuple[Path, str]] = []
-    for name in ['insert_inside', 'insert_column_inside', 'copy_whole', 'copy_overlap']:
+    for name in ['insert_inside', 'insert_column_inside', 'copy_whole', 'copy_overlap',
+                 'copy_whole_immediate', 'copy_overlap_immediate', 'copy_anchor_immediate', 'cut_whole_immediate']:
         probe = next(probe for probe in PROBES if probe['name'] == name)
         app = ExcelApplication()
         app.add_workbook()
         app.add_module(probe['macro'], name='Harness')
         app.run('Harness.Probe')
-        saved.append((app.save(tmp_path / f'{name}.xlsx'), probe['result']))
+        saved.append((app.save(tmp_path / f'{name}.xlsx'), '0|' + probe['result'].split('|', 1)[1]))
     with harness.ExcelSession() as excel:
         for path, expected in saved:
             excel.open_document(path)

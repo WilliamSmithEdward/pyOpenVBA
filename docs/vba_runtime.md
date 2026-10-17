@@ -1958,7 +1958,7 @@ leaves `FalseFalse` natively and `False` here.
 
 ## What is not
 
-- **Dynamic arrays still need broader edit conformance.** Thirty-one native
+- **Dynamic arrays still need broader edit conformance.** Thirty-five native
   cases cover whole-row/column and partial-cell insertion/deletion, refused
   sorts, and cuts/copies including overlapping copies
   (`tests/fixtures/spill_edits.json`). A

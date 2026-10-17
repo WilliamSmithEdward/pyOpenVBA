@@ -138,6 +138,7 @@ class Calculator:
     def settle_spills(self) -> None:
         """Work out every stale dynamic-array formula, so what each spills is in place: Excel spills after each
         edit."""
+        self.build()
         for owner in self.book.sheets_:
             if owner.spills:
                 self._settle(owner)
@@ -263,6 +264,10 @@ class Calculator:
             self._keep(key, None)
         reading: set[CellKey] = set()
         owner = self._sheet_named(sheet)
+        if owner is not None:
+            for (row, column), cell in list(owner.cells_.items()):
+                if area.contains(row, column) and cell.dynamic and cell.formula:
+                    self.remember(sheet, row, column, cell)
         if owner is not None and owner.spills:
             from pyopenvba.apps.excel._spills import reconcile
 

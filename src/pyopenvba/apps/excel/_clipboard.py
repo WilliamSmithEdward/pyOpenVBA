@@ -486,6 +486,7 @@ def move(source: Range, area: Area, destination: Range) -> None:
     for owner in {sheet, target}:
         owner.touched()
         owner.book.calculator.rebuild()
+    book.calculator.settle_spills()
     book.application.clipboard = None
 
 

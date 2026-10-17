@@ -84,9 +84,9 @@ def read(book: Workbook) -> None:
         by_part[part] = cache
     for sheet in book.sheets_:
         reports = _parts(package, sheet.part_name, 'pivotTable')
-        # Native reopen controls: reversing XML or ZIP order has no effect;
-        # swapping relationship ids swaps the collection order. Foreign ids
-        # retain their source order until their ordering is measured.
+        # Keep import order deterministic. Native enumeration can rotate across
+        # repeated opens of an identical package, so its exact order is not a
+        # reproducible contract. Foreign ids retain their source order.
         if all(re.fullmatch(r'rId[0-9]+', identifier) for identifier, _ in reports):
             reports.sort(key=lambda pair: int(pair[0][3:]))
         for _, part in reports:
@@ -482,8 +482,10 @@ class PivotField(ExcelObject):
     def Function(self) -> object:
         if not self.data:
             raise error(1004)
+        # Excel accepts xlCountNums (-4113) when adding the field but returns 11
+        # from its Function getter, including after saving and reopening.
         functions = {'sum': -4157, 'count': -4112, 'average': -4106, 'max': -4136, 'min': -4139,
-                     'product': -4149, 'countNums': -4113, 'stdDev': -4155, 'stdDevp': -4156,
+                     'product': -4149, 'countNums': 11, 'stdDev': -4155, 'stdDevp': -4156,
                      'var': -4164, 'varp': -4165}
         return VBAInt(functions[self.root.get('subtotal', 'sum')], 'Long')
 

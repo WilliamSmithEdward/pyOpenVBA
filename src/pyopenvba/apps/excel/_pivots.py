@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import posixpath
 import re
-import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._model import ExcelObject, Range
+from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method
 from pyopenvba.interpreter._values import MISSING, VBAErrorValue, VBAInt, error, to_integer
@@ -35,7 +35,7 @@ def _parts(package: OpcFile, source: str, kind: str) -> list[tuple[str, str]]:
     if not package.has(path):
         return []
     found: list[tuple[str, str]] = []
-    for entry in ET.fromstring(package.read(path)):
+    for entry in xml_tree(package.read(path)):
         if entry.get('TargetMode') == 'External' or entry.get('Type') != REL[1:-1] + '/' + kind:
             continue
         target = entry.get('Target', '')
@@ -50,12 +50,12 @@ def read(book: Workbook) -> None:
     package = book.package
     by_part: dict[str, PivotCache] = {}
     by_id = dict(_parts(package, 'xl/workbook.xml', 'pivotCacheDefinition'))
-    root = ET.fromstring(package.read('xl/workbook.xml'))
+    root = xml_tree(package.read('xl/workbook.xml'))
     for entry in root.findall(f'{NS}pivotCaches/{NS}pivotCache'):
         part = by_id.get(entry.get(REL + 'id', ''), '')
         if not part:
             continue
-        cache = PivotCache(book, part, ET.fromstring(package.read(part)), len(book.pivot_caches) + 1)
+        cache = PivotCache(book, part, xml_tree(package.read(part)), len(book.pivot_caches) + 1)
         book.pivot_caches.append(cache)
         by_part[part] = cache
     for sheet in book.sheets_:
@@ -69,7 +69,7 @@ def read(book: Workbook) -> None:
             caches = _parts(package, part, 'pivotCacheDefinition')
             cache = by_part.get(caches[0][1]) if caches else None
             if cache is not None:
-                sheet.pivot_tables.append(PivotTable(sheet, cache, ET.fromstring(package.read(part))))
+                sheet.pivot_tables.append(PivotTable(sheet, cache, xml_tree(package.read(part))))
 
 
 class _Collection(VBACollection, ExcelObject):
@@ -115,7 +115,7 @@ class PivotFields(_Collection):
 class PivotCache(ExcelObject):
     vba_type_name = 'PivotCache'
 
-    def __init__(self, book: Workbook, part: str, root: ET.Element, index: int) -> None:
+    def __init__(self, book: Workbook, part: str, root: XmlElement, index: int) -> None:
         self.book, self.part, self.root, self.index = book, part, root, index
 
     @member
@@ -170,7 +170,7 @@ class PivotCache(ExcelObject):
 class PivotTable(ExcelObject):
     vba_type_name = 'PivotTable'
 
-    def __init__(self, sheet: Worksheet, cache: PivotCache, root: ET.Element) -> None:
+    def __init__(self, sheet: Worksheet, cache: PivotCache, root: XmlElement) -> None:
         self.sheet, self.cache, self.root = sheet, cache, root
 
     def _range(self, kind: str) -> object:
@@ -263,7 +263,7 @@ class PivotTable(ExcelObject):
         return fields if index is MISSING else fields.Item(index)
 
     def _data_pivot_field(self, axis: str) -> PivotField:
-        field = ET.Element(NS + 'pivotField', {'name': self.root.get('dataCaption', 'Values'),
+        field = XmlElement(NS + 'pivotField', {'name': self.root.get('dataCaption', 'Values'),
                                               'axis': 'axisRow' if axis == 'rowFields' else 'axisCol'})
         return PivotField(self, -2, field)
 
@@ -304,7 +304,7 @@ class PivotTable(ExcelObject):
 class PivotField(ExcelObject):
     vba_type_name = 'PivotField'
 
-    def __init__(self, table: PivotTable, index: int, root: ET.Element, data: bool = False) -> None:
+    def __init__(self, table: PivotTable, index: int, root: XmlElement, data: bool = False) -> None:
         self.table, self.index, self.root, self.data = table, index, root, data
 
     @member
@@ -402,7 +402,7 @@ class PivotField(ExcelObject):
             records = _parts(package, self.table.cache.part, 'pivotCacheRecords')
             if records:
                 seen: set[tuple[str, tuple[tuple[str, str], ...]]] = set()
-                for row in ET.fromstring(package.read(records[0][1])):
+                for row in xml_tree(package.read(records[0][1])):
                     if self.index < len(row):
                         value = row[self.index]
                         key = (value.tag, tuple(sorted(value.attrib.items())))
@@ -431,7 +431,7 @@ class PivotItems(_Collection):
 class PivotItem(ExcelObject):
     vba_type_name = 'PivotItem'
 
-    def __init__(self, field: PivotField, root: ET.Element, position: int, visible: bool) -> None:
+    def __init__(self, field: PivotField, root: XmlElement, position: int, visible: bool) -> None:
         self.field, self.root, self.position, self.visible = field, root, position, visible
 
     @member

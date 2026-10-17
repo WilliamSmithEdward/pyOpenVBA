@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- VBA PivotTable.GetPivotData returns the matching displayed cell as a Range,
+  with fourteen optional field/item pairs, named arguments, native defaults
+  and error 1004 for invalid selections. Native controls include grouped,
+  filtered and renamed reports, Currency/Decimal selectors, sparse arguments
+  and trailing Null pairs. Fresh PivotTable proxies reuse report metadata.
+
 - GETPIVOTDATA reads displayed cached PivotTable results, including multiple
   row/column fields, subtotals and suppressed totals, page filters, renamed
   fields/items, manual groups, numeric bins and grouped dates. Native controls

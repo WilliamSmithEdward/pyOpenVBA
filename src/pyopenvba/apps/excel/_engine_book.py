@@ -127,17 +127,11 @@ class EngineBook:
         return [sheet.name for sheet in self.book.sheets_]
 
     def pivot_reports(self, sheet: str) -> list[PivotReport]:
-        from pyopenvba.apps.excel._pivot_reports import read_report
-
-        formats = self.book.stylesheet.number_formats
         reports: list[PivotReport] = []
         for table in self._sheet(sheet).pivot_tables:
-            if not table.report_loaded:
-                table.report_metadata = read_report(table, lambda identifier: formats.get(identifier, 'General'),
-                                                    epoch_1904=self.epoch_1904)
-                table.report_loaded = True
-            if table.report_metadata is not None:
-                reports.append(table.report_metadata)
+            report = table.report()
+            if report is not None:
+                reports.append(report)
         return reports
 
     def table_names(self) -> list[str]:

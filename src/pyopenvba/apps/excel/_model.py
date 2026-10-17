@@ -1438,9 +1438,10 @@ class Worksheet(ExcelObject):
 
     @member
     def PivotTables(self, Index: object = MISSING) -> object:
-        from pyopenvba.apps.excel._pivots import PivotTables
+        from pyopenvba.apps.excel._pivots import PivotTable, PivotTables
 
-        tables = PivotTables(self, [type(table)(self, table.cache, table.root) for table in self.pivot_tables])
+        tables = PivotTables(self, [PivotTable(self, table.cache, table.root, report_owner=table)
+                                   for table in self.pivot_tables])
         return tables if Index is MISSING else tables.Item(Index)
 
     @member

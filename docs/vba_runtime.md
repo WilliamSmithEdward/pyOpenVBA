@@ -341,6 +341,32 @@ Resolved expression types are memoized so long member chains do not expand
 compiler work repeatedly. Full host/library signatures, object/interface
 compatibility and wider property/constant-expression typing remain open work.
 
+The financial library implements `Rate`, `IRR`, `MIRR`, `NPV`, `IPmt` and
+`PPmt` in memory. IRR/MIRR/NPV require typed Double arrays, including typed
+array function results; other element types and scalar Variants holding
+arrays fail compilation. Nonzero lower bounds work, while unallocated or
+multidimensional inputs raise error 5. Known financial signatures validate
+named, optional and typed references before execution; user functions can
+shadow the library. Pmt/FV/PV/NPer timing arguments round and overflow as
+Long values, and zero-period Pmt raises error 5.
+
+VBA financial iteration is separate from worksheet iteration: a mathematically
+zero Rate can fail with error 5 from the default guess, while an explicit zero
+guess succeeds. NPV retains extended register precision through the loop, and
+IRR uses that forward NPV evaluation. The register arithmetic is shared with
+the worksheet engine. The secant iteration structure adapts the MIT-licensed
+[Microsoft.VisualBasic reference implementation](https://github.com/dotnet/runtime/blob/2201016c1e13bdb9abf49e2e38cadf4ee0568df2/src/libraries/Microsoft.VisualBasic.Core/src/Microsoft/VisualBasic/Financial.vb);
+its notice is retained in `_financial.py`. Native measurements determine VBA's
+different forward evaluation, coercion and error behavior.
+
+The 263 native controls in `financial.json`, remeasured by
+`scripts/measure_vba_financial.py`, cover deterministic random values, boundary
+errors, argument types and named calls. Numeric checks use relative tolerance
+2e-13 and absolute tolerance 1e-14; this is not a claim of universal bit-for-bit
+conformance. Model/native saved-workbook tests execute all six functions and a
+worksheet UDF. Wider numerical domains, library namespace qualification and
+complete host/library signature metadata remain open work.
+
 Module-level `DefBool`, `DefByte`, `DefInt`, `DefLng`, `DefLngLng`,
 `DefLngPtr`, `DefSng`, `DefDbl`, `DefCur`, `DefDate`, `DefStr`, `DefObj` and
 `DefVar` supply initial-letter defaults. They affect untyped declarations,

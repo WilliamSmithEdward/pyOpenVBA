@@ -54,6 +54,12 @@ User-call argument compilation and returned-default-member calls now replay
 binding, named setters, ParamArray, recursion and deferred unused errors.
 Memoized expression typing covers deep member chains. Host/library signature
 coverage and complete object/interface compatibility remain separate gaps.
+The VBA financial library now provides Rate/IRR/MIRR/NPV/IPmt/PPmt with 263
+native controls, typed array and named-argument compilation, VBA convergence
+and extended-precision NPV. Native Excel opens and reruns a saved project
+using all six and a worksheet UDF. Pmt/FV/PV/NPer timing coercion is corrected.
+Universal bit-level financial agreement, broader numerical domains and full
+library/host signature coverage remain open work.
 
 The next increment connects class `WithEvents` subscriptions and custom
 `RaiseEvent`, with 15 live Excel cases, and worksheet/workbook/application

@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- The in-memory VBA library implements Rate, IRR, MIRR, NPV, IPmt and PPmt,
+  including typed Double arrays, named/optional arguments, convergence errors
+  and financial return-type checking. NPV retains extended register precision;
+  IRR and Rate use VBA-specific iteration rather than worksheet convergence.
+  Existing Pmt/FV/PV/NPer timing arguments use Long coercion, and zero-period
+  Pmt raises error 5. A 263-case native corpus covers numeric and compiler
+  behavior, with model/native XLSM and worksheet-UDF persistence checks.
+
 - Known VBA calls reject missing, excess, duplicate and invalid named
   arguments before the selected caller executes, with measured ByRef type
   compatibility and typed array arguments. Late-bound calls retain runtime

@@ -9,6 +9,7 @@ from pyopenvba.exceptions import VBACompileError, VBARuntimeError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter._compile import Info, nodes, variables
 from pyopenvba.interpreter._flow import Program
+from pyopenvba.interpreter._financial import SIGNATURES as FINANCIAL_SIGNATURES
 from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
 from pyopenvba.interpreter._values import type_name
 
@@ -89,6 +90,8 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             called = owner.procedure(key)
             if not owner.is_class and called is not None and called.scope == 'public':
                 return called.returns, called.returns_array, owner
+        if key in FINANCIAL_SIGNATURES:
+            return 'Double', False, module
         constant = interpreter.host.constant(key)
         if constant is UNRESOLVED:
             constant = vba_constant(key)
@@ -149,6 +152,8 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
                 found = candidate.procedure(key, setter) if setter else candidate.procedure(key)
                 if not candidate.is_class and found is not None and found.scope == 'public':
                     return found, candidate
+            if not setter and key in FINANCIAL_SIGNATURES:
+                return FINANCIAL_SIGNATURES[key], module
             return None
         if isinstance(expression, A.Member):
             key = strip_suffix(expression.name).lower()

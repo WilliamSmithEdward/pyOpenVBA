@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -15,7 +16,7 @@ from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method
-from pyopenvba.interpreter._values import MISSING, VBAErrorValue, VBAInt, error, to_integer
+from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivot_reports import PivotReport
@@ -28,6 +29,18 @@ REL = '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
 
 def decode_text(value: str) -> str:
     return re.sub(r'_x([0-9A-Fa-f]{4})_', lambda match: chr(int(match.group(1), 16)), value)
+
+
+def _pivot_argument(value: object) -> str | float | bool:
+    if isinstance(value, Range):
+        value = value.vba_value()
+    if isinstance(value, (str, bool)):
+        return value
+    if isinstance(value, VBADate):
+        return value.serial
+    if isinstance(value, (int, float, Decimal)):
+        return float(value)
+    raise error(1004)
 
 
 def _parts(package: OpcFile, source: str, kind: str) -> list[tuple[str, str]]:
@@ -171,8 +184,10 @@ class PivotCache(ExcelObject):
 class PivotTable(ExcelObject):
     vba_type_name = 'PivotTable'
 
-    def __init__(self, sheet: Worksheet, cache: PivotCache, root: XmlElement) -> None:
+    def __init__(self, sheet: Worksheet, cache: PivotCache, root: XmlElement,
+                 report_owner: PivotTable | None = None) -> None:
         self.sheet, self.cache, self.root = sheet, cache, root
+        self.entry = report_owner if report_owner is not None else self
         # Report definitions are immutable until layout/refresh writers exist.
         # Cache metadata only: GETPIVOTDATA reads each result cell afresh.
         self.report_metadata: PivotReport | None = None
@@ -207,6 +222,73 @@ class PivotTable(ExcelObject):
     @method
     def PivotCache(self) -> object:
         return self.cache
+
+    def report(self) -> PivotReport | None:
+        from pyopenvba.apps.excel._pivot_reports import read_report
+
+        if self.entry is not self:
+            return self.entry.report()
+        if not self.report_loaded:
+            formats = self.sheet.book.stylesheet.number_formats
+            self.report_metadata = read_report(self, lambda identifier: formats.get(identifier, 'General'))
+            self.report_loaded = True
+        return self.report_metadata
+
+    @method
+    def GetPivotData(self, DataField: object = MISSING,
+                     Field1: object = MISSING, Item1: object = MISSING,
+                     Field2: object = MISSING, Item2: object = MISSING,
+                     Field3: object = MISSING, Item3: object = MISSING,
+                     Field4: object = MISSING, Item4: object = MISSING,
+                     Field5: object = MISSING, Item5: object = MISSING,
+                     Field6: object = MISSING, Item6: object = MISSING,
+                     Field7: object = MISSING, Item7: object = MISSING,
+                     Field8: object = MISSING, Item8: object = MISSING,
+                     Field9: object = MISSING, Item9: object = MISSING,
+                     Field10: object = MISSING, Item10: object = MISSING,
+                     Field11: object = MISSING, Item11: object = MISSING,
+                     Field12: object = MISSING, Item12: object = MISSING,
+                     Field13: object = MISSING, Item13: object = MISSING,
+                     Field14: object = MISSING, Item14: object = MISSING) -> object:
+        report = self.report()
+        if report is None:
+            raise error(1004)
+        if not report.readable:
+            raise VBAUnsupportedError('GetPivotData on a cube or unsupported report layout')
+        pairs = [Field1, Item1, Field2, Item2, Field3, Item3, Field4, Item4, Field5, Item5,
+                 Field6, Item6, Field7, Item7, Field8, Item8, Field9, Item9, Field10, Item10,
+                 Field11, Item11, Field12, Item12, Field13, Item13, Field14, Item14]
+        while pairs and pairs[-1] is MISSING:
+            pairs.pop()
+        if len(pairs) % 2:
+            raise error(1004)
+        if DataField is MISSING or DataField is NULL:
+            if any(argument is not NULL for argument in pairs) or len(report.values) != 1:
+                raise error(1004)
+            value = 0
+        else:
+            value = report.value_index(to_text(_pivot_argument(DataField)))
+            if value is None:
+                raise error(1004)
+        chosen: dict[int, int] = {}
+        for position in range(0, len(pairs), 2):
+            field_arg, item_arg = pairs[position:position + 2]
+            if field_arg is NULL and item_arg is NULL:
+                if any(argument is not NULL for argument in pairs[position:]):
+                    raise error(1004)
+                break
+            field = report.field_index(to_text(_pivot_argument(field_arg)))
+            wanted = _pivot_argument(item_arg)
+            if field is None:
+                raise error(1004)
+            item = report.item_index(field, wanted)
+            if item is None or (field in chosen and chosen[field] != item):
+                raise error(1004)
+            chosen[field] = item
+        cell = report.cell(value, chosen)
+        if cell is None:
+            raise error(1004)
+        return Range(self.sheet, [Area(cell.row, cell.column, cell.row, cell.column, self.sheet.name)])
 
     @member
     def CacheIndex(self) -> object:

@@ -116,10 +116,13 @@ def _both(sheet: Worksheet, event: str, args: list[object]) -> None:
         return
     _sinks(sheet.book, sheet, event, args)
     _handle(sheet, f"Worksheet_{event}", args)
+    if not _on(sheet.book):
+        return
     combined = [sheet, *args]
     _sinks(sheet.book, sheet.book, f"Sheet{event}", combined)
     _handle(sheet.book, f"Workbook_Sheet{event}", combined)
-    _sinks(sheet.book, sheet.book.application, f"Sheet{event}", combined)
+    if _on(sheet.book):
+        _sinks(sheet.book, sheet.book.application, f"Sheet{event}", combined)
 
 
 def changed(target: Range) -> None:

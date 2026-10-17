@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Handlers that disable EnableEvents suppress later workbook and application
+  notifications while completing the current event's callbacks. Eighteen native
+  traces cover Calculate, Change and SelectionChange at each listener stage;
+  another 42 cover bounded Calculate-handler reentry and its following cycle.
+
 - Attaching Worksheet, Workbook or Application WithEvents listeners preserves
   dirty formula caches in manual calculation mode. Twelve native Excel traces
   cover ordinary formulas, UDF call counts and the next Calculate event.

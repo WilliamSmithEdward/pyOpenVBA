@@ -1179,6 +1179,16 @@ remain unchanged until a calculation request, which then delivers the new
 listener's event. Twelve native traces in `tests/fixtures/sink_calculation.json`
 cover these attachments with ordinary formulas and UDFs in both modes.
 
+Changing EnableEvents inside a worksheet event completes that event's
+WithEvents and document callbacks, but suppresses the later workbook event.
+Disabling it in a workbook event likewise suppresses the application event.
+The 18 native traces in `tests/fixtures/event_dispatch.json` cover each
+listener stage for Calculate, Change and SelectionChange. A separate 42-case
+matrix in `tests/fixtures/calculation_reentry.json` covers bounded Calculate
+handlers that edit inputs or request nested application, sheet and range
+calculations, including volatile UDF calls and the following cycle's values
+and event order.
+
 Changing row visibility, including through RowHeight or UseStandardHeight,
 invalidates SUBTOTAL, AGGREGATE and their dependents. Nested defined names
 retain this sensitivity. Filter application, reapplication and removal also

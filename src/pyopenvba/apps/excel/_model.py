@@ -2046,7 +2046,7 @@ class Range(ExcelObject):
         that its Formula2 reads back as written is written as Formula writes it, @ and all
         (tests/fixtures/implicit_intersection.json, at_sign.json); any other is a dynamic-array formula, as written,
         which spills (tests/fixtures/dynamic_arrays.json). A value is written as Formula writes one."""
-        from pyopenvba.formula._formula2 import UnreadFormula2Error, formula2, written
+        from pyopenvba.formula._formula2 import UnreadFormula2Error, array_evaluation, formula2, written
         from pyopenvba.formula._parse import FormulaError
 
         if isinstance(value, VBAObject):
@@ -2068,7 +2068,7 @@ class Range(ExcelObject):
         legacy = ""
         try:
             legacy = written(spelled, self._named)
-            same = formula2(legacy, self._named) == spelled
+            same = formula2(legacy, self._named) == spelled and not array_evaluation(spelled, self._named)
         except (FormulaError, UnreadFormula2Error):
             same = False
         return (legacy, False) if same else (spelled, True)

@@ -1,0 +1,2818 @@
+{
+  "measurement": "native Excel; explicit CStr records formula errors; no harness instrumentation",
+  "probes": [
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",E3)",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"total\",E3,\"region\",\"east\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"total\"\",E3,\"\"region\"\",\"\"east\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"West\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "60",
+      "cell_result": "60"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"Missing\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Missing\",\"East\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Missing\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Missing\",E3)",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Missing\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",J1)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",J1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",\"E3\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",\"\"E3\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",F4)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",F4)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1:F6)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1:F6)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"West\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"East\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",1)",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",TRUE)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",TRUE)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(NA(),E3)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(NA(),E3)\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",NA())",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",NA())\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",NA())",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",NA())\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\")",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"(All)\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"(All)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Amount\",10)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Amount\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3)",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3,\"Region\",\"East\")",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"OtherTotal\",E10,\"Region\",\"East\")",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"OtherTotal\"\",E10,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3:E13,\"Region\",\"East\")",
+      "source": "Function Probe26() As String\nProbe26=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3:E13,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",INDIRECT(\"E3\"),\"Region\",\"East\")",
+      "source": "Function Probe27() As String\nProbe27=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",INDIRECT(\"\"E3\"\"),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",E3)",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"total\",E3,\"region\",\"east\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"total\"\",E3,\"\"region\"\",\"\"east\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"West\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "60",
+      "cell_result": "60"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"Missing\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Missing\",\"East\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Missing\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Missing\",E3)",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Missing\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",J1)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",J1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",\"E3\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",\"\"E3\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",F4)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",F4)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1:F6)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1:F6)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"West\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"East\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",1)",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",TRUE)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",TRUE)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(NA(),E3)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(NA(),E3)\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",NA())",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",NA())\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",NA())",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",NA())\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\")",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"(All)\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"(All)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Amount\",10)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Amount\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3)",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3,\"Region\",\"East\")",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"OtherTotal\",E10,\"Region\",\"East\")",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"OtherTotal\"\",E10,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3:E13,\"Region\",\"East\")",
+      "source": "Function Probe26() As String\nProbe26=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3:E13,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-column.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",INDIRECT(\"E3\"),\"Region\",\"East\")",
+      "source": "Function Probe27() As String\nProbe27=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",INDIRECT(\"\"E3\"\"),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",E3)",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"total\",E3,\"region\",\"east\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"total\"\",E3,\"\"region\"\",\"\"east\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"West\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"Missing\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Missing\",\"East\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Missing\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Missing\",E3)",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Missing\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",J1)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",J1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",\"E3\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",\"\"E3\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",F4)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",F4)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1:F6)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1:F6)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"West\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"East\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",1)",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",TRUE)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",TRUE)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(NA(),E3)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(NA(),E3)\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",NA())",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",NA())\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",NA())",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",NA())\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\")",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"(All)\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"(All)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Amount\",10)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Amount\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3)",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3,\"Region\",\"East\")",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"OtherTotal\",E10,\"Region\",\"East\")",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"OtherTotal\"\",E10,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3:E13,\"Region\",\"East\")",
+      "source": "Function Probe26() As String\nProbe26=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3:E13,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",INDIRECT(\"E3\"),\"Region\",\"East\")",
+      "source": "Function Probe27() As String\nProbe27=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",INDIRECT(\"\"E3\"\"),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",E3)",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"total\",E3,\"region\",\"east\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"total\"\",E3,\"\"region\"\",\"\"east\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"West\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "60",
+      "cell_result": "60"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"Missing\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Missing\",\"East\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Missing\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Missing\",E3)",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Missing\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",J1)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",J1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",\"E3\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",\"\"E3\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",F4)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",F4)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1:F6)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1:F6)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"West\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"East\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",1)",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",TRUE)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",TRUE)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(NA(),E3)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(NA(),E3)\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",NA())",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",NA())\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",NA())",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",NA())\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\")",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"(All)\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"(All)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Amount\",10)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Amount\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3)",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3)\"))\nEnd Function",
+      "result": "30",
+      "cell_result": "30"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3,\"Region\",\"East\")",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "30",
+      "cell_result": "30"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"OtherTotal\",E10,\"Region\",\"East\")",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"OtherTotal\"\",E10,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3:E13,\"Region\",\"East\")",
+      "source": "Function Probe26() As String\nProbe26=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3:E13,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-multiple-data.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",INDIRECT(\"E3\"),\"Region\",\"East\")",
+      "source": "Function Probe27() As String\nProbe27=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",INDIRECT(\"\"E3\"\"),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",E3)",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",E3)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"total\",E3,\"region\",\"east\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"total\"\",E3,\"\"region\"\",\"\"east\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"West\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "60",
+      "cell_result": "60"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"Missing\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Missing\",\"East\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Missing\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Missing\",E3)",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Missing\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",J1)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",J1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",\"E3\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",\"\"E3\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",F4)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",F4)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1:F6)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1:F6)\"))\nEnd Function",
+      "result": "150",
+      "cell_result": "150"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"West\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"East\",\"Region\",\"East\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"East\"\",\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",1)",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",TRUE)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",TRUE)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(NA(),E3)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(NA(),E3)\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",NA())",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",NA())\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",NA())",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",NA())\"))\nEnd Function",
+      "result": "Error 2042",
+      "cell_result": "Error 2042"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\")",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"(All)\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"(All)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Region\",\"\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Region\"\",\"\"\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3,\"Amount\",10)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3,\"\"Amount\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3)",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Average\",E3,\"Region\",\"East\")",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Average\"\",E3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"OtherTotal\",E10,\"Region\",\"East\")",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"OtherTotal\"\",E10,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3:E13,\"Region\",\"East\")",
+      "source": "Function Probe26() As String\nProbe26=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3:E13,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-shared-cache.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",INDIRECT(\"E3\"),\"Region\",\"East\")",
+      "source": "Function Probe27() As String\nProbe27=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",INDIRECT(\"\"E3\"\"),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",OFFSET(E3,0,0),\"Region\",\"East\")",
+      "source": "Function Extra0() As String\nExtra0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",OFFSET(E3,0,0),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",INDEX(E3:F6,1,1),\"Region\",\"East\")",
+      "source": "Function Extra1() As String\nExtra1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",INDEX(E3:F6,1,1),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",CHOOSE(1,E3),\"Region\",\"East\")",
+      "source": "Function Extra2() As String\nExtra2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",CHOOSE(1,E3),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",IF(TRUE,E3,J1),\"Region\",\"East\")",
+      "source": "Function Extra3() As String\nExtra3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",IF(TRUE,E3,J1),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",(E3),\"Region\",\"East\")",
+      "source": "Function Extra4() As String\nExtra4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",(E3),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",INDIRECT(\"Sheet1!E3\"),\"Region\",\"East\")",
+      "source": "Function Extra5() As String\nExtra5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",INDIRECT(\"\"Sheet1!E3\"\"),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E3:E3,\"Region\",\"East\")",
+      "source": "Function Extra6() As String\nExtra6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E3:E3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",E1:F6,\"Region\",\"East\")",
+      "source": "Function Extra7() As String\nExtra7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",E1:F6,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "90",
+      "cell_result": "90"
+    },
+    {
+      "file": "native-simple.xlsx",
+      "formula": "=GETPIVOTDATA(\"Total\",(E3,E10),\"Region\",\"East\")",
+      "source": "Function Extra8() As String\nExtra8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Total\"\",(E3,E10),\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "600",
+      "cell_result": "600"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "900",
+      "cell_result": "900"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "300",
+      "cell_result": "300"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "500",
+      "cell_result": "500"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "100",
+      "cell_result": "100"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "4",
+      "cell_result": "4"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "8",
+      "cell_result": "8"
+    },
+    {
+      "file": "native-advanced-compact.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "600",
+      "cell_result": "600"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "900",
+      "cell_result": "900"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "300",
+      "cell_result": "300"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "500",
+      "cell_result": "500"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "100",
+      "cell_result": "100"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "4",
+      "cell_result": "4"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "8",
+      "cell_result": "8"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "600",
+      "cell_result": "600"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "900",
+      "cell_result": "900"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "300",
+      "cell_result": "300"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "500",
+      "cell_result": "500"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "100",
+      "cell_result": "100"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "4",
+      "cell_result": "4"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "8",
+      "cell_result": "8"
+    },
+    {
+      "file": "native-advanced-outline.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "100",
+      "cell_result": "100"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-no-totals.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "400",
+      "cell_result": "400"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "400",
+      "cell_result": "400"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "100",
+      "cell_result": "100"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "0",
+      "cell_result": "0"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "100",
+      "cell_result": "100"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "2",
+      "cell_result": "2"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "5",
+      "cell_result": "5"
+    },
+    {
+      "file": "native-advanced-filtered-page.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "1500",
+      "cell_result": "1500"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "600",
+      "cell_result": "600"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "600",
+      "cell_result": "600"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "8",
+      "cell_result": "8"
+    },
+    {
+      "file": "native-advanced-renamed.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "400",
+      "cell_result": "400"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "700",
+      "cell_result": "700"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months (Date)\",\"Jan\")",
+      "source": "Function GroupExtra0() As String\nGroupExtra0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months (Date)\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "500",
+      "cell_result": "500"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months (Date)\",1)",
+      "source": "Function GroupExtra1() As String\nGroupExtra1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months (Date)\"\",1)\"))\nEnd Function",
+      "result": "500",
+      "cell_result": "500"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months (Date)\",\"Feb\")",
+      "source": "Function GroupExtra2() As String\nGroupExtra2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months (Date)\"\",\"\"Feb\"\")\"))\nEnd Function",
+      "result": "1400",
+      "cell_result": "1400"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months (Date)\",2)",
+      "source": "Function GroupExtra3() As String\nGroupExtra3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months (Date)\"\",2)\"))\nEnd Function",
+      "result": "1400",
+      "cell_result": "1400"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Years (Date)\",2025)",
+      "source": "Function GroupExtra4() As String\nGroupExtra4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Years (Date)\"\",2025)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Years (Date)\",\"2025\")",
+      "source": "Function GroupExtra5() As String\nGroupExtra5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Years (Date)\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Years (Date)\",2025,\"Months (Date)\",3)",
+      "source": "Function GroupExtra6() As String\nGroupExtra6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Years (Date)\"\",2025,\"\"Months (Date)\"\",3)\"))\nEnd Function",
+      "result": "300",
+      "cell_result": "300"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Years (Date)\",2026)",
+      "source": "Function GroupExtra7() As String\nGroupExtra7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Years (Date)\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-date-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months (Date)\",DATE(2025,1,1))",
+      "source": "Function GroupExtra8() As String\nGroupExtra8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months (Date)\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",40)",
+      "source": "Function GroupExtra0() As String\nGroupExtra0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",40)\"))\nEnd Function",
+      "result": "0",
+      "cell_result": "0"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",60)",
+      "source": "Function GroupExtra1() As String\nGroupExtra1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",60)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"20-39\")",
+      "source": "Function GroupExtra2() As String\nGroupExtra2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"20-39\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",21)",
+      "source": "Function GroupExtra3() As String\nGroupExtra3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",21)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",-1)",
+      "source": "Function GroupExtra4() As String\nGroupExtra4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",-1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-manual-group.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"40-59\")",
+      "source": "Function GroupExtra5() As String\nGroupExtra5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"40-59\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function GroupExtra0() As String\nGroupExtra0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "0",
+      "cell_result": "0"
+    },
+    {
+      "file": "native-advanced-tabular.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\",\"Year\",2025)",
+      "source": "Function GroupExtra1() As String\nGroupExtra1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "0",
+      "cell_result": "0"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3)",
+      "source": "Function Probe0() As String\nProbe0=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\")",
+      "source": "Function Probe1() As String\nProbe1=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\")",
+      "source": "Function Probe2() As String\nProbe2=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"(blank)\")",
+      "source": "Function Probe3() As String\nProbe3=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"(blank)\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"A\")",
+      "source": "Function Probe4() As String\nProbe4=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\")",
+      "source": "Function Probe5() As String\nProbe5=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"West\",\"Category\",\"B\")",
+      "source": "Function Probe6() As String\nProbe6=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"West\"\",\"\"Category\"\",\"\"B\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2025)",
+      "source": "Function Probe7() As String\nProbe7=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",\"2025\")",
+      "source": "Function Probe8() As String\nProbe8=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",\"\"2025\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Year\",2026)",
+      "source": "Function Probe9() As String\nProbe9=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"East\",\"Category\",\"A\",\"Year\",2025)",
+      "source": "Function Probe10() As String\nProbe10=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"East\"\",\"\"Category\"\",\"\"A\"\",\"\"Year\"\",2025)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Category\",\"B\",\"Year\",2026)",
+      "source": "Function Probe11() As String\nProbe11=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Category\"\",\"\"B\"\",\"\"Year\"\",2026)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Region\",\"Missing\")",
+      "source": "Function Probe12() As String\nProbe12=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Region\"\",\"\"Missing\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East Coast\")",
+      "source": "Function Probe13() As String\nProbe13=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East Coast\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Territory\",\"East\")",
+      "source": "Function Probe14() As String\nProbe14=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Territory\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",0)",
+      "source": "Function Probe15() As String\nProbe15=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",0)\"))\nEnd Function",
+      "result": "400",
+      "cell_result": "400"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",10)",
+      "source": "Function Probe16() As String\nProbe16=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",10)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",20)",
+      "source": "Function Probe17() As String\nProbe17=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",20)\"))\nEnd Function",
+      "result": "1800",
+      "cell_result": "1800"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Units\",\"0-19\")",
+      "source": "Function Probe18() As String\nProbe18=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Units\"\",\"\"0-19\"\")\"))\nEnd Function",
+      "result": "400",
+      "cell_result": "400"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",DATE(2025,1,1))",
+      "source": "Function Probe19() As String\nProbe19=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",DATE(2025,1,1))\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Months\",\"Jan\")",
+      "source": "Function Probe20() As String\nProbe20=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Months\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H3,\"Date\",\"Jan\")",
+      "source": "Function Probe21() As String\nProbe21=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H3,\"\"Date\"\",\"\"Jan\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Amount\",H3)",
+      "source": "Function Probe22() As String\nProbe22=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Amount\"\",H3)\"))\nEnd Function",
+      "result": "2200",
+      "cell_result": "2200"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Count Units\",H3,\"Region\",\"East\")",
+      "source": "Function Probe23() As String\nProbe23=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Count Units\"\",H3,\"\"Region\"\",\"\"East\"\")\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Units\",H3)",
+      "source": "Function Probe24() As String\nProbe24=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Units\"\",H3)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    },
+    {
+      "file": "native-advanced-numeric-groups.xlsx",
+      "formula": "=GETPIVOTDATA(\"Revenue\",H1)",
+      "source": "Function Probe25() As String\nProbe25=CStr(Application.Evaluate(\"=GETPIVOTDATA(\"\"Revenue\"\",H1)\"))\nEnd Function",
+      "result": "Error 2023",
+      "cell_result": "Error 2023"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-17T10:56:25.065392+00:00",
+  "setups": {
+    "native-advanced-compact.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.RowAxisLayout xlCompactRow\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-tabular.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.RowAxisLayout xlTabularRow\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-outline.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.RowAxisLayout xlOutlineRow\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-no-totals.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.PivotFields(\"Region\").Subtotals=Array(False,False,False,False,False,False,False,False,False,False,False,False)\np.RowGrand=False\np.ColumnGrand=False\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-filtered-page.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.PivotFields(\"Year\").Orientation=xlPageField\np.PivotFields(\"Year\").CurrentPage=\"2025\"\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-renamed.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.PivotFields(\"Region\").Name=\"Territory\"\np.PivotFields(\"Territory\").PivotItems(\"East\").Name=\"East Coast\"\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-date-groups.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.DataFields(\"Count Units\").Orientation=xlHidden\np.PivotFields(\"Region\").Orientation=xlHidden\np.PivotFields(\"Year\").Orientation=xlHidden\np.PivotFields(\"Category\").Orientation=xlHidden\np.PivotFields(\"Date\").Orientation=xlRowField\np.PivotFields(\"Date\").DataRange.Cells(1,1).Group Start:=True,End:=True,Periods:=Array(False,False,False,False,True,False,True)\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-manual-group.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.DataFields(\"Count Units\").Orientation=xlHidden\np.PivotFields(\"Region\").Orientation=xlHidden\np.PivotFields(\"Year\").Orientation=xlHidden\np.PivotFields(\"Category\").Orientation=xlHidden\np.PivotFields(\"Units\").Orientation=xlRowField\np.PivotFields(\"Units\").DataRange.Group Start:=0,End:=60,By:=20\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub",
+    "native-advanced-numeric-groups.xlsx": "Sub Setup()\nDim ws As Worksheet, cache As PivotCache, p As PivotTable\nSet ws=Worksheets(1)\nws.Range(\"A1:F1\").Value=Array(\"Region\",\"Category\",\"Year\",\"Units\",\"Amount\",\"Date\")\nws.Range(\"A2:F2\").Value=Array(\"East\",\"A\",2025,10,100,DateSerial(2025,1,1))\nws.Range(\"A3:F3\").Value=Array(\"East\",\"A\",2026,20,200,DateSerial(2025,2,2))\nws.Range(\"A4:F4\").Value=Array(\"East\",\"B\",2025,10,300,DateSerial(2025,3,3))\nws.Range(\"A5:F5\").Value=Array(\"West\",\"A\",2025,30,400,DateSerial(2025,1,4))\nws.Range(\"A6:F6\").Value=Array(\"West\",\"B\",2026,20,500,DateSerial(2025,2,5))\nws.Range(\"A7:F7\").Value=Array(\"West\",\"B\",2025,40,0,DateSerial(2025,3,6))\nws.Range(\"A8:F8\").Value=Array(\"East\",\"B\",2026,40,Empty,DateSerial(2025,1,7))\nws.Range(\"A9:F9\").Value=Array(Empty,\"A\",2025,30,700,DateSerial(2025,2,8))\nws.Range(\"F2:F9\").NumberFormat=\"m/d/yyyy\"\nSet cache=ThisWorkbook.PivotCaches.Create(xlDatabase,ws.Range(\"A1:F9\"))\nSet p=cache.CreatePivotTable(ws.Range(\"H3\"),\"Advanced\")\np.PivotFields(\"Region\").Orientation=xlRowField\np.PivotFields(\"Category\").Orientation=xlRowField\np.PivotFields(\"Year\").Orientation=xlColumnField\np.AddDataField p.PivotFields(\"Amount\"),\"Revenue\",xlSum\np.AddDataField p.PivotFields(\"Units\"),\"Count Units\",xlCount\np.DataFields(\"Count Units\").Orientation=xlHidden\np.PivotFields(\"Region\").Orientation=xlHidden\np.PivotFields(\"Year\").Orientation=xlHidden\np.PivotFields(\"Category\").Orientation=xlHidden\np.PivotFields(\"Units\").Orientation=xlRowField\np.PivotFields(\"Units\").DataRange.Cells(1,1).Group Start:=0,End:=60,By:=20\nThisWorkbook.SaveAs Filename:=\"OUTPUT\",FileFormat:=xlOpenXMLWorkbook\nEnd Sub"
+  }
+}

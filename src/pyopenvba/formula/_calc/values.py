@@ -27,7 +27,7 @@ from __future__ import annotations
 import datetime as dt
 import re
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pyopenvba.formula._calc import collate as _collate
 from pyopenvba.formula._calc.dates import parse_date_time
@@ -156,6 +156,9 @@ class Reference:
     operator or a 3D reference."""
 
     areas: tuple[Area, ...]
+    #: INDIRECT keeps its reference identity for most consumers, but Excel's
+    #: Evaluate passes it differently to GETPIVOTDATA. This is provenance only.
+    indirect: bool = field(default=False, compare=False, repr=False)
 
     @classmethod
     def of(cls, area: Area) -> Reference:

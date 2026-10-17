@@ -18,6 +18,7 @@ from pyopenvba.interpreter._objects import VBACollection, member, method
 from pyopenvba.interpreter._values import MISSING, VBAErrorValue, VBAInt, error, to_integer
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._pivot_reports import PivotReport
     from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -25,7 +26,7 @@ NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 REL = '{http://schemas.openxmlformats.org/officeDocument/2006/relationships}'
 
 
-def _text(value: str) -> str:
+def decode_text(value: str) -> str:
     return re.sub(r'_x([0-9A-Fa-f]{4})_', lambda match: chr(int(match.group(1), 16)), value)
 
 
@@ -172,6 +173,10 @@ class PivotTable(ExcelObject):
 
     def __init__(self, sheet: Worksheet, cache: PivotCache, root: XmlElement) -> None:
         self.sheet, self.cache, self.root = sheet, cache, root
+        # Report definitions are immutable until layout/refresh writers exist.
+        # Cache metadata only: GETPIVOTDATA reads each result cell afresh.
+        self.report_metadata: PivotReport | None = None
+        self.report_loaded = False
 
     def _range(self, kind: str) -> object:
         location = self.root.find(NS + 'location')
@@ -193,7 +198,7 @@ class PivotTable(ExcelObject):
 
     @member
     def Name(self) -> object:
-        return _text(self.root.get('name', ''))
+        return decode_text(self.root.get('name', ''))
 
     @member
     def Parent(self) -> object:
@@ -312,12 +317,12 @@ class PivotField(ExcelObject):
         if self.index == -2:
             return VBAErrorValue(2042)
         fields = self.table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
-        return _text(fields[self.index].get('name', '')) if self.index < len(fields) else ''
+        return decode_text(fields[self.index].get('name', '')) if self.index < len(fields) else ''
 
     @member
     def Name(self) -> object:
         name = self.root.get('name')
-        return _text(name) if name is not None else self.SourceName()
+        return decode_text(name) if name is not None else self.SourceName()
 
     @member
     def Caption(self) -> object:
@@ -443,7 +448,7 @@ class PivotItem(ExcelObject):
             return 'TRUE' if value == '1' else 'FALSE'
         if self.root.tag == NS + 'd':
             raise VBAUnsupportedError('Date PivotItem captions are not implemented')
-        return _text(value)
+        return decode_text(value)
 
     @member
     def Caption(self) -> object:

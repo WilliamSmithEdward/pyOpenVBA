@@ -27,7 +27,7 @@ def _truth(context: Context, value: Scalar) -> bool | CellError:
         return error.error
 
 
-@function("IF", LAZY, LAZY, LAZY, minimum=2, legacy_as_cell=True)
+@function("IF", LAZY, LAZY, LAZY, minimum=2, legacy_as_cell=True, reference_result=True)
 def IF(context: Context, test: Node, then: Node, otherwise: Node | None = None) -> Value:
     condition = context.operand(context.evaluate(test))
     if isinstance(condition, Array):
@@ -151,7 +151,7 @@ def SWITCH(context: Context, expression: Scalar, *args: Node) -> Value:
     return NA
 
 
-@function("CHOOSE", R, LAZY, maximum=255, legacy_as_cell=True)
+@function("CHOOSE", R, LAZY, maximum=255, legacy_as_cell=True, reference_result=True)
 def CHOOSE(context: Context, index: Value, *choices: Node) -> Value:
     chosen = context.operand(index)
     if not isinstance(chosen, Array):

@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- GETPIVOTDATA reads displayed cached PivotTable results, including multiple
+  row/column fields, subtotals and suppressed totals, page filters, renamed
+  fields/items, manual groups, numeric bins and grouped dates. Native controls
+  cover cells, Evaluate, legacy/CSE/dynamic arrays, defined names and formula
+  text. Report metadata is reused while result cells are read afresh. The
+  implementation distinguishes reference arguments, conflicting selectors,
+  error precedence and Evaluate's handling of INDIRECT references; Formula2
+  preserves array evaluation even where its text matches a legacy formula.
+
 - Imported Excel PivotTables now expose table/cache collections, source and
   cache metadata, report ranges, field collections and cached PivotItems to
   in-memory VBA. Native fixtures cover row, column and page reports, multiple

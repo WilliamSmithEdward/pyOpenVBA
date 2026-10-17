@@ -1,0 +1,382 @@
+{
+  "measured_at": "2026-10-17T10:32:03.891252+00:00",
+  "instrumentation": "none; explicit error handler reports runtime errors",
+  "probes": [
+    {
+      "expression": "Worksheets(1).PivotTables.Count",
+      "result": "1",
+      "source": "Function Probe0() As String\nOn Error GoTo Failed\nProbe0=CStr(Worksheets(1).PivotTables.Count)\nExit Function\nFailed:\nProbe0=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches.Count",
+      "result": "1",
+      "source": "Function Probe1() As String\nOn Error GoTo Failed\nProbe1=CStr(ThisWorkbook.PivotCaches.Count)\nExit Function\nFailed:\nProbe1=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).Name",
+      "result": "Summary",
+      "source": "Function Probe2() As String\nOn Error GoTo Failed\nProbe2=CStr(Worksheets(1).PivotTables(1).Name)\nExit Function\nFailed:\nProbe2=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).Index",
+      "result": "ERR:438",
+      "source": "Function Probe3() As String\nOn Error GoTo Failed\nProbe3=CStr(Worksheets(1).PivotTables(1).Index)\nExit Function\nFailed:\nProbe3=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).CacheIndex",
+      "result": "1",
+      "source": "Function Probe4() As String\nOn Error GoTo Failed\nProbe4=CStr(Worksheets(1).PivotTables(1).CacheIndex)\nExit Function\nFailed:\nProbe4=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).SourceData",
+      "result": "Sheet1!R1C1:R6C2",
+      "source": "Function Probe5() As String\nOn Error GoTo Failed\nProbe5=CStr(Worksheets(1).PivotTables(1).SourceData)\nExit Function\nFailed:\nProbe5=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).TableRange1.Address",
+      "result": "$E$3:$F$6",
+      "source": "Function Probe6() As String\nOn Error GoTo Failed\nProbe6=CStr(Worksheets(1).PivotTables(1).TableRange1.Address)\nExit Function\nFailed:\nProbe6=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).TableRange2.Address",
+      "result": "$E$3:$F$6",
+      "source": "Function Probe7() As String\nOn Error GoTo Failed\nProbe7=CStr(Worksheets(1).PivotTables(1).TableRange2.Address)\nExit Function\nFailed:\nProbe7=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataBodyRange.Address",
+      "result": "$F$4:$F$6",
+      "source": "Function Probe8() As String\nOn Error GoTo Failed\nProbe8=CStr(Worksheets(1).PivotTables(1).DataBodyRange.Address)\nExit Function\nFailed:\nProbe8=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).RowRange.Address",
+      "result": "$E$3:$E$6",
+      "source": "Function Probe9() As String\nOn Error GoTo Failed\nProbe9=CStr(Worksheets(1).PivotTables(1).RowRange.Address)\nExit Function\nFailed:\nProbe9=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).ColumnRange.Address",
+      "result": "ERR:1004",
+      "source": "Function Probe10() As String\nOn Error GoTo Failed\nProbe10=CStr(Worksheets(1).PivotTables(1).ColumnRange.Address)\nExit Function\nFailed:\nProbe10=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PageRange.Address",
+      "result": "ERR:1004",
+      "source": "Function Probe11() As String\nOn Error GoTo Failed\nProbe11=CStr(Worksheets(1).PivotTables(1).PageRange.Address)\nExit Function\nFailed:\nProbe11=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields.Count",
+      "result": "2",
+      "source": "Function Probe12() As String\nOn Error GoTo Failed\nProbe12=CStr(Worksheets(1).PivotTables(1).PivotFields.Count)\nExit Function\nFailed:\nProbe12=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).RowFields.Count",
+      "result": "1",
+      "source": "Function Probe13() As String\nOn Error GoTo Failed\nProbe13=CStr(Worksheets(1).PivotTables(1).RowFields.Count)\nExit Function\nFailed:\nProbe13=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).ColumnFields.Count",
+      "result": "0",
+      "source": "Function Probe14() As String\nOn Error GoTo Failed\nProbe14=CStr(Worksheets(1).PivotTables(1).ColumnFields.Count)\nExit Function\nFailed:\nProbe14=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PageFields.Count",
+      "result": "0",
+      "source": "Function Probe15() As String\nOn Error GoTo Failed\nProbe15=CStr(Worksheets(1).PivotTables(1).PageFields.Count)\nExit Function\nFailed:\nProbe15=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields.Count",
+      "result": "1",
+      "source": "Function Probe16() As String\nOn Error GoTo Failed\nProbe16=CStr(Worksheets(1).PivotTables(1).DataFields.Count)\nExit Function\nFailed:\nProbe16=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).HiddenFields.Count",
+      "result": "0",
+      "source": "Function Probe17() As String\nOn Error GoTo Failed\nProbe17=CStr(Worksheets(1).PivotTables(1).HiddenFields.Count)\nExit Function\nFailed:\nProbe17=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).RowGrand",
+      "result": "True",
+      "source": "Function Probe18() As String\nOn Error GoTo Failed\nProbe18=CStr(Worksheets(1).PivotTables(1).RowGrand)\nExit Function\nFailed:\nProbe18=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).ColumnGrand",
+      "result": "True",
+      "source": "Function Probe19() As String\nOn Error GoTo Failed\nProbe19=CStr(Worksheets(1).PivotTables(1).ColumnGrand)\nExit Function\nFailed:\nProbe19=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataCaption",
+      "result": "ERR:438",
+      "source": "Function Probe20() As String\nOn Error GoTo Failed\nProbe20=CStr(Worksheets(1).PivotTables(1).DataCaption)\nExit Function\nFailed:\nProbe20=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).RowAxisLayout",
+      "result": "ERR:450",
+      "source": "Function Probe21() As String\nOn Error GoTo Failed\nProbe21=CStr(Worksheets(1).PivotTables(1).RowAxisLayout)\nExit Function\nFailed:\nProbe21=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).Parent.Name",
+      "result": "Sheet1",
+      "source": "Function Probe22() As String\nOn Error GoTo Failed\nProbe22=CStr(Worksheets(1).PivotTables(1).Parent.Name)\nExit Function\nFailed:\nProbe22=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).Index",
+      "result": "1",
+      "source": "Function Probe23() As String\nOn Error GoTo Failed\nProbe23=CStr(ThisWorkbook.PivotCaches(1).Index)\nExit Function\nFailed:\nProbe23=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).RecordCount",
+      "result": "5",
+      "source": "Function Probe24() As String\nOn Error GoTo Failed\nProbe24=CStr(ThisWorkbook.PivotCaches(1).RecordCount)\nExit Function\nFailed:\nProbe24=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).SourceType",
+      "result": "1",
+      "source": "Function Probe25() As String\nOn Error GoTo Failed\nProbe25=CStr(ThisWorkbook.PivotCaches(1).SourceType)\nExit Function\nFailed:\nProbe25=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).SourceData",
+      "result": "Sheet1!R1C1:R6C2",
+      "source": "Function Probe26() As String\nOn Error GoTo Failed\nProbe26=CStr(ThisWorkbook.PivotCaches(1).SourceData)\nExit Function\nFailed:\nProbe26=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).OLAP",
+      "result": "False",
+      "source": "Function Probe27() As String\nOn Error GoTo Failed\nProbe27=CStr(ThisWorkbook.PivotCaches(1).OLAP)\nExit Function\nFailed:\nProbe27=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).EnableRefresh",
+      "result": "True",
+      "source": "Function Probe28() As String\nOn Error GoTo Failed\nProbe28=CStr(ThisWorkbook.PivotCaches(1).EnableRefresh)\nExit Function\nFailed:\nProbe28=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).RefreshOnFileOpen",
+      "result": "False",
+      "source": "Function Probe29() As String\nOn Error GoTo Failed\nProbe29=CStr(ThisWorkbook.PivotCaches(1).RefreshOnFileOpen)\nExit Function\nFailed:\nProbe29=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).SaveData",
+      "result": "ERR:438",
+      "source": "Function Probe30() As String\nOn Error GoTo Failed\nProbe30=CStr(ThisWorkbook.PivotCaches(1).SaveData)\nExit Function\nFailed:\nProbe30=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).Version",
+      "result": "8",
+      "source": "Function Probe31() As String\nOn Error GoTo Failed\nProbe31=CStr(ThisWorkbook.PivotCaches(1).Version)\nExit Function\nFailed:\nProbe31=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(1).Parent.Name",
+      "result": "native-simple.xlsx",
+      "source": "Function Probe32() As String\nOn Error GoTo Failed\nProbe32=CStr(ThisWorkbook.PivotCaches(1).Parent.Name)\nExit Function\nFailed:\nProbe32=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).Name",
+      "result": "Region",
+      "source": "Function Probe33() As String\nOn Error GoTo Failed\nProbe33=CStr(Worksheets(1).PivotTables(1).PivotFields(1).Name)\nExit Function\nFailed:\nProbe33=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).Caption",
+      "result": "Region",
+      "source": "Function Probe34() As String\nOn Error GoTo Failed\nProbe34=CStr(Worksheets(1).PivotTables(1).PivotFields(1).Caption)\nExit Function\nFailed:\nProbe34=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).SourceName",
+      "result": "Region",
+      "source": "Function Probe35() As String\nOn Error GoTo Failed\nProbe35=CStr(Worksheets(1).PivotTables(1).PivotFields(1).SourceName)\nExit Function\nFailed:\nProbe35=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).Index",
+      "result": "ERR:438",
+      "source": "Function Probe36() As String\nOn Error GoTo Failed\nProbe36=CStr(Worksheets(1).PivotTables(1).PivotFields(1).Index)\nExit Function\nFailed:\nProbe36=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).Orientation",
+      "result": "1",
+      "source": "Function Probe37() As String\nOn Error GoTo Failed\nProbe37=CStr(Worksheets(1).PivotTables(1).PivotFields(1).Orientation)\nExit Function\nFailed:\nProbe37=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).Position",
+      "result": "1",
+      "source": "Function Probe38() As String\nOn Error GoTo Failed\nProbe38=CStr(Worksheets(1).PivotTables(1).PivotFields(1).Position)\nExit Function\nFailed:\nProbe38=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).PivotItems.Count",
+      "result": "2",
+      "source": "Function Probe39() As String\nOn Error GoTo Failed\nProbe39=CStr(Worksheets(1).PivotTables(1).PivotFields(1).PivotItems.Count)\nExit Function\nFailed:\nProbe39=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).DataRange.Address",
+      "result": "$E$4:$E$5",
+      "source": "Function Probe40() As String\nOn Error GoTo Failed\nProbe40=CStr(Worksheets(1).PivotTables(1).PivotFields(1).DataRange.Address)\nExit Function\nFailed:\nProbe40=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).LabelRange.Address",
+      "result": "$E$3",
+      "source": "Function Probe41() As String\nOn Error GoTo Failed\nProbe41=CStr(Worksheets(1).PivotTables(1).PivotFields(1).LabelRange.Address)\nExit Function\nFailed:\nProbe41=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).Parent.Name",
+      "result": "Summary",
+      "source": "Function Probe42() As String\nOn Error GoTo Failed\nProbe42=CStr(Worksheets(1).PivotTables(1).PivotFields(1).Parent.Name)\nExit Function\nFailed:\nProbe42=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).Name",
+      "result": "Total",
+      "source": "Function Probe43() As String\nOn Error GoTo Failed\nProbe43=CStr(Worksheets(1).PivotTables(1).DataFields(1).Name)\nExit Function\nFailed:\nProbe43=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).Caption",
+      "result": "Total",
+      "source": "Function Probe44() As String\nOn Error GoTo Failed\nProbe44=CStr(Worksheets(1).PivotTables(1).DataFields(1).Caption)\nExit Function\nFailed:\nProbe44=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).SourceName",
+      "result": "Amount",
+      "source": "Function Probe45() As String\nOn Error GoTo Failed\nProbe45=CStr(Worksheets(1).PivotTables(1).DataFields(1).SourceName)\nExit Function\nFailed:\nProbe45=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).Index",
+      "result": "ERR:438",
+      "source": "Function Probe46() As String\nOn Error GoTo Failed\nProbe46=CStr(Worksheets(1).PivotTables(1).DataFields(1).Index)\nExit Function\nFailed:\nProbe46=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).Orientation",
+      "result": "4",
+      "source": "Function Probe47() As String\nOn Error GoTo Failed\nProbe47=CStr(Worksheets(1).PivotTables(1).DataFields(1).Orientation)\nExit Function\nFailed:\nProbe47=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).Position",
+      "result": "1",
+      "source": "Function Probe48() As String\nOn Error GoTo Failed\nProbe48=CStr(Worksheets(1).PivotTables(1).DataFields(1).Position)\nExit Function\nFailed:\nProbe48=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).Function",
+      "result": "-4157",
+      "source": "Function Probe49() As String\nOn Error GoTo Failed\nProbe49=CStr(Worksheets(1).PivotTables(1).DataFields(1).Function)\nExit Function\nFailed:\nProbe49=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).NumberFormat",
+      "result": "General",
+      "source": "Function Probe50() As String\nOn Error GoTo Failed\nProbe50=CStr(Worksheets(1).PivotTables(1).DataFields(1).NumberFormat)\nExit Function\nFailed:\nProbe50=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).DataRange.Address",
+      "result": "$F$4:$F$5",
+      "source": "Function Probe51() As String\nOn Error GoTo Failed\nProbe51=CStr(Worksheets(1).PivotTables(1).DataFields(1).DataRange.Address)\nExit Function\nFailed:\nProbe51=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(1).LabelRange.Address",
+      "result": "$F$3",
+      "source": "Function Probe52() As String\nOn Error GoTo Failed\nProbe52=CStr(Worksheets(1).PivotTables(1).DataFields(1).LabelRange.Address)\nExit Function\nFailed:\nProbe52=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(\"Region\").PivotItems(1).Name",
+      "result": "East",
+      "source": "Function Probe53() As String\nOn Error GoTo Failed\nProbe53=CStr(Worksheets(1).PivotTables(1).PivotFields(\"Region\").PivotItems(1).Name)\nExit Function\nFailed:\nProbe53=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(\"missing\").Name",
+      "result": "ERR:1004",
+      "source": "Function Probe54() As String\nOn Error GoTo Failed\nProbe54=CStr(Worksheets(1).PivotTables(\"missing\").Name)\nExit Function\nFailed:\nProbe54=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(0).Name",
+      "result": "ERR:1004",
+      "source": "Function Probe55() As String\nOn Error GoTo Failed\nProbe55=CStr(Worksheets(1).PivotTables(0).Name)\nExit Function\nFailed:\nProbe55=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(\"missing\").Name",
+      "result": "ERR:1004",
+      "source": "Function Probe56() As String\nOn Error GoTo Failed\nProbe56=CStr(Worksheets(1).PivotTables(1).PivotFields(\"missing\").Name)\nExit Function\nFailed:\nProbe56=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).DataFields(0).Name",
+      "result": "ERR:1004",
+      "source": "Function Probe57() As String\nOn Error GoTo Failed\nProbe57=CStr(Worksheets(1).PivotTables(1).DataFields(0).Name)\nExit Function\nFailed:\nProbe57=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "ThisWorkbook.PivotCaches(0).Index",
+      "result": "ERR:1004",
+      "source": "Function Probe58() As String\nOn Error GoTo Failed\nProbe58=CStr(ThisWorkbook.PivotCaches(0).Index)\nExit Function\nFailed:\nProbe58=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "TypeName(Worksheets(1).PivotTables(1).PivotCache)",
+      "result": "PivotCache",
+      "source": "Function Probe59() As String\nOn Error GoTo Failed\nProbe59=CStr(TypeName(Worksheets(1).PivotTables(1).PivotCache))\nExit Function\nFailed:\nProbe59=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotCache Is ThisWorkbook.PivotCaches(1)",
+      "result": "True",
+      "source": "Function Probe60() As String\nOn Error GoTo Failed\nProbe60=CStr(Worksheets(1).PivotTables(1).PivotCache Is ThisWorkbook.PivotCaches(1))\nExit Function\nFailed:\nProbe60=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1) Is Worksheets(1).PivotTables(\"summary\")",
+      "result": "False",
+      "source": "Function Probe61() As String\nOn Error GoTo Failed\nProbe61=CStr(Worksheets(1).PivotTables(1) Is Worksheets(1).PivotTables(\"summary\"))\nExit Function\nFailed:\nProbe61=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(2).Name",
+      "result": "Amount",
+      "source": "Function Probe62() As String\nOn Error GoTo Failed\nProbe62=CStr(Worksheets(1).PivotTables(1).PivotFields(2).Name)\nExit Function\nFailed:\nProbe62=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(2).Orientation",
+      "result": "0",
+      "source": "Function Probe63() As String\nOn Error GoTo Failed\nProbe63=CStr(Worksheets(1).PivotTables(1).PivotFields(2).Orientation)\nExit Function\nFailed:\nProbe63=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(2).Position",
+      "result": "Error 2042",
+      "source": "Function Probe64() As String\nOn Error GoTo Failed\nProbe64=CStr(Worksheets(1).PivotTables(1).PivotFields(2).Position)\nExit Function\nFailed:\nProbe64=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(2).PivotItems.Count",
+      "result": "5",
+      "source": "Function Probe65() As String\nOn Error GoTo Failed\nProbe65=CStr(Worksheets(1).PivotTables(1).PivotFields(2).PivotItems.Count)\nExit Function\nFailed:\nProbe65=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(2).PivotItems(1).Name",
+      "result": "10",
+      "source": "Function Probe66() As String\nOn Error GoTo Failed\nProbe66=CStr(Worksheets(1).PivotTables(1).PivotFields(2).PivotItems(1).Name)\nExit Function\nFailed:\nProbe66=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(2).Function",
+      "result": "ERR:1004",
+      "source": "Function Probe67() As String\nOn Error GoTo Failed\nProbe67=CStr(Worksheets(1).PivotTables(1).PivotFields(2).Function)\nExit Function\nFailed:\nProbe67=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(2).NumberFormat",
+      "result": "General",
+      "source": "Function Probe68() As String\nOn Error GoTo Failed\nProbe68=CStr(Worksheets(1).PivotTables(1).PivotFields(2).NumberFormat)\nExit Function\nFailed:\nProbe68=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Caption",
+      "result": "East",
+      "source": "Function Probe69() As String\nOn Error GoTo Failed\nProbe69=CStr(Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Caption)\nExit Function\nFailed:\nProbe69=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Value",
+      "result": "East",
+      "source": "Function Probe70() As String\nOn Error GoTo Failed\nProbe70=CStr(Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Value)\nExit Function\nFailed:\nProbe70=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).SourceName",
+      "result": "East",
+      "source": "Function Probe71() As String\nOn Error GoTo Failed\nProbe71=CStr(Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).SourceName)\nExit Function\nFailed:\nProbe71=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Position",
+      "result": "1",
+      "source": "Function Probe72() As String\nOn Error GoTo Failed\nProbe72=CStr(Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Position)\nExit Function\nFailed:\nProbe72=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Visible",
+      "result": "True",
+      "source": "Function Probe73() As String\nOn Error GoTo Failed\nProbe73=CStr(Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Visible)\nExit Function\nFailed:\nProbe73=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    },
+    {
+      "expression": "Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Parent.Name",
+      "result": "Region",
+      "source": "Function Probe74() As String\nOn Error GoTo Failed\nProbe74=CStr(Worksheets(1).PivotTables(1).PivotFields(1).PivotItems(1).Parent.Name)\nExit Function\nFailed:\nProbe74=\"ERR:\" & CStr(Err.Number)\nEnd Function"
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

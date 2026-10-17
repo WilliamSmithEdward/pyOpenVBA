@@ -20,6 +20,7 @@ from pyopenvba.apps.excel import (
     _hyperlinks,
     _model,
     _notes,
+    _pivots,
     _protection,
     _shapes,
     _sort,
@@ -49,9 +50,11 @@ def _registered(cls: type[VBAObject]) -> dict[str, MemberSpec]:
 def _classes() -> dict[str, type[VBAObject]]:
     found: dict[str, type[VBAObject]] = {}
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
-                   _hyperlinks):
+                   _hyperlinks, _pivots):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
+                continue
+            if module is _pivots and cls.__name__ == '_Collection':
                 continue
             if not issubclass(cls, VBAObject) or not _registered(cls):
                 continue

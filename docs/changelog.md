@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Numeric VBA For loops use the declared element or field type for bounds
+  and steps, including qualified module storage. Next reevaluates array indices
+  once and follows storage replaced by ReDim Preserve. Thirty-one native
+  controls cover these targets and jumps that skip loop initialization.
+
 - Runtime module loading retains malformed-body diagnostics for compilation
   on demand, preserving valid calls beside unused invalid routines. Explicit
   parsing stays strict and module/header syntax failures remain eager. Ampersand

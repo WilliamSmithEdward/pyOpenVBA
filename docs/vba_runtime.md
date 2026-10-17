@@ -265,7 +265,13 @@ is compiled for a call. An unused invalid procedure does not block valid calls. 
 
 `For` captures bounds and steps as values at its header and coerces them to
 the counter's declared type. Variant counters use native loop promotion,
-including Single becoming Double and the asymmetric Decimal start/limit
+and typed array elements, UDT fields and qualified module variables retain
+their storage type for header coercion. `Next` resolves an array index once
+per increment and uses the current array after `ReDim Preserve`. Thirty-one
+additional raw native controls in `numeric_loop_storage.json` cover these
+targets and skipped initialization, remeasured by
+`scripts/measure_numeric_loop_storage.py`. Variant promotion includes
+Single becoming Double and the asymmetric Decimal start/limit
 case. `Select Case` captures a default member's value once. These behaviors,
 jump reentry and error-handler continuations replay 253 uninstrumented native
 Excel traces in `tests/fixtures/vba_semantics/structured_jumps.json`, recorded

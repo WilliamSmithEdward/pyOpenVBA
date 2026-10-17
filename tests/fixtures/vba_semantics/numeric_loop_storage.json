@@ -1,0 +1,227 @@
+{
+  "instrumentation": "none",
+  "probes": [
+    {
+      "name": "array_fraction_limit",
+      "source": "Function Probe() As String\nDim count As Long, log As String\nDim values(0) As Integer\nFor values(0) = 1 To 1.5\ncount = count+1\nlog = log & CStr(values(0)) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(values(0))\nEnd Function",
+      "modules": [],
+      "result": "1;2;|3",
+      "measured_at": "2026-10-17T08:34:41.545099+00:00"
+    },
+    {
+      "name": "array_fraction_step",
+      "source": "Function Probe() As String\nDim count As Long, log As String\nDim values(0) As Integer\nFor values(0) = 1 To 3.5 Step 1.5\ncount = count+1\nlog = log & CStr(values(0)) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(values(0))\nEnd Function",
+      "modules": [],
+      "result": "1;3;|5",
+      "measured_at": "2026-10-17T08:34:41.763321+00:00"
+    },
+    {
+      "name": "Other_fraction_limit",
+      "source": "Function Probe() As String\nDim count As Long, log As String\n\nFor Other.apple = 1 To 1.5\ncount = count+1\nlog = log & CStr(Other.apple) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(Other.apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "result": "1;2;|3",
+      "measured_at": "2026-10-17T08:34:42.026060+00:00"
+    },
+    {
+      "name": "Other_fraction_step",
+      "source": "Function Probe() As String\nDim count As Long, log As String\n\nFor Other.apple = 1 To 3.5 Step 1.5\ncount = count+1\nlog = log & CStr(Other.apple) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(Other.apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "result": "1;3;|5",
+      "measured_at": "2026-10-17T08:34:42.278745+00:00"
+    },
+    {
+      "name": "index_once",
+      "source": "Private calls As Long\nFunction SlotIndex() As Long\ncalls=calls+1\nSlotIndex=0\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer, log As String\nFor values(SlotIndex()) = 1 To 2\nlog = log & CStr(values(0)) & \":\" & CStr(calls) & \";\"\nNext\nProbe = log & \"|\" & CStr(calls)\nEnd Function",
+      "result": "1:1;2:2;|3",
+      "measured_at": "2026-10-17T08:34:42.467512+00:00"
+    },
+    {
+      "name": "declared_variant",
+      "source": "Function Probe() As String\nDim values(0) As Variant\nDim log As String\nFor values(0) = 1 To 1.5\nlog=log & CStr(values(0)) & \";\"\nNext\nProbe=log & \"|\" & CStr(values(0))\nEnd Function",
+      "result": "1;|2",
+      "measured_at": "2026-10-17T08:34:42.657096+00:00"
+    },
+    {
+      "name": "index_changes",
+      "source": "Private calls As Long\nFunction SlotIndex() As Long\ncalls=calls+1\nSlotIndex = (calls-1) Mod 2\nEnd Function\nFunction Probe() As String\nDim values(1) As Integer, count As Long, log As String\nFor values(SlotIndex()) = 1 To 2\ncount=count+1\nlog=log & CStr(values(0)) & \":\" & CStr(values(1)) & \":\" & CStr(calls) & \";\"\nIf count>=6 Then Exit For\nNext\nProbe=log & \"|\" & CStr(calls)\nEnd Function",
+      "result": "1:0:1;1:1:2;2:1:3;2:2:4;|5",
+      "measured_at": "2026-10-17T08:34:42.839403+00:00"
+    },
+    {
+      "name": "counter_resize",
+      "source": "Function Probe() As String\nDim values() As Integer, log As String, seen As Long\nReDim values(0)\nOn Error Resume Next\nFor values(0) = 1 To 2\nErr.Clear\nReDim Preserve values(1)\nseen=Err.Number\nlog=log & CStr(values(0)) & \":\" & CStr(seen) & \";\"\nNext\nProbe=log & \"|\" & CStr(values(0)) & \":\" & CStr(UBound(values))\nEnd Function",
+      "result": "1:0;2:0;|3:1",
+      "measured_at": "2026-10-17T08:34:43.016190+00:00"
+    },
+    {
+      "name": "record_field",
+      "source": "Type Box\napple As Integer\nEnd Type\nFunction Probe() As String\nDim obj As Box, log As String\nFor obj.apple = 1 To 1.5\nlog=log & CStr(obj.apple) & \";\"\nNext\nProbe=log & \"|\" & CStr(obj.apple)\nEnd Function",
+      "result": "1;2;|3",
+      "measured_at": "2026-10-17T08:34:43.200478+00:00"
+    },
+    {
+      "name": "module_array",
+      "source": "Function Probe() As String\nDim log As String, count As Long\n\nFor Other.values(0) = 1 To 1.5\nBody:\ncount=count+1\nlog=log & CStr(Other.values(0)) & \";\"\nIf count>=6 Then Exit For\nNext\nProbe=log & \"|\" & CStr(Other.values(0))\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public values(0) As Integer"
+        }
+      ],
+      "result": "1;2;|3",
+      "measured_at": "2026-10-17T08:34:43.439903+00:00"
+    },
+    {
+      "name": "module_array_jump",
+      "source": "Function Probe() As String\nDim log As String, count As Long\n\nGoTo Body\nFor Other.values(0) = 1 To 1.5\nBody:\ncount=count+1\nlog=log & CStr(Other.values(0)) & \";\"\nIf count>=6 Then Exit For\nNext\nProbe=log & \"|\" & CStr(Other.values(0))\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public values(0) As Integer"
+        }
+      ],
+      "result": "0;|1",
+      "measured_at": "2026-10-17T08:34:43.691752+00:00"
+    },
+    {
+      "name": "record_array",
+      "source": "Type Box\napple As Integer\nvalues(0) As Integer\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nFor obj.values(0) = 1 To 1.5\nBody:\ncount=count+1\nlog=log & CStr(obj.values(0)) & \";\"\nIf count>=6 Then Exit For\nNext\nProbe=log & \"|\" & CStr(obj.values(0))\nEnd Function",
+      "modules": [],
+      "result": "1;2;|3",
+      "measured_at": "2026-10-17T08:34:43.892547+00:00"
+    },
+    {
+      "name": "record_array_jump",
+      "source": "Type Box\napple As Integer\nvalues(0) As Integer\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nGoTo Body\nFor obj.values(0) = 1 To 1.5\nBody:\ncount=count+1\nlog=log & CStr(obj.values(0)) & \";\"\nIf count>=6 Then Exit For\nNext\nProbe=log & \"|\" & CStr(obj.values(0))\nEnd Function",
+      "modules": [],
+      "result": "0;|1",
+      "measured_at": "2026-10-17T08:34:44.087215+00:00"
+    },
+    {
+      "name": "with_field",
+      "source": "Type Box\napple As Integer\nvalues(0) As Integer\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nWith obj\nFor .apple = 1 To 1.5\nBody:\ncount=count+1\nlog=log & CStr(.apple) & \";\"\nIf count>=6 Then Exit For\nNext\nProbe=log & \"|\" & CStr(.apple)\nEnd With\nEnd Function",
+      "modules": [],
+      "result": "1;2;|3",
+      "measured_at": "2026-10-17T08:34:44.272117+00:00"
+    },
+    {
+      "name": "with_field_jump",
+      "source": "Type Box\napple As Integer\nvalues(0) As Integer\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nWith obj\nGoTo Body\nFor .apple = 1 To 1.5\nBody:\ncount=count+1\nlog=log & CStr(.apple) & \";\"\nIf count>=6 Then Exit For\nNext\nProbe=log & \"|\" & CStr(.apple)\nEnd With\nEnd Function",
+      "modules": [],
+      "result": "0;|1",
+      "measured_at": "2026-10-17T08:34:44.462106+00:00"
+    },
+    {
+      "name": "array_jump_integer",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Integer\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;|1",
+      "measured_at": "2026-10-17T08:34:44.651571+00:00"
+    },
+    {
+      "name": "field_jump_integer",
+      "source": "Type Box\napple As Integer\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;|1",
+      "measured_at": "2026-10-17T08:34:44.841740+00:00"
+    },
+    {
+      "name": "array_jump_long",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Long\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;|1",
+      "measured_at": "2026-10-17T08:34:45.031691+00:00"
+    },
+    {
+      "name": "field_jump_long",
+      "source": "Type Box\napple As Long\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;|1",
+      "measured_at": "2026-10-17T08:34:45.219256+00:00"
+    },
+    {
+      "name": "array_jump_byte",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Byte\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:45.409292+00:00"
+    },
+    {
+      "name": "field_jump_byte",
+      "source": "Type Box\napple As Byte\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:45.654981+00:00"
+    },
+    {
+      "name": "array_jump_single",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Single\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:45.944699+00:00"
+    },
+    {
+      "name": "field_jump_single",
+      "source": "Type Box\napple As Single\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:46.158353+00:00"
+    },
+    {
+      "name": "array_jump_double",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Double\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:46.353170+00:00"
+    },
+    {
+      "name": "field_jump_double",
+      "source": "Type Box\napple As Double\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:46.552861+00:00"
+    },
+    {
+      "name": "array_jump_currency",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Currency\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:46.756893+00:00"
+    },
+    {
+      "name": "field_jump_currency",
+      "source": "Type Box\napple As Currency\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:46.946442+00:00"
+    },
+    {
+      "name": "array_jump_date",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Date\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:47.147273+00:00"
+    },
+    {
+      "name": "field_jump_date",
+      "source": "Type Box\napple As Date\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;0;0;0;|0",
+      "measured_at": "2026-10-17T08:34:47.335473+00:00"
+    },
+    {
+      "name": "array_jump_variant",
+      "source": "Function Probe() As String\nDim log As String, count As Long\nDim values(0) As Variant\nOn Error GoTo Failed\nGoTo Body\nFor values(0) = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(values(0))) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(values(0)))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;!92",
+      "measured_at": "2026-10-17T08:34:47.530504+00:00"
+    },
+    {
+      "name": "field_jump_variant",
+      "source": "Type Box\napple As Variant\nEnd Type\nFunction Probe() As String\nDim log As String, count As Long\nDim obj As Box\nOn Error GoTo Failed\nGoTo Body\nFor obj.apple = 1 To 2\nBody:\ncount=count+1\nlog=log & CStr(CDbl(obj.apple)) & \";\"\nIf count>=4 Then Exit For\nNext\nProbe=log & \"|\" & CStr(CDbl(obj.apple))\nExit Function\nFailed:\nProbe=log & \"!\" & CStr(Err.Number)\nEnd Function",
+      "result": "0;!92",
+      "measured_at": "2026-10-17T08:34:47.718757+00:00"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-17T08:34:47.758050+00:00"
+}

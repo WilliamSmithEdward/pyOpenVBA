@@ -29,6 +29,9 @@ NS = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart',
       'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
 REL_CHART = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart'
 
+# Shared with the pivot reader: constructing a node does not parse XML.
+XmlElement = ET.Element
+
 def xml_tree(data: str | bytes) -> ET.Element:
     """Build a read-only tree with DTDs and all declared entities refused."""
     parser = expat.ParserCreate(namespace_separator='}')
@@ -40,7 +43,7 @@ def xml_tree(data: str | bytes) -> ET.Element:
     def end(name: str) -> None:
         builder.end(expanded(name))
     def refuse(*_args: object) -> NoReturn:
-        raise ValueError('Chart XML must not contain DTDs or declared entities')
+        raise ValueError('Office XML must not contain DTDs or declared entities')
     parser.StartElementHandler = start
     parser.EndElementHandler = end
     parser.CharacterDataHandler = builder.data

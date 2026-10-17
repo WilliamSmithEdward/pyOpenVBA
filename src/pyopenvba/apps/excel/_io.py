@@ -120,6 +120,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     from pyopenvba.apps.excel._windows import read_book_view
 
     read_book_view(book, workbook_xml)
+    from pyopenvba.apps.excel._pivots import read as read_pivots
+
+    read_pivots(book)
     _read_names(book, workbook_xml)
     from pyopenvba.apps.excel._protection import read_book_protection
 

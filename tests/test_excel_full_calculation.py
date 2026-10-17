@@ -22,12 +22,12 @@ def test_automatic_calculation_does_not_hide_unsupported_udf_operations() -> Non
     app = ExcelApplication()
     app.add_workbook()
     app.add_module('Private Flag As Boolean\nFunction MyUnsupportedUDF() As Double\nApplication.Volatile\n'
-                   'If Flag Then\nMyUnsupportedUDF = Worksheets(1).PivotTables.Count\nElse\nMyUnsupportedUDF = 1\nEnd If\nEnd Function\n'
+                   'If Flag Then\nMyUnsupportedUDF = ThisWorkbook.PivotCaches.Create(1, Worksheets(1).Range("A1:B3")).RecordCount\nElse\nMyUnsupportedUDF = 1\nEnd If\nEnd Function\n'
                    'Sub Start()\nRange("A1").Formula = "=MyUnsupportedUDF()"\nEnd Sub\n'
                    'Sub Trigger()\nFlag = True\nRange("B1").Value = 1\nEnd Sub', name='Harness')
     app.run('Harness.Start')
     assert app.evaluate('Range("A1").Value2') == 1
-    with pytest.raises(VBAUnsupportedError, match='PivotTables'):
+    with pytest.raises(VBAUnsupportedError, match='Create'):
         app.run('Harness.Trigger')
 
 

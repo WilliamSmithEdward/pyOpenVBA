@@ -5,6 +5,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Added
+
+- Imported Excel PivotTables now expose table/cache collections, source and
+  cache metadata, report ranges, field collections and cached PivotItems to
+  in-memory VBA. Native fixtures cover row, column and page reports, multiple
+  data fields (including the synthetic Values field), and shared caches.
+  Original pivot/cache parts remain byte-identical through unrelated cell
+  edits and saves. Creation, refresh, layout mutation, grouping and full
+  multi-axis field ranges remain unsupported; this does not recalculate a
+  pivot report from changed source cells.
+
 ### Fixed
 
 - The in-memory VBA library implements Rate, IRR, MIRR, NPV, IPmt and PPmt,

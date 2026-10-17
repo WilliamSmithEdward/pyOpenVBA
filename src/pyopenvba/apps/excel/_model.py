@@ -62,6 +62,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._spills import Spill
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
+    from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
     from pyopenvba.formula._structured import TableShape
@@ -681,6 +682,7 @@ class Workbook(ExcelObject):
         self.pending_document_sources: dict[str, str] = {}
         self.vbide_project: VBAObject | None = None
         self.sheets_: list[Worksheet] = []
+        self.pivot_caches: list[PivotCache] = []
         self.names_ = Names(self)
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
@@ -756,6 +758,13 @@ class Workbook(ExcelObject):
         return self.application
 
     # -- contents
+
+    @member
+    def PivotCaches(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivots import PivotCaches
+
+        caches = PivotCaches(self, list(self.pivot_caches))
+        return caches if Index is MISSING else caches.Item(Index)
 
     @member
     def Sheets(self, Index: object = MISSING) -> object:
@@ -1072,6 +1081,7 @@ class Worksheet(ExcelObject):
         self.spills: dict[tuple[int, int], Spill] = {}
         #: The sheet's tables, in the order its file lists them (see _tables).
         self.tables: list[Table] = []
+        self.pivot_tables: list[PivotTable] = []
         #: The sheet's data validation rules, in the order its file lists them (see _validation).
         self.validations: list[ValidationRule] = []
         #: True once a rule is added, changed or removed, so a save writes the rules again.
@@ -1425,6 +1435,13 @@ class Worksheet(ExcelObject):
 
         tables = ListObjects(self)
         return tables if Index is MISSING else tables.vba_get("Item", [Index])
+
+    @member
+    def PivotTables(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivots import PivotTables
+
+        tables = PivotTables(self, [type(table)(self, table.cache, table.root) for table in self.pivot_tables])
+        return tables if Index is MISSING else tables.Item(Index)
 
     @member
     def Sort(self) -> object:

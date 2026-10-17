@@ -151,8 +151,8 @@ def test_manual_calculation_keeps_the_value_until_calculate_is_called() -> None:
 def test_a_real_member_this_lacks_is_unsupported() -> None:
     app = fresh()
     with pytest.raises(VBAUnsupportedError) as raised:
-        macro(app, "    Worksheets(1).PivotTables.Count")
-    assert "PivotTables" in str(raised.value)
+        macro(app, "    ThisWorkbook.PivotCaches.Create(1, Worksheets(1).Range(\"A1:B3\"))")
+    assert "Create" in str(raised.value)
 
 
 def test_a_member_excel_has_not_got_either_is_error_438() -> None:

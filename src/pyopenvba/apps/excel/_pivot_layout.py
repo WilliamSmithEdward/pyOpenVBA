@@ -205,6 +205,16 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
     rows = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}rowFields/{NS}field')]
     columns = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}colFields/{NS}field')]
     pages = [int(entry.get('fld', '0')) for entry in reversed(root.findall(f'{NS}pageFields/{NS}pageField'))]
+    page_rows = page_columns = 0
+    over_then_down = root.get('pageOverThenDown', '0') in ('1', 'true')
+    if pages:
+        wrap = int(root.get('pageWrap', '0'))
+        if over_then_down:
+            page_columns = min(wrap, len(pages)) if wrap > 0 else len(pages)
+            page_rows = (len(pages) + page_columns - 1) // page_columns
+        else:
+            page_rows = min(wrap, len(pages)) if wrap > 0 else len(pages)
+            page_columns = (len(pages) + page_rows - 1) // page_rows
     if len(reports) < 2:
         rows = [index for index in rows if index != VALUES]
         columns = [index for index in columns if index != VALUES]
@@ -232,10 +242,12 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
         dr, dc = (0, 0) if pages else (1, 0)
         height, width = (1, 1) if pages else (18, 3)
     area = Area(old.top, old.left, old.top + max(1, height) - 1, old.left + max(1, width) - 1, table.sheet.name)
-    if area.bottom > MAX_ROWS or area.right > MAX_COLUMNS or (pages and area.top - len(pages) - 1 < 1):
+    if area.bottom > MAX_ROWS or area.right > MAX_COLUMNS or (pages and area.top - page_rows - 1 < 1):
         raise error(1004)
-    extent = Area(area.top - len(pages) - 1 if pages else area.top, area.left, area.bottom,
-                  max(area.right, area.left + 1) if pages else area.right, table.sheet.name)
+    extent = Area(area.top - page_rows - 1 if pages else area.top, area.left, area.bottom,
+                  max(area.right, area.left + 3 * page_columns - 2) if pages else area.right, table.sheet.name)
+    if extent.right > MAX_COLUMNS:
+        raise error(1004)
     for other in table.sheet.pivot_tables:
         other_location = other.root.find(NS + 'location')
         if other is not table and other_location is not None:
@@ -318,9 +330,18 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
                     value = aggregate([record[int(report.get('fld', '0'))] for record in selected], report.get('subtotal', 'sum'))
                     put(dr + offset, dc + column, value)
     for offset, field in enumerate(reversed(pages)):
-        put(-len(pages) - 1 + offset, 0, decode_text(fields[field].get('name', '')))
-        put(-len(pages) - 1 + offset, 1, '(All)')
-    cleared = Range(table.sheet, [old, extent])
+        if over_then_down:
+            row_offset, column_offset = divmod(offset, page_columns)
+        else:
+            column_offset, row_offset = divmod(offset, page_rows)
+        put(-page_rows - 1 + row_offset, 3 * column_offset, decode_text(fields[field].get('name', '')))
+        put(-page_rows - 1 + row_offset, 3 * column_offset + 1, '(All)')
+    previous_areas = [old, extent]
+    if table.root.findall(f'{NS}pageFields/{NS}pageField'):
+        from pyopenvba.apps.excel._pivot_ranges import page_range
+
+        previous_areas.extend(page_range(table).areas)
+    cleared = Range(table.sheet, previous_areas)
     cleared.clear_contents_checked()
     # Existing field/data proxies must continue to reference the same XML nodes.
     pivot_fields = table.root.find(NS + 'pivotFields')
@@ -364,7 +385,7 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
     location.attrib.update(ref=area.address(absolute=False), firstHeaderRow=str(0 if empty and pages else int(VALUES not in columns or len(columns) > 1)),
                            firstDataRow=str(dr), firstDataCol=str(dc))
     if pages:
-        location.attrib.update(rowPageCount=str(len(pages)), colPageCount='1')
+        location.attrib.update(rowPageCount=str(page_rows), colPageCount=str(page_columns))
     else:
         location.attrib.pop('rowPageCount', None)
         location.attrib.pop('colPageCount', None)
@@ -409,7 +430,9 @@ def orient(field: object, value: object) -> None:
     if field.data and chosen == 4:
         return
     if chosen == 4 and field.index != VALUES:
-        table.AddDataField(field, MISSING, MISSING)
+        from pyopenvba.apps.excel._pivot_aggregate import add_data_field
+
+        add_data_field(table, field, MISSING, MISSING, keep_source_axis=True)
         return
     if field.index == VALUES:
         if len(reports) < 2 or chosen not in (0, 1, 2):

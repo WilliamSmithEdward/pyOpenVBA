@@ -37,7 +37,7 @@ is a percentage of working macros or complete functionality.
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
 | Shapes and worksheet controls | Partial | 54 / 2,025 | 0 | Basic shapes/text boxes and nine Forms control types, with measured values, links and persistence. Rich drawing APIs, grouping/copying, pictures and newer controls remain incomplete. |
 | Charts and sparklines | Partial | 30 / 951 | 0 | Embedded charts, basic series/titles and eight persisted chart kinds. Axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
-| PivotTables and slicers | Partial | 65 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata, empty-report creation and data-only AddDataField totals using all eleven aggregate functions, with measured events, field ranges and saved-report edits. Native probes cover date/time serials, Currency, typed values, errors, numerical edge cases and immutable cache snapshots across saves. Compact row/column/page layouts, nested subtotals, Values-axis placement and field removal now aggregate cached records; sparse layouts avoid scanning all records for each blank intersection. Refresh, arbitrary layout edits, filtering, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
+| PivotTables and slicers | Partial | 65 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata, empty-report creation and data-only AddDataField totals using all eleven aggregate functions, with measured events, field ranges and saved-report edits. Native probes cover date/time serials, Currency, typed values, errors, numerical edge cases and immutable cache snapshots across saves. Compact row/column/page layouts, nested subtotals, Values-axis placement and field removal now aggregate cached records. Field/page range queries support native measured compact, tabular, outline, grouped and multi-area reports; sparse layouts avoid scanning all records for each blank intersection. Refresh, arbitrary layout edits, filtering, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
 | Queries and external data | Partial | 8 / 278 | 0 | Workbook queries plus local Power Query evaluation, refresh and sheet loading. Connection objects, remote connectors, QueryTables and full query semantics remain incomplete. |
 | Data model and OLAP | Missing | 0 / 261 | 0 | No in-memory Power Pivot model, relationships/measures or cube automation. Reading some external-pivot metadata does not implement these operations. |
 | XML mapping | Missing | 0 / 75 | 0 | No XmlMaps, schema/namespace binding or mapped-data import/export API. |
@@ -95,11 +95,43 @@ and accept an additional native aggregate over their saved caches. This includes
 nested row/column subtotals, multiple measures, Values down rows, page-inclusive
 report ranges, month sorting, case-insensitive item merging and typed labels.
 Cache snapshots remain independent of later source edits, including after saving.
-These controls do not establish full filtering, grouping, refresh, field-range,
+These controls do not establish full filtering, grouping operations, refresh,
 formatting or event-interaction fidelity. See the
 [axis regressions](../../tests/test_excel_pivot_axes.py) and
 [native replay script](../../scripts/measure_pivot_axes.py). Member registration
 and verified totals are unchanged: the added setter belongs to an existing member.
+
+Field-range measurements add **55 controls**: 32 generated axis layouts and
+23 existing Excel workbooks, including compact, tabular, outline, grouped,
+renamed and filtered reports. `PivotField.DataRange` and `LabelRange` select
+single or separated areas from persisted report lines; `PivotTable.PageRange`
+returns vertical or wrapped filter blocks in both fill orders. Eight wrapped-page
+workbooks also check `TableRange2` includes every filter column. Native save/reopen
+checks cover every case, including Excel's row-depth-dependent Values ranges.
+Measure ranges omit grand totals while retaining displayed row subtotals; tests
+also enumerate their actual cells. See the
+[range regressions](../../tests/test_excel_pivot_field_ranges.py) and
+[measurement script](../../scripts/measure_pivot_field_ranges.py).
+
+Another **12 native controls** distinguish explicit `AddDataField`, which removes
+its source from a row/column/page axis, from assigning `Orientation=xlDataField`,
+which preserves the source axis. Invalid additions leave the existing report
+unchanged. Axis edits clear obsolete filter cells and retain imported page-wrap
+geometry. **Nine retained-reference controls** cover Values-axis moves and hiding,
+and removed data fields returning VBA error 424 rather than Python exceptions.
+See the [source-axis tests](../../tests/test_excel_pivot_source_axis.py) and
+[proxy controls](../../tests/fixtures/pivots/retained_fields.json). These controls
+do not complete arbitrary layout mutation, filtering/grouping, event interactions
+or all mixed-layout range/error combinations. Registration and verified counts
+remain unchanged because these are existing partial members.
+
+Imported pivot edits also retain namespace declarations used by compatibility
+attributes and extension QName values. This fixes native Excel refusing to open
+rewritten reports/caches whose `mc:Ignorable` prefix became undeclared. The shared
+XML reader/writer preserves local bindings, aliases and nested rebindings without
+changing global serializer state; DTD/entity refusal remains in place. See the
+[namespace regressions](../../tests/test_excel_xml_namespaces.py) and
+[pivot XML security tests](../../tests/test_excel_pivot_xml_security.py).
 
 ## Inventory scope and maintenance
 

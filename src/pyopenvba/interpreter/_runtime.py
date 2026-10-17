@@ -290,6 +290,7 @@ class ModuleRuntime:
         self.document: UserClassInstance | None = None
         self._initialised = False
         self.record_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
+        self.numeric_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
         self.programs: dict[int, F.Program] = {}
         self.program_errors: dict[int, tuple[str, str]] = {}
         self.public_variables = {item.name.lower() for group in parsed.variables if group.scope in ('public', 'global') for item in group.decls}
@@ -1232,9 +1233,10 @@ class Interpreter:
         """Call one procedure and give back what it returns."""
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
             raise error(28)
-        from pyopenvba.interpreter._compile import validate_record_arguments
+        from pyopenvba.interpreter._compile import validate_numeric_loops, validate_record_arguments
 
         program = module.program_for(procedure)
+        validate_numeric_loops(self, module, procedure, program.arrays)
         validate_record_arguments(self, module, procedure)
         module.initialise()
         frame = Frame(procedure=procedure, module=module, me=me, program=program)

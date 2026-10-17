@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Numeric For counter validation runs before the selected procedure executes,
+  rejecting nonnumeric or whole-array storage, class member properties,
+  constants, function calls and indexed scalar Variants. Nested UDT fields,
+  With temporaries, typed array parameters and class fields referenced by
+  their bare names remain valid. Fifty-nine native controls cover compiler
+  acceptance, implicit types and unused invalid routines; project edits
+  refresh validation against changed global declarations.
+
 - Numeric VBA For loops use the declared element or field type for bounds
   and steps, including qualified module storage. Next reevaluates array indices
   once and follows storage replaced by ReDim Preserve. Thirty-one native

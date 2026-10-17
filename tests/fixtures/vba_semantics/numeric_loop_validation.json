@@ -1,0 +1,497 @@
+{
+  "instrumentation": "none",
+  "probes": [
+    {
+      "name": "for_byte",
+      "source": "Function Probe() As String\nDim apple As Byte\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Byte",
+      "measured_at": "2026-10-17T08:51:04.395149+00:00"
+    },
+    {
+      "name": "for_integer",
+      "source": "Function Probe() As String\nDim apple As Integer\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T08:51:04.591486+00:00"
+    },
+    {
+      "name": "for_long",
+      "source": "Function Probe() As String\nDim apple As Long\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Long",
+      "measured_at": "2026-10-17T08:51:04.821572+00:00"
+    },
+    {
+      "name": "for_longlong",
+      "source": "Function Probe() As String\nDim apple As LongLong\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "LongLong",
+      "measured_at": "2026-10-17T08:51:05.006763+00:00"
+    },
+    {
+      "name": "for_longptr",
+      "source": "Function Probe() As String\nDim apple As LongPtr\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "LongLong",
+      "measured_at": "2026-10-17T08:51:05.197191+00:00"
+    },
+    {
+      "name": "for_single",
+      "source": "Function Probe() As String\nDim apple As Single\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Single",
+      "measured_at": "2026-10-17T08:51:05.388064+00:00"
+    },
+    {
+      "name": "for_double",
+      "source": "Function Probe() As String\nDim apple As Double\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Double",
+      "measured_at": "2026-10-17T08:51:05.582255+00:00"
+    },
+    {
+      "name": "for_currency",
+      "source": "Function Probe() As String\nDim apple As Currency\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Currency",
+      "measured_at": "2026-10-17T08:51:05.763096+00:00"
+    },
+    {
+      "name": "for_date",
+      "source": "Function Probe() As String\nDim apple As Date\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Date",
+      "measured_at": "2026-10-17T08:51:05.944456+00:00"
+    },
+    {
+      "name": "for_variant",
+      "source": "Function Probe() As String\nDim apple As Variant\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T08:51:06.134658+00:00"
+    },
+    {
+      "name": "for_boolean",
+      "source": "Function Probe() As String\nDim apple As Boolean\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:06.644643+00:00"
+    },
+    {
+      "name": "for_string",
+      "source": "Function Probe() As String\nDim apple As String\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:06.898014+00:00"
+    },
+    {
+      "name": "for_object",
+      "source": "Function Probe() As String\nDim apple As Object\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:07.153842+00:00"
+    },
+    {
+      "name": "for_decimal",
+      "source": "Function Probe() As String\nDim apple As Decimal\nFor apple = 1 To 2\nProbe = TypeName(apple)\nExit For\nNext\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nSyntax error",
+      "measured_at": "2026-10-17T08:51:07.403660+00:00"
+    },
+    {
+      "name": "enum_counter",
+      "source": "Enum Style\nLow = 1\nHigh = 2\nEnd Enum\nFunction Probe() As String\nDim alpha As Style\nFor alpha = 1 To 2\nProbe = TypeName(alpha)\nExit For\nNext\nEnd Function",
+      "result": "Long",
+      "measured_at": "2026-10-17T08:51:07.603893+00:00"
+    },
+    {
+      "name": "record_counter",
+      "source": "Type Box\nValue As Long\nEnd Type\nFunction Probe() As String\nDim alpha As Box\nFor alpha = 1 To 2\nProbe = TypeName(alpha)\nExit For\nNext\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:07.926528+00:00"
+    },
+    {
+      "name": "array_counter",
+      "source": "Function Probe() As String\nDim alpha(0) As Long\nFor alpha = 1 To 2\nProbe = TypeName(alpha)\nExit For\nNext\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:08.190804+00:00"
+    },
+    {
+      "name": "record_loop_only",
+      "source": "Type Box\nValue As Long\nEnd Type\nFunction Probe() As String\nDim alpha As Box\nFor alpha = 1 To 2\nProbe = \"entered\"\nExit For\nNext\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:08.762315+00:00"
+    },
+    {
+      "name": "Box_fraction_limit",
+      "source": "Function Probe() As String\nDim count As Long, log As String\nDim obj As New Box\nFor obj.apple = 1 To 1.5\ncount = count+1\nlog = log & CStr(obj.apple) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(obj.apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:09.257606+00:00"
+    },
+    {
+      "name": "Box_fraction_step",
+      "source": "Function Probe() As String\nDim count As Long, log As String\nDim obj As New Box\nFor obj.apple = 1 To 3.5 Step 1.5\ncount = count+1\nlog = log & CStr(obj.apple) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(obj.apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:09.788550+00:00"
+    },
+    {
+      "name": "PropertyBox_fraction_limit",
+      "source": "Function Probe() As String\nDim count As Long, log As String\nDim obj As New PropertyBox\nFor obj.apple = 1 To 1.5\ncount = count+1\nlog = log & CStr(obj.apple) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(obj.apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "PropertyBox",
+          "kind": "class",
+          "source": "Private current As Integer\nPublic Property Get apple() As Integer\napple = current\nEnd Property\nPublic Property Let apple(ByVal value As Integer)\ncurrent = value\nEnd Property"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:10.320191+00:00"
+    },
+    {
+      "name": "PropertyBox_fraction_step",
+      "source": "Function Probe() As String\nDim count As Long, log As String\nDim obj As New PropertyBox\nFor obj.apple = 1 To 3.5 Step 1.5\ncount = count+1\nlog = log & CStr(obj.apple) & \";\"\nIf count >= 8 Then Exit For\nNext\nProbe = log & \"|\" & CStr(obj.apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "PropertyBox",
+          "kind": "class",
+          "source": "Private current As Integer\nPublic Property Get apple() As Integer\napple = current\nEnd Property\nPublic Property Let apple(ByVal value As Integer)\ncurrent = value\nEnd Property"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:10.846033+00:00"
+    },
+    {
+      "name": "variant_integer",
+      "source": "Function Probe() As String\nDim values As Variant\nReDim values(0) As Integer\nDim log As String\nFor values(0) = 1 To 1.5\nlog=log & CStr(values(0)) & \";\"\nNext\nProbe=log & \"|\" & CStr(values(0))\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:11.387132+00:00"
+    },
+    {
+      "name": "variant_variant",
+      "source": "Function Probe() As String\nDim values As Variant\nvalues = Array(0)\nDim log As String\nFor values(0) = 1 To 1.5\nlog=log & CStr(values(0)) & \";\"\nNext\nProbe=log & \"|\" & CStr(values(0))\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:11.649972+00:00"
+    },
+    {
+      "name": "constant",
+      "source": "Function Probe() As String\nConst apple As Long=0\nDim log As String\nFor apple = 1 To 2\nlog=log & CStr(apple) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:11.905917+00:00"
+    },
+    {
+      "name": "module_constant",
+      "source": "Function Probe() As String\n\nDim log As String\nFor Other.apple = 1 To 2\nlog=log & CStr(Other.apple) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public Const apple As Long=0"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:12.425584+00:00"
+    },
+    {
+      "name": "enum_constant",
+      "source": "Enum Style\nLow=0\nHigh=1\nEnd Enum\nFunction Probe() As String\n\nDim log As String\nFor Low = 1 To 2\nlog=log & CStr(Low) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:12.696612+00:00"
+    },
+    {
+      "name": "module_array",
+      "source": "Function Probe() As String\n\nDim log As String\nFor Other.values(0) = 1 To 2\nlog=log & CStr(Other.values(0)) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public values(0) As Integer"
+        }
+      ],
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:12.956915+00:00"
+    },
+    {
+      "name": "unqualified_array",
+      "source": "Function Probe() As String\n\nDim log As String\nFor values(0) = 1 To 2\nlog=log & CStr(values(0)) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public values(0) As Integer"
+        }
+      ],
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:13.228616+00:00"
+    },
+    {
+      "name": "unqualified_integer",
+      "source": "Function Probe() As String\n\nDim log As String\nFor apple = 1 To 2\nlog=log & CStr(apple) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:13.506227+00:00"
+    },
+    {
+      "name": "unqualified_string",
+      "source": "Function Probe() As String\n\nDim log As String\nFor apple = 1 To 2\nlog=log & CStr(apple) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As String"
+        }
+      ],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:14.026854+00:00"
+    },
+    {
+      "name": "array_record_field",
+      "source": "Type Box\napple As Integer\nEnd Type\nFunction Probe() As String\nDim boxes(0) As Box\nDim log As String\nFor boxes(0).apple = 1 To 2\nlog=log & CStr(boxes(0).apple) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:14.228685+00:00"
+    },
+    {
+      "name": "record_array_element",
+      "source": "Type Box\nvalues(0) As Integer\nEnd Type\nFunction Probe() As String\nDim obj As Box\nDim log As String\nFor obj.values(0) = 1 To 2\nlog=log & CStr(obj.values(0)) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:14.450792+00:00"
+    },
+    {
+      "name": "nested_record_field",
+      "source": "Type Box\napple As Integer\nEnd Type\nType Outer\ninner As Box\nEnd Type\nFunction Probe() As String\nDim obj As Outer\nDim log As String\nFor obj.inner.apple = 1 To 2\nlog=log & CStr(obj.inner.apple) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:14.653014+00:00"
+    },
+    {
+      "name": "record_array_whole",
+      "source": "Type Box\nvalues(0) As Integer\nEnd Type\nFunction Probe() As String\nDim obj As Box\nDim log As String\nFor obj.values = 1 To 2\nlog=log & CStr(obj.values) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:15.060889+00:00"
+    },
+    {
+      "name": "array_record_whole",
+      "source": "Type Box\napple As Integer\nEnd Type\nFunction Probe() As String\nDim boxes(0) As Box\nDim log As String\nFor boxes(0) = 1 To 2\nlog=log & CStr(boxes(0)) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:15.323702+00:00"
+    },
+    {
+      "name": "string_array",
+      "source": "Function Probe() As String\nDim values(0) As String\nDim log As String\nFor values(0) = 1 To 2\nlog=log & CStr(values(0)) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:15.587047+00:00"
+    },
+    {
+      "name": "implicit_integer",
+      "source": "Function Probe() As String\n\nDim log As String\nFor apple% = 1 To 2\nlog=log & CStr(apple%) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:15.786137+00:00"
+    },
+    {
+      "name": "implicit_string",
+      "source": "Function Probe() As String\n\nDim log As String\nFor apple$ = 1 To 2\nlog=log & CStr(apple$) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:16.104239+00:00"
+    },
+    {
+      "name": "deftype_string",
+      "source": "DefStr A\nFunction Probe() As String\n\nDim log As String\nFor apple = 1 To 2\nlog=log & CStr(apple) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:16.374906+00:00"
+    },
+    {
+      "name": "function_counter",
+      "source": "Function Counter() As Integer\nEnd Function\nFunction Probe() As String\n\nDim log As String\nFor Counter = 1 To 2\nlog=log & CStr(Counter) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:16.620146+00:00"
+    },
+    {
+      "name": "function_index_counter",
+      "source": "Function Counter(ByVal index As Long) As Integer\nEnd Function\nFunction Probe() As String\n\nDim log As String\nFor Counter(0) = 1 To 2\nlog=log & CStr(Counter(0)) & \";\"\nNext\nProbe=log\nEnd Function",
+      "modules": [],
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:16.932511+00:00"
+    },
+    {
+      "name": "own_field",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public apple As Integer\nPublic Function RunLoop() As String\nDim log As String\nFor apple = 1 To 2\nlog=log & CStr(apple) & \";\"\nNext\nRunLoop=log\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As New Box\nProbe=obj.RunLoop()\nEnd Function",
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:17.167878+00:00"
+    },
+    {
+      "name": "me_field",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public apple As Integer\nPublic Function RunLoop() As String\nDim log As String\nFor Me.apple = 1 To 2\nlog=log & CStr(Me.apple) & \";\"\nNext\nRunLoop=log\nEnd Function"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As New Box\nProbe=obj.RunLoop()\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:17.686412+00:00"
+    },
+    {
+      "name": "with_record",
+      "modules": [],
+      "source": "Type Box\napple As Integer\nEnd Type\nFunction Probe() As String\nDim obj As Box\nDim log As String\nWith obj\nFor .apple=1 To 2\nlog=log & CStr(.apple) & \";\"\nNext\nEnd With\nProbe=log\nEnd Function",
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:17.886671+00:00"
+    },
+    {
+      "name": "with_record_array",
+      "modules": [],
+      "source": "Type Box\napple As Integer\nEnd Type\nFunction Probe() As String\nDim boxes(0) As Box\nDim log As String\nWith boxes(0)\nFor .apple=1 To 2\nlog=log & CStr(.apple) & \";\"\nNext\nEnd With\nProbe=log\nEnd Function",
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:18.119427+00:00"
+    },
+    {
+      "name": "with_record_function",
+      "modules": [],
+      "source": "Type Box\napple As Integer\nEnd Type\nFunction MakeBox() As Box\nEnd Function\nFunction Probe() As String\n\nDim log As String\nWith MakeBox()\nFor .apple=1 To 2\nlog=log & CStr(.apple) & \";\"\nNext\nEnd With\nProbe=log\nEnd Function",
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:18.291258+00:00"
+    },
+    {
+      "name": "with_object",
+      "modules": [
+        {
+          "name": "Box",
+          "kind": "class",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "source": "Function Probe() As String\nDim obj As Object\nSet obj=New Box\nDim log As String\nWith obj\nFor .apple=1 To 2\nlog=log & CStr(.apple) & \";\"\nNext\nEnd With\nProbe=log\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:18.771955+00:00"
+    },
+    {
+      "name": "array_parameter",
+      "source": "Function Walk(values() As Integer) As String\nFor values(0)=1 To 2\nWalk=Walk & CStr(values(0)) & \";\"\nNext\nEnd Function\nFunction Probe() As String\nDim values(0) As Integer\nProbe=Walk(values)\nEnd Function",
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:18.948079+00:00"
+    },
+    {
+      "name": "function_result_counter",
+      "source": "Function Probe() As Long\nFor Probe=1 To 2\nNext\nEnd Function",
+      "result": 3,
+      "measured_at": "2026-10-17T08:51:19.119161+00:00"
+    },
+    {
+      "name": "implicit_redim_counter",
+      "source": "Function Probe() As String\nReDim values(0) As Integer\nFor values(0)=1 To 2\nProbe=Probe & CStr(values(0)) & \";\"\nNext\nEnd Function",
+      "result": "1;2;",
+      "measured_at": "2026-10-17T08:51:19.303968+00:00"
+    },
+    {
+      "name": "implicit_previous_string",
+      "source": "Function Probe() As String\napple$=\"x\"\nFor apple=1 To 2\nNext\nProbe=CStr(apple)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:19.536912+00:00"
+    },
+    {
+      "name": "implicit_previous_string_read",
+      "source": "Function Probe() As String\nDim ignored As String\nignored=apple$\nFor apple=1 To 2\nNext\nProbe=CStr(apple)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:19.823427+00:00"
+    },
+    {
+      "name": "implicit_previous_variant",
+      "source": "Function Probe() As String\napple=0\nFor apple%=1 To 2\nNext\nProbe=CStr(apple)\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType-declaration character does not match declared data type",
+      "measured_at": "2026-10-17T08:51:20.063732+00:00"
+    },
+    {
+      "name": "implicit_for_first",
+      "source": "Function Probe() As String\nFor apple%=1 To 2\nNext\napple=4\nProbe=CStr(apple)\nEnd Function",
+      "result": "4",
+      "measured_at": "2026-10-17T08:51:20.258459+00:00"
+    },
+    {
+      "name": "demand_string",
+      "source": "Function Probe() As String\nProbe=\"done\"\nEnd Function\nSub Unused()\nDim apple As String\nFor apple=1 To 2\nNext\nEnd Sub",
+      "demand_result": "done",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nType mismatch",
+      "measured_at": "2026-10-17T08:51:20.596898+00:00"
+    },
+    {
+      "name": "demand_variant_array",
+      "source": "Function Probe() As String\nProbe=\"done\"\nEnd Function\nSub Unused()\nDim values As Variant\nvalues=Array(0)\nFor values(0)=1 To 2\nNext\nEnd Sub",
+      "demand_result": "done",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:21.128947+00:00"
+    },
+    {
+      "name": "demand_constant",
+      "source": "Function Probe() As String\nProbe=\"done\"\nEnd Function\nSub Unused()\nConst apple As Long=0\nFor apple=1 To 2\nNext\nEnd Sub",
+      "demand_result": "done",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable required - can't assign to this expression",
+      "measured_at": "2026-10-17T08:51:21.671338+00:00"
+    },
+    {
+      "name": "option_explicit_counter",
+      "source": "Option Explicit\nFunction Probe() As String\nFor apple=1 To 2\nNext\nProbe=\"done\"\nEnd Function",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nVariable not defined",
+      "measured_at": "2026-10-17T08:51:21.941133+00:00"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-17T08:51:21.941133+00:00"
+}

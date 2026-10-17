@@ -279,6 +279,18 @@ by `scripts/measure_structured_jumps.py`. This covers the measured cases;
 complete compiler type checking, reference resolution and object lifetime
 conformance remain open work.
 
+Numeric `For` counter validation also runs before the selected procedure's
+body executes, even for unreachable loops. Whole arrays, Boolean, String,
+Object and UDT values, properties, constants, function calls and indexed
+scalar Variants cannot serve as counters. Declared numeric or Variant array
+elements, enum variables, nested UDT fields and `With` UDT temporaries can.
+A class's own numeric field can use its bare name; explicit class member
+access, including `Me.field`, cannot. Fifty-nine native controls in
+`numeric_loop_validation.json` record these rules and implicit type-character
+bindings. Invalid unused routines remain deferred, and project edits
+invalidate cached validation. This is incremental validation; it does not
+complete VBA's compiler or general reference typing.
+
 Module-level `DefBool`, `DefByte`, `DefInt`, `DefLng`, `DefLngLng`,
 `DefLngPtr`, `DefSng`, `DefDbl`, `DefCur`, `DefDate`, `DefStr`, `DefObj` and
 `DefVar` supply initial-letter defaults. They affect untyped declarations,

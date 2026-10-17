@@ -87,10 +87,6 @@ MEASURED = read_measured()
 
 #: Probes the model answers differently, and why.
 GAPS: dict[str, str] = {
-    'Range("A1:A3").Value = Application.Transpose(Array(1, 2, 3)): Range("C1:C3").FormulaArray = "=A1:A3*10": '
-    'Range("C2").Copy Range("E1") ;; Range("E1").HasArray & "|" & Range("E1").Formula':
-        "copying part of an array formula reports itself: one probe cannot tell whether the formula moves from "
-        "the cell copied or from the array's first cell",
     ';; CallByName(5, "Value", VbGet)':
         "VBA refuses a number given as CallByName's object when it compiles the module; the model does not check "
         "an intrinsic's argument types then, and raises error 424 when the line runs",

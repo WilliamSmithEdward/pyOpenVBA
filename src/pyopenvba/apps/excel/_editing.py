@@ -202,7 +202,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     band, start, count = shift.band, shift.start, shift.count
     limit = MAX_ROWS if vertical else MAX_COLUMNS
     region = Area(start, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], start, band[1], MAX_COLUMNS)
-    _arrays.refuse(sheet, [region], "Shifting")
+    _arrays.shift_admitted(sheet, area, region, delete=delete)
     _tables.refuse(sheet, region, "Shifting", allowing=through)
     caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
@@ -252,6 +252,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
             entry.refers_to = text
             sheet.book.names_.changed = True
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    _arrays.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _hyperlinks.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     if notes:

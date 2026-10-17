@@ -67,7 +67,9 @@ name looking like a cell is not read as the cell.
    range; AND, OR and XOR pass over a text argument that says neither
    TRUE nor FALSE, `AND(TRUE,"x")` being TRUE, and read an argument left
    out as FALSE, `AND(TRUE,)` and `OR(,)` being FALSE
-   (`tests/fixtures/vba_worksheet_function_args.json`); ROW() and COLUMN() with no
+   (`tests/fixtures/vba_worksheet_function_args.json`); ROW and COLUMN propagate error arguments, including #REF! after a CSE copy
+   invalidates a reference (`tests/fixtures/cse_array_edits.json`);
+   ROW() and COLUMN() with no
    argument are an array of one in an array formula; INDEX with one index
    into cells in rows and columns is #REF!, `INDEX(A1:B2,2,)` being row 2;
    BINOM.DIST and the functions built on it take 0 to the power 0 as 1

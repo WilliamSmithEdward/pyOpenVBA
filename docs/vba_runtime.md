@@ -1230,8 +1230,21 @@ ClearContents over part of it, and inserting or deleting rows or
 columns through it, are error 1004. HasArray is True when a range meets
 one array and starts in it, False when it meets none, and Null
 otherwise. A file keeps the formula in the block's first cell, as Excel
-does. Copying part of an array, and filling, sorting, replacing or
-removing duplicates in one, report themselves unsupported.
+does. Partial copies create arrays of the copied size; whole-array cuts
+carry their ranges, including overlapping and cross-sheet moves. Cell
+shifts can carry or delete a whole array but cannot split one. Sorts that
+touch array cells raise error 1004 before mutation. PasteSpecial covers
+array fragments, transposition, values, formulas, formats and arithmetic
+operations over ordinary destinations; arithmetic over an existing array
+is refused. Manual copies retain the copied caches until calculation, and
+FormulaArray entry calculates its initial result even in manual mode.
+A single-cell FormulaArray write in a live dynamic spill converts its whole
+footprint to CSE; multi-cell replacements retain the measured overlap and
+obstruction behavior, including dependent invalidation.
+These paths have 189 native cases and fourteen native file gates in
+`tests/fixtures/cse_array_edits.json`. Filling, replacing and removing
+duplicates still have explicit gaps; multi-area/protected/filtered
+combinations, broader argument and event behavior need further work.
 
 `Evaluate`, `[...]` and `Worksheet.Evaluate` work an expression out as
 Excel's Evaluate does (`tests/fixtures/evaluate.json`, 91 cases). What

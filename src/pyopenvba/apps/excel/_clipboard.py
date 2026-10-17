@@ -293,13 +293,36 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
           "PasteSpecial")
     if (kind in _CONTENT_FORMULAS or op) and sheet.book is not source_sheet.book:
         raise VBAUnsupportedError("PasteSpecial of formulas into another workbook is not implemented")
+    from pyopenvba.apps.excel import _arrays
+
+    landing = Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1)
+    covered, divided = _arrays.met(sheet, [landing]) if kind in _CONTENT_FORMULAS | _CONTENT_VALUES or op else ([], [])
+    if divided or op and covered:
+        raise error(1004, _arrays.PART_OF_AN_ARRAY)
     source_cells = {position: _snapshot(cell) for position, cell in source_sheet.cells_.items()
                     if made.covers(*position)}
+    array_plans: list[tuple[Area, int, int]] = []
+    origins: dict[tuple[int, int], tuple[int, int]] = {}
+    if kind in _CONTENT_FORMULAS:
+        for part, part_down, part_across in made.parts:
+            for original, fragment in _arrays.copy_fragments(source_sheet, part):
+                origin = (original.top, original.left)
+                original_cell = source_sheet.cells_.get(origin)
+                assert original_cell is not None
+                positions = ([(row, column) for row in range(fragment.top, fragment.bottom + 1)
+                              for column in range(fragment.left, fragment.right + 1)] if op else [(fragment.top, fragment.left)])
+                for position in positions:
+                    source_cells[position] = replace(source_cells.get(position, _snapshot(original_cell)), formula=original_cell.formula)
+                    origins[position] = origin
+                if not op:
+                    array_plans.append((fragment, part_down + fragment.top - part.top, part_across + fragment.left - part.left))
     values = {position: source_sheet.book.calculator.value_of(source_sheet.name, *position)
               for position, cell in source_cells.items() if cell.formula} if kind in _CONTENT_VALUES else {}
     from pyopenvba.apps.excel import _merges, _notes
 
     notes: dict[tuple[int, int], _notes.Note] = {}
+    for anchor in covered:
+        sheet.array_formulas.pop(anchor, None)
     for down in range(height):
         for across in range(width):
             row, column = corner.top + down, corner.left + across
@@ -315,7 +338,14 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
             blank = cell is None or (cell.value is EMPTY and not cell.formula)
             if blank and skipping:
                 continue
-            _paste_one(target, kind, op, (row, column), source, cell, values.get(source), turned)
+            formula_source = source if turned else origins.get(source, source)
+            _paste_one(target, kind, op, (row, column), formula_source, cell, values.get(source), turned)
+    for top in range(corner.top, corner.top + height, rows):
+        for left in range(corner.left, corner.left + width, columns):
+            for fragment, down, across in array_plans:
+                row, column = (top + across, left + down) if turned else (top + down, left + across)
+                block_rows, block_columns = (fragment.columns, fragment.rows) if turned else (fragment.rows, fragment.columns)
+                sheet.array_formulas[(row, column)] = Area(row, column, row + block_rows - 1, column + block_columns - 1)
     if kind == COMMENTS or kind in _EVERYTHING:
         # The notes come along with everything, and on their own as comments; values and formats leave the notes
         # where they land as they are (tests/fixtures/excel_model/).
@@ -376,7 +406,12 @@ def _paste_one(target: Range, kind: int, op: str, at: tuple[int, int], source: t
         formula, content = _combined(op, under, formula, content)
     fresh = sheet.cell(row, column, create=True)
     assert fresh is not None
-    fresh.value, fresh.formula, fresh.stale = (EMPTY, formula, True) if formula else (content, "", False)
+    cached = cell.value if formula and cell is not None and not sheet.book.calculator.automatic else EMPTY
+    if formula and op and not sheet.book.calculator.automatic:
+        cached = 0.0
+    fresh.value, fresh.formula, fresh.stale = (cached, formula, True) if formula else (content, "", False)
+    if kind != FORMATS:
+        fresh.dynamic, fresh.spilled_from = False, None
     fresh.style, fresh.xf = (None if style == default else style), -1
     sheet.book.stylesheet.meet(fresh.style)
     sheet.settle(row, column)
@@ -446,6 +481,13 @@ def move(source: Range, area: Area, destination: Range) -> None:
         raise VBAUnsupportedError("cutting whole rows or columns that carry sizes or formats of their own is not "
                                   "implemented")
     unmeasured(Range(target, [landing]), "Cutting cells")
+    from pyopenvba.apps.excel import _arrays
+
+    carried, split = _arrays.met(sheet, [area])
+    covered, divided = _arrays.met(target, [landing])
+    if split or any(anchor not in carried or target is not sheet for anchor in divided):
+        raise error(1004, _arrays.PART_OF_AN_ARRAY)
+    arrays = [sheet.array_formulas[anchor] for anchor in carried]
     down, across = top - area.top, left - area.left
     moving = {position: cell for position, cell in sheet.cells_.items() if area.contains(*position)}
     book = sheet.book
@@ -466,6 +508,10 @@ def move(source: Range, area: Area, destination: Range) -> None:
         if text != entry.refers_to:
             entry.refers_to = text
             book.names_.changed = True
+    for anchor in carried:
+        sheet.array_formulas.pop(anchor, None)
+    for anchor in covered:
+        target.array_formulas.pop(anchor, None)
     for position in moving:
         del sheet.cells_[position]
     for position in [position for position in target.cells_ if landing.contains(*position)]:
@@ -475,6 +521,9 @@ def move(source: Range, area: Area, destination: Range) -> None:
         if cell.formula and book.calculator.automatic:
             cell.value = EMPTY
         target.cells_[(row + down, column + across)] = cell
+    for block in arrays:
+        target.array_formulas[(block.top + down, block.left + across)] = Area(
+            block.top + down, block.left + across, block.bottom + down, block.right + across)
     if sheet.notes or target.notes:
         from pyopenvba.apps.excel._notes import cut as cut_notes
 

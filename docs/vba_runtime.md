@@ -270,8 +270,29 @@ case. `Select Case` captures a default member's value once. These behaviors,
 jump reentry and error-handler continuations replay 253 uninstrumented native
 Excel traces in `tests/fixtures/vba_semantics/structured_jumps.json`, recorded
 by `scripts/measure_structured_jumps.py`. This covers the measured cases;
-complete compiler type checking, `DefType` defaults and object lifetime
+complete compiler type checking, reference resolution and object lifetime
 conformance remain open work.
+
+Module-level `DefBool`, `DefByte`, `DefInt`, `DefLng`, `DefLngLng`,
+`DefLngPtr`, `DefSng`, `DefDbl`, `DefCur`, `DefDate`, `DefStr`, `DefObj` and
+`DefVar` supply initial-letter defaults. They affect untyped declarations,
+implicit variables, arrays, parameters and function returns within that
+module; explicit `As` clauses and type characters take precedence. Private
+variables, constants and enum members in another module do not capture
+unqualified names. Declaration expressions cannot create implicit variables. Constants
+retain their inferred expression types. Ranges are case insensitive, accept
+reverse endpoints and cannot overlap. Directives precede declarations.
+
+`ReDim` can declare a local array even in an unexecuted block or under
+`Option Explicit`. An earlier implicit scalar use cannot be redeclared as
+an array. An explicitly declared scalar Variant can hold a typed array and
+change its element type on ordinary `ReDim`; `Preserve` reports error 13 for
+a type change. Existing declared arrays retain their element types. Cached
+procedure bindings refresh when project modules change. These rules and
+parameter restrictions replay 93 native compiler/runtime probes in
+`tests/fixtures/vba_semantics/default_types.json`, remeasured with
+`scripts/measure_default_types.py`. The compiler checks these measured paths;
+it does not yet implement complete VBA type and reference checking.
 
 `On Error GoTo` does not unwind the stack: the handler runs where the
 error happened, so `Resume Next` hands control back to the statement

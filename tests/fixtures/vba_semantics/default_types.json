@@ -1,0 +1,793 @@
+{
+  "excel_version_build": "16.0|20430",
+  "instrumentation": "none",
+  "probes": [
+    {
+      "name": "evidence_defbool",
+      "source": "DefBool A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Boolean|Boolean|Empty|Boolean|Boolean|Boolean|Boolean|Boolean|Boolean",
+      "measured_at": "2026-10-17T07:14:03.812666+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defbyte",
+      "source": "DefByte A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Byte|Byte|Empty|Byte|Byte|Byte|Byte|Byte|Byte",
+      "measured_at": "2026-10-17T07:14:04.230331+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defint",
+      "source": "DefInt A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Integer|Integer|Empty|Integer|Integer|Integer|Integer|Integer|Integer",
+      "measured_at": "2026-10-17T07:14:04.589297+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_deflng",
+      "source": "DefLng A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Long|Long|Empty|Long|Long|Long|Long|Long|Long",
+      "measured_at": "2026-10-17T07:14:04.945975+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_deflnglng",
+      "source": "DefLngLng A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "LongLong|LongLong|Empty|LongLong|LongLong|LongLong|LongLong|LongLong|LongLong",
+      "measured_at": "2026-10-17T07:14:05.295012+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_deflngptr",
+      "source": "DefLngPtr A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "LongLong|LongLong|Empty|LongLong|LongLong|LongLong|LongLong|LongLong|LongLong",
+      "measured_at": "2026-10-17T07:14:05.675678+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defsng",
+      "source": "DefSng A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Single|Single|Empty|Single|Single|Single|Single|Single|Single",
+      "measured_at": "2026-10-17T07:14:06.051252+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defdbl",
+      "source": "DefDbl A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Double|Double|Empty|Double|Double|Double|Double|Double|Double",
+      "measured_at": "2026-10-17T07:14:06.418684+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defcur",
+      "source": "DefCur A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Currency|Currency|Empty|Currency|Currency|Currency|Currency|Currency|Currency",
+      "measured_at": "2026-10-17T07:14:06.783215+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defdate",
+      "source": "DefDate A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Date|Date|Empty|Date|Date|Date|Date|Date|Date",
+      "measured_at": "2026-10-17T07:14:07.219028+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defstr",
+      "source": "DefStr A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "String|String|Empty|String|String|String|String|String|String",
+      "measured_at": "2026-10-17T07:14:07.654415+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defobj",
+      "source": "DefObj A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Nothing)\nEnd Function",
+      "result": "Nothing|Nothing|Empty|Nothing|Nothing|Nothing|Nothing|Nothing|Nothing",
+      "measured_at": "2026-10-17T07:14:08.123573+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_defvar",
+      "source": "DefVar A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(ByVal arg) As String\nWatch = TypeName(arg)\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch(Empty)\nEnd Function",
+      "result": "Empty|Empty|Empty|Empty|Empty|Empty|Empty|Empty|Empty",
+      "measured_at": "2026-10-17T07:14:08.512196+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_range",
+      "source": "DefInt A-C, X-Z\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "result": "Integer|Integer|Empty|Integer",
+      "measured_at": "2026-10-17T07:14:08.863830+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_overlap",
+      "source": "DefInt A-C\nDefStr B-D\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:09.193341+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nDuplicate Deftype statement"
+    },
+    {
+      "name": "evidence_reverse",
+      "source": "DefInt C-A\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "result": "Integer|Integer|Empty|Empty",
+      "measured_at": "2026-10-17T07:14:09.602237+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_word",
+      "source": "DefInt Apple\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:09.969732+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected: letter"
+    },
+    {
+      "name": "evidence_duplicate",
+      "source": "DefInt A\nDefInt A\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:10.499034+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nDuplicate Deftype statement"
+    },
+    {
+      "name": "evidence_lowercase",
+      "source": "DefInt a-c\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "result": "Integer|Integer|Empty|Empty",
+      "measured_at": "2026-10-17T07:14:10.896159+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "evidence_digit",
+      "source": "DefInt 1\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:11.263286+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected: letter"
+    },
+    {
+      "name": "evidence_after",
+      "source": "Dim alpha\nDefInt A\nFunction Probe() As String\nDim alpha, beta, delta, zebra\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta) & \"|\" & TypeName(zebra)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:11.797867+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nDeftype statements must precede declarations"
+    },
+    {
+      "name": "extra_suffix_override",
+      "source": "DefInt A-Z\nFunction Probe() As String\nDim alpha$, beta!, gamma#, delta@, epsilon&, zeta%\nProbe = TypeName(alpha$) & \"|\" & TypeName(beta!) & \"|\" & TypeName(gamma#) & \"|\" & TypeName(delta@) & \"|\" & TypeName(epsilon&) & \"|\" & TypeName(zeta%)\nEnd Function",
+      "result": "String|Single|Double|Currency|Long|Integer",
+      "measured_at": "2026-10-17T07:14:12.224706+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_explicit_override",
+      "source": "DefInt A-Z\nFunction Probe() As String\nDim alpha As Variant, beta As String, gamma As Double\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(gamma)\nEnd Function",
+      "result": "Empty|String|Double",
+      "measured_at": "2026-10-17T07:14:12.664827+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_constants",
+      "source": "DefInt A-Z\nConst alpha = 1.5, beta = \"x\"\nFunction Probe() As String\nConst gamma = 2.5\nProbe = TypeName(alpha) & \":\" & CStr(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(gamma) & \":\" & CStr(gamma)\nEnd Function",
+      "result": "Double:1.5|String|Double:2.5",
+      "measured_at": "2026-10-17T07:14:13.149655+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_paramarray",
+      "source": "DefInt A\nFunction Watch(ParamArray args()) As String\nWatch = TypeName(args) & \"|\" & TypeName(args(0))\nEnd Function\nFunction Probe() As String\nProbe = Watch(1.5)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:13.653254+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nParamArray must be declared as an array of Variant"
+    },
+    {
+      "name": "extra_optional_default",
+      "source": "DefInt A\nFunction Watch(Optional apple = 1.5) As String\nWatch = TypeName(apple) & \":\" & CStr(apple)\nEnd Function\nFunction Probe() As String\nProbe = Watch()\nEnd Function",
+      "result": "Integer:2",
+      "measured_at": "2026-10-17T07:14:14.056379+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_udt_implicit_field",
+      "source": "DefInt A\nType Box\napple\nEnd Type\nFunction Probe() As String\nDim value As Box\nProbe = TypeName(value.apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:14.432076+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nStatement invalid inside Type block"
+    },
+    {
+      "name": "extra_redim_variant",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Variant\nReDim apple(0)\nProbe = TypeName(apple) & \"|\" & TypeName(apple(0))\nEnd Function",
+      "result": "Integer()|Integer",
+      "measured_at": "2026-10-17T07:14:14.830301+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_redim_existing_array",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple() As Variant\nReDim apple(0)\nProbe = TypeName(apple) & \"|\" & TypeName(apple(0))\nEnd Function",
+      "result": "Variant()|Empty",
+      "measured_at": "2026-10-17T07:14:15.232433+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_procedure_directive",
+      "source": "Function Probe() As String\nDefInt A\nDim apple\nProbe = TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:15.770195+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nInvalid inside procedure"
+    },
+    {
+      "name": "extra_after_procedure",
+      "source": "Function Watch() As String\nEnd Function\nDefInt A\nFunction Probe() As String\nDim apple\nProbe = TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:16.296970+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOnly comments may appear after End Sub, End Function, or End Property"
+    },
+    {
+      "name": "extra_colon_ranges",
+      "source": "DefInt A: DefStr B\nFunction Probe() As String\nDim alpha, beta\nProbe = TypeName(alpha) & \"|\" & TypeName(beta)\nEnd Function",
+      "result": "Integer|String",
+      "measured_at": "2026-10-17T07:14:16.863245+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_mixed_case_range",
+      "source": "DefInt a-C\nFunction Probe() As String\nDim alpha, beta, delta\nProbe = TypeName(alpha) & \"|\" & TypeName(beta) & \"|\" & TypeName(delta)\nEnd Function",
+      "result": "Integer|Integer|Empty",
+      "measured_at": "2026-10-17T07:14:17.303679+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "extra_long_letter",
+      "source": "DefInt AA-C\nFunction Probe() As String\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:17.620985+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected: letter"
+    },
+    {
+      "name": "extra_underscore",
+      "source": "DefInt _\nFunction Probe() As String\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:18.146747+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected: letter"
+    },
+    {
+      "name": "extra_unknown_defdec",
+      "source": "DefDec A\nFunction Probe() As String\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:18.671929+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected: line number or label or statement or end of statement"
+    },
+    {
+      "name": "extra_unknown_deftype",
+      "source": "DefType A\nFunction Probe() As String\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:19.200297+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nInvalid outside procedure"
+    },
+    {
+      "name": "optional_defbool",
+      "source": "DefBool A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:19.704177+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defbyte",
+      "source": "DefByte A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:20.230844+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defint",
+      "source": "DefInt A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:20.778781+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_deflng",
+      "source": "DefLng A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:21.294028+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_deflnglng",
+      "source": "DefLngLng A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:21.849026+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_deflngptr",
+      "source": "DefLngPtr A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:22.373014+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defsng",
+      "source": "DefSng A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:22.878163+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defdbl",
+      "source": "DefDbl A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:23.412949+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defcur",
+      "source": "DefCur A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:23.934545+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defdate",
+      "source": "DefDate A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:24.463267+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defstr",
+      "source": "DefStr A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:24.981093+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defobj",
+      "source": "DefObj A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:25.524457+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "optional_defvar",
+      "source": "DefVar A\nPrivate aunt\nFunction Atom()\nEnd Function\nFunction Watch(Optional arg) As String\nWatch = TypeName(arg) & \":\" & CStr(IsMissing(arg))\nEnd Function\nFunction Probe() As String\nDim angle, banana, ab(0)\nStatic amber\nReDim arr(0)\nProbe = TypeName(aunt) & \"|\" & TypeName(angle) & \"|\" & TypeName(banana) & \"|\" & TypeName(amber) & \"|\" & TypeName(ab(0)) & \"|\" & TypeName(arr(0)) & \"|\" & TypeName(alocal) & \"|\" & TypeName(Atom()) & \"|\" & Watch()\nEnd Function",
+      "result": "Empty|Empty|Empty|Empty|Empty|Empty|Empty|Empty|Error:True",
+      "measured_at": "2026-10-17T07:14:25.936490+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_suffix_implicit",
+      "source": "DefInt A-Z\nFunction Probe() As String\nalpha$ = \"x\"\nProbe = TypeName(alpha$) & \"|\" & TypeName(beta&)\nEnd Function",
+      "result": "String|Long",
+      "measured_at": "2026-10-17T07:14:26.346566+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_redim_before",
+      "source": "DefInt A\nFunction Probe() As String\nProbe = TypeName(apple)\nReDim apple(0)\nProbe = Probe & \"|\" & TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:26.832372+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected array"
+    },
+    {
+      "name": "scope_redim_explicit",
+      "source": "Option Explicit\nDefInt A\nFunction Probe() As String\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Integer()",
+      "measured_at": "2026-10-17T07:14:27.329463+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_variant_retype",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Variant\nReDim apple(0)\nReDim apple(0) As Double\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Double()",
+      "measured_at": "2026-10-17T07:14:27.774445+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_variant_repeat",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Variant\nReDim apple(0) As Double\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Double()",
+      "measured_at": "2026-10-17T07:14:28.177495+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_variant_preserve",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Variant\nReDim apple(0) As Double\nOn Error Resume Next\nReDim Preserve apple(1)\nProbe = TypeName(apple) & \"|\" & CStr(Err.Number)\nEnd Function",
+      "result": "Double()|0",
+      "measured_at": "2026-10-17T07:14:28.589321+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_array_retype",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple() As Variant\nReDim apple(0) As Double\nProbe = TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:28.943606+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nCan't change data types of array elements"
+    },
+    {
+      "name": "scope_implicit_retype",
+      "source": "DefInt A\nFunction Probe() As String\nReDim apple(0)\nReDim apple(0) As Double\nProbe = TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:29.507393+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nCan't change data types of array elements"
+    },
+    {
+      "name": "scope_paramarray_explicit",
+      "source": "DefInt A\nFunction Watch(ParamArray args() As Variant) As String\nWatch = TypeName(args(0))\nEnd Function\nFunction Probe() As String\nProbe = Watch(1.5)\nEnd Function",
+      "result": "Double",
+      "measured_at": "2026-10-17T07:14:29.947642+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_udt_suffix",
+      "source": "DefInt A\nType Box\napple$\nEnd Type\nFunction Probe() As String\nDim value As Box\nProbe = TypeName(value.apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:30.277312+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nStatement invalid inside Type block"
+    },
+    {
+      "name": "scope_optional_object",
+      "source": "DefObj A\nFunction Watch(Optional apple = Nothing) As String\nWatch = TypeName(apple)\nEnd Function\nFunction Probe() As String\nProbe = Watch()\nEnd Function",
+      "result": "Nothing",
+      "measured_at": "2026-10-17T07:14:30.655405+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_module_scope",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "DefInt A\nPublic apple\nFunction Alpha()\nEnd Function\nFunction Describe() As String\nDescribe = TypeName(apple) & \"|\" & TypeName(Alpha())\nEnd Function"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nDim apple\nProbe = TypeName(apple) & \"|\" & Other.Describe()\nEnd Function",
+      "result": "String|Integer|Integer",
+      "measured_at": "2026-10-17T07:14:31.206069+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "scope_class_scope",
+      "modules": [
+        {
+          "name": "CounterType",
+          "kind": "class",
+          "source": "DefInt A\nPrivate apple\nPublic Function Alpha()\nEnd Function\nPublic Function Describe() As String\nDescribe = TypeName(apple) & \"|\" & TypeName(Alpha())\nEnd Function"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nDim obj As New CounterType, apple\nProbe = TypeName(apple) & \"|\" & obj.Describe()\nEnd Function",
+      "result": "String|Integer|Integer",
+      "measured_at": "2026-10-17T07:14:31.697656+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_preserve_retype",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Variant\nReDim apple(0) As Double\nOn Error Resume Next\nReDim Preserve apple(1) As Integer\nProbe = TypeName(apple) & \"|\" & CStr(Err.Number) & \"|\" & CStr(UBound(apple))\nEnd Function",
+      "result": "Double()|13|0",
+      "measured_at": "2026-10-17T07:14:32.082697+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_preserve_empty",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Variant\nOn Error Resume Next\nReDim Preserve apple(1)\nProbe = TypeName(apple) & \"|\" & CStr(Err.Number)\nEnd Function",
+      "result": "Empty|13",
+      "measured_at": "2026-10-17T07:14:32.581000+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_each_default",
+      "source": "DefInt A\nFunction Probe() As String\nFor Each apple In Array(1,2)\nNext\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:32.900296+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nFor Each control variable must be Variant or Object"
+    },
+    {
+      "name": "controls_implicit_for",
+      "source": "DefInt A\nFunction Probe() As String\nFor apple = 1 To 1.5\nProbe = Probe & CStr(apple) & \";\"\nNext\nProbe = Probe & TypeName(apple) & \":\" & CStr(apple)\nEnd Function",
+      "result": "1;2;Integer:3",
+      "measured_at": "2026-10-17T07:14:33.293927+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_implicit_round",
+      "source": "DefInt A\nFunction Probe() As String\nProbe = TypeName(apple) & \":\" & CStr(apple)\napple = 1.5\nProbe = Probe & \"|\" & TypeName(apple) & \":\" & CStr(apple)\nEnd Function",
+      "result": "Integer:0|Integer:2",
+      "measured_at": "2026-10-17T07:14:33.752334+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_byref_implicit",
+      "source": "DefInt A\nSub Watch(ByRef apple)\napple = 1.5\nEnd Sub\nFunction Probe() As String\nWatch apricot\nProbe = TypeName(apricot) & \":\" & CStr(apricot)\nEnd Function",
+      "result": "Integer:2",
+      "measured_at": "2026-10-17T07:14:34.181848+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_static_implicit",
+      "source": "DefInt A\nStatic Function Watch() As Long\nalpha = alpha + 1\nWatch = alpha\nEnd Function\nFunction Probe() As String\nProbe = CStr(Watch()) & \"|\" & CStr(Watch())\nEnd Function",
+      "result": "1|2",
+      "measured_at": "2026-10-17T07:14:34.593770+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_redim_compile_side_effect",
+      "source": "DefInt A\nFunction Probe() As String\nRange(\"A1\").Value2 = \"wrong\"\nProbe = TypeName(apple)\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:35.020335+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected array"
+    },
+    {
+      "name": "controls_redim_explicit_variant",
+      "source": "DefInt A\nFunction Probe() As String\nReDim apple(0) As Variant\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Variant()",
+      "measured_at": "2026-10-17T07:14:35.426985+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_redim_typed_scalar",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Integer\nReDim apple(0)\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:35.810940+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected array"
+    },
+    {
+      "name": "controls_optional_explicit_variant",
+      "source": "DefInt A\nFunction Watch(Optional apple As Variant) As String\nWatch = TypeName(apple) & \":\" & CStr(IsMissing(apple))\nEnd Function\nFunction Probe() As String\nProbe = Watch()\nEnd Function",
+      "result": "Error:True",
+      "measured_at": "2026-10-17T07:14:36.209046+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "controls_redim_before_variant",
+      "source": "\nFunction Probe() As String\nProbe = TypeName(apple)\nReDim apple(0)\nProbe = Probe & \"|\" & TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:36.626824+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nInvalid ReDim"
+    },
+    {
+      "name": "arrays_skipped_redim",
+      "source": "DefInt A\nFunction Probe() As String\nIf False Then\nReDim apple(0)\nEnd If\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Integer()",
+      "measured_at": "2026-10-17T07:14:37.029923+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "arrays_goto_redim",
+      "source": "DefInt A\nFunction Probe() As String\nGoTo Target\nReDim apple(0)\nTarget:\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Integer()",
+      "measured_at": "2026-10-17T07:14:37.452177+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "arrays_variant_read_then_redim",
+      "source": "DefInt A\nFunction Probe() As String\napple = Empty\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:37.918337+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected array"
+    },
+    {
+      "name": "arrays_variant_redim_preserve",
+      "source": "DefInt A\nFunction Probe() As String\nDim apple As Variant\nReDim apple(0) As Double\napple(0)=1.5\nReDim Preserve apple(1) As Double\nProbe = TypeName(apple) & \":\" & CStr(apple(0))\nEnd Function",
+      "result": "Double():1.5",
+      "measured_at": "2026-10-17T07:14:38.326978+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "global_array",
+      "source": "DefInt A\nFunction Probe() As String\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple() As String"
+        }
+      ],
+      "result": "String()",
+      "compiler_signal": "control-disabled",
+      "measured_at": "2026-10-17T07:14:38.888070+00:00"
+    },
+    {
+      "name": "global_variant",
+      "source": "DefInt A\nFunction Probe() As String\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Variant"
+        }
+      ],
+      "result": "Integer()",
+      "compiler_signal": "control-disabled",
+      "measured_at": "2026-10-17T07:14:39.453667+00:00"
+    },
+    {
+      "name": "visibility_private_read",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Private apple As Integer"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nProbe = TypeName(apple)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T07:14:39.948504+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "visibility_private_write",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Private apple As Integer"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nOn Error Resume Next\napple = \"x\"\nProbe = TypeName(apple) & \":\" & CStr(apple) & \"|\" & CStr(Err.Number)\nEnd Function",
+      "result": "String:x|0",
+      "measured_at": "2026-10-17T07:14:40.441696+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "visibility_private_redim",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Private apple As Integer"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "result": "String()",
+      "measured_at": "2026-10-17T07:14:41.025094+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "visibility_public_read",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T07:14:41.513338+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "visibility_public_write",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nOn Error Resume Next\napple = \"x\"\nProbe = TypeName(apple) & \":\" & CStr(apple) & \"|\" & CStr(Err.Number)\nEnd Function",
+      "result": "Integer:0|13",
+      "measured_at": "2026-10-17T07:14:41.939723+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "visibility_public_redim",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public apple As Integer"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nReDim apple(0)\nProbe = TypeName(apple)\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:42.414743+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nExpected array"
+    },
+    {
+      "name": "constants_private_constant",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Private Const apple = 1"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nProbe = TypeName(apple)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T07:14:42.838068+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "constants_private_enum",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Private Enum Palette\napple = 1\nEnd Enum"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nProbe = TypeName(apple)\nEnd Function",
+      "result": "String",
+      "measured_at": "2026-10-17T07:14:43.270402+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "constants_public_constant",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public Const apple = 1"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Integer",
+      "measured_at": "2026-10-17T07:14:43.705982+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "constants_public_enum",
+      "modules": [
+        {
+          "name": "Other",
+          "kind": "standard",
+          "source": "Public Enum Palette\napple = 1\nEnd Enum"
+        }
+      ],
+      "source": "DefStr A\nFunction Probe() As String\nProbe = TypeName(apple)\nEnd Function",
+      "result": "Long",
+      "measured_at": "2026-10-17T07:14:44.244673+00:00",
+      "compiler_signal": "control-disabled"
+    },
+    {
+      "name": "constants_unknown_const",
+      "source": "DefInt A\nConst beta = apple\nFunction Probe() As String\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:44.762500+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nConstant expression required"
+    },
+    {
+      "name": "constants_unknown_bound",
+      "source": "DefInt A\nDim beta(apple)\nFunction Probe() As String\nProbe = \"done\"\nEnd Function",
+      "compile_error": true,
+      "measured_at": "2026-10-17T07:14:45.055151+00:00",
+      "compiler_signal": "",
+      "compiler_message": "Compile error:\n\nConstant expression required"
+    }
+  ],
+  "measured_at": "2026-10-17T07:14:45.100582+00:00"
+}

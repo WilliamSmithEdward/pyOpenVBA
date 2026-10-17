@@ -29,6 +29,7 @@ from weakref import ReferenceType, ref
 from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
+from pyopenvba.interpreter._lex import default_type
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._values import (
@@ -290,7 +291,11 @@ class ModuleRuntime:
         self._initialised = False
         self.record_checks: dict[int, tuple[tuple[str, ReferenceType[ModuleRuntime]], ...]] = {}
         self.programs: dict[int, F.Program] = {}
+        self.public_variables = {item.name.lower() for group in parsed.variables if group.scope in ('public', 'global') for item in group.decls}
+        self.public_constants = {name.lower() for group in parsed.constants if group.scope == 'public' for name, _, _ in group.names}
+        self.public_enum_members = {name.lower() for definition in parsed.enums if definition.scope == 'public' for name, _ in definition.members}
         self.programs_compiled = False
+        self.program_scope: tuple[tuple[str, ReferenceType[ModuleRuntime]], ...] = ()
         for procedure in parsed.procedures:
             self.procedures.setdefault(procedure.name.lower(), []).append(procedure)
         for defined in parsed.types:
@@ -330,14 +335,22 @@ class ModuleRuntime:
 
     def compile_programs(self) -> None:
         """Validate the whole module before executable initialization."""
-        if self.programs_compiled:
+        scope = tuple((key, ref(runtime)) for key, runtime in self.interpreter.modules.items())
+        if self.programs_compiled and self.program_scope == scope:
             return
+        self.programs.clear()
         for procedure in self.parsed.procedures:
             key = id(procedure)
             if key not in self.programs:
                 self.programs[key] = F.compile_program(procedure, f'{self.name}.{procedure.name}',
-                                                       self.parsed.variables, self.flow_value_type)
+                                                       self.flow_declarations(), self.flow_value_type, self.parsed.default_types)
         self.programs_compiled = True
+        self.program_scope = scope
+
+    def flow_declarations(self) -> list[A.Dim]:
+        # Resolve project globals before treating ReDim as a local declaration.
+        return [group for runtime in self.interpreter.modules.values() if runtime is not self and not runtime.is_class
+                for group in runtime.parsed.variables if group.scope in ('public', 'global')] + self.parsed.variables
 
     def flow_value_type(self, declared: str) -> bool:
         if declared in ('', 'Variant', 'Object'):
@@ -1305,10 +1318,16 @@ class Interpreter:
         program = frame.module.programs.get(key)
         if program is None:
             program = F.compile_program(frame.procedure, f'{frame.module.name}.{frame.procedure.name}',
-                                        frame.module.parsed.variables, frame.module.flow_value_type)
+                                        frame.module.flow_declarations(), frame.module.flow_value_type, frame.module.parsed.default_types)
             frame.module.programs[key] = program
         frame.program = program
         self._declare_locals(frame, frame.procedure.body)
+        for declaration in program.arrays:
+            key = declaration.name.lower()
+            store = frame.module.statics.setdefault(frame.procedure.name.lower(), {}) if frame.procedure.static else frame.locals
+            if key not in store:
+                store[key] = self.make_slot(declaration, frame.module)
+            frame.locals[key] = store[key]
         self._run_flow(frame)
 
     def _run_flow(self, frame: Frame, start: int = 0) -> None:
@@ -1674,17 +1693,30 @@ class Interpreter:
         for index, declaration in enumerate(statement.decls):
             bounds = self._bounds(declaration, frame)
             field_ = statement.targets[index] if index < len(statement.targets) else None
+            slot: Slot | None = None
+            if field_ is None:
+                found = self.lookup(declaration.name, frame, want_slot=True)
+                if found is UNRESOLVED:
+                    # ReDim itself declares an array, even with Option Explicit.
+                    slot = Slot(self.make_array([], declaration.declared, frame.module), 'Variant', declaration.declared)
+                    frame.locals[declaration.name.lower()] = slot
+                elif isinstance(found, Slot):
+                    slot = found
+                if slot is not None and slot.declared not in ('', 'Variant'):
+                    raise VBACompileError('Expected array', where=f'{frame.module.name}.{frame.procedure.name}')
             target = self.resolve_target(field_ or A.Name(line=statement.line, name=declaration.name), frame)
             current = target.take()
             if isinstance(current, VBAArray) and current.borrowed_elements:
                 raise error(10, "This array is fixed or temporarily locked")
             element = declaration.declared if declaration.declared != "Variant" else "Variant"
             if statement.preserve and isinstance(current, VBAArray):
+                if declaration.explicit_type and element != current.element_type:
+                    raise error(ERR_TYPE_MISMATCH, 'ReDim Preserve cannot change element types')
                 target.put(current.resized(bounds, preserve=True), False)
             else:
                 if statement.preserve and not isinstance(current, VBAArray):
                     raise error(ERR_TYPE_MISMATCH, "ReDim Preserve needs an array")
-                keep = current.element_type if isinstance(current, VBAArray) else element
+                keep = current.element_type if isinstance(current, VBAArray) and not declaration.explicit_type else element
                 target.put(self.make_array(bounds, keep, frame.module), False)
 
     def _do_erase(self, statement: A.Erase, frame: Frame) -> None:
@@ -1972,7 +2004,9 @@ class Interpreter:
     def _read_name(self, name: str, frame: Frame | None, expression: A.Expr) -> object:
         found = self.lookup(name, frame)
         if found is UNRESOLVED:
-            raise self._undefined(name, frame, expression)
+            if frame is None or frame.procedure.name == '<declarations>' or self.option_explicit(frame):
+                raise self._undefined(name, frame, expression)
+            return self._implicit_slot(name, frame).get()
         return found
 
     def _undefined(self, name: str, frame: Frame | None, expression: A.Expr) -> Exception:
@@ -2017,11 +2051,11 @@ class Interpreter:
             if runtime.is_class:
                 continue
             runtime.initialise()
-            if key in runtime.constants:
+            if key in runtime.constants and key in runtime.public_constants:
                 return runtime.constants[key]
-            if key in runtime.variables:
+            if key in runtime.variables and key in runtime.public_variables:
                 return runtime.variables[key] if want_slot else runtime.variables[key].get()
-            if key in runtime.enum_members:
+            if key in runtime.enum_members and key in runtime.public_enum_members:
                 return runtime.enum_members[key]
             procedure = runtime.procedure(key)
             if procedure is not None and procedure.scope != "private":
@@ -2228,7 +2262,9 @@ class Interpreter:
             if wants_slot and isinstance(argument.value, A.Name):
                 value = self.lookup(argument.value.name, frame, want_slot=True)
                 if value is UNRESOLVED:
-                    raise self._undefined(argument.value.name, frame, argument.value)
+                    if frame is None or frame.procedure.name == '<declarations>' or self.option_explicit(frame):
+                        raise self._undefined(argument.value.name, frame, argument.value)
+                    value = self._implicit_slot(argument.value.name, frame)
             elif wants_slot and isinstance(argument.value, A.Member):
                 owner = self._member_target(argument.value, frame)
                 slot = self.member_variable(owner, argument.value.name, frame)
@@ -2361,7 +2397,7 @@ class Interpreter:
                 if runtime.is_class:
                     continue
                 runtime.initialise()
-                if key in runtime.variables:
+                if key in runtime.variables and key in runtime.public_variables:
                     slot = runtime.variables[key]
                     break
         if slot is None:
@@ -2393,10 +2429,18 @@ class Interpreter:
                     f"Variable not defined: {expression.name}",
                     where=f"{frame.module.name}.{frame.procedure.name} line {expression.line}",
                 )
-            slot = Slot(EMPTY, "Variant")
-            frame.locals[key] = slot
+            slot = self._implicit_slot(expression.name, frame)
         target = slot
         return Assignable(put=lambda value, by_ref: target.set(value), take=target.get)
+
+    def _implicit_slot(self, name: str, frame: Frame) -> Slot:
+        key = _bare(name)
+        declared = default_type(name, frame.module.parsed.default_types)
+        store = frame.module.statics.setdefault(frame.procedure.name.lower(), {}) if frame.procedure.static else frame.locals
+        if key not in store:
+            store[key] = self.make_slot(A.VarDecl(name=key, declared=declared), frame.module)
+        frame.locals[key] = store[key]
+        return store[key]
 
     def option_explicit(self, frame: Frame) -> bool:
         return frame.module.parsed.option_explicit

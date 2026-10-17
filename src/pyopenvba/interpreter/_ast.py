@@ -126,6 +126,7 @@ class VarDecl:
     is_array: bool = False
     as_new: bool = False
     with_events: bool = False
+    explicit_type: bool = False
 
 
 @dataclass(slots=True)
@@ -421,6 +422,7 @@ class Module:
     kind: str = "standard"
     attributes: dict[str, str] = field(default_factory=lambda: {})
     options: list[str] = field(default_factory=lambda: [])
+    default_types: dict[str, str] = field(default_factory=lambda: {})
     variables: list[Dim] = field(default_factory=lambda: [])
     constants: list[ConstDecl] = field(default_factory=lambda: [])
     types: list[TypeDef] = field(default_factory=lambda: [])

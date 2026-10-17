@@ -52,7 +52,7 @@ import datetime as _dt
 import math
 import re
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._display import clock, format_value
@@ -165,7 +165,7 @@ def _typed(value: object, *, fractions: bool) -> Typed:
     if isinstance(value, VBADate):
         return _typed_date(value.serial)
     if isinstance(value, VBACurrency):
-        return Typed(float(value), CURRENCY_VALUE)
+        return Typed(float(value.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)), CURRENCY_VALUE)
     if isinstance(value, bool):
         return Typed(value)
     if isinstance(value, (int, float, Decimal)):

@@ -114,14 +114,14 @@ def _rich_values(package: OpcFile) -> dict[int, RichError]:
     """Each rich value that is an error a dynamic array has, by its place."""
     if not package.has(_RICH_VALUES) or not package.has(_STRUCTURES):
         return {}
-    structures = [re.findall(r'<k\b[^>]*\bn="([^"]*)"', body) for body in re.findall(
-        r"<s\b[^>]*>(.*?)</s>", package.read(_STRUCTURES).decode("utf-8", errors="replace"), re.DOTALL)]
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    structures = [[key.get('n', '') for key in entry] for entry in xml_tree(package.read(_STRUCTURES))]
     out: dict[int, RichError] = {}
-    values = package.read(_RICH_VALUES).decode("utf-8", errors="replace")
-    for index, (structure, body) in enumerate(re.findall(r'<rv\b[^>]*\bs="(\d+)"[^>]*>(.*?)</rv>', values,
-                                                         re.DOTALL)):
-        keys = structures[int(structure)] if int(structure) < len(structures) else []
-        fields = dict(zip(keys, re.findall(r"<v\b[^>]*>([^<]*)</v>", body), strict=False))
+    for index, value in enumerate(xml_tree(package.read(_RICH_VALUES))):
+        structure = int(value.get('s', '-1'))
+        keys = structures[structure] if 0 <= structure < len(structures) else []
+        fields = dict(zip(keys, (entry.text or '' for entry in value), strict=False))
         try:
             number = {key: int(text) for key, text in fields.items()}
         except ValueError:
@@ -152,21 +152,24 @@ class Collector:
 
     def write(self, package: OpcFile) -> None:
         """The metadata part, and the rich values behind the errors, with their content types and relationships."""
-        if not self.dynamic:
+        if not self.dynamic and not self.errors:
             return
         errors = self.errors
         namespaces = f' xmlns:xlrd="{_RICH}"' if errors else ""
-        types = _DAPR + (_RICH_TYPE if errors else "")
-        blocks = _DAPR_BLOCK
+        types = (_DAPR if self.dynamic else "") + (_RICH_TYPE if errors else "")
+        blocks = _DAPR_BLOCK if self.dynamic else ""
         if errors:
             blocks += (f'<futureMetadata name="XLRICHVALUE" count="{len(errors)}">'
                        + "".join(_RICH_BLOCK.format(index) for index in range(len(errors))) + "</futureMetadata>")
+        rich_type = 2 if self.dynamic else 1
         values = (f'<valueMetadata count="{len(errors)}">'
-                  + "".join(f'<bk><rc t="2" v="{index}"/></bk>' for index in range(len(errors)))
+                  + "".join(f'<bk><rc t="{rich_type}" v="{index}"/></bk>' for index in range(len(errors)))
                   + "</valueMetadata>") if errors else ""
+        cells = '<cellMetadata count="1"><bk><rc t="1" v="0"/></bk></cellMetadata>' if self.dynamic else ""
+        count = int(self.dynamic) + int(bool(errors))
         xml = (f'{_HEAD}<metadata xmlns="{_MAIN}"{namespaces} xmlns:xda="{_DYNAMIC}">'
-               f'<metadataTypes count="{2 if errors else 1}">{types}</metadataTypes>{blocks}'
-               f'<cellMetadata count="1"><bk><rc t="1" v="0"/></bk></cellMetadata>{values}</metadata>')
+               f'<metadataTypes count="{count}">{types}</metadataTypes>{blocks}'
+               f'{cells}{values}</metadata>')
         _put(package, _METADATA, xml, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml",
              "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata", "metadata.xml")
         if errors:

@@ -63,7 +63,7 @@ def test_blank_workbook_has_empty_pivot_collections() -> None:
 
 def test_pivot_mutations_remain_explicitly_unsupported() -> None:
     app = ExcelApplication.open(ROOT / 'native-simple.xlsx', with_vba=False)
-    for expression in ('ThisWorkbook.PivotCaches.Create(1)',
+    for expression in ('ThisWorkbook.PivotCaches.Create(2)',
                        'Worksheets(1).PivotTables(1).RefreshTable()',
                        'Worksheets(1).PivotTables(1).RowAxisLayout(1)'):
         with pytest.raises(VBAUnsupportedError):

@@ -1169,6 +1169,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
             # A dynamic-array formula's cm and vm number the metadata the save writes afresh, so its sheet is
             # written afresh too.
             sheet.dirty = True
+        if any(not cell.formula and isinstance(cell.value, ExcelError) and cell.value.name in ('#SPILL!', '#CALC!')
+               for cell in sheet.cells_.values()):
+            sheet.dirty = True
         if sheet.notes_changed:
             # A note's row and cell are written in the sheet (see _notes_file).
             sheet.dirty = True
@@ -1188,6 +1191,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
     collector.write(package)
+    from pyopenvba.apps.excel._pivot_rich import write as write_rich_pivots
+
+    write_rich_pivots(book, package)
     if book.names_.changed:
         _write_names(book, package)
     if book.protection_changed and package.has("xl/workbook.xml"):
@@ -1202,6 +1208,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
             package.write("xl/workbook.xml", viewed.encode("utf-8"))
     _resize_loaded_tables(book, package)
     _write_tables(book, package)
+    from pyopenvba.apps.excel._pivot_create import write as write_pivots
+
+    write_pivots(book, package)
     _new_vml_parts(book, package)
     _write_shapes(book, package)
     _write_notes(book, package)
@@ -1584,6 +1593,16 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
 
     formulas = formula_elements(sheet, spell, always) | elements(sheet, spell, always)
     dynamic: dict[tuple[int, int], tuple[str, str | None]] = {}
+    from pyopenvba.apps.excel._pivot_create import rich_errors
+
+    pivot_errors = rich_errors(sheet)
+    for position, cell in sheet.cells_.items():
+        if cell.formula or cell.spilled_from is not None or not isinstance(cell.value, ExcelError) \
+                or cell.value.name not in ('#SPILL!', '#CALC!'):
+            continue
+        rich_error = pivot_errors.get(position, RichError(cell.value.name, 0))
+        index = (collector or Collector()).value(rich_error)
+        dynamic[position] = (f' vm="{index}"', '<v>#VALUE!</v>')
     for position, cell in sheet.cells_.items():
         if cell.dynamic and cell.formula:
             formulas[position], dynamic[position] = _dynamic_element(sheet, position, cell, spell, always,
@@ -1795,6 +1814,11 @@ def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None
         kind, body = _formula_value(cell, keep_stale=keep_stale)
         return f'<c r="{reference}"{attributes}{kind}>{body}</c>' if body else f'<c r="{reference}"{attributes}/>'
     kind, body = _value_body(cell.value)
+    if dynamic is not None:
+        extra, rich = dynamic
+        attributes += extra
+        if rich is not None:
+            kind, body = ' t="e"', rich
     if formula is not None:
         # Another cell of an array formula worked out whenever anything changes: <f ca="1"/> beside its value.
         return f'<c r="{reference}"{attributes}{kind}>{formula}{body}</c>'

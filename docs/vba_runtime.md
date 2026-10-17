@@ -279,7 +279,8 @@ Module-level `DefBool`, `DefByte`, `DefInt`, `DefLng`, `DefLngLng`,
 implicit variables, arrays, parameters and function returns within that
 module; explicit `As` clauses and type characters take precedence. Private
 variables, constants and enum members in another module do not capture
-unqualified names. Declaration expressions cannot create implicit variables. Constants
+unqualified names. Unresolved names in module declarations and parameter
+defaults cannot create implicit variables. Constants
 retain their inferred expression types. Ranges are case insensitive, accept
 reverse endpoints and cannot overlap. Directives precede declarations.
 

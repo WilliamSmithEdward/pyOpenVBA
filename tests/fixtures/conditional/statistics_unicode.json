@@ -1,0 +1,73 @@
+{
+  "instrumentation": "none; line_numbers=False; ASCII ChrW source",
+  "probes": [
+    {
+      "name": "question-sharp-s",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"?\")\nRange(\"A2\").Value=(ChrW(223))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "10",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "two-question-sharp-s",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"??\")\nRange(\"A2\").Value=(ChrW(223))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "s-question-sharp-s",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"s?\")\nRange(\"A2\").Value=(ChrW(223))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "sharp-s-star",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(ChrW(223) & \"*\")\nRange(\"A2\").Value=(\"ss\")\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "composed-star",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(ChrW(233) & \"*\")\nRange(\"A2\").Value=(\"e\" & ChrW(769))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "decomposed-star",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"e\" & ChrW(769) & \"*\")\nRange(\"A2\").Value=(ChrW(233))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "question-combining",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"?\")\nRange(\"A2\").Value=(\"e\" & ChrW(769))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "two-question-combining",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"??\")\nRange(\"A2\").Value=(\"e\" & ChrW(769))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "10",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "question-emoji",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"?\")\nRange(\"A2\").Value=(ChrW(-10179) & ChrW(-8704))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "two-question-emoji",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"??\")\nRange(\"A2\").Value=(ChrW(-10179) & ChrW(-8704))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "10",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "star-emoji",
+      "source": "Function Probe() As String\nDim f As Object,c As Range\nRange(\"A1:A2\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"*\")\nRange(\"A2\").Value=(ChrW(-10179) & ChrW(-8704))\nSet f=Range(\"A1:A2\").FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nFor Each c In Range(\"A1:A2\")\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "10",
+      "inspection_range": "Range(\"A1:A2\")"
+    }
+  ],
+  "measured_at": "2026-10-17T17:33:05.500235+00:00",
+  "excel_version_build": "16.0|20430"
+}

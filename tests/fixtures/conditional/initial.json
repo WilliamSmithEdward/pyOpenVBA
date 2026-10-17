@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-17T16:57:34.291524+00:00",
+  "measured_at": "2026-10-17T17:32:19.150353+00:00",
   "instrumentation": "none; line_numbers=False",
   "inspection_source": "\nFunction Prop(o As Object, key As String) As String\nOn Error GoTo Failed\nProp=CStr(CallByName(o,key,VbGet))\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Rule(f As Object) As String\nRule=\"type=\" & Prop(f,\"Type\") & \";op=\" & Prop(f,\"Operator\") & \";f1=\" & Prop(f,\"Formula1\") & \";f2=\" & Prop(f,\"Formula2\") & \";priority=\" & Prop(f,\"Priority\") & \";stop=\" & Prop(f,\"StopIfTrue\") & \";applies=\" & f.AppliesTo.Address\nEnd Function\nFunction Rules(r As Range) As String\nDim f As Object, s As String\ns=\"count=\" & r.FormatConditions.Count\nFor Each f In r.FormatConditions\ns=s & \"|\" & Rule(f)\nNext f\nRules=s\nEnd Function\n",
   "probes": [

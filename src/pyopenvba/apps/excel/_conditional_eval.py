@@ -32,6 +32,10 @@ def _matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
 
     formulas = [entry.text or '' for entry in rule.root.findall(NS + 'formula')]
     kind = rule.root.get('type', '')
+    if kind in ('top10', 'aboveAverage', 'uniqueValues', 'duplicateValues'):
+        from pyopenvba.apps.excel._conditional_stats import matches
+
+        return matches(sheet, rule, row, column)
     if kind not in ('expression', 'cellIs'):
         raise VBAUnsupportedError(f'Display evaluation of conditional rule {kind!r} is not implemented')
     try:

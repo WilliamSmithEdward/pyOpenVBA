@@ -1,0 +1,322 @@
+{
+  "measured_at": "2026-10-17T17:32:53.678965+00:00",
+  "instrumentation": "none; line_numbers=False",
+  "probes": [
+    {
+      "name": "top-two-ties",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=10\nRange(\"A2\").Value=20\nRange(\"A3\").Value=20\nRange(\"A4\").Value=30\nSet r=Range(\"A1:A4\")\nSet f=r.FormatConditions.AddTop10\nf.Rank=2\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "0111",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "bottom-two-ties",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=10\nRange(\"A2\").Value=20\nRange(\"A3\").Value=20\nRange(\"A4\").Value=30\nSet r=Range(\"A1:A4\")\nSet f=r.FormatConditions.AddTop10\nf.Rank=2\nf.TopBottom=0\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "1110",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "percent-six-1",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "000001",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "percent-six-10",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=10\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "000001",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "percent-six-20",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=20\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "000001",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "percent-six-25",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=25\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "000001",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "percent-six-50",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=50\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "000111",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "percent-six-100",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=100\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "111111",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "top-mixed",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=True\nRange(\"A7\").NumberFormat=\"@\"\nRange(\"A7\").Value=\"5\"\nRange(\"A8\").Value=CVErr(2042)\nSet r=Range(\"A1:A8\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=50\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "00110000",
+      "inspection_range": "Range(\"A1:A8\")"
+    },
+    {
+      "name": "above-average-mixed",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=True\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"9\"\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddAboveAverage\n\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "001000",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "below-average-mixed",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=True\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"9\"\nSet r=Range(\"A1:A6\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "100000",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "above-average-errors",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=CVErr(2042)\nSet r=Range(\"A1:A4\")\nSet f=r.FormatConditions.AddAboveAverage\n\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "0010",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "average-equal-0",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nSet r=Range(\"A1:A3\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=0\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "001",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "average-equal-1",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nSet r=Range(\"A1:A3\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "average-equal-2",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nSet r=Range(\"A1:A3\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=2\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "011",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "average-equal-3",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nSet r=Range(\"A1:A3\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=3\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "110",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "std-population-vs-sample",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=3\nRange(\"A2\").Value=2\nRange(\"A3\").Value=0\nSet r=Range(\"A1:A3\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=4\nf.NumStdDev=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "std-below-population-vs-sample",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=-3\nRange(\"A2\").Value=-2\nRange(\"A3\").Value=0\nSet r=Range(\"A1:A3\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=5\nf.NumStdDev=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "100",
+      "inspection_range": "Range(\"A1:A3\")"
+    },
+    {
+      "name": "std-equal-boundary",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=0\nRange(\"A2\").Value=2\nSet r=Range(\"A1:A2\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=4\nf.NumStdDev=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "01",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "std-single-value",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=3\nSet r=Range(\"A1:A1\")\nSet f=r.FormatConditions.AddAboveAverage\nf.AboveBelow=4\nf.NumStdDev=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "1",
+      "inspection_range": "Range(\"A1:A1\")"
+    },
+    {
+      "name": "unique-mixed",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"1\"\nRange(\"A3\").Value=True\nRange(\"A4\").Value=-1\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"TRUE\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").NumberFormat=\"@\"\nRange(\"A8\").Value=\"Foo\"\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"foo\"\nRange(\"A10\").NumberFormat=\"@\"\nRange(\"A10\").Value=\"Bar\"\nRange(\"A11\").Value=CVErr(2042)\nRange(\"A12\").Value=CVErr(2042)\nRange(\"A13\").Value=CVErr(2007)\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\" \"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"foo \"\nRange(\"A16\").Value=0\nSet r=Range(\"A1:A16\")\nSet f=r.FormatConditions.AddUniqueValues\n\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "0011100001001111",
+      "inspection_range": "Range(\"A1:A16\")"
+    },
+    {
+      "name": "duplicate-mixed",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"1\"\nRange(\"A3\").Value=True\nRange(\"A4\").Value=-1\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"TRUE\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").NumberFormat=\"@\"\nRange(\"A8\").Value=\"Foo\"\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"foo\"\nRange(\"A10\").NumberFormat=\"@\"\nRange(\"A10\").Value=\"Bar\"\nRange(\"A11\").Value=CVErr(2042)\nRange(\"A12\").Value=CVErr(2042)\nRange(\"A13\").Value=CVErr(2007)\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\" \"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"foo \"\nRange(\"A16\").Value=0\nSet r=Range(\"A1:A16\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "1100001110110000",
+      "inspection_range": "Range(\"A1:A16\")"
+    },
+    {
+      "name": "unique-union",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=1\nRange(\"C5:C7\").Value=2\nRange(\"C7\").Value=1\nSet r=Union(Range(\"A1:A3\"),Range(\"C5:C7\"))\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "111111",
+      "inspection_range": "Union(Range(\"A1:A3\"),Range(\"C5:C7\"))"
+    },
+    {
+      "name": "top-union",
+      "source": "Function Probe() As String\nDim f As Object,r As Range,c As Range\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=Array(1,2,3)\nRange(\"C5:C7\").Value=Array(4,5,6)\nSet r=Union(Range(\"A1:A3\"),Range(\"C5:C7\"))\nSet f=r.FormatConditions.AddTop10\nf.Rank=2\nf.Font.Bold=True\nApplication.CalculateFull\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nProbe=Probe & \"1\"\nElse\nProbe=Probe & \"0\"\nEnd If\nNext\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function",
+      "result": "000111",
+      "inspection_range": "Union(Range(\"A1:A3\"),Range(\"C5:C7\"))"
+    },
+    {
+      "name": "unique-numeric-strings",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"01\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"1.0\"\nRange(\"A4\").NumberFormat=\"@\"\nRange(\"A4\").Value=\"1e0\"\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"+1\"\nRange(\"A6\").NumberFormat=\"@\"\nRange(\"A6\").Value=\" 1 \"\nRange(\"A7\").NumberFormat=\"@\"\nRange(\"A7\").Value=\"1\"\nRange(\"A8\").NumberFormat=\"@\"\nRange(\"A8\").Value=\"1.\"\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"1%\"\nRange(\"A10\").NumberFormat=\"@\"\nRange(\"A10\").Value=\"0.01\"\nRange(\"A11\").NumberFormat=\"@\"\nRange(\"A11\").Value=\"-0\"\nRange(\"A12\").NumberFormat=\"@\"\nRange(\"A12\").Value=\"0\"\nRange(\"A13\").Value=0\nSet r=Range(\"A1:A13\")\nSet f=r.FormatConditions.AddUniqueValues\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A13\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000000000000",
+      "file": "native/unique-numeric-strings.xlsx",
+      "inspection_range": "Range(\"A1:A13\")"
+    },
+    {
+      "name": "duplicate-numeric-strings",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"01\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"1.0\"\nRange(\"A4\").NumberFormat=\"@\"\nRange(\"A4\").Value=\"1e0\"\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"+1\"\nRange(\"A6\").NumberFormat=\"@\"\nRange(\"A6\").Value=\" 1 \"\nRange(\"A7\").NumberFormat=\"@\"\nRange(\"A7\").Value=\"1\"\nRange(\"A8\").NumberFormat=\"@\"\nRange(\"A8\").Value=\"1.\"\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"1%\"\nRange(\"A10\").NumberFormat=\"@\"\nRange(\"A10\").Value=\"0.01\"\nRange(\"A11\").NumberFormat=\"@\"\nRange(\"A11\").Value=\"-0\"\nRange(\"A12\").NumberFormat=\"@\"\nRange(\"A12\").Value=\"0\"\nRange(\"A13\").Value=0\nSet r=Range(\"A1:A13\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A13\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1111111111111",
+      "file": "native/duplicate-numeric-strings.xlsx",
+      "inspection_range": "Range(\"A1:A13\")"
+    },
+    {
+      "name": "unique-booleans",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=True\nRange(\"A2\").Value=1\nRange(\"A3\").Value=-1\nRange(\"A4\").Value=False\nRange(\"A5\").Value=0\nRange(\"A6\").NumberFormat=\"@\"\nRange(\"A6\").Value=\"TRUE\"\nRange(\"A7\").NumberFormat=\"@\"\nRange(\"A7\").Value=\"True\"\nRange(\"A8\").NumberFormat=\"@\"\nRange(\"A8\").Value=\"FALSE\"\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"0\"\nRange(\"A10\").NumberFormat=\"@\"\nRange(\"A10\").Value=\"1\"\nSet r=Range(\"A1:A10\")\nSet f=r.FormatConditions.AddUniqueValues\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1011000100",
+      "inspection_range": "Range(\"A1:A10\")"
+    },
+    {
+      "name": "duplicate-booleans",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=True\nRange(\"A2\").Value=1\nRange(\"A3\").Value=-1\nRange(\"A4\").Value=False\nRange(\"A5\").Value=0\nRange(\"A6\").NumberFormat=\"@\"\nRange(\"A6\").Value=\"TRUE\"\nRange(\"A7\").NumberFormat=\"@\"\nRange(\"A7\").Value=\"True\"\nRange(\"A8\").NumberFormat=\"@\"\nRange(\"A8\").Value=\"FALSE\"\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"0\"\nRange(\"A10\").NumberFormat=\"@\"\nRange(\"A10\").Value=\"1\"\nSet r=Range(\"A1:A10\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0100111011",
+      "inspection_range": "Range(\"A1:A10\")"
+    },
+    {
+      "name": "duplicate-unicode",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=(\"Stra\" & ChrW(223) & \"e\")\nRange(\"A2\").NumberFormat=\"@\"\nRange(\"A2\").Value=\"STRASSE\"\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"I\"\nRange(\"A4\").NumberFormat=\"@\"\nRange(\"A4\").Value=\"i\"\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=(ChrW(305))\nRange(\"A6\").NumberFormat=\"@\"\nRange(\"A6\").Value=(ChrW(304))\nRange(\"A7\").NumberFormat=\"@\"\nRange(\"A7\").Value=(ChrW(233))\nRange(\"A8\").NumberFormat=\"@\"\nRange(\"A8\").Value=(ChrW(201))\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=(\"e\" & ChrW(769))\nRange(\"A10\").NumberFormat=\"@\"\nRange(\"A10\").Value=(ChrW(201))\nSet r=Range(\"A1:A10\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1111001111",
+      "inspection_range": "Range(\"A1:A10\")",
+      "superseded_result": "1111111101",
+      "measurement_note": "Remeasured using ASCII source and ChrW UTF-16 units; literal Unicode in VBE source can undergo code-page conversion."
+    },
+    {
+      "name": "duplicate-precision",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1.000000000000001\nRange(\"A2\").Value=1.000000000000002\nRange(\"A3\").NumberFormat=\"@\"\nRange(\"A3\").Value=\"1.000000000000001\"\nRange(\"A4\").NumberFormat=\"@\"\nRange(\"A4\").Value=\"1.000000000000002\"\nSet r=Range(\"A1:A4\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1111",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "unique-single-empty",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Formula=\"=\"\"\"\"\"\nSet r=Range(\"A1:A1\")\nSet f=r.FormatConditions.AddUniqueValues\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A1\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1",
+      "inspection_range": "Range(\"A1:A1\")"
+    },
+    {
+      "name": "unique-single-blank",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\n\nSet r=Range(\"A1:A1\")\nSet f=r.FormatConditions.AddUniqueValues\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A1\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0",
+      "inspection_range": "Range(\"A1:A1\")"
+    },
+    {
+      "name": "unique-empty-and-blank",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Formula=\"=\"\"\"\"\"\nSet r=Range(\"A1:A2\")\nSet f=r.FormatConditions.AddUniqueValues\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "unique-two-empty",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Formula=\"=\"\"\"\"\"\nRange(\"A2\").Formula=\"=\"\"\"\"\"\nSet r=Range(\"A1:A2\")\nSet f=r.FormatConditions.AddUniqueValues\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "00",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "duplicate-single-empty",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Formula=\"=\"\"\"\"\"\nSet r=Range(\"A1:A1\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A1\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0",
+      "inspection_range": "Range(\"A1:A1\")"
+    },
+    {
+      "name": "duplicate-single-blank",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\n\nSet r=Range(\"A1:A1\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A1\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0",
+      "inspection_range": "Range(\"A1:A1\")"
+    },
+    {
+      "name": "duplicate-empty-and-blank",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Formula=\"=\"\"\"\"\"\nSet r=Range(\"A1:A2\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "10",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "duplicate-two-empty",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Formula=\"=\"\"\"\"\"\nRange(\"A2\").Formula=\"=\"\"\"\"\"\nSet r=Range(\"A1:A2\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A2\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "11",
+      "inspection_range": "Range(\"A1:A2\")"
+    },
+    {
+      "name": "whole-column-AddUniqueValues",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Formula=\"=\"\"\"\"\"\nSet r=Columns(\"A\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0010",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "whole-column-AddTop10",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Formula=\"=\"\"\"\"\"\nSet r=Columns(\"A\")\nSet f=r.FormatConditions.AddTop10\nf.Percent=True\nf.Rank=50\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0100",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "whole-column-AddAboveAverage",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Formula=\"=\"\"\"\"\"\nSet r=Columns(\"A\")\nSet f=r.FormatConditions.AddAboveAverage\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0100",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "hidden-AddTop10",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=100\nRange(\"A4\").Value=1\nSet r=Range(\"A1:A4\")\nSet f=r.FormatConditions.AddTop10\nf.Rank=1\nRows(3).Hidden=True\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0010",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "hidden-AddAboveAverage",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=100\nRange(\"A4\").Value=1\nSet r=Range(\"A1:A4\")\nSet f=r.FormatConditions.AddAboveAverage\n\nRows(3).Hidden=True\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0010",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "hidden-AddUniqueValues",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=100\nRange(\"A4\").Value=1\nSet r=Range(\"A1:A4\")\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nRows(3).Hidden=True\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A4\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1001",
+      "inspection_range": "Range(\"A1:A4\")"
+    },
+    {
+      "name": "union-six-AddTop10",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"C5\").Value=4\nRange(\"C6\").Value=5\nRange(\"C7\").Value=6\nSet r=Union(Range(\"A1:A3\"),Range(\"C5:C7\"))\nSet f=r.FormatConditions.AddTop10\nf.Rank=2\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(r) & \"|applies=\" & f.AppliesTo.Address\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000011|applies=$A$1:$A$3,$C$5:$C$7",
+      "file": "native/union-six-AddTop10.xlsx",
+      "inspection_range": "Union(Range(\"A1:A3\"),Range(\"C5:C7\"))"
+    },
+    {
+      "name": "overlap-AddTop10",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Union(Range(\"A1:A4\"),Range(\"A3:A6\"))\nSet f=r.FormatConditions.AddTop10\nf.Rank=2\ns=f.AppliesTo.Address\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A6\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000011",
+      "file": "native/overlap-AddTop10.xlsx",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "union-six-AddAboveAverage",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"C5\").Value=4\nRange(\"C6\").Value=5\nRange(\"C7\").Value=6\nSet r=Union(Range(\"A1:A3\"),Range(\"C5:C7\"))\nSet f=r.FormatConditions.AddAboveAverage\n\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(r) & \"|applies=\" & f.AppliesTo.Address\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000111|applies=$A$1:$A$3,$C$5:$C$7",
+      "file": "native/union-six-AddAboveAverage.xlsx",
+      "inspection_range": "Union(Range(\"A1:A3\"),Range(\"C5:C7\"))"
+    },
+    {
+      "name": "overlap-AddAboveAverage",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Union(Range(\"A1:A4\"),Range(\"A3:A6\"))\nSet f=r.FormatConditions.AddAboveAverage\n\ns=f.AppliesTo.Address\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A6\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000111",
+      "file": "native/overlap-AddAboveAverage.xlsx",
+      "inspection_range": "Range(\"A1:A6\")"
+    },
+    {
+      "name": "union-six-AddUniqueValues",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"C5\").Value=4\nRange(\"C6\").Value=5\nRange(\"C7\").Value=6\nSet r=Union(Range(\"A1:A3\"),Range(\"C5:C7\"))\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(r) & \"|applies=\" & f.AppliesTo.Address\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000000|applies=$A$1:$A$3,$C$5:$C$7",
+      "file": "native/union-six-AddUniqueValues.xlsx",
+      "inspection_range": "Union(Range(\"A1:A3\"),Range(\"C5:C7\"))"
+    },
+    {
+      "name": "overlap-AddUniqueValues",
+      "source": "Function Probe() As String\nDim f As Object,g As Object,r As Range,s As String,n As Long\nOn Error GoTo Failed\nRange(\"A1\").Value=1\nRange(\"A2\").Value=2\nRange(\"A3\").Value=3\nRange(\"A4\").Value=4\nRange(\"A5\").Value=5\nRange(\"A6\").Value=6\nSet r=Union(Range(\"A1:A4\"),Range(\"A3:A6\"))\nSet f=r.FormatConditions.AddUniqueValues\nf.DupeUnique=1\ns=f.AppliesTo.Address\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A6\"))\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & CStr(n) & \"|count=\" & Cells.FormatConditions.Count\nIf Not f Is Nothing Then Probe=Probe & \"|\" & Inspect(f)\nEnd Function\nFunction Prop(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nProp=\"Null(1)\"\nElseIf IsEmpty(v) Then\nProp=\"Empty(0)\"\nElse\nProp=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Inspect(f As Object) As String\nDim k As Variant\nInspect=\"class=\" & TypeName(f) & \";applies=\" & f.AppliesTo.Address\nFor Each k In Array(\"Type\",\"Operator\",\"Formula1\",\"Formula2\",\"Priority\",\"StopIfTrue\",\"TopBottom\",\"Rank\",\"Percent\",\"AboveBelow\",\"NumStdDev\",\"DupeUnique\",\"Text\",\"TextOperator\",\"DateOperator\",\"ScopeType\")\nInspect=Inspect & \";\" & CStr(k) & \"=\" & Prop(f,CStr(k))\nNext\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000000",
+      "file": "native/overlap-AddUniqueValues.xlsx",
+      "inspection_range": "Range(\"A1:A6\")"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "notes": [
+    "top-union uses Excel vertical Array assignment, which repeats the first column; do not infer a distinct-value population from that case."
+  ],
+  "source_transport": "ASCII VBA; non-ASCII text constructed with ChrW UTF-16 units",
+  "remeasured_at": "2026-10-17T17:28:26.920992+00:00"
+}

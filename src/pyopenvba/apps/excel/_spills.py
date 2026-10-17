@@ -85,6 +85,7 @@ def restore(sheet: Worksheet, caches: list[CachedSpill]) -> None:
     """Reattach cached output after movement, checking obstructions without recalculating its formula."""
     if not caches:
         return
+    before = {position: cell.value for position, cell in sheet.cells_.items() if cell.spilled_from is not None}
     positions = {id(cell): position for position, cell in sheet.cells_.items() if cell.dynamic and cell.formula}
     surviving = [(cache, positions[id(cache.cell)]) for cache in caches if id(cache.cell) in positions]
     for position, cell in list(sheet.cells_.items()):
@@ -99,6 +100,11 @@ def restore(sheet: Worksheet, caches: list[CachedSpill]) -> None:
     for cache, anchor in surviving:
         cache.cell.value = cache.value if cache.answer is None else place(sheet, anchor, cache.answer)[0]
         cache.cell.stale = True
+    after = {position: cell.value for position, cell in sheet.cells_.items() if cell.spilled_from is not None}
+    changed = {position for position in before.keys() | after.keys()
+               if before.get(position, EMPTY) != after.get(position, EMPTY)}
+    changed.update(anchor for cache, anchor in surviving if cache.cell.value != cache.value)
+    sheet.book.calculator.spilled_changed(sheet.name, changed)
 
 
 def spilled(sheet: Worksheet, row: int, column: int) -> tuple[tuple[int, int], Area] | None:

@@ -10,8 +10,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Manual-calculation edits retain cached spill results while rows, columns
   and partial cells move. Copies carry only the copied cached output,
   including partial and overlapping copies; edits to spill children
-  invalidate output immediately without evaluating the formula. Ninety-nine
-  native API probes cover cached and explicitly calculated states. Saved
+  invalidate output immediately without evaluating the formula. One hundred ten
+  native API probes cover cached and explicitly calculated states, dependent invalidation and application/
+  worksheet versus range calculation scopes. Saved
   values and dynamic-error metadata survive reopening; nine native files
   cover caches and calculation settings. `Application.CalculateBeforeSave`
   controls recalculation on save, and first-opened workbook settings seed

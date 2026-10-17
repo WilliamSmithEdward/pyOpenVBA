@@ -127,7 +127,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     _read_queries(book, path)
     from pyopenvba.apps.excel._calculation_settings import read as read_calculation
 
-    read_calculation(application, workbook_xml)
+    read_calculation(book, workbook_xml)
     calc_pr = re.search(r'<calcPr\b[^>]*>', workbook_xml)
     if calc_pr and _attributes(calc_pr.group(0)).get('calcCompleted') in ('0', 'false'):
         for sheet in book.sheets_:

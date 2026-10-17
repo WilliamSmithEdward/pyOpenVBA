@@ -145,7 +145,7 @@ class Calculator:
 
     def _settle(self, owner: Worksheet) -> None:
         """Work out the stale dynamic-array formulas of a sheet, so what each spills is in place."""
-        if not self.automatic:
+        if not self.automatic and not self._calculation_depth:
             return
         name = owner.name.lower()
         for row, column in list(owner.spills):
@@ -162,9 +162,9 @@ class Calculator:
             return
         from pyopenvba.apps.excel._spills import remove
 
-        self._spilled_changed(sheet, remove(owner, (row, column)))
+        self.spilled_changed(sheet, remove(owner, (row, column)))
 
-    def _spilled_changed(self, sheet: str, positions: set[tuple[int, int]]) -> None:
+    def spilled_changed(self, sheet: str, positions: set[tuple[int, int]]) -> None:
         """Cells a spill changed: mark whatever reads them as needing another look."""
         if positions:
             name = sheet.lower()
@@ -540,7 +540,7 @@ class Calculator:
         from pyopenvba.apps.excel._spills import place
 
         value, changed = place(owner, (row, column), answer)
-        self._spilled_changed(owner.name, changed)
+        self.spilled_changed(owner.name, changed)
         return value
 
     def _members(self, key: CellKey) -> set[CellKey]:

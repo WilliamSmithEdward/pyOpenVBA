@@ -7,15 +7,17 @@ from typing import TYPE_CHECKING
 from pyopenvba._xml import attributes
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Application, Workbook
+    from pyopenvba.apps.excel._model import Workbook
 
 _CALC = re.compile(r'<calcPr\b[^>]*(?:/>|>.*?</calcPr>)', re.DOTALL)
 _MODES = {'manual': -4135, 'auto': -4105, 'autoNoTable': 2}
 
 
-def read(application: Application, xml: str) -> None:
-    """The first workbook supplies the application calculation settings."""
-    if application.workbooks_.books:
+def read(book: Workbook, xml: str) -> None:
+    """The first ordinary workbook supplies the application calculation settings."""
+    application = book.application
+    excluded = ('.xlam', '.xla', '.xltx', '.xltm', '.xlt')
+    if book.name.lower().endswith(excluded) or any(not other.name.lower().endswith(excluded) for other in application.workbooks_.books):
         return
     found = _CALC.search(xml)
     values = attributes(found.group(0)) if found else {}

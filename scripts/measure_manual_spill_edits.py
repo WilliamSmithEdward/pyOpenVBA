@@ -76,6 +76,22 @@ Probe = CStr(Application.CalculateBeforeSave)
 Application.CalculateBeforeSave = "False"
 Probe = Probe & ":" & Application.CalculateBeforeSave
 End Function'''
+    for name in ['copy_overlap', 'copy_overlap_calculated', 'write_child', 'write_child_calculated',
+                 'delete_inside', 'delete_inside_calculated', 'input_insert_inside_calculated']:
+        source = probes[name].replace('Application.Calculate\nOn Error Resume Next',
+                                     'ws.Range("G1").Formula = "=B3*10"\nApplication.Calculate\nOn Error Resume Next')
+        probes['dependent_' + name] = source.replace('Probe = CStr(n)',
+                                                     'Probe = CStr(n) & ":" & CStr(ws.Range("G1").Value2)')
+    for name, operation in {'application': 'Application.Calculate', 'worksheet': 'ws.Calculate',
+                            'dependent_range': 'ws.Range("G1").Calculate', 'anchor_range': 'ws.Range("B2").Calculate'}.items():
+        source = macro('Application.Calculation = xlCalculationManual\nws.Range("A1").Value = 10\n' + operation)
+        source = source.replace('Set ws = Worksheets.Add', 'Application.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range("A1").Value = 1')
+        source = source.replace('=SEQUENCE(3,2)', '=SEQUENCE(3,2,A1)')
+        source = source.replace('Application.Calculate\nOn Error Resume Next',
+                                'ws.Range("G1").Formula = "=B3*10"\nApplication.Calculate\nOn Error Resume Next')
+        source = source.replace('On Error GoTo 0\nApplication.Calculate', 'On Error GoTo 0')
+        probes['scope_' + name] = source.replace('Probe = CStr(n)',
+                                                'Probe = CStr(n) & ":" & CStr(ws.Range("G1").Value2)')
     return probes
 
 

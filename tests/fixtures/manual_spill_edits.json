@@ -1,6 +1,6 @@
 {
   "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-17T00:54:13.425810+00:00",
+  "measured_at": "2026-10-17T01:01:51.844317+00:00",
   "probes": [
     {
       "name": "insert_above",
@@ -496,6 +496,61 @@
       "name": "save_flag_coercion",
       "macro": "Function Probe() As String\nApplication.CalculateBeforeSave = 2\nProbe = CStr(Application.CalculateBeforeSave)\nApplication.CalculateBeforeSave = \"False\"\nProbe = Probe & \":\" & Application.CalculateBeforeSave\nEnd Function",
       "result": "True:False"
+    },
+    {
+      "name": "dependent_copy_overlap",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"B2:C4\").Copy Destination:=ws.Range(\"C2\")\nn = Err.Number\nOn Error GoTo 0\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:30|A1:::False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:Error 2045:=SEQUENCE(3,2):False|C2:Error 2045:=SEQUENCE(3,2):False|D2:::False|E2:::False|F2:::False|A3:::False|B3:::False|C3:::False|D3:::False|E3:::False|F3:::False|A4:::False|B4:::False|C4:::False|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "dependent_copy_overlap_calculated",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"B2:C4\").Copy Destination:=ws.Range(\"C2\")\nn = Err.Number\nOn Error GoTo 0\nApplication.Calculate\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:0|A1:::False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:Error 2045:=SEQUENCE(3,2):False|C2:1:=SEQUENCE(3,2):True|D2:2::True|E2:::False|F2:::False|A3:::False|B3:::False|C3:3::True|D3:4::True|E3:::False|F3:::False|A4:::False|B4:::False|C4:5::True|D4:6::True|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "dependent_write_child",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"B3\").Value = 9\nn = Err.Number\nOn Error GoTo 0\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:30|A1:::False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:Error 2045:=SEQUENCE(3,2):False|C2:::False|D2:::False|E2:::False|F2:::False|A3:::False|B3:9:9:False|C3:::False|D3:::False|E3:::False|F3:::False|A4:::False|B4:::False|C4:::False|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "dependent_write_child_calculated",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"B3\").Value = 9\nn = Err.Number\nOn Error GoTo 0\nApplication.Calculate\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:90|A1:::False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:Error 2045:=SEQUENCE(3,2):False|C2:::False|D2:::False|E2:::False|F2:::False|A3:::False|B3:9:9:False|C3:::False|D3:::False|E3:::False|F3:::False|A4:::False|B4:::False|C4:::False|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "dependent_delete_inside",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Rows(3).Delete\nn = Err.Number\nOn Error GoTo 0\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:30|A1:::False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:1:=SEQUENCE(3,2):True|C2:2::True|D2:::False|E2:::False|F2:::False|A3:::False|B3:3::True|C3:4::True|D3:::False|E3:::False|F3:::False|A4:::False|B4:5::True|C4:6::True|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "dependent_delete_inside_calculated",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Rows(3).Delete\nn = Err.Number\nOn Error GoTo 0\nApplication.Calculate\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:Error 2023|A1:::False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:1:=SEQUENCE(3,2):True|C2:2::True|D2:::False|E2:::False|F2:::False|A3:::False|B3:3::True|C3:4::True|D3:::False|E3:::False|F3:::False|A4:::False|B4:5::True|C4:6::True|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "dependent_input_insert_inside_calculated",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 3\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(A1,2)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"A1\").Value = 4\nws.Rows(3).Insert\nn = Err.Number\nOn Error GoTo 0\nApplication.Calculate\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:50|A1:4:4:False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:1:=SEQUENCE(A1,2):True|C2:2::True|D2:::False|E2:::False|F2:::False|A3:::False|B3:3::True|C3:4::True|D3:::False|E3:::False|F3:::False|A4:::False|B4:5::True|C4:6::True|D4:::False|E4:::False|F4:::False|A5:::False|B5:7::True|C5:8::True|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "scope_application",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2,A1)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"A1\").Value = 10\nApplication.Calculate\nn = Err.Number\nOn Error GoTo 0\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:120|A1:10:10:False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:10:=SEQUENCE(3,2,A1):True|C2:11::True|D2:::False|E2:::False|F2:::False|A3:::False|B3:12::True|C3:13::True|D3:::False|E3:::False|F3:::False|A4:::False|B4:14::True|C4:15::True|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "scope_worksheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2,A1)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"A1\").Value = 10\nws.Calculate\nn = Err.Number\nOn Error GoTo 0\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:120|A1:10:10:False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:10:=SEQUENCE(3,2,A1):True|C2:11::True|D2:::False|E2:::False|F2:::False|A3:::False|B3:12::True|C3:13::True|D3:::False|E3:::False|F3:::False|A4:::False|B4:14::True|C4:15::True|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "scope_dependent_range",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2,A1)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"A1\").Value = 10\nws.Range(\"G1\").Calculate\nn = Err.Number\nOn Error GoTo 0\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:30|A1:10:10:False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:1:=SEQUENCE(3,2,A1):True|C2:2::True|D2:::False|E2:::False|F2:::False|A3:::False|B3:3::True|C3:4::True|D3:::False|E3:::False|F3:::False|A4:::False|B4:5::True|C4:6::True|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
+    },
+    {
+      "name": "scope_anchor_range",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, cell As Range, n As Long\nApplication.Calculation = xlCalculationAutomatic\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 1\nws.Range(\"B2\").Formula2 = \"=SEQUENCE(3,2,A1)\"\nws.Range(\"G1\").Formula = \"=B3*10\"\nApplication.Calculate\nOn Error Resume Next\nApplication.Calculation = xlCalculationManual\nws.Range(\"A1\").Value = 10\nws.Range(\"B2\").Calculate\nn = Err.Number\nOn Error GoTo 0\nProbe = CStr(n) & \":\" & CStr(ws.Range(\"G1\").Value2)\nFor Each cell In ws.Range(\"A1:F6\")\nProbe = Probe & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function\n",
+      "result": "0:30|A1:10:10:False|B1:::False|C1:::False|D1:::False|E1:::False|F1:::False|A2:::False|B2:10:=SEQUENCE(3,2,A1):True|C2:11::True|D2:::False|E2:::False|F2:::False|A3:::False|B3:12::True|C3:13::True|D3:::False|E3:::False|F3:::False|A4:::False|B4:14::True|C4:15::True|D4:::False|E4:::False|F4:::False|A5:::False|B5:::False|C5:::False|D5:::False|E5:::False|F5:::False|A6:::False|B6:::False|C6:::False|D6:::False|E6:::False|F6:::False"
     }
   ],
   "read_saved": "Function ReadSaved() As String\nDim cell As Range\nReadSaved = \"0\"\nFor Each cell In ActiveSheet.Range(\"A1:F6\")\nReadSaved = ReadSaved & \"|\" & cell.Address(False,False) & \":\" & CStr(cell.Value2) & \":\" & cell.Formula2 & \":\" & cell.HasSpill\nNext\nEnd Function",

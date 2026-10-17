@@ -312,6 +312,32 @@ can ignore type characters, while Trim/Left require their string suffix and
 Round rejects a suffix. The intrinsic catalog, general constant-expression
 typing, host member types and call-argument compilation remain incomplete.
 
+Statically known user calls now validate required, excess and named arguments
+before the selected caller executes, including unreachable calls. Positional
+arguments after named arguments are invalid even for late-bound calls.
+Primitive ByRef variables require compatible storage types; enum values share
+Long compatibility, LongPtr uses the runtime's 64-bit LongLong compatibility,
+and Variant scalar parameters accept typed variables. Typed array parameters
+require matching element types; `values()` passes whole-array storage, and
+typed array function results can provide temporary arrays. Class properties
+provide coerced temporary arguments, while UDT/module fields retain storage.
+
+Arguments to a parameterless function can instead address its returned
+object's default member. Known Collection results accept `Index:=`; Object
+and Variant results retain the measured early/late-bound named-argument
+distinction. Indexing scalar Variant function results raises 13, while inappropriate late-bound
+String member calls raise 451. Direct Python macro invocation retains runtime
+argument errors, and unused invalid routines remain deferred. Property Let
+assignments coerce the right-hand side without aliasing its source variable;
+named index arguments remain distinct from the assigned value. Empty-parenthesis
+calls to the current function recurse, rather than reading its result slot.
+
+These behaviors replay 263 uninstrumented native controls in
+`call_compilation.json`, remeasured by `scripts/measure_call_compilation.py`.
+Resolved expression types are memoized so long member chains do not expand
+compiler work repeatedly. Full host/library signatures, object/interface
+compatibility and wider property/constant-expression typing remain open work.
+
 Module-level `DefBool`, `DefByte`, `DefInt`, `DefLng`, `DefLngLng`,
 `DefLngPtr`, `DefSng`, `DefDbl`, `DefCur`, `DefDate`, `DefStr`, `DefObj` and
 `DefVar` supply initial-letter defaults. They affect untyped declarations,

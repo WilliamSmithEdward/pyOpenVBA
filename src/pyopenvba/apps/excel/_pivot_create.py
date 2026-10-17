@@ -387,7 +387,12 @@ def write(book: Workbook, package: OpcFile) -> None:
         if not cache.changed:
             continue
         if cache.part:
-            raise VBAUnsupportedError('Writing refreshed imported pivot caches is not implemented')
+            if cache.records is None or not cache.records_part:
+                raise VBAUnsupportedError('Writing this changed pivot cache is not implemented')
+            package.write(cache.part, xml_bytes(cache.root))
+            package.write(cache.records_part, xml_bytes(cache.records))
+            cache.changed = False
+            continue
         number = 1
         while any(package.has(part) for part in (
                 f'xl/pivotCache/pivotCacheDefinition{number}.xml',

@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Manual-calculation edits retain cached spill results while rows, columns
+  and partial cells move. Copies carry only the copied cached output,
+  including partial and overlapping copies; edits to spill children
+  invalidate output immediately without evaluating the formula. Ninety-nine
+  native API probes cover cached and explicitly calculated states. Saved
+  values and dynamic-error metadata survive reopening; nine native files
+  cover caches and calculation settings. `Application.CalculateBeforeSave`
+  controls recalculation on save, and first-opened workbook settings seed
+  the application without overriding an existing workbook's mode. Wider
+  calculation scheduling, iterative calculation, event interactions and
+  mixed-feature structural edits remain incomplete.
+
 - Dynamic-array edits now clear cached spill children displaced beyond the
   old spill bounds. Sorting spill output raises error 1004 before changing
   cells. Copies carry the formula without treating its spilled output as

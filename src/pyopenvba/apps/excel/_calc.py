@@ -245,14 +245,16 @@ class Calculator:
         changed = {(sheet.lower(), row, column)}
         owner = self._sheet_named(sheet)
         if owner is not None and owner.spills:
-            from pyopenvba.apps.excel._spills import wanted
+            from pyopenvba.apps.excel._spills import block_cached, wanted
 
             for anchor in wanted(owner, row, column):
                 cell = owner.cells_.get(anchor)
-                if cell is not None and not cell.stale:
+                if cell is not None:
                     cell.stale = True
                     changed.add((sheet.lower(), *anchor))
                     changed.update(self._members((sheet.lower(), *anchor)))
+                    if not self.automatic:
+                        changed.update((sheet.lower(), *position) for position in block_cached(owner, anchor))
         self._spoil(changed, set())
 
     def wrote_area(self, sheet: str, area: Area) -> None:

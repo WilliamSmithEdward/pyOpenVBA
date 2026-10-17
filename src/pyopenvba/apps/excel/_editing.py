@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number
 from pyopenvba._xml import attributes
-from pyopenvba.apps.excel import _arrays, _hyperlinks, _shared, _tables, _validation, _windows
+from pyopenvba.apps.excel import _arrays, _hyperlinks, _shared, _spills, _tables, _validation, _windows
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
@@ -105,6 +105,7 @@ def edit(target: Range, *, delete: bool) -> None:
     _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _windows.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
+    caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
         position = row if rows else column
@@ -160,6 +161,7 @@ def edit(target: Range, *, delete: bool) -> None:
     from pyopenvba.apps.excel._autofilter import filter_edited
 
     filter_edited(sheet, rows=rows, start=start, count=count, delete=delete)
+    _spills.restore(sheet, caches)
     sheet.shape_changed()
 
 
@@ -202,6 +204,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     region = Area(start, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], start, band[1], MAX_COLUMNS)
     _arrays.refuse(sheet, [region], "Shifting")
     _tables.refuse(sheet, region, "Shifting", allowing=through)
+    caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
     for (row, column), cell in sheet.cells_.items():
         along, across = (row, column) if vertical else (column, row)
@@ -259,6 +262,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
         # Measured: inserted cells take the formats of the cells above them, or to their left.
         _inherit_formats(sheet, rows=vertical, start=start, count=count, band=band)
     follow()
+    _spills.restore(sheet, caches)
     sheet.shape_changed()
 
 

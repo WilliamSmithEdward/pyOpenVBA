@@ -16,6 +16,7 @@ rule, and a delete that takes the filter's header cells removes it.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -27,10 +28,29 @@ from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Range, Cell, Worksheet, NameEntry, Workbook
+    from pyopenvba.apps.excel._model import Cell, NameEntry, Range, Workbook, Worksheet
     from pyopenvba.apps.excel._tables import Table
 
 _CORNER = re.compile(r"^(\$?)([A-Za-z]+)?(\$?)([0-9]+)?$")
+
+
+def _conditional_admitted(sheet: Worksheet, region: Area, rewrite_rule: Callable[[str, str], str]) -> None:
+    """Reject before mutation when a rule's cells or stored references must move."""
+    from pyopenvba.apps.excel._conditional import NS
+    from pyopenvba.apps.excel._xstring import decode
+
+    for owner in sheet.book.sheets_:
+        for rule in owner.conditional_formats:
+            if rule.deleted:
+                continue
+            if owner is sheet and any(not (area.bottom < region.top or region.bottom < area.top
+                                           or area.right < region.left or region.right < area.left)
+                                      for area in rule.areas):
+                raise VBAUnsupportedError('Structural edits moving conditional formatting ranges are not implemented')
+            for node in rule.root.findall(NS + 'formula'):
+                text = decode(node.text or '')
+                if rewrite_rule(text, owner.name) != text:
+                    raise VBAUnsupportedError('Structural edits rewriting conditional formatting formulas are not implemented')
 
 
 def interval(low: int, high: int, start: int, count: int, delete: bool, limit: int) -> tuple[int, int] | None:
@@ -102,6 +122,10 @@ def edit(target: Range, *, delete: bool) -> None:
         raise VBAUnsupportedError("Whole-row/column edits on sheets with merges or shapes are not implemented")
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
+    edge = max(1, start - (not delete))
+    affected = Area(edge, 1, MAX_ROWS, MAX_COLUMNS) if rows else Area(1, edge, MAX_ROWS, MAX_COLUMNS)
+    _conditional_admitted(sheet, affected, lambda text, owner: rewrite(
+        text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
     _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _windows.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
@@ -202,6 +226,9 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     band, start, count = shift.band, shift.start, shift.count
     limit = MAX_ROWS if vertical else MAX_COLUMNS
     region = Area(start, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], start, band[1], MAX_COLUMNS)
+    edge = max(1, start - (not delete))
+    affected = Area(edge, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], edge, band[1], MAX_COLUMNS)
+    _conditional_admitted(sheet, affected, lambda text, owner: rewrite_shift(text, owner, sheet.name, shift))
     _arrays.shift_admitted(sheet, area, region, delete=delete)
     _tables.refuse(sheet, region, "Shifting", allowing=through)
     caches = _spills.cached(sheet)

@@ -24,14 +24,18 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Iterable
+from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
-from typing import Final, TypeVar
+from typing import TYPE_CHECKING, Final, TypeVar
 
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._number_format import BUILTIN, SPELLED_OUT, from_file, to_file
+
+if TYPE_CHECKING:
+    from pyopenvba.apps.excel._charts_file import XmlElement
 
 _T = TypeVar("_T")
 
@@ -703,6 +707,43 @@ def _children(xml: str, section: str) -> list[str]:
     return re.findall(rf"<{tag}\b[^>]*?/>|<{tag}\b[^>]*?>.*?</{tag}>", match.group(1), re.DOTALL)
 
 
+def _dxf_append_position(text: str) -> int:
+    """Position after the last direct dxf, never inside an unknown extension."""
+    from xml.parsers import expat
+
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    # Apply the shared DTD/entity refusal before the offset-only parser runs.
+    xml_tree(text)
+    raw = text.encode('utf-8')
+    parser = expat.ParserCreate(namespace_separator='}')
+    depth = 0
+    inside = False
+    position = 0
+
+    def start(name: str, attributes: dict[str, str]) -> None:
+        nonlocal depth, inside
+        depth += 1
+        if depth == 2 and name.rsplit('}', 1)[-1] == 'dxfs':
+            inside = True
+
+    def end(name: str) -> None:
+        nonlocal depth, inside, position
+        if inside and depth == 3 and name in ('dxf', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main}dxf'):
+            position = parser.CurrentByteIndex
+            closing = re.match(r'</(?:[\w.-]+:)?dxf\s*>', raw[position:].decode('utf-8'))
+            if closing is not None:
+                position += len(closing[0].encode('utf-8'))
+        if depth == 2:
+            inside = False
+        depth -= 1
+
+    parser.StartElementHandler, parser.EndElementHandler = start, end
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    parser.Parse(raw, True)
+    return len(raw[:position].decode('utf-8'))
+
+
 @dataclass(slots=True)
 class _BaseStyle:
     """A cell style's xf as the file has it: its parts by index, which decide the apply flags of the xfs
@@ -783,6 +824,25 @@ class Stylesheet:
 
     def __init__(self, xml: str, theme_xml: str = "") -> None:
         self.xml = xml
+        # Differential formats are patches, not complete cell styles. Keep their
+        # trees and stable positions, including properties this model cannot edit.
+        from pyopenvba.apps.excel._charts_file import xml_tree
+
+        self._dxfs: list[XmlElement] = []
+        if re.search(r'<(?:[\w.-]+:)?dxfs\b', xml):
+            root = xml_tree(xml)
+            declarations = {key: value for key, value in root.attrib.items()
+                            if key == 'xmlns' or key.startswith('xmlns:')}
+            for section in root:
+                if section.tag.rsplit('}', 1)[-1] == 'dxfs':
+                    for entry in section:
+                        if entry.tag.rsplit('}', 1)[-1] == 'dxf':
+                            copied = deepcopy(entry)
+                            section_declarations = {key: value for key, value in section.attrib.items()
+                                                    if key == 'xmlns' or key.startswith('xmlns:')}
+                            copied.attrib = {**declarations, **section_declarations, **copied.attrib}
+                            self._dxfs.append(copied)
+        self._dxf_base_count = len(self._dxfs)
         palette = tuple(
             _attributes(one).get("rgb", "FF000000")[-6:].upper()
             for one in re.findall(r"<rgbColor\b[^>]*/>", xml)
@@ -879,6 +939,52 @@ class Stylesheet:
         self._touched = False
 
     # -- reading
+
+    @property
+    def dxf_count(self) -> int:
+        return len(self._dxfs)
+
+    def dxf(self, index: int) -> XmlElement:
+        """Return an independent partial format; editing a rule is copy-on-write."""
+        if not 0 <= index < len(self._dxfs):
+            raise IndexError(index)
+        return deepcopy(self._dxfs[index])
+
+    def ensure_dxf(self, root: XmlElement) -> int:
+        """Append a lossless differential format or reuse an identical tree."""
+        from pyopenvba.apps.excel._charts_file import xml_bytes
+
+        candidate = xml_bytes(root)
+        for index, existing in enumerate(self._dxfs):
+            if xml_bytes(existing) == candidate:
+                return index
+        self._dxfs.append(deepcopy(root))
+        return len(self._dxfs) - 1
+
+    def _write_dxfs(self, text: str) -> str:
+        if self._dxf_base_count == len(self._dxfs):
+            return text
+        from pyopenvba.apps.excel._charts_file import xml_bytes
+
+        entries = [xml_bytes(entry).decode('utf-8').split('?>', 1)[-1].lstrip()
+                   for entry in self._dxfs[self._dxf_base_count:]]
+        additions = ''.join(entries)
+        pattern = (r'<(?P<tag>(?:[\w.-]+:)?dxfs)\b'
+                   r'''(?P<attrs>(?:[^'">]|"[^"]*"|'[^']*')*?)(?:\s*/>|>(?P<body>.*?)</(?P=tag)>)''')
+        match = re.search(pattern, text, re.DOTALL)
+        if match is None:
+            return _with_section(text, 'dxfs', entries)
+        attrs = match['attrs']
+        count = next((entry for entry in re.finditer(r'''(?P<name>[\w.:-]+)\s*=\s*(?:"[^"]*"|'[^']*')''', attrs)
+                      if entry['name'] == 'count'), None)
+        if count is not None:
+            attrs = attrs[:count.start()] + f'count="{len(self._dxfs)}"' + attrs[count.end():]
+        else:
+            attrs += f' count="{len(self._dxfs)}"'
+        body = match['body'] or ''
+        position = max(0, _dxf_append_position(text) - match.start('body')) if match['body'] is not None else 0
+        replacement = f'<{match["tag"]}{attrs}>' + body[:position] + additions + body[position:] + f'</{match["tag"]}>'
+        return text[:match.start()] + replacement + text[match.end():]
 
     def _part(self, items: list[_T], index: int, fallback: _T) -> _T:
         return items[index] if 0 <= index < len(items) else fallback
@@ -1277,7 +1383,7 @@ class Stylesheet:
         text = self.xml
         for section, entries in self._sections.items():
             text = _with_section(text, section, entries)
-        return text
+        return self._write_dxfs(text)
 
     def saved(self) -> dict[int, int]:
         """The file now holds what the save wrote: the tables become that, and each xf of the table that it
@@ -1285,8 +1391,11 @@ class Stylesheet:
         after = self._after
         moved = dict(self._written_at)
         if after is None:
+            self.xml = self.written()
+            self._dxf_base_count = len(self._dxfs)
             return moved
         self.xml = self.written()
+        self._dxf_base_count = len(self._dxfs)
         for section, kept in (("fonts", after.fonts), ("fills", after.fills), ("borders", after.borders)):
             items: list[object] = getattr(self, section)
             setattr(self, section, [items[index] for index in kept])

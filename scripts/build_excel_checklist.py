@@ -39,6 +39,8 @@ def bound_classes() -> dict[str, type]:
         _autofilter,
         _cell_styles,
         _charts,
+        _conditional,
+        _conditional_display,
         _formats,
         _hyperlinks,
         _model,
@@ -55,11 +57,13 @@ def bound_classes() -> dict[str, type]:
 
     found: dict[str, type] = {}
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
-                   _cell_styles, _hyperlinks, _charts, _pivots):
+                   _cell_styles, _hyperlinks, _charts, _pivots, _conditional, _conditional_display):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue
             if module is _pivots and cls.__name__ == '_Collection':
+                continue
+            if module is _conditional_display and cls.__name__.startswith('_'):
                 continue
             if not issubclass(cls, VBAObject) or not cls._vba_members:
                 continue

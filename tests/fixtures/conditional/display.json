@@ -1,0 +1,57 @@
+{
+  "measured_at": "2026-10-17T16:57:24.312758+00:00",
+  "instrumentation": "none; line_numbers=False",
+  "probes": [
+    {
+      "name": "readonly-font",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nRange(\"A1\").DisplayFormat.Font.Bold=True\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "$A$1:False,False,16777215,General,20;$A$2:False,False,16777215,General,20;$A$3:False,False,16777215,General,20;"
+    },
+    {
+      "name": "readonly-interior",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nRange(\"A1\").DisplayFormat.Interior.Color=255\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "ERR:1004"
+    },
+    {
+      "name": "readonly-number",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nRange(\"A1\").DisplayFormat.NumberFormat=\"0.00\"\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "ERR:424"
+    },
+    {
+      "name": "readonly-border",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nRange(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color=255\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "ERR:1004"
+    },
+    {
+      "name": "compose-two",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nSet g=Range(\"A1:A3\").FormatConditions.Add(xlExpression,Formula1:=\"=TRUE\")\ng.Font.Bold=True\ng.Font.Italic=True\ng.Interior.Color=255\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "$A$1:False,False,255,General,20;$A$2:False,False,255,General,20;$A$3:False,False,255,General,20;"
+    },
+    {
+      "name": "stop-first",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nf.StopIfTrue=True\nSet g=Range(\"A1:A3\").FormatConditions.Add(xlExpression,Formula1:=\"=TRUE\")\ng.Font.Italic=True\ng.Interior.Color=255\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "$A$1:False,False,16777215,General,20;$A$2:False,False,16777215,General,20;$A$3:False,False,16777215,General,20;"
+    },
+    {
+      "name": "mixed-range",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nRange(\"A2\").Value=5\nf.Font.Italic=True\nf.Interior.Color=255\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "$A$1:False,True,255,General,20;$A$2:True,False,16777215,General,5;$A$3:False,True,255,General,20;"
+    },
+    {
+      "name": "relative-row",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nf.Modify xlExpression,Formula1:=\"=MOD(ROW(),2)=0\"\nf.Interior.Color=255\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "$A$1:True,False,16777215,General,20;$A$2:False,False,255,General,20;$A$3:True,False,16777215,General,20;"
+    },
+    {
+      "name": "error-condition",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nf.Modify xlExpression,Formula1:=\"=1/0\"\nf.Interior.Color=255\nProbe=ReadDisplay()\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "$A$1:True,False,16777215,General,20;$A$2:True,False,16777215,General,20;$A$3:True,False,16777215,General,20;"
+    },
+    {
+      "name": "border-compose",
+      "source": "Function Probe() As String\nDim f As FormatCondition,g As FormatCondition\nOn Error GoTo Failed\nRange(\"A1:A3\").Value=20\nRange(\"A1:A3\").Font.Bold=True\nSet f=Range(\"A1:A3\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.Font.Bold=False\nf.StopIfTrue=False\nf.Borders(xlBottom).Color=255\nSet g=Range(\"A1:A3\").FormatConditions.Add(xlExpression,Formula1:=\"=TRUE\")\ng.Borders(xlBottom).LineStyle=xlDash\ng.Borders(xlBottom).Color=16711680\nProbe=CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \"|\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction ReadDisplay() As String\nDim c As Range\nFor Each c In Range(\"A1:A3\")\nReadDisplay=ReadDisplay & c.Address & \":\" & CStr(c.DisplayFormat.Font.Bold) & \",\" & CStr(c.DisplayFormat.Font.Italic) & \",\" & CStr(c.DisplayFormat.Interior.Color) & \",\" & c.DisplayFormat.NumberFormat & \",\" & c.Text & \";\"\nNext\nEnd Function",
+      "result": "1|255"
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

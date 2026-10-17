@@ -1122,6 +1122,10 @@ def clear_formats(target: Range) -> None:
     from pyopenvba.apps.excel._visible import visible
 
     target = visible(target)
+    if target.sheet.conditional_formats:
+        from pyopenvba.apps.excel._conditional import remove
+
+        remove(target.sheet, list(target.areas))
     _merges.unmerge(target)
     sheet = target.sheet
     parts = [area for area in target.areas if not _row_formats.clear_area(sheet, area)]

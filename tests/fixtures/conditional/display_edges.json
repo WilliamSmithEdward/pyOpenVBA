@@ -1,0 +1,72 @@
+{
+  "measured_at": "2026-10-17T16:57:26.341387+00:00",
+  "instrumentation": "none; line_numbers=False",
+  "probes": [
+    {
+      "name": "between-reversed",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").Value=5\nSet f=Range(\"A1\").FormatConditions.Add(xlCellValue,xlBetween,10,1)\nf.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=True;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "between-ordered",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").Value=5\nSet f=Range(\"A1\").FormatConditions.Add(xlCellValue,xlBetween,1,10)\nf.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=True;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "expression-text-true",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nSet f=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=\"\"TRUE\"\"\")\nf.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=True;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "expression-text-one",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nSet f=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=\"\"1\"\"\")\nf.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=False;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "cell-numeric-text",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").NumberFormat=\"@\"\nRange(\"A1\").Value=\"5\"\nSet f=Range(\"A1\").FormatConditions.Add(xlCellValue,xlEqual,5)\nf.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=False;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "cell-bool-number",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").Value=True\nSet f=Range(\"A1\").FormatConditions.Add(xlCellValue,xlEqual,1)\nf.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=False;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "display-write-base-false",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").Font.Bold=False\nRange(\"A1\").DisplayFormat.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=True;display=True;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "display-write-base-true",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").Font.Bold=True\nRange(\"A1\").DisplayFormat.Font.Bold=False\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=False;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "display-write-matched-false",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").Font.Bold=False\nSet f=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=TRUE\")\nf.Font.Bold=False\nRange(\"A1\").DisplayFormat.Font.Bold=True\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=True;display=False;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "display-write-matched-true",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nRange(\"A1\").Font.Bold=True\nSet f=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=TRUE\")\nf.Font.Bold=True\nRange(\"A1\").DisplayFormat.Font.Bold=False\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=True;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "composed-font",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nSet f=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=TRUE\")\nf.Font.Bold=False\nf.StopIfTrue=False\nSet g=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=TRUE\")\ng.Font.Bold=True\ng.Font.Italic=True\ng.StopIfTrue=False\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=False;italic=False;line=-4142;color=0"
+    },
+    {
+      "name": "composed-border",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nSet f=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=TRUE\")\nf.Borders(xlBottom).Color=vbRed\nf.StopIfTrue=False\nSet g=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=TRUE\")\ng.Borders(xlBottom).LineStyle=xlDash\ng.Borders(xlBottom).Color=vbBlue\ng.StopIfTrue=False\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=False;italic=False;line=1;color=255"
+    },
+    {
+      "name": "border-color-only",
+      "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object\nSet f=Range(\"A1\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=TRUE\")\nf.Borders(xlBottom).Color=vbRed\nProbe=\"base=\" & CStr(Range(\"A1\").Font.Bold) & \";display=\" & CStr(Range(\"A1\").DisplayFormat.Font.Bold) & \";italic=\" & CStr(Range(\"A1\").DisplayFormat.Font.Italic) & \";line=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).LineStyle) & \";color=\" & CStr(Range(\"A1\").DisplayFormat.Borders(xlEdgeBottom).Color)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "base=False;display=False;italic=False;line=1;color=255"
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

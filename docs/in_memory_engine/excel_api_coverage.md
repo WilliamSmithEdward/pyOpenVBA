@@ -1,7 +1,8 @@
 # Excel API coverage
 
 Snapshot: **17 October 2026**, covering the current source tree, including the
-worksheet-source PivotCache creation and compact PivotTable axis aggregation implementation. This is a functionality summary for the
+worksheet-source PivotCache creation, compact PivotTable axes, and ordinary
+conditional formatting rules and display evaluation. This is a functionality summary for the
 in-memory Excel engine. **No functional area is complete yet.** Common worksheet
 operations have substantially more support than advanced Excel automation.
 
@@ -25,11 +26,11 @@ is a percentage of working macros or complete functionality.
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
 | Application, workbooks and worksheets | Partial | 125 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Many application services, workbook features and host-specific behaviors remain. |
-| Cells and ranges | Partial | 110 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
+| Cells and ranges | Partial | 112 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
-| Cell formatting and styles | Partial | 86 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Rich text, gradients, display formats and remaining formatting APIs need work. |
-| Conditional formatting | Missing | 0 / 212 | 0 | No runtime rule-management API; color scales, data bars, icon sets and conditional-format evaluation remain. |
+| Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
+| Conditional formatting | Partial | 22 / 212 | 0 | Ordinary cell-value/expression rules, priorities, applicability ranges, differential styles, displayed formatting and conditional number formats. Native controls cover relative formulas, rule composition, clear and worksheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts and AutoFilter operations. Advanced criteria, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
@@ -46,7 +47,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Missing | 0 / 152 | 0 | No full PageSetup, print rendering, page-break or publishing automation. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,057 / 7,542** | **148** | **14.0% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,098 / 7,542** | **148** | **14.6% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 † Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -133,6 +134,24 @@ changing global serializer state; DTD/entity refusal remains in place. See the
 [namespace regressions](../../tests/test_excel_xml_namespaces.py) and
 [pivot XML security tests](../../tests/test_excel_pivot_xml_security.py).
 
+Native conditional-formatting controls cover ordinary cell-value and expression
+rules, priority and StopIfTrue composition, relative formula anchors, differential
+font/fill/border/number formats, protection, partial deletion, clearing and sheet
+copying. DisplayFormat reads live conditional styles without changing base cell
+formats; native Excel permits its Font setters to change the base font. Range.Text
+uses conditional number formats, while native DisplayFormat.NumberFormat reports
+the base format. Reversed Between bounds and color-only conditional borders have
+native controls. Displayed reads over more than 1,048,576 conditional cells are
+explicitly unsupported. Color scales, data bars, icon sets, other advanced rule
+families, range copy/paste and structural edits still need work. Affected
+format-bearing transfers and structural edits are rejected before mutation;
+value-only pastes preserve the rules. Recursive UDF-driven display reads still
+need auditing. See
+[rule tests](../../tests/test_excel_conditional.py),
+[display tests](../../tests/test_excel_conditional_display.py),
+[native controls](../../tests/fixtures/conditional) and their
+[replay script](../../scripts/measure_conditional_formatting.py).
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in
@@ -144,8 +163,8 @@ counts unique member names per remaining type. Every remaining type is assigned
 to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
-The checklist contains **2,582 entries across 62 implemented model types**:
-148 verified, 487 partial, 426 unassessed, 1,518 missing and 3 excluded. Its 1,061
+The checklist contains **2,642 entries across 65 implemented model types**:
+148 verified, 528 partial, 426 unassessed, 1,537 missing and 3 excluded. Its 1,102
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

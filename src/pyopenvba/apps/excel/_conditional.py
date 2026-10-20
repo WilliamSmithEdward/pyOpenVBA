@@ -51,9 +51,34 @@ class Rule:
     container: XmlElement | None = field(default=None, repr=False)
     dxf: XmlElement | None = field(default=None, repr=False)
     deleted: bool = False
+    imported: bool = False
+    color_slot: int | None = None
 
 
-def read_rules(xml: str) -> list[Rule]:
+def formula_anchor(areas: list[Area]) -> Area:
+    """Formula-backed conditions use the bounding corner, independently of API area order."""
+    top, left = min(area.top for area in areas), min(area.left for area in areas)
+    return Area(top, left, top, left)
+
+
+def column_order(area: Area) -> tuple[int, int, int, int]:
+    """Native macro-free group identity orders columns before rows."""
+    return area.left, area.top, area.right, area.bottom
+
+
+def projected_areas(rule: Rule) -> list[Area]:
+    """FileFormat51 generic rules expose row order; statistical populations retain input order."""
+    if rule.imported and rule.root.get('type') not in ('top10', 'aboveAverage', 'uniqueValues', 'duplicateValues'):
+        return sorted(rule.areas, key=lambda area: (area.top, area.left, area.bottom, area.right))
+    return list(rule.areas)
+
+
+def group_order(rule: Rule) -> tuple[int, int, int, int]:
+    """Loaded51 group identity uses the first family-projected area, then column order."""
+    return column_order(projected_areas(rule)[0])
+
+
+def read_rules(xml: str, *, imported: bool = True) -> list[Rule]:
     root = xml_tree(xml)
     rules: list[Rule] = []
     for group in root.findall(NS + 'conditionalFormatting'):
@@ -63,24 +88,25 @@ def read_rules(xml: str) -> list[Rule]:
                 group.attrib.setdefault(key, value)
         areas = [parse_area(value) for value in group.get('sqref', '').split()]
         if areas:
-            rules.extend(Rule(list(areas), entry, group) for entry in group.findall(NS + 'cfRule'))
+            rules.extend(Rule(list(areas), entry, group, imported=imported) for entry in group.findall(NS + 'cfRule'))
     return rules
 
 
 def with_rules(xml: str, rules: list[Rule]) -> str:
     """Replace standard rules while retaining container and extension metadata."""
-    groups: list[tuple[XmlElement | None, list[Area], XmlElement]] = []
+    groups: list[tuple[XmlElement | None, list[Area], XmlElement, bool, tuple[int, int, int, int]]] = []
     for rule in rules:
         if rule.deleted or not rule.areas:
             continue
-        group = next((output for original, areas, output in groups
-                      if original is rule.container and areas == rule.areas), None)
+        serialized_areas = projected_areas(rule)
+        group = next((output for original, areas, output, _, _ in groups
+                      if original is rule.container and areas == serialized_areas), None)
         if group is None:
             group = deepcopy(rule.container) if rule.container is not None else XmlElement(NS + 'conditionalFormatting')
             for entry in group.findall(NS + 'cfRule'):
                 group.remove(entry)
-            group.set('sqref', ' '.join(area.address(absolute=False) for area in rule.areas))
-            groups.append((rule.container, list(rule.areas), group))
+            group.set('sqref', ' '.join(area.address(absolute=False) for area in serialized_areas))
+            groups.append((rule.container, serialized_areas, group, rule.imported, group_order(rule)))
         # cfRule precedes extLst in CT_ConditionalFormatting.
         before = next((i for i, entry in enumerate(group) if entry.tag == NS + 'extLst'), len(group))
         copied = deepcopy(rule.root)
@@ -89,6 +115,11 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
                 raise VBAUnsupportedError('Saving conditional formulas containing NUL is not supported by native Excel')
             copied.set('text', saved_text(copied.get('text', '')))
         group.insert(before, copied)
+    # Only loaded FileFormat51 groups carry native canonical load ordering.
+    # Fresh and macro-enabled groups retain their original relative positions.
+    canonical = iter(sorted((group for group in groups if group[3]),
+                            key=lambda group: group[4]))
+    groups = [next(canonical) if group[3] else group for group in groups]
     data = xml.encode('utf-8')
     parser = xml_parser()
     depth, active = 0, None
@@ -134,7 +165,7 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
     parser.StartElementHandler, parser.EndElementHandler = start, end
     parser.Parse(data, True)
     assert insertion is not None
-    markup = b''.join(xml_bytes(group).split(b'?>', 1)[1].lstrip() for _, _, group in groups)
+    markup = b''.join(xml_bytes(group).split(b'?>', 1)[1].lstrip() for _, _, group, _, _ in groups)
     root_end = tag_end(root_start)
     if data[root_start:root_end].endswith(b'/>'):
         if not markup:
@@ -152,12 +183,12 @@ def _priority(rule: Rule) -> int:
     return int(rule.root.get('priority', '0'))
 
 
-def _changed(sheet: Worksheet) -> None:
+def changed(sheet: Worksheet) -> None:
     sheet.conditional_changed = True
     sheet.touched()
 
 
-def _guard(sheet: Worksheet) -> None:
+def guard(sheet: Worksheet) -> None:
     from pyopenvba.apps.excel._protection import APPLICATION_DEFINED
 
     protection = sheet.protection
@@ -167,14 +198,14 @@ def _guard(sheet: Worksheet) -> None:
         raise error(1004, APPLICATION_DEFINED)
 
 
-def _meets(first: Area, second: Area) -> bool:
+def meets(first: Area, second: Area) -> bool:
     return not (first.bottom < second.top or second.bottom < first.top
                 or first.right < second.left or second.right < first.left)
 
 
-def _without(area: Area, cut: Area) -> list[Area]:
+def without(area: Area, cut: Area) -> list[Area]:
     """Native CF split order: top, bottom, left, right (unlike validation)."""
-    if not _meets(area, cut):
+    if not meets(area, cut):
         return [area]
     pieces: list[Area] = []
     if area.top < cut.top:
@@ -198,14 +229,16 @@ def remove(sheet: Worksheet, areas: list[Area]) -> bool:
             kept: list[Area] = []
             extra: list[Area] = []
             for area in remaining:
-                pieces = _without(area, cut)
+                pieces = without(area, cut)
                 kept.extend(pieces[:1])
                 extra.extend(pieces[1:])
             remaining = kept + extra
         if remaining != rule.areas:
             formulas = [child.text or '' for child in rule.root.findall(NS + 'formula')]
             if remaining:
-                original, first = rule.areas[0], remaining[0]
+                anchored = rule.root.get('type') in {'cellIs', 'expression'} | PREDICATE_TYPES
+                original = formula_anchor(rule.areas) if anchored else rule.areas[0]
+                first = formula_anchor(remaining) if anchored else remaining[0]
                 if (original.top, original.left) != (first.top, first.left):
                     generated = formula_for_rule(rule.root, first)
                     if generated is not None:
@@ -224,7 +257,7 @@ def remove(sheet: Worksheet, areas: list[Area]) -> bool:
     for rule, remaining, formulas in planned:
         rule.areas = remaining
         if remaining and rule.root.get('type') in PREDICATE_TYPES:
-            regenerate(rule.root, remaining[0])
+            regenerate(rule.root, formula_anchor(remaining))
         else:
             for child, text in zip(rule.root.findall(NS + 'formula'), formulas, strict=True):
                 child.text = text
@@ -232,7 +265,7 @@ def remove(sheet: Worksheet, areas: list[Area]) -> bool:
             rule.deleted = True
             sheet.conditional_formats.remove(rule)
     if planned:
-        _changed(sheet)
+        changed(sheet)
     return bool(planned)
 
 
@@ -285,7 +318,7 @@ def _made(target: Range, Type: object, Operator: object, Formula1: object, Formu
             attributes['type'] = {10: 'containsBlanks', 13: 'notContainsBlanks',
                                   16: 'containsErrors', 17: 'notContainsErrors'}[kind]
         root = XmlElement(NS + 'cfRule', attributes)
-        regenerate(root, target.first)
+        regenerate(root, formula_anchor(target.areas))
         return root
     if kind in (5, 8, 12):
         attributes = {5: {'type': 'top10', 'rank': '10'}, 8: {'type': 'uniqueValues'},
@@ -310,6 +343,12 @@ def _made(target: Range, Type: object, Operator: object, Formula1: object, Formu
     formulas = [_formula(Formula1, target)]
     if count == 2:
         formulas.append(_formula(Formula2, target))
+    anchor = formula_anchor(target.areas)
+    if (anchor.top, anchor.left) != (target.first.top, target.first.left):
+        from pyopenvba.formula._parse import shift_text
+
+        formulas = [shift_text('=' + value, anchor.top - target.first.top,
+                               anchor.left - target.first.left)[1:] if value else value for value in formulas]
     root = XmlElement(NS + 'cfRule', attributes)
     for value in formulas:
         child = XmlElement(NS + 'formula')
@@ -326,7 +365,7 @@ class FormatConditions(VBACollection, ExcelObject):
 
     def vba_items(self) -> list[object]:
         rules = [rule for rule in self.sheet.conditional_formats if not rule.deleted
-                 and any(_meets(one, area) for one in rule.areas for area in self.target.areas)]
+                 and any(meets(one, area) for one in rule.areas for area in self.target.areas)]
         return [_wrapper(self.sheet, rule) for rule in sorted(rules, key=_priority)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
@@ -343,37 +382,40 @@ class FormatConditions(VBACollection, ExcelObject):
     def Add(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
             Formula2: object = MISSING, String: object = MISSING, TextOperator: object = MISSING,
             DateOperator: object = MISSING, ScopeType: object = MISSING) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         if ScopeType is not MISSING and ScopeType is not NULL:
             raise error(5)
         root = _made(self.target, Type, Operator, Formula1, Formula2, String, TextOperator, DateOperator)
         return self._append(root)
 
     def _append(self, root: XmlElement) -> object:
+        from pyopenvba.apps.excel._conditional_border_context import register
+
         root.set('priority', str(max((_priority(rule) for rule in self.sheet.conditional_formats), default=0) + 1))
         rule = Rule([Area(area.top, area.left, area.bottom, area.right) for area in self.target.areas], root)
+        register(self.sheet, rule)
         self.sheet.conditional_formats.append(rule)
-        _changed(self.sheet)
+        changed(self.sheet)
         return _wrapper(self.sheet, rule)
 
     @method
     def AddTop10(self) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         return self._append(_made(self.target, 5, MISSING, MISSING, MISSING))
 
     @method
     def AddAboveAverage(self) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         return self._append(_made(self.target, 12, MISSING, MISSING, MISSING))
 
     @method
     def AddUniqueValues(self) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         return self._append(_made(self.target, 8, MISSING, MISSING, MISSING))
 
     @method
     def Delete(self) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         remove(self.sheet, self.target.areas)
         return EMPTY
 
@@ -391,7 +433,8 @@ class _ConditionalRule(ExcelObject):
 
     @member
     def AppliesTo(self) -> object:
-        return Range(self.sheet, [Area(a.top, a.left, a.bottom, a.right, self.sheet.name) for a in self.rule.areas])
+        areas = projected_areas(self.rule)
+        return Range(self.sheet, [Area(a.top, a.left, a.bottom, a.right, self.sheet.name) for a in areas])
 
     @member
     def Priority(self) -> object:
@@ -399,7 +442,7 @@ class _ConditionalRule(ExcelObject):
 
     @setter('Priority')
     def set_priority(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         wanted = int(to_integer(value, 'Long'))
         if wanted < 1:
             raise error(5)
@@ -408,7 +451,7 @@ class _ConditionalRule(ExcelObject):
             if other is not self.rule and wanted <= priority:
                 other.root.set('priority', str(priority + 1))
         self.rule.root.set('priority', str(wanted))
-        _changed(self.sheet)
+        changed(self.sheet)
 
     @member
     def StopIfTrue(self) -> object:
@@ -416,35 +459,35 @@ class _ConditionalRule(ExcelObject):
 
     @setter('StopIfTrue')
     def set_stop(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         self.rule.root.set('stopIfTrue', str(int(to_bool(value))))
-        _changed(self.sheet)
+        changed(self.sheet)
 
     @method
     def SetFirstPriority(self) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         for other in self.sheet.conditional_formats:
             if other is not self.rule:
                 other.root.set('priority', str(_priority(other) + 1))
         self.rule.root.set('priority', '1')
-        _changed(self.sheet)
+        changed(self.sheet)
         return EMPTY
 
     @method
     def SetLastPriority(self) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         self.rule.root.set('priority', str(max((_priority(rule) for rule in self.sheet.conditional_formats), default=0) + 1))
-        _changed(self.sheet)
+        changed(self.sheet)
         return EMPTY
 
     @method
     def Delete(self) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         if self.rule not in self.sheet.conditional_formats:
             raise error(1004)
         self.sheet.conditional_formats.remove(self.rule)
         self.rule.deleted = True
-        _changed(self.sheet)
+        changed(self.sheet)
         return EMPTY
 
 
@@ -452,12 +495,13 @@ class _ConditionalRule(ExcelObject):
     def ModifyAppliesToRange(self, Range: object = MISSING) -> object:
         from pyopenvba.apps.excel._model import Range as ExcelRange
 
-        _guard(self.sheet)
+        guard(self.sheet)
         if not isinstance(Range, ExcelRange) or Range.sheet is not self.sheet:
             raise error(1004)
         self.rule.areas = [Area(a.top, a.left, a.bottom, a.right) for a in Range.areas]
-        regenerate(self.rule.root, self.rule.areas[0])
-        _changed(self.sheet)
+        self.rule.imported = False
+        regenerate(self.rule.root, formula_anchor(self.rule.areas))
+        changed(self.sheet)
         return EMPTY
 
     def _dxf(self) -> XmlElement:
@@ -469,7 +513,7 @@ class _ConditionalRule(ExcelObject):
 
     def _style_changed(self) -> None:
         self.rule.root.set('dxfId', str(self.sheet.book.stylesheet.ensure_dxf(self._dxf())))
-        _changed(self.sheet)
+        changed(self.sheet)
 
     @member
     def Font(self) -> object:
@@ -485,22 +529,24 @@ class _ConditionalRule(ExcelObject):
 
     @member
     def Borders(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._conditional_border_context import resolve
         from pyopenvba.apps.excel._differential import ConditionalBorders
 
-        collection = ConditionalBorders(self._dxf(), self._style_changed, self.sheet)
+        collection = ConditionalBorders(self._dxf(), self._style_changed, self.sheet,
+                                        color_source=lambda: resolve(self.sheet, self.rule))
         return collection if Index is MISSING else collection.Item(Index)
 
     @member
     def NumberFormat(self) -> object:
-        from pyopenvba.apps.excel._differential import number_format
+        from pyopenvba.apps.excel._differential import api_number_format
 
-        return number_format(self._dxf(), self.sheet.book.stylesheet)
+        return api_number_format(self._dxf(), self.sheet.book.stylesheet)
 
     @setter('NumberFormat')
     def set_number_format(self, value: object) -> None:
         from pyopenvba.apps.excel._differential import set_number_format
 
-        _guard(self.sheet)
+        guard(self.sheet)
         set_number_format(self._dxf(), value, self.sheet.book.stylesheet)
         self._style_changed()
 
@@ -559,15 +605,15 @@ class FormatCondition(_ConditionalRule):
 
     @setter('Text')
     def set_text(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         if value is NULL:
             raise error(13)
         if self.rule.root.get('type') not in TEXT_TYPES:
             raise error(1004)
         text = to_text(value)
         self.rule.root.set('text', text)
-        regenerate(self.rule.root, self.rule.areas[0])
-        _changed(self.sheet)
+        regenerate(self.rule.root, formula_anchor(self.rule.areas))
+        changed(self.sheet)
 
     @member
     def TextOperator(self) -> object:
@@ -578,7 +624,7 @@ class FormatCondition(_ConditionalRule):
 
     @setter('TextOperator')
     def set_text_operator(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         selected = _stat_long(value)
         if selected not in range(4):
             raise error(5)
@@ -590,12 +636,12 @@ class FormatCondition(_ConditionalRule):
             self.rule.root.attrib.pop('timePeriod', None)
             for child in self.rule.root.findall(NS + 'formula'):
                 self.rule.root.remove(child)
-            _changed(self.sheet)
+            changed(self.sheet)
             raise error(1004)
         self.rule.root.set('type', TEXT_TYPES[selected])
         self.rule.root.set('operator', TEXT_OPERATORS[selected])
-        regenerate(self.rule.root, self.rule.areas[0])
-        _changed(self.sheet)
+        regenerate(self.rule.root, formula_anchor(self.rule.areas))
+        changed(self.sheet)
 
     @member
     def DateOperator(self) -> object:
@@ -608,15 +654,15 @@ class FormatCondition(_ConditionalRule):
 
     @setter('DateOperator')
     def set_date_operator(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         selected = _stat_long(value)
         if selected not in range(len(TIME_PERIODS)):
             raise error(5)
         if self.rule.root.get('type') != 'timePeriod':
             return
         self.rule.root.set('timePeriod', TIME_PERIODS[selected])
-        regenerate(self.rule.root, self.rule.areas[0])
-        _changed(self.sheet)
+        regenerate(self.rule.root, formula_anchor(self.rule.areas))
+        changed(self.sheet)
 
     @member
     def ScopeType(self) -> object:
@@ -624,7 +670,7 @@ class FormatCondition(_ConditionalRule):
 
     @setter('ScopeType')
     def set_scope_type(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         _stat_long(value)
         raise error(1004)
 
@@ -632,7 +678,7 @@ class FormatCondition(_ConditionalRule):
     @method
     def Modify(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
                Formula2: object = MISSING, String: object = MISSING, Operator2: object = MISSING) -> object:
-        _guard(self.sheet)
+        guard(self.sheet)
         if Type is MISSING:
             raise error(450)
         kind = int(to_integer(Type, 'Long'))
@@ -642,8 +688,8 @@ class FormatCondition(_ConditionalRule):
             if String is not MISSING:
                 # Modify accepts Null as an empty term, unlike the Text setter.
                 self.rule.root.set('text', '' if String is NULL else to_text(String))
-                regenerate(self.rule.root, self.rule.areas[0])
-                _changed(self.sheet)
+                regenerate(self.rule.root, formula_anchor(self.rule.areas))
+                changed(self.sheet)
             if Operator2 is not MISSING:
                 self.set_text_operator(Operator2)
             return EMPTY
@@ -662,7 +708,7 @@ class FormatCondition(_ConditionalRule):
             self.rule.root.remove(child)
         for index, child in enumerate(made):
             self.rule.root.insert(index, child)
-        _changed(self.sheet)
+        changed(self.sheet)
         return EMPTY
 
 
@@ -683,7 +729,7 @@ class _StatisticalRule(_ConditionalRule):
 
     @setter('ScopeType')
     def set_scope_type(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         _stat_long(value)
         raise error(1004)
 
@@ -701,14 +747,14 @@ class Top10(_StatisticalRule):
 
     @setter('TopBottom')
     def set_top_bottom(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         chosen = _stat_long(value)
         if chosen not in (0, 1):
             raise error(5)
         self.rule.root.attrib.pop('bottom', None)
         if chosen == 0:
             self.rule.root.set('bottom', '1')
-        _changed(self.sheet)
+        changed(self.sheet)
 
     @member
     def Rank(self) -> object:
@@ -716,12 +762,12 @@ class Top10(_StatisticalRule):
 
     @setter('Rank')
     def set_rank(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         chosen = _stat_long(value)
         if not 1 <= chosen <= (100 if self.Percent() else 1000):
             raise error(5)
         self.rule.root.set('rank', str(chosen))
-        _changed(self.sheet)
+        changed(self.sheet)
 
     @member
     def Percent(self) -> object:
@@ -729,7 +775,7 @@ class Top10(_StatisticalRule):
 
     @setter('Percent')
     def set_percent(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         if value is NULL:
             raise error(13)
         selected = to_bool(value)
@@ -737,7 +783,7 @@ class Top10(_StatisticalRule):
         if selected:
             self.rule.root.set('percent', '1')
             self.rule.root.set('rank', str(min(100, int(self.Rank()))))
-        _changed(self.sheet)
+        changed(self.sheet)
 
 
 class AboveAverage(_StatisticalRule):
@@ -756,7 +802,7 @@ class AboveAverage(_StatisticalRule):
 
     @setter('AboveBelow')
     def set_above_below(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         chosen = _stat_long(value)
         if chosen not in range(6):
             raise error(5)
@@ -770,7 +816,7 @@ class AboveAverage(_StatisticalRule):
             self.rule.root.set('equalAverage', '1')
         elif chosen in (4, 5):
             self.rule.root.set('stdDev', '1')
-        _changed(self.sheet)
+        changed(self.sheet)
 
     @member
     def NumStdDev(self) -> object:
@@ -778,12 +824,12 @@ class AboveAverage(_StatisticalRule):
 
     @setter('NumStdDev')
     def set_num_std_dev(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         chosen = _stat_long(value)
         if int(self.AboveBelow()) not in (4, 5) or chosen not in (1, 2, 3):
             raise error(5)
         self.rule.root.set('stdDev', str(chosen))
-        _changed(self.sheet)
+        changed(self.sheet)
 
 
 class UniqueValues(_StatisticalRule):
@@ -799,12 +845,12 @@ class UniqueValues(_StatisticalRule):
 
     @setter('DupeUnique')
     def set_dupe_unique(self, value: object) -> None:
-        _guard(self.sheet)
+        guard(self.sheet)
         chosen = _stat_long(value)
         if chosen not in (0, 1):
             raise error(5)
         self.rule.root.set('type', 'duplicateValues' if chosen else 'uniqueValues')
-        _changed(self.sheet)
+        changed(self.sheet)
 
 
 def _wrapper(sheet: Worksheet, rule: Rule) -> _ConditionalRule:

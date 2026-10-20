@@ -66,7 +66,19 @@
     {
       "name": "modify-applies-anchor",
       "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object,h As Object,s As String\nSet f=Range(\"K3:K5\").FormatConditions.Add(Type:=xlExpression,Formula1:=\"=K3>0\")\nf.ModifyAppliesToRange Union(Range(\"M8:M9\"),Range(\"K3:K5\"))\ns=Rule(f)\nProbe=s\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\n\nFunction Prop(o As Object, key As String) As String\nOn Error GoTo Failed\nProp=CStr(CallByName(o,key,VbGet))\nExit Function\nFailed:\nProp=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Rule(f As Object) As String\nRule=\"type=\" & Prop(f,\"Type\") & \";op=\" & Prop(f,\"Operator\") & \";f1=\" & Prop(f,\"Formula1\") & \";f2=\" & Prop(f,\"Formula2\") & \";priority=\" & Prop(f,\"Priority\") & \";stop=\" & Prop(f,\"StopIfTrue\") & \";applies=\" & f.AppliesTo.Address\nEnd Function\nFunction Rules(r As Range) As String\nDim f As Object, s As String\ns=\"count=\" & r.FormatConditions.Count\nFor Each f In r.FormatConditions\ns=s & \"|\" & Rule(f)\nNext f\nRules=s\nEnd Function\n",
-      "result": "type=2;op=ERR:1004;f1==K3>0;f2=ERR:1004;priority=1;stop=True;applies=$M$8:$M$9,$K$3:$K$5"
+      "result": "type=2;op=ERR:1004;f1==K3>0;f2=ERR:1004;priority=1;stop=True;applies=$M$8:$M$9,$K$3:$K$5",
+      "saved_result": "1|2|ERR:1004|=K3>0|ERR:1004|1|True|$K$3:$K$5,$M$8:$M$9",
+      "saved_evidence": {
+        "fixture": "../conditional_api_projection/initial_reopen.json",
+        "probe": "modify-applies-anchor",
+        "phase": "native save and reopen; inspection_source SavedRules"
+      },
+      "saved_result52": "1|2|ERR:1004|=K3>0|ERR:1004|1|True|$M$8:$M$9,$K$3:$K$5",
+      "saved_evidence52": {
+        "fixture": "../conditional_api_projection/initial_reopen52.json",
+        "probe": "modify-applies-anchor",
+        "phase": "native FileFormat52 save and reopen; inspection_source SavedRules"
+      }
     },
     {
       "name": "add-protected",
@@ -243,7 +255,19 @@
     {
       "name": "delete-2d",
       "source": "Function Probe() As String\nOn Error GoTo Failed\nDim f As Object,g As Object,h As Object,s As String,n As Long,x As Variant\nSet f=Range(\"A1:A5\").FormatConditions.Add(xlCellValue,xlGreater,10)\nf.ModifyAppliesToRange Range(\"A1:D5\")\nRange(\"B2:C3\").FormatConditions.Delete\ns=Rules() & \"|applies=\" & f.AppliesTo.Address\nProbe=s\nExit Function\nFailed:\nn=Err.Number\nOn Error Resume Next\nProbe=\"ERR:\" & n & \"|\" & Rules()\nEnd Function\n\nFunction P(o As Object,k As String) As String\nDim v As Variant\nOn Error GoTo Failed\nv=CallByName(o,k,VbGet)\nIf IsNull(v) Then\nP=\"Null(1)\"\nElseIf IsEmpty(v) Then\nP=\"Empty(0)\"\nElse\nP=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nP=\"ERR:\" & Err.Number\nEnd Function\nFunction Style(f As Object) As String\nDim x As Variant,s As String\ns=\"Font:\"\nFor Each x In Array(\"Bold\",\"Italic\",\"Strikethrough\",\"Underline\",\"Color\",\"ColorIndex\",\"Name\",\"Size\")\ns=s & CStr(x) & \"=\" & P(f.Font,CStr(x)) & \";\"\nNext\ns=s & \"Interior:\"\nFor Each x In Array(\"Color\",\"ColorIndex\",\"Pattern\",\"PatternColor\",\"PatternColorIndex\")\ns=s & CStr(x) & \"=\" & P(f.Interior,CStr(x)) & \";\"\nNext\ns=s & \"NumberFormat=\" & P(f,\"NumberFormat\")\nFor Each x In Array(xlEdgeLeft,xlEdgeTop,xlEdgeBottom,xlEdgeRight,xlInsideHorizontal,xlDiagonalDown)\ns=s & \"|Border\" & x & \":Line=\" & P(f.Borders(x),\"LineStyle\") & \";Weight=\" & P(f.Borders(x),\"Weight\") & \";Color=\" & P(f.Borders(x),\"Color\") & \";CI=\" & P(f.Borders(x),\"ColorIndex\")\nNext\nStyle=s\nEnd Function\nFunction Rules() As String\nDim f As Object,s As String\ns=\"count=\" & Cells.FormatConditions.Count\nFor Each f In Cells.FormatConditions\ns=s & \"|p=\" & P(f,\"Priority\") & \";f1=\" & P(f,\"Formula1\") & \";type=\" & P(f,\"Type\") & \";op=\" & P(f,\"Operator\")\nNext\nRules=s\nEnd Function\n\nFunction DirectBorder(f As Object,idx As Long) As String\nDim v As Variant\nOn Error GoTo Failed\nv=f.Borders(idx).LineStyle\nIf IsNull(v) Then\nDirectBorder=\"Null(1)\"\nElse\nDirectBorder=CStr(v) & \"(\" & VarType(v) & \")\"\nEnd If\nExit Function\nFailed:\nDirectBorder=\"ERR:\" & Err.Number\nEnd Function\nFunction B(f As Object,idx As Long) As String\nB=\"index=\" & idx & \";direct=\" & DirectBorder(f,idx) & \";line=\" & P(f.Borders(idx),\"LineStyle\") & \";weight=\" & P(f.Borders(idx),\"Weight\") & \";color=\" & P(f.Borders(idx),\"Color\") & \";CI=\" & P(f.Borders(idx),\"ColorIndex\")\nEnd Function\nFunction ApplyColor(f As Object,n As Long) As String\nOn Error GoTo Failed\nf.Font.ColorIndex=n\nApplyColor=\"ci=\" & n & \";color=\" & P(f.Font,\"Color\") & \";getci=\" & P(f.Font,\"ColorIndex\")\nExit Function\nFailed:\nApplyColor=\"ci=\" & n & \";ERR:\" & Err.Number\nEnd Function\nFunction BorderStyle(f As Object,n As Long) As String\nOn Error GoTo Failed\nf.Borders(xlBottom).LineStyle=n\nBorderStyle=\"set=\" & n & \";\" & B(f,xlBottom)\nExit Function\nFailed:\nBorderStyle=\"set=\" & n & \";ERR:\" & Err.Number\nEnd Function\n",
-      "result": "count=1|p=1(3);f1==10(8);type=1(3);op=5(3)|applies=$A$1:$D$1,$A$4:$D$5,$A$2:$A$3,$D$2:$D$3"
+      "result": "count=1|p=1(3);f1==10(8);type=1(3);op=5(3)|applies=$A$1:$D$1,$A$4:$D$5,$A$2:$A$3,$D$2:$D$3",
+      "saved_result": "1|1|5|=10|ERR:1004|1|True|$A$1:$D$1,$A$2:$A$3,$D$2:$D$3,$A$4:$D$5",
+      "saved_evidence": {
+        "fixture": "../conditional_api_projection/initial_reopen.json",
+        "probe": "delete-2d",
+        "phase": "native save and reopen; inspection_source SavedRules"
+      },
+      "saved_result52": "1|1|5|=10|ERR:1004|1|True|$A$1:$D$1,$A$4:$D$5,$A$2:$A$3,$D$2:$D$3",
+      "saved_evidence52": {
+        "fixture": "../conditional_api_projection/initial_reopen52.json",
+        "probe": "delete-2d",
+        "phase": "native FileFormat52 save and reopen; inspection_source SavedRules"
+      }
     },
     {
       "name": "delete-first-anchor",

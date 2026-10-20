@@ -1,0 +1,30 @@
+{
+  "probes": [
+    {
+      "name": "copy-cells",
+      "source": "Function Attempt() As String\nOn Error GoTo Failed\nRange(\"A1\").Copy Destination:=Range(\"D1\")\nAttempt=\"OK\"\nExit Function\nFailed:\nAttempt=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Probe() As String\nDim f As Object\nRange(\"A1\").Value2=5\nRange(\"D1\").Value2=9\nRange(\"G1\").Formula=\"=Attempt()\"\nProbe=CStr(Range(\"G1\").Value2) & \"|D1=\" & CStr(Range(\"D1\").Value2) & \"|rules=\" & CStr(Range(\"D1\").FormatConditions.Count)\nApplication.CutCopyMode=False\nEnd Function",
+      "result": "OK|D1=9|rules=0"
+    },
+    {
+      "name": "copy-conditional",
+      "source": "Function Attempt() As String\nOn Error GoTo Failed\nRange(\"A1\").Copy Destination:=Range(\"D1\")\nAttempt=\"OK\"\nExit Function\nFailed:\nAttempt=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Probe() As String\nDim f As Object\nRange(\"A1\").Value2=5\nRange(\"D1\").Value2=9\nSet f=Range(\"A1\").FormatConditions.Add(2,Formula1:=\"=A1>0\")\nf.Font.Bold=True\nRange(\"G1\").Formula=\"=Attempt()\"\nProbe=CStr(Range(\"G1\").Value2) & \"|D1=\" & CStr(Range(\"D1\").Value2) & \"|rules=\" & CStr(Range(\"D1\").FormatConditions.Count)\nApplication.CutCopyMode=False\nEnd Function",
+      "result": "OK|D1=9|rules=0"
+    },
+    {
+      "name": "paste-all",
+      "source": "Function Attempt() As String\nOn Error GoTo Failed\nRange(\"D1\").PasteSpecial xlPasteAll\nAttempt=\"OK\"\nExit Function\nFailed:\nAttempt=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Probe() As String\nDim f As Object\nRange(\"A1\").Value2=5\nRange(\"D1\").Value2=9\nRange(\"A1\").Copy\nRange(\"G1\").Formula=\"=Attempt()\"\nProbe=CStr(Range(\"G1\").Value2) & \"|D1=\" & CStr(Range(\"D1\").Value2) & \"|rules=\" & CStr(Range(\"D1\").FormatConditions.Count)\nApplication.CutCopyMode=False\nEnd Function",
+      "result": "OK|D1=9|rules=0"
+    },
+    {
+      "name": "paste-formats-conditional",
+      "source": "Function Attempt() As String\nOn Error GoTo Failed\nRange(\"D1\").PasteSpecial xlPasteFormats\nAttempt=\"OK\"\nExit Function\nFailed:\nAttempt=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Probe() As String\nDim f As Object\nRange(\"A1\").Value2=5\nRange(\"D1\").Value2=9\nSet f=Range(\"A1\").FormatConditions.Add(2,Formula1:=\"=A1>0\")\nf.Font.Bold=True\nRange(\"A1\").Copy\nRange(\"G1\").Formula=\"=Attempt()\"\nProbe=CStr(Range(\"G1\").Value2) & \"|D1=\" & CStr(Range(\"D1\").Value2) & \"|rules=\" & CStr(Range(\"D1\").FormatConditions.Count)\nApplication.CutCopyMode=False\nEnd Function",
+      "result": "OK|D1=9|rules=0"
+    },
+    {
+      "name": "worksheet-paste-conditional",
+      "source": "Function Attempt() As String\nOn Error GoTo Failed\nActiveSheet.Paste Destination:=Range(\"D1\")\nAttempt=\"OK\"\nExit Function\nFailed:\nAttempt=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Probe() As String\nDim f As Object\nRange(\"A1\").Value2=5\nRange(\"D1\").Value2=9\nSet f=Range(\"A1\").FormatConditions.Add(2,Formula1:=\"=A1>0\")\nf.Font.Bold=True\nRange(\"A1\").Copy\nRange(\"G1\").Formula=\"=Attempt()\"\nProbe=CStr(Range(\"G1\").Value2) & \"|D1=\" & CStr(Range(\"D1\").Value2) & \"|rules=\" & CStr(Range(\"D1\").FormatConditions.Count)\nApplication.CutCopyMode=False\nEnd Function",
+      "result": "OK|D1=9|rules=0"
+    }
+  ],
+  "completed": true
+}

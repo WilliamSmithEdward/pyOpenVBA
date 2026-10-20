@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._charts_file import XmlElement
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
@@ -27,10 +28,12 @@ def initialize(sheet: Worksheet) -> None:
             rule.color_slot = slot
             rule.child_order = order
     sheet.conditional_color_next = len(groups)
+    sheet.conditional_color_groups = None
 
 
 def register(sheet: Worksheet, rule: Rule) -> None:
     """Assign a fresh identity at commit; deletion intentionally leaves its entry."""
+    sheet.conditional_color_groups = None
     sheet.conditional_color_next += 1
     rule.color_slot = sheet.conditional_color_next
     sheet.conditional_color_slots[rule.color_slot] = rule
@@ -75,15 +78,52 @@ def _root(sheet: Worksheet, rule: Rule) -> XmlElement:
     return sheet.book.stylesheet.dxf(int(identifier)) if identifier is not None else XmlElement(NS + 'dxf')
 
 
-def resolve(sheet: Worksheet, rule: Rule) -> XmlElement:
-    """Resolve color getters only; stored styles and setters retain their owner."""
-    if rule.color_slot is None or rule.root.get('type') not in STATISTICAL:
-        return _root(sheet, rule)
+def _group(sheet: Worksheet, slot: int) -> tuple[list[Rule], dict[Rule, int]]:
+    if sheet.conditional_color_groups is None:
+        members: dict[int, list[Rule]] = {}
+        for rule in sheet.conditional_formats:
+            if not rule.deleted and rule.color_slot is not None:
+                members.setdefault(rule.color_slot, []).append(rule)
+        groups: dict[int, tuple[list[Rule], dict[Rule, int]]] = {}
+        for number, representative in sheet.conditional_color_slots.items():
+            entries = members.get(number, [])
+            if representative.deleted or representative not in entries:
+                entries = [representative]
+            else:
+                entries.sort(key=lambda rule: rule.child_order if rule.child_order is not None else 0)
+            groups[number] = entries, {rule: index for index, rule in enumerate(entries)}
+        sheet.conditional_color_groups = groups
+    group = sheet.conditional_color_groups.get(slot)
+    if group is None:
+        raise error(440)
+    return group
+
+
+def bound_rule(sheet: Worksheet, rule: Rule) -> tuple[Worksheet, Rule]:
+    """Resolve a foreign group and compact child position without changing either owner."""
+    if rule.color_slot is None:
+        return sheet, rule
     application = sheet.book.application
     active = application.active_book.active_sheet if application.active_book is not None else None
     if active is sheet:
-        return _root(sheet, rule)
+        return sheet, rule
     bound = None if active is None else active.conditional_color_slots.get(rule.color_slot)
     if bound is None or active is None:
         raise error(440)
-    return _root(active, bound)
+    position = 0
+    if rule.child_order is not None and sheet.conditional_color_slots.get(rule.color_slot) is not rule:
+        position = _group(sheet, rule.color_slot)[1].get(rule, 0)
+    if position:
+        targets = _group(active, rule.color_slot)[0]
+        if position >= len(targets):
+            raise VBAUnsupportedError('Foreign conditional formatting lookup of a missing group member is not implemented')
+        bound = targets[position]
+    return active, bound
+
+
+def resolve(sheet: Worksheet, rule: Rule) -> XmlElement:
+    """Resolve foreign member colors while owner reads and stored styles stay independent."""
+    if rule.root.get('type') not in STATISTICAL:
+        return _root(sheet, rule)
+    owner, bound = bound_rule(sheet, rule)
+    return _root(owner, bound)

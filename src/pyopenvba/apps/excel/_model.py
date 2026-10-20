@@ -1097,6 +1097,7 @@ class Worksheet(ExcelObject):
         self.conditional_formats: list[ConditionalRule] = []
         self.conditional_changed = False
         self.conditional_color_slots: dict[int, ConditionalRule] = {}
+        self.conditional_color_groups: dict[int, tuple[list[ConditionalRule], dict[ConditionalRule, int]]] | None = None
         self.conditional_color_next = 0
         #: Cache against the exact OPC entry; replacing a part invalidates it.
         self.conditional_extensions: bool | None = None

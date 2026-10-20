@@ -1,0 +1,2 @@
+# Native evidence is hashed byte-for-byte; preserve its recorded line endings.
+*.json -text whitespace=cr-at-eol

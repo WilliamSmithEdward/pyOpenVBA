@@ -1,0 +1,51 @@
+{
+  "controls": [
+    {
+      "name": "safe-receiver-new-copied-rule-slot",
+      "source": "Function Probe() As String\nDim src As Worksheet,cp As Worksheet,receiver As Worksheet\nDim f As Object,g As Object,h As Object,t As Object,s As String,i As Long\nSet src=ActiveSheet\nsrc.Name=\"Data\"\nSet f=src.Range(\"A1:A4\").FormatConditions.AddTop10\nf.Borders(xlBottom).Color=vbBlue\nSet g=src.Range(\"A1:A4\").FormatConditions.AddTop10\ng.Borders(xlBottom).Color=vbGreen\ns=\"source-priorities=\" & f.Priority & \",\" & g.Priority\nsrc.Copy After:=src\nSet cp=ActiveSheet\ncp.Name=\"Copied\"\ncp.Activate\nSet h=cp.Range(\"C1\").FormatConditions.AddTop10\nh.Borders(xlBottom).Color=vbYellow\nSet receiver=ActiveWorkbook.Worksheets.Add(After:=cp)\nreceiver.Name=\"Receiver\"\nFor i=1 To 4\nSet t=receiver.Cells(i,5).FormatConditions.AddTop10\nt.Borders(xlBottom).Color=Array(vbRed,vbGreen,vbBlue,vbCyan)(i-1)\nNext i\nreceiver.Activate\ns=s & \";active=\" & ActiveSheet.Name & \";receiver-count=\" & receiver.Cells.FormatConditions.Count\nOn Error GoTo Failed\ns=s & \";held-h-color=\" & h.Borders(xlBottom).Color\ns=s & \";held-h-index=\" & h.Borders(xlBottom).ColorIndex\nProbe=s\nExit Function\nFailed:\nProbe=s & \";actual-error=\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "result": "source-priorities=1,2;active=Receiver;receiver-count=4;held-h-color=65280;held-h-index=4",
+      "native_status": {
+        "ok": true,
+        "outcome": "passed",
+        "dialogs": [],
+        "error": "None",
+        "message": ""
+      },
+      "session_id": "659db7842e00",
+      "excel_pid": 45860,
+      "session_closed_utc": "2026-10-20T22:35:23.258890+00:00",
+      "receiver_slot_colors": [
+        255,
+        65280,
+        16711680,
+        16776960
+      ],
+      "scope": "Only the new copied single-child rule is read under explicit Receiver activation; no shared foreign reads or missing group/member lookup."
+    },
+    {
+      "name": "fresh-reversed-geometry",
+      "source": "Function Color(f As Object) As String\nOn Error GoTo Failed\nColor=CStr(f.Borders(xlBottom).Color)\nExit Function\nFailed:\nColor=\"ERR:\" & Err.Number\nEnd Function\nFunction Probe() As String\nDim src As Worksheet,cp As Worksheet,f As Object,g As Object,h As Object,s As String\nSet src=ActiveSheet\nsrc.Name=\"Data\"\nSet f=src.Range(\"B1\").FormatConditions.AddTop10\nf.Borders(xlBottom).Color=vbBlue\nSet g=src.Range(\"A1\").FormatConditions.AddTop10\ng.Borders(xlBottom).Color=vbGreen\ns=\"own-before=\" & Color(f) & \",\" & Color(g) & \";priority=\" & f.Priority & \",\" & g.Priority\nsrc.Copy After:=src\nSet cp=ActiveSheet\ncp.Name=\"Copied\"\nsrc.Activate\ns=s & \";own-after=\" & Color(f) & \",\" & Color(g) & \";priority=\" & f.Priority & \",\" & g.Priority\ncp.Activate\ns=s & \";copied-active-held-fg=\" & Color(f) & \",\" & Color(g)\nProbe=s\nEnd Function",
+      "result": "own-before=16711680,65280;priority=1,2;own-after=16711680,65280;priority=1,2;copied-active-held-fg=16711680,65280",
+      "native_status": {
+        "ok": true,
+        "outcome": "passed",
+        "dialogs": [],
+        "error": "None",
+        "message": ""
+      },
+      "session_id": "7bb870090656",
+      "excel_pid": 28160,
+      "session_closed_utc": "2026-10-20T22:34:08.037217+00:00",
+      "xml52": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{A5E49D44-6126-470F-B39D-69D996688A3E}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData/><conditionalFormatting sqref=\"B1\"><cfRule type=\"top10\" dxfId=\"3\" priority=\"1\" rank=\"10\"/></conditionalFormatting><conditionalFormatting sqref=\"A1\"><cfRule type=\"top10\" dxfId=\"2\" priority=\"2\" rank=\"10\"/></conditionalFormatting><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+        "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{62585E62-28E7-4B86-88E8-CACCDE194C94}\"><sheetPr codeName=\"Sheet2\"/><dimension ref=\"A1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData/><conditionalFormatting sqref=\"B1\"><cfRule type=\"top10\" dxfId=\"1\" priority=\"1\" rank=\"10\"/></conditionalFormatting><conditionalFormatting sqref=\"A1\"><cfRule type=\"top10\" dxfId=\"0\" priority=\"2\" rank=\"10\"/></conditionalFormatting><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "scope": "Exact runtime result; actual source priorities1,2 distinguish creation order from reversed geometry."
+    }
+  ],
+  "excel_version_build": "16.0|20430 (captured by original admission batch SafeSave return; Receiver control immediately subsequent same installed Excel, no separate version query)",
+  "native_sources": [
+    "conditional-sheet-copy-safe-receiver.json",
+    "conditional-sheet-copy-fresh-admission.json"
+  ]
+}

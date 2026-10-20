@@ -263,6 +263,7 @@ def _priority(rule: Rule) -> int:
 
 
 def changed(sheet: Worksheet) -> None:
+    sheet.conditional_color_groups = None
     sheet.conditional_changed = True
     sheet.touched()
 
@@ -941,15 +942,9 @@ class UniqueValues(_StatisticalRule):
 
     @member
     def DupeUnique(self) -> object:
-        bound = self.rule
-        if self.rule.color_slot is not None:
-            application = self.sheet.book.application
-            active = application.active_book.active_sheet if application.active_book is not None else None
-            if active is not self.sheet:
-                target = None if active is None else active.conditional_color_slots.get(self.rule.color_slot)
-                if target is None:
-                    raise error(440)
-                bound = target
+        from pyopenvba.apps.excel._conditional_border_context import bound_rule
+
+        _, bound = bound_rule(self.sheet, self.rule)
         return VBAInt(int(bound.root.get('type') != 'uniqueValues'), 'Long')
 
     @setter('DupeUnique')

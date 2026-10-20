@@ -53,6 +53,7 @@ class Rule:
     deleted: bool = False
     imported: bool = False
     color_slot: int | None = None
+    loaded: bool = False
 
 
 def formula_anchor(areas: list[Area]) -> Area:
@@ -88,7 +89,7 @@ def read_rules(xml: str, *, imported: bool = True) -> list[Rule]:
                 group.attrib.setdefault(key, value)
         areas = [parse_area(value) for value in group.get('sqref', '').split()]
         if areas:
-            rules.extend(Rule(list(areas), entry, group, imported=imported) for entry in group.findall(NS + 'cfRule'))
+            rules.extend(Rule(list(areas), entry, group, imported=imported, loaded=True) for entry in group.findall(NS + 'cfRule'))
     return rules
 
 
@@ -841,7 +842,16 @@ class UniqueValues(_StatisticalRule):
 
     @member
     def DupeUnique(self) -> object:
-        return VBAInt(int(self.rule.root.get('type') == 'duplicateValues'), 'Long')
+        bound = self.rule
+        if self.rule.color_slot is not None:
+            application = self.sheet.book.application
+            active = application.active_book.active_sheet if application.active_book is not None else None
+            if active is not self.sheet:
+                target = None if active is None else active.conditional_color_slots.get(self.rule.color_slot)
+                if target is None:
+                    raise error(440)
+                bound = target
+        return VBAInt(int(bound.root.get('type') != 'uniqueValues'), 'Long')
 
     @setter('DupeUnique')
     def set_dupe_unique(self, value: object) -> None:

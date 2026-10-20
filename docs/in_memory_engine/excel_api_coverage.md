@@ -1,10 +1,11 @@
 # Excel API coverage
 
-Snapshot: **20 October 2026**, covering the current source tree, including the
-worksheet-source PivotCache creation, compact PivotTable axes, and ordinary
-conditional formatting rules, statistical and text/blank/error/time predicates, and display evaluation. This is a functionality summary for the
-in-memory Excel engine. **No functional area is complete yet.** Common worksheet
-operations have substantially more support than advanced Excel automation.
+Snapshot: **20 October 2026**, covering the current source tree, including
+local AdvancedFilter, bounded AutoFilter wildcard matching, staged local Pivot
+refresh, worksheet page configuration, and ordinary conditional formatting.
+This is a functionality summary for the in-memory Excel engine.
+**No functional area is complete yet.** Common worksheet operations have
+substantially more support than advanced Excel automation.
 
 The table consolidates **389 Excel object and event types into 22 functional
 areas**. The detailed operation statuses and evidence remain in the
@@ -25,7 +26,7 @@ is a percentage of working macros or complete functionality.
 
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
-| Application, workbooks and worksheets | Partial | 125 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
+| Application, workbooks and worksheets | Partial | 126 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
 | Cells and ranges | Partial | 113 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
@@ -42,17 +43,27 @@ is a percentage of working macros or complete functionality.
 | Queries and external data | Partial | 8 / 278 | 0 | Workbook queries plus local Power Query evaluation, refresh and sheet loading. Connection objects, remote connectors, QueryTables and full query semantics remain incomplete. |
 | Data model and OLAP | Missing | 0 / 261 | 0 | No in-memory Power Pivot model, relationships/measures or cube automation. Reading some external-pivot metadata does not implement these operations. |
 | XML mapping | Missing | 0 / 75 | 0 | No XmlMaps, schema/namespace binding or mapped-data import/export API. |
-| Excel events | Partial | 0 / 123† | 0† | Change, calculation, selection, activation, lifecycle and custom WithEvents paths have native measurements. Remaining events and full signature/dispatch behavior need work. |
+| Excel events | Partial | 0 / 123 | 0 | Change, calculation, selection, activation, lifecycle and custom WithEvents paths have native measurements. Remaining events and full signature/dispatch behavior need work. |
 | Windows, views and dialogs | Partial | 38 / 304 | 23 | Selected window, view, freeze/split and visibility state. Full interactive UI, dialogs, protected views and additional view APIs remain incomplete. |
-| Printing and publishing | Missing | 0 / 152 | 0 | No full PageSetup, print rendering, page-break or publishing automation. |
+| Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,155 / 7,542** | **148** | **15.3% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,183 / 7,542** | **148** | **15.7% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
-† Excel events use the interpreter's event dispatcher and sinks rather than
+â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
 measure the event behavior already implemented. Event status comes from the
 native traces described in the [host coverage plan](../host_completeness.md).
+
+## Integrated validation
+
+The filtering, Pivot refresh and page-configuration increments pass **582 focused
+integration tests**, with 28 optional native tests skipped in the normal run.
+A separate final gate opened **28 engine-generated output workbooks in one owned
+native Excel session**: ten AdvancedFilter, seven Pivot refresh and eleven page
+configuration/name-lifecycle cases. Every result matched its existing independent
+native oracle; no recorded expectations were normalized or changed. This validates
+the admitted cases together, rather than claiming full API conformance.
 
 ## Advanced filtering
 
@@ -106,6 +117,76 @@ headers, criteria, comparisons and Unique keys, and 254-character criteria;
 these are explicit support limits, not claims about Excel's limits. See the
 [AdvancedFilter tests](../../tests/test_excel_advanced_filter.py) and
 [native evidence](../../tests/fixtures/advanced_filter/native.json).
+
+## Persisted worksheet page configuration
+
+`Worksheet.PageSetup` exposes **24 configurable properties** plus its three
+standard object getters. This headless configuration API stores margins, scaling,
+initial paper/layout enums, print options, print areas and repeating titles.
+It does not print, paginate, preview, export, select printers or emulate printer
+communication batching. `Chart.PageSetup` remains unsupported.
+
+**18 completed native controls** and **11 macro-free native workbooks** retain
+independent runtime/import/save observations; **12 configuration/lifecycle
+controls** are replayed in their admitted scope. Initial observations have an
+explicit `ConfigurationState` projection removing only `Application.ActivePrinter`;
+source/result hashes identify the unchanged private environment-bearing originals.
+Follow-ups use that environment-free observation schema directly. Additional
+coercion diagnostics are preserved without calling them passing full controls.
+Model-generated save/reopen covers the same configuration snapshots. The opt-in
+native generated-file gate passed all **11 configuration/lifecycle workbooks**,
+including their complete environment-free configuration snapshots. Raw printer parts and
+relationships survive edits.
+
+Margins use points at the VBA boundary and inches in XML. Common finite,
+nonnegative numeric margins and Empty-as-zero are supported. Negative margins
+are explicitly unsupported before mutation: native Excel accepts and saves them,
+but a measured negative-margin file could not be reopened. The invalid file is
+not a claimed passing input. Null/Boolean/string margin dispatch differences
+between typed setters and CallByName remain unsupported rather than normalized.
+
+Zoom supports False or integer percentages 10 to 400; fit counts support False and
+bounded integer counts. Orientation/Order support their two ordinary values;
+PaperSize setters initially support Letter/A4. FirstPageNumber supports
+xlAutomatic or nonnegative integers 0 to 32767, with measured Variant readback types.
+Broader paper/number/coercion and printer-dependent defaults remain incomplete.
+Boolean options cover centering, headings, gridlines, black-and-white and draft;
+comment/error printing enum values map to their persisted XML attributes.
+
+Local bounded A1 print-area unions and single whole-axis titles use owned,
+visible scoped `Print_Area`/`Print_Titles` names. Each title setter preserves the
+other axis; stored titles put columns before rows. Native controls cover quoted
+renaming, moving before/after another sheet, deleting another sheet and removing
+the owner. Namespace/quote-aware remapping also preserves unmodeled reserved
+names without interpreting fake attributes inside opaque quoted values; malformed
+scope admission occurs before package parts or relationships are added. General
+local-name renaming and broad formula rewriting are not established by this work.
+
+The measured LeftMargin and Orientation worksheet-UDF assignments return without
+changing configuration; PrintArea assignments do update their owned name,
+idempotently and without recursively calculating. Other worksheet-UDF setters
+are explicitly unsupported. Protected-sheet controls cover those three members;
+broader protection/event interactions remain incomplete. Removed-sheet PageSetup
+proxies are unsupported before they can recreate orphan names.
+
+Only main-namespace configuration elements are owned; no-namespace lookalikes
+retain their bytes and do not alter configuration reads. Writers patch only owned
+attributes and preserve QName scopes, nested sheetPr
+metadata, printer relationships/opaque parts, unknown attributes and header/footer
+bytes. Creating a pageSetup node for scaling or page numbering explicitly retains
+the existing portrait default, while subsequent edits retain explicit orientation.
+Imported pageSetup without an orientation reports the measured Double zero; the
+unmeasured explicit `default` orientation token is unsupported.
+The shared hardened OPC scanner supplies nested byte spans in the complete
+original XML. Reading configuration caches only bounded metadata; repeated reads
+avoid building a second worksheet tree. Worksheet.Copy of nondefault configured
+sheets or sheets with print names is explicitly unsupported before destination
+publication; default-equivalent copies retain their existing scope. Same-workbook
+moves retain the worksheet and its configuration. Cross-workbook print-setting
+transfer, header/footer editing and printing/publishing services need further work.
+See the [configuration tests](../../tests/test_excel_page_setup.py),
+[name lifecycle tests](../../tests/test_excel_page_setup_names.py) and
+[native evidence](../../tests/fixtures/page_setup).
 
 ## Excel engine behavior beyond member counts
 
@@ -469,13 +550,13 @@ The reference is the Microsoft Excel 16.0 object-library dump in
 [pyVBAReference at cecb1c1](https://github.com/WilliamSmithEdward/pyVBAReference/tree/cecb1c1515dfeb0d23f31727122ecbbe4c8b699a/reference/excel/json).
 The raw dump contains **13,876 member entries across 746 types**, including paired
 COM interfaces such as `IWorksheetFunction` and `WorksheetFunction`. This summary
-omits an `I…` interface when its corresponding non-prefixed type exists, and
+omits an `Iâ€¦` interface when its corresponding non-prefixed type exists, and
 counts unique member names per remaining type. Every remaining type is assigned
 to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
-The checklist contains **2,701 entries across 68 implemented model types**:
-148 verified, 585 partial, 426 unassessed, 1,539 missing and 3 excluded. Its 1,159
+The checklist contains **2,749 entries across 69 implemented model types**:
+148 verified, 613 partial, 426 unassessed, 1,559 missing and 3 excluded. Its 1,187
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the
@@ -491,4 +572,4 @@ When support changes, regenerate `docs/excel_checklist.csv` with
 `python scripts/build_excel_checklist.py`, update the operation evidence and
 refresh the affected functional rows and totals here. An area's status becomes
 complete only after its required behavior, error cases, interactions and
-persistence have been audited—not merely when its member count reaches 100%.
+persistence have been auditedâ€”not merely when its member count reaches 100%.

@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
+    from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
     from pyopenvba.apps.excel._conditional import Rule as ConditionalRule
@@ -1090,6 +1091,8 @@ class Worksheet(ExcelObject):
         #: The sheet's tables, in the order its file lists them (see _tables).
         self.tables: list[Table] = []
         self.pivot_tables: list[PivotTable] = []
+        self.page_setup_state: PageState | None = None
+        self.page_print_names_owned: set[str] = set()
         #: The sheet's data validation rules, in the order its file lists them (see _validation).
         self.validations: list[ValidationRule] = []
         #: True once a rule is added, changed or removed, so a save writes the rules again.
@@ -1253,6 +1256,9 @@ class Worksheet(ExcelObject):
             raise error(1004, f"{wanted!r} is not a name a sheet can have")
         if any(sheet is not self and sheet.name.lower() == wanted.lower() for sheet in self.book.sheets_):
             raise error(1004, f"a sheet called {wanted} is already there")
+        from pyopenvba.apps.excel._page_setup import rename_print_names
+
+        rename_print_names(self, wanted)
         self.name = wanted
         self.book.saved = False
 
@@ -1489,6 +1495,12 @@ class Worksheet(ExcelObject):
     @member
     def FilterMode(self) -> object:
         return self.advanced_filter is not None or (self.auto_filter is not None and bool(self.auto_filter.fields))
+
+    @member
+    def PageSetup(self) -> object:
+        from pyopenvba.apps.excel._page_setup import PageSetup
+
+        return PageSetup(self)
 
     @method
     def ShowAllData(self) -> object:

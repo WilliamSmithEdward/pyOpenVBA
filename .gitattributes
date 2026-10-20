@@ -21,3 +21,6 @@
 *.laccdb binary
 *.pdf binary
 *.png binary
+
+# PageSetup native JSON evidence is hash-pinned byte-for-byte on every platform.
+tests/fixtures/page_setup/*.json -text whitespace=cr-at-eol

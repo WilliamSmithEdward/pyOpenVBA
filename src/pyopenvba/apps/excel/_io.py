@@ -29,7 +29,7 @@ from pyopenvba._xml import tag_attributes as _tag_attributes
 from pyopenvba._xml import unescape as _unescape
 from pyopenvba.apps.excel._dynamic_file import Collector, Metadata, RichError
 from pyopenvba.apps.excel._xstring import decode as _decode_string, escape as _encode_string
-from pyopenvba.exceptions import PyOpenVBAError
+from pyopenvba.exceptions import PyOpenVBAError, VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.formula._prefixes import calculated_always
@@ -367,7 +367,12 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
     for attributes_text, body in _DEFINED_NAME.findall(workbook_xml):
         attributes = attribute_values(attributes_text)
         name = attributes.get("name", "")
-        if name in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract"):
+        if name in ("_xlnm.Print_Area", "_xlnm.Print_Titles"):
+            scope = attributes.get("localSheetId", "")
+            if not re.fullmatch(r"[0-9]{1,10}", scope) or int(scope) >= len(book.sheets_):
+                # Unowned/global reserved print metadata must survive unchanged.
+                continue
+        if name in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract", "_xlnm.Print_Area", "_xlnm.Print_Titles"):
             # The model keeps a filter's hidden name, as Excel shows it: _FilterDatabase on its sheet.
             name = name.removeprefix("_xlnm.")
         elif not name or name.startswith("_xlnm"):
@@ -376,7 +381,10 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
         if local_id.isdigit() and int(local_id) < len(book.sheets_):
             from pyopenvba._a1 import quote_sheet
 
-            name = quote_sheet(book.sheets_[int(local_id)].name) + "!" + name
+            owner = book.sheets_[int(local_id)]
+            if name in ("Print_Area", "Print_Titles") and attributes.get("name") == "_xlnm." + name:
+                owner.page_print_names_owned.add(name)
+            name = quote_sheet(owner.name) + "!" + name
         book.names_.entries.append(
             NameEntry(name, _formula_read(body.strip()), book, attributes=attributes_text.strip(),
                       visible=attributes.get("hidden", "0") not in ("1", "true"), comment=attributes.get("comment", ""))
@@ -1203,7 +1211,8 @@ def save_workbook(book: Workbook, target: Path) -> None:
     moves = book.stylesheet.moved_from_file()
     for sheet in book.sheets_:
         # A sheet nobody wrote to keeps the bytes it arrived with, its view too unless the window changed it.
-        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves):
+        page_changes = sheet.page_setup_state is not None and bool(sheet.page_setup_state.changes)
+        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
@@ -1212,6 +1221,10 @@ def save_workbook(book: Workbook, target: Path) -> None:
         )
         patched = with_view(sheet, _patched_sheet(sheet, original, package, collector) if sheet.dirty
                             else _restyled_sheet(original, moves), tabs=tabs)
+        if page_changes:
+            from pyopenvba.apps.excel._page_setup import with_setup
+
+            patched = with_setup(sheet, patched)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
     collector.write(package)
@@ -1445,6 +1458,23 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
         attrs = _tag_attributes(tag)
         existing[relationships.get(attrs.get("r:id", ""), "")] = attrs
         identifiers.append(int(attrs.get("sheetId", "0")))
+    from pyopenvba.apps.excel._advanced_filter import attribute_values, patch_attribute
+
+    old_parts = list(existing)
+    new_positions = {sheet.part_name: index for index, sheet in enumerate(book.sheets_) if sheet.part_name}
+    reserved: dict[str, str] = {}
+    for match in _DEFINED_NAME.finditer(text):
+        fragment, body = match.group(1), match.group(2)
+        attrs = attribute_values(fragment)
+        if not attrs.get("name", "").startswith("_xlnm") or "localSheetId" not in attrs:
+            continue
+        scope = attrs["localSheetId"]
+        if not re.fullmatch(r"[0-9]{1,10}", scope) or int(scope) >= len(old_parts):
+            raise VBAUnsupportedError("Saving reserved names with invalid sheet scope is not implemented")
+        position = new_positions.get(old_parts[int(scope)])
+        reserved[match.group()] = ("" if position is None else
+                                  "<definedName" + patch_attribute(fragment, "localSheetId", str(position))
+                                  + ">" + body + "</definedName>")
     next_id = max(identifiers, default=0) + 1
     tags: list[str] = []
     for sheet in book.sheets_:
@@ -1465,18 +1495,8 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
         tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' for key, value in attrs.items()) + "/>")
     rebuilt = "<sheets>" + "".join(tags) + "</sheets>"
     if rebuilt != block.group():
-        old_parts = list(existing)
-        new_positions = {sheet.part_name: index for index, sheet in enumerate(book.sheets_)}
-
         def remap_reserved(match: re.Match[str]) -> str:
-            attrs = _attributes(f"<definedName {match.group(1)}>")
-            if not attrs.get("name", "").startswith("_xlnm") or "localSheetId" not in attrs:
-                return match.group()
-            index = int(attrs["localSheetId"])
-            position = new_positions.get(old_parts[index]) if index < len(old_parts) else None
-            if position is None:
-                return ""
-            return re.sub(r'localSheetId="[^"]*"', f'localSheetId="{position}"', match.group(), count=1)
+            return reserved.get(match.group(), match.group())
 
         updated = text[:block.start()] + rebuilt + text[block.end():]
         updated = _DEFINED_NAME.sub(remap_reserved, updated)
@@ -2056,7 +2076,11 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     for attributes, body in _DEFINED_NAME.findall(text):
         found = attribute_values(attributes)
         name = found.get("name", "")
-        if name.startswith("_xlnm") and name not in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract"):
+        unowned_print = name in ("_xlnm.Print_Area", "_xlnm.Print_Titles")
+        scope = found.get("localSheetId", "")
+        if unowned_print and re.fullmatch(r"[0-9]{1,10}", scope) and int(scope) < len(book.sheets_):
+            unowned_print = name.removeprefix("_xlnm.") not in book.sheets_[int(scope)].page_print_names_owned
+        if name.startswith("_xlnm") and (name not in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract", "_xlnm.Print_Area", "_xlnm.Print_Titles") or unowned_print):
             written.append((_name_order(book, name, found.get("localSheetId")),
                             f"<definedName {attributes}>{body}</definedName>"))
     for entry in book.names_.entries:
@@ -2067,7 +2091,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         owned = attribute_values(entry.attributes)
         scope, bare = split_sheet(entry.name)
         owned["name"] = (_FILTER_DATABASE if bare == "_FilterDatabase" else
-                         "_xlnm." + bare if scope and bare in ("Criteria", "Extract")
+                         "_xlnm." + bare if scope and bare in ("Criteria", "Extract", "Print_Area", "Print_Titles")
                          and owned.get("name") == "_xlnm." + bare else bare)
         owned.pop("localSheetId", None)
         if scope:

@@ -45,6 +45,9 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     app = source.book.application
     if isinstance(anchor, Worksheet) and anchor.book.application is not app:
         raise error(1004, "Worksheets must belong to the same Excel application")
+    from pyopenvba.apps.excel._page_setup import guard_copy
+
+    guard_copy(source)
     if source.shapes_:
         raise VBAUnsupportedError("Worksheet.Copy with drawings or controls is not implemented")
     if source.tables:

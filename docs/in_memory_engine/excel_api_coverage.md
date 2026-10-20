@@ -30,7 +30,7 @@ is a percentage of working macros or complete functionality.
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
-| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Shared-group copying, worksheet-copy identities, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
+| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts and AutoFilter operations. Advanced criteria, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
@@ -244,7 +244,7 @@ A further **8 native controls** cover fresh multi-rule transfers. Incoming
 priorities follow source priority, while serialized clone order follows source
 creation order. Each rule retains its own clipped applicability and statistical
 population; destination priorities increase by the number of intersecting source
-rules. Held source-style edits do not change copied differential styles. Shared XML containers are validated once per transfer, and cloned containers omit sibling rule payloads; [count-based regressions](../../tests/test_excel_conditional_transfer_groups.py) verify this for 8- and 48-rule groups. Loaded rules with distinct validated group identities now have a separate measured scope below; shared-group and ambiguous worksheet-copy sources remain guarded.
+rules. Held source-style edits do not change copied differential styles. Shared XML containers are validated once per transfer, and cloned containers omit sibling rule payloads; [count-based regressions](../../tests/test_excel_conditional_transfer_groups.py) verify this for 8- and 48-rule groups. Loaded rules with distinct validated group identities now have a separate measured scope below; shared-group sources and inconsistent copied identity metadata remain guarded.
 Another **15 native controls** distinguish specialized property contexts:
 `UniqueValues.DupeUnique` reads the active sheet's matching creation identity,
 returns error 440 when that identity is absent, and reports duplicate mode for
@@ -259,8 +259,8 @@ population by each area's column interval, then row interval; an exact-prefix
 population with more areas sorts first. Equivalent projected populations in
 compatible plain containers share one loaded identity. VBA-bearing loads retain
 raw container and child order. Each rule keeps its own root, differential style
-and API values; the group's initial representative supplies foreign identity
-lookups. Opaque container metadata and incompatible namespace bindings stay
+and API values; foreign statistical border colors resolve the matching group
+and captured child position, with the first child serving as representative. Opaque container metadata and incompatible namespace bindings stay
 separate and are preserved.
 
 A further **20 native controls** distinguish load mode from FileFormat. A
@@ -284,16 +284,48 @@ map the source's projected area order while preserving its bounding formula
 anchor. **Three ModifyAppliesToRange controls** cover ordinary relative-formula
 rebasing and raw union order, including a fresh-rule native save/reopen.
 
-Shared-group source copies remain explicitly unsupported. Worksheet.Copy
-identity initialization, foreign lookups by shared-group child position,
-initial active-sheet lookup context and some retained native proxy rebinding
-still need work; their raw observations are not treated
-as passing full-context controls. See the
+Shared-group range-copy sources remain explicitly unsupported. Initial
+active-sheet lookup context and some retained native proxy rebinding still need
+work; their raw observations are not treated as passing full-context controls. See the
 [loaded-group tests](../../tests/test_excel_conditional_loaded.py),
 [mode/lifecycle/rebase tests](../../tests/test_excel_conditional_loaded_lifecycle.py)
 and [native evidence](../../tests/fixtures/conditional_loaded).
 These changes add behavior to existing members; registration and verified totals
 are unchanged.
+
+Worksheet.Copy identity behavior has **8 fresh-rule native probes** and
+**4 loaded-rule native probes** covering distinct and shared groups in both
+plain and VBA-bearing workbooks. Copied live groups receive dense independent
+identities and a matching fresh-rule counter. Copied children recapture priority
+order independently of a source VBA-bearing group's raw child order; original
+identities, tombstones, roots and stored styles remain unchanged. Foreign
+statistical border-color reads use the caller's compact position within its
+captured group, while owner-active reads retain that rule's own style.
+
+The passing scope includes **64 fresh and 16 loaded explicit-activation phases**.
+Three initial post-copy snapshots have known context differences and are retained
+as separate raw evidence rather than treated as full-conformance results.
+Two additional narrow native controls preserve creation order when rule geometry
+is reversed and confirm a coalesced fresh same-population copied group through
+a safe receiver sheet and its next new-rule identity. These controls do not
+establish full same-population context fidelity: foreign reads of an original
+source rule after copying that population still differ from native Excel.
+That original-source lookup and the corresponding broader retained-proxy
+observations remain deferred; the safe copied-sheet new-rule scope passes.
+One [successful post-deletion follow-up](../../tests/fixtures/conditional_sheet_copy/post_delete_observation.json)
+observes compact surviving member rank; [additional diagnostic observations](../../tests/fixtures/conditional_sheet_copy/post_delete_diagnostic_partials.json)
+leave missing-child defaults after deletion inconclusive. Foreign lookups of an
+absent child inside an existing group therefore report unsupported; a missing
+group retains error 440. A separate successful native copied-sheet control covers
+valid shared-group `UniqueValues.DupeUnique` child positions, with setters still
+owning their original rule. Broader retained-proxy and post-deletion contexts
+remain partial. Shared-group Range.Copy guards are unchanged.
+A worksheet-local member/rank index avoids rescanning groups on repeated foreign
+reads; mutation invalidation and failed-preflight preservation have count-based
+and atomicity regressions. See the
+[worksheet-copy context tests](../../tests/test_excel_conditional_sheet_copy.py)
+and [native evidence](../../tests/fixtures/conditional_sheet_copy).
+No public member registrations or checklist statuses change in this increment.
 
 Another **10 native controls** establish conditional-format API projections:
 number-format getters remove measured unnecessary space/hyphen escapes outside

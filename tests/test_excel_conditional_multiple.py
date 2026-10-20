@@ -156,7 +156,10 @@ End Sub''', name='AtomicHarness')
                   None if rule.dxf is None else xml_bytes(rule.dxf), rule.color_slot)
                  for rule in sheet.conditional_formats],
                 sheet.conditional_color_next, tuple(sheet.conditional_color_slots.items()),
-                book.stylesheet.dxf_count)
+                book.stylesheet.dxf_count,
+                None if sheet.conditional_color_groups is None else tuple(
+                    (slot, tuple(members), tuple(ranks.items()))
+                    for slot, (members, ranks) in sheet.conditional_color_groups.items()))
 
     before = state()
     with pytest.raises(VBAUnsupportedError):
@@ -172,7 +175,7 @@ Dim f As Object,g As Object,h As Object
 ActiveSheet.Name="Data"
 Range("A1:A3").Value2=5
 Set f=Range("A1:A3").FormatConditions.Add(2,Formula1:="=A1>0")
-Set g=Range("A1:A3").FormatConditions.Add(2,Formula1:="=A1<8")
+Set g=Range("A1:A2").FormatConditions.Add(2,Formula1:="=A1<8")
 ActiveSheet.Copy After:=ActiveSheet
 Set h=Range("A1:A3").FormatConditions.AddTop10
 h.Rank=1
@@ -183,6 +186,14 @@ Range("A1:A3").Copy Destination:=Range("F1:F3")
 End Sub''', name='IdentityHarness')
     app.run('Setup')
     sheet = book.sheets_[-1]
+    assert [rule.color_slot for rule in sheet.conditional_formats] == [1, 2, 3]
+    # A copied worksheet now has its own dense registry. Construct genuinely
+    # inconsistent private provenance to keep the transfer admission failure
+    # meaningful, rather than relying on the previously missing initialization.
+    third = sheet.conditional_formats[-1]
+    third.color_slot = 1
+    sheet.conditional_color_slots.pop(3)
+    sheet.conditional_color_slots[1] = third
     assert [rule.color_slot for rule in sheet.conditional_formats] == [1, 2, 1]
 
     def state() -> object:
@@ -191,7 +202,10 @@ End Sub''', name='IdentityHarness')
                   None if rule.dxf is None else xml_bytes(rule.dxf), rule.color_slot)
                  for rule in sheet.conditional_formats],
                 sheet.conditional_color_next, tuple(sheet.conditional_color_slots.items()),
-                book.stylesheet.dxf_count)
+                book.stylesheet.dxf_count,
+                None if sheet.conditional_color_groups is None else tuple(
+                    (slot, tuple(members), tuple(ranks.items()))
+                    for slot, (members, ranks) in sheet.conditional_color_groups.items()))
 
     before = state()
     with pytest.raises(VBAUnsupportedError):

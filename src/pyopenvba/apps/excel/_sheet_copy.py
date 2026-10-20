@@ -138,6 +138,15 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
                     set_number_format(rule.dxf, number_format(rule.dxf, destination.stylesheet), destination.stylesheet)
                 rule.root.set('dxfId', str(destination.stylesheet.ensure_dxf(rule.dxf)))
     copied.conditional_formats = conditional
+    from pyopenvba.apps.excel._conditional import rule_groups
+    from pyopenvba.apps.excel._conditional_border_context import initialize
+
+    for group in rule_groups(conditional):
+        group_slot = group[0].color_slot
+        for order, rule in enumerate(sorted(group, key=lambda rule: int(rule.root.get('priority', '0')))):
+            rule.color_slot = group_slot
+            rule.child_order = order
+    initialize(copied)
     copied.conditional_changed = bool(conditional)
     # The copied cells keep their shared formulas, so the copy keeps the blocks those name, and its arrays.
     copied.shared_groups = dict(source.shared_groups)

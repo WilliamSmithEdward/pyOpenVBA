@@ -1,0 +1,30 @@
+{
+  "fresh_native_record_sha256": "61c5eff622e905f92d439bd6d633bb4915273955fa941cdf0c6ed651b892ee63",
+  "fresh_source": "conditional-sheet-copy-proxy-diagnostics.json",
+  "fresh_excel_version_build": "Not captured in the original eight-control session.",
+  "loaded_source": "conditional-sheet-copy-loaded.json",
+  "loaded_input_packages": {
+    "../conditional_loaded/generic-stat-low-far-51.xlsx": "55e733765a38904c4cdd55a902a8e4322c3a0c7d6204379995aad7e34d209e66",
+    "../conditional_loaded/generic-stat-low-far-52.xlsm": "9d8d54c5c056de0ded8d4178ac8e65580bb69fa04eaadea06208292bd60a5b1c",
+    "../conditional_loaded/same-complete-statistical-population-51.xlsx": "451ac8aa491aa521c3bbcd397db81cfc98e45ee51776bd4a83fd70e1e9eda2ed",
+    "../conditional_loaded/same-complete-statistical-population-52.xlsm": "48367817dd23ea4d139f5d30ec79242d9add837fa062ac12c779496ed8ca11be"
+  },
+  "known_initial_snapshot_gaps": [
+    "deleted-leading-snapshot-first",
+    "deleted-middle-genuine-snapshot-first"
+  ],
+  "additional_loaded_initial_context_gap": "shared-52: initial snapshot before explicit Copied.Activate differs from the activated child-position lookup; raw record retained.",
+  "unique_input_package": {
+    "file": "unique-shared-input.xlsm",
+    "sha256": "00fc2fda84f381d59ed69342988e146fd5267675070afa57102d53546bd10b71",
+    "module_inventory": "unique_modules.json"
+  },
+  "additional_raw_evidence": {
+    "post_delete_observation.json": "36eb7b930f98bf7f4a84c8ff90d489ccf1ff3fde07f4edf1b2fb30f283bbe96a",
+    "post_delete_diagnostic_partials.json": "c72cb983f977288cba50d769f3a87bc2979f06111e04ab464c76c57929af43a6",
+    "unique.json": "2a9757c728ba88dad55ad9dbf7fbf119869b1ecd94d6ee1a671285aba8262895",
+    "unique_modules.json": "20ceb270ee021cc827c50e3955b2a3e0b2ffa47a3b87e6f0f9a6962f09fb0cb7",
+    "fresh_admission.json": "d15a5e2f7083fbaa5320b83bcab2766d2cd98d4d9089b192bf5274796ae05249",
+    "fresh_same_population_diagnostic.json": "1de50e33a73eece022881818f5e5a67837b734715fec7f5c75e0d8a84326841b"
+  }
+}

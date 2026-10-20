@@ -1,0 +1,199 @@
+{
+  "projection": "For output beginning version=Version|Build;, omit only the Application.Build field from both outputs while retaining Version and the entire measured behavior. Native source/results remain byte-exact.",
+  "raw_files": {
+    "initial.json": "3c4e4b9a6ebb77038e7507eb0c3fe5549497e21f6b4a835c655a413650fb9d81",
+    "followup.json": "ca90a5164389de3605d8b7c0a74ba929c15f22e88fbc446d242846b4bb8fc1dc",
+    "events_save.json": "6d055e7dfa123437dee0af065204c645abeb5869af4777fde56a6ecf676a7eca",
+    "imported.json": "17072961854b5733dacc2a2230146af1b1e3a5294b5ae48449cb33f10d848420",
+    "growth.json": "59ff3cea7decb06ee9d9a996a30bbebff5c99347d96d0a704ff6a532cbcc460d"
+  },
+  "cases": {
+    "initial.json:cache-refresh": {
+      "admission": "runtime",
+      "source_sha256": "c7b38347cfbea44f221019347974369c38603d326e1663716ee8c81680addaeb",
+      "build_projection": true
+    },
+    "initial.json:cache-refresh-disabled": {
+      "admission": "runtime",
+      "source_sha256": "50eba9850a46271bc74253b3d98603b0e6616a7a96b432d88f6a8e18ffc23272",
+      "build_projection": true
+    },
+    "initial.json:table-refresh": {
+      "admission": "runtime",
+      "source_sha256": "6b8010be1dd39deeb2287a95f514580b588a82d669dc043c460c028ef4c3dbeb",
+      "build_projection": true
+    },
+    "initial.json:table-refresh-disabled": {
+      "admission": "runtime",
+      "source_sha256": "a50f253fdd419c4da57cbb3188b0915d4722d4658c8f9bec492e9a9abe61ea2b",
+      "build_projection": true
+    },
+    "followup.json:three-cache-refresh-1": {
+      "admission": "runtime",
+      "source_sha256": "c932f38905ff11d5ec99a1201ca4d9d93f0321e48d09503b039e60984f19d6fe",
+      "build_projection": false
+    },
+    "followup.json:three-cache-refresh-2": {
+      "admission": "runtime",
+      "source_sha256": "118606b5fa87740cbbbc7b5f47c5929a3b76c1076a2d53d1e7eaef961797078d",
+      "build_projection": false
+    },
+    "followup.json:three-cache-refresh-3": {
+      "admission": "runtime",
+      "source_sha256": "713c6ef3f287c46cb016b03f112123c40b0dfb3f465c3dd54d975b3a7833c176",
+      "build_projection": false
+    },
+    "followup.json:changed-header-renamed": {
+      "admission": "schema-refusal",
+      "source_sha256": "967bbc82850512a4e308a8b685167c4ca34b5fe0addd369a96408a941383110d",
+      "build_projection": true
+    },
+    "followup.json:changed-header-blank": {
+      "admission": "schema-refusal",
+      "source_sha256": "f308abc5106003c8d35113062fd9f58e7569409895a606f1cc771440523d28d8",
+      "build_projection": true
+    },
+    "followup.json:changed-header-duplicate": {
+      "admission": "schema-refusal",
+      "source_sha256": "a46e236d04a6e34a18f46e2f6bb1a7f40514855ff0d818987deed588acd501fb",
+      "build_projection": true
+    },
+    "followup.json:pending-refresh": {
+      "admission": "runtime",
+      "source_sha256": "7235292ed3a90c1dc326bc90587af9bbe45e111bfbf8d8c963e60ad5c312d481",
+      "build_projection": false
+    },
+    "followup.json:pending-refresh-disabled": {
+      "admission": "runtime",
+      "source_sha256": "ee77f97d81d3703ab847aa18a851a66442a13c4f4e620ec76e59f661c5da6a03",
+      "build_projection": false
+    },
+    "followup.json:old-shared-reports-disable-reenable": {
+      "admission": "runtime",
+      "source_sha256": "a7b27fac96f58535c91d8a0d808a02069864327df0189710f3af42bb34771ed4",
+      "build_projection": true
+    },
+    "events_save.json:cache-auto": {
+      "admission": "runtime",
+      "source_sha256": "6d0862f3241afb565ffdd08400edb0ef58f5400e3de98358083e545ff37b870c",
+      "build_projection": false
+    },
+    "events_save.json:table-auto": {
+      "admission": "runtime",
+      "source_sha256": "94de76ffe2af8626728b65e9e5b95d238dc3ef335a8cff8226aef6fc7596b0bf",
+      "build_projection": false
+    },
+    "events_save.json:cache-manual": {
+      "admission": "runtime",
+      "source_sha256": "d5fc4a9c94ea338eda1148a8a1b0c2099afc0105ef5306d69c1d5b650cb152fe",
+      "build_projection": false
+    },
+    "events_save.json:table-manual": {
+      "admission": "runtime",
+      "source_sha256": "6824ffd0b00ab779a45f855a40b66270acc2ea4d967a8298f6c56cb506fd749e",
+      "build_projection": false
+    },
+    "events_save.json:cache-events-disabled": {
+      "admission": "runtime",
+      "source_sha256": "9d878874f0364b357aaa9acd8f9be096a54eab36cb517ab0e2029836ac22ea05",
+      "build_projection": false
+    },
+    "events_save.json:cache-handler-error": {
+      "admission": "handler-error-diagnostic",
+      "source_sha256": "7d8ca25c39e9af183bfb0ca913fca19070232c80f52b22fa85210a18f9267b78",
+      "build_projection": false
+    },
+    "imported.json:imported-cache-auto": {
+      "admission": "post-import-runtime",
+      "source_sha256": "6beeb7109c8cf051445cc884376b7b0bfc2e5ae845d82082bee0ada73b68730b",
+      "build_projection": false
+    },
+    "imported.json:imported-cache-manual": {
+      "admission": "post-import-runtime",
+      "source_sha256": "6beeb7109c8cf051445cc884376b7b0bfc2e5ae845d82082bee0ada73b68730b",
+      "build_projection": false
+    },
+    "growth.json:blank-growth": {
+      "admission": "runtime",
+      "source_sha256": "3953b8e0dce79fde5b375bb47524800a949cdc455d5bbcdd8459e1ad8f6e11bc",
+      "build_projection": false
+    },
+    "growth.json:shared-final-extents-intersect": {
+      "admission": "native-error-diagnostic-model-refusal",
+      "source_sha256": "e74119abcd008503acd3347bb1acbb2af8da1839f4a150edf85644725f4ffaa3",
+      "build_projection": false,
+      "disposition": "Native Refresh returned completed but a report collapsed to an Error2045 cell. Raw status/classification is retained unchanged; model deliberately refuses atomically and does not claim matching partial native state or error1004."
+    },
+    "growth.json:ordinary-sentinel-growth": {
+      "admission": "native-error-diagnostic-model-refusal",
+      "source_sha256": "356c149f9e7022e7fb676f49a120e5e48c47fc20aee88ccaa34c4a82556e252f",
+      "build_projection": false,
+      "disposition": "Native Refresh returned completed but a report collapsed to an Error2045 cell. Raw status/classification is retained unchanged; model deliberately refuses atomically and does not claim matching partial native state or error1004."
+    }
+  },
+  "samples": [
+    {
+      "case": "cache-auto",
+      "filename": "cache-auto.xlsm",
+      "sha256": "e1e7b60bcd6e72bc9cd3903854a919b391b6c722b0aef45733323fbb31bf924b",
+      "vba_sha256": "24f0608fd8a56dcafa5ef18d1df3e04b1e03a223103f0b226f5d970a5b577eed",
+      "native_file_format": 52,
+      "derived": false
+    },
+    {
+      "case": "table-auto",
+      "filename": "table-auto.xlsm",
+      "sha256": "3076fbffb61d0ecb07489ef684eabf195884a566c904e975fc0e3be07375ef27",
+      "vba_sha256": "fbbe3e9b66d2a6478ef667b2147db246aeb89b78f8abfc1326876e9419963e36",
+      "native_file_format": 52,
+      "derived": false
+    },
+    {
+      "case": "cache-manual",
+      "filename": "cache-manual.xlsm",
+      "sha256": "c5d9c405b2064dd036b7126ee05ec134bbe3bf27c8ea505e44c1f90871996d38",
+      "vba_sha256": "f88d3a78c1f458e5ef43295ac480f5a4a5a391d004bf9dd3b41f3aca0677b39b",
+      "native_file_format": 52,
+      "derived": false
+    },
+    {
+      "case": "table-manual",
+      "filename": "table-manual.xlsm",
+      "sha256": "32eb1a359bc047d9ec95f2f44968510bdcb9852be2492f4fa33041d38aa38bc0",
+      "vba_sha256": "835999de0838f69c955b65ee5efb626bda8b2211b5c333b597c65a33cc26614d",
+      "native_file_format": 52,
+      "derived": false
+    },
+    {
+      "case": "cache-events-disabled",
+      "filename": "cache-events-disabled.xlsm",
+      "sha256": "93bfe42907c840eff95258d4dfa21e64aea6ce4bd4de168af9b4005b5db4ff29",
+      "vba_sha256": "bedaec0b936247688ab41dcf76d0cbdc0623d3b55b48e31a0e32ff26afa8f5cc",
+      "native_file_format": 52,
+      "derived": false
+    },
+    {
+      "case": "imported-cache-auto",
+      "filename": "imported-cache-auto.xlsm",
+      "sha256": "67dcc7f5d3e06c12d8f983e387d50952e56e21fce8e05b484a0ff7d79b3c509d",
+      "vba_sha256": "d41adc98f705b68c94e420703819c90b68ae779e2f62eb690938a355f7903c63",
+      "native_file_format": 52,
+      "derived": false
+    },
+    {
+      "case": "imported-cache-manual",
+      "filename": "imported-cache-manual.xlsm",
+      "sha256": "c7afd4bdb212c0cef82560f4f25e2ce413487d4567430cd0624f26144794026d",
+      "vba_sha256": "66e1e61f4995bec4b851679ea8035b0ea5ba09cfedd10d042319a987c5ce1367",
+      "native_file_format": 52,
+      "derived": false
+    }
+  ],
+  "control_counts": {
+    "raw": 24,
+    "runtime_admitted": 18,
+    "schema_deferred": 3,
+    "handler_error_diagnostics": 1,
+    "collision_diagnostics": 2
+  }
+}

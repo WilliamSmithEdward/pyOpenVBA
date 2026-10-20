@@ -134,6 +134,12 @@ def pivot_updated(table: PivotTable) -> None:
     _both(table.sheet, "PivotTableUpdate", [table])
 
 
+def pivot_refresh_calculated(sheet: Worksheet) -> None:
+    """A completed report refresh notifies Calculate even in manual mode."""
+    sheet.book.calculator.pending_notifications.discard(sheet)
+    _both(sheet, "Calculate", [])
+
+
 def selected(sheet: Worksheet, target: Range) -> None:
     _both(sheet, "SelectionChange", [target])
 

@@ -1,0 +1,58 @@
+{
+  "started": "2026-10-20T23:11:42.236722+00:00",
+  "instrumentation": "two original audited native52 inputs; one owned session; ASCII manual source; no active event sink; line_numbers=False; cache.Refresh after public input edits",
+  "probes": [
+    {
+      "name": "imported-cache-auto",
+      "input_file": "C:\\Users\\William\\.codex\\worktrees\\pivot-refresh\\pyOpenVBA\\.cache\\pivot-refresh-events-save-samples\\cache-auto.xlsm",
+      "source": "Function Probe() As String\nDim ws As Worksheet,p As PivotTable,c As PivotCache,s As String\nApplication.EnableEvents=False\nSet ws=Worksheets(\"Data\")\nSet p=ws.PivotTables(\"First\")\nSet c=p.PivotCache\ns=\"before=[\" & RefreshProbe.Snapshot() & \"]\"\nws.Range(\"C2\").Value2=11\nws.Range(\"C6\").Value2=51\ns=s & \";edited=[\" & RefreshProbe.Snapshot() & \"]\"\nc.Refresh\ns=s & \";after=[\" & RefreshProbe.Snapshot() & \"]\"\nProbe=s\nEnd Function\n",
+      "inspection_source": "Function Report(p As PivotTable) As String\nOn Error GoTo Failed\nDim c As Range,s As String\ns=p.Name & \":cache=\" & p.CacheIndex & \":range=\" & p.TableRange1.Address & \":cells=\"\nFor Each c In p.TableRange1.Cells\ns=s & c.Address(False,False) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \"|\"\nNext\nReport=s\nExit Function\nFailed:\nReport=s & \"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction SourceValues() As String\nDim c As Range,s As String\nFor Each c In Worksheets(\"Data\").Range(\"B2:B6\").Cells\nOn Error Resume Next\nErr.Clear\ns=s & c.Address(False,False) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \"|\"\nIf Err.Number<>0 Then s=s & \"ERR:\" & Err.Number & \"|\"\nOn Error GoTo 0\nNext\nSourceValues=s\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim ws As Worksheet\nSet ws=Worksheets(\"Data\")\nSnapshot=\"mode=\" & Application.Calculation & \":source=\" & SourceValues() & \";\" & Report(ws.PivotTables(\"First\")) & \";\" & Report(ws.PivotTables(\"Shared\")) & \";\" & Report(ws.PivotTables(\"Unrelated\"))\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERROR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Attempt(c As PivotCache,p As PivotTable) As String\nOn Error GoTo Failed\nDim v As Boolean\nc.Refresh\nAttempt=\"completed\"\nExit Function\nFailed:\nAttempt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "native_status": {
+        "ok": true,
+        "outcome": "passed",
+        "dialogs": [],
+        "error": "None",
+        "message": ""
+      },
+      "raw_result": "before=[mode=-4105:source=B2:Double:100|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:500|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:690|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:210|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:138|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|];edited=[mode=-4105:source=B2:Double:110|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:510|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:690|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:210|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:138|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|];after=[mode=-4105:source=B2:Double:110|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:510|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:710|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:216.666666666667|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:142|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|]",
+      "save_source": "Sub SaveSample()\nApplication.EnableEvents=False\nActiveWorkbook.SaveAs \"C:\\Users\\William\\.codex\\worktrees\\pivot-refresh\\pyOpenVBA\\.cache\\pivot-refresh-imported-samples\\imported-cache-auto.xlsm\",52\nEnd Sub",
+      "save_status": {
+        "ok": true,
+        "outcome": "passed",
+        "dialogs": [],
+        "error": "None",
+        "message": ""
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\pivot-refresh\\pyOpenVBA\\.cache\\pivot-refresh-imported-samples\\imported-cache-auto.xlsm",
+      "reopened": "mode=-4105:source=B2:Double:110|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:510|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:710|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:216.666666666667|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:142|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|"
+    },
+    {
+      "name": "imported-cache-manual",
+      "input_file": "C:\\Users\\William\\.codex\\worktrees\\pivot-refresh\\pyOpenVBA\\.cache\\pivot-refresh-events-save-samples\\cache-manual.xlsm",
+      "source": "Function Probe() As String\nDim ws As Worksheet,p As PivotTable,c As PivotCache,s As String\nApplication.EnableEvents=False\nSet ws=Worksheets(\"Data\")\nSet p=ws.PivotTables(\"First\")\nSet c=p.PivotCache\ns=\"before=[\" & RefreshProbe.Snapshot() & \"]\"\nws.Range(\"C2\").Value2=11\nws.Range(\"C6\").Value2=51\ns=s & \";edited=[\" & RefreshProbe.Snapshot() & \"]\"\nc.Refresh\ns=s & \";after=[\" & RefreshProbe.Snapshot() & \"]\"\nProbe=s\nEnd Function\n",
+      "inspection_source": "Function Report(p As PivotTable) As String\nOn Error GoTo Failed\nDim c As Range,s As String\ns=p.Name & \":cache=\" & p.CacheIndex & \":range=\" & p.TableRange1.Address & \":cells=\"\nFor Each c In p.TableRange1.Cells\ns=s & c.Address(False,False) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \"|\"\nNext\nReport=s\nExit Function\nFailed:\nReport=s & \"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction SourceValues() As String\nDim c As Range,s As String\nFor Each c In Worksheets(\"Data\").Range(\"B2:B6\").Cells\nOn Error Resume Next\nErr.Clear\ns=s & c.Address(False,False) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \"|\"\nIf Err.Number<>0 Then s=s & \"ERR:\" & Err.Number & \"|\"\nOn Error GoTo 0\nNext\nSourceValues=s\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim ws As Worksheet\nSet ws=Worksheets(\"Data\")\nSnapshot=\"mode=\" & Application.Calculation & \":source=\" & SourceValues() & \";\" & Report(ws.PivotTables(\"First\")) & \";\" & Report(ws.PivotTables(\"Shared\")) & \";\" & Report(ws.PivotTables(\"Unrelated\"))\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERROR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Attempt(c As PivotCache,p As PivotTable) As String\nOn Error GoTo Failed\nDim v As Boolean\nc.Refresh\nAttempt=\"completed\"\nExit Function\nFailed:\nAttempt=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "native_status": {
+        "ok": true,
+        "outcome": "passed",
+        "dialogs": [],
+        "error": "None",
+        "message": ""
+      },
+      "raw_result": "before=[mode=-4105:source=B2:Double:100|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:500|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:150|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:30|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:30|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|];edited=[mode=-4105:source=B2:Double:110|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:510|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:150|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:30|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:30|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|];after=[mode=-4105:source=B2:Double:110|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:510|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:710|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:216.666666666667|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:142|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|]",
+      "save_source": "Sub SaveSample()\nApplication.EnableEvents=False\nActiveWorkbook.SaveAs \"C:\\Users\\William\\.codex\\worktrees\\pivot-refresh\\pyOpenVBA\\.cache\\pivot-refresh-imported-samples\\imported-cache-manual.xlsm\",52\nEnd Sub",
+      "save_status": {
+        "ok": true,
+        "outcome": "passed",
+        "dialogs": [],
+        "error": "None",
+        "message": ""
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\pivot-refresh\\pyOpenVBA\\.cache\\pivot-refresh-imported-samples\\imported-cache-manual.xlsm",
+      "reopened": "mode=-4105:source=B2:Double:110|B3:Double:20|B4:Double:30|B5:Double:40|B6:Double:510|;First:cache=2:range=$E$3:$E$4:cells=E3:String:Total|E4:Double:710|;Shared:cache=2:range=$G$3:$H$6:cells=G3:String:Row Labels|H3:String:Mean|G4:String:East|H4:Double:216.666666666667|G5:String:West|H5:Double:30|G6:String:Grand Total|H6:Double:142|;Unrelated:cache=1:range=$M$3:$M$4:cells=M3:String:OtherTotal|M4:Double:15|"
+    }
+  ],
+  "session_id": "5d88bd874bd8",
+  "excel_pid": 34824,
+  "completed": true,
+  "session_closed_utc": "2026-10-20T23:11:49.731582+00:00"
+}

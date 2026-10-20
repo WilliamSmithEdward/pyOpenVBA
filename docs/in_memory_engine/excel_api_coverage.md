@@ -38,7 +38,7 @@ is a percentage of working macros or complete functionality.
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
 | Shapes and worksheet controls | Partial | 54 / 2,025 | 0 | Basic shapes/text boxes and nine Forms control types, with measured values, links and persistence. Rich drawing APIs, grouping/copying, pictures and newer controls remain incomplete. |
 | Charts and sparklines | Partial | 30 / 951 | 0 | Embedded charts, basic series/titles and eight persisted chart kinds. Axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
-| PivotTables and slicers | Partial | 65 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata, empty-report creation and data-only AddDataField totals using all eleven aggregate functions, with measured events, field ranges and saved-report edits. Native probes cover date/time serials, Currency, typed values, errors, numerical edge cases and immutable cache snapshots across saves. Compact row/column/page layouts, nested subtotals, Values-axis placement and field removal now aggregate cached records. Field/page range queries support native measured compact, tabular, outline, grouped and multi-area reports; sparse layouts avoid scanning all records for each blank intersection. Refresh, arbitrary layout edits, filtering, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
+| PivotTables and slicers | Partial | 66 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata, empty-report creation and data-only AddDataField totals using all eleven aggregate functions, with measured events, field ranges and saved-report edits. Native probes cover date/time serials, Currency, typed values, errors, numerical edge cases and immutable cache snapshots across saves. Compact row/column/page layouts, nested subtotals, Values-axis placement and field removal now aggregate cached records. Field/page range queries support native measured compact, tabular, outline, grouped and multi-area reports; sparse layouts avoid scanning all records for each blank intersection. Fixed-schema local cache refresh stages all linked supported same-sheet reports before publishing callbacks. Broader refresh, arbitrary layout edits, filtering, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
 | Queries and external data | Partial | 8 / 278 | 0 | Workbook queries plus local Power Query evaluation, refresh and sheet loading. Connection objects, remote connectors, QueryTables and full query semantics remain incomplete. |
 | Data model and OLAP | Missing | 0 / 261 | 0 | No in-memory Power Pivot model, relationships/measures or cube automation. Reading some external-pivot metadata does not implement these operations. |
 | XML mapping | Missing | 0 / 75 | 0 | No XmlMaps, schema/namespace binding or mapped-data import/export API. |
@@ -47,7 +47,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Missing | 0 / 152 | 0 | No full PageSetup, print rendering, page-break or publishing automation. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,154 / 7,542** | **148** | **15.3% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,155 / 7,542** | **148** | **15.3% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 † Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -163,6 +163,46 @@ formatting or event-interaction fidelity. See the
 [axis regressions](../../tests/test_excel_pivot_axes.py) and
 [native replay script](../../scripts/measure_pivot_axes.py). Member registration
 and verified totals are unchanged: the added setter belongs to an existing member.
+
+Local `PivotCache.Refresh` and `PivotTable.RefreshTable` now stage a new source
+snapshot and every linked supported same-sheet report before changing live cells,
+cache records or field nodes. Successful refresh retains held cache/field
+identities and package cache IDs, moves the cache's collection ordinal to the
+end, and leaves unrelated cache snapshots unchanged. `RefreshTable` returns
+Boolean True. Disabled populated caches raise the measured error 1004 before
+mutation; pending caches retain their standard error 1004.
+
+Evidence includes **four initial controls**, **nine follow-up controls** and
+**five successful calculation/event controls**, plus **two imported-refresh
+controls**, **three growth/collision controls**, and seven native macro-enabled save/reopen samples. Seven engine-generated
+and imported-refreshed output workbooks also reopen successfully in native Excel. Eighteen admitted runtime
+cases compare complete operation output;
+five explicitly project only host-specific `Application.Build` metadata while
+preserving the original raw results. Automatic source formulas refresh normally;
+manual-mode sources retain cached formula values until explicitly calculated.
+Every measured callback observes all shared reports already committed. Each
+report notifies Change, Calculate and PivotTableUpdate in reverse creation order,
+including Calculate in manual mode; automatic mode adds a final Calculate.
+Disabled events suppress callbacks.
+
+Three native header-change controls successfully remove affected measures and
+invalidate removed-field proxies; this first implementation instead reports
+schema changes unsupported before mutation. Cross-sheet report groups, named or
+external sources, OLAP, grouped/filtered/rich reports, unknown metadata and
+unsupported cell features also remain outside refresh admission. Source and
+output planning have explicit size limits: at most 64 reports on the affected
+sheet, one million aggregate planning units and staged output cells, eight
+million charged text characters and 200,000 metadata nodes. Literal source
+rectangles are bound to their declared worksheet without defined-name lookup. Empty report expansion is supported;
+expansion into populated ordinary cells, existing report page selectors, or
+intersecting final shared-report footprints is rejected before mutation. Native
+collision controls produce error-valued report states; those transitions remain
+unsupported. Erroring event-handler behavior and
+arbitrary refresh combinations remain unaudited. See the
+[refresh core tests](../../tests/test_excel_pivot_refresh_core.py),
+[native refresh replays](../../tests/test_excel_pivot_refresh_native.py) and
+[unaltered native evidence](../../tests/fixtures/pivot_refresh).
+`RefreshTable` adds one registration; checklist-verified totals remain unchanged.
 
 Field-range measurements add **55 controls**: 32 generated axis layouts and
 23 existing Excel workbooks, including compact, tabular, outline, grouped,
@@ -435,7 +475,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,701 entries across 68 implemented model types**:
-148 verified, 584 partial, 426 unassessed, 1,540 missing and 3 excluded. Its 1,158
+148 verified, 585 partial, 426 unassessed, 1,539 missing and 3 excluded. Its 1,159
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

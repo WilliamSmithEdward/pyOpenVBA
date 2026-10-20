@@ -1,31 +1,44 @@
 """Worksheet-source PivotCache creation, materialization and empty report parts."""
 from __future__ import annotations
 
-import math
 import datetime as dt
+import math
 import posixpath
 import re
 import uuid
+from collections.abc import Callable
+from copy import copy, deepcopy
 from dataclasses import replace
 from decimal import Decimal
 from html import escape
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, split_sheet
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, split_sheet
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_tree
 from pyopenvba.apps.excel._model import Range
 from pyopenvba.apps.excel._pivots import NS, REL, PivotCache, PivotTable
 from pyopenvba.apps.excel._xstring import encode_attribute as encoded
-from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
-from pyopenvba.formula._r1c1 import to_a1, from_a1
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._display import format_value
+from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.formula._values import ExcelError
-from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, NOTHING, VBADate, VBAErrorValue, error, to_bool, to_integer, to_text
+from pyopenvba.interpreter._values import (
+    EMPTY,
+    MISSING,
+    NOTHING,
+    NULL,
+    VBADate,
+    VBAErrorValue,
+    error,
+    to_bool,
+    to_integer,
+    to_text,
+)
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.apps.excel._dynamic_file import RichError
+    from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -130,7 +143,7 @@ def create_cache(book: Workbook, kind: object, source: object, version: object) 
     return cache
 
 
-def materialize(cache: PivotCache) -> None:
+def _materialize(cache: PivotCache, charge_text: Callable[[object], None] | None = None) -> None:
     source = cache.pending_source
     if source is None:
         origin = cache.root.find(f'{NS}cacheSource/{NS}worksheetSource')
@@ -148,6 +161,8 @@ def materialize(cache: PivotCache) -> None:
     for column in range(area.left, area.right + 1):
         cell = Range(selected.sheet, [Area(area.top, column, area.top, column, selected.sheet.name)])
         value = cell.Value2()
+        if charge_text is not None:
+            charge_text(value)
         if value is EMPTY:
             caption = ''
         elif isinstance(value, VBAErrorValue):
@@ -191,6 +206,8 @@ def materialize(cache: PivotCache) -> None:
             cell = selected.sheet.cell(row, column)
             value = (cache.book.calculator.value_of(selected.sheet.name, row, column) if cell is not None and cell.formula
                      else cell.value if cell is not None else EMPTY)
+            if charge_text is not None:
+                charge_text(value)
             stored = record_value(value, selected.sheet.style_at(row, column).number_format)
             if stored.tag == NS + 's' and isinstance(value, (VBAErrorValue, ExcelError)):
                 cache.rich_records = True
@@ -218,9 +235,10 @@ def materialize(cache: PivotCache) -> None:
             shared.set('minValue', repr(min(numbers[index])))
             shared.set('maxValue', repr(max(numbers[index])))
     old = cache.root.find(NS + 'cacheFields')
+    position = list(cache.root).index(old) if old is not None else len(cache.root)
     if old is not None:
         cache.root.remove(old)
-    cache.root.append(fields)
+    cache.root.insert(position, fields)
     cache.root.set('recordCount', str(area.rows - 1))
     cache.records = records
     if cache.rich_records:
@@ -232,6 +250,35 @@ def materialize(cache: PivotCache) -> None:
     if origin is not None and origin.get('name') is not None:
         cache.source_text = origin.get('name')
     cache.changed = True
+
+
+def plan_materialize(cache: PivotCache, *, source: Range | None = None, charge_text: Callable[[object], None] | None = None) -> PivotCache:
+    """Read the source into a detached cache snapshot, without publishing it."""
+    planned = copy(cache)
+    planned.root = deepcopy(cache.root)
+    planned.records = None
+    if source is not None:
+        planned.pending_source = source
+    _materialize(planned, charge_text)
+    return planned
+
+
+def apply_materialized(cache: PivotCache, planned: PivotCache) -> None:
+    """Publish a fully admitted snapshot while retaining the cache/root identity."""
+    cache.root.attrib.clear()
+    cache.root.attrib.update(planned.root.attrib)
+    cache.root[:] = list(planned.root)
+    cache.records = planned.records
+    cache.records_part = planned.records_part
+    cache.rich_records = planned.rich_records
+    cache.rich_guid = planned.rich_guid
+    cache.rich_columns = planned.rich_columns
+    cache.source_text = planned.source_text
+    cache.changed = True
+
+
+def materialize(cache: PivotCache) -> None:
+    apply_materialized(cache, plan_materialize(cache))
 
 
 def record_value(value: object, code: str = 'General') -> XmlElement:
@@ -338,7 +385,7 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
         cache.index = len(cache.book.pivot_caches)
     target.sheet.pivot_tables.insert(0, table)
     # Even blank report cells carry formatting and count toward UsedRange.
-    from pyopenvba.apps.excel._styles import Border, Color, NO_SIDE, Side
+    from pyopenvba.apps.excel._styles import NO_SIDE, Border, Color, Side
 
     edge = Side('thin', Color('rgb', 'FF999999'))
     grid = Side('thin', Color('indexed', 65))
@@ -387,10 +434,14 @@ def write(book: Workbook, package: OpcFile) -> None:
         if not cache.changed:
             continue
         if cache.part:
-            if cache.records is None or not cache.records_part:
-                raise VBAUnsupportedError('Writing this changed pivot cache is not implemented')
+            if not cache.records_part:
+                from pyopenvba.apps.excel._pivot_refresh import existing_record_part
+
+                cache.records_part = existing_record_part(cache)
             package.write(cache.part, xml_bytes(cache.root))
-            package.write(cache.records_part, xml_bytes(cache.records))
+            # Metadata-only setters preserve lazy, untouched records byte for byte.
+            if cache.records is not None:
+                package.write(cache.records_part, xml_bytes(cache.records))
             cache.changed = False
             continue
         number = 1
@@ -495,3 +546,7 @@ def write(book: Workbook, package: OpcFile) -> None:
                 return tag
 
             package.write(part, re.sub(r'<Relationship\b[^>]*/>', reorder, text).encode('utf-8'))
+
+    from pyopenvba.apps.excel._pivot_refresh import persist_cache_order
+
+    persist_cache_order(book, package)

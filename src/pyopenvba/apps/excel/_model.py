@@ -1256,9 +1256,9 @@ class Worksheet(ExcelObject):
             raise error(1004, f"{wanted!r} is not a name a sheet can have")
         if any(sheet is not self and sheet.name.lower() == wanted.lower() for sheet in self.book.sheets_):
             raise error(1004, f"a sheet called {wanted} is already there")
-        from pyopenvba.apps.excel._page_setup import rename_print_names
+        from pyopenvba.apps.excel._names import rename_owned_reserved
 
-        rename_print_names(self, wanted)
+        rename_owned_reserved(self, wanted)
         self.name = wanted
         self.book.saved = False
 

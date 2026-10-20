@@ -33,9 +33,12 @@ def formula(text: str, source: Worksheet, name: str, external: bool) -> str:
 
 def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     from pyopenvba.apps.excel._model import NameEntry, Workbook, Worksheet
+    from pyopenvba.apps.excel._names import owned_reserved
 
-    if source.advanced_filter is not None:
-        raise VBAUnsupportedError('Worksheet.Copy of an advanced-filtered sheet is not implemented')
+    filter_names = {bare for _entry, bare in owned_reserved(source, ('Criteria', 'Extract', '_FilterDatabase'))}
+    if (source.advanced_filter is not None or filter_names & {'Criteria', 'Extract'}
+            or ('_FilterDatabase' in filter_names and source.auto_filter is None)):
+        raise VBAUnsupportedError('Worksheet.Copy with AdvancedFilter state or owned metadata is not implemented')
 
     if before is not MISSING and after is not MISSING:
         raise error(1004, "Specify Before or After, not both")

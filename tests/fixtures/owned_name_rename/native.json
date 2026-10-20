@@ -1,0 +1,106 @@
+{
+  "started_utc": "2026-10-20T23:45:40.322808+00:00",
+  "instrumentation": "one owned session; ASCII; line_numbers=False; native51 SaveAs and reopen; no macro samples promoted",
+  "probes": [
+    {
+      "name": "inplace",
+      "source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\nFunction Probe() As String\nDim ws As Worksheet,v As Variant,s As String\nSet ws=ActiveSheet\nws.Name=\"Data\"\nws.Range(\"A1:B1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"A2:B2\").Value=Array(\"apple\",1)\nws.Range(\"A3:B3\").Value=Array(\"pear\",2)\nws.Range(\"D1:E1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"G1:G2\").Value=Application.Transpose(Array(\"Name\",\"a*\"))\nws.PageSetup.PrintArea=\"A1:B3\"\nws.PageSetup.PrintTitleRows=\"$1:$1\"\nws.PageSetup.PrintTitleColumns=\"$A:$A\"\nv=ws.Range(\"A1:B3\").AdvancedFilter(1,ws.Range(\"G1:G2\"))\ns=\"before=[\" & Snapshot() & \"]\"\nws.Name=\"O'Brien renamed\"\nProbe=s & \";after=[\" & Snapshot() & \"]\"\nEnd Function\n",
+      "inspection_source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\n",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "outcome": "passed",
+        "error": "None"
+      },
+      "result": "before=[sheet=Data;filter=True;hidden=False,True;names=[Data!_FilterDatabase:=Data!$A$1:$B$3:False|Data!Criteria:=Data!$G$1:$G$2:True|Data!Print_Area:=Data!$A$1:$B$3:True|Data!Print_Titles:=Data!$A:$A,Data!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A];after=[sheet=O'Brien renamed;filter=True;hidden=False,True;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A]",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopen_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened": "sheet=O'Brien renamed;filter=True;hidden=False,True;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\inplace.xlsx"
+    },
+    {
+      "name": "extract",
+      "source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\nFunction Probe() As String\nDim ws As Worksheet,v As Variant,s As String\nSet ws=ActiveSheet\nws.Name=\"Data\"\nws.Range(\"A1:B1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"A2:B2\").Value=Array(\"apple\",1)\nws.Range(\"A3:B3\").Value=Array(\"pear\",2)\nws.Range(\"D1:E1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"G1:G2\").Value=Application.Transpose(Array(\"Name\",\"a*\"))\nws.PageSetup.PrintArea=\"A1:B3\"\nws.PageSetup.PrintTitleRows=\"$1:$1\"\nws.PageSetup.PrintTitleColumns=\"$A:$A\"\nv=ws.Range(\"A1:B3\").AdvancedFilter(2,ws.Range(\"G1:G2\"),ws.Range(\"D1:E1\"))\ns=\"before=[\" & Snapshot() & \"]\"\nws.Name=\"O'Brien renamed\"\nProbe=s & \";after=[\" & Snapshot() & \"]\"\nEnd Function\n",
+      "inspection_source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\n",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "outcome": "passed",
+        "error": "None"
+      },
+      "result": "before=[sheet=Data;filter=False;hidden=False,False;names=[Data!_FilterDatabase:=Data!$A$1:$B$3:False|Data!Criteria:=Data!$G$1:$G$2:True|Data!Extract:=Data!$D$1:$E$1:True|Data!Print_Area:=Data!$A$1:$B$3:True|Data!Print_Titles:=Data!$A:$A,Data!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A];after=[sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Extract:='O''Brien renamed'!$D$1:$E$1:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A]",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopen_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened": "sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Extract:='O''Brien renamed'!$D$1:$E$1:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\extract.xlsx"
+    },
+    {
+      "name": "showall",
+      "source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\nFunction Probe() As String\nDim ws As Worksheet,v As Variant,s As String\nSet ws=ActiveSheet\nws.Name=\"Data\"\nws.Range(\"A1:B1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"A2:B2\").Value=Array(\"apple\",1)\nws.Range(\"A3:B3\").Value=Array(\"pear\",2)\nws.Range(\"D1:E1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"G1:G2\").Value=Application.Transpose(Array(\"Name\",\"a*\"))\nws.PageSetup.PrintArea=\"A1:B3\"\nws.PageSetup.PrintTitleRows=\"$1:$1\"\nws.PageSetup.PrintTitleColumns=\"$A:$A\"\nv=ws.Range(\"A1:B3\").AdvancedFilter(1,ws.Range(\"G1:G2\"))\nws.ShowAllData\ns=\"before=[\" & Snapshot() & \"]\"\nws.Name=\"O'Brien renamed\"\nProbe=s & \";after=[\" & Snapshot() & \"]\"\nEnd Function\n",
+      "inspection_source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\n",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "outcome": "passed",
+        "error": "None"
+      },
+      "result": "before=[sheet=Data;filter=False;hidden=False,False;names=[Data!_FilterDatabase:=Data!$A$1:$B$3:False|Data!Criteria:=Data!$G$1:$G$2:True|Data!Print_Area:=Data!$A$1:$B$3:True|Data!Print_Titles:=Data!$A:$A,Data!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A];after=[sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A]",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopen_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened": "sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Criteria:='O''Brien renamed'!$G$1:$G$2:True|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\showall.xlsx"
+    },
+    {
+      "name": "unique-showall",
+      "source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\nFunction Probe() As String\nDim ws As Worksheet,v As Variant,s As String\nSet ws=ActiveSheet\nws.Name=\"Data\"\nws.Range(\"A1:B1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"A2:B2\").Value=Array(\"apple\",1)\nws.Range(\"A3:B3\").Value=Array(\"pear\",2)\nws.Range(\"D1:E1\").Value=Array(\"Name\",\"Qty\")\nws.Range(\"G1:G2\").Value=Application.Transpose(Array(\"Name\",\"a*\"))\nws.PageSetup.PrintArea=\"A1:B3\"\nws.PageSetup.PrintTitleRows=\"$1:$1\"\nws.PageSetup.PrintTitleColumns=\"$A:$A\"\nws.Range(\"A3:B3\").Value=Array(\"apple\",1)\nv=ws.Range(\"A1:B3\").AdvancedFilter(1,Unique:=True)\nws.ShowAllData\ns=\"before=[\" & Snapshot() & \"]\"\nws.Name=\"O'Brien renamed\"\nProbe=s & \";after=[\" & Snapshot() & \"]\"\nEnd Function\n",
+      "inspection_source": "Function Snapshot() As String\nDim n As Name,s As String,ws As Worksheet\nSet ws=ActiveSheet\ns=\"sheet=\" & ws.Name & \";filter=\" & CStr(ws.FilterMode) & \";hidden=\" & CStr(ws.Rows(2).Hidden) & \",\" & CStr(ws.Rows(3).Hidden) & \";names=[\"\nFor Each n In ActiveWorkbook.Names\ns=s & n.Name & \":\" & n.RefersTo & \":\" & CStr(n.Visible) & \"|\"\nNext\nSnapshot=s & \"];area=\" & ws.PageSetup.PrintArea & \";titles=\" & ws.PageSetup.PrintTitleRows & \",\" & ws.PageSetup.PrintTitleColumns\nEnd Function\n",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "outcome": "passed",
+        "error": "None"
+      },
+      "result": "before=[sheet=Data;filter=False;hidden=False,False;names=[Data!_FilterDatabase:=Data!$A$1:$B$3:False|Data!Print_Area:=Data!$A$1:$B$3:True|Data!Print_Titles:=Data!$A:$A,Data!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A];after=[sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A]",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopen_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened": "sheet=O'Brien renamed;filter=False;hidden=False,False;names=['O''Brien renamed'!_FilterDatabase:='O''Brien renamed'!$A$1:$B$3:False|'O''Brien renamed'!Print_Area:='O''Brien renamed'!$A$1:$B$3:True|'O''Brien renamed'!Print_Titles:='O''Brien renamed'!$A:$A,'O''Brien renamed'!$1:$1:True|];area=$A$1:$B$3;titles=$1:$1,$A:$A",
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-advanced-filter\\pyOpenVBA\\.cache\\owned-name-rename-samples\\unique-showall.xlsx"
+    }
+  ],
+  "session_id": "b8321abc6651",
+  "excel_pid": 44068,
+  "completed": true,
+  "closed_utc": "2026-10-20T23:45:48.801857+00:00"
+}

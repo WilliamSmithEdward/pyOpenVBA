@@ -100,6 +100,14 @@ while leaving unrelated hidden rows alone.
 Deleting the owning worksheet removes its local filter and ordinary names,
 including after `ShowAllData`; workbook names and other sheets' local names
 remain scoped independently of which cells their formulas reference.
+Renaming the owner stages its supported local filter and print names together
+before changing any entry. Four native controls cover in-place and extracted
+filters, retained names after `ShowAllData`, criteria-free Unique filtering,
+quoted apostrophe names, and macrofree save/reopen. Owned `Criteria`, `Extract`,
+`_FilterDatabase`, `Print_Area` and `Print_Titles` keep their reserved metadata
+and local scope; unrelated ordinary names remain outside this migration.
+See the [combined name lifecycle tests](../../tests/test_excel_owned_reserved_names.py)
+and [native name evidence](../../tests/fixtures/owned_name_rename/native.json).
 Worksheet UDF attempts return `False` without changing output or names.
 Protected in-place controls succeed; protected extraction remains explicitly
 unsupported because native Excel can partly write before raising an error.
@@ -107,8 +115,9 @@ unsupported because native Excel can partly write before raising an error.
 Formula criteria/unmatched headers, unsafe overlaps, cross-sheet or cross-book
 arguments, merges, tables, arrays/spills, conditional/validation rules and
 annotations are outside this initial scope. Mixing AutoFilter with an active
-AdvancedFilter, structural edits, cuts and worksheet copying with active state
-fail before mutation. Non-ASCII comparisons, text ordering and broader argument,
+AdvancedFilter, structural edits and cuts with active state fail before mutation.
+Worksheet copying also refuses retained owned AdvancedFilter metadata after
+extraction or `ShowAllData`, including criteria-free Unique-only filters. Non-ASCII comparisons, text ordering and broader argument,
 event and protected-sheet interactions remain incomplete. Implementation work
 bounds currently admit at most one million list, output or projected input
 cells (also when Unique collapses the output), 4,096 criteria cells, four million
@@ -160,7 +169,8 @@ renaming, moving before/after another sheet, deleting another sheet and removing
 the owner. Namespace/quote-aware remapping also preserves unmodeled reserved
 names without interpreting fake attributes inside opaque quoted values; malformed
 scope admission occurs before package parts or relationships are added. General
-local-name renaming and broad formula rewriting are not established by this work.
+local-name renaming and broad formula rewriting are not established by this work;
+the supported filter/print reserved names use one atomic rename plan.
 
 The measured LeftMargin and Orientation worksheet-UDF assignments return without
 changing configuration; PrintArea assignments do update their owned name,

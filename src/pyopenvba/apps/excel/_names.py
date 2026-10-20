@@ -72,3 +72,42 @@ def changed(book: Workbook) -> None:
     book.names_.changed = True
     book.saved = False
     book.calculator.rebuild()
+
+
+
+def owned_reserved(sheet: Worksheet, supported: tuple[str, ...]) -> list[tuple[NameEntry, str]]:
+    """Select local reserved names with the exact metadata owned by these APIs."""
+    from pyopenvba.apps.excel._advanced_filter import attribute_values
+
+    result: list[tuple[NameEntry, str]] = []
+    for entry in sheet.book.names_.entries:
+        owner, bare = split_sheet(entry.name)
+        if (owner.casefold() == sheet.name.casefold() and bare in supported
+                and attribute_values(entry.attributes).get('name') == '_xlnm.' + bare):
+            result.append((entry, bare))
+    return result
+
+
+def rename_owned_reserved(sheet: Worksheet, wanted: str) -> None:
+    """Stage all supported reserved-name changes before changing any entry."""
+    from pyopenvba.apps.excel._sheet_copy import formula
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    planned: list[tuple[NameEntry, str, str]] = []
+    selected = owned_reserved(sheet, ('Print_Area', 'Print_Titles', '_FilterDatabase', 'Criteria', 'Extract'))
+    seen: set[str] = set()
+    for entry, bare in selected:
+        name = quote_sheet(wanted) + '!' + bare
+        if bare in seen or any(other is not entry and other.name.casefold() == name.casefold()
+                               for other in sheet.book.names_.entries):
+            raise VBAUnsupportedError('Renaming a worksheet with conflicting owned reserved names is not implemented')
+        seen.add(bare)
+        try:
+            refers = formula(entry.refers_to, sheet, wanted, False)
+        except FormulaError:
+            raise VBAUnsupportedError('Renaming a worksheet with an unrecognized owned reserved name is not implemented') from None
+        planned.append((entry, name, refers))
+    for entry, name, refers in planned:
+        entry.name, entry.refers_to = name, refers
+    if planned:
+        sheet.book.names_.changed = True

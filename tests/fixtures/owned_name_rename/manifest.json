@@ -1,0 +1,21 @@
+{
+  "raw_sha256": "c9b4462f8e2da4e5b8b7fcf5815e4b8c2e7e5408e7e41da37748592314d2c92e",
+  "samples": {
+    "inplace": {
+      "file": "inplace.xlsx",
+      "sha256": "76c5b2964196f8148323b76695a77809e14a03f42711723db09042ce7a55b917"
+    },
+    "extract": {
+      "file": "extract.xlsx",
+      "sha256": "5968ad689d2c66bf7cc16f2186d17d7e989affdd7baceb445606b9db83ec730f"
+    },
+    "showall": {
+      "file": "showall.xlsx",
+      "sha256": "94d95c301ad5acb09d8be095c88603a2b157c49feaac5793155c06c906c175b9"
+    },
+    "unique-showall": {
+      "file": "unique-showall.xlsx",
+      "sha256": "1d44440973752e3a1760cdbc2ae6dd0d19ebe824449e18dad1f89dbe1b9582f5"
+    }
+  }
+}

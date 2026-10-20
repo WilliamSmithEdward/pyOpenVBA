@@ -581,24 +581,3 @@ def guard_copy(sheet: Worksheet) -> None:
             same = value == wanted
         if not same:
             raise unsupported('copying a worksheet with nondefault configuration')
-
-
-def rename_print_names(sheet: Worksheet, wanted: str) -> None:
-    """Stage only this API's owned local names before changing the sheet identity."""
-    from pyopenvba.apps.excel._sheet_copy import formula
-    from pyopenvba.formula._parse import FormulaError
-
-    planned: list[tuple[NameEntry, str, str]] = []
-    for bare in ('Print_Area', 'Print_Titles'):
-        entry = _entry(sheet, bare)
-        if entry is None or attribute_values(entry.attributes).get('name') != '_xlnm.' + bare:
-            continue
-        try:
-            refers = formula(entry.refers_to, sheet, wanted, False)
-        except FormulaError:
-            raise unsupported('renaming a sheet with an unrecognized print name') from None
-        planned.append((entry, quote_sheet(wanted) + '!' + bare, refers))
-    for entry, name, refers in planned:
-        entry.name, entry.refers_to = name, refers
-    if planned:
-        sheet.book.names_.changed = True

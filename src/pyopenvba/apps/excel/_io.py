@@ -53,7 +53,7 @@ _FORMULA = re.compile(r"<f\b([^>]*)(?:/>|>(.*?)</f>)", re.DOTALL)
 _INLINE = re.compile(r"<is>(.*?)</is>", re.DOTALL)
 _TEXT = re.compile(r"<t[^>]*>(.*?)</t>", re.DOTALL)
 _SHARED_ITEM = re.compile(r"<si>(.*?)</si>", re.DOTALL)
-_DEFINED_NAME = re.compile(r"<definedName\b([^>]*)>(.*?)</definedName>", re.DOTALL)
+_DEFINED_NAME = re.compile(r"<definedName\b((?:[^\"'<>]|\"[^\"]*\"|'[^']*')*)>(.*?)</definedName>", re.DOTALL)
 _FILTER_DATABASE = "_xlnm._FilterDatabase"
 _AUTO_FILTER = re.compile(r"<autoFilter\b[^>]*/>|<autoFilter\b.*?</autoFilter>", re.DOTALL)
 #: The worksheet children an autoFilter comes before, in the schema's order.
@@ -133,6 +133,11 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
     read_pivots(book)
     _read_names(book, workbook_xml)
+    from pyopenvba.apps.excel._advanced_filter import read_state as read_advanced_filter
+
+    for sheet in book.sheets_:
+        if sheet.part_name and package.has(sheet.part_name):
+            read_advanced_filter(sheet, package.read(sheet.part_name))
     from pyopenvba.apps.excel._protection import read_book_protection
 
     read_book_protection(book, workbook_xml)
@@ -356,12 +361,13 @@ def _cell_value(cell_xml: str, kind: str, strings: list[str]) -> object:
 
 
 def _read_names(book: Workbook, workbook_xml: str) -> None:
+    from pyopenvba.apps.excel._advanced_filter import attribute_values
     from pyopenvba.apps.excel._model import NameEntry
 
     for attributes_text, body in _DEFINED_NAME.findall(workbook_xml):
-        attributes = _attributes(f"<definedName {attributes_text}>")
+        attributes = attribute_values(attributes_text)
         name = attributes.get("name", "")
-        if name == _FILTER_DATABASE:
+        if name in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract"):
             # The model keeps a filter's hidden name, as Excel shows it: _FilterDatabase on its sheet.
             name = name.removeprefix("_xlnm.")
         elif not name or name.startswith("_xlnm"):
@@ -1665,6 +1671,12 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
     sheet.dims.saved()
     if sheet.filter_changed:
         patched = _with_auto_filter(sheet, patched)
+    if sheet.advanced_filter_changed:
+        from pyopenvba.apps.excel._advanced_filter import with_filter_mode
+
+        filtered = sheet.advanced_filter is not None or (sheet.auto_filter is not None and bool(sheet.auto_filter.fields))
+        patched = with_filter_mode(patched, filtered)
+        sheet.advanced_filter_changed = False
     if sheet.protection_changed:
         from pyopenvba.apps.excel._protection import with_protection
 
@@ -2037,12 +2049,14 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     if not package.has("xl/workbook.xml"):
         return
     text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
+    from pyopenvba.apps.excel._advanced_filter import attribute_values, patch_attribute
+
     written: list[tuple[tuple[object, ...], str]] = []
     tables = [table.name for sheet in book.sheets_ for table in sheet.tables]
     for attributes, body in _DEFINED_NAME.findall(text):
-        found = _attributes(f"<definedName {attributes}>")
+        found = attribute_values(attributes)
         name = found.get("name", "")
-        if name.startswith("_xlnm") and name != _FILTER_DATABASE:
+        if name.startswith("_xlnm") and name not in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract"):
             written.append((_name_order(book, name, found.get("localSheetId")),
                             f"<definedName {attributes}>{body}</definedName>"))
     for entry in book.names_.entries:
@@ -2050,9 +2064,11 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         # with; localSheetId and hidden are not the model's to drop.
         from pyopenvba._a1 import split_sheet
 
-        owned = _attributes(f"<definedName {entry.attributes}>")
+        owned = attribute_values(entry.attributes)
         scope, bare = split_sheet(entry.name)
-        owned["name"] = _FILTER_DATABASE if bare == "_FilterDatabase" else bare
+        owned["name"] = (_FILTER_DATABASE if bare == "_FilterDatabase" else
+                         "_xlnm." + bare if scope and bare in ("Criteria", "Extract")
+                         and owned.get("name") == "_xlnm." + bare else bare)
         owned.pop("localSheetId", None)
         if scope:
             index = next((i for i, sheet in enumerate(book.sheets_) if sheet.name.lower() == scope.lower()), None)
@@ -2064,7 +2080,12 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         owned.pop("comment", None)
         if entry.comment:
             owned["comment"] = entry.comment
-        attributes = " ".join(f'{key}="{_escape(value)}"' for key, value in owned.items())
+        # Update only model-owned attributes; leave opaque attributes and their
+        # namespace declarations lexically intact, including single quotes.
+        attributes = entry.attributes
+        for key in ("name", "localSheetId", "hidden", "comment"):
+            attributes = patch_attribute(attributes, key, owned.get(key))
+        attributes = attributes.strip()
         refers_to = prefixes.in_file(in_file(entry.refers_to, tables))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
                         f"<definedName {attributes}>{_escape(refers_to.lstrip('='))}</definedName>"))

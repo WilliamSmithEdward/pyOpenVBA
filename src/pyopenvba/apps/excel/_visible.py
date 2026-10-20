@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 def filtering(sheet: Worksheet) -> bool:
     """Whether the sheet is in filter mode: a column of its AutoFilter has criteria."""
     found = sheet.auto_filter
-    return found is not None and bool(found.fields)
+    return sheet.advanced_filter is not None or (found is not None and bool(found.fields))
 
 
 def bands(first: int, last: int, hidden: set[int]) -> list[tuple[int, int]]:

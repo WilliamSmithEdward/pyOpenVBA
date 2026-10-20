@@ -1116,6 +1116,9 @@ class Worksheet(ExcelObject):
         self.sort_state: SortState | None = None
         #: The sheet's AutoFilter: its range and the criteria on its columns.
         self.auto_filter: SheetFilter | None = None
+        #: An AdvancedFilter has no dropdowns but retains its filtered list.
+        self.advanced_filter: Area | None = None
+        self.advanced_filter_changed = False
         #: True once the filter is made, changed or removed, so a save writes it again.
         self.filter_changed = False
         #: What Protect set, or None while the sheet is not protected (see _protection).
@@ -1485,7 +1488,7 @@ class Worksheet(ExcelObject):
 
     @member
     def FilterMode(self) -> object:
-        return self.auto_filter is not None and bool(self.auto_filter.fields)
+        return self.advanced_filter is not None or (self.auto_filter is not None and bool(self.auto_filter.fields))
 
     @method
     def ShowAllData(self) -> object:
@@ -1528,6 +1531,15 @@ class Worksheet(ExcelObject):
 
         remove_document(self)
         self.book.sheets_.remove(self)
+        # Local names belong to the removed sheet, independently of RefersTo.
+        # Retaining them would make the writer silently globalize their scope.
+        from pyopenvba._a1 import split_sheet
+
+        retained = [entry for entry in self.book.names_.entries
+                    if split_sheet(entry.name)[0].casefold() != self.name.casefold()]
+        if len(retained) != len(self.book.names_.entries):
+            self.book.names_.entries[:] = retained
+            _names.changed(self.book)
         self.book.saved = False
         return EMPTY
 
@@ -3444,6 +3456,13 @@ class Range(ExcelObject):
         # AllowFiltering lets the user filter, not a macro.
         refuse(self.sheet, FILTERING)
         return range_autofilter(self, Field, Criteria1, Operator, Criteria2, VisibleDropDown, SubField)
+
+    @method
+    def AdvancedFilter(self, Action: object, CriteriaRange: object = MISSING, CopyToRange: object = MISSING,  # noqa: N803 -- Excel argument names
+                       Unique: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._advanced_filter import advanced_filter
+
+        return advanced_filter(self, Action, CriteriaRange, CopyToRange, Unique)
 
     @method
     def RemoveDuplicates(self, Columns: object = MISSING, Header: object = MISSING) -> object:

@@ -244,6 +244,8 @@ def cut(target: Range, destination: object) -> object:
     """Range.Cut: onto the clipboard, or straight to ``destination``."""
     from pyopenvba.apps.excel._model import Range
 
+    if target.sheet.advanced_filter is not None or (isinstance(destination, Range) and destination.sheet.advanced_filter is not None):
+        raise VBAUnsupportedError('Cut involving an advanced-filtered sheet is not implemented')
     if len(target.areas) != 1:
         raise error(1004, "That command cannot be used on multiple selections")
     if destination is MISSING:
@@ -505,6 +507,8 @@ def _column_widths(source_sheet: Worksheet, made: Block, target: Range) -> None:
 
 def move(source: Range, area: Area, destination: Range) -> None:
     """Cut ``area`` to ``destination``'s top-left cell, taking every reference to it along."""
+    if source.sheet.advanced_filter is not None or destination.sheet.advanced_filter is not None:
+        raise VBAUnsupportedError('Moving cells on an advanced-filtered sheet is not implemented')
     from pyopenvba.apps.excel import _merges
     from pyopenvba.apps.excel._model import Range
 

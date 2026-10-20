@@ -34,6 +34,9 @@ def formula(text: str, source: Worksheet, name: str, external: bool) -> str:
 def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     from pyopenvba.apps.excel._model import NameEntry, Workbook, Worksheet
 
+    if source.advanced_filter is not None:
+        raise VBAUnsupportedError('Worksheet.Copy of an advanced-filtered sheet is not implemented')
+
     if before is not MISSING and after is not MISSING:
         raise error(1004, "Specify Before or After, not both")
     anchor = before if before is not MISSING else after

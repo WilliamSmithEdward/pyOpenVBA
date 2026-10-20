@@ -34,6 +34,7 @@ import posixpath
 import re
 from collections.abc import Callable, Sequence
 
+from pyopenvba._opc_xml import RELS_NS, TYPES_NS, opc_part
 from pyopenvba.exceptions import UnsupportedFormatError
 
 PROJECT_TYPE = "http://schemas.microsoft.com/office/2006/relationships/vbaProject"
@@ -51,7 +52,6 @@ _BEFORE_WORKBOOK_CODE_NAME = ("date1904", "showObjects", "showBorderUnselectedTa
                               "updateLinks")
 _BEFORE_SHEET_CODE_NAME = ("syncHorizontal", "syncVertical", "syncRef", "transitionEvaluation", "transitionEntry",
                            "published")
-_RELATIONSHIP = re.compile(r"<Relationship\b[^>]*?(?:/>|>\s*</Relationship>)")
 _ATTRIBUTE = re.compile(r'([\w:]+)="([^"]*)"')
 _START = re.compile(r"<(?!\?)(?!/)[^>]*>")
 
@@ -84,7 +84,8 @@ def _with_attribute(tag: str, name: str, value: str, before: Sequence[str]) -> s
 
 
 def _relationships(text: str) -> list[dict[str, str]]:
-    return [_attributes(element) for element in _RELATIONSHIP.findall(text)]
+    part = opc_part(text.encode("utf-8"), RELS_NS, "Relationships")
+    return [attrs for name, attrs, _, _ in part.children if name == RELS_NS + "}Relationship"]
 
 
 def _part(folder: str, target: str) -> str:
@@ -170,25 +171,27 @@ def with_project(names: Sequence[str], read: Reader, main_part: str) -> dict[str
     """The main part's relationships and [Content_Types].xml once they take the project beside ``main_part``."""
     folder, _, name = main_part.rpartition("/")
     rels_name = f"{folder}/_rels/{name}.rels"
-    rels = read(rels_name).decode("utf-8")
-    numbers = [int(found.group(1)) for found in re.finditer(r'\bId="rId(\d+)"', rels)]
-    relationship = (f'<Relationship Id="rId{max(numbers, default=0) + 1}" Type="{PROJECT_TYPE}" '
-                    'Target="vbaProject.bin"/>')
-    edits = {rels_name: rels.replace("</Relationships>", relationship + "</Relationships>", 1).encode("utf-8")}
-    types = read(CONTENT_TYPES).decode("utf-8")
-    defaults = list(re.finditer(r"<Default\b[^>]*/>", types))
-    by_extension = {_attributes(found.group()).get("Extension", "").casefold(): found for found in defaults}
-    root = re.search(r"<Types\b[^>]*>", types)
-    assert root is not None
+    rels = opc_part(read(rels_name), RELS_NS, "Relationships")
+    numbers = [int(match.group(1)) for name, attrs, _, _ in rels.children
+               if name == RELS_NS + "}Relationship"
+               and (match := re.fullmatch(r"rId(\d+)", attrs.get("Id", "")))]
+    relationship = rels.child("Relationship", f'Id="rId{max(numbers, default=0) + 1}" '
+                              f'Type="{PROJECT_TYPE}" Target="vbaProject.bin"')
+    edits = {rels_name: rels.insert(rels.closing_start, relationship)}
+    types = opc_part(read(CONTENT_TYPES), TYPES_NS, "Types")
+    defaults = [(attrs, start, end) for name, attrs, start, end in types.children
+                if name == TYPES_NS + "}Default"]
+    by_extension = {attrs.get("Extension", "").casefold(): attrs for attrs, _, _ in defaults}
     if "bin" not in by_extension:
-        later = [found for found in defaults if _attributes(found.group()).get("Extension", "").casefold() > "bin"]
-        at = later[0].start() if later else (defaults[-1].end() if defaults else root.end())
-        types = f'{types[:at]}<Default Extension="bin" ContentType="{PROJECT_CONTENT}"/>{types[at:]}'
-    elif _attributes(by_extension["bin"].group()).get("ContentType") != PROJECT_CONTENT:
-        # bin already names another type, printer settings say, so the project gets an Override of its own. Where
-        # Excel puts one has not been measured: it goes first among the Overrides.
-        at = defaults[-1].end()
-        override = f'<Override PartName="/{folder}/vbaProject.bin" ContentType="{PROJECT_CONTENT}"/>'
-        types = types[:at] + override + types[at:]
-    edits[CONTENT_TYPES] = types.encode("utf-8")
+        later = [start for attrs, start, _ in defaults if attrs.get("Extension", "").casefold() > "bin"]
+        at = later[0] if later else (defaults[-1][2] if defaults else types.opening_end)
+        markup = types.child("Default", f'Extension="bin" ContentType="{PROJECT_CONTENT}"')
+        edits[CONTENT_TYPES] = types.insert(at, markup)
+    elif by_extension["bin"].get("ContentType") != PROJECT_CONTENT:
+        # A bin Default for another part needs a project-specific Override.
+        at = defaults[-1][2]
+        markup = types.child("Override", f'PartName="/{folder}/vbaProject.bin" ContentType="{PROJECT_CONTENT}"')
+        edits[CONTENT_TYPES] = types.insert(at, markup)
+    else:
+        edits[CONTENT_TYPES] = types.data
     return edits

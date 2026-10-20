@@ -20,7 +20,9 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from pyopenvba._opc_xml import RELS_NS, TYPES_NS, opc_part
 from pyopenvba._xml import attributes as xml_attributes
+from pyopenvba._xml import escape
 from pyopenvba.exceptions import PowerQueryError
 from pyopenvba.powerquery._opc import OpcFile
 
@@ -85,14 +87,6 @@ def _escape(value: str) -> str:
     )
 
 
-def _next_relationship(rels: str) -> str:
-    used = {int(number) for number in re.findall(r'Id="rId(\d+)"', rels)}
-    index = 1
-    while index in used:
-        index += 1
-    return f"rId{index}"
-
-
 def _relationships(package: OpcFile, part: str) -> str:
     if package.has(part):
         return package.read(part).decode("utf-8")
@@ -131,14 +125,15 @@ def _relationship_for(rels: str, target: str) -> str | None:
 
 def add_relationship(package: OpcFile, part: str, kind: str, target: str) -> str:
     raw = _relationships(package, part)
-    identifier = _next_relationship(raw)
-    package.write(
-        part,
-        raw.replace(
-            "</Relationships>",
-            f'<Relationship Id="{identifier}" Type="{kind}" Target="{target}"/></Relationships>',
-        ).encode("utf-8"),
-    )
+    metadata = opc_part(raw.encode("utf-8"), RELS_NS, "Relationships")
+    used = {attrs.get("Id", "") for name, attrs, _, _ in metadata.children
+            if name == RELS_NS + "}Relationship"}
+    index = 1
+    while f"rId{index}" in used:
+        index += 1
+    identifier = f"rId{index}"
+    markup = metadata.child("Relationship", f'Id="{identifier}" Type="{escape(kind)}" Target="{escape(target)}"')
+    package.write(part, metadata.insert(metadata.closing_start, markup))
     return identifier
 
 
@@ -150,10 +145,11 @@ def drop_relationship(package: OpcFile, part: str, target: str) -> None:
 
 
 def add_content_type(package: OpcFile, part: str, content_type: str) -> None:
-    raw = package.read(_CONTENT_TYPES).decode("utf-8")
-    override = f'<Override PartName="/{part}" ContentType="{content_type}"/>'
-    if override not in raw:
-        package.write(_CONTENT_TYPES, raw.replace("</Types>", override + "</Types>").encode("utf-8"))
+    metadata = opc_part(package.read(_CONTENT_TYPES), TYPES_NS, "Types")
+    if not any(name == TYPES_NS + "}Override" and attrs.get("PartName") == "/" + part
+               and attrs.get("ContentType") == content_type for name, attrs, _, _ in metadata.children):
+        markup = metadata.child("Override", f'PartName="/{escape(part)}" ContentType="{escape(content_type)}"')
+        package.write(_CONTENT_TYPES, metadata.insert(metadata.closing_start, markup))
 
 
 def drop_content_type(package: OpcFile, part: str) -> None:

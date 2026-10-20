@@ -95,6 +95,25 @@ an updated Python/Expat runtime is still required. This preserves the
 library's zero-runtime-dependency API without enabling DTD processing.
 """
 
+[[finding]]
+tool = "Semgrep"
+rule = "python.lang.security.use-defused-xml.use-defused-xml"
+where = [
+    { path = "src/pyopenvba/_opc_xml.py", line = "from xml.parsers import expat" },
+]
+reason = """
+The OPC metadata editor installs rejecting StartDoctypeDeclHandler,
+EntityDeclHandler and ExternalEntityRefHandler callbacks before Parse.
+Parameter entity parsing is XML_PARAM_ENTITY_PARSING_NEVER; no resolver
+or child parser is created. Only UTF-8 metadata is edited, with NUL bytes
+and incompatible encoding declarations refused before insertion. Namespace
+and byte-offset parsing does not enable DTD or declared entity expansion.
+tests/test_opc_metadata.py covers declaration refusal and UTF-16 rejection,
+as well as qualified insertion and preservation of unrelated markup.
+This acceptance applies only to this guarded import; it does not cover
+other XML entry points or replace Python/Expat runtime updates.
+"""
+
 [[notice]]
 tool = "Semgrep"
 id = "Syntax error"

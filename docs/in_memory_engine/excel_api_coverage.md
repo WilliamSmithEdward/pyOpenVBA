@@ -25,12 +25,12 @@ is a percentage of working macros or complete functionality.
 
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
-| Application, workbooks and worksheets | Partial | 125 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Many application services, workbook features and host-specific behaviors remain. |
+| Application, workbooks and worksheets | Partial | 125 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
 | Cells and ranges | Partial | 112 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
-| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support multiple fresh rules with distinct runtime identities within one workbook. Loaded multi-rule sources, ambiguous worksheet-copy identities, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
+| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Shared-group copying, worksheet-copy identities, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts and AutoFilter operations. Advanced criteria, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
@@ -223,7 +223,7 @@ control is retained without claiming conformance. See the
 Conditional-format range transfers have **13 native controls** covering
 `Range.Copy Destination`, `Worksheet.Paste` and `PasteSpecial` with all or formats.
 The measured scope is a disjoint rectangular source and landing in one workbook,
-with at most one incoming rule; that rule may cover multiple areas. Copies clip
+initially covering one incoming rule, which may cover multiple areas. Copies clip
 its applicability, shift its formula from the original rule anchor and give it
 an independent differential style. Destination rules lose the entire landing
 area, including positions without a source rule. New rules take priority one;
@@ -233,7 +233,7 @@ pastes with `SkipBlanks` retain their full conditional applicability. Independen
 native reopen controls cover both macro-free and macro-enabled workbooks.
 Worksheet UDF attempts return `False` without changing the workbook; ordinary
 macro calls still perform the copy. Overlaps,
-tiling, transposition, loaded multi-rule sources, merging paste modes, cross-book
+tiling, transposition, shared-group or ambiguous loaded sources, merging paste modes, cross-book
 transfers and affected mixed-feature combinations remain guarded. Narrow-column
 `Range.Text` width truncation remains incomplete; these controls use measured
 20-character columns to isolate conditional formatting behavior. See the
@@ -244,9 +244,7 @@ A further **8 native controls** cover fresh multi-rule transfers. Incoming
 priorities follow source priority, while serialized clone order follows source
 creation order. Each rule retains its own clipped applicability and statistical
 population; destination priorities increase by the number of intersecting source
-rules. Held source-style edits do not change copied differential styles. Shared XML containers are validated once per transfer, and cloned containers omit sibling rule payloads; [count-based regressions](../../tests/test_excel_conditional_transfer_groups.py) verify this for 8- and 48-rule groups. Loaded
-multi-rule sources and ambiguous worksheet-copy identities remain unsupported;
-the measured subset does not establish their ordering or identity behavior.
+rules. Held source-style edits do not change copied differential styles. Shared XML containers are validated once per transfer, and cloned containers omit sibling rule payloads; [count-based regressions](../../tests/test_excel_conditional_transfer_groups.py) verify this for 8- and 48-rule groups. Loaded rules with distinct validated group identities now have a separate measured scope below; shared-group and ambiguous worksheet-copy sources remain guarded.
 Another **15 native controls** distinguish specialized property contexts:
 `UniqueValues.DupeUnique` reads the active sheet's matching creation identity,
 returns error 440 when that identity is absent, and reports duplicate mode for
@@ -255,11 +253,53 @@ the owning rule. The measured Top10 and AboveAverage scalar getters and setters
 remain owner-bound. See the [multiple-rule and property regressions](../../tests/test_excel_conditional_multiple.py)
 and [native evidence](../../tests/fixtures/conditional_multiple/native.json).
 
+Loaded conditional groups have **36 native ordering controls** and **6 native
+multi-rule copy controls**. Plain loads compare the complete ordered applicability
+population by each area's column interval, then row interval; an exact-prefix
+population with more areas sorts first. Equivalent projected populations in
+compatible plain containers share one loaded identity. VBA-bearing loads retain
+raw container and child order. Each rule keeps its own root, differential style
+and API values; the group's initial representative supplies foreign identity
+lookups. Opaque container metadata and incompatible namespace bindings stay
+separate and are preserved.
+
+A further **20 native controls** distinguish load mode from FileFormat. A
+FileFormat52 package without an actual VBA project uses the measured plain-load
+projection, group coalescing and initial priority-based child order. A VBA-bearing
+FileFormat52 package retains raw ordering even when opened with `with_vba=False`.
+The mode is captured before macro loading. Generic API projection remains a
+separate mutable state: `ModifyAppliesToRange` keeps newly supplied union order.
+Saving after adding a VBA project materializes the captured plain order, including
+when the output remains FileFormat52; unchanged parts remain untouched when no
+conversion or edit requires rewriting them.
+
+**18 shared-group lifecycle controls** cover individual and bulk deletion,
+priority changes and range splits. Initial child order is captured once, so a
+priority edit does not silently replace the representative on save. Individual
+deletion keeps the target's tombstone identity and moves remaining children
+together to a new identity; bulk deletion preserves the prior representative.
+Moving one shared child retains the untouched group and appends the moved rule,
+including a move to spatially earlier cells. **Two generic-union copy controls**
+map the source's projected area order while preserving its bounding formula
+anchor. **Three ModifyAppliesToRange controls** cover ordinary relative-formula
+rebasing and raw union order, including a fresh-rule native save/reopen.
+
+Shared-group source copies remain explicitly unsupported. Worksheet.Copy
+identity initialization, foreign lookups by shared-group child position,
+initial active-sheet lookup context and some retained native proxy rebinding
+still need work; their raw observations are not treated
+as passing full-context controls. See the
+[loaded-group tests](../../tests/test_excel_conditional_loaded.py),
+[mode/lifecycle/rebase tests](../../tests/test_excel_conditional_loaded_lifecycle.py)
+and [native evidence](../../tests/fixtures/conditional_loaded).
+These changes add behavior to existing members; registration and verified totals
+are unchanged.
+
 Another **10 native controls** establish conditional-format API projections:
 number-format getters remove measured unnecessary space/hyphen escapes outside
-quoted literals. Macro-free generic rules enumerate applicability areas by row,
+quoted literals. Plain-loaded generic rules enumerate applicability areas by row,
 then column; specialized statistical rules retain serialized area order.
-Macro-enabled imports retain serialized order for both families. Runtime-created
+VBA-bearing macro-enabled imports retain serialized order for both families. Runtime-created
 ranges retain their supplied order through a save. Converting a loaded macro-free
 workbook preserves its family-specific order in the resulting macro-enabled file.
 Getter projections preserve stored XML and

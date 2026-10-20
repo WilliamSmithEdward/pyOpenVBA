@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
-from pyopenvba.apps.excel._conditional import NS, Rule, changed, formula_anchor, guard, meets, without
+from pyopenvba.apps.excel._conditional import NS, Rule, changed, formula_anchor, guard, meets, projected_areas, without
 from pyopenvba.apps.excel._conditional_predicates import PREDICATE_TYPES, regenerate
 from pyopenvba.apps.excel._xstring import decode, escape
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -174,10 +174,13 @@ def plan(source: Worksheet, areas: list[Area], destination: Worksheet, landed: l
     if len(incoming) > 1:
         slots = [rule.color_slot for rule in incoming]
         source_slots = Counter(rule.color_slot for rule in source.conditional_formats)
-        if (any(rule.loaded or rule.color_slot is None
+        source_containers = Counter(id(rule.container) for rule in source.conditional_formats if rule.container is not None)
+        if (any(rule.color_slot is None
                 or source.conditional_color_slots.get(rule.color_slot) is not rule for rule in incoming)
                 or len(set(slots)) != len(slots)
-                or any(source_slots[slot] != 1 for slot in slots)):
+                or any(source_slots[slot] != 1 for slot in slots)
+                or any(rule.loaded and rule.container is not None and source_containers[id(rule.container)] != 1
+                       for rule in incoming)):
             raise _unsupported('with multiple source rules without measured runtime creation identity')
     guard(destination)
     for owner, area in ((source, first), (destination, last)):
@@ -207,7 +210,7 @@ def plan(source: Worksheet, areas: list[Area], destination: Worksheet, landed: l
                            max(part.left, first.left) + last.left - first.left,
                            min(part.bottom, first.bottom) + last.top - first.top,
                            min(part.right, first.right) + last.left - first.left)
-                      for part in original.areas if meets(part, first)]
+                      for part in projected_areas(original) if meets(part, first)]
             container = (XmlElement(original.container.tag, dict(original.container.attrib))
                          if original.container is not None else XmlElement(NS + 'conditionalFormatting'))
             copied = Rule(mapped, _root_at(original, mapped), container)

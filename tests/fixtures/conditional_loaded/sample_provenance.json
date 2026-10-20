@@ -1,0 +1,760 @@
+{
+  "generic-generic-low-far-51.xlsx": {
+    "native_sha256": "9a942941e2bdb282a04c0850ca87d4752d299ad91fc4892556a8bcc754a97a4d",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\generic-generic-low-far-51.xlsx",
+    "fixture_sha256": "9a942941e2bdb282a04c0850ca87d4752d299ad91fc4892556a8bcc754a97a4d"
+  },
+  "generic-generic-low-far-52.xlsm": {
+    "native_sha256": "0f625583667567313d066330f06d98df911de5348e0ab7fef226f84fce24d232",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\generic-generic-low-far-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "2dd7d6a53e367200285fef529b09d94e59a84302f8ec5299cd38f8a416767d64",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "0f625583667567313d066330f06d98df911de5348e0ab7fef226f84fce24d232"
+  },
+  "generic-stat-low-far-51.xlsx": {
+    "native_sha256": "55e733765a38904c4cdd55a902a8e4322c3a0c7d6204379995aad7e34d209e66",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\generic-stat-low-far-51.xlsx",
+    "fixture_sha256": "55e733765a38904c4cdd55a902a8e4322c3a0c7d6204379995aad7e34d209e66"
+  },
+  "generic-stat-low-far-52.xlsm": {
+    "native_sha256": "9d8d54c5c056de0ded8d4178ac8e65580bb69fa04eaadea06208292bd60a5b1c",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\generic-stat-low-far-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "72b371ad3b11abe0ec1d872939ada78d4b592c7ec8416c6a14a0a5d911fe6fb9",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "9d8d54c5c056de0ded8d4178ac8e65580bb69fa04eaadea06208292bd60a5b1c"
+  },
+  "stat-generic-low-far-51.xlsx": {
+    "native_sha256": "2ac0bb70044e8b3717ba97d7e5d3d4c9e6b251d0b6f63542f8d56f54f44de0fc",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\stat-generic-low-far-51.xlsx",
+    "fixture_sha256": "2ac0bb70044e8b3717ba97d7e5d3d4c9e6b251d0b6f63542f8d56f54f44de0fc"
+  },
+  "stat-generic-low-far-52.xlsm": {
+    "native_sha256": "7b1f9215ba20eb2c6af4802868a33cc8ad7bd6e5a7950cf849560f052d8aedab",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\stat-generic-low-far-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "dfe3de632f0c577d29830a16608070f0cfbee03cef74e0bf939b5a0c84163452",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "7b1f9215ba20eb2c6af4802868a33cc8ad7bd6e5a7950cf849560f052d8aedab"
+  },
+  "overlap-union-stat-first-priority-51.xlsx": {
+    "native_sha256": "50181a78014bd74087ee3b5ba1fed782d362d6b919e9709cb42d89a218649df2",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\overlap-union-stat-first-priority-51.xlsx",
+    "fixture_sha256": "50181a78014bd74087ee3b5ba1fed782d362d6b919e9709cb42d89a218649df2"
+  },
+  "overlap-union-stat-first-priority-52.xlsm": {
+    "native_sha256": "af876393b51026e526a48d90bd2e7858eaee3b3095426ef7e3e7c66e3bf8618a",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\overlap-union-stat-first-priority-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "1258f1526c6a2f46614eb63aff1e4371674596b1490f73f3feb5f2034f9fcd41",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "af876393b51026e526a48d90bd2e7858eaee3b3095426ef7e3e7c66e3bf8618a"
+  },
+  "overlap-union-expression-first-priority-51.xlsx": {
+    "native_sha256": "889723daf0c89ee5787e03ab430d794d97d6d7a30ba8a548eef4342ec52c35cc",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\overlap-union-expression-first-priority-51.xlsx",
+    "fixture_sha256": "889723daf0c89ee5787e03ab430d794d97d6d7a30ba8a548eef4342ec52c35cc"
+  },
+  "overlap-union-expression-first-priority-52.xlsm": {
+    "native_sha256": "2a85491779b2010cc36ec315de26d354e6a4a7ab032ab0c373bff66f9ff41620",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\overlap-union-expression-first-priority-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "daed6cadf61ec9de24b51b8d4da6b3d718736e524a69c32c7cb5b273d2e1ed0b",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "2a85491779b2010cc36ec315de26d354e6a4a7ab032ab0c373bff66f9ff41620"
+  },
+  "crisscross-union-expression-first-priority-51.xlsx": {
+    "native_sha256": "9872884ea75b323e36514040c3c98e092baec77ce9255100eec9538047806432",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\crisscross-union-expression-first-priority-51.xlsx",
+    "fixture_sha256": "9872884ea75b323e36514040c3c98e092baec77ce9255100eec9538047806432"
+  },
+  "crisscross-union-expression-first-priority-52.xlsm": {
+    "native_sha256": "da1ed6b224f7575885d8be6a9c22a6c239bd2d01a2af4fa0cdda07c0f60937c0",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\crisscross-union-expression-first-priority-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "fc5e69236f726f083b4194b8ea382ddeb18db7b14e1373d26f0aae0d2fd8fcb0",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "da1ed6b224f7575885d8be6a9c22a6c239bd2d01a2af4fa0cdda07c0f60937c0"
+  },
+  "three-mixed-clipped.xlsx": {
+    "native_sha256": "b1e6f44047c02fea9371323c3fde77290dd5e13d29890f8e5c74e3a4e71fdd2d",
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\three-mixed-clipped.xlsx",
+    "fixture_sha256": "b1e6f44047c02fea9371323c3fde77290dd5e13d29890f8e5c74e3a4e71fdd2d"
+  },
+  "three-mixed-clipped.xlsm": {
+    "native_sha256": "c54119c8bc95d6effbe5e2412e735ec6bb145b37a3f0baccd337894470393f56",
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\three-mixed-clipped.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "0d512dd235d004ae77d4a808810bf96e4d5f45649815741650fb8501b55144db",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "c54119c8bc95d6effbe5e2412e735ec6bb145b37a3f0baccd337894470393f56"
+  },
+  "right-before-top-51.xlsx": {
+    "native_sha256": "91c3391220b574c05202b2ed614acf31c5c735bd9ae0ba5b42fcab624351f1a6",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\right-before-top-51.xlsx",
+    "fixture_sha256": "91c3391220b574c05202b2ed614acf31c5c735bd9ae0ba5b42fcab624351f1a6"
+  },
+  "right-before-top-52.xlsm": {
+    "native_sha256": "364c97f4ad48402e019957d38434db7347cfdfd5d206476312e04d3f584eb657",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\right-before-top-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "c69633001be34e013d0558591274bff786cab419c93e64df133d6c6870f59c26",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "364c97f4ad48402e019957d38434db7347cfdfd5d206476312e04d3f584eb657"
+  },
+  "same-start-shorter-bottom-51.xlsx": {
+    "native_sha256": "414038deef6cad02f0ac30497d51d879f873e1a041051b9c70d5220fa499f64d",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\same-start-shorter-bottom-51.xlsx",
+    "fixture_sha256": "414038deef6cad02f0ac30497d51d879f873e1a041051b9c70d5220fa499f64d"
+  },
+  "same-start-shorter-bottom-52.xlsm": {
+    "native_sha256": "f117a483c0d61814c188fcf925cef8b62d5bfb4a09ccae24befe36009fd5674a",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\same-start-shorter-bottom-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "a1410bcaa674d73221e039363537e7fe9be42343f71d1f1be6afdf49cdf11239",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "f117a483c0d61814c188fcf925cef8b62d5bfb4a09ccae24befe36009fd5674a"
+  },
+  "union-first-interval-not-bounding-51.xlsx": {
+    "native_sha256": "f669f43903c8e1346a067d2673f3a52c2d061f87e8b366aba6a35763daa04b0d",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\union-first-interval-not-bounding-51.xlsx",
+    "fixture_sha256": "f669f43903c8e1346a067d2673f3a52c2d061f87e8b366aba6a35763daa04b0d"
+  },
+  "union-first-interval-not-bounding-52.xlsm": {
+    "native_sha256": "de677f5079f4ee3596df636ba4e0be4858bf1bb1853c49747f583571ad33c232",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\union-first-interval-not-bounding-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "b07c3b341be32a4ce9e6f3cdde9eff7b520477e60af93c4e04a515506f7cfe1b",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "de677f5079f4ee3596df636ba4e0be4858bf1bb1853c49747f583571ad33c232"
+  },
+  "identical-first-area-different-tail-51.xlsx": {
+    "native_sha256": "1cc8134f127c98de8de5d5310a426ce733371cffddb9a80b8c7d724f11811962",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\identical-first-area-different-tail-51.xlsx",
+    "fixture_sha256": "1cc8134f127c98de8de5d5310a426ce733371cffddb9a80b8c7d724f11811962"
+  },
+  "identical-first-area-different-tail-52.xlsm": {
+    "native_sha256": "292e4316eba09cab24d0ae6f7880981e7138c984798fefcdf6b5b5eb499620df",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\identical-first-area-different-tail-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "fa71a89d3b5cab4064c8522b4a2074d623f3624f35a4336714ae86a8a46f9766",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "292e4316eba09cab24d0ae6f7880981e7138c984798fefcdf6b5b5eb499620df"
+  },
+  "same-first-different-tail-priority-flipped-51.xlsx": {
+    "native_sha256": "e0f12336f0efddadb2cbe2171c8a3c1f4346e2b6dc0fa0738521d91d4bbd384a",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\same-first-different-tail-priority-flipped-51.xlsx",
+    "fixture_sha256": "e0f12336f0efddadb2cbe2171c8a3c1f4346e2b6dc0fa0738521d91d4bbd384a"
+  },
+  "same-first-different-tail-priority-flipped-52.xlsm": {
+    "native_sha256": "eb8be695be66d78f64e9fecbc3463f94a6ae5aba43d7f368b583650da42a3acf",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\same-first-different-tail-priority-flipped-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "f7f29af57bdaf10cb408c04a2bac6ac69a74264d83adb4d96308b0a4646eebed",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "eb8be695be66d78f64e9fecbc3463f94a6ae5aba43d7f368b583650da42a3acf"
+  },
+  "same-complete-statistical-population-51.xlsx": {
+    "native_sha256": "451ac8aa491aa521c3bbcd397db81cfc98e45ee51776bd4a83fd70e1e9eda2ed",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\same-complete-statistical-population-51.xlsx",
+    "fixture_sha256": "451ac8aa491aa521c3bbcd397db81cfc98e45ee51776bd4a83fd70e1e9eda2ed"
+  },
+  "same-complete-statistical-population-52.xlsm": {
+    "native_sha256": "48367817dd23ea4d139f5d30ec79242d9add837fa062ac12c779496ed8ca11be",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\same-complete-statistical-population-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "9b6b8bc8e33f472d2250529dd7fd7cd710dedf94bcb0756e0d4faa51344cd23f",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "48367817dd23ea4d139f5d30ec79242d9add837fa062ac12c779496ed8ca11be"
+  },
+  "different-tail-reversed-creation-51.xlsx": {
+    "native_sha256": "84bb4563e5723e0808c56b1e34a205c0443c67521adf52a8653f2474935b6125",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\different-tail-reversed-creation-51.xlsx",
+    "fixture_sha256": "84bb4563e5723e0808c56b1e34a205c0443c67521adf52a8653f2474935b6125"
+  },
+  "different-tail-reversed-creation-52.xlsm": {
+    "native_sha256": "4eed80567e1883913c80d19cf7111e118f73c69b322745d3c4c6ac434d82dac9",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\different-tail-reversed-creation-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "61cd06951daae25e6e2f27674f488d16744edc1d4cb1d2bf80697f02a86193b8",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "4eed80567e1883913c80d19cf7111e118f73c69b322745d3c4c6ac434d82dac9"
+  },
+  "statistical-ordered-tail-permutation-51.xlsx": {
+    "native_sha256": "b706b4e13809ed4ffcf87e3ff3dbf246d27733dff36f632bb1a103d97b08137d",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\statistical-ordered-tail-permutation-51.xlsx",
+    "fixture_sha256": "b706b4e13809ed4ffcf87e3ff3dbf246d27733dff36f632bb1a103d97b08137d"
+  },
+  "statistical-ordered-tail-permutation-52.xlsm": {
+    "native_sha256": "cbf3842248711a602e129fc778b00d9f6c61c889f7a2c9e67ef637dcddbc7559",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\statistical-ordered-tail-permutation-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "35af8b0e4b17fc6495cd1dc87944300e1e8afbb31f6c8d6ec4af3ea376236d40",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "cbf3842248711a602e129fc778b00d9f6c61c889f7a2c9e67ef637dcddbc7559"
+  },
+  "generic-ordered-tail-permutation-51.xlsx": {
+    "native_sha256": "4618250a3e4299e0df7a881b13e738091dc660fcad9a5950dfc15a56e01d594f",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\generic-ordered-tail-permutation-51.xlsx",
+    "fixture_sha256": "4618250a3e4299e0df7a881b13e738091dc660fcad9a5950dfc15a56e01d594f"
+  },
+  "generic-ordered-tail-permutation-52.xlsm": {
+    "native_sha256": "c3dff3332ce0c017154602bf471b6b0f2d438987b8a61191a8fceb10862a0da5",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\generic-ordered-tail-permutation-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "f344f56d837f104d432f91e1a57316644fe4db9f0d3c3a9a83633395dbae91d0",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "c3dff3332ce0c017154602bf471b6b0f2d438987b8a61191a8fceb10862a0da5"
+  },
+  "short-first-priority-reversed-51.xlsx": {
+    "native_sha256": "8f8ac32244f998b78c7ad9e38b0fbf47a1cdb70bc99e89cf8b15a451b1473025",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\prefix-native-samples\\short-first-priority-reversed-51.xlsx",
+    "fixture_sha256": "8f8ac32244f998b78c7ad9e38b0fbf47a1cdb70bc99e89cf8b15a451b1473025"
+  },
+  "short-first-priority-reversed-52.xlsm": {
+    "native_sha256": "3ae9cdcf5352e1a61752fb8d064c907459d72b5d320c898856a9835ece0ef248",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\prefix-native-samples\\short-first-priority-reversed-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "cdd6dd5f140e6beac514c8eda0c05f8d45aa773aa3f68ca967af27ce00cfae33",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "3ae9cdcf5352e1a61752fb8d064c907459d72b5d320c898856a9835ece0ef248"
+  },
+  "long-first-priority-reversed-51.xlsx": {
+    "native_sha256": "3c302a98f4e22cc88c52ca1b12eb079c1eaedabf1b40d134f6adda2c2a7048f0",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\prefix-native-samples\\long-first-priority-reversed-51.xlsx",
+    "fixture_sha256": "3c302a98f4e22cc88c52ca1b12eb079c1eaedabf1b40d134f6adda2c2a7048f0"
+  },
+  "long-first-priority-reversed-52.xlsm": {
+    "native_sha256": "3369b925a545be0661c7393dc0c6228da6061c12108799df92bc32758a7b34f7",
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\prefix-native-samples\\long-first-priority-reversed-52.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "ecf41d279d5dd0a9675825ff3e32077ea179a5dc4fbb3d6200259ea5c2fb057f",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "3369b925a545be0661c7393dc0c6228da6061c12108799df92bc32758a7b34f7"
+  },
+  "reverse-priority-two.xlsx": {
+    "native_sha256": "15e52bbbf7075afb486aac28f2602ad0a5f3650989449281006e95e0bf9c544c",
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\reverse-priority-two.xlsx",
+    "fixture_sha256": "15e52bbbf7075afb486aac28f2602ad0a5f3650989449281006e95e0bf9c544c"
+  },
+  "reverse-priority-two.xlsm": {
+    "native_sha256": "9f1b4d58f5a7228240971bb2e96912acfdb41c8fb7cbb81bc58a0f19db5d7013",
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\reverse-priority-two.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "7adf490fe68f22281f2d3861211b1e4fd1876f2e50371b4b9e0bc6d78a2420a0",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "9f1b4d58f5a7228240971bb2e96912acfdb41c8fb7cbb81bc58a0f19db5d7013"
+  },
+  "three-crosssheet.xlsx": {
+    "native_sha256": "cac8793541b8aef3183f6b010cfa3a3f08c69d205e8ffadcea113d275917d79e",
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\three-crosssheet.xlsx",
+    "fixture_sha256": "cac8793541b8aef3183f6b010cfa3a3f08c69d205e8ffadcea113d275917d79e"
+  },
+  "three-crosssheet.xlsm": {
+    "native_sha256": "4bc14f67608b9411ffbee2447dc38794e1fbfc69b30d9a9b4d42fbe3f3d235a5",
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\three-crosssheet.xlsm",
+    "rejected_derivation": {
+      "fixture_sha256": "c4757838ddcf4d3db94dc0d355889b0bc2d3232bb094cea8d5b240353b267ce6",
+      "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+      "removed_parts": [
+        "xl/vbaProject.bin"
+      ],
+      "rewritten_package_metadata": [
+        "[Content_Types].xml",
+        "xl/_rels/workbook.xml.rels"
+      ],
+      "reason": "Native acceptance differed in group identity after VBA removal; original native package required."
+    },
+    "fixture_sha256": "4bc14f67608b9411ffbee2447dc38794e1fbfc69b30d9a9b4d42fbe3f3d235a5"
+  },
+  "three-shared-51.xlsx": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\materialization-native-v2-samples\\three-shared-51.xlsx",
+    "native_sha256": "8a705c39c3a01eb65b0c8a67af6ce67d827d45b1d55b0434c65bdeb1f5822fa1",
+    "fixture_sha256": "8a705c39c3a01eb65b0c8a67af6ce67d827d45b1d55b0434c65bdeb1f5822fa1"
+  },
+  "three-shared-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\materialization-native-v2-samples\\three-shared-52.xlsm",
+    "native_sha256": "fcd07458b3caf2e424dab7b8476475897fc66ebfbac5dce93a0e52b71433a01a",
+    "fixture_sha256": "fcd07458b3caf2e424dab7b8476475897fc66ebfbac5dce93a0e52b71433a01a"
+  },
+  "novba52/overlap-union-stat-first-priority-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\overlap-union-stat-first-priority-52.xlsm",
+    "native_sha256": "af876393b51026e526a48d90bd2e7858eaee3b3095426ef7e3e7c66e3bf8618a",
+    "fixture_sha256": "1258f1526c6a2f46614eb63aff1e4371674596b1490f73f3feb5f2034f9fcd41",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/crisscross-union-expression-first-priority-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\crisscross-union-expression-first-priority-52.xlsm",
+    "native_sha256": "da1ed6b224f7575885d8be6a9c22a6c239bd2d01a2af4fa0cdda07c0f60937c0",
+    "fixture_sha256": "fc5e69236f726f083b4194b8ea382ddeb18db7b14e1373d26f0aae0d2fd8fcb0",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/different-tail-reversed-creation-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\different-tail-reversed-creation-52.xlsm",
+    "native_sha256": "4eed80567e1883913c80d19cf7111e118f73c69b322745d3c4c6ac434d82dac9",
+    "fixture_sha256": "61cd06951daae25e6e2f27674f488d16744edc1d4cb1d2bf80697f02a86193b8",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/generic-generic-low-far-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\generic-generic-low-far-52.xlsm",
+    "native_sha256": "0f625583667567313d066330f06d98df911de5348e0ab7fef226f84fce24d232",
+    "fixture_sha256": "2dd7d6a53e367200285fef529b09d94e59a84302f8ec5299cd38f8a416767d64",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/generic-ordered-tail-permutation-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\generic-ordered-tail-permutation-52.xlsm",
+    "native_sha256": "c3dff3332ce0c017154602bf471b6b0f2d438987b8a61191a8fceb10862a0da5",
+    "fixture_sha256": "f344f56d837f104d432f91e1a57316644fe4db9f0d3c3a9a83633395dbae91d0",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/generic-stat-low-far-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\generic-stat-low-far-52.xlsm",
+    "native_sha256": "9d8d54c5c056de0ded8d4178ac8e65580bb69fa04eaadea06208292bd60a5b1c",
+    "fixture_sha256": "72b371ad3b11abe0ec1d872939ada78d4b592c7ec8416c6a14a0a5d911fe6fb9",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/identical-first-area-different-tail-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\identical-first-area-different-tail-52.xlsm",
+    "native_sha256": "292e4316eba09cab24d0ae6f7880981e7138c984798fefcdf6b5b5eb499620df",
+    "fixture_sha256": "fa71a89d3b5cab4064c8522b4a2074d623f3624f35a4336714ae86a8a46f9766",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/long-first-priority-reversed-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\prefix-native-samples\\long-first-priority-reversed-52.xlsm",
+    "native_sha256": "3369b925a545be0661c7393dc0c6228da6061c12108799df92bc32758a7b34f7",
+    "fixture_sha256": "ecf41d279d5dd0a9675825ff3e32077ea179a5dc4fbb3d6200259ea5c2fb057f",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/overlap-union-expression-first-priority-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\overlap-union-expression-first-priority-52.xlsm",
+    "native_sha256": "2a85491779b2010cc36ec315de26d354e6a4a7ab032ab0c373bff66f9ff41620",
+    "fixture_sha256": "daed6cadf61ec9de24b51b8d4da6b3d718736e524a69c32c7cb5b273d2e1ed0b",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/reverse-priority-two.xlsm": {
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\reverse-priority-two.xlsm",
+    "native_sha256": "9f1b4d58f5a7228240971bb2e96912acfdb41c8fb7cbb81bc58a0f19db5d7013",
+    "fixture_sha256": "7adf490fe68f22281f2d3861211b1e4fd1876f2e50371b4b9e0bc6d78a2420a0",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/right-before-top-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\right-before-top-52.xlsm",
+    "native_sha256": "364c97f4ad48402e019957d38434db7347cfdfd5d206476312e04d3f584eb657",
+    "fixture_sha256": "c69633001be34e013d0558591274bff786cab419c93e64df133d6c6870f59c26",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/same-complete-statistical-population-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\same-complete-statistical-population-52.xlsm",
+    "native_sha256": "48367817dd23ea4d139f5d30ec79242d9add837fa062ac12c779496ed8ca11be",
+    "fixture_sha256": "9b6b8bc8e33f472d2250529dd7fd7cd710dedf94bcb0756e0d4faa51344cd23f",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/same-first-different-tail-priority-flipped-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\same-first-different-tail-priority-flipped-52.xlsm",
+    "native_sha256": "eb8be695be66d78f64e9fecbc3463f94a6ae5aba43d7f368b583650da42a3acf",
+    "fixture_sha256": "f7f29af57bdaf10cb408c04a2bac6ac69a74264d83adb4d96308b0a4646eebed",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/same-start-shorter-bottom-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\same-start-shorter-bottom-52.xlsm",
+    "native_sha256": "f117a483c0d61814c188fcf925cef8b62d5bfb4a09ccae24befe36009fd5674a",
+    "fixture_sha256": "a1410bcaa674d73221e039363537e7fe9be42343f71d1f1be6afdf49cdf11239",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/short-first-priority-reversed-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\prefix-native-samples\\short-first-priority-reversed-52.xlsm",
+    "native_sha256": "3ae9cdcf5352e1a61752fb8d064c907459d72b5d320c898856a9835ece0ef248",
+    "fixture_sha256": "cdd6dd5f140e6beac514c8eda0c05f8d45aa773aa3f68ca967af27ce00cfae33",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/stat-generic-low-far-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\same-column-native-samples\\stat-generic-low-far-52.xlsm",
+    "native_sha256": "7b1f9215ba20eb2c6af4802868a33cc8ad7bd6e5a7950cf849560f052d8aedab",
+    "fixture_sha256": "dfe3de632f0c577d29830a16608070f0cfbee03cef74e0bf939b5a0c84163452",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/statistical-ordered-tail-permutation-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\tail-tie-native-samples\\statistical-ordered-tail-permutation-52.xlsm",
+    "native_sha256": "cbf3842248711a602e129fc778b00d9f6c61c889f7a2c9e67ef637dcddbc7559",
+    "fixture_sha256": "35af8b0e4b17fc6495cd1dc87944300e1e8afbb31f6c8d6ec4af3ea376236d40",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/three-crosssheet.xlsm": {
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\three-crosssheet.xlsm",
+    "native_sha256": "4bc14f67608b9411ffbee2447dc38794e1fbfc69b30d9a9b4d42fbe3f3d235a5",
+    "fixture_sha256": "c4757838ddcf4d3db94dc0d355889b0bc2d3232bb094cea8d5b240353b267ce6",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/three-mixed-clipped.xlsm": {
+    "native_path": "F:\\GitHub\\pyOpenVBA\\.cache\\next-cf-multiple-samples\\three-mixed-clipped.xlsm",
+    "native_sha256": "c54119c8bc95d6effbe5e2412e735ec6bb145b37a3f0baccd337894470393f56",
+    "fixture_sha256": "0d512dd235d004ae77d4a808810bf96e4d5f45649815741650fb8501b55144db",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/union-first-interval-not-bounding-52.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-multiple\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\interval-key-native-samples\\union-first-interval-not-bounding-52.xlsm",
+    "native_sha256": "de677f5079f4ee3596df636ba4e0be4858bf1bb1853c49747f583571ad33c232",
+    "fixture_sha256": "b07c3b341be32a4ce9e6f3cdde9eff7b520477e60af93c4e04a515506f7cfe1b",
+    "derivation": "Native input with VBA parts and their relationships/content-type entries removed; workbook format52 content type, workbook, worksheets and styles unchanged.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ],
+    "separate_native_mode": true
+  },
+  "novba52/three-reverse-areas-novba.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\three-reverse-areas-original.xlsm",
+    "fixture_sha256": "bc8f82fc5dbda07d4ed11da35eefd310d1d1d88686b365b4fade0677648724df",
+    "native_sha256": "56bb1b876fc57bb05f6971959825012dd59c07eb34ebbf2c1801e549d8192cf0",
+    "separate_native_mode": true,
+    "derivation": "Native macro-bearing52 input stripped only VBA parts/relationships/content-type entries; all worksheet/style/workbook bytes retained.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ]
+  },
+  "novba52/two-reverse-areas-novba.xlsm": {
+    "native_path": "C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\two-reverse-areas-original.xlsm",
+    "fixture_sha256": "3dcfdab6e49439d93b9ec546dfa213b400ea6f6d82e66c92b6c9cb7b3a479aef",
+    "native_sha256": "609971d89a3d7c588b79fd7728db797ff5396e7b29414e6cf18d059ad4a87806",
+    "separate_native_mode": true,
+    "derivation": "Native macro-bearing52 input stripped only VBA parts/relationships/content-type entries; all worksheet/style/workbook bytes retained.",
+    "removed_parts": [
+      "xl/vbaProject.bin"
+    ],
+    "rewritten_package_metadata": [
+      "[Content_Types].xml",
+      "xl/_rels/workbook.xml.rels"
+    ]
+  }
+}

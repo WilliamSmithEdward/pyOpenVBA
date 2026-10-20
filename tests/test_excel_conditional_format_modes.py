@@ -62,18 +62,29 @@ def test_native_format_loading_projects_only_macro_free_areas_without_dirtying(
 
 
 @pytest.mark.parametrize('case', CASES, ids=lambda case: case['name'])
+@pytest.mark.parametrize('inspection_vba', [False, True], ids=['without-vba-project', 'with-inspection-vba'])
 def test_native_macro_free_to_enabled_conversion_serializes_loaded_order_only(
-        case: dict[str, Any], tmp_path: Path) -> None:
+        case: dict[str, Any], inspection_vba: bool, tmp_path: Path) -> None:
     app = ExcelApplication.open(ROOT / case['file'], with_vba=False)
     book = app.workbook
     before = untouched(book)
-    result = app.save(tmp_path / 'converted.xlsm')
     native = next(record for record in CONVERSIONS if record['name'] == case['name'])
+    # The native conversion contained its inspection project before SaveAs52.
+    # Independently measured no-VBA52 controls retain the plain load mode; the
+    # extension/format code alone does not establish a VBA-enabled load.
+    with ZipFile(ROOT / native['file']) as archive:
+        assert 'xl/vbaProject.bin' in archive.namelist()
+    if inspection_vba:
+        app.add_module(native['inspection_source'], name='NativeInspection')
+    result = app.save(tmp_path / 'converted.xlsm')
+    with ZipFile(result) as archive:
+        assert ('xl/vbaProject.bin' in archive.namelist()) is inspection_vba
     assert geometry(result) == geometry(ROOT / native['file'])
     assert untouched(book) == before
     assert workbook_format(book) == 52
     reopened = ExcelApplication.open(result, with_vba=False)
-    assert all(not rule.imported for sheet in reopened.workbook.sheets_ for rule in sheet.conditional_formats)
+    assert all(rule.imported is (not inspection_vba) and rule.plain_load is (not inspection_vba)
+               for sheet in reopened.workbook.sheets_ for rule in sheet.conditional_formats)
     reopened.add_module(native['inspection_source'], name='NativeInspection')
     assert reopened.run('Snapshot') == native['reopened']
 

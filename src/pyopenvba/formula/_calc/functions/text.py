@@ -15,9 +15,11 @@ import re
 from decimal import ROUND_HALF_UP
 from urllib.parse import quote
 
+from pyopenvba.formula._calc.cells import CellError, UnsupportedFormulaError
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.arithmetic import rounded
 from pyopenvba.formula._calc.functions.common import matrix
+from pyopenvba.formula._calc.host import format_value
 from pyopenvba.formula._calc.registry import A, R, V, function
 from pyopenvba.formula._calc.values import (
     MAX_TEXT,
@@ -32,9 +34,6 @@ from pyopenvba.formula._calc.values import (
     scalar_text,
     text_to_number,
 )
-from pyopenvba.formula._calc.host import format_value
-from pyopenvba.formula._calc.cells import CellError
-from pyopenvba.formula._calc.cells import UnsupportedFormulaError
 
 
 def _length(context: Context, value: Scalar | None, default: int) -> int:
@@ -53,14 +52,33 @@ def _checked(text: str) -> str:
     return text
 
 
+def _unicode_text(context: Context, value: Scalar) -> str:
+    """Modern worksheet text functions see a valid VBA surrogate pair as one character."""
+    text = context.text(value)
+    if any('\ud800' <= char <= '\udfff' for char in text):
+        return text.encode('utf-16-le', 'surrogatepass').decode('utf-16-le', 'surrogatepass')
+    return text
+
+
+def _utf16_units(text: str) -> str:
+    encoded = text.encode('utf-16-le', 'surrogatepass')
+    return ''.join(chr(encoded[index] | encoded[index + 1] << 8) for index in range(0, len(encoded), 2))
+
+
+def _search_case(text: str) -> str:
+    # Unlike re.IGNORECASE, native SEARCH does not equate I with dotless or
+    # dotted I; case conversion also must not expand a unit into two.
+    return ''.join(lower if len(lower := char.lower()) == 1 else char for char in text)
+
+
 @function("LEFT", V, V, minimum=1)
 def LEFT(context: Context, text: Scalar, count: Scalar | None = None) -> Value:
-    return context.text(text)[: _length(context, count, 1)]
+    return _unicode_text(context, text)[: _length(context, count, 1)]
 
 
 @function("RIGHT", V, V, minimum=1)
 def RIGHT(context: Context, text: Scalar, count: Scalar | None = None) -> Value:
-    source = context.text(text)
+    source = _unicode_text(context, text)
     length = _length(context, count, 1)
     # A count past the text's length is the whole text: RIGHT("abc",5) is abc (tests/fixtures/formula/).
     return source[max(len(source) - length, 0) :] if length else ""
@@ -68,7 +86,7 @@ def RIGHT(context: Context, text: Scalar, count: Scalar | None = None) -> Value:
 
 @function("MID", V, V, V)
 def MID(context: Context, text: Scalar, start: Scalar, count: Scalar) -> Value:
-    source = context.text(text)
+    source = _unicode_text(context, text)
     first = context.number(start)
     if first < 1:
         return VALUE
@@ -79,7 +97,7 @@ def MID(context: Context, text: Scalar, start: Scalar, count: Scalar) -> Value:
 
 @function("LEN", V)
 def LEN(context: Context, text: Scalar) -> Value:
-    return float(len(context.text(text)))
+    return float(len(_unicode_text(context, text)))
 
 
 @function("UPPER", V)
@@ -135,27 +153,62 @@ def FIND(context: Context, find: Scalar, within: Scalar, start: Scalar | None = 
     return VALUE if found < 0 else float(found + 1)
 
 
-def _search_pattern(needle: str) -> re.Pattern[str]:
-    parts: list[str] = []
+def _search_position(needle: str, haystack: str, begin: int) -> int | None:
+    """Leftmost glob substring in O(pattern * text) time, without backtracking."""
+    tokens: list[tuple[str, str]] = []
     index = 0
     while index < len(needle):
         char = needle[index]
         if char == "~" and index + 1 < len(needle) and needle[index + 1] in "*?~":
-            parts.append(re.escape(needle[index + 1]))
+            tokens.append(('literal', needle[index + 1]))
             index += 2
             continue
-        parts.append(".*?" if char == "*" else "." if char == "?" else re.escape(char))
+        if char == '*':
+            if not tokens or tokens[-1][0] != 'star':
+                tokens.append(('star', ''))
+        elif char == '?':
+            tokens.append(('one', ''))
+        else:
+            tokens.append(('literal', char))
         index += 1
-    return re.compile("".join(parts), re.IGNORECASE | re.DOTALL)
+    if all(kind == 'literal' for kind, _ in tokens):
+        found = haystack.find(''.join(char for _, char in tokens), begin)
+        return None if found < 0 else found
+    length = len(haystack)
+    if len(tokens) * (length + 1) > 8_000_000:
+        raise UnsupportedFormulaError('SEARCH wildcard matching beyond 8,000,000 evaluation states is not implemented')
+    starts = [-1] * (length + 1)
+    starts[begin:] = range(begin, length + 1)
+    for kind, char in tokens:
+        placed = [-1] * (length + 1)
+        if kind == 'star':
+            earliest = -1
+            for end, origin in enumerate(starts):
+                if origin >= 0 and (earliest < 0 or origin < earliest):
+                    earliest = origin
+                placed[end] = earliest
+        else:
+            for end, origin in enumerate(starts):
+                if origin >= 0 and end < length and (kind == 'one' or haystack[end] == char):
+                    placed[end + 1] = origin
+        starts = placed
+        if not any(origin >= 0 for origin in starts):
+            return None
+    return min((origin for origin in starts if origin >= 0), default=None)
 
 
 @function("SEARCH", V, V, V, minimum=2)
 def SEARCH(context: Context, find: Scalar, within: Scalar, start: Scalar | None = None) -> Value:
-    needle = context.text(find)
-    haystack = context.text(within)
+    needle = _unicode_text(context, find)
+    haystack = _unicode_text(context, within)
     begin = _start(context, start, haystack)
-    found = _search_pattern(needle).search(haystack, begin)
-    return VALUE if found is None else float(found.start() + 1)
+    unit_haystack = _search_case(_utf16_units(haystack))
+    unit_begin = len(haystack[:begin].encode('utf-16-le', 'surrogatepass')) // 2
+    found = _search_position(_search_case(_utf16_units(needle)), unit_haystack, unit_begin)
+    if found is None:
+        return VALUE
+    prefix = unit_haystack[:found].encode('utf-16-le', 'surrogatepass')
+    return float(len(prefix.decode('utf-16-le', 'surrogatepass')) + 1)
 
 
 @function("SUBSTITUTE", V, V, V, V, minimum=3)

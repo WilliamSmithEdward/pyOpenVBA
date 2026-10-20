@@ -1,0 +1,194 @@
+{
+  "measured_at": "2026-10-20T19:42:15.820061+00:00",
+  "instrumentation": "none; line_numbers=False; ASCII+ChrW values",
+  "typed_population": [
+    123,
+    "True",
+    "DateSerial(2025,1,1)",
+    "CCur(12.5)",
+    "text:alpha",
+    null,
+    "formula:=\"\"",
+    "CVErr(2042)",
+    "text:   ",
+    "vbTab",
+    "ChrW(160)",
+    "\"a\" & ChrW(34) & \"b\"",
+    "text:a*b",
+    "text:xa*",
+    "text:_x0041_",
+    "ChrW(&HD83D) & ChrW(&HDE00) & \"x\"",
+    "text:123",
+    "False"
+  ],
+  "unicode_population": [
+    "\"I\"",
+    "\"i\"",
+    "ChrW(305)",
+    "ChrW(304)",
+    "ChrW(223)",
+    "\"SS\"",
+    "ChrW(233)",
+    "\"e\" & ChrW(769)",
+    "ChrW(&HD83D) & ChrW(&HDE00)",
+    "ChrW(&HD83D) & ChrW(&HDE00) & \"x\""
+  ],
+  "probes": [
+    {
+      "name": "typed-one-0",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"1\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100100000000001010"
+    },
+    {
+      "name": "typed-one-1",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"1\",TextOperator:=1)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "011011111111110101"
+    },
+    {
+      "name": "typed-one-2",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"1\",TextOperator:=2)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "100100000000000010"
+    },
+    {
+      "name": "typed-one-3",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"1\",TextOperator:=3)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000000000000000000"
+    },
+    {
+      "name": "typed-true-0",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"TRUE\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "010000000000000000"
+    },
+    {
+      "name": "typed-true-1",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"TRUE\",TextOperator:=1)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "101111111111111111"
+    },
+    {
+      "name": "typed-true-2",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"TRUE\",TextOperator:=2)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "010000000000000000"
+    },
+    {
+      "name": "typed-true-3",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"TRUE\",TextOperator:=3)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "010000000000000000"
+    },
+    {
+      "name": "typed-wildcard-0",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"a*\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000010000001110001"
+    },
+    {
+      "name": "typed-wildcard-1",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"a*\",TextOperator:=1)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111101111110001110"
+    },
+    {
+      "name": "typed-wildcard-2",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"a*\",TextOperator:=2)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000000000000100000"
+    },
+    {
+      "name": "typed-wildcard-3",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"a*\",TextOperator:=3)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000000000000010000"
+    },
+    {
+      "name": "presence-10",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(10)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000001101000000000"
+    },
+    {
+      "name": "presence-13",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(13)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111110010111111111"
+    },
+    {
+      "name": "presence-16",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(16)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000000010000000000"
+    },
+    {
+      "name": "presence-17",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(17)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "111111101111111111"
+    },
+    {
+      "name": "typed-quote",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"a\" & ChrW(34) & \"b\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "000000000001000000"
+    },
+    {
+      "name": "unicode-I-0",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=\"I\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1100000000"
+    },
+    {
+      "name": "unicode-I-1",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=\"I\",TextOperator:=1)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0011111111"
+    },
+    {
+      "name": "unicode-I-2",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=\"I\",TextOperator:=2)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1100000000"
+    },
+    {
+      "name": "unicode-I-3",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=\"I\",TextOperator:=3)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1100000000"
+    },
+    {
+      "name": "unicode-eszett-0",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(223),TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000100000"
+    },
+    {
+      "name": "unicode-eszett-1",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(223),TextOperator:=1)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1111011111"
+    },
+    {
+      "name": "unicode-eszett-2",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(223),TextOperator:=2)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000100000"
+    },
+    {
+      "name": "unicode-eszett-3",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(223),TextOperator:=3)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000100000"
+    },
+    {
+      "name": "unicode-accent-0",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(233),TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000001000"
+    },
+    {
+      "name": "unicode-accent-1",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(233),TextOperator:=1)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1111110111"
+    },
+    {
+      "name": "unicode-accent-2",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(233),TextOperator:=2)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000001000"
+    },
+    {
+      "name": "unicode-accent-3",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=ChrW(233),TextOperator:=3)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000001000"
+    },
+    {
+      "name": "unicode-search-1",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=\"?\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "1111111111"
+    },
+    {
+      "name": "unicode-search-2",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=\"I\"\nRange(\"A2\").Value=\"i\"\nRange(\"A3\").Value=ChrW(305)\nRange(\"A4\").Value=ChrW(304)\nRange(\"A5\").Value=ChrW(223)\nRange(\"A6\").Value=\"SS\"\nRange(\"A7\").Value=ChrW(233)\nRange(\"A8\").Value=\"e\" & ChrW(769)\nRange(\"A9\").Value=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A10\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nSet f=Range(\"A1:A10\").FormatConditions.Add(Type:=9,String:=\"??\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A10\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "result": "0000010111"
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

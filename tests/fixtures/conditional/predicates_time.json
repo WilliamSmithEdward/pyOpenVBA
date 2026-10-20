@@ -1,0 +1,133 @@
+{
+  "measured_at": "2026-10-20T19:42:25.750756+00:00",
+  "instrumentation": "none; line_numbers=False; calendar-relative intervals keep expected bits stable",
+  "probes": [
+    {
+      "name": "time-boundary-0",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=Date:b=Date+1\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:26",
+      "file": "native/predicate-time-boundary-0.xlsx"
+    },
+    {
+      "name": "time-boundary-1",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=Date-1:b=Date\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=1)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:26",
+      "file": "native/predicate-time-boundary-1.xlsx"
+    },
+    {
+      "name": "time-boundary-2",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=Date-6:b=Date+1\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=2)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:26",
+      "file": "native/predicate-time-boundary-2.xlsx"
+    },
+    {
+      "name": "time-boundary-3",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=Date-Weekday(Date)+1:b=a+7\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=3)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:27",
+      "file": "native/predicate-time-boundary-3.xlsx"
+    },
+    {
+      "name": "time-boundary-4",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=Date-Weekday(Date)-6:b=a+7\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=4)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:27",
+      "file": "native/predicate-time-boundary-4.xlsx"
+    },
+    {
+      "name": "time-boundary-5",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=DateSerial(Year(Date),Month(Date)-1,1):b=DateSerial(Year(Date),Month(Date),1)\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=5)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:27",
+      "file": "native/predicate-time-boundary-5.xlsx"
+    },
+    {
+      "name": "time-boundary-6",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=Date+1:b=Date+2\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=6)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:28",
+      "file": "native/predicate-time-boundary-6.xlsx"
+    },
+    {
+      "name": "time-boundary-7",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=Date-Weekday(Date)+8:b=a+7\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=7)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:28",
+      "file": "native/predicate-time-boundary-7.xlsx"
+    },
+    {
+      "name": "time-boundary-8",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=DateSerial(Year(Date),Month(Date)+1,1):b=DateSerial(Year(Date),Month(Date)+2,1)\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=8)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:28",
+      "file": "native/predicate-time-boundary-8.xlsx"
+    },
+    {
+      "name": "time-boundary-9",
+      "source": "Function Probe() As String\nDim a As Double,b As Double,f As Object\nOn Error GoTo Failed\na=DateSerial(Year(Date),Month(Date),1):b=DateSerial(Year(Date),Month(Date)+1,1)\nRange(\"A1\").Value2=a-1/86400\nRange(\"A2\").Value2=a\nRange(\"A3\").Value2=a+0.5\nRange(\"A4\").Value2=b-1/86400\nRange(\"A5\").Value2=b\nSet f=Range(\"A1:A5\").FormatConditions.Add(Type:=11,DateOperator:=9)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A5\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A5",
+      "category": "calendar-relative-time",
+      "result": "01110",
+      "native_clock": "2026-10-17|2026-10-17 10:44:29",
+      "file": "native/predicate-time-boundary-9.xlsx"
+    },
+    {
+      "name": "import-typed-wildcard-0",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"a*\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A18",
+      "category": "typed-predicate-import",
+      "result": "000010000001110001",
+      "native_clock": "2026-10-17|2026-10-17 10:44:29",
+      "file": "native/predicate-import-typed-wildcard-0.xlsx"
+    },
+    {
+      "name": "import-typed-quote",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(Type:=9,String:=\"a\" & ChrW(34) & \"b\",TextOperator:=0)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A18",
+      "category": "typed-predicate-import",
+      "result": "000000000001000000",
+      "native_clock": "2026-10-17|2026-10-17 10:44:29",
+      "file": "native/predicate-import-typed-quote.xlsx"
+    },
+    {
+      "name": "import-presence-10",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(10)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A18",
+      "category": "typed-predicate-import",
+      "result": "000001101000000000",
+      "native_clock": "2026-10-17|2026-10-17 10:44:29",
+      "file": "native/predicate-import-presence-10.xlsx"
+    },
+    {
+      "name": "import-presence-16",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nRange(\"A1\").Value=123\nRange(\"A2\").Value=True\nRange(\"A3\").Value=DateSerial(2025,1,1)\nRange(\"A4\").Value=CCur(12.5)\nRange(\"A5\").NumberFormat=\"@\"\nRange(\"A5\").Value=\"alpha\"\nRange(\"A7\").Formula=\"=\"\"\"\"\"\nRange(\"A8\").Value=CVErr(2042)\nRange(\"A9\").NumberFormat=\"@\"\nRange(\"A9\").Value=\"   \"\nRange(\"A10\").Value=vbTab\nRange(\"A11\").Value=ChrW(160)\nRange(\"A12\").Value=\"a\" & ChrW(34) & \"b\"\nRange(\"A13\").NumberFormat=\"@\"\nRange(\"A13\").Value=\"a*b\"\nRange(\"A14\").NumberFormat=\"@\"\nRange(\"A14\").Value=\"xa*\"\nRange(\"A15\").NumberFormat=\"@\"\nRange(\"A15\").Value=\"_x0041_\"\nRange(\"A16\").Value=ChrW(&HD83D) & ChrW(&HDE00) & \"x\"\nRange(\"A17\").NumberFormat=\"@\"\nRange(\"A17\").Value=\"123\"\nRange(\"A18\").Value=False\nRange(\"A4\").NumberFormat=\"$0.00\"\nSet f=Range(\"A1:A18\").FormatConditions.Add(16)\nf.Font.Bold=True\nApplication.CalculateFull\nProbe=Bits(Range(\"A1:A18\"))\nExit Function\nFailed:\nProbe=\"ERR:\" & CStr(Err.Number)\nEnd Function\nFunction Bits(r As Range) As String\nDim c As Range\nFor Each c In r.Cells\nIf c.DisplayFormat.Font.Bold Then\nBits=Bits & \"1\"\nElse\nBits=Bits & \"0\"\nEnd If\nNext\nEnd Function",
+      "inspection_target": "A1:A18",
+      "category": "typed-predicate-import",
+      "result": "000000010000000000",
+      "native_clock": "2026-10-17|2026-10-17 10:44:30",
+      "file": "native/predicate-import-presence-16.xlsx"
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

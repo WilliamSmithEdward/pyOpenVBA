@@ -1,4 +1,4 @@
-"""Evaluate ordinary conditional rules without changing cells or their formats."""
+"""Evaluate conditional rules without changing cells or their formats."""
 from __future__ import annotations
 
 from dataclasses import replace
@@ -10,6 +10,7 @@ from pyopenvba.apps.excel._differential import read_color
 from pyopenvba.apps.excel._engine_book import scalar
 from pyopenvba.apps.excel._xstring import decode
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
 from pyopenvba.formula._calc.values import ExcelError, Scalar
@@ -18,6 +19,10 @@ from pyopenvba.formula._parse import FormulaError, shift_text
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Worksheet
+
+FORMULA_PREDICATES = frozenset(('containsText', 'notContainsText', 'beginsWith', 'endsWith',
+                              'containsBlanks', 'notContainsBlanks', 'containsErrors', 'notContainsErrors',
+                              'timePeriod'))
 
 
 def _matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
@@ -36,13 +41,17 @@ def _matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
         from pyopenvba.apps.excel._conditional_stats import matches
 
         return matches(sheet, rule, row, column)
-    if kind not in ('expression', 'cellIs'):
+    if kind not in FORMULA_PREDICATES and kind not in ('expression', 'cellIs'):
         raise VBAUnsupportedError(f'Display evaluation of conditional rule {kind!r} is not implemented')
     try:
         if not formulas:
             return False
+        # Native notContainsBlanks paints error cells even though its stored
+        # LEN(TRIM(...))>0 compatibility formula would itself return an error.
+        if kind == 'notContainsBlanks' and isinstance(scalar(calculator.value_of(sheet.name, row, column)), CellError):
+            return True
         first = evaluated(formulas[0])
-        if kind == 'expression':
+        if kind != 'cellIs':
             return context.logical(first)
         value = scalar(calculator.value_of(sheet.name, row, column))
         operator = rule.root.get('operator', '')

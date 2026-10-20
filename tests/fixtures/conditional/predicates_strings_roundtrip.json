@@ -1,0 +1,110 @@
+{
+  "measured_at": "2026-10-20T19:42:23.348922+00:00",
+  "instrumentation": "none; line_numbers=False; ASCII+ChrW source",
+  "probes": [
+    {
+      "name": "len253",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nSet f=Range(\"K3:K8\").FormatConditions.Add(Type:=9,String:=String(253,\"a\"),TextOperator:=0)\nProbe=S(f)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=253,97,97,97,97,97,97,97,97,97,97,97,97,97,97,97:err0;formula=281,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-len253.xlsx",
+      "phase": "before-save"
+    },
+    {
+      "name": "len254",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nSet f=Range(\"K3:K8\").FormatConditions.Add(Type:=9,String:=String(254,\"a\"),TextOperator:=0)\nProbe=S(f)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=254,97,97,97,97,97,97,97,97,97,97,97,97,97,97,97:err0;formula=282,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-len254.xlsx",
+      "phase": "before-save"
+    },
+    {
+      "name": "len255-final",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nSet f=Range(\"K3:K8\").FormatConditions.Add(Type:=9,String:=String(254,\"a\") & \"z\",TextOperator:=0)\nProbe=S(f)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=254,97,97,97,97,97,97,97,97,97,97,97,97,97,97,97:err0;formula=282,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-len255-final.xlsx",
+      "phase": "before-save"
+    },
+    {
+      "name": "len255-emoji",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nSet f=Range(\"K3:K8\").FormatConditions.Add(Type:=9,String:=String(253,\"a\") & ChrW(&HD83D) & ChrW(&HDE00),TextOperator:=0)\nProbe=S(f)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=254,97,97,97,97,97,97,97,97,97,97,97,97,97,97,-10179:err0;formula=282,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-len255-emoji.xlsx",
+      "phase": "before-save"
+    },
+    {
+      "name": "high-surrogate",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nSet f=Range(\"K3:K8\").FormatConditions.Add(Type:=9,String:=ChrW(&HD83D),TextOperator:=0)\nProbe=S(f)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=1,-10179:err0;formula=29,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-high-surrogate.xlsx",
+      "phase": "before-save"
+    },
+    {
+      "name": "low-surrogate",
+      "source": "Function Probe() As String\nDim f As Object\nOn Error GoTo Failed\nSet f=Range(\"K3:K8\").FormatConditions.Add(Type:=9,String:=ChrW(&HDE00),TextOperator:=0)\nProbe=S(f)\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=1,-8704:err0;formula=29,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-low-surrogate.xlsx",
+      "phase": "before-save"
+    },
+    {
+      "name": "reopen-add-literal-escape",
+      "source": "Function Probe() As String\nDim f As Object\nSet f=Worksheets(1).Range(\"K3\").FormatConditions(1)\nProbe=S(f)\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=7,95,120,48,48,52,49,95:err0;formula=35,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-add-literal-escape.xlsx",
+      "phase": "after-native-save-reopen"
+    },
+    {
+      "name": "reopen-add-nul",
+      "result": "NATIVE-OPEN-ERROR",
+      "phase": "after-native-save-reopen",
+      "diagnostic": "open_document: open workbook: HRESULT 0x80020009; Open method of Workbooks class failed; source=Microsoft Excel; scode=0x800A03EC",
+      "native_file_name": "add-nul.xlsx"
+    },
+    {
+      "name": "reopen-add-crlf",
+      "source": "Function Probe() As String\nDim f As Object\nSet f=Worksheets(1).Range(\"K3\").FormatConditions(1)\nProbe=S(f)\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=3,97,10,98:err0;formula=32,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-add-crlf.xlsx",
+      "phase": "after-native-save-reopen"
+    },
+    {
+      "name": "reopen-add-emoji",
+      "source": "Function Probe() As String\nDim f As Object\nSet f=Worksheets(1).Range(\"K3\").FormatConditions(1)\nProbe=S(f)\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=2,-10179,-8704:err0;formula=30,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-add-emoji.xlsx",
+      "phase": "after-native-save-reopen"
+    },
+    {
+      "name": "reopen-boundary-high-surrogate",
+      "source": "Function Probe() As String\nDim f As Object\nSet f=Worksheets(1).Range(\"K3\").FormatConditions(1)\nProbe=S(f)\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=0:err0;formula=29,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-high-surrogate.xlsx",
+      "phase": "after-native-save-reopen"
+    },
+    {
+      "name": "reopen-boundary-low-surrogate",
+      "source": "Function Probe() As String\nDim f As Object\nSet f=Worksheets(1).Range(\"K3\").FormatConditions(1)\nProbe=S(f)\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=0:err0;formula=29,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-low-surrogate.xlsx",
+      "phase": "after-native-save-reopen"
+    },
+    {
+      "name": "reopen-boundary-len255-final",
+      "source": "Function Probe() As String\nDim f As Object\nSet f=Worksheets(1).Range(\"K3\").FormatConditions(1)\nProbe=S(f)\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=254,97,97,97,97,97,97,97,97,97,97,97,97,97,97,97:err0;formula=282,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-len255-final.xlsx",
+      "phase": "after-native-save-reopen"
+    },
+    {
+      "name": "reopen-boundary-len255-emoji",
+      "source": "Function Probe() As String\nDim f As Object\nSet f=Worksheets(1).Range(\"K3\").FormatConditions(1)\nProbe=S(f)\nEnd Function\nFunction Units(v As String) As String\nDim i As Long\nUnits=CStr(Len(v))\nFor i=1 To Len(v)\nIf i<=12 Or i>Len(v)-3 Then Units=Units & \",\" & CStr(AscW(Mid(v,i,1)))\nNext\nEnd Function\nFunction S(f As Object) As String\nOn Error GoTo Failed\nS=\"type=\" & f.Type & \";op=\"\nOn Error Resume Next\nErr.Clear\nS=S & CStr(f.TextOperator) & \":err\" & Err.Number\nErr.Clear\nS=S & \";text=\" & Units(f.Text) & \":err\" & Err.Number\nErr.Clear\nS=S & \";formula=\" & Units(f.Formula1) & \":err\" & Err.Number\nS=S & \";priority=\" & f.Priority & \";stop=\" & f.StopIfTrue\nExit Function\nFailed:\nS=\"ERR:\" & Err.Number\nEnd Function",
+      "result": "type=9;op=0:err0;text=253,97,97,97,97,97,97,97,97,97,97,97,97,97,97,97:err0;formula=282,61,78,79,84,40,73,83,69,82,82,79,82,41,41,41:err0;priority=1;stop=True",
+      "file": "native/predicate-string-boundary-len255-emoji.xlsx",
+      "phase": "after-native-save-reopen"
+    },
+    {
+      "name": "search-offsets",
+      "source": "Function Probe() As String\nDim u As String,x As Variant\nu=ChrW(&HD83D) & ChrW(&HDE00)\nRange(\"A1\").Value=u & \"x\"\nProbe=\"x=\" & CStr(Application.Evaluate(\"SEARCH(\"\"x\"\",A1)\"))\nProbe=Probe & \"|q1s2=\" & CStr(Application.Evaluate(\"SEARCH(\"\"?\"\",A1,2)\"))\nProbe=Probe & \"|q2s2=\" & CStr(Application.Evaluate(\"SEARCH(\"\"??\"\",A1,2)\"))\nRange(\"A1\").Value=\"a\" & u & \"x\"\nProbe=Probe & \"|q2s2b=\" & CStr(Application.Evaluate(\"SEARCH(\"\"??\"\",A1,2)\"))\nEnd Function",
+      "result": "x=2|q1s2=2|q2s2=Error 2015|q2s2b=2"
+    }
+  ],
+  "excel_version_build": "16.0|20430"
+}

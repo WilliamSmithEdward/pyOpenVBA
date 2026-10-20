@@ -51,7 +51,7 @@ def test_conditional_roundtrip(case: dict[str, Any], tmp_path: Path) -> None:
     app.add_module(case['source'], name='Harness')
     assert app.run('Probe') == case['result']
     app.add_module(SAVED_SOURCE, name='Saved')
-    expected = case.get('saved_result', app.run('SavedRules'))
+    expected = case.get('saved_result52', case.get('saved_result', app.run('SavedRules')))
     reopened = ExcelApplication.open(app.save(tmp_path / 'rules.xlsm'))
     assert reopened.run('SavedRules') == expected
 
@@ -139,7 +139,7 @@ def test_saved_rules_read_by_native_excel(case: dict[str, Any], tmp_path: Path, 
     app.add_module(case['source'], name='Harness')
     assert app.run('Probe') == case['result']
     app.add_module(SAVED_SOURCE, name='Saved')
-    expected = case.get('saved_result', app.run('SavedRules'))
+    expected = case.get('saved_result52', case.get('saved_result', app.run('SavedRules')))
     path = app.save(tmp_path / 'rules.xlsm')
     native_excel.open_document(path)
     assert native_excel.run_raw('Saved.SavedRules') == expected

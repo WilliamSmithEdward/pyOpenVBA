@@ -30,7 +30,7 @@ is a percentage of working macros or complete functionality.
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
-| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Native controls cover typed populations, ties, criteria, relative formulas, priorities, copying and persistence. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Color scales, bars, icon sets, pivot scopes and affected range transfers/structural edits remain incomplete. |
+| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support a single incoming rule within one workbook. Overlapping, tiled, transposed, multi-rule and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts and AutoFilter operations. Advanced criteria, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
@@ -145,8 +145,8 @@ uses conditional number formats, while native DisplayFormat.NumberFormat reports
 the base format. Reversed Between bounds and color-only conditional borders have
 native controls. Displayed reads over more than 1,048,576 conditional cells are
 explicitly unsupported. Color scales, data bars, icon sets, other advanced rule
-families, range copy/paste and structural edits still need work. Affected
-format-bearing transfers and structural edits are rejected before mutation;
+families and structural edits still need work. Transfers outside the measured
+copy/paste scope below and affected structural edits are rejected before mutation;
 value-only pastes preserve the rules. Recursive UDF-driven display reads still
 need auditing. See
 [rule tests](../../tests/test_excel_conditional.py),
@@ -178,7 +178,7 @@ See [API tests](../../tests/test_excel_conditional_statistics.py),
 
 Text, blank, error and time-period conditional rules share the existing lifecycle,
 differential styles, displayed formatting and worksheet-copy paths. Generated
-compatibility formulas use the first applicability area as their anchor and are
+compatibility formulas use the bounding top-left applicability corner as their anchor and are
 rebuilt when attribute-driven rules move. Ordinary expression formulas retain
 their separate behavior. Calendar-relative native controls cover all ten date
 periods, fractional-day boundaries, Sunday-based weeks and adjacent-month boundaries;
@@ -219,6 +219,61 @@ conditional-UDF partial rendering is still incomplete; its separate raw native
 control is retained without claiming conformance. See the
 [UDF native regressions](../../tests/test_excel_conditional_udf.py) and
 [calculation-context tests](../../tests/test_excel_conditional_udf_context.py).
+
+Conditional-format range transfers have **13 native controls** covering
+`Range.Copy Destination`, `Worksheet.Paste` and `PasteSpecial` with all or formats.
+The measured scope is a disjoint rectangular source and landing in one workbook,
+with at most one incoming rule; that rule may cover multiple areas. Copies clip
+its applicability, shift its formula from the original rule anchor and give it
+an independent differential style. Destination rules lose the entire landing
+area, including positions without a source rule. New rules take priority one;
+retained destination-sheet priorities increase without closing existing gaps.
+Statistical populations remain one rule across copied fragments, and formats
+pastes with `SkipBlanks` retain their full conditional applicability. Independent
+native reopen controls cover both macro-free and macro-enabled workbooks.
+Worksheet UDF attempts return `False` without changing the workbook; ordinary
+macro calls still perform the copy. Overlaps,
+tiling, transposition, multiple incoming rules, merging paste modes, cross-book
+transfers and affected mixed-feature combinations remain guarded. Narrow-column
+`Range.Text` width truncation remains incomplete; these controls use measured
+20-character columns to isolate conditional formatting behavior. See the
+[transfer regressions](../../tests/test_excel_conditional_transfer_core.py) and
+[native transfer/import tests](../../tests/test_excel_conditional_transfer_native.py).
+
+Another **10 native controls** establish conditional-format API projections:
+number-format getters remove measured unnecessary space/hyphen escapes outside
+quoted literals. Macro-free generic rules enumerate applicability areas by row,
+then column; specialized statistical rules retain serialized area order.
+Macro-enabled imports retain serialized order for both families. Runtime-created
+ranges retain their supplied order through a save. Converting a loaded macro-free
+workbook preserves its family-specific order in the resulting macro-enabled file.
+Getter projections preserve stored XML and
+differential styles. Eight additional native controls establish the bounding
+top-left formula anchor for ordinary expression rules over unsorted unions,
+including a bounding corner outside the union. Stored formulas and displayed
+evaluation use that anchor independently of the API's area enumeration order.
+These controls do not establish every number-format spelling or all union-formula
+mutation behavior.
+See the [API projection tests](../../tests/test_excel_conditional_api_projection.py).
+Ten further family controls distinguish generic and statistical area ordering;
+four typed union controls establish bounding anchors for text, blank, error and
+date predicates through rendering and native imports. The
+[format conversion tests](../../tests/test_excel_conditional_format_modes.py)
+also verify that saving does not reorder the current in-memory rule objects. Separate [native XLSM reopen controls](../../tests/fixtures/conditional_api_projection/initial_reopen52.json) preserve raw applicability order for the existing ModifyAppliesToRange and two-dimensional deletion cases.
+
+Statistical-rule border colors have **24 native controls** across active
+sheet changes, priority gaps, reordering, deletion and range copying. Native
+color getters can resolve another sheet's stable creation slot, or raise error
+440 when that slot is absent. The engine reproduces these transient getters
+without changing the rule's stored style, displayed border, line style or
+weight. Additional loaded-group controls distinguish their identities from
+priority and displayed area order. Color assignment creates a thin line when no visible style exists and
+preserves an existing dashed line. Loaded identities follow the file's range
+ordering and restart after persisted deletions. Imported style edits can
+also change native bindings, but their transition rules remain incomplete;
+the raw observations are retained separately from passing controls. Conditional
+border theme/tint setters and broader imported-context behavior still need work.
+See the [border-context regressions](../../tests/test_excel_conditional_border_context.py).
 
 ## Inventory scope and maintenance
 

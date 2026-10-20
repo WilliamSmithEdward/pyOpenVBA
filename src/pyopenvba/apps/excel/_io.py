@@ -119,7 +119,10 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             sheet.validations = read_rules(sheet_xml)
             from pyopenvba.apps.excel._conditional import read_rules as read_conditional_rules
 
-            sheet.conditional_formats = read_conditional_rules(sheet_xml)
+            sheet.conditional_formats = read_conditional_rules(sheet_xml, imported=workbook_format(book) == 51)
+            from pyopenvba.apps.excel._conditional_border_context import initialize
+
+            initialize(sheet)
             read_view(sheet, sheet_xml)
     from pyopenvba.apps.excel._windows import read_book_view
 
@@ -1304,6 +1307,14 @@ def prepare_format(book: Workbook, file_format: int) -> None:
     book.format_code = file_format
     if package is None or previous == file_format:
         return
+    if previous == 51 and file_format == 52:
+        for sheet in book.sheets_:
+            if any(rule.imported for rule in sheet.conditional_formats):
+                # Native writes FileFormat51's loaded area/group order into
+                # the converted macro-enabled package without changing the
+                # current in-memory rule geometry or API projection.
+                sheet.conditional_changed = True
+                sheet.touched()
     if file_format == 51:
         from pyopenvba._package_signature import relationships_part, without_signature
 

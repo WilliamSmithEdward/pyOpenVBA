@@ -1,5 +1,7 @@
-"""Unimplemented CF transfers and structural moves fail before changing a workbook."""
+"""Supported CF transfers persist; deferred moves fail before changing state."""
 from __future__ import annotations
+
+from pathlib import Path
 
 import pytest
 
@@ -58,13 +60,10 @@ def test_unrelated_structural_edits_remain_available(action: str) -> None:
 
 
 @pytest.mark.parametrize('action', [
-    'Range("A1").Copy Range("D1")',
-    'Range("A1").Copy\nRange("D1").PasteSpecial xlPasteFormats',
-    'Range("A1").Copy\nRange("D1").PasteSpecial xlPasteAll',
     'Range("A1").Cut Range("D1")',
     'Range("A1").Cut\nActiveSheet.Paste Range("D1")',
 ])
-def test_format_bearing_transfer_cannot_drop_source_rules(action: str) -> None:
+def test_cut_cannot_drop_source_rules(action: str) -> None:
     app, book = prepare(RULE, action)
     before = state(book)
     with pytest.raises(VBAUnsupportedError, match='conditional formatting'):
@@ -72,13 +71,65 @@ def test_format_bearing_transfer_cannot_drop_source_rules(action: str) -> None:
     assert state(book) == before
 
 
-def test_copy_cannot_overwrite_destination_rule_silently() -> None:
-    app, book = prepare('Range("D1").FormatConditions.Add xlCellValue,xlGreater,5',
-                        'Range("A1").Copy Range("D1")')
-    before = state(book)
-    with pytest.raises(VBAUnsupportedError, match='conditional formatting'):
-        app.run('Action')
-    assert state(book) == before
+@pytest.mark.parametrize(('action', 'value', 'formula'), [
+    ('Range("A1").Copy Range("D1")', '10', '=5+5'),
+    ('Range("A1").Copy\nRange("D1").PasteSpecial xlPasteFormats', '30', '30'),
+    ('Range("A1").Copy\nRange("D1").PasteSpecial xlPasteAll', '10', '=5+5'),
+])
+def test_format_transfer_clones_and_replaces_destination_coverage(
+    action: str, value: str, formula: str, tmp_path: Path,
+) -> None:
+    rules = '''Dim f As Object,g As Object
+Range("A1").Formula="=5+5"
+Set f=Range("A1:A5").FormatConditions.Add(xlExpression,Formula1:="=A1>0")
+f.Font.Bold=True
+f.Interior.Color=vbRed
+f.NumberFormat="0.00"
+f.StopIfTrue=False
+Set g=Range("D1:D3").FormatConditions.Add(xlCellValue,xlGreater,5)
+g.Font.Italic=True
+g.Interior.Color=vbGreen'''
+    app, _ = prepare(rules, action)
+    app.add_module('''Sub ChangeSource()
+Range("A1").FormatConditions(1).Font.Bold=False
+End Sub
+Function InspectTransfer() As String
+Dim f As Object,g As Object,h As Object
+Set f=Range("A1").FormatConditions(1)
+Set g=Range("D1").FormatConditions(1)
+Set h=Range("D2").FormatConditions(1)
+InspectTransfer=CStr(Range("D1").Value2) & "|" & CStr(Range("D1").Formula) & "|" & Cells.FormatConditions.Count
+InspectTransfer=InspectTransfer & "|" & f.AppliesTo.Address & "|" & f.Priority & "|" & f.Formula1
+InspectTransfer=InspectTransfer & "|" & g.AppliesTo.Address & "|" & g.Priority & "|" & g.Formula1
+InspectTransfer=InspectTransfer & "|" & h.AppliesTo.Address & "|" & h.Priority
+InspectTransfer=InspectTransfer & "|" & f.Font.Bold & "|" & g.Font.Bold & "|" & g.Interior.Color & "|" & g.NumberFormat
+InspectTransfer=InspectTransfer & "|" & Range("D1").DisplayFormat.Font.Bold & "|" & Range("D1").Text
+InspectTransfer=InspectTransfer & "|" & Range("D1").Font.Bold & "|" & Range("D1").NumberFormat
+End Function''', name='Inspection')
+    app.run('Action')
+    app.run('ChangeSource')
+    expected = (value + '|' + formula + '|3|$A$1:$A$5|2|=A1>0|$D$1|1|=D1>0|$D$2:$D$3|3'
+                + '|False|True|255|0.00|True|' + value + '.00|False|General')
+    assert app.run('InspectTransfer') == expected
+    reopened = ExcelApplication.open(app.save(tmp_path / 'supported-transfer.xlsm'))
+    assert reopened.run('InspectTransfer') == expected
+
+
+def test_copy_without_source_rule_clears_only_landing_coverage(tmp_path: Path) -> None:
+    app, _ = prepare('Range("A1").Formula="=5+5"\n'
+                     'Range("D1:D3").FormatConditions.Add xlCellValue,xlGreater,5',
+                     'Range("A1").Copy Range("D1")')
+    app.add_module('''Function InspectCleared() As String
+Dim f As Object
+Set f=Range("D2").FormatConditions(1)
+InspectCleared=Range("D1").Value2 & "|" & Range("D1").Formula & "|" & Range("D1").FormatConditions.Count
+InspectCleared=InspectCleared & "|" & Cells.FormatConditions.Count & "|" & f.AppliesTo.Address & "|" & f.Priority & "|" & f.Formula1
+End Function''', name='Inspection')
+    app.run('Action')
+    expected = '10|=5+5|0|1|$D$2:$D$3|1|=5'
+    assert app.run('InspectCleared') == expected
+    reopened = ExcelApplication.open(app.save(tmp_path / 'clear-landing.xlsm'))
+    assert reopened.run('InspectCleared') == expected
 
 
 def test_value_paste_keeps_conditional_rules() -> None:

@@ -45,6 +45,18 @@ def number_format(root: XmlElement, stylesheet: styles.Stylesheet) -> object:
     return EMPTY if entry is None else decode(entry.get('formatCode', ''))
 
 
+def api_number_format(root: XmlElement, stylesheet: styles.Stylesheet) -> object:
+    """The measured getter spelling, without changing the stored differential code."""
+    from pyopenvba.formula._display import tokens
+
+    code = number_format(root, stylesheet)
+    if code is EMPTY:
+        return EMPTY
+    assert isinstance(code, str)
+    return ''.join(text[1:] if kind == 'escaped' and text[1:] in (' ', '-') else text
+                   for kind, text in tokens(code))
+
+
 def set_number_format(root: XmlElement, value: object, stylesheet: styles.Stylesheet) -> None:
     code = to_text(value)
     entry = child(root, 'numFmt')
@@ -89,8 +101,10 @@ def palette(value: object) -> styles.Color:
 
 
 class _Patch(ExcelObject):
-    def __init__(self, root: XmlElement, changed: Callable[[], None], sheet: Worksheet) -> None:
+    def __init__(self, root: XmlElement, changed: Callable[[], None], sheet: Worksheet,
+                 *, color_source: Callable[[], XmlElement] | None = None) -> None:
         self.root, self.changed, self.sheet = root, changed, sheet
+        self.color_source = color_source
 
     def guard_set(self, member: str) -> None:
         protection = self.sheet.protection
@@ -288,21 +302,32 @@ class ConditionalInterior(_Patch):
 class ConditionalBorder(_Patch):
     vba_type_name = 'Border'
 
-    def __init__(self, root: XmlElement, changed: Callable[[], None], sheet: Worksheet, index: int) -> None:
-        super().__init__(root, changed, sheet)
+    def __init__(self, root: XmlElement, changed: Callable[[], None], sheet: Worksheet, index: int,
+                 *, color_source: Callable[[], XmlElement] | None = None) -> None:
+        super().__init__(root, changed, sheet, color_source=color_source)
         self.index = index
 
-    def side(self, create: bool = False) -> XmlElement | None:
+    def side(self, create: bool = False, *, root: XmlElement | None = None) -> XmlElement | None:
         index = LEGACY_SIDES.get(self.index, self.index)
         name = SIDES.get(index, {5: 'diagonal', 6: 'diagonal', 11: 'vertical', 12: 'horizontal'}.get(index, ''))
         if not name:
             raise error(1004)
-        border = child(self.root, 'border') if create else self.root.find(NS + 'border')
+        selected = self.root if root is None else root
+        border = child(selected, 'border') if create else selected.find(NS + 'border')
         return None if border is None else child(border, name) if create else border.find(NS + name)
 
     def read(self, what: str) -> object:
-        side = self.side()
+        colored = what in ('Color', 'ColorIndex', 'TintAndShade', 'ThemeColor')
+        side = self.side(root=self.color_source()) if colored and self.color_source is not None else self.side()
         color = read_color(None if side is None else side.find(NS + 'color'))
+        if what in ('TintAndShade', 'ThemeColor'):
+            if color is None:
+                return NULL
+            if what == 'TintAndShade':
+                return color.tint / styles.TINT_SCALE
+            if color.kind != 'theme':
+                raise error(5)
+            return VBAInt(int(color.value) + 1, 'Long')
         if what in ('Color', 'ColorIndex'):
             if color is not None:
                 return self.color_answer(color, what == 'ColorIndex')
@@ -310,7 +335,7 @@ class ConditionalBorder(_Patch):
             return VBAInt(styles.XL_AUTOMATIC if active else styles.XL_NONE, 'Long') if what == 'ColorIndex' else 0.0
         if self.index not in LEGACY_SIDES:
             raise error(1004)
-        style = '' if side is None else side.get('style', '')
+        style = '' if side is None else side.get('style', 'thin' if color is not None else '')
         if not style:
             return NULL
         return VBAInt(LINES.get(style, (styles.XL_NONE, 2))[int(what == 'Weight')], 'Long')
@@ -322,6 +347,10 @@ class ConditionalBorder(_Patch):
             color = palette(value) if what == 'ColorIndex' else styles.Color.from_bgr(int(to_integer(value, 'Long')))
             side = self.side(True)
             assert side is not None
+            if side.get('style') in (None, 'none'):
+                # Native color assignment creates a visible thin line. Without
+                # this attribute Excel discards the saved conditional color.
+                side.set('style', 'thin')
             write_color(side, 'color', color)
         else:
             current = self.side()
@@ -370,24 +399,43 @@ class ConditionalBorder(_Patch):
         self.assign('ColorIndex', value)
 
 
+    @member
+    def TintAndShade(self) -> object:
+        return self.read('TintAndShade')
+
+    @member
+    def ThemeColor(self) -> object:
+        return self.read('ThemeColor')
+
+
 class ConditionalBorders(VBACollection, _Patch):
     vba_type_name = 'Borders'
 
     def vba_items(self) -> list[object]:
-        return [ConditionalBorder(self.root, self.changed, self.sheet, index) for index in (1, 2, 3, 4)]
+        return [ConditionalBorder(self.root, self.changed, self.sheet, index, color_source=self.color_source)
+                for index in (1, 2, 3, 4)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         selected = int(to_integer(index, 'Long'))
         if selected not in (*LEGACY_SIDES, *SIDES, 5, 6, 11, 12):
             raise error(1004)
-        return ConditionalBorder(self.root, self.changed, self.sheet, selected)
+        return ConditionalBorder(self.root, self.changed, self.sheet, selected, color_source=self.color_source)
 
     def read(self, what: str) -> object:
-        return uniform(ConditionalBorder(self.root, self.changed, self.sheet, index).read(what) for index in (1, 2, 3, 4))
+        return uniform(ConditionalBorder(self.root, self.changed, self.sheet, index,
+                                        color_source=self.color_source).read(what) for index in (1, 2, 3, 4))
 
     def assign(self, what: str, value: object) -> None:
         for index in (1, 2, 3, 4):
             ConditionalBorder(self.root, self.changed, self.sheet, index).assign(what, value)
+
+    @member
+    def TintAndShade(self) -> object:
+        return self.read('TintAndShade')
+
+    @member
+    def ThemeColor(self) -> object:
+        return self.read('ThemeColor')
 
     @member
     def LineStyle(self) -> object:

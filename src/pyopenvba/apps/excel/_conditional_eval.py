@@ -5,7 +5,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel import _styles as styles
-from pyopenvba.apps.excel._conditional import NS, Rule
+from pyopenvba.apps.excel._conditional import NS, Rule, formula_anchor
 from pyopenvba.apps.excel._differential import read_color
 from pyopenvba.apps.excel._engine_book import scalar
 from pyopenvba.apps.excel._xstring import decode
@@ -29,7 +29,8 @@ def _matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
     calculator = sheet.book.calculator
     now = calculator.now()
     context = Context(calculator.engine_book, sheet.name, row, column, today=now.date(), now=now)
-    anchor = rule.areas[0]
+    kind = rule.root.get('type', '')
+    anchor = formula_anchor(rule.areas) if kind in FORMULA_PREDICATES or kind in ('expression', 'cellIs') else rule.areas[0]
 
     def evaluated(text: str) -> Scalar:
         formula = shift_text('=' + decode(text).removeprefix('='), row - anchor.top, column - anchor.left)
@@ -39,7 +40,6 @@ def _matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
             return context.first(context.formula(calculator.engine_book.read(formula)))
 
     formulas = [entry.text or '' for entry in rule.root.findall(NS + 'formula')]
-    kind = rule.root.get('type', '')
     if kind in ('top10', 'aboveAverage', 'uniqueValues', 'duplicateValues'):
         from pyopenvba.apps.excel._conditional_stats import matches
 

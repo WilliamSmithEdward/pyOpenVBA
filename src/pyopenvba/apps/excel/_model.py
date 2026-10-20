@@ -53,6 +53,7 @@ from pyopenvba.interpreter._values import (
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._udf import EvaluationOrigin
+    from pyopenvba.powerquery._opc import Entry
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
@@ -1095,6 +1096,11 @@ class Worksheet(ExcelObject):
         self.validations_changed = False
         self.conditional_formats: list[ConditionalRule] = []
         self.conditional_changed = False
+        self.conditional_color_slots: dict[int, ConditionalRule] = {}
+        self.conditional_color_next = 0
+        #: Cache against the exact OPC entry; replacing a part invalidates it.
+        self.conditional_extensions: bool | None = None
+        self.conditional_extension_entry: Entry | None = None
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
@@ -3139,6 +3145,10 @@ class Range(ExcelObject):
             raise error(1004, "Copy needs a range to copy to")
         if Destination.sheet.book.application is not self.sheet.book.application:
             raise error(1004, "Ranges must belong to the same Excel application")
+        from pyopenvba.apps.excel._clipboard import admit_write
+
+        if not admit_write(Destination.sheet):
+            return False
         if len(self.areas) != 1 or len(Destination.areas) != 1:
             raise VBAUnsupportedError("Copy with multiple source or destination areas is not implemented")
         area, target = self.first, Destination.first
@@ -3149,9 +3159,11 @@ class Range(ExcelObject):
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
         written = Area(target.top, target.left, bottom, right)
-        from pyopenvba.apps.excel._clipboard import conditional_copy_admitted
+        from pyopenvba.apps.excel._conditional_transfer import plan as conditional_plan_for
+        from pyopenvba.apps.excel._protection import whole
 
-        conditional_copy_admitted(self.sheet, [area], Destination.sheet, [written])
+        conditional_plan = conditional_plan_for(self.sheet, [area], Destination.sheet, [written])
+        whole(Destination.sheet, [written], "Copying")
         if Destination.sheet.tables:
             from pyopenvba.apps.excel._tables import refuse_growth
 
@@ -3285,6 +3297,8 @@ class Range(ExcelObject):
                      for tile_row in range(target.top, bottom + 1, area.rows)
                      for tile_column in range(target.left, right + 1, area.columns)}
             _notes.copied(Destination.sheet, notes, [written])
+        if conditional_plan is not None:
+            conditional_plan.commit()
         restore(Destination.sheet, copied_caches + destination_caches)
         if names_brought:
             # Names the copy brought can change what any formula means.

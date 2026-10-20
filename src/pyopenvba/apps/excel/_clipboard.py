@@ -142,12 +142,22 @@ def copy(target: Range) -> object:
 def conditional_copy_admitted(source: Worksheet, areas: list[Area], destination: Worksheet,
                               landed: list[Area]) -> None:
     """A format-bearing copy must not silently drop or replace conditional rules."""
+    from pyopenvba.apps.excel._conditional_transfer import guard_extensions
+
+    guard_extensions(source)
+    if destination is not source:
+        guard_extensions(destination)
     for sheet, touched in ((source, areas), (destination, landed)):
         for rule in sheet.conditional_formats:
             if not rule.deleted and any(not (area.bottom < part.top or part.bottom < area.top
                                             or area.right < part.left or part.right < area.left)
                                         for area in rule.areas for part in touched):
                 raise VBAUnsupportedError('Range copying conditional formatting is not implemented')
+
+
+def admit_write(sheet: Worksheet) -> bool:
+    """Copy and paste return False without writing when a formula calls VBA."""
+    return not sheet.book.application.udf_callers
 
 
 def copy_range(target: Range, destination: object) -> object:
@@ -160,17 +170,19 @@ def copy_range(target: Range, destination: object) -> object:
 
     if not isinstance(destination, Range):
         raise error(1004, "Copy needs a range to copy to")
+    if not admit_write(destination.sheet):
+        return False
     from pyopenvba.apps.excel._events import after_edit
 
     source = visible(target)
     made = block_of(source.areas)
     landed = landing_of(made, destination)
-    conditional_copy_admitted(target.sheet, list(source.areas), destination.sheet, [landed])
     whole(destination.sheet, [landed], "Copying")
     landing = visible_areas(destination)
     if landing is None:
         paste_block(target.sheet, made, destination)
     else:
+        conditional_copy_admitted(target.sheet, list(source.areas), destination.sheet, [landed])
         first = made.parts[0][0]
         if len(made.parts) > 1:
             raise VBAUnsupportedError("copying several areas into a filtered range is not implemented")
@@ -267,6 +279,8 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
     if not isinstance(destination, Range):
         raise error(1004, "Paste needs a range to paste into")
     clip = _clip(destination)
+    if not admit_write(destination.sheet):
+        return False
     if clip.cut:
         whole(clip.source.sheet, [clip.area], "Cut")
     whole(destination.sheet, [landing_of(clip.block, destination)], "Pasting")
@@ -281,6 +295,8 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     """Range.PasteSpecial."""
     # Measured with the clipboard emptied, as Protect empties it.
     clip = _clip(target, "PasteSpecial method of Range class failed")
+    if not admit_write(target.sheet):
+        return False
     if clip.cut:
         raise error(1004, "PasteSpecial cannot paste what was cut")
     kind = ALL if what is MISSING else int(to_integer(what, "Long"))
@@ -311,8 +327,14 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     from pyopenvba.apps.excel import _arrays
 
     landing = Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1)
+    conditional_plan = None
     if kind in _EVERYTHING | {FORMATS}:
-        conditional_copy_admitted(source_sheet, [part for part, _, _ in made.parts], sheet, [landing])
+        from pyopenvba.apps.excel._conditional_transfer import plan as conditional_plan_for
+
+        if len(target.areas) != 1:
+            conditional_copy_admitted(source_sheet, [part for part, _, _ in made.parts], sheet, [landing])
+        conditional_plan = conditional_plan_for(source_sheet, [part for part, _, _ in made.parts], sheet,
+                                                [landing], kind=kind, transpose=turned, operation=op)
     covered, divided = _arrays.met(sheet, [landing]) if kind in _CONTENT_FORMULAS | _CONTENT_VALUES or op else ([], [])
     if divided or op and covered:
         raise error(1004, _arrays.PART_OF_AN_ARRAY)
@@ -369,6 +391,8 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
         _notes.copied(sheet, notes, [Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1)])
     if kind in _EVERYTHING and (source_sheet.hyperlinks or sheet.hyperlinks):
         _paste_links(source_sheet, made, sheet, corner, height, width, turned)
+    if conditional_plan is not None:
+        conditional_plan.commit()
     return True
 
 

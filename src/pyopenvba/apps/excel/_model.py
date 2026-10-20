@@ -52,6 +52,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._udf import EvaluationOrigin
     from pyopenvba.apps.excel._charts import ChartState
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
@@ -200,6 +201,9 @@ class Application(ExcelObject):
         self.executing_projects: list[Interpreter] = []
         #: The cells whose formulas are running a VBA Function now, innermost last (see _udf).
         self.udf_callers: list[Range] = []
+        #: Active formula clients and the origin captured by each VBA UDF invocation.
+        self.formula_origins: list[EvaluationOrigin] = []
+        self.udf_origins: list[EvaluationOrigin | None] = []
         self.active_book: Workbook | None = None
         #: The workbooks whose windows have been to the front, front first (see _windows).
         self.window_order: list[Workbook] = []
@@ -523,8 +527,10 @@ class Application(ExcelObject):
     def evaluate_text(self, text: str) -> object:
         """``[A1+1]`` and Evaluate("A1+1"), worked out on the active sheet as Excel's Evaluate works them."""
         from pyopenvba.apps.excel._evaluate import evaluated
+        from pyopenvba.apps.excel._udf import evaluation_origin
 
-        return evaluated(self._require_sheet(), text)
+        with evaluation_origin(self, "evaluate"):
+            return evaluated(self._require_sheet(), text)
 
     def _require_book(self) -> Workbook:
         if self.active_book is None:
@@ -1558,8 +1564,10 @@ class Worksheet(ExcelObject):
     @method
     def Evaluate(self, Name: object = MISSING) -> object:
         from pyopenvba.apps.excel._evaluate import evaluated
+        from pyopenvba.apps.excel._udf import evaluation_origin
 
-        return evaluated(self, to_text(Name))
+        with evaluation_origin(self.book.application, "evaluate"):
+            return evaluated(self, to_text(Name))
 
     # -- protection (see _protection)
 
@@ -1903,10 +1911,22 @@ class Range(ExcelObject):
     def Text(self) -> object:
         # Read the current value (the cache in manual mode) before formatting;
         # read raw, since a Date too large to hold still shows.
-        self._read(self.first.top, self.first.left, raw=True)
-        cell = self.sheet.cell(self.first.top, self.first.left)
+        row, column = self.first.top, self.first.left
+        application = self.sheet.book.application
+        caller = application.udf_callers[-1] if application.udf_callers else None
+        self_text = (application.udf_origins and application.udf_origins[-1] == "worksheet"
+                     and caller is not None and caller.sheet is self.sheet
+                     and caller.first.top == row and caller.first.left == column
+                     and self.sheet.book.calculator.is_working(self.sheet.name, row, column))
+        if not self_text:
+            self._read(row, column, raw=True)
+        cell = self.sheet.cell(row, column)
         if cell is None:
             return ""
+        if self_text and cell.value is EMPTY:
+            # A new formula displays a provisional zero. Later calls format its
+            # actual cache without re-entering the caller's unfinished formula.
+            cell = replace(cell, value=0.0)
         if self.sheet.conditional_formats:
             from pyopenvba.apps.excel._conditional_eval import conditional_number_format
 
@@ -2178,6 +2198,9 @@ class Range(ExcelObject):
     def DisplayFormat(self) -> object:
         from pyopenvba.apps.excel._conditional_display import DisplayFormat
 
+        application = self.sheet.book.application
+        if application.udf_origins and application.udf_origins[-1] == "worksheet":
+            raise error(1004)
         return DisplayFormat(self)
 
     @member

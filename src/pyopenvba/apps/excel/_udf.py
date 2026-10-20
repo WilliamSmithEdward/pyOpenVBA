@@ -23,7 +23,7 @@ from __future__ import annotations
 from collections.abc import Generator
 from contextlib import contextmanager
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS
 from pyopenvba.exceptions import VBARuntimeError
@@ -46,6 +46,19 @@ from pyopenvba.interpreter._values import (
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Range, Workbook
     from pyopenvba.formula._calc.evaluator import Context
+
+
+EvaluationOrigin = Literal["worksheet", "conditional", "evaluate"]
+
+
+@contextmanager
+def evaluation_origin(application: Application, origin: EvaluationOrigin) -> Generator[None]:
+    """Scope actual formula evaluation, including nested clients and worksheet references."""
+    application.formula_origins.append(origin)
+    try:
+        yield
+    finally:
+        application.formula_origins.pop()
 
 
 def has_user_function(book: Workbook, node: Node | None) -> bool:
@@ -106,9 +119,11 @@ def _initialise(book: Workbook) -> None:
 def running(application: Application, caller: Range) -> Generator[None]:
     """A user-defined function at work for ``caller``: what Application.Caller answers, and no cell writes."""
     application.udf_callers.append(caller)
+    application.udf_origins.append(application.formula_origins[-1] if application.formula_origins else None)
     try:
         yield
     finally:
+        application.udf_origins.pop()
         application.udf_callers.pop()
 
 

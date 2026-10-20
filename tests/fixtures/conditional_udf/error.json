@@ -1,0 +1,16 @@
+{
+  "measured_at": "2026-10-20T19:55:45.556641+00:00",
+  "instrumentation": "none; line_numbers=False; ASCII source",
+  "probes": [
+    {
+      "name": "fresh-display-error-no-cf",
+      "source": "Function ReadFailure() As String\nDim o As Object\nOn Error GoTo Failed\nSet o=Application.Caller.DisplayFormat\nReadFailure=\"OK\"\nExit Function\nFailed:\nReadFailure=CStr(Err.Number) & \"|\" & Err.Description\nEnd Function\nFunction Probe() As String\nDim f As FormatCondition\nRange(\"B1\").Formula=\"=ReadFailure()\"\nApplication.CalculateFull\nProbe=CStr(Range(\"B1\").Value2)\nEnd Function",
+      "result": "1004|Application-defined or object-defined error"
+    },
+    {
+      "name": "fresh-display-error-with-cf",
+      "source": "Function ReadFailure() As String\nDim o As Object\nOn Error GoTo Failed\nSet o=Application.Caller.DisplayFormat\nReadFailure=\"OK\"\nExit Function\nFailed:\nReadFailure=CStr(Err.Number) & \"|\" & Err.Description\nEnd Function\nFunction Probe() As String\nDim f As FormatCondition\nSet f=Range(\"B1\").FormatConditions.Add(xlExpression,Formula1:=\"=TRUE\")\nf.Font.Bold=True\nRange(\"B1\").Formula=\"=ReadFailure()\"\nApplication.CalculateFull\nProbe=CStr(Range(\"B1\").Value2)\nEnd Function",
+      "result": "1004|Application-defined or object-defined error"
+    }
+  ]
+}

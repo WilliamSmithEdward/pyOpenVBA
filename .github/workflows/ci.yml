@@ -126,9 +126,12 @@ jobs:
         include:
           - os: ubuntu-24.04
             name: Build sdist and wheel
+            python-version: "3.12.14"
             artifact: dist
           - os: windows-2025
             name: Build sdist and wheel (Windows)
+            # CPython 3.12 security-only releases have no Windows binary.
+            python-version: "3.12.10"
             artifact: dist-windows
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -137,7 +140,7 @@ jobs:
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12.14"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install build tooling
         run: python -m pip install --require-hashes -r .github/requirements/build.txt

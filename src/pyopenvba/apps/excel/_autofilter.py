@@ -217,17 +217,9 @@ def _like(seen: _Seen, pattern: str) -> bool:
         return False
     _plain(seen.shown)
     _plain(pattern)
-    parts: list[str] = []
-    index = 0
-    while index < len(pattern):
-        char = pattern[index]
-        if char == "~" and index + 1 < len(pattern) and pattern[index + 1] in "*?":
-            parts.append(re.escape(pattern[index + 1]))
-            index += 2
-            continue
-        parts.append(".*" if char == "*" else "." if char == "?" else re.escape(char))
-        index += 1
-    return re.fullmatch("".join(parts), seen.shown, re.IGNORECASE | re.DOTALL) is not None
+    from pyopenvba.apps.excel._filter_wildcards import matches
+
+    return matches(seen.shown, pattern, escape_tilde=False)
 
 
 # --- the file's spelling -------------------------------------------------------------------------------

@@ -32,7 +32,7 @@ is a percentage of working macros or complete functionality.
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
 | Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
-| Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts, AutoFilter and a measured local AdvancedFilter subset. Formula criteria, advanced-filter state migration, sort variants and outline/grouping APIs remain incomplete. |
+| Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts, AutoFilter wildcard matching with bounded state transitions and a measured local AdvancedFilter subset. Formula criteria, advanced-filter state migration, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
 | Protection and permissions | Partial | 11 / 32 | 0 | Worksheet/workbook protection and enforcement for supported edits. Allow-edit ranges, user permissions and full protection semantics remain. |
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
@@ -108,6 +108,13 @@ these are explicit support limits, not claims about Excel's limits. See the
 [native evidence](../../tests/fixtures/advanced_filter/native.json).
 
 ## Excel engine behavior beyond member counts
+
+AutoFilter wildcard matching preserves the existing literal, tilde, Unicode case,
+newline and cell-type behavior without introducing a criterion-length cap.
+[Wildcard compatibility tests](../../tests/test_excel_autofilter_wildcards.py)
+cover short-pattern equivalence, repeated-state work and isolated completion;
+existing native runtime, file and edit fixtures remain the behavioral oracle.
+This changes no registered members, checklist statuses or completion totals.
 
 The shared VBA engine implements procedures, classes, arrays, error handling,
 events and much of the runtime library. Compiler/type checking, reference and

@@ -285,8 +285,9 @@ anchor. **Three ModifyAppliesToRange controls** cover ordinary relative-formula
 rebasing and raw union order, including a fresh-rule native save/reopen.
 
 Shared-group source copies remain explicitly unsupported. Worksheet.Copy
-identity initialization, initial active-sheet lookup context and some retained
-native proxy rebinding still need work; their raw observations are not treated
+identity initialization, foreign lookups by shared-group child position,
+initial active-sheet lookup context and some retained native proxy rebinding
+still need work; their raw observations are not treated
 as passing full-context controls. See the
 [loaded-group tests](../../tests/test_excel_conditional_loaded.py),
 [mode/lifecycle/rebase tests](../../tests/test_excel_conditional_loaded_lifecycle.py)

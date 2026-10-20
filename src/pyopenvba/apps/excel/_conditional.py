@@ -8,12 +8,22 @@ This module describes rules; it does not claim to render DisplayFormat.
 # ruff: noqa: N803 -- Excel's public named arguments use these exact names.
 from __future__ import annotations
 
+from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_parser, xml_tree
+from pyopenvba.apps.excel._conditional_predicates import (
+    PREDICATE_TYPES,
+    TEXT_OPERATORS,
+    TEXT_TYPES,
+    TIME_PERIODS,
+    formula_for_rule,
+    regenerate,
+    saved_text,
+)
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._xstring import decode, encode_text
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -73,7 +83,12 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
             groups.append((rule.container, list(rule.areas), group))
         # cfRule precedes extLst in CT_ConditionalFormatting.
         before = next((i for i, entry in enumerate(group) if entry.tag == NS + 'extLst'), len(group))
-        group.insert(before, deepcopy(rule.root))
+        copied = deepcopy(rule.root)
+        if copied.get('type') in TEXT_TYPES and copied.get('text') is not None:
+            if any('\x00' in decode(entry.text or '') for entry in copied.findall(NS + 'formula')):
+                raise VBAUnsupportedError('Saving conditional formulas containing NUL is not supported by native Excel')
+            copied.set('text', saved_text(copied.get('text', '')))
+        group.insert(before, copied)
     data = xml.encode('utf-8')
     parser = xml_parser()
     depth, active = 0, None
@@ -192,6 +207,11 @@ def remove(sheet: Worksheet, areas: list[Area]) -> bool:
             if remaining:
                 original, first = rule.areas[0], remaining[0]
                 if (original.top, original.left) != (first.top, first.left):
+                    generated = formula_for_rule(rule.root, first)
+                    if generated is not None:
+                        formulas = [encode_text(generated)]
+                        planned.append((rule, remaining, formulas))
+                        continue
                     from pyopenvba.formula._parse import FormulaError, shift_text
 
                     try:
@@ -203,8 +223,11 @@ def remove(sheet: Worksheet, areas: list[Area]) -> bool:
             planned.append((rule, remaining, formulas))
     for rule, remaining, formulas in planned:
         rule.areas = remaining
-        for child, text in zip(rule.root.findall(NS + 'formula'), formulas, strict=True):
-            child.text = text
+        if remaining and rule.root.get('type') in PREDICATE_TYPES:
+            regenerate(rule.root, remaining[0])
+        else:
+            for child, text in zip(rule.root.findall(NS + 'formula'), formulas, strict=True):
+                child.text = text
         if not remaining:
             rule.deleted = True
             sheet.conditional_formats.remove(rule)
@@ -231,10 +254,39 @@ def _formula(value: object, target: Range) -> str:
         raise error(5) from None
 
 
-def _made(target: Range, Type: object, Operator: object, Formula1: object, Formula2: object) -> XmlElement:
+def _made(target: Range, Type: object, Operator: object, Formula1: object, Formula2: object,
+          String: object = MISSING, TextOperator: object = MISSING, DateOperator: object = MISSING) -> XmlElement:
     if Type is MISSING:
         raise error(449)
     kind = int(to_integer(Type, 'Long'))
+    if kind in (9, 10, 11, 13, 16, 17):
+        attributes = {'stopIfTrue': '1'}
+        if kind == 9:
+            if String is MISSING or TextOperator is MISSING:
+                raise error(449)
+            selected = _stat_long(TextOperator)
+            if selected not in range(4):
+                raise error(5)
+            text = '' if String is NULL else to_text(String)
+            units = text.encode('utf-16-le', 'surrogatepass')
+            if len(units) > 510:
+                raise error(5)
+            if len(units) == 510:
+                text = units[:508].decode('utf-16-le', 'surrogatepass')
+            attributes.update(type=TEXT_TYPES[selected], operator=TEXT_OPERATORS[selected], text=text)
+        elif kind == 11:
+            if DateOperator is MISSING:
+                raise error(449)
+            selected = _stat_long(DateOperator)
+            if selected not in range(len(TIME_PERIODS)):
+                raise error(5)
+            attributes.update(type='timePeriod', timePeriod=TIME_PERIODS[selected])
+        else:
+            attributes['type'] = {10: 'containsBlanks', 13: 'notContainsBlanks',
+                                  16: 'containsErrors', 17: 'notContainsErrors'}[kind]
+        root = XmlElement(NS + 'cfRule', attributes)
+        regenerate(root, target.first)
+        return root
     if kind in (5, 8, 12):
         attributes = {5: {'type': 'top10', 'rank': '10'}, 8: {'type': 'uniqueValues'},
                       12: {'type': 'aboveAverage', 'stopIfTrue': '1'}}[kind]
@@ -289,9 +341,12 @@ class FormatConditions(VBACollection, ExcelObject):
 
     @method
     def Add(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
-            Formula2: object = MISSING) -> object:
+            Formula2: object = MISSING, String: object = MISSING, TextOperator: object = MISSING,
+            DateOperator: object = MISSING, ScopeType: object = MISSING) -> object:
         _guard(self.sheet)
-        root = _made(self.target, Type, Operator, Formula1, Formula2)
+        if ScopeType is not MISSING and ScopeType is not NULL:
+            raise error(5)
+        root = _made(self.target, Type, Operator, Formula1, Formula2, String, TextOperator, DateOperator)
         return self._append(root)
 
     def _append(self, root: XmlElement) -> object:
@@ -401,6 +456,7 @@ class _ConditionalRule(ExcelObject):
         if not isinstance(Range, ExcelRange) or Range.sheet is not self.sheet:
             raise error(1004)
         self.rule.areas = [Area(a.top, a.left, a.bottom, a.right) for a in Range.areas]
+        regenerate(self.rule.root, self.rule.areas[0])
         _changed(self.sheet)
         return EMPTY
 
@@ -452,9 +508,21 @@ class _ConditionalRule(ExcelObject):
 class FormatCondition(_ConditionalRule):
     vba_type_name = 'FormatCondition'
 
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        self._check_alive()
+        if name.casefold() == 'modify' and named:
+            allowed = {'type', 'operator', 'formula1', 'formula2', 'string', 'operator2'}
+            if any(key.casefold() not in allowed for key in named):
+                raise error(1004)
+        return super().vba_get(name, args, named)
+
     @member
     def Type(self) -> object:
         kind = self.rule.root.get('type', '')
+        if kind in PREDICATE_TYPES:
+            number = 9 if kind in TEXT_TYPES else {'containsBlanks': 10, 'timePeriod': 11,
+                                                  'notContainsBlanks': 13, 'containsErrors': 16, 'notContainsErrors': 17}[kind]
+            return VBAInt(number, 'Long')
         if kind not in ('cellIs', 'expression'):
             raise VBAUnsupportedError('This conditional formatting rule type is not implemented')
         return VBAInt(1 if kind == 'cellIs' else 2, 'Long')
@@ -471,7 +539,7 @@ class FormatCondition(_ConditionalRule):
         formulas = self.rule.root.findall(NS + 'formula')
         if len(formulas) < number or formulas[number - 1].text is None:
             raise error(1004)
-        return '=' + decode(formulas[number - 1].text or '')
+        return ('=' + decode(formulas[number - 1].text or '')).split('\x00', 1)[0]
 
 
     @member
@@ -483,19 +551,110 @@ class FormatCondition(_ConditionalRule):
     def Formula2(self) -> object:
         return self._formula(2)
 
+    @member
+    def Text(self) -> object:
+        if self.rule.root.get('type') not in TEXT_TYPES:
+            raise error(1004)
+        return self.rule.root.get('text', '')
+
+    @setter('Text')
+    def set_text(self, value: object) -> None:
+        _guard(self.sheet)
+        if value is NULL:
+            raise error(13)
+        if self.rule.root.get('type') not in TEXT_TYPES:
+            raise error(1004)
+        text = to_text(value)
+        self.rule.root.set('text', text)
+        regenerate(self.rule.root, self.rule.areas[0])
+        _changed(self.sheet)
+
+    @member
+    def TextOperator(self) -> object:
+        kind = self.rule.root.get('type', '')
+        if kind not in TEXT_TYPES:
+            raise error(1004)
+        return VBAInt(TEXT_TYPES.index(kind), 'Long')
+
+    @setter('TextOperator')
+    def set_text_operator(self, value: object) -> None:
+        _guard(self.sheet)
+        selected = _stat_long(value)
+        if selected not in range(4):
+            raise error(5)
+        if self.rule.root.get('type') not in TEXT_TYPES:
+            # Excel changes the rule before this unsupported transition fails.
+            self.rule.root.set('type', TEXT_TYPES[selected])
+            self.rule.root.set('operator', TEXT_OPERATORS[selected])
+            self.rule.root.set('text', '')
+            self.rule.root.attrib.pop('timePeriod', None)
+            for child in self.rule.root.findall(NS + 'formula'):
+                self.rule.root.remove(child)
+            _changed(self.sheet)
+            raise error(1004)
+        self.rule.root.set('type', TEXT_TYPES[selected])
+        self.rule.root.set('operator', TEXT_OPERATORS[selected])
+        regenerate(self.rule.root, self.rule.areas[0])
+        _changed(self.sheet)
+
+    @member
+    def DateOperator(self) -> object:
+        if self.rule.root.get('type') != 'timePeriod':
+            raise error(5)
+        period = self.rule.root.get('timePeriod', 'today')
+        if period not in TIME_PERIODS:
+            raise error(5)
+        return VBAInt(TIME_PERIODS.index(period), 'Long')
+
+    @setter('DateOperator')
+    def set_date_operator(self, value: object) -> None:
+        _guard(self.sheet)
+        selected = _stat_long(value)
+        if selected not in range(len(TIME_PERIODS)):
+            raise error(5)
+        if self.rule.root.get('type') != 'timePeriod':
+            return
+        self.rule.root.set('timePeriod', TIME_PERIODS[selected])
+        regenerate(self.rule.root, self.rule.areas[0])
+        _changed(self.sheet)
+
+    @member
+    def ScopeType(self) -> object:
+        raise error(5)
+
+    @setter('ScopeType')
+    def set_scope_type(self, value: object) -> None:
+        _guard(self.sheet)
+        _stat_long(value)
+        raise error(1004)
+
 
     @method
     def Modify(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
-               Formula2: object = MISSING) -> object:
+               Formula2: object = MISSING, String: object = MISSING, Operator2: object = MISSING) -> object:
         _guard(self.sheet)
         if Type is MISSING:
             raise error(450)
-        if Type is not MISSING and int(to_integer(Type, 'Long')) not in (1, 2):
+        kind = int(to_integer(Type, 'Long'))
+        if kind == 9:
+            if self.rule.root.get('type') not in TEXT_TYPES:
+                raise error(1004)
+            if String is not MISSING:
+                # Modify accepts Null as an empty term, unlike the Text setter.
+                self.rule.root.set('text', '' if String is NULL else to_text(String))
+                regenerate(self.rule.root, self.rule.areas[0])
+                _changed(self.sheet)
+            if Operator2 is not MISSING:
+                self.set_text_operator(Operator2)
+            return EMPTY
+        if kind not in (1, 2):
             return EMPTY
         target = self.AppliesTo()
         assert isinstance(target, Range)
         made = _made(target, Type, Operator, Formula1, Formula2)
-        self.rule.root.attrib.pop('operator', None)
+        for attribute in ('operator', 'text', 'timePeriod', 'rank', 'percent', 'bottom',
+                          'aboveAverage', 'equalAverage', 'stdDev'):
+            self.rule.root.attrib.pop(attribute, None)
         self.rule.root.attrib.update(made.attrib)
         self.rule.root.set('priority', str(max((_priority(rule) for rule in self.sheet.conditional_formats), default=0) + 1))
         self.rule.root.set('stopIfTrue', '1')

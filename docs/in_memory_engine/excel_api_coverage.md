@@ -1,8 +1,8 @@
 # Excel API coverage
 
-Snapshot: **17 October 2026**, covering the current source tree, including the
+Snapshot: **20 October 2026**, covering the current source tree, including the
 worksheet-source PivotCache creation, compact PivotTable axes, and ordinary
-conditional formatting rules, statistical rule APIs and display evaluation. This is a functionality summary for the
+conditional formatting rules, statistical and text/blank/error/time predicates, and display evaluation. This is a functionality summary for the
 in-memory Excel engine. **No functional area is complete yet.** Common worksheet
 operations have substantially more support than advanced Excel automation.
 
@@ -30,7 +30,7 @@ is a percentage of working macros or complete functionality.
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
-| Conditional formatting | Partial | 73 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Native controls cover typed populations, ties, criteria, relative formulas, priorities, copying and persistence. Text/time predicates, color scales, bars, icon sets, pivot scopes and affected range transfers/structural edits remain incomplete. |
+| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Native controls cover typed populations, ties, criteria, relative formulas, priorities, copying and persistence. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Color scales, bars, icon sets, pivot scopes and affected range transfers/structural edits remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts and AutoFilter operations. Advanced criteria, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
@@ -47,7 +47,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Missing | 0 / 152 | 0 | No full PageSetup, print rendering, page-break or publishing automation. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,149 / 7,542** | **148** | **15.2% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,153 / 7,542** | **148** | **15.3% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 † Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -176,6 +176,36 @@ See [API tests](../../tests/test_excel_conditional_statistics.py),
 [copy tests](../../tests/test_excel_conditional_statistics_copy.py) and
 [population-read tests](../../tests/test_excel_conditional_statistics_reads.py).
 
+Text, blank, error and time-period conditional rules share the existing lifecycle,
+differential styles, displayed formatting and worksheet-copy paths. Generated
+compatibility formulas use the first applicability area as their anchor and are
+rebuilt when attribute-driven rules move. Ordinary expression formulas retain
+their separate behavior. Calendar-relative native controls cover all ten date
+periods, fractional-day boundaries, Sunday-based weeks and adjacent-month boundaries;
+native-created files also exercise import and subsequent model saves. Date rules
+currently use the 1900 workbook epoch; 1904 workbook fidelity remains incomplete.
+Typed controls distinguish spaces, tabs, nonbreaking spaces, formula-empty text,
+logical values and errors. Native nonblank rules include error cells despite the
+stored compatibility formula returning an error for that input. Measured modern
+worksheet text functions count supplementary Unicode characters as one character;
+SEARCH wildcard matching still consumes UTF-16 units, with character-based start
+and result positions. Wildcard SEARCH evaluations requiring more than 8,000,000
+matching states are explicitly unsupported; literal searches use a separate path.
+These controls do not establish every locale or Excel compatibility-version mode.
+Native string controls distinguish plain rule-text XML attributes from escaped
+formula text, including literal escape-looking strings, CR/LF, paired and unpaired
+surrogates, and the UTF-16 input-length boundary. Saves normalize rule-text CR and
+unpaired surrogates independently of the formula. Saving NUL-containing rule text
+is explicitly unsupported: native Excel also failed to reopen its own equivalent
+saved file. In-memory rule inspection still supports that input.
+The predicate fixtures contain 179 replayable native controls, one recorded
+native-open limitation and 23 macro-free native workbook samples. Generated
+workbooks also pass 53 native copy and displayed-format checks.
+See [predicate API tests](../../tests/test_excel_conditional_predicates.py),
+[evaluation tests](../../tests/test_excel_conditional_predicates_eval.py),
+[copy tests](../../tests/test_excel_conditional_predicates_copy.py) and
+[native rendering/import tests](../../tests/test_excel_conditional_predicates_rendering.py).
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in
@@ -188,7 +218,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,701 entries across 68 implemented model types**:
-148 verified, 579 partial, 426 unassessed, 1,545 missing and 3 excluded. Its 1,153
+148 verified, 583 partial, 426 unassessed, 1,541 missing and 3 excluded. Its 1,157
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

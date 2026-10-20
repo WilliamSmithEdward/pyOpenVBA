@@ -50,8 +50,11 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
         raise VBAUnsupportedError("Worksheet.Copy with data validation is not implemented")
     if source.notes:
         raise VBAUnsupportedError("Worksheet.Copy with notes is not implemented")
-    if any(rule.root.get('type') not in ('cellIs', 'expression', 'top10', 'aboveAverage',
-                                        'duplicateValues', 'uniqueValues') for rule in source.conditional_formats):
+    from pyopenvba.apps.excel._conditional_predicates import PREDICATE_TYPES
+
+    supported_conditions = {'cellIs', 'expression', 'top10', 'aboveAverage',
+                            'duplicateValues', 'uniqueValues'} | PREDICATE_TYPES
+    if any(rule.root.get('type') not in supported_conditions for rule in source.conditional_formats):
         raise VBAUnsupportedError("Worksheet.Copy with this conditional rule type is not implemented")
     if source.book.package is not None and source.part_name:
         xml = source.book.package.read(source.part_name).decode("utf-8")

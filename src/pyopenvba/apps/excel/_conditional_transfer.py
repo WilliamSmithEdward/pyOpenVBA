@@ -5,12 +5,13 @@ changes cells, rule identities, names, differential-style IDs or dirty flags.
 """
 from __future__ import annotations
 
+from collections import Counter
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
-from pyopenvba.apps.excel._charts_file import xml_tree
+from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.apps.excel._conditional import NS, Rule, changed, formula_anchor, guard, meets, without
 from pyopenvba.apps.excel._conditional_predicates import PREDICATE_TYPES, regenerate
 from pyopenvba.apps.excel._xstring import decode, escape
@@ -19,7 +20,6 @@ from pyopenvba.formula._parse import FormulaError, shift_text
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Worksheet
 
 _KINDS = {'cellIs', 'expression', 'top10', 'aboveAverage', 'uniqueValues', 'duplicateValues'} | PREDICATE_TYPES
@@ -45,16 +45,22 @@ def _attributes_known(root: XmlElement, allowed: set[str]) -> bool:
     return all(key in allowed or key == 'xmlns' or key.startswith('xmlns:') for key in root.attrib)
 
 
-def _validate(rule: Rule, dxf_count: int) -> None:
+def _validate_container(container: XmlElement) -> None:
+    if (not _attributes_known(container, {'sqref'})
+            or any(child.tag != NS + 'cfRule' for child in container)):
+        raise _unsupported('with container extensions or pivot scopes')
+
+
+def _validate(rule: Rule, dxf_count: int, containers: set[XmlElement] | None = None) -> None:
     if rule.root.get('type') not in _KINDS or not _attributes_known(rule.root, _ATTRIBUTES):
         raise _unsupported('with unsupported rule attributes or families')
     if any(child.tag != NS + 'formula' or list(child) or not _attributes_known(child, set())
            for child in rule.root):
         raise _unsupported('with rule extensions')
-    if rule.container is not None and (
-            not _attributes_known(rule.container, {'sqref'})
-            or any(child.tag != NS + 'cfRule' for child in rule.container)):
-        raise _unsupported('with container extensions or pivot scopes')
+    if rule.container is not None and (containers is None or rule.container not in containers):
+        _validate_container(rule.container)
+        if containers is not None:
+            containers.add(rule.container)
     try:
         if int(rule.root.get('priority', '0')) <= 0:
             raise _unsupported('with invalid priorities')
@@ -118,7 +124,12 @@ def _root_at(rule: Rule, areas: list[Area]) -> XmlElement:
 class ConditionalPlan:
     sheet: Worksheet
     retained: list[tuple[Rule, list[Area], XmlElement]]
-    incoming: Rule | None
+    incoming_rules: list[Rule]
+
+    @property
+    def incoming(self) -> Rule | None:
+        """The first incoming rule; retained for existing single-rule plan inspection."""
+        return self.incoming_rules[0] if self.incoming_rules else None
 
     def commit(self) -> None:
         """Apply a fully admitted plan, retaining existing rule/proxy identities."""
@@ -132,9 +143,9 @@ class ConditionalPlan:
             if not areas:
                 rule.deleted = True
                 self.sheet.conditional_formats.remove(rule)
-        if self.incoming is not None:
-            register(self.sheet, self.incoming)
-            self.sheet.conditional_formats.append(self.incoming)
+        for rule in self.incoming_rules:
+            register(self.sheet, rule)
+            self.sheet.conditional_formats.append(rule)
         changed(self.sheet)
 
 
@@ -161,13 +172,20 @@ def plan(source: Worksheet, areas: list[Area], destination: Worksheet, landed: l
     if source is destination and (meets(first, last) or any(_touches(rule, last) for rule in incoming)):
         raise _unsupported('with overlapping cells or shared source/destination rules')
     if len(incoming) > 1:
-        raise _unsupported('with multiple incoming rules')
+        slots = [rule.color_slot for rule in incoming]
+        source_slots = Counter(rule.color_slot for rule in source.conditional_formats)
+        if (any(rule.loaded or rule.color_slot is None
+                or source.conditional_color_slots.get(rule.color_slot) is not rule for rule in incoming)
+                or len(set(slots)) != len(slots)
+                or any(source_slots[slot] != 1 for slot in slots)):
+            raise _unsupported('with multiple source rules without measured runtime creation identity')
     guard(destination)
     for owner, area in ((source, first), (destination, last)):
         _layers(owner, area, content=kind == -4104)
+    containers: set[XmlElement] = set()
     for rule in incoming + (list(destination.conditional_formats) if incoming else affected):
         if not rule.deleted:
-            _validate(rule, source.book.stylesheet.dxf_count)
+            _validate(rule, source.book.stylesheet.dxf_count, containers)
     try:
         # Copy formula spelling can fail late in ordinary copy paths. Validate it
         # before either those paths or a differential-style mutation can begin.
@@ -175,16 +193,25 @@ def plan(source: Worksheet, areas: list[Area], destination: Worksheet, landed: l
             for (row, column), cell in source.cells_.items():
                 if first.contains(row, column) and cell.formula:
                     shift_text(cell.formula, last.top - first.top, last.left - first.left)
-        copied: Rule | None = None
-        if incoming:
-            original = incoming[0]
+        # Native priorities follow source priority, while clone creation and
+        # serialization retain the source's stable creation identity order.
+        ordered = sorted(incoming, key=lambda rule: int(rule.root.get('priority', '0')))
+        if len({int(rule.root.get('priority', '0')) for rule in ordered}) != len(ordered):
+            raise _unsupported('with duplicate source priorities')
+        ranks = {rule: index for index, rule in enumerate(ordered, 1)}
+        if len(incoming) > 1:
+            incoming.sort(key=lambda rule: rule.color_slot if rule.color_slot is not None else 0)
+        copied_rules: list[Rule] = []
+        for original in incoming:
             mapped = [Area(max(part.top, first.top) + last.top - first.top,
                            max(part.left, first.left) + last.left - first.left,
                            min(part.bottom, first.bottom) + last.top - first.top,
                            min(part.right, first.right) + last.left - first.left)
                       for part in original.areas if meets(part, first)]
-            copied = Rule(mapped, _root_at(original, mapped), deepcopy(original.container))
-            copied.root.set('priority', '1')
+            container = (XmlElement(original.container.tag, dict(original.container.attrib))
+                         if original.container is not None else XmlElement(NS + 'conditionalFormatting'))
+            copied = Rule(mapped, _root_at(original, mapped), container)
+            copied.root.set('priority', str(ranks[original]))
             identifier = original.root.get('dxfId')
             try:
                 copied.dxf = (deepcopy(original.dxf) if original.dxf is not None
@@ -195,6 +222,7 @@ def plan(source: Worksheet, areas: list[Area], destination: Worksheet, landed: l
                                               or not _attributes_known(node, _DXF_ATTRIBUTES)
                                               for node in copied.dxf.iter()):
                 raise _unsupported('with differential-style extensions')
+            copied_rules.append(copied)
         retained: list[tuple[Rule, list[Area], XmlElement]] = []
         for rule in destination.conditional_formats:
             if rule.deleted:
@@ -206,13 +234,13 @@ def plan(source: Worksheet, areas: list[Area], destination: Worksheet, landed: l
                 kept.extend(pieces[:1])
                 extra.extend(pieces[1:])
             remaining = kept + extra
-            if copied is None and remaining == rule.areas:
+            if not copied_rules and remaining == rule.areas:
                 continue
             root = _root_at(rule, remaining) if remaining else deepcopy(rule.root)
-            if copied is not None and remaining:
-                root.set('priority', str(int(root.get('priority', '0')) + 1))
-            if copied is not None or remaining != rule.areas:
+            if copied_rules and remaining:
+                root.set('priority', str(int(root.get('priority', '0')) + len(copied_rules)))
+            if copied_rules or remaining != rule.areas:
                 retained.append((rule, remaining, root))
-        return ConditionalPlan(destination, retained, copied)
+        return ConditionalPlan(destination, retained, copied_rules)
     except (FormulaError, ValueError):
         raise _unsupported('with formulas or style identifiers that cannot be translated') from None

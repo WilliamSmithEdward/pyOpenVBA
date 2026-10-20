@@ -30,7 +30,7 @@ is a percentage of working macros or complete functionality.
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
-| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support a single incoming rule within one workbook. Overlapping, tiled, transposed, multi-rule and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
+| Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support multiple fresh rules with distinct runtime identities within one workbook. Loaded multi-rule sources, ambiguous worksheet-copy identities, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts and AutoFilter operations. Advanced criteria, sort variants and outline/grouping APIs remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
@@ -233,12 +233,27 @@ pastes with `SkipBlanks` retain their full conditional applicability. Independen
 native reopen controls cover both macro-free and macro-enabled workbooks.
 Worksheet UDF attempts return `False` without changing the workbook; ordinary
 macro calls still perform the copy. Overlaps,
-tiling, transposition, multiple incoming rules, merging paste modes, cross-book
+tiling, transposition, loaded multi-rule sources, merging paste modes, cross-book
 transfers and affected mixed-feature combinations remain guarded. Narrow-column
 `Range.Text` width truncation remains incomplete; these controls use measured
 20-character columns to isolate conditional formatting behavior. See the
 [transfer regressions](../../tests/test_excel_conditional_transfer_core.py) and
 [native transfer/import tests](../../tests/test_excel_conditional_transfer_native.py).
+
+A further **8 native controls** cover fresh multi-rule transfers. Incoming
+priorities follow source priority, while serialized clone order follows source
+creation order. Each rule retains its own clipped applicability and statistical
+population; destination priorities increase by the number of intersecting source
+rules. Held source-style edits do not change copied differential styles. Shared XML containers are validated once per transfer, and cloned containers omit sibling rule payloads; [count-based regressions](../../tests/test_excel_conditional_transfer_groups.py) verify this for 8- and 48-rule groups. Loaded
+multi-rule sources and ambiguous worksheet-copy identities remain unsupported;
+the measured subset does not establish their ordering or identity behavior.
+Another **15 native controls** distinguish specialized property contexts:
+`UniqueValues.DupeUnique` reads the active sheet's matching creation identity,
+returns error 440 when that identity is absent, and reports duplicate mode for
+the measured foreign ordinary, Top10 and AboveAverage rules. Its setter changes
+the owning rule. The measured Top10 and AboveAverage scalar getters and setters
+remain owner-bound. See the [multiple-rule and property regressions](../../tests/test_excel_conditional_multiple.py)
+and [native evidence](../../tests/fixtures/conditional_multiple/native.json).
 
 Another **10 native controls** establish conditional-format API projections:
 number-format getters remove measured unnecessary space/hyphen escapes outside

@@ -295,7 +295,8 @@ are unchanged.
 
 Worksheet.Copy identity behavior has **8 fresh-rule native probes** and
 **4 loaded-rule native probes** covering distinct and shared groups in both
-plain and VBA-bearing workbooks. Copied live groups receive dense independent
+plain and VBA-bearing workbooks. Hashed native JSON evidence retains its exact
+bytes across platform checkouts. Copied live groups receive dense independent
 identities and a matching fresh-rule counter. Copied children recapture priority
 order independently of a source VBA-bearing group's raw child order; original
 identities, tombstones, roots and stored styles remain unchanged. Foreign

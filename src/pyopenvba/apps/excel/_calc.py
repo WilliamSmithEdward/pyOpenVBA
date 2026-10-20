@@ -619,6 +619,10 @@ class Calculator:
         finally:
             self._waiting.difference_update(waiting)
 
+    def is_working(self, sheet: str, row: int, column: int) -> bool:
+        """Whether this exact worksheet formula is currently being evaluated."""
+        return (sheet.lower(), row, column) in self._working
+
     def _value(self, sheet: str, row: int, column: int, force: bool) -> object:
         self.build()
         key = (sheet.lower(), row, column)
@@ -736,13 +740,16 @@ class Calculator:
             working = context()
             return working.array_of(working.formula(node))
 
+        from pyopenvba.apps.excel._udf import evaluation_origin
+
         try:
-            # Worked out afresh on a deeper stack if the formula's tree is deeper than Python's.
-            if compiled.dynamic:
-                return self._spilling(owner, row, column, deep(whole))
-            if block is None:
-                return model_value(deep(one))
-            return _spread(owner, block, deep(whole))
+            # The origin surrounds actual evaluation, including deep scalar/array retries.
+            with evaluation_origin(self.book.application, "worksheet"):
+                if compiled.dynamic:
+                    return self._spilling(owner, row, column, deep(whole))
+                if block is None:
+                    return model_value(deep(one))
+                return _spread(owner, block, deep(whole))
         except EngineError as failure:
             if compiled.dynamic:
                 return self._spilling(owner, row, column, Array([[failure.error]]))

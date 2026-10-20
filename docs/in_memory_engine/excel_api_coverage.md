@@ -206,6 +206,20 @@ See [predicate API tests](../../tests/test_excel_conditional_predicates.py),
 [copy tests](../../tests/test_excel_conditional_predicates_copy.py) and
 [native rendering/import tests](../../tests/test_excel_conditional_predicates_rendering.py).
 
+Native UDF controls distinguish fresh displayed-format acquisition from retained
+objects. A worksheet UDF receives error 1004 when acquiring Range.DisplayFormat;
+objects acquired beforehand remain readable, including across workbooks.
+Conditional-expression UDFs and Application/Worksheet Evaluate calls can acquire
+fresh displayed formats. Evaluation origins are restored after nested calls,
+errors and deferred calculation. A worksheet UDF reading its own Caller.Text
+uses the current cached value, or a temporary zero for an empty result cache; it
+does not store that provisional value. Ordinary Value/Value2 circular-reference
+handling is unchanged. The native fixtures replay 32 controls. Self-recursive
+conditional-UDF partial rendering is still incomplete; its separate raw native
+control is retained without claiming conformance. See the
+[UDF native regressions](../../tests/test_excel_conditional_udf.py) and
+[calculation-context tests](../../tests/test_excel_conditional_udf_context.py).
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in

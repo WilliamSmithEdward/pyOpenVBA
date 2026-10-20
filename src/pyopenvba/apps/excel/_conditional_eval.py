@@ -33,7 +33,10 @@ def _matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
 
     def evaluated(text: str) -> Scalar:
         formula = shift_text('=' + decode(text).removeprefix('='), row - anchor.top, column - anchor.left)
-        return context.first(context.formula(calculator.engine_book.read(formula)))
+        from pyopenvba.apps.excel._udf import evaluation_origin
+
+        with evaluation_origin(sheet.book.application, "conditional"):
+            return context.first(context.formula(calculator.engine_book.read(formula)))
 
     formulas = [entry.text or '' for entry in rule.root.findall(NS + 'formula')]
     kind = rule.root.get('type', '')

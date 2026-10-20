@@ -13,7 +13,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area, parse_area
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_parser, xml_tree
 from pyopenvba.apps.excel._conditional_predicates import (
     PREDICATE_TYPES,
@@ -54,6 +54,8 @@ class Rule:
     imported: bool = False
     color_slot: int | None = None
     loaded: bool = False
+    plain_load: bool | None = None
+    child_order: int | None = None
 
 
 def formula_anchor(areas: list[Area]) -> Area:
@@ -63,23 +65,94 @@ def formula_anchor(areas: list[Area]) -> Area:
 
 
 def column_order(area: Area) -> tuple[int, int, int, int]:
-    """Native macro-free group identity orders columns before rows."""
-    return area.left, area.top, area.right, area.bottom
+    """Native group ordering compares each column interval before its row interval."""
+    return area.left, area.right, area.top, area.bottom
+
+
+def canonical_load(rule: Rule) -> bool:
+    """The package's captured plain-load mode is independent of source FileFormat."""
+    return rule.imported if rule.plain_load is None else rule.plain_load
 
 
 def projected_areas(rule: Rule) -> list[Area]:
-    """FileFormat51 generic rules expose row order; statistical populations retain input order."""
+    """Plain-loaded generic rules expose row order; statistical populations retain input order."""
     if rule.imported and rule.root.get('type') not in ('top10', 'aboveAverage', 'uniqueValues', 'duplicateValues'):
         return sorted(rule.areas, key=lambda area: (area.top, area.left, area.bottom, area.right))
     return list(rule.areas)
 
 
-def group_order(rule: Rule) -> tuple[int, int, int, int]:
-    """Loaded51 group identity uses the first family-projected area, then column order."""
-    return column_order(projected_areas(rule)[0])
+def group_order(rule: Rule) -> tuple[tuple[int, int, int, int], ...]:
+    """Plain-loaded groups compare the complete ordered family-projected population."""
+    end = (MAX_COLUMNS + 1, MAX_COLUMNS + 1, MAX_ROWS + 1, MAX_ROWS + 1)
+    return (*tuple(column_order(area) for area in projected_areas(rule)), end)
 
 
-def read_rules(xml: str, *, imported: bool = True) -> list[Rule]:
+def _plain_container(rule: Rule) -> bool:
+    container = rule.container
+    return container is not None and container.tag == NS + 'conditionalFormatting' and all(
+        key == 'sqref' or key == 'xmlns' or key.startswith('xmlns:') for key in container.attrib
+    ) and all(child.tag == NS + 'cfRule' for child in container)
+
+
+def rule_groups(rules: list[Rule]) -> list[list[Rule]]:
+    """Stage native groups without changing stored populations, rules or metadata."""
+    groups: list[list[Rule]] = []
+    plain: dict[XmlElement, bool] = {}
+    metadata_cache: dict[XmlElement, tuple[tuple[str, str], ...]] = {}
+
+    def canonical_container(rule: Rule) -> bool:
+        container = rule.container
+        if not canonical_load(rule) or container is None:
+            return False
+        if container not in plain:
+            plain[container] = _plain_container(rule)
+        return plain[container]
+
+    lookup: dict[tuple[object, ...], list[Rule]] = {}
+    for rule in rules:
+        if rule.deleted or not rule.areas:
+            continue
+        population = group_order(rule)
+        if canonical_container(rule):
+            assert rule.container is not None
+            if rule.container not in metadata_cache:
+                metadata_cache[rule.container] = tuple(sorted(
+                    (key, value) for key, value in rule.container.attrib.items() if key != 'sqref'))
+            metadata = metadata_cache[rule.container]
+            key: tuple[object, ...] = (('captured', rule.color_slot, population, metadata)
+                                      if rule.child_order is not None else ('canonical', population, metadata))
+        else:
+            key = ('raw', id(rule.container), population, rule.imported,
+                   rule.color_slot if rule.child_order is not None else None)
+        group = lookup.get(key)
+        if group is None:
+            new_group: list[Rule] = []
+            lookup[key] = new_group
+            groups.append(new_group)
+            group = new_group
+        group.append(rule)
+    canonical: list[list[Rule]] = []
+    for group in groups:
+        captured_children = all(rule.child_order is not None for rule in group)
+        if captured_children or canonical_container(group[0]):
+            try:
+                ordered = sorted(group, key=lambda rule: rule.child_order if rule.child_order is not None
+                                 else int(rule.root.get('priority', '0')))
+            except ValueError:
+                ordered = list(group)
+            group[:] = ordered
+        if canonical_container(group[0]):
+            canonical.append(group)
+    canonical.sort(key=lambda group: group_order(group[0]))
+    ordered_groups = iter(canonical)
+    groups = [next(ordered_groups) if canonical_container(group[0]) else group for group in groups]
+    captured = sorted((group for group in groups if group[0].child_order is not None),
+                      key=lambda group: group[0].color_slot or 0)
+    captured_groups = iter(captured)
+    return [next(captured_groups) if group[0].child_order is not None else group for group in groups]
+
+
+def read_rules(xml: str, *, imported: bool = True, plain_load: bool | None = None) -> list[Rule]:
     root = xml_tree(xml)
     rules: list[Rule] = []
     for group in root.findall(NS + 'conditionalFormatting'):
@@ -89,38 +162,43 @@ def read_rules(xml: str, *, imported: bool = True) -> list[Rule]:
                 group.attrib.setdefault(key, value)
         areas = [parse_area(value) for value in group.get('sqref', '').split()]
         if areas:
-            rules.extend(Rule(list(areas), entry, group, imported=imported, loaded=True) for entry in group.findall(NS + 'cfRule'))
+            rules.extend(Rule(list(areas), entry, group, imported=imported if plain_load is None else plain_load,
+                              loaded=True, plain_load=plain_load) for entry in group.findall(NS + 'cfRule'))
     return rules
 
 
 def with_rules(xml: str, rules: list[Rule]) -> str:
     """Replace standard rules while retaining container and extension metadata."""
-    groups: list[tuple[XmlElement | None, list[Area], XmlElement, bool, tuple[int, int, int, int]]] = []
-    for rule in rules:
-        if rule.deleted or not rule.areas:
-            continue
-        serialized_areas = projected_areas(rule)
-        group = next((output for original, areas, output, _, _ in groups
-                      if original is rule.container and areas == serialized_areas), None)
-        if group is None:
-            group = deepcopy(rule.container) if rule.container is not None else XmlElement(NS + 'conditionalFormatting')
-            for entry in group.findall(NS + 'cfRule'):
-                group.remove(entry)
-            group.set('sqref', ' '.join(area.address(absolute=False) for area in serialized_areas))
-            groups.append((rule.container, serialized_areas, group, rule.imported, group_order(rule)))
+    groups: list[XmlElement] = []
+    plain_containers: dict[XmlElement, bool] = {}
+    for entries in rule_groups(rules):
+        first = entries[0]
+        serialized_areas = projected_areas(first)
+        container = first.container
+        if container is None:
+            group = XmlElement(NS + 'conditionalFormatting')
+        else:
+            if container not in plain_containers:
+                plain_containers[container] = _plain_container(first)
+            if plain_containers[container]:
+                group = XmlElement(container.tag, dict(container.attrib))
+                group.text, group.tail = container.text, container.tail
+            else:
+                group = deepcopy(container)
+                for entry in group.findall(NS + 'cfRule'):
+                    group.remove(entry)
+        group.set('sqref', ' '.join(area.address(absolute=False) for area in serialized_areas))
         # cfRule precedes extLst in CT_ConditionalFormatting.
         before = next((i for i, entry in enumerate(group) if entry.tag == NS + 'extLst'), len(group))
-        copied = deepcopy(rule.root)
-        if copied.get('type') in TEXT_TYPES and copied.get('text') is not None:
-            if any('\x00' in decode(entry.text or '') for entry in copied.findall(NS + 'formula')):
-                raise VBAUnsupportedError('Saving conditional formulas containing NUL is not supported by native Excel')
-            copied.set('text', saved_text(copied.get('text', '')))
-        group.insert(before, copied)
-    # Only loaded FileFormat51 groups carry native canonical load ordering.
-    # Fresh and macro-enabled groups retain their original relative positions.
-    canonical = iter(sorted((group for group in groups if group[3]),
-                            key=lambda group: group[4]))
-    groups = [next(canonical) if group[3] else group for group in groups]
+        for rule in entries:
+            copied = deepcopy(rule.root)
+            if copied.get('type') in TEXT_TYPES and copied.get('text') is not None:
+                if any('\x00' in decode(entry.text or '') for entry in copied.findall(NS + 'formula')):
+                    raise VBAUnsupportedError('Saving conditional formulas containing NUL is not supported by native Excel')
+                copied.set('text', saved_text(copied.get('text', '')))
+            group.insert(before, copied)
+            before += 1
+        groups.append(group)
     data = xml.encode('utf-8')
     parser = xml_parser()
     depth, active = 0, None
@@ -166,7 +244,7 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
     parser.StartElementHandler, parser.EndElementHandler = start, end
     parser.Parse(data, True)
     assert insertion is not None
-    markup = b''.join(xml_bytes(group).split(b'?>', 1)[1].lstrip() for _, _, group, _, _ in groups)
+    markup = b''.join(xml_bytes(group).split(b'?>', 1)[1].lstrip() for group in groups)
     root_end = tag_end(root_start)
     if data[root_start:root_end].endswith(b'/>'):
         if not markup:
@@ -486,6 +564,9 @@ class _ConditionalRule(ExcelObject):
         guard(self.sheet)
         if self.rule not in self.sheet.conditional_formats:
             raise error(1004)
+        from pyopenvba.apps.excel._conditional_border_context import delete_member
+
+        delete_member(self.sheet, self.rule)
         self.sheet.conditional_formats.remove(self.rule)
         self.rule.deleted = True
         changed(self.sheet)
@@ -499,9 +580,27 @@ class _ConditionalRule(ExcelObject):
         guard(self.sheet)
         if not isinstance(Range, ExcelRange) or Range.sheet is not self.sheet:
             raise error(1004)
-        self.rule.areas = [Area(a.top, a.left, a.bottom, a.right) for a in Range.areas]
+        areas = [Area(a.top, a.left, a.bottom, a.right) for a in Range.areas]
+        prepared = deepcopy(self.rule.root)
+        if prepared.get('type') in ('cellIs', 'expression'):
+            from pyopenvba.formula._parse import FormulaError, shift_text
+
+            old, new = formula_anchor(self.rule.areas), formula_anchor(areas)
+            try:
+                for child in prepared.findall(NS + 'formula'):
+                    if child.text:
+                        child.text = encode_text(shift_text('=' + decode(child.text), new.top - old.top,
+                                                            new.left - old.left)[1:])
+            except FormulaError:
+                raise VBAUnsupportedError('Rebasing this conditional formatting formula is not implemented') from None
+        else:
+            regenerate(prepared, formula_anchor(areas))
+        from pyopenvba.apps.excel._conditional_border_context import move_member
+
+        move_member(self.sheet, self.rule)
+        self.rule.areas = areas
         self.rule.imported = False
-        regenerate(self.rule.root, formula_anchor(self.rule.areas))
+        self.rule.root[:] = list(prepared)
         changed(self.sheet)
         return EMPTY
 

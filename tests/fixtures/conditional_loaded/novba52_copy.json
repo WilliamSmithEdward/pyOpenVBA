@@ -1,0 +1,75 @@
+{
+  "started": "2026-10-20T21:50:18.239895+00:00",
+  "instrumentation": "none; ASCII VBA; line_numbers=False; controller opens noVBA52 target withoutVBProjectaccess, explicitData.Activate beforeobservations",
+  "probes": [
+    {
+      "name": "three-reverse-areas",
+      "input_file": "novba52/three-reverse-areas-novba.xlsm",
+      "native_original_file": "three-reverse-areas-original.xlsm",
+      "input_setup": "Sub Setup()\nDim f As Object\nActiveSheet.Name=\"Data\"\nSet f=Union(Range(\"A2:A5\"),Range(\"F1:F4\"),Range(\"C1:C4\")).FormatConditions.Add(2,Formula1:=\"=A2>0\")\nf.Font.Bold=True\nSet f=Range(\"H20:H21\").FormatConditions.Add(2,Formula1:=\"=H20<8\")\nf.Font.Italic=True\nEnd Sub",
+      "provenance": {
+        "native_sha256": "56bb1b876fc57bb05f6971959825012dd59c07eb34ebbf2c1801e549d8192cf0",
+        "derived_sha256": "bc8f82fc5dbda07d4ed11da35eefd310d1d1d88686b365b4fade0677648724df",
+        "removed_parts": [
+          "xl/vbaProject.bin"
+        ],
+        "rewritten_package_metadata": [
+          "[Content_Types].xml",
+          "xl/_rels/workbook.xml.rels"
+        ]
+      },
+      "input_xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{0BB5679A-E2A5-4316-AE16-9834007E9075}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData/><conditionalFormatting sqref=\"A2:A5 F1:F4 C1:C4\"><cfRule type=\"expression\" dxfId=\"1\" priority=\"1\" stopIfTrue=\"1\"><formula>A1&gt;0</formula></cfRule></conditionalFormatting><conditionalFormatting sqref=\"H20:H21\"><cfRule type=\"expression\" dxfId=\"0\" priority=\"2\" stopIfTrue=\"1\"><formula>H20&lt;8</formula></cfRule></conditionalFormatting><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "source": "Function Snapshot() As String\nDim f As Object,s As String\nWorksheets(\"Data\").Activate\nFor Each f In Worksheets(\"Data\").Cells.FormatConditions\ns=s & \"[\" & f.AppliesTo.Address & \":p=\" & CStr(f.Priority) & \":f=\" & CStr(f.Formula1) & \"]\"\nNext\nSnapshot=s\nEnd Function\nFunction Capture() As String\nDim t As Workbook,s As String\nSet t=Workbooks.Open(\"C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\three-reverse-areas-novba.xlsm\",0,True)\ns=\"props=\" & CStr(t.FileFormat) & \"|\" & CStr(t.HasVBProject)\nt.Worksheets(\"Data\").Activate\ns=s & \"||BEFORE||\" & Snapshot()\nt.Worksheets(\"Data\").Range(\"A1:F5\").Copy Destination:=t.Worksheets(\"Data\").Range(\"J1:O5\")\nApplication.CutCopyMode=False\ns=s & \"||AFTER||\" & Snapshot()\nt.SaveAs \"C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\three-reverse-areas-copied.xlsm\",52\nt.Close False\nSet t=Workbooks.Open(\"C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\three-reverse-areas-copied.xlsm\",0,True)\ns=s & \"||REOPEN||\" & Snapshot()\nt.Close False\nCapture=s\nEnd Function",
+      "inspection_source": "Function Snapshot() As String\nDim f As Object,s As String\nWorksheets(\"Data\").Activate\nFor Each f In Worksheets(\"Data\").Cells.FormatConditions\ns=s & \"[\" & f.AppliesTo.Address & \":p=\" & CStr(f.Priority) & \":f=\" & CStr(f.Formula1) & \"]\"\nNext\nSnapshot=s\nEnd Function",
+      "result": "props=52|False||BEFORE||[$C$1:$C$4,$F$1:$F$4,$A$2:$A$5:p=1:f==A1>0][$H$20:$H$21:p=2:f==H20<8]||AFTER||[$L$1:$L$4,$O$1:$O$4,$J$2:$J$5:p=1:f==J1>0][$C$1:$C$4,$F$1:$F$4,$A$2:$A$5:p=2:f==A1>0][$H$20:$H$21:p=3:f==H20<8]||REOPEN||[$L$1:$L$4,$O$1:$O$4,$J$2:$J$5:p=1:f==J1>0][$C$1:$C$4,$F$1:$F$4,$A$2:$A$5:p=2:f==A1>0][$H$20:$H$21:p=3:f==H20<8]",
+      "properties": "props=52|False",
+      "before": "[$C$1:$C$4,$F$1:$F$4,$A$2:$A$5:p=1:f==A1>0][$H$20:$H$21:p=2:f==H20<8]",
+      "runtime_final": "[$L$1:$L$4,$O$1:$O$4,$J$2:$J$5:p=1:f==J1>0][$C$1:$C$4,$F$1:$F$4,$A$2:$A$5:p=2:f==A1>0][$H$20:$H$21:p=3:f==H20<8]",
+      "reopened52": "[$L$1:$L$4,$O$1:$O$4,$J$2:$J$5:p=1:f==J1>0][$C$1:$C$4,$F$1:$F$4,$A$2:$A$5:p=2:f==A1>0][$H$20:$H$21:p=3:f==H20<8]",
+      "file52": "three-reverse-areas-copied.xlsm",
+      "xml52": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{0BB5679A-E2A5-4316-AE16-9834007E9075}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData/><conditionalFormatting sqref=\"C1:C4 F1:F4 A2:A5\"><cfRule type=\"expression\" dxfId=\"2\" priority=\"2\" stopIfTrue=\"1\"><formula>A1&gt;0</formula></cfRule></conditionalFormatting><conditionalFormatting sqref=\"H20:H21\"><cfRule type=\"expression\" dxfId=\"1\" priority=\"3\" stopIfTrue=\"1\"><formula>H20&lt;8</formula></cfRule></conditionalFormatting><conditionalFormatting sqref=\"L1:L4 O1:O4 J2:J5\"><cfRule type=\"expression\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\"><formula>J1&gt;0</formula></cfRule></conditionalFormatting><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "source_range": "A1:F5",
+      "destination_range": "J1:O5"
+    },
+    {
+      "name": "two-reverse-areas",
+      "input_file": "novba52/two-reverse-areas-novba.xlsm",
+      "native_original_file": "two-reverse-areas-original.xlsm",
+      "input_setup": "Sub Setup()\nDim f As Object\nActiveSheet.Name=\"Data\"\nSet f=Union(Range(\"A9:A10\"),Range(\"C1:C2\")).FormatConditions.Add(2,Formula1:=\"=A2>0\")\nf.Font.Bold=True\nSet f=Range(\"H20:H21\").FormatConditions.Add(2,Formula1:=\"=H20<8\")\nf.Font.Italic=True\nEnd Sub",
+      "provenance": {
+        "native_sha256": "609971d89a3d7c588b79fd7728db797ff5396e7b29414e6cf18d059ad4a87806",
+        "derived_sha256": "3dcfdab6e49439d93b9ec546dfa213b400ea6f6d82e66c92b6c9cb7b3a479aef",
+        "removed_parts": [
+          "xl/vbaProject.bin"
+        ],
+        "rewritten_package_metadata": [
+          "[Content_Types].xml",
+          "xl/_rels/workbook.xml.rels"
+        ]
+      },
+      "input_xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{750790C5-405D-4117-9E9E-8377DDF332E6}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData/><conditionalFormatting sqref=\"A9:A10 C1:C2\"><cfRule type=\"expression\" dxfId=\"1\" priority=\"1\" stopIfTrue=\"1\"><formula>A1048570&gt;0</formula></cfRule></conditionalFormatting><conditionalFormatting sqref=\"H20:H21\"><cfRule type=\"expression\" dxfId=\"0\" priority=\"2\" stopIfTrue=\"1\"><formula>H20&lt;8</formula></cfRule></conditionalFormatting><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "source": "Function Snapshot() As String\nDim f As Object,s As String\nWorksheets(\"Data\").Activate\nFor Each f In Worksheets(\"Data\").Cells.FormatConditions\ns=s & \"[\" & f.AppliesTo.Address & \":p=\" & CStr(f.Priority) & \":f=\" & CStr(f.Formula1) & \"]\"\nNext\nSnapshot=s\nEnd Function\nFunction Capture() As String\nDim t As Workbook,s As String\nSet t=Workbooks.Open(\"C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\two-reverse-areas-novba.xlsm\",0,True)\ns=\"props=\" & CStr(t.FileFormat) & \"|\" & CStr(t.HasVBProject)\nt.Worksheets(\"Data\").Activate\ns=s & \"||BEFORE||\" & Snapshot()\nt.Worksheets(\"Data\").Range(\"A1:C10\").Copy Destination:=t.Worksheets(\"Data\").Range(\"J1:L10\")\nApplication.CutCopyMode=False\ns=s & \"||AFTER||\" & Snapshot()\nt.SaveAs \"C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\two-reverse-areas-copied.xlsm\",52\nt.Close False\nSet t=Workbooks.Open(\"C:\\Users\\William\\.codex\\worktrees\\conditional-loaded\\pyOpenVBA\\.cache\\conditional-loaded-candidate\\novba-copy-native-samples\\two-reverse-areas-copied.xlsm\",0,True)\ns=s & \"||REOPEN||\" & Snapshot()\nt.Close False\nCapture=s\nEnd Function",
+      "inspection_source": "Function Snapshot() As String\nDim f As Object,s As String\nWorksheets(\"Data\").Activate\nFor Each f In Worksheets(\"Data\").Cells.FormatConditions\ns=s & \"[\" & f.AppliesTo.Address & \":p=\" & CStr(f.Priority) & \":f=\" & CStr(f.Formula1) & \"]\"\nNext\nSnapshot=s\nEnd Function",
+      "result": "props=52|False||BEFORE||[$C$1:$C$2,$A$9:$A$10:p=1:f==A1048570>0][$H$20:$H$21:p=2:f==H20<8]||AFTER||[$L$1:$L$2,$J$9:$J$10:p=1:f==J1048570>0][$C$1:$C$2,$A$9:$A$10:p=2:f==A1048570>0][$H$20:$H$21:p=3:f==H20<8]||REOPEN||[$L$1:$L$2,$J$9:$J$10:p=1:f==J1048570>0][$C$1:$C$2,$A$9:$A$10:p=2:f==A1048570>0][$H$20:$H$21:p=3:f==H20<8]",
+      "properties": "props=52|False",
+      "before": "[$C$1:$C$2,$A$9:$A$10:p=1:f==A1048570>0][$H$20:$H$21:p=2:f==H20<8]",
+      "runtime_final": "[$L$1:$L$2,$J$9:$J$10:p=1:f==J1048570>0][$C$1:$C$2,$A$9:$A$10:p=2:f==A1048570>0][$H$20:$H$21:p=3:f==H20<8]",
+      "reopened52": "[$L$1:$L$2,$J$9:$J$10:p=1:f==J1048570>0][$C$1:$C$2,$A$9:$A$10:p=2:f==A1048570>0][$H$20:$H$21:p=3:f==H20<8]",
+      "file52": "two-reverse-areas-copied.xlsm",
+      "xml52": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{750790C5-405D-4117-9E9E-8377DDF332E6}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData/><conditionalFormatting sqref=\"C1:C2 A9:A10\"><cfRule type=\"expression\" dxfId=\"2\" priority=\"2\" stopIfTrue=\"1\"><formula>A1048570&gt;0</formula></cfRule></conditionalFormatting><conditionalFormatting sqref=\"H20:H21\"><cfRule type=\"expression\" dxfId=\"1\" priority=\"3\" stopIfTrue=\"1\"><formula>H20&lt;8</formula></cfRule></conditionalFormatting><conditionalFormatting sqref=\"L1:L2 J9:J10\"><cfRule type=\"expression\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\"><formula>J1048570&gt;0</formula></cfRule></conditionalFormatting><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "source_range": "A1:C10",
+      "destination_range": "J1:L10"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "completed": true,
+  "session_closed_utc": "2026-10-20T21:50:23.770946+00:00"
+}

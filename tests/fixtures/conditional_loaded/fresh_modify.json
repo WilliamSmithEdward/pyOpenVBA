@@ -1,0 +1,20 @@
+{
+  "started": "2026-10-20T21:57:14.321353+00:00",
+  "instrumentation": "none; line_numbers=False; ASCII VBA; single fresh ordinary expression, held and fresh collection getter evidence",
+  "probes": [
+    {
+      "name": "fresh-expression-new-anchor",
+      "source": "Function Describe(f As Object) As String\nDescribe=\"range=\" & f.AppliesTo.Address & \";formula=\" & CStr(f.Formula1) & \";priority=\" & CStr(f.Priority)\nEnd Function\nFunction Snapshot() As String\nSnapshot=Describe(Worksheets(\"Data\").Cells.FormatConditions(1))\nEnd Function\nFunction Probe() As String\nDim f As Object,s As String\nActiveSheet.Name=\"Data\"\nSet f=Range(\"A1:A5\").FormatConditions.Add(2,Formula1:=\"=A1>0\")\ns=\"before=[\" & Describe(f) & \"]\"\nf.ModifyAppliesToRange Union(Range(\"M8:M9\"),Range(\"K3:K5\"))\nProbe=s & \";held=[\" & Describe(f) & \"];fresh=[\" & Snapshot() & \"]\"\nEnd Function",
+      "result": "before=[range=$A$1:$A$5;formula==A1>0;priority=1];held=[range=$M$8:$M$9,$K$3:$K$5;formula==K3>0;priority=1];fresh=[range=$M$8:$M$9,$K$3:$K$5;formula==K3>0;priority=1]",
+      "runtime_final": "range=$M$8:$M$9,$K$3:$K$5;formula==K3>0;priority=1",
+      "file52": "fresh-modify-native-sample.xlsm",
+      "xml52": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{FA318017-7D55-45E5-A5D5-DDC69BD2EE4F}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData/><conditionalFormatting sqref=\"M8:M9 K3:K5\"><cfRule type=\"expression\" priority=\"1\" stopIfTrue=\"1\"><formula>K3&gt;0</formula></cfRule></conditionalFormatting><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "reopened52": "range=$M$8:$M$9,$K$3:$K$5;formula==K3>0;priority=1"
+    }
+  ],
+  "excel_version_build": "16.0|20430",
+  "completed": true,
+  "session_closed_utc": "2026-10-20T21:57:18.966254+00:00"
+}

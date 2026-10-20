@@ -16,17 +16,17 @@ STATISTICAL = frozenset(('top10', 'aboveAverage', 'uniqueValues', 'duplicateValu
 
 def initialize(sheet: Worksheet) -> None:
     """Reindex live loaded rules in their format's native group-load order."""
-    from pyopenvba.apps.excel._conditional import group_order
+    from pyopenvba.apps.excel._conditional import rule_groups
 
     if sheet.conditional_color_slots or sheet.conditional_color_next:
         return
-    rules = list(sheet.conditional_formats)
-    if rules and rules[0].imported:
-        rules.sort(key=group_order)
-    sheet.conditional_color_slots = dict(enumerate(rules, 1))
-    for slot, rule in sheet.conditional_color_slots.items():
-        rule.color_slot = slot
-    sheet.conditional_color_next = len(rules)
+    groups = rule_groups(sheet.conditional_formats)
+    sheet.conditional_color_slots = {slot: group[0] for slot, group in enumerate(groups, 1)}
+    for slot, group in enumerate(groups, 1):
+        for order, rule in enumerate(group):
+            rule.color_slot = slot
+            rule.child_order = order
+    sheet.conditional_color_next = len(groups)
 
 
 def register(sheet: Worksheet, rule: Rule) -> None:
@@ -34,6 +34,38 @@ def register(sheet: Worksheet, rule: Rule) -> None:
     sheet.conditional_color_next += 1
     rule.color_slot = sheet.conditional_color_next
     sheet.conditional_color_slots[rule.color_slot] = rule
+
+
+def _siblings(sheet: Worksheet, rule: Rule) -> list[Rule]:
+    if rule.child_order is None or rule.color_slot is None:
+        return []
+    return sorted((other for other in sheet.conditional_formats
+                   if not other.deleted and other.color_slot == rule.color_slot),
+                  key=lambda other: other.child_order if other.child_order is not None else 0)
+
+
+def delete_member(sheet: Worksheet, rule: Rule) -> None:
+    """An individual deletion retains the target's slot and materializes survivors together."""
+    siblings = _siblings(sheet, rule)
+    if len(siblings) < 2:
+        return
+    assert rule.color_slot is not None
+    sheet.conditional_color_slots[rule.color_slot] = rule
+    survivors = [other for other in siblings if other is not rule]
+    register(sheet, survivors[0])
+    for other in survivors[1:]:
+        other.color_slot = survivors[0].color_slot
+
+
+def move_member(sheet: Worksheet, rule: Rule) -> None:
+    """A shared-rule range change appends the moved member after the untouched group."""
+    siblings = _siblings(sheet, rule)
+    if len(siblings) < 2:
+        return
+    assert rule.color_slot is not None
+    sheet.conditional_color_slots[rule.color_slot] = next(other for other in siblings if other is not rule)
+    register(sheet, rule)
+    rule.child_order = 0
 
 
 def _root(sheet: Worksheet, rule: Rule) -> XmlElement:

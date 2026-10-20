@@ -119,7 +119,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             sheet.validations = read_rules(sheet_xml)
             from pyopenvba.apps.excel._conditional import read_rules as read_conditional_rules
 
-            sheet.conditional_formats = read_conditional_rules(sheet_xml, imported=workbook_format(book) == 51)
+            sheet.conditional_formats = read_conditional_rules(
+                sheet_xml, imported=workbook_format(book) == 51,
+                plain_load=workbook_format(book) == 51 or not package.has('xl/vbaProject.bin'))
             from pyopenvba.apps.excel._conditional_border_context import initialize
 
             initialize(sheet)
@@ -146,10 +148,15 @@ def _relationship_map(package: OpcFile) -> dict[str, str]:
     """Each workbook relationship id against the part it names."""
     if not package.has("xl/_rels/workbook.xml.rels"):
         return {}
-    text = package.read("xl/_rels/workbook.xml.rels").decode("utf-8", errors="replace")
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    namespace = '{http://schemas.openxmlformats.org/package/2006/relationships}'
+    root = xml_tree(package.read("xl/_rels/workbook.xml.rels"))
+    if root.tag != namespace + 'Relationships':
+        raise WorkbookFileError('The workbook relationships use an unsupported root or namespace')
     out: dict[str, str] = {}
-    for element in re.findall(r"<Relationship\b[^>]*/>", text):
-        attributes = _attributes(element)
+    for element in root.findall(namespace + 'Relationship'):
+        attributes = element.attrib
         target = attributes.get("Target", "")
         if not target:
             continue
@@ -1235,7 +1242,18 @@ def save_workbook(book: Workbook, target: Path) -> None:
         package.write("xl/workbook.xml", calculated_xml.encode("utf-8"))
     from pyopenvba.apps.excel._vba_save import persist_project
 
+    had_project = package.has('xl/vbaProject.bin')
     package = persist_project(book, package)
+    if not had_project and package.has('xl/vbaProject.bin'):
+        from pyopenvba.apps.excel._conditional import canonical_load
+        from pyopenvba.apps.excel._conditional import with_rules as conditional_xml
+
+        for sheet in book.sheets_:
+            if sheet.part_name and any(canonical_load(rule) for rule in sheet.conditional_formats):
+                original = package.read(sheet.part_name).decode('utf-8')
+                rewritten = conditional_xml(original, sheet.conditional_formats)
+                if rewritten != original:
+                    package.write(sheet.part_name, rewritten.encode('utf-8'))
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
     book.package = package

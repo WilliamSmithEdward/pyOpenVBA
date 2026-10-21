@@ -1,0 +1,41 @@
+{
+  "raw_sha256": "40b5d2840bd9061c547b2ebbe4c97541c2b9163369ec8ed8bdf9b71d438a26f4",
+  "cases": {
+    "fresh-unapplied-options": {
+      "source_sha256": "4bae10579c436466adc56038f613ba806cb28debc83c9c8f92a9b308e732875f",
+      "admission": "runtime-only-persistence-deferred"
+    },
+    "fresh-applied-edited-field": {
+      "source_sha256": "9bd4fc623e5b63c8567e85e097088dcfa73360fda2a74cc74658b7c278ea21a3",
+      "admission": "runtime-and-reopen"
+    },
+    "loaded-options": {
+      "source_sha256": "1a59c72842bfab0fb887da27e8d4d467e301af275f8e30b1a1d4ebe5ac56e5d2",
+      "admission": "runtime-only-persistence-deferred"
+    },
+    "loaded-field-order-option": {
+      "source_sha256": "15f16c231222cfd8da6306d3e0b46cfb821a71350ed9bbfbd3637d33bb089b1a",
+      "admission": "runtime-and-reopen"
+    },
+    "loaded-clear": {
+      "source_sha256": "7de3692fb8eddecf13705071e4a1d30f75d51a7dc0a6201a202959f04202a160",
+      "admission": "runtime-and-reopen"
+    },
+    "loaded-replace-range-fields": {
+      "source_sha256": "85f6895ce3c7bbe41470421f29f0a04e075209eab391a100c00407594e5b5c7f",
+      "admission": "runtime-and-reopen"
+    }
+  },
+  "samples": {
+    "fresh-unapplied-options.xlsx": "5850eda9f495053382acf08e4e1f71f1cef7f6503028ea9dfd11e0b5f201deb6",
+    "fresh-applied-edited-field.xlsx": "2e78e0065386e2e957fdd67927d4225a8fd5b0d6015a0bb35f82db035df24596",
+    "loaded-options-before.xlsx": "760163e9a0edb800e882f6290461b2357352e846b9e97576d2a61a5e0969019a",
+    "loaded-options.xlsx": "c7c0180b12e37d0b968cd04443851b1a55ad1882fbc7bef596d026046478ed7e",
+    "loaded-field-order-option-before.xlsx": "125a0e5164fdf11849324bc7f6c9c519bb38edff376c1f5f74981238ffd642ef",
+    "loaded-field-order-option.xlsx": "cc79f24c2a3db522a3e8fd9a6b05fe29c8128dcd4a6f849308720b522c4f3831",
+    "loaded-clear-before.xlsx": "4132b82aec3f5b1af2089c4955e4a882fa6f9eee09085b6ade109c17e642e22c",
+    "loaded-clear.xlsx": "c44a1f6ab3475345d3338409628e3ce99283a662626f6de46363220be3f988d1",
+    "loaded-replace-range-fields-before.xlsx": "c4cf38a8e8621776494033a72c423e4dc702cb7ab77db8ee7a1889ca6b034514",
+    "loaded-replace-range-fields.xlsx": "814f4c590ce45d14f82c4c853a0675909f986112e1803626e511a2049ef2493b"
+  }
+}

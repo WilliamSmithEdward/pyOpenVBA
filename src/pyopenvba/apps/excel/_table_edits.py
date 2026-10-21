@@ -62,6 +62,10 @@ def add_row(table: Table, position: int | None, always_insert: bool) -> int:
     else:
         raise error(9, "Subscript out of range")
     at_end = index == count + 1
+    if not at_end:
+        from pyopenvba.apps.excel._table_sort import guard_edit
+
+        guard_edit(table, 'inserting inside')
     below = Area(row, area.left, row, area.right, sheet.name)
     if at_end and not table.totals and not always_insert and _empty(sheet, below):
         pass
@@ -77,6 +81,10 @@ def add_row(table: Table, position: int | None, always_insert: bool) -> int:
 
 def delete_row(table: Table, index: int) -> None:
     """ListRow.Delete: the row's cells in the table's columns deleted, those under them moving up."""
+    from pyopenvba.apps.excel._table_sort import guard_edit
+
+    guard_edit(table, 'deleting rows from')
+
     from pyopenvba.apps.excel._editing import shift_cells
     from pyopenvba.apps.excel._model import Range
 
@@ -164,6 +172,10 @@ def _stretch(table: Table, last: int) -> None:
 
 def add_column(table: Table, position: int | None) -> int:
     """ListColumns.Add: the index of the column put in, named the first free ColumnN."""
+    from pyopenvba.apps.excel._table_sort import guard_edit
+
+    guard_edit(table, 'adding columns to')
+
     from pyopenvba.apps.excel._editing import shift_cells
     from pyopenvba.apps.excel._model import Range
 
@@ -186,6 +198,10 @@ def add_column(table: Table, position: int | None) -> int:
 def delete_column(table: Table, index: int) -> None:
     """ListColumn.Delete: the column's cells deleted, those right of them in the table's rows moving across, and
     every structured reference to it #REF!."""
+    from pyopenvba.apps.excel._table_sort import guard_edit
+
+    guard_edit(table, 'deleting columns from')
+
     from pyopenvba.apps.excel._editing import shift_cells
     from pyopenvba.apps.excel._model import Range
 
@@ -223,6 +239,10 @@ def _lose_columns(table: Table, names: set[str]) -> None:
 def resize(table: Table, area: Area) -> None:
     """ListObject.Resize: the table over another block, the same header row. Measured: a block starting on
     another row is error 1004."""
+    if area.columns != table.area.columns or area.rows < table.area.rows:
+        from pyopenvba.apps.excel._table_sort import guard_edit
+
+        guard_edit(table, 'shrinking or changing columns of')
     if area.top != table.area.top:
         raise error(1004, "The table's header row cannot move")
     if area.left != table.area.left or table.totals or not table.headers:
@@ -247,6 +267,10 @@ def resize(table: Table, area: Area) -> None:
 
 def delete_table(table: Table) -> None:
     """ListObject.Delete: the table's cells cleared, formats and all, and every reference to it #REF!."""
+    from pyopenvba.apps.excel._table_sort import guard_edit
+
+    guard_edit(table, 'deleting')
+
     sheet, area = table.sheet, table.area
     wanted = table.name.lower()
 

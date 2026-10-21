@@ -2,7 +2,7 @@
 
 Snapshot: **20 October 2026**, covering the current source tree, including
 local AdvancedFilter, bounded AutoFilter wildcard matching, staged local Pivot
-refresh, worksheet page configuration, and ordinary conditional formatting.
+refresh, worksheet page configuration, table-owned sorting, and ordinary conditional formatting.
 This is a functionality summary for the in-memory Excel engine.
 **No functional area is complete yet.** Common worksheet operations have
 substantially more support than advanced Excel automation.
@@ -32,8 +32,8 @@ is a percentage of working macros or complete functionality.
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
 | Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
-| Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
-| Sorting, filtering and outlines | Partial | 35 / 66 | 6 | Common sorts, AutoFilter wildcard matching with bounded state transitions and a measured local AdvancedFilter subset. Formula criteria, advanced-filter state migration, sort variants, automatic outline styles, heterogeneous outline reads and broader grouping/editing interactions remain incomplete. Ordinary row/column outlines support grouped levels, summary sides, detail visibility and persisted metadata. |
+| Excel tables | Partial | 46 / 155 | 25 | ListObjects, rows/columns, structured references, resizing, totals and ordinary local ListObject.Sort. Filtered/rich table sorting, configured structural edits, table-style objects and broader table-operation fidelity remain incomplete. |
+| Sorting, filtering and outlines | Partial | 38 / 66 | 5 | Common worksheet/table sorts, direct sort-owned range parents, persisted ordinary worksheet/table settings, AutoFilter wildcard matching with bounded state transitions and a measured local AdvancedFilter subset. Ordinary row/column outlines support grouped levels, summary sides, detail visibility and persisted metadata. Formula criteria, advanced-filter state migration, sort variants, automatic outline styles, heterogeneous outline reads and broader grouping/editing interactions remain incomplete. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
 | Protection and permissions | Partial | 11 / 32 | 0 | Worksheet/workbook protection and enforcement for supported edits. Allow-edit ranges, user permissions and full protection semantics remain. |
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
@@ -48,7 +48,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,196 / 7,542** | **148** | **15.9% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,200 / 7,542** | **147** | **15.9% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -604,6 +604,66 @@ the raw observations are retained separately from passing controls. Conditional
 border theme/tint setters and broader imported-context behavior still need work.
 See the [border-context regressions](../../tests/test_excel_conditional_border_context.py).
 
+## Table-owned sorting
+
+`ListObject.Sort` exposes shared fields/options through fresh Sort views with the
+ListObject as Parent and measured Application/Creator values. Ordinary local
+Apply sorts stable whole data rows, excluding headers/totals, retaining row
+styles and shifting moved formulas. Planning validates keys, moved formulas and
+replacement XML before publishing cells. Sort serialization is preflighted before package edits. Fixed-width height growth and appending
+a row preserve held Sort/SortField views and original key spans. Table SetRange
+fails with native error 1004.
+
+Evidence retains **28 raw native controls and 24 original macro-free workbooks**.
+Fourteen complete Table.Sort runtime controls and four additional worksheet-sort
+persistence controls replay without projections. Eight whole Table.Sort controls
+and two non-default worksheet-sort persistence combinations remain deferred.
+The Table.Sort and worksheet-persistence suites pass **120 tests**, including native
+input snapshots, public metadata rewrites, generated save/reopen, resource limits
+and atomic unsupported paths. All eight engine-generated outputs passed native
+Excel reopening in one closed owned session: five original table outputs and
+three post-Apply/imported configuration outputs matched independent snapshots.
+Native controls confirm protected-table sorting succeeds and worksheet-UDF Apply
+sorts rows while returning Empty. Automatic Apply emits Calculate; manual Apply
+emits none; disabled events suppress the callback.
+
+Direct Sort.Rng and SortField.Key ranges have Sort and SortField as Parent.
+Their Parent.Name raises 438; the range getters succeed. Descendant-range owner
+propagation remains unmeasured. Native persistence distinguishes unapplied table
+fields/options, which are dropped, from independently configured Worksheet.Sort
+settings, which are retained. After a previous table Apply or import, field Order,
+MatchCase and SortMethod metadata edits persist without another sort; Clear removes
+the persisted group. DataOption remains a runtime setting and reopens as zero.
+New table fields after Clear require Apply before the next save in this subset.
+Native worksheet controls additionally cover loaded
+field Order/MatchCase edits, DataOption resetting on reopen, Clear removing Rng,
+and replacement fields without a new range. The worksheet reader/writer preserves
+untouched imported XML and writes current measured configuration rather than stale
+applied settings. Rich/wrapped imported sort metadata and non-default worksheet
+orientation/method persistence are explicitly refused. Worksheet sort hydration streams the original document and limits only selected
+sort metadata to four million bytes and 65 elements (64 persisted keys), without limiting unrelated
+worksheet data size. The 64-key persistence limit is an engine admission bound,
+not a measured Excel maximum; runtime Add retains its existing behavior. Selected metadata requires UTF-8 declarations and charges
+complete opening and closing tags against the byte limit. Exact-boundary controls
+are retained in `tests/test_opc_xml_selected.py`.
+
+Value sorting admits single-column keys, ordinary formulas and cell styles.
+It refuses active table/sheet filters, union/multi-column keys, custom/rich/stroke
+sorts, annotations, conditional formatting, validations, arrays/spills, unknown
+table metadata and unsupported configured-table edits before mutation. The
+current table writer admits native unprefixed, double-quoted metadata; alternate
+lexical forms, comments and CDATA are conservatively refused for Apply. Whole-table
+Cut, broader held-object movement/deletion, header visibility changes and filtered
+sort metadata remain incomplete. Per-transaction limits are one million data
+cells, four million comparison work units, four million scanned text characters
+and 64 keys. These are engine limits, not native Excel capacity claims.
+
+See [native controls](../../tests/test_excel_table_sort.py),
+[transactional regressions](../../tests/test_excel_table_sort_core.py),
+[worksheet persistence controls](../../tests/test_excel_worksheet_sort_persistence.py),
+[table metadata persistence](../../tests/test_excel_table_sort_persistence.py), and
+[retained evidence](../../tests/fixtures/table_sort/manifest.json).
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in
@@ -616,7 +676,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,756 entries across 70 implemented model types**:
-148 verified, 626 partial, 426 unassessed, 1,553 missing and 3 excluded. Its 1,200
+147 verified, 633 partial, 424 unassessed, 1,549 missing and 3 excluded. Its 1,204
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

@@ -28,11 +28,13 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cmp_to_key
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import Area
+from pyopenvba._a1 import Area, parse_area
+from pyopenvba._opc_xml import bounded_child, opc_part
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._visible import filtering, hidden_lines, unmeasured
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -42,7 +44,7 @@ from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._model import Cell, Workbook, Worksheet
 
 ASCENDING, DESCENDING = 1, 2
 GUESS, YES, NO = 0, 1, 2
@@ -113,8 +115,18 @@ def _compare(first: tuple[int, object], second: tuple[int, object], descending: 
     return (-1 if less else 1) * (-1 if descending else 1)
 
 
-def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, match_case: bool,
-              across: bool) -> None:
+@dataclass
+class SortPlan:
+    sheet: Worksheet
+    block: Area
+    moving: dict[tuple[int, int], Cell]
+    destination: dict[int, int]
+    across: bool
+    formulas: dict[tuple[int, int], str]
+
+
+def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, match_case: bool,
+                   across: bool, charge_value: Callable[[object], None] | None = None) -> SortPlan | None:
     """Sort the rows of ``area`` -- its columns, ``across`` -- by ``keys``, the first row or column kept if ``header``."""
     from pyopenvba.apps.excel import _merges
 
@@ -124,7 +136,7 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
         raise VBAUnsupportedError("sorting cells with notes is not implemented")
     used = sheet.used_bounds()
     if used is None:
-        return
+        return None
     if across:
         first, last = area.left + (1 if header else 0), min(area.right, used[3])
     else:
@@ -137,7 +149,7 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
         if arrays or partial_arrays:
             raise error(1004, PART_OF_AN_ARRAY)
     if block is None or first >= last:
-        return
+        return None
     calculator = sheet.book.calculator
 
     def value(line: int, key: Key) -> object:
@@ -159,7 +171,15 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
             unmeasured(Range(sheet, [block]), "Sorting over hidden columns", lines="columns")
             hidden, _ = hidden_lines(sheet)
             lines = [line for line in lines if line not in hidden]
-    classified = {line: [_classified(value(line, key), key, match_case) for key in keys] for line in lines}
+    classified: dict[int, list[tuple[int, object]]] = {}
+    for line in lines:
+        row_keys: list[tuple[int, object]] = []
+        for key in keys:
+            raw = value(line, key)
+            if charge_value is not None:
+                charge_value(raw)
+            row_keys.append(_classified(raw, key, match_case))
+        classified[line] = row_keys
 
     def compare(one: int, other: int) -> int:
         for position, key in enumerate(keys):
@@ -172,18 +192,26 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
     destination = dict(zip(order, lines, strict=True))
     moving = {position: cell for position, cell in sheet.cells_.items()
               if block.contains(*position) and position[1 if across else 0] in destination}
-    for position in moving:
-        del sheet.cells_[position]
+    formulas: dict[tuple[int, int], str] = {}
     for (row, column), cell in moving.items():
-        if across:
-            new = (row, destination[column])
-            shift = (0, new[1] - column)
-        else:
-            new = (destination[row], column)
-            shift = (new[0] - row, 0)
+        shift = (0, destination[column] - column) if across else (destination[row] - row, 0)
         if cell.formula and shift != (0, 0):
-            cell.formula = shift_text(cell.formula, *shift)
-            cell.stale, cell.value = True, EMPTY
+            formulas[row, column] = shift_text(cell.formula, *shift)
+    return SortPlan(sheet, block, moving, destination, across, formulas)
+
+
+def apply_sort(plan: SortPlan, *, preserve_cached: bool = False) -> None:
+    """Publish only after every comparison and moved formula has been prepared."""
+    sheet, block, destination, across = plan.sheet, plan.block, plan.destination, plan.across
+    for position in plan.moving:
+        del sheet.cells_[position]
+    for (row, column), cell in plan.moving.items():
+        new = (row, destination[column]) if across else (destination[row], column)
+        if (row, column) in plan.formulas:
+            cell.formula = plan.formulas[row, column]
+            cell.stale = True
+            if not preserve_cached:
+                cell.value = EMPTY
         sheet.cells_[new] = cell
     if sheet.hyperlinks:
         from pyopenvba.apps.excel._hyperlinks import sorted_lines
@@ -191,7 +219,14 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
         # A link one line high moves with its line; one over several stays (tests/fixtures/hyperlinks/).
         sorted_lines(sheet, block, destination, across=across)
     sheet.touched()
-    calculator.rebuild()
+    sheet.book.calculator.rebuild()
+
+
+def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, match_case: bool,
+              across: bool) -> None:
+    plan = plan_sort_area(sheet, area, keys, header=header, match_case=match_case, across=across)
+    if plan is not None:
+        apply_sort(plan)
 
 
 def guessed_header(sheet: Worksheet, area: Area, across: bool) -> bool:
@@ -284,6 +319,22 @@ def _key(key: object, area: Area, across: bool, order: object, option: object) -
 # --- the Sort object ---------------------------------------------------------------------------------
 
 
+class SortRange(Range):
+    vba_type_name = "Range"
+
+    def __init__(self, owner: ExcelObject, selected: Range) -> None:
+        super().__init__(selected.sheet, selected.areas, whole=selected.whole)
+        self.owner = owner
+
+    def _check_alive(self) -> None:
+        super()._check_alive()
+        self.owner._check_alive()
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+
 class SortState:
     """A sheet's sort settings, which Worksheet.Sort shows."""
 
@@ -294,6 +345,131 @@ class SortState:
         self.match_case = False
         self.orientation = TOP_TO_BOTTOM
         self.method = 1
+        self.original: tuple[object, ...] = (None, GUESS, False, TOP_TO_BOTTOM, 1, ())
+
+
+def settings_signature(state: SortState) -> tuple[object, ...]:
+    area = (id(state.area.sheet), tuple(state.area.areas)) if state.area is not None else None
+    return (area, state.header, state.match_case, state.orientation, state.method,
+            tuple((id(field.key.sheet), tuple(field.key.areas), field.order, field.option) for field in state.fields))
+
+
+def changed(sheet: Worksheet) -> bool:
+    return sheet.sort_state is not None and settings_signature(sheet.sort_state) != sheet.sort_state.original
+
+
+def with_sort_state(sheet: Worksheet, xml: str) -> str:
+    """Persist measured live worksheet configuration, preserving untouched XML."""
+    state = sheet.sort_state
+    if state is None or not changed(sheet):
+        return xml
+    namespace = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    markup = b''
+    if state.area is not None and state.fields:
+        if len(state.fields) > 64:
+            raise VBAUnsupportedError('Persisting more than 64 worksheet sort fields is not implemented')
+        if state.area.sheet is not sheet or any(field.key.sheet is not sheet for field in state.fields):
+            raise VBAUnsupportedError('Persisting cross-sheet worksheet sort settings is not implemented')
+        if state.header not in (GUESS, YES, NO) or any(field.order not in (ASCENDING, DESCENDING) for field in state.fields):
+            raise VBAUnsupportedError('Persisting unmeasured worksheet sort enums is not implemented')
+        if state.orientation != TOP_TO_BOTTOM or state.method != 1:
+            raise VBAUnsupportedError('Persisting non-default worksheet sort methods/orientations is not implemented')
+        if any(field.option not in (0, 1) for field in state.fields):
+            raise VBAUnsupportedError('Persisting custom worksheet sort data options is not implemented')
+        if len(state.area.areas) != 1 or any(len(field.key.areas) != 1 for field in state.fields):
+            raise VBAUnsupportedError('Persisting multi-area worksheet sort settings is not implemented')
+        from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes
+
+        ns = '{' + namespace + '}'
+        root = XmlElement(ns + 'sortState', {'xmlns': namespace, 'ref': state.area.first.address(absolute=False)})
+        if state.match_case:
+            root.set('caseSensitive', '1')
+        for field in state.fields:
+            attrs = {'ref': field.key.first.address(absolute=False)}
+            if field.order == DESCENDING:
+                attrs['descending'] = '1'
+            root.append(XmlElement(ns + 'sortCondition', attrs))
+        markup = xml_bytes(root).split(b'?>', 1)[1].lstrip()
+    part = opc_part(xml.encode('utf8'), namespace, 'worksheet')
+    matches = [(start, end) for tag, _attrs, start, end in part.children if tag == namespace + '}sortState']
+    if len(matches) > 1:
+        raise VBAUnsupportedError('Repeated worksheet sort metadata is not implemented')
+    if matches:
+        start, end = matches[0]
+        return (part.data[:start] + markup + part.data[end:]).decode('utf8')
+    before = {'dataConsolidate', 'customSheetViews', 'mergeCells', 'phoneticPr', 'conditionalFormatting',
+              'dataValidations', 'hyperlinks', 'printOptions', 'pageMargins', 'pageSetup', 'headerFooter',
+              'rowBreaks', 'colBreaks', 'customProperties', 'cellWatches', 'ignoredErrors', 'smartTags',
+              'drawing', 'legacyDrawing', 'legacyDrawingHF', 'picture', 'oleObjects', 'controls',
+              'webPublishItems', 'tableParts', 'extLst'}
+    at = next((start for tag, _attrs, start, _end in part.children
+               if tag.removeprefix(namespace + '}') in before), part.closing_start)
+    return part.insert(at, markup).decode('utf8') if markup else xml
+
+
+def preflight_save(book: Workbook) -> None:
+    """Refuse new sort serialization boundaries before any package is edited."""
+    from pyopenvba.apps.excel._table_sort import changed as table_changed
+    from pyopenvba.apps.excel._table_sort import write_state
+    from pyopenvba.apps.excel._tables import base_table_xml
+
+    package = book.package
+    for sheet in book.sheets_:
+        if changed(sheet):
+            xml = (package.read(sheet.part_name).decode('utf8')
+                   if package is not None and sheet.part_name and package.has(sheet.part_name)
+                   else '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData/></worksheet>')
+            with_sort_state(sheet, xml)
+        for table in sheet.tables:
+            if table_changed(table):
+                write_state(table, table.xml or base_table_xml(table))
+
+
+def _loaded_state(sheet: Worksheet) -> SortState:
+    """Hydrate only bounded ordinary value-sort metadata with exact references."""
+    state = SortState()
+    package = sheet.book.package
+    if package is None or not sheet.part_name or not package.has(sheet.part_name):
+        return state
+    namespace = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    try:
+        group = bounded_child(package.entry(sheet.part_name).read(), namespace, 'worksheet', 'sortState',
+                              max_bytes=4_000_000, max_elements=65)
+    except ValueError:
+        raise VBAUnsupportedError('Reading unsupported worksheet sort metadata is not implemented') from None
+    if group is None:
+        return state
+    ns = namespace + '}'
+    allowed = {'ref', 'caseSensitive', 'columnSort', 'sortMethod'}
+    if (any(key not in allowed and key != 'xmlns' and not key.startswith('xmlns:') for key in group.attributes)
+            or group.get('caseSensitive', '0') not in ('0', '1', 'false', 'true')
+            or group.get('columnSort', '0') not in ('0', 'false')
+            or group.get('sortMethod', 'pinYin') != 'pinYin'
+            or len(group.children) > 64 or group.has_text or group.has_opaque):
+        raise VBAUnsupportedError('Custom worksheet sort settings are not implemented')
+    try:
+        area = parse_area(group.get('ref', ''))
+        if area.sheet:
+            raise VBAUnsupportedError('Qualified worksheet sort ranges are not implemented')
+        state.area = Range(sheet, [area])
+        state.header = GUESS
+        state.match_case = group.get('caseSensitive') in ('1', 'true')
+        for condition in group.children:
+            if (condition.name != ns + 'sortCondition' or condition.children or condition.has_text or condition.has_opaque
+                    or any(key not in ('ref', 'descending', 'sortBy') and key != 'xmlns'
+                           and not key.startswith('xmlns:') for key in condition.attributes)
+                    or condition.get('descending', '0') not in ('0', '1', 'false', 'true')
+                    or condition.get('sortBy', 'value') != 'value'):
+                raise VBAUnsupportedError('Custom worksheet sort conditions are not implemented')
+            key = parse_area(condition.get('ref', ''))
+            if key.sheet:
+                raise VBAUnsupportedError('Qualified worksheet sort keys are not implemented')
+            state.fields.append(SortField(Range(sheet, [key]),
+                                          DESCENDING if condition.get('descending') in ('1', 'true') else ASCENDING, 0))
+    except ValueError:
+        raise VBAUnsupportedError('Invalid worksheet sort references are not implemented') from None
+    state.original = settings_signature(state)
+    return state
 
 
 class SortObject(ExcelObject):
@@ -302,8 +478,23 @@ class SortObject(ExcelObject):
     def __init__(self, sheet: Worksheet) -> None:
         self.sheet = sheet
         if sheet.sort_state is None:
-            sheet.sort_state = SortState()
+            sheet.sort_state = _loaded_state(sheet)
         self.state: SortState = sheet.sort_state
+
+    def vba_no_member(self, name: str) -> Exception:
+        return error(438) if name.casefold() == 'name' else super().vba_no_member(name)
+
+    @member
+    def Parent(self) -> object:
+        return self.sheet
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member
+    def Creator(self) -> object:
+        return VBAInt(1480803660, 'Long')
 
     @member
     def SortFields(self) -> object:
@@ -318,7 +509,9 @@ class SortObject(ExcelObject):
 
     @member
     def Rng(self) -> object:
-        return self.state.area if self.state.area is not None else Range(self.sheet, [Area(1, 1, 1, 1)])
+        if self.state.area is None:
+            raise error(1004)
+        return SortRange(self, self.state.area)
 
     @member
     def Header(self) -> object:
@@ -383,6 +576,7 @@ class SortFields(VBACollection, ExcelObject):
     @method
     def Clear(self) -> object:
         self.owner.state.fields.clear()
+        self.owner.state.area = None
         return EMPTY
 
     @method
@@ -415,9 +609,12 @@ class SortField(ExcelObject):
         self.order = order
         self.option = option
 
+    def vba_no_member(self, name: str) -> Exception:
+        return error(438) if name.casefold() == 'name' else super().vba_no_member(name)
+
     @member
     def Key(self) -> object:
-        return self.key
+        return SortRange(self, self.key)
 
     @member
     def Order(self) -> object:

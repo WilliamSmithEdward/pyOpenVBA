@@ -711,12 +711,13 @@ _AFTER_TABLE_PARTS = re.compile(r"<extLst\b|</worksheet>")
 
 def _write_tables(book: Workbook, package: OpcFile) -> None:
     """Every table the model made or changed, in its own part; a sheet with a new one names it in tableParts."""
+    from pyopenvba.apps.excel._table_sort import changed as sort_changed
     from pyopenvba.apps.excel._tables import patched_xml, table_xml
 
     for sheet in book.sheets_:
         added = False
         for table in sheet.tables:
-            if table.part and not table.changed:
+            if table.part and not table.changed and not sort_changed(table):
                 continue
             if table.part and table.xml:
                 table.xml = patched_xml(table)
@@ -1179,6 +1180,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
     from pyopenvba.apps.excel._controls import refresh
 
     _calculated(book)
+    from pyopenvba.apps.excel._sort import preflight_save
+
+    preflight_save(book)
     for sheet in book.sheets_:
         for shape in sheet.shapes_:
             refresh(sheet, shape)
@@ -1209,13 +1213,18 @@ def save_workbook(book: Workbook, target: Path) -> None:
             sheet.dirty = True
     # The save leaves out the file's xfs nothing uses any more, which moves the ones after them.
     moves = book.stylesheet.moved_from_file()
+    from pyopenvba.apps.excel._sort import changed as sort_changed
+    from pyopenvba.apps.excel._sort import with_sort_state
+
     for sheet in book.sheets_:
         # A sheet nobody wrote to keeps the bytes it arrived with, its view too unless the window changed it.
         outline_changes = sheet.outline_state is not None and bool(sheet.outline_state.changes
                                                                         or sheet.outline_state.changed_rows
                                                                         or sheet.outline_state.changed_columns)
         page_changes = sheet.page_setup_state is not None and bool(sheet.page_setup_state.changes)
-        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes or outline_changes):
+        sort_changes = sort_changed(sheet)
+        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes
+                                       or outline_changes or sort_changes):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
@@ -1232,6 +1241,8 @@ def save_workbook(book: Workbook, target: Path) -> None:
             from pyopenvba.apps.excel._page_setup import with_setup
 
             patched = with_setup(sheet, patched)
+        if sort_changes:
+            patched = with_sort_state(sheet, patched)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
             if outline_changes and sheet.outline_state is not None:
@@ -1348,6 +1359,9 @@ def workbook_format(book: Workbook) -> int:
 
 def prepare_format(book: Workbook, file_format: int) -> None:
     """Convert existing XML workbook packaging for the supported SaveAs formats."""
+    from pyopenvba.apps.excel._sort import preflight_save
+
+    preflight_save(book)
     package = book.package
     previous = workbook_format(book)
     book.format_code = file_format

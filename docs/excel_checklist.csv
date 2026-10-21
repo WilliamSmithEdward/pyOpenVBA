@@ -806,7 +806,7 @@ ListObject,ShowTableStyleLastColumn,property,As Boolean,,PARTIAL,tests/fixtures/
 ListObject,ShowTableStyleRowStripes,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,ShowTotals,property,As Boolean,,VERIFIED,tests/fixtures/tables/tables.json; tests/fixtures/tables/totals_row/totals_row.json,"Showing the row puts cells in under the table, those below moving down; the first time, the first column says Total and the last adds up, or counts when not all numbers; hiding deletes the cells and keeps what each column totals."
 ListObject,Slicers,"property, read-only",As Slicers,,MISSING,,
-ListObject,Sort,"property, read-only",As Sort,,MISSING,,
+ListObject,Sort,"property, read-only",As Sort,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,"Measured ordinary local table Sort with shared options/fields and fresh Sort views. Stable whole-data-row Apply excludes headers/totals; preserves row formulas/styles; stages moved formulas and metadata. Complex filters, unions, custom/stroke/rich sorts and configured structural changes remain unsupported."
 ListObject,SourceType,"property, read-only",As XlListObjectSourceType,,MISSING,,
 ListObject,Summary,property,As String,,MISSING,,
 ListObject,TableObject,"property, read-only",As TableObject,,MISSING,,
@@ -1739,17 +1739,17 @@ Sheets,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
 Sheets,Select,method,Select([Replace As Variant]),,MISSING,,
 Sheets,Visible,property,As Variant,,MISSING,,
 Sheets,VPageBreaks,"property, read-only",As VPageBreaks,,MISSING,,
-Sort,Application,"property, read-only",As Application,,MISSING,,
-Sort,Apply,method,Apply(),,PARTIAL,tests/fixtures/sort.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_array_edits.json,"Sorts the range by its fields in order, keeping them; a header only with xlYes. Several areas report themselves unsupported. On a filtered sheet the visible rows sort among themselves."
-Sort,Creator,"property, read-only",As XlCreator,,MISSING,,
-Sort,Header,property,As XlYesNoGuess,,VERIFIED,tests/fixtures/sort.json,xlGuess until set; only xlYes keeps a header when the sort applies.
+Sort,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Worksheet and table Sort expose their owning Application; native defaults and identity controls.
+Sort,Apply,method,Apply(),,PARTIAL,tests/fixtures/sort.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_array_edits.json; tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,"Sorts the range by its fields in order, keeping them; a header only with xlYes. Several areas report themselves unsupported. On a filtered sheet the visible rows sort among themselves. Table Apply stages ordinary local rows, formulas and sort metadata; protected/UDF/event controls are native-measured. Filtered/rich table paths are refused before mutation. Worksheet metadata hydration streams unrelated data and bounds complete selected XML, including closing tags; UTF-8 declarations are required. Worksheet save preflight limits persisted fields to 64 as an engine metadata limit."
+Sort,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Returns native Long 1480803660 for worksheet and table Sort.
+Sort,Header,property,As XlYesNoGuess,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Worksheet defaults xlGuess and keeps headers only with xlYes. Table defaults follow shown/hidden headers until configured; incompatible Header values error 5. Header visibility mutation remains incomplete.
 Sort,MatchCase,property,As Boolean,,VERIFIED,tests/fixtures/sort.json,
 Sort,Orientation,property,As XlSortOrientation,,PARTIAL,tests/fixtures/sort.json,Top to bottom measured; left to right follows Range.Sort's rows.
-Sort,Parent,"property, read-only",As Object,,MISSING,,
-Sort,Rng,"property, read-only",As Range,,UNASSESSED,,
-Sort,SetRange,method,SetRange(Rng As Range),,VERIFIED,tests/fixtures/sort.json,
+Sort,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Worksheet-owned Sort.Parent is Worksheet; table-owned Sort.Parent is ListObject. Direct Rng.Parent is Sort and Key.Parent is SortField; descendants are outside this measured owner-context subset.
+Sort,Rng,"property, read-only",As Range,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Unset worksheet Sort.Rng errors 1004; configured worksheet/table Rng returns Range whose Parent is Sort. Parent.Name errors 438 because Sort has no Name.
+Sort,SetRange,method,SetRange(Rng As Range),,VERIFIED,tests/fixtures/sort.json; tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Worksheet SetRange selects its range; Table.Sort.SetRange always errors 1004.
 Sort,SortFields,"property, read-only",As SortFields,,VERIFIED,tests/fixtures/sort.json,
-Sort,SortMethod,property,As XlSortMethod,,UNASSESSED,,
+Sort,SortMethod,property,As XlSortMethod,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,"Table options 1/2 are retained; admitted Apply uses method 1, stroke Apply is explicitly unsupported."
 SortField,Application,"property, read-only",As Application,,MISSING,,
 SortField,Creator,"property, read-only",As XlCreator,,MISSING,,
 SortField,CustomOrder,property,As Variant,,MISSING,,

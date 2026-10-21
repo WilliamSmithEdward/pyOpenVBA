@@ -16,7 +16,7 @@ from pyopenvba._xml import attributes, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
-from pyopenvba.apps.excel._charts import CHART_TYPES, Chart, ChartState, Series, SeriesState, referenced_values
+from pyopenvba.apps.excel._charts import MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState, referenced_values
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
@@ -207,7 +207,12 @@ def _data(node: ET.Element | None) -> tuple[str, list[object]]:
     numeric = node.find('c:numLit', NS) is not None
     values: list[object] = []
     for point in node.findall('.//c:pt', NS):
-        index = int(point.attrib.get('idx', '0'))
+        try:
+            index = int(point.attrib.get('idx', '0'))
+        except ValueError:
+            raise VBAUnsupportedError('Invalid chart point indexes are not implemented') from None
+        if not 0 <= index < MAX_CHART_POINTS:
+            raise VBAUnsupportedError('Chart point index exceeds the supported allocation budget')
         while len(values) <= index:
             values.append(EMPTY)
         text = point.findtext('c:v', default='', namespaces=NS)

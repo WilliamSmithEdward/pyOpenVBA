@@ -8,6 +8,7 @@ import math
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_reference
+from pyopenvba.apps.excel._chart_axes import AxisState
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
@@ -46,6 +47,9 @@ class ChartState:
     part: str = ''
     original: str = ''
     dirty: bool = True
+    axes_readable: bool = True
+    axes: dict[int, AxisState] = field(default_factory=lambda: {})
+    axis_ids: tuple[int, int] = (10000001, 10000002)
 
 
 def state(sheet: Worksheet, shape: Shape) -> ChartState:
@@ -224,6 +228,10 @@ class Chart(VBAObject):
         wanted = int(to_number(value))
         if wanted not in CHART_TYPES:
             raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
+        from pyopenvba.apps.excel._chart_axes import transition
+
+        self.admit_change()
+        transition(self, wanted)
         self.changed()
         self.state.chart_type = 65 if wanted == 4 and not self.state.series else wanted
 
@@ -263,6 +271,36 @@ class Chart(VBAObject):
     def SeriesCollection(self, Index: object = MISSING) -> object:
         collection = SeriesCollection(self)
         return collection if Index is MISSING else collection.vba_get('Item', [Index])
+
+    @method
+    def Axes(self, Type: object = MISSING, AxisGroup: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        from pyopenvba.apps.excel._chart_axes import Axes, axis
+
+        self.admit_read()
+        if Type is MISSING and AxisGroup is not MISSING:
+            raise VBAUnsupportedError('Filtered chart axis collections are not implemented')
+        return Axes(self) if Type is MISSING else axis(self, Type, AxisGroup)
+
+    @member
+    def HasAxis(self, Index1: object = MISSING, Index2: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        from pyopenvba.apps.excel._chart_axes import axis
+
+        if Index1 is MISSING:
+            raise VBAUnsupportedError('Unindexed chart axis presence is not implemented')
+        found = axis(self, Index1, Index2)
+        return found.entry.present
+
+    @setter('HasAxis')
+    def _axis_presence(self, Index1: object, Index2: object, value: object) -> None:  # noqa: N803 - native named arguments
+        from pyopenvba.apps.excel._chart_axes import NO_AXES, axis
+
+        found = axis(self, Index1, Index2)
+        self.admit_change()
+        wanted = to_bool(value)
+        self.admit_change()
+        found = axis(self, found.entry.kind, 1)
+        self.changed()
+        found.entry.present = wanted and self.state.chart_type not in NO_AXES
 
     @method
     def SetSourceData(self, Source: object = MISSING, PlotBy: object = MISSING) -> object:
@@ -459,7 +497,8 @@ class Series(VBAObject):
 
     @member
     def XValues(self) -> object:
-        values = list(self.categories())
+        values = [float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
+                  for value in self.categories()]
         return VBAArray([(1, len(values))], items=values)
 
     @setter('XValues')

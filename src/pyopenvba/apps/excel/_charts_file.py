@@ -171,9 +171,16 @@ def read_chart(xml: str, part: str) -> ChartState:
         result.chart_type = 65 if marker is not None and marker.attrib.get('val') == '1' else 4
     elif kind == 'scatterChart':
         style = entry.find('c:scatterStyle', NS)
-        result.chart_type = -4169 if style is not None and style.attrib.get('val') == 'marker' else 74
+        scatter = style.attrib.get('val', '') if style is not None else ''
+        series_nodes = entry.findall('c:ser', NS)
+        no_lines = bool(series_nodes) and all(node.find('c:spPr/a:ln/a:noFill', NS) is not None
+                                            for node in series_nodes)
+        result.chart_type = -4169 if scatter == 'marker' or (scatter == 'lineMarker' and no_lines) else 74
     elif kind in ('pieChart', 'doughnutChart') or kind == 'areaChart' and group in ('standard', ''):
         result.chart_type = {'pieChart': 5, 'doughnutChart': -4120, 'areaChart': 1}[kind]
+    from pyopenvba.apps.excel._chart_axes_file import read as read_axes
+
+    read_axes(result, root, plot, entry)
     def integer(series: ET.Element, name: str, fallback: int) -> int:
         node = series.find('c:' + name, NS)
         if node is None:
@@ -316,7 +323,10 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     kind = CHART_TYPES.get(chart.state.chart_type)
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
-    xml = chart_part(kind, data, title=chart.state.title)
+    xml = chart_part(kind, data, title=chart.state.title, axis_ids=chart.state.axis_ids)
+    from pyopenvba.apps.excel._chart_axes_file import generated
+
+    xml = generated(xml, chart.state)
     if chart.state.title is None:
         xml = re.sub(r'<c:title>.*?</c:title><c:autoTitleDeleted val="0"/>', '<c:autoTitleDeleted val="1"/>', xml, count=1)
     if not chart.state.legend:

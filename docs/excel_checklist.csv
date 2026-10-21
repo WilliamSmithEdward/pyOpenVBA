@@ -350,6 +350,93 @@ AutoFilter,Parent,"property, read-only",As Object,,MISSING,,
 AutoFilter,Range,"property, read-only",As Range,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofilter_edits.json,"The filter's range run on down to the foot of the data around it, as Excel reads it; row and column edits move and stretch it."
 AutoFilter,ShowAllData,method,ShowAllData(),,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/full_calculation.json," Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts."
 AutoFilter,Sort,"property, read-only",As Sort,,MISSING,,
+Axes,_Default,method,"_Default(Type As XlAxisType, [AxisGroup As XlAxisGroup]) As Axis",,MISSING,,
+Axes,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Axes,Application,"property, read-only",As Application,,MISSING,,
+Axes,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axes,Creator,"property, read-only",As XlCreator,,MISSING,,
+Axes,Item,method,"Item(Type As XlAxisType, [AxisGroup As XlAxisGroup]) As Axis",,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,Application,"property, read-only",As Application,,MISSING,,
+Axis,AxisBetweenCategories,property,As Boolean,,MISSING,,
+Axis,AxisGroup,"property, read-only",As XlAxisGroup,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,AxisTitle,"property, read-only",As AxisTitle,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,BaseUnit,property,As XlTimeUnit,,MISSING,,
+Axis,BaseUnitIsAuto,property,As Boolean,,MISSING,,
+Axis,Border,"property, read-only",As Border,,MISSING,,
+Axis,CategoryNames,property,As Variant,,MISSING,,
+Axis,CategorySortOrder,property,As XlCategorySortOrder,,MISSING,,
+Axis,CategoryType,property,As XlCategoryType,,MISSING,,
+Axis,Creator,"property, read-only",As XlCreator,,MISSING,,
+Axis,Crosses,property,As XlAxisCrosses,,MISSING,,
+Axis,CrossesAt,property,As Double,,MISSING,,
+Axis,Delete,method,Delete() As Variant,,MISSING,,
+Axis,DisplayUnit,property,As XlDisplayUnit,,MISSING,,
+Axis,DisplayUnitCustom,property,As Double,,MISSING,,
+Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,MISSING,,
+Axis,Format,"property, read-only",As ChartFormat,,MISSING,,
+Axis,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Axis,HasDisplayUnitLabel,property,As Boolean,,MISSING,,
+Axis,HasMajorGridlines,property,As Boolean,,MISSING,,
+Axis,HasMinorGridlines,property,As Boolean,,MISSING,,
+Axis,HasTitle,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,Height,"property, read-only",As Double,,MISSING,,
+Axis,Left,"property, read-only",As Double,,MISSING,,
+Axis,LogBase,property,As Double,,MISSING,,
+Axis,MajorGridlines,"property, read-only",As Gridlines,,MISSING,,
+Axis,MajorTickMark,property,As XlTickMark,,MISSING,,
+Axis,MajorUnit,property,As Double,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,MajorUnitIsAuto,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,MajorUnitScale,property,As XlTimeUnit,,MISSING,,
+Axis,MaximumScale,property,As Double,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,MaximumScaleIsAuto,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,MinimumScale,property,As Double,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,MinimumScaleIsAuto,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,MinorGridlines,"property, read-only",As Gridlines,,MISSING,,
+Axis,MinorTickMark,property,As XlTickMark,,MISSING,,
+Axis,MinorUnit,property,As Double,,MISSING,,
+Axis,MinorUnitIsAuto,property,As Boolean,,MISSING,,
+Axis,MinorUnitScale,property,As XlTimeUnit,,MISSING,,
+Axis,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,ReversePlotOrder,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,ScaleType,property,As XlScaleType,,MISSING,,
+Axis,Select,method,Select() As Variant,,MISSING,,
+Axis,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Axis,TickLabelPosition,property,As XlTickLabelPosition,,MISSING,,
+Axis,TickLabels,"property, read-only",As TickLabels,,MISSING,,
+Axis,TickLabelSpacing,property,As Long,,MISSING,,
+Axis,TickLabelSpacingIsAuto,property,As Boolean,,MISSING,,
+Axis,TickMarkSpacing,property,As Long,,MISSING,,
+Axis,Top,"property, read-only",As Double,,MISSING,,
+Axis,Type,property,As XlAxisType,no setter,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+Axis,Width,"property, read-only",As Double,,MISSING,,
+AxisTitle,Application,"property, read-only",As Application,,MISSING,,
+AxisTitle,Caption,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+AxisTitle,Characters,"property, read-only",As Characters,,MISSING,,
+AxisTitle,Creator,"property, read-only",As XlCreator,,MISSING,,
+AxisTitle,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+AxisTitle,Format,"property, read-only",As ChartFormat,,MISSING,,
+AxisTitle,Formula,property,As String,,MISSING,,
+AxisTitle,FormulaLocal,property,As String,,MISSING,,
+AxisTitle,FormulaR1C1,property,As String,,MISSING,,
+AxisTitle,FormulaR1C1Local,property,As String,,MISSING,,
+AxisTitle,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+AxisTitle,Height,"property, read-only",As Double,,MISSING,,
+AxisTitle,HorizontalAlignment,property,As Variant,,MISSING,,
+AxisTitle,IncludeInLayout,property,As Boolean,,MISSING,,
+AxisTitle,Left,property,As Double,,MISSING,,
+AxisTitle,Name,"property, read-only",As String,,MISSING,,
+AxisTitle,Orientation,property,As Variant,,MISSING,,
+AxisTitle,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+AxisTitle,Position,property,As XlChartElementPosition,,MISSING,,
+AxisTitle,ReadingOrder,property,As Long,,MISSING,,
+AxisTitle,Select,method,Select() As Variant,,MISSING,,
+AxisTitle,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+AxisTitle,Shadow,property,As Boolean,,MISSING,,
+AxisTitle,Text,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
+AxisTitle,Top,property,As Double,,MISSING,,
+AxisTitle,VerticalAlignment,property,As Variant,,MISSING,,
+AxisTitle,Width,"property, read-only",As Double,,MISSING,,
 Border,Application,"property, read-only",As Application,,UNASSESSED,,
 Border,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."
 Border,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,ColorIndex 0 is unmeasured and raises 9. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
@@ -391,7 +478,7 @@ Chart,ApplyChartTemplate,method,ApplyChartTemplate(Filename As String),,MISSING,
 Chart,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant])",,MISSING,,
 Chart,ApplyLayout,method,"ApplyLayout(Layout As Long, [ChartType As Variant])",,MISSING,,
 Chart,AutoScaling,property,As Boolean,,MISSING,,
-Chart,Axes,method,"Axes([Type As Variant], [AxisGroup As XlAxisGroup]) As Object",,MISSING,,
+Chart,Axes,method,"Axes([Type As Variant], [AxisGroup As XlAxisGroup]) As Object",,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Chart,BackWall,"property, read-only",As Walls,,MISSING,,
 Chart,BarShape,property,As XlBarShape,,MISSING,,
 Chart,BeforeDoubleClick,event,"BeforeDoubleClick(ElementID As Long, Arg1 As Long, Arg2 As Long, Cancel As Boolean)",,MISSING,,
@@ -428,7 +515,7 @@ Chart,FullSeriesCollection,method,FullSeriesCollection([Index As Variant]) As Ob
 Chart,GapDepth,property,As Long,,MISSING,,
 Chart,GetChartElement,method,"GetChartElement(x As Long, y As Long, ElementID As Long, Arg1 As Long, Arg2 As Long)",,MISSING,,
 Chart,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
-Chart,HasAxis,property,As Variant,,MISSING,,
+Chart,HasAxis,property,As Variant,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Chart,HasDataTable,property,As Boolean,,MISSING,,
 Chart,HasLegend,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Chart,HasTitle,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit

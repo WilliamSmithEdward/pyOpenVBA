@@ -145,9 +145,9 @@ def test_unsupported_rename_admission_is_atomic(kind: str) -> None:
     elif kind == 'external':
         app.workbook.names_.entries.append(NameEntry('Foreign', "='[Other.xlsx]Sheet1'!A1", app.workbook))
     elif kind == 'cf':
-        sheet.Range('A1').FormatConditions().Add(2, Formula1='=A1>0')
+        sheet.Range('A1').FormatConditions().Add(2, Formula1='=Sheet1!A1>0')
     elif kind == 'validation':
-        sheet.Range('A1').Validation().Add(1, Formula1='0', Formula2='10')
+        sheet.Range('A1').Validation().Add(1, Formula1='=Sheet1!A1', Formula2='10')
     else:
         sheet.Range('D1:D2').vba_set('FormulaArray', '=A1:A2')
     before = snapshot(app)
@@ -455,3 +455,368 @@ def test_pending_document_collection_count_precedes_copy() -> None:
     with pytest.raises(VBAUnsupportedError, match='pending-document count'):
         app.workbook.sheets_[0].vba_set('Name', 'Renamed')
     assert snapshot(app) == before
+
+
+@pytest.mark.parametrize('loaded', [False, True])
+def test_unaffected_conditional_rename_preserves_roots_and_registry(loaded: bool, tmp_path: Path) -> None:
+    from pyopenvba.apps.excel._charts_file import xml_bytes
+
+    app = ExcelApplication()
+    app.add_workbook()
+    owner = app.workbook.sheets_[0]
+    owner.Range('A1').vba_set('Value', 3)
+    owner.Range('A1:A3').FormatConditions().Add(2, Formula1='=A1>0')
+    if loaded:
+        app = ExcelApplication.open(app.save(tmp_path / 'conditional.xlsx'), with_vba=False)
+        owner = app.workbook.sheets_[0]
+    rule = owner.conditional_formats[0]
+    before = (id(rule), id(rule.root), xml_bytes(rule.root), dict(owner.conditional_color_slots),
+              owner.conditional_color_next, owner.conditional_color_groups)
+    owner.vba_set('Name', "O'Brien")
+    assert (id(rule), id(rule.root), xml_bytes(rule.root), dict(owner.conditional_color_slots),
+            owner.conditional_color_next, owner.conditional_color_groups) == before
+    reopened = ExcelApplication.open(app.save(tmp_path / 'renamed.xlsx'), with_vba=False)
+    assert reopened.workbook.sheets_[0].name == "O'Brien"
+    formula = reopened.workbook.sheets_[0].conditional_formats[0].root.find(
+        '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}formula')
+    assert formula is not None and formula.text == 'A1>0'
+
+
+@pytest.mark.parametrize('kind', ['conditional', 'validation', 'control-link', 'control-list'])
+def test_secondary_affected_reference_refusal_preserves_entire_scalar_plan(kind: str) -> None:
+    app = prepared()
+    owner = app.workbook.sheets_[1]
+    if kind == 'conditional':
+        owner.Range('A1').FormatConditions().Add(2, Formula1="='Sheet1'!A1>0")
+    elif kind == 'validation':
+        owner.Range('A1').Validation().Add(1, Formula1="='Sheet1'!A1", Formula2='10')
+    else:
+        app.sheet('Calc').add_form_control(2, name='Linked')
+        control = owner.shapes_[0].control
+        assert control is not None
+        if kind == 'control-link':
+            control.linked_cell = "'Sheet1'!A1"
+        else:
+            control.list_range = "'Sheet1'!A1:A3"
+    before = snapshot(app)
+    with pytest.raises(VBAUnsupportedError, match='affected secondary'):
+        app.workbook.sheets_[0].vba_set('Name', 'Renamed')
+    assert snapshot(app) == before
+
+
+def test_unrelated_local_secondary_features_do_not_block_fresh_sheet_rename() -> None:
+    app = prepared()
+    owner = app.workbook.sheets_[0]
+    owner.Range('A1').FormatConditions().Add(2, Formula1='=A1>0')
+    owner.Range('B1').Validation().Add(1, Formula1='0', Formula2='10')
+    app.sheet(1).add_form_control(2, name='Linked')
+    control = owner.shapes_[0].control
+    assert control is not None
+    control.linked_cell = 'A1'
+    control.list_range = 'A1:A3'
+    fresh = app.workbook.add_sheet('Fresh')
+    fresh.vba_set('Name', 'Witness')
+    assert fresh.name == 'Witness'
+    assert control.linked_cell == 'A1' and control.list_range == 'A1:A3'
+
+
+@pytest.mark.parametrize('payload', [
+    '<conditionalFormatting sqref="A1"><cfRule type="expression" priority="1"><formula>Sheet1!A1&gt;0</formula></cfRule></conditionalFormatting>',
+    '<extLst><conditionalFormatting sqref="A1"><cfRule type="expression" priority="1"><formula>A1&gt;0</formula></cfRule></conditionalFormatting></extLst>',
+    '<conditionalFormatting sqref="A1" unknown="Sheet1!A1"><cfRule type="expression" priority="1"/></conditionalFormatting>',
+])
+def test_unmaterialized_or_opaque_conditional_package_references_are_atomic(payload: str) -> None:
+    app = ExcelApplication.open(ROOT / 'automatic-scalar-identity.xlsx', with_vba=False)
+    sheet, package = app.workbook.sheets_[0], app.workbook.package
+    assert package is not None
+    raw = package.read(sheet.part_name)
+    package.write(sheet.part_name, raw.replace(b'</worksheet>', payload.replace('Sheet1', sheet.name).encode() + b'</worksheet>'))
+    before = snapshot(app)
+    with pytest.raises(VBAUnsupportedError):
+        sheet.vba_set('Name', 'Renamed')
+    assert snapshot(app) == before
+
+
+@pytest.mark.parametrize('kind', ['shared', 'array'])
+def test_unrelated_structured_formulas_remain_unchanged_when_blank_sheet_is_renamed(kind: str) -> None:
+    app = prepared()
+    owner = app.workbook.sheets_[0]
+    target = owner.Range('D1:D2')
+    target.vba_set('Formula' if kind == 'shared' else 'FormulaArray', '=A1*2' if kind == 'shared' else '=A1:A2')
+    assert owner.shared_groups if kind == 'shared' else owner.array_formulas
+    before = (dict(owner.shared_groups), dict(owner.array_formulas),
+              tuple((key, id(cell), cell.formula) for key, cell in owner.cells_.items()))
+    fresh = app.workbook.add_sheet('Fresh')
+    fresh.vba_set('Name', 'Other')
+    assert (dict(owner.shared_groups), dict(owner.array_formulas),
+            tuple((key, id(cell), cell.formula) for key, cell in owner.cells_.items())) == before
+
+
+def test_affected_foreign_cse_formula_is_refused_before_any_scalar_change() -> None:
+    app = prepared()
+    owner = app.workbook.sheets_[1]
+    owner.Range('D1:D2').vba_set('FormulaArray', '=Sheet1!A1:A2')
+    before = snapshot(app)
+    with pytest.raises(VBAUnsupportedError, match='affected shared/array/spill'):
+        app.workbook.sheets_[0].vba_set('Name', 'Renamed')
+    assert snapshot(app) == before
+
+
+@pytest.mark.parametrize('kind', ['shared', 'array'])
+def test_unrelated_formula_storage_manual_caches_and_members_survive_rename(kind: str, tmp_path: Path) -> None:
+    app = prepared()
+    owner = app.workbook.sheets_[0]
+    owner.Range('D1:D2').vba_set('Formula' if kind == 'shared' else 'FormulaArray', '=A1*2' if kind == 'shared' else '=A1:A2')
+    app.workbook.application.CalculateFull()
+    app.workbook.application.calculation = -4135
+    app.workbook.application.calculate_before_save = False
+    owner.Range('A1').vba_set('Value', 9)
+    groups = (dict(owner.shared_groups), dict(owner.array_formulas))
+    before = {key: (id(cell), cell.value, cell.formula, cell.shared, cell.save_dirty if cell.save_dirty is not None else cell.stale)
+              for key, cell in owner.cells_.items()}
+    fresh = app.workbook.add_sheet('Fresh')
+    fresh.vba_set('Name', 'Other')
+    assert groups == (dict(owner.shared_groups), dict(owner.array_formulas))
+    assert before == {key: (id(cell), cell.value, cell.formula, cell.shared, cell.save_dirty if cell.save_dirty is not None else cell.stale)
+                      for key, cell in owner.cells_.items()}
+    saved = app.save(tmp_path / ('unchanged-' + kind + '.xlsx'))
+    reopened = ExcelApplication.open(saved, with_vba=False)
+    restored = reopened.workbook.sheets_[0]
+    assert restored.name == owner.name
+    assert tuple({key: area.address() for key, area in regions.items()}
+                 for regions in (restored.shared_groups, restored.array_formulas)) == tuple(
+                     {key: area.address() for key, area in regions.items()} for regions in groups)
+    assert tuple(restored.cells_[key].value for key in ((1, 4), (2, 4))) == tuple(
+        owner.cells_[key].value for key in ((1, 4), (2, 4)))
+
+
+@pytest.mark.parametrize('damage', ['orphan', 'overlap', 'budget'])
+def test_unrelated_malformed_formula_storage_is_refused_atomically(damage: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    from pyopenvba.apps.excel import _worksheet_rename_arrays
+
+    app = prepared()
+    owner = app.workbook.sheets_[0]
+    owner.Range('D1:D2').vba_set('Formula', '=A1*2')
+    fresh = app.workbook.add_sheet('Fresh')
+    if damage == 'orphan':
+        owner.cells_[(2, 4)].shared = 999
+    elif damage == 'overlap':
+        owner.array_formulas[(1, 4)] = next(iter(owner.shared_groups.values()))
+    else:
+        monkeypatch.setattr(_worksheet_rename_arrays, 'MAX_REGION_CELLS', 1)
+    before = snapshot(app)
+    with pytest.raises(VBAUnsupportedError):
+        fresh.vba_set('Name', 'Other')
+    assert snapshot(app) == before
+
+
+@pytest.mark.parametrize('kind', ['master', 'member', 'array-anchor'])
+def test_storage_helper_whole_expression_preflight_before_any_lexer(
+        kind: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    from pyopenvba.apps.excel import _shared, _worksheet_rename, _worksheet_rename_arrays
+
+    app = ExcelApplication()
+    app.add_workbook()
+    first = app.workbook.sheets_[0]
+    first.Range('B1:B2').vba_set('Formula', '=A1*2')
+    later = app.workbook.add_sheet('Later')
+    if kind == 'array-anchor':
+        later.Range('D1:E2').vba_set('FormulaArray', '=A1:A2*{1,2}')
+        cell = later.cells_[(1, 4)]
+    else:
+        later.Range('B1:B2').vba_set('Formula', '=A1*2')
+        cell = later.cells_[(1 if kind == 'master' else 2, 2)]
+    cell.formula = '=' + '1+' * (_worksheet_rename.MAX_EXPRESSION_TEXT // 2) + '1'
+    before = snapshot(app)
+
+    def forbidden(*_args: object) -> Any:
+        pytest.fail('a lexer entered before whole-population expression admission')
+
+    monkeypatch.setattr(_shared, 'names_a_sheet', forbidden)
+    monkeypatch.setattr(_worksheet_rename_arrays, 'shift_text', forbidden)
+    with pytest.raises(VBAUnsupportedError, match='expression text length'):
+        _worksheet_rename_arrays.admit(app.workbook, first, 'Renamed', _worksheet_rename.Budget())
+    assert snapshot(app) == before
+
+
+
+@pytest.mark.parametrize('body', [
+    '<sheetData><row r="1"><c r="A1"><f>Sheet1!A1</f><v>1</v></c><!--<c r="A1"><v>99</v></c>--></row></sheetData>',
+    '<sheetData><row r="1"><c r="A1"><f>Sheet1!A1</f><v>1</v></c><![CDATA[<c r="A1"><v>99</v></c>]]></row></sheetData>',
+    '<!--<sheetData><row r="1"><c r="A1"><v>99</v></c></row></sheetData>--><sheetData><row r="1"><c r="A1"><f>Sheet1!A1</f></c></row></sheetData>',
+    '<sheetData><row r="1"><wrapped><c r="A1"><f>Sheet1!A1</f></c></wrapped></row></sheetData>',
+])
+def test_all_reader_layers_reject_unowned_cells_and_wrappers(body: str, tmp_path: Path) -> None:
+    app = prepared()
+    app.save(tmp_path / 'before.xlsx')
+    sheet = app.workbook.sheets_[0]
+    app.workbook.package.write(sheet.part_name, (
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' + body + '</worksheet>').encode())
+    before = snapshot(app)
+    with pytest.raises(VBAUnsupportedError):
+        sheet.vba_set('Name', 'Renamed')
+    assert snapshot(app) == before
+
+
+@pytest.mark.parametrize('body', [
+    "<sheetData><row r='1'><c r=\"A1\"><f>Sheet1!A1</f></c></row></sheetData>",
+    "<sheetData><row r=\"1\"><c r='A1'><f>Sheet1!A1</f></c></row></sheetData>",
+    "<sheetData><row r=\"1\"><c r=\"A1\"><f t='array' ref=\"A1:A2\">Sheet1!A1:A2</f></c></row></sheetData>",
+    "<sheetData><row r=\"1\"><c r=\"A1\" opaque='keep r=\"B1\" tail'><f>Sheet1!A1</f></c></row></sheetData>",
+    "<sheetData><row r=\"1\"><c opaque='>' r=\"A1\"><f>Sheet1!A1</f></c></row></sheetData>",
+    "<sheetData><row r=\"1\"><c r=\"A1\"><f ca='1'>Sheet1!A1</f></c></row></sheetData>",
+])
+def test_owned_key_attributes_must_agree_with_legacy_reader(body: str, tmp_path: Path) -> None:
+    app = prepared()
+    app.save(tmp_path / 'before.xlsx')
+    sheet = app.workbook.sheets_[0]
+    app.workbook.package.write(sheet.part_name, (
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' + body + '</worksheet>').encode())
+    before = snapshot(app)
+    with pytest.raises(VBAUnsupportedError, match='key attributes'):
+        sheet.vba_set('Name', 'Renamed')
+    assert snapshot(app) == before
+
+
+
+@pytest.mark.parametrize('local', ['sheetData', 'row', 'c', 'f'])
+def test_unowned_openings_refuse_before_legacy_closing_tag_regexes(
+        local: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    from pyopenvba.apps.excel import _io, _worksheet_rename_arrays
+
+    raw = ('<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+           '<sheetData><row r="1"><c r="A1"><f>1</f></c></row><!--' +
+           ('<' + local + '>') * 20 + '--></sheetData></worksheet>').encode()
+
+    def forbidden(*_args: object) -> Any:
+        pytest.fail('legacy closing-tag regex entered before opening ownership admission')
+
+    monkeypatch.setattr(_io, 'formula_spans', forbidden)
+    with pytest.raises(VBAUnsupportedError, match='lexical'):
+        _worksheet_rename_arrays.stored(raw)
+
+
+@pytest.mark.parametrize('carrier', [
+    '<sheetPr><f>Sheet1!A1</f></sheetPr>',
+    '<sheetViews><sheetView workbookViewId="0"><f>Sheet1!A1</f></sheetView></sheetViews>',
+    '<sheetPr><xm:f xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">Sheet1!A1</xm:f></sheetPr>',
+])
+def test_unknown_outside_cell_formula_carrier_refuses_atomically(carrier: str, tmp_path: Path) -> None:
+    app = prepared()
+    app.save(tmp_path / 'before.xlsx')
+    sheet = app.workbook.sheets_[0]
+    app.workbook.package.write(sheet.part_name, (
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' + carrier +
+        '<sheetData/></worksheet>').encode())
+    before = snapshot(app)
+    with pytest.raises(VBAUnsupportedError, match='outside cell storage'):
+        sheet.vba_set('Name', 'Renamed')
+    assert snapshot(app) == before
+
+
+@pytest.mark.parametrize('fragment', [
+    '<!--<row r="1"><c r="A1"><v>99</v></c></row>-->',
+    '<![CDATA[<row r="1"><c r="A1"><v>99</v></c></row>]]>',
+])
+def test_real_imported_cell_shadow_refuses_before_public_rename(fragment: str, tmp_path: Path) -> None:
+    app = prepared()
+    original = app.save(tmp_path / 'original.xlsx')
+    derived = tmp_path / 'shadow.xlsx'
+    with ZipFile(original) as source, ZipFile(derived, 'w') as target:
+        for entry in source.infolist():
+            data = source.read(entry.filename)
+            if entry.filename == 'xl/worksheets/sheet2.xml':
+                data = data.replace(b'</sheetData>', fragment.encode() + b'</sheetData>')
+            target.writestr(entry, data)
+    imported = ExcelApplication.open(derived, with_vba=False)
+    assert imported.workbook.sheets_[1].cells_[(1, 1)].formula == ''
+    assert imported.sheet('Calc').value('A1') == 99
+    before = snapshot(imported)
+    with pytest.raises(VBAUnsupportedError, match='lexical'):
+        imported.workbook.sheets_[0].vba_set('Name', 'Renamed')
+    assert snapshot(imported) == before
+
+
+def test_storage_guard_accepts_current_dirty_values_and_formulas(tmp_path: Path) -> None:
+    app = prepared()
+    saved = app.save(tmp_path / 'before.xlsx')
+    app = ExcelApplication.open(saved, with_vba=False)
+    app.sheet(1).set_value('A1', 12)
+    app.sheet('Calc').set_value('A1', '=Sheet1!A1*3')
+    app.workbook.sheets_[0].vba_set('Name', 'Renamed')
+    assert app.sheet('Calc').formula('A1') == '=Renamed!A1*3'
+    assert app.sheet('Calc').value('A1') == 36
+    reopened = ExcelApplication.open(app.save(tmp_path / 'after.xlsx'), with_vba=False)
+    assert reopened.sheet('Calc').value('A1') == 36
+
+
+@pytest.mark.parametrize('damage', ['none', 'affected', 'cache-attribute', 'cache-child', 'field-attribute', 'report-child'])
+def test_known_pivot_source_admission_is_read_only_and_atomic(damage: str) -> None:
+    from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes
+    from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
+
+    app = prepared()
+    owner = app.workbook.sheets_[0]
+    for address, value in (('G1', 'Header'), ('G2', 1), ('G3', 2)):
+        owner.Range(address).vba_set('Value', value)
+    cache = app.workbook.PivotCaches().Create(1, owner.Range('G1:G3'))
+    assert isinstance(cache, PivotCache)
+    report = cache.CreatePivotTable(owner.Range('J1'), 'Report')
+    assert isinstance(report, PivotTable)
+    if damage == 'cache-attribute':
+        cache.root.set('unknown', 'Fresh!A1')
+    elif damage == 'cache-child':
+        cache.root.append(XmlElement('{urn:unknown}reference', {'sheet': 'Fresh'}))
+    elif damage == 'field-attribute':
+        fields = cache.root.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}cacheFields')
+        assert fields is not None
+        fields[0].set('formula', 'Fresh!A1')
+    elif damage == 'report-child':
+        report.root.append(XmlElement('{urn:unknown}reference', {'sheet': 'Fresh'}))
+    fresh = app.workbook.add_sheet('Fresh')
+    target = owner if damage == 'affected' else fresh
+    before = snapshot(app), xml_bytes(cache.root), xml_bytes(report.root)
+    if damage == 'none':
+        target.vba_set('Name', 'Other')
+        assert xml_bytes(cache.root) == before[1] and xml_bytes(report.root) == before[2]
+    else:
+        with pytest.raises(VBAUnsupportedError):
+            target.vba_set('Name', 'Other')
+        assert (snapshot(app), xml_bytes(cache.root), xml_bytes(report.root)) == before
+
+
+@pytest.mark.parametrize('payload', [
+    '<cfRule type="expression" priority="1"><formula>Sheet1!A1&gt;0</formula></cfRule>',
+    '<sheetPr><formula>Sheet1!A1</formula></sheetPr>',
+    '<dataValidation type="custom"><formula1>Sheet1!A1</formula1></dataValidation>',
+])
+def test_imported_secondary_formula_parent_ownership_is_atomic(payload: str, tmp_path: Path) -> None:
+    app = prepared()
+    original = app.save(tmp_path / 'original.xlsx')
+    derived = tmp_path / 'secondary.xlsx'
+    with ZipFile(original) as source, ZipFile(derived, 'w') as target:
+        for entry in source.infolist():
+            data = source.read(entry.filename)
+            if entry.filename == 'xl/worksheets/sheet2.xml':
+                data = data.replace(b'</worksheet>', payload.encode() + b'</worksheet>')
+            target.writestr(entry, data)
+    imported = ExcelApplication.open(derived, with_vba=False)
+    before = snapshot(imported)
+    with pytest.raises(VBAUnsupportedError, match='unowned secondary'):
+        imported.workbook.sheets_[0].vba_set('Name', 'Renamed')
+    assert snapshot(imported) == before
+
+
+def test_unchanged_opaque_metadata_is_preserved_without_generic_tag_refusal(tmp_path: Path) -> None:
+    app = prepared()
+    app.save(tmp_path / 'before.xlsx')
+    package = app.workbook.package
+    assert package is not None
+    sheet = app.workbook.sheets_[1]
+    opaque = b'<customAnnotation token="keep">opaque text</customAnnotation>'
+    raw = package.read(sheet.part_name)
+    package.write(sheet.part_name, raw.replace(b'</worksheet>', opaque + b'</worksheet>'))
+    app.workbook.sheets_[0].vba_set('Name', 'Renamed')
+    saved = app.save(tmp_path / 'opaque.xlsx')
+    with ZipFile(saved) as result:
+        assert opaque in result.read(sheet.part_name)

@@ -18,7 +18,7 @@ import re
 from collections.abc import Callable, Collection
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference, split_sheet
 from pyopenvba._relationships import in_office_order
@@ -54,6 +54,41 @@ _INLINE = re.compile(r"<is>(.*?)</is>", re.DOTALL)
 _TEXT = re.compile(r"<t[^>]*>(.*?)</t>", re.DOTALL)
 _SHARED_ITEM = re.compile(r"<si>(.*?)</si>", re.DOTALL)
 _DEFINED_NAME = re.compile(r"<definedName\b((?:[^\"'<>]|\"[^\"]*\"|'[^']*')*)>(.*?)</definedName>", re.DOTALL)
+class FormulaStorageSpans(NamedTuple):
+    """Exact byte ownership along the current worksheet cell-reader path."""
+
+    data: tuple[int, int] | None
+    rows: list[tuple[int, int]]
+    cells: list[tuple[int, int]]
+    formulas: list[tuple[int, int]]
+
+
+def formula_spans(data: bytes) -> FormulaStorageSpans:
+    """Legacy ownership, called after validated opening-position admission."""
+    sheet = re.search(_SHEET_DATA.pattern.encode('ascii'), data, re.DOTALL)
+    if sheet is None:
+        return FormulaStorageSpans(None, [], [], [])
+    result = FormulaStorageSpans(sheet.span(), [], [], [])
+
+    def append(target: list[tuple[int, int]], span: tuple[int, int]) -> None:
+        if len(result.rows) + len(result.cells) + len(result.formulas) >= 350_000:
+            raise ValueError("Cell metadata exceeds its lexical record budget")
+        target.append(span)
+
+    if sheet.group(3) is not None:
+        for row in re.finditer(_ROW.pattern.encode('ascii'), sheet.group(3), re.DOTALL):
+            row_at = sheet.start(3) + row.start()
+            append(result.rows, (row_at, row_at + len(row.group())))
+            for cell in re.finditer(_CELL.pattern.encode('ascii'), row.group(), re.DOTALL):
+                cell_at = row_at + cell.start()
+                append(result.cells, (cell_at, cell_at + len(cell.group())))
+                formula = re.search(_FORMULA.pattern.encode('ascii'), cell.group(), re.DOTALL)
+                if formula is not None:
+                    start = cell_at + formula.start()
+                    append(result.formulas, (start, start + len(formula.group())))
+    return result
+
+
 def defined_name_spans(data: bytes) -> list[tuple[int, int]]:
     """Byte ownership of names recognized by the existing lexical reader."""
     return [match.span() for match in re.finditer(_DEFINED_NAME.pattern.encode('ascii'), data, re.DOTALL)]

@@ -144,14 +144,34 @@ of tab order. Iteration and persistence share that existing name collation.
 Held external addresses use the current owner, one prefix for a union, and
 measured quoting for ordinary BookN, period-only filenames, spaces/apostrophes.
 
-This remains a bounded partial operation. Shared/array/spill formulas, 3D or
+This remains a bounded partial operation. Target-owned shared/CSE storage, actual
+dynamic spills, 3D or
 unrecognized qualified references, external-link-bearing packages, charts,
-conditional formatting, validation, tables, Pivot caches/reports, drawings,
-controls and hyperlinks are refused before mutation. Existing supported owned
+affected known secondary references and misplaced formula carriers are refused
+before mutation. Arbitrary unchanged opaque metadata retains the existing
+preservation policy.
+Known conditional and validation formulas, local control links/list ranges and
+local Pivot source bindings may coexist when parsed references prove unaffected.
+Original inline conditional/validation metadata is also inspected, including
+unmaterialized, wrapped and foreign carriers. Conditional roots, styles and
+context registries retain their identities. Unrelated shared/CSE storage on other
+sheets is admitted only after bounded ownership/coherence checks and when its
+formula text remains unchanged; manual cached values, members and effective saved
+dirty state are preserved. Target-owned shared/CSE storage, actual dynamic spills,
+tables and unmeasured drawing/Pivot package features remain refused.
+`tests/test_excel_worksheet_rename.py` retains these atomicity/identity/storage
+controls; existing conditional-copy, notes, Pivot and AutoFilter native fixture
+replays cover the unrelated-sheet workflows. Existing supported owned
 filter/print names migrate in the same plan. Enabled bound event sinks or
 actual/pending document handlers are also refused; the native core used disabled
 events, so broader event behavior is not claimed. Worksheet-function/reentrant
 rename calls remain unsupported. Plain measurement modules are admitted.
+
+The unrelated-feature repair passed the complete normal suite: **32,571 passed,
+1,227 skipped and 69 expected failures**. Subsequent storage/admission controls
+passed 721 affected tests (14 skipped, four expected failures), followed by
+273 focused rename/Pivot/checklist tests (ten skipped) after the final carrier
+checks. Original native fixture expectations remain unchanged.
 
 Implementation limits include 256 sheets, one million modeled cells, 100,000
 formulas, 10,000 names/parts and eight million aggregate source/staged text or
@@ -160,7 +180,10 @@ bounded; each expression is limited to 32,768 characters before lexing (an
 implementation limit, not a measured native limit). Pending document sources
 have the same per-source text bound and use the existing VBA lexer to inspect
 logical procedure headers without executing or registering them. Metadata reads limit actual decompression; namespace, DTD/entity and
-name-container admission preserve the existing parser policy. Unsupported or
+name-container admission preserve the existing parser policy. Stored cell/formula
+ownership is checked against the actual namespace-aware XML before the existing
+lexical reader is consulted; unsupported ownership or attribute spellings refuse
+before mutation, without comparing originals to legitimate current edits. Unsupported or
 malformed proposals leave cells, names, graph and package bytes unchanged.
 Registration and verified-member totals are unchanged. See the
 [rename tests](../../tests/test_excel_worksheet_rename.py),

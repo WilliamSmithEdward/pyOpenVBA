@@ -189,7 +189,7 @@ def _workbook_names(raw: bytes) -> None:
         raise unsupported('with out-of-range stored name scopes')
 
 
-def _package(book: Workbook, budget: Budget) -> None:
+def _package(book: Workbook, budget: Budget, old: str, wanted: str) -> None:
     package = book.package
     if package is None:
         return
@@ -219,7 +219,13 @@ def _package(book: Workbook, budget: Budget) -> None:
                             raise unsupported('with unmodeled reserved names')
             else:
                 part = opc_part(raw, NS, 'worksheet')
-                guarded = {'conditionalFormatting', 'dataValidations', 'hyperlinks', 'drawing', 'legacyDrawing',
+                from pyopenvba.apps.excel._worksheet_rename_arrays import stored
+
+                stored(raw)
+                from pyopenvba.apps.excel._worksheet_rename_secondary import worksheet
+
+                worksheet(raw, old, wanted, budget)
+                guarded = {'hyperlinks', 'drawing', 'legacyDrawing',
                            'legacyDrawingHF', 'picture', 'oleObjects', 'controls', 'tableParts', 'extLst',
                            'pivotTableParts', 'dataConsolidate', 'scenarios', 'customSheetViews', 'cellWatches', 'smartTags'}
                 if any(tag.rsplit('}', 1)[-1] in guarded or not tag.startswith(NS + '}')
@@ -282,6 +288,11 @@ def _formula(text: str, old: str, wanted: str, budget: Budget, *, name_expressio
     return ''.join(parts)
 
 
+def formula(text: str, old: str, wanted: str, budget: Budget) -> str:
+    """Shared scalar/name syntax admission for secondary reference inventories."""
+    return _formula(text, old, wanted, budget, name_expression=True)
+
+
 def rename(sheet: Worksheet, wanted: str) -> None:
     """Admit every proposal before publishing any text, scope or graph change."""
     book = sheet.book
@@ -299,15 +310,18 @@ def rename(sheet: Worksheet, wanted: str) -> None:
         raise unsupported('during an active calculation')
     budget = Budget()
     _handlers(book, budget)
-    for owner in book.sheets_:
-        if (owner.shared_groups or owner.array_formulas or owner.spills or owner.tables or owner.pivot_tables
-                or owner.conditional_formats or owner.validations or owner.shapes_ or owner.hyperlinks
-                or any(cell.dynamic or cell.spilled_from is not None for cell in owner.cells_.values())):
-            raise unsupported('with shared/array/spill formulas or secondary reference-bearing features')
-    if book.pivot_caches:
-        raise unsupported('with Pivot cache references')
+    structured = {owner for owner in book.sheets_ if owner.shared_groups or owner.array_formulas or owner.spills
+                  or any(cell.dynamic or cell.spilled_from is not None for cell in owner.cells_.values())}
+    if any(owner.spills or any(cell.spilled_from is not None for cell in owner.cells_.values())
+           for owner in book.sheets_):
+        raise unsupported('with dynamic spill storage')
+    if sheet in structured or any(owner.tables for owner in book.sheets_):
+        raise unsupported('with shared/array/spill formulas or table references')
+    from pyopenvba.apps.excel._worksheet_rename_secondary import admit
+
     try:
-        _package(book, budget)
+        admit(book, sheet.name, wanted, budget)
+        _package(book, budget, sheet.name, wanted)
     except (ValueError, XmlParseError):
         raise unsupported('with malformed persisted XML metadata') from None
     cells: list[tuple[Worksheet, Cell, str]] = []
@@ -329,10 +343,17 @@ def rename(sheet: Worksheet, wanted: str) -> None:
             raise unsupported('beyond the supported expression text length')
         budget.text(entry.refers_to)
         budget.text(entry.attributes)
+    from pyopenvba.apps.excel._worksheet_rename_arrays import admit as storage_admit
+
+    if storage_admit(book, sheet, wanted, budget):
+        raise unsupported('with affected formula storage owners')
     for owner in book.sheets_:
         for cell in owner.cells_.values():
             if cell.formula:
-                cells.append((owner, cell, _formula(cell.formula, sheet.name, wanted, budget)))
+                proposed = _formula(cell.formula, sheet.name, wanted, budget)
+                if owner in structured and proposed != cell.formula:
+                    raise unsupported('with affected shared/array/spill formulas')
+                cells.append((owner, cell, proposed))
     names: list[tuple[NameEntry, str, str]] = []
     seen: set[str] = set()
     for entry in book.names_.entries:

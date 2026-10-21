@@ -17,6 +17,8 @@
     "nested-overlap-rows.xlsx": "6b23813aa762996a0a759a3d444d7d438ebbf49974d45f0e3500439683f52587",
     "show-detail-and-manual-hidden.xlsx": "8cc342a240d7f386640fd231128beb571d9e569fbfdd4295c115252cad068c9d",
     "show-levels-coercions.xlsx": "e7a31d78352be72947bc5b0764f2d1f668ce0aef1ed368410fa3066a89d14faa",
-    "summary-sides.xlsx": "0f6534a0a41d5c07f2e2f1e4f1092bf66383b5bea4a89239e5faf0d9cd6f9a4a"
+    "summary-sides.xlsx": "0f6534a0a41d5c07f2e2f1e4f1092bf66383b5bea4a89239e5faf0d9cd6f9a4a",
+    "worksheet-outline-coercions.json": "e4b4877e6b59142611ee47ec87bcfdc35e43b5d76839e488dd026ac5d2619ee3",
+    "worksheet-outline-coercion-strings.json": "fedfeca28c87e30fa5287122e189139048a6707e10715f25356f60a8fe666db5"
   }
 }

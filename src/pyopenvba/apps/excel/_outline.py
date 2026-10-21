@@ -322,7 +322,7 @@ def read_level(target: Range) -> object:
 def set_level(target: Range, value: object) -> None:
     rows, first, last = axis(target)
     _cap(last - first + 1)
-    number = _number(value)
+    number = int(value) if isinstance(value, bool) else _number(value)
     if number < 1 or number > 8:
         raise error(1004)
     if not _guard(target.sheet):
@@ -416,10 +416,24 @@ class Outline(ExcelObject):
 
     @setter('SummaryRow')
     def _set_summary_row(self, value: object) -> None:
-        number = _number(value)
-        if number not in (0, 1):
+        if isinstance(value, str):
+            raise error(1004)
+        if value is EMPTY:
+            below = False
+        elif value is NULL:
+            below = True
+        elif isinstance(value, bool):
+            below = value
+        elif isinstance(value, (int, float)):
+            number = float(value)
+            if not math.isfinite(number):
+                raise unsupported('with nonfinite summary row values')
+            if number.is_integer() and number not in (0, 1):
+                raise unsupported('with unmeasured integer summary row values')
+            below = number != 0
+        else:
             raise unsupported('with unmeasured summary row values')
-        _change_flag(self.sheet, 'summaryBelow', str(number))
+        _change_flag(self.sheet, 'summaryBelow', '1' if below else '0')
 
     @member
     def SummaryColumn(self) -> object:
@@ -427,10 +441,24 @@ class Outline(ExcelObject):
 
     @setter('SummaryColumn')
     def _set_summary_column(self, value: object) -> None:
-        number = _number(value)
-        if number not in (-4152, -4131):
+        if isinstance(value, str):
+            raise error(1004)
+        if value is EMPTY:
+            right = False
+        elif value is NULL:
+            right = True
+        elif isinstance(value, bool):
+            right = value
+        elif isinstance(value, (int, float)):
+            number = float(value)
+            if not math.isfinite(number):
+                raise unsupported('with nonfinite summary column values')
+            if number.is_integer() and number not in (-4152, -4131, 3):
+                raise unsupported('with unmeasured integer summary column values')
+            right = number != -4131
+        else:
             raise unsupported('with unmeasured summary column values')
-        _change_flag(self.sheet, 'summaryRight', '1' if number == -4152 else '0')
+        _change_flag(self.sheet, 'summaryRight', '1' if right else '0')
 
     @method
     def ShowLevels(self, RowLevels: object = MISSING, ColumnLevels: object = MISSING) -> object:

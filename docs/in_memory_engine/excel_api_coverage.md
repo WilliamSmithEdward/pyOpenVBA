@@ -74,9 +74,14 @@ or expanding updates visibility and dependent calculations. Ungrouping retains
 hidden detail, while clearing outlines removes their visibility state. Plain
 worksheet copies preserve these modeled settings.
 
-The evidence retains **24 exact native controls** and **12 macro-free native
+The evidence retains **26 exact native controls** and **12 macro-free native
 inputs**. Twelve runtime controls use explicitly documented observation subsets;
 unsupported mixed-range getter observations remain intact in the raw evidence.
+Two additional exact Variant/CallByName matrices establish fractional level
+truncation, Boolean level assignment, separate summary-side coercions and
+string/error behavior. Their model checks explicitly exclude only the native
+version/build header; every operation/error/readback remains exact. Unmeasured
+integer summary-enum values still fail before mutation.
 Six input snapshots also have exact model import/save/readback checks. All twelve
 generated-output controls passed native Excel readback in one closed session
 (12/12, 16.05 seconds). Additional

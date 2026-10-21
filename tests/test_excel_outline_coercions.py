@@ -42,3 +42,17 @@ def test_unmeasured_integer_summary_values_are_atomic(property_name: str, values
         with pytest.raises(VBAUnsupportedError, match="unmeasured integer"):
             outline.vba_set(property_name, value)
         assert (outline.SummaryRow(), outline.SummaryColumn(), app.workbook.saved) == before
+
+
+def test_summary_column_integer_three_uses_original_native_raw_proof() -> None:
+    record = json.loads((ROOT / "initial.json").read_bytes())
+    case = next(case for case in record["controls"] if case["name"] == "summary-sides")
+    assert 'PutP(ActiveSheet.Outline,"SummaryColumn",3)' in case["source"]
+    assert ";badcol=ok:-4152(3)" in case["raw_result"]
+    app = ExcelApplication()
+    app.add_workbook()
+    outline = Outline(app.workbook.sheets_[0])
+    outline.vba_set("SummaryColumn", -4131)
+    assert outline.SummaryColumn() == -4131
+    outline.vba_set("SummaryColumn", 3)
+    assert outline.SummaryColumn() == -4152

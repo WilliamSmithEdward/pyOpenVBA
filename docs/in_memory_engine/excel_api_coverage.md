@@ -81,7 +81,9 @@ Two additional exact Variant/CallByName matrices establish fractional level
 truncation, Boolean level assignment, separate summary-side coercions and
 string/error behavior. Their model checks explicitly exclude only the native
 version/build header; every operation/error/readback remains exact. Unmeasured
-integer summary-enum values still fail before mutation.
+integer summary-enum values still fail before mutation. The original raw
+`summary-sides` control separately establishes integer `SummaryColumn=3`
+selecting the right-hand summary; an explicit regression retains that evidence.
 Six input snapshots also have exact model import/save/readback checks. All twelve
 generated-output controls passed native Excel readback in one closed session
 (12/12, 16.05 seconds). Additional

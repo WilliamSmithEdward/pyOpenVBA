@@ -121,12 +121,14 @@ class Typed:
     prefix: bool = False
 
 
-def typed(value: object, current: str = "General", *, raw: bool = False) -> Typed:
+def typed(value: object, current: str = "General", *, raw: bool = False, epoch_1904: bool = False) -> Typed:
     """A value written to a cell whose format is ``current``, as the cell keeps it.
 
     ``raw`` is Value2's write, which puts a Date or a Currency in as the
     Double under it and so brings no format with it.
     """
+    if epoch_1904 and not raw and isinstance(value, VBADate):
+        value = VBADate(value.serial - (1462 if value.serial >= 1 else 0))
     if raw and isinstance(value, VBADate):
         value = value.serial
     elif raw and isinstance(value, VBACurrency):
@@ -134,6 +136,10 @@ def typed(value: object, current: str = "General", *, raw: bool = False) -> Type
     if current == "@":
         return _as_text(value)
     found = _typed(value, fractions=reads_fractions(current))
+    if epoch_1904 and isinstance(value, str) and found.number_format and is_date_format(found.number_format) \
+            and isinstance(found.value, (int, float)):
+        shifted = found.value - 1462
+        found = Typed(shifted, found.number_format, found.prefix) if shifted >= 0 else Typed(value)
     return Typed(found.value, format_after(current, found.number_format), found.prefix)
 
 

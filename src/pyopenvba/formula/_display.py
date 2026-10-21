@@ -259,15 +259,15 @@ def _meets(condition: tuple[str, float], value: float) -> bool:
 # --- the value, through its section ------------------------------------------------------------------
 
 
-def format_value(value: object, code: str) -> str:
+def format_value(value: object, code: str, *, epoch_1904: bool = False) -> str:
     """What ``code`` shows for ``value`` -- a number, a string or a Boolean -- as TEXT does.
 
     Raises UndisplayableError where the format cannot show the value.
     """
-    return shown(value, code)[0]
+    return shown(value, code, epoch_1904=epoch_1904)[0]
 
 
-def shown(value: object, code: str) -> tuple[str, bool]:
+def shown(value: object, code: str, *, epoch_1904: bool = False) -> tuple[str, bool]:
     """What ``code`` shows for ``value``, and whether the section it shows through fills the cell's width.
 
     A ``*`` fill repeats its character across whatever width the cell has
@@ -286,7 +286,7 @@ def shown(value: object, code: str) -> tuple[str, bool]:
     if not numeric:
         return general_text(number), False
     section, magnitude, signed = _choose(numeric, number)
-    return _numeric(section, magnitude, signed), section.has_fill
+    return _numeric(section, magnitude, signed, epoch_1904=epoch_1904), section.has_fill
 
 
 def _choose(sections: list[_Section], value: float) -> tuple[_Section, float, bool]:
@@ -314,9 +314,9 @@ def _literal(item: _Item) -> str:
     return item.text if item.kind in ("literal", "percent", "slash", "comma", "point", "date", "ampm") else ""
 
 
-def _numeric(section: _Section, value: float, signed: bool) -> str:
+def _numeric(section: _Section, value: float, signed: bool, *, epoch_1904: bool = False) -> str:
     if section.has("date", "elapsed", "ampm"):
-        return _date(section.items, value)
+        return _date(section.items, value, epoch_1904=epoch_1904)
     if section.has("general"):
         shown = general_text(value if signed else abs(value))
         return "".join(shown if item.kind == "general" else _literal(item) for item in section.items)
@@ -561,7 +561,7 @@ def clock(value: float, places: int = 0) -> tuple[int, int, int, int, int]:
     return day, hour, minute, second, math.floor((rest - second) * unit)
 
 
-def _date(items: list[_Item], value: float) -> str:
+def _date(items: list[_Item], value: float, *, epoch_1904: bool = False) -> str:
     """A serial through date and time codes, rounded to the smallest part shown."""
     parts = [item for item in items if item.kind in ("date", "elapsed", "ampm")]
     if len(parts) == 1 and parts[0].kind == "elapsed" and parts[0].text[0] == "s" and not any(
@@ -571,8 +571,11 @@ def _date(items: list[_Item], value: float) -> str:
         seconds = int(math.copysign(int(_rounded(_significant(abs(value) * 86400), 0)), value))
         return "".join(("-" if seconds < 0 else "") + str(abs(seconds)).rjust(len(item.text), "0")
                        if item.kind == "elapsed" else _literal(item) for item in items)
-    if value < 0 or value >= 2958466:
-        raise UndisplayableError("a date before 1900 or past 9999")
+    if epoch_1904 and value < 0:
+        return "-" + _date(items, -value, epoch_1904=True)
+    last = 2957004 if epoch_1904 else 2958466
+    if value < 0 or value >= last:
+        raise UndisplayableError("a date outside the workbook calendar")
     # Places of a second: 0s straight after a point that follows the seconds.
     tenths: set[int] = set()
     for index, item in enumerate(items):
@@ -584,10 +587,14 @@ def _date(items: list[_Item], value: float) -> str:
                 look += 1
     places = len(tenths)
     day, hour, minute, second, part = clock(value, places)
-    if day >= 2958466:
+    if day >= last:
         raise UndisplayableError("a date past 9999")
     total = day * 86400 + hour * 3600 + minute * 60 + second
-    year, month, date = excel_date(day)
+    if epoch_1904:
+        when = _dt.date(1904, 1, 1) + _dt.timedelta(days=day)
+        year, month, date = when.year, when.month, when.day
+    else:
+        year, month, date = excel_date(day)
     twelve = any(item.kind == "ampm" for item in items)
     fraction = str(part).rjust(places, "0") if places else ""
     out: list[str] = []
@@ -595,7 +602,7 @@ def _date(items: list[_Item], value: float) -> str:
         if index in tenths:
             out.append(fraction[sorted(tenths).index(index)])
         elif item.kind == "date":
-            out.append(_part(item.text, items, index, (year, month, date, day), (hour, minute, second), twelve))
+            out.append(_part(item.text, items, index, (year, month, date, day + 1462 if epoch_1904 else day), (hour, minute, second), twelve))
         elif item.kind == "elapsed":
             amount = {"h": total // 3600, "m": total // 60, "s": total}[item.text[0]]
             out.append(str(amount).rjust(len(item.text), "0"))

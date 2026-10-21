@@ -678,6 +678,8 @@ class Workbook(ExcelObject):
         self.name = name
         self.path = path
         self.saved = True
+        self.epoch_1904 = False
+        self.date_system_changed = False
         self.project_runtime: Interpreter | None = None
         #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
         self.format_code: int | None = None
@@ -744,6 +746,16 @@ class Workbook(ExcelObject):
     @member
     def Name(self) -> object:
         return self.name
+
+    @member
+    def Date1904(self) -> object:
+        return self.epoch_1904
+
+    @setter("Date1904")
+    def set_Date1904(self, value: object) -> None:
+        from pyopenvba.apps.excel._date_system import set_mode
+
+        set_mode(self, value)
 
     @member
     def CodeName(self) -> object:
@@ -1977,7 +1989,8 @@ class Range(ExcelObject):
             cell = replace(cell, style=replace(style, number_format=conditional_number_format(
                 self.sheet, self.first.top, self.first.left)))
         dims = self.sheet.dims
-        return _display_text(cell, _dimensions.characters_read(dims.column_shown_pixels(self.first.left)))
+        return _display_text(cell, _dimensions.characters_read(dims.column_shown_pixels(self.first.left)),
+                             epoch_1904=self.sheet.book.epoch_1904)
 
     @member
     def Formula(self) -> object:
@@ -3741,12 +3754,12 @@ class Range(ExcelObject):
         if self.sheet.array_formulas and _arrays.array_at(self.sheet, row, column) is not None:
             # A cell of an array formula shows its item of the array, worked out first if it has to be.
             value = self.sheet.book.calculator.value_of(self.sheet.name, row, column)
-            return as_vba(value, None if raw else self.sheet.cell(row, column))
+            return as_vba(value, None if raw else self.sheet.cell(row, column), epoch_1904=self.sheet.book.epoch_1904)
         cell = self.sheet.cell(row, column)
         if cell is None:
             return EMPTY
         value = self.sheet.book.calculator.value_of(self.sheet.name, row, column) if cell.formula else cell.value
-        return as_vba(value, None if raw else cell)
+        return as_vba(value, None if raw else cell, epoch_1904=self.sheet.book.epoch_1904)
 
     def writable_positions(self) -> list[tuple[int, int]]:
         """Which cells a write touches: on a filtered sheet only the visible ones, as _visible has it.
@@ -3904,7 +3917,7 @@ class Range(ExcelObject):
         cell = self.sheet.cell(row, column, create=True)
         assert cell is not None
         style = cell.style or self.sheet.book.stylesheet.default
-        self._store(row, column, typed(value, style.number_format, raw=raw))
+        self._store(row, column, typed(value, style.number_format, raw=raw, epoch_1904=self.sheet.book.epoch_1904))
 
     def store_typed(self, row: int, column: int, result: Typed) -> None:
         """Put what a feature typed into one cell, as a write puts it (see _store): TextToColumns's fields."""
@@ -4415,7 +4428,7 @@ _register_worksheet_functions()
 # --- helpers ----------------------------------------------------------------------------------------
 
 
-def _display_text(cell: Cell, characters: float) -> str:
+def _display_text(cell: Cell, characters: float, *, epoch_1904: bool = False) -> str:
     """What the cell shows: its value through its number format, in a column ``characters`` wide.
 
     A value its format cannot show, a date before 1900 say, fills the
@@ -4435,7 +4448,7 @@ def _display_text(cell: Cell, characters: float) -> str:
     if not isinstance(value, (bool, str, int, float)):
         return to_text(value)
     try:
-        text, fills = shown(value, cell.number_format)
+        text, fills = shown(value, cell.number_format, epoch_1904=epoch_1904)
     except UndisplayableError:
         return "#" * int(characters)
     if fills:

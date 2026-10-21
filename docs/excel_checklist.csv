@@ -2136,7 +2136,7 @@ Workbook,Creator,"property, read-only",As XlCreator,,MISSING,,
 Workbook,CustomDocumentProperties,"property, read-only",As Object,,MISSING,,
 Workbook,CustomViews,"property, read-only",As CustomViews,,MISSING,,
 Workbook,CustomXMLParts,"property, read-only",As CustomXMLParts,,MISSING,,
-Workbook,Date1904,property,As Boolean,,MISSING,,
+Workbook,Date1904,property,As Boolean,,PARTIAL,tests/test_excel_date1904.py; tests/fixtures/date1904/native.json,"Measured ordinary-cell 1900/1904 state, typing, Value/Value2/Text, formula calculation, manual-cache toggles and workbookPr persistence. Eight independent native controls and macro-free files; ancillary date-sensitive features, mixed-workbook copies, events and UDF mutations remain incomplete."
 Workbook,Deactivate,event,Deactivate(),,MISSING,,
 Workbook,DefaultPivotTableStyle,property,As Variant,,MISSING,,
 Workbook,DefaultSlicerStyle,property,As Variant,,MISSING,,

@@ -27,7 +27,7 @@ is a percentage of working macros or complete functionality.
 
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
-| Application, workbooks and worksheets | Partial | 127 / 752 | 6 | Core containers, opening/saving, sheet operations and settings, including bounded scalar/name worksheet renames. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
+| Application, workbooks and worksheets | Partial | 128 / 752 | 6 | Core containers, opening/saving, sheet operations and settings, including bounded scalar/name worksheet renames. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
 | Cells and ranges | Partial | 118 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Bounded worksheet renames migrate ordinary local/global references and preserve scope/identity. Broader expression, relative/external-reference and mixed-feature lifecycle behavior remains incomplete. |
@@ -49,7 +49,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,223 / 7,542** | **147** | **16.2% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,224 / 7,542** | **147** | **16.2% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -866,7 +866,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,843 entries across 73 implemented model types**:
-147 verified, 656 partial, 424 unassessed, 1,613 missing and 3 excluded. Its 1,227
+147 verified, 657 partial, 424 unassessed, 1,612 missing and 3 excluded. Its 1,228
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the
@@ -937,3 +937,22 @@ are compared directly with the three independent native outputs.
 Native measurement paths retain their original Windows provenance. Chart fixture
 replays resolve those basenames explicitly so the same recorded inputs work on
 other platforms.
+
+## Workbook date-system checkpoint
+
+`Workbook.Date1904` is partially implemented for ordinary cells. Workbook-local
+1900/1904 selection now reaches date formulas, TEXT, Range.Text, typed date strings,
+and the distinct VBA Date conversions of Value and Value2. Toggling retains stored
+serial numbers; automatic mode recalculates date-dependent formulas, while manual
+mode retains their caches until calculation. Saving patches workbookPr.date1904
+and preserves unrelated properties and namespace bindings.
+
+[Eight native controls](../../tests/fixtures/date1904/native.json), their original
+macro-free inputs, and [runtime/import/save tests](../../tests/test_excel_date1904.py)
+cover numeric boundaries, VBA Date writes, parsed strings, toggles, coercion,
+structure protection and two-workbook isolation. The focused date/typing gate passes
+1,851 tests with one inherited expected failure; strict typing reports no errors.
+This checkpoint does not establish 1904 fidelity for filters, validation,
+TextToColumns, queries, chart/Pivot date metadata, mixed-epoch copies or event
+ordering. Mutating the setting during formula evaluation is explicitly unsupported.
+No engine-generated output has yet been reopened in native Excel for this increment.

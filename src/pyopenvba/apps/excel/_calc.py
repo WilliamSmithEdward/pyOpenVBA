@@ -881,7 +881,7 @@ def _spread(sheet: Worksheet, block: Area, answer: Array) -> object:
     return first
 
 
-def as_vba(value: object, cell: Cell | None = None) -> object:
+def as_vba(value: object, cell: Cell | None = None, *, epoch_1904: bool = False) -> object:
     """A cell's value as VBA reads it.
 
     An error becomes a Variant/Error. A cell holds every number as a
@@ -901,15 +901,15 @@ def as_vba(value: object, cell: Cell | None = None) -> object:
 
     code = cell.number_format
     if is_date_format(code):
-        return VBADate(float(value))
+        return VBADate(float(value) + (1462 if epoch_1904 and not 0 <= value < 1 else 0))
     if is_currency_format(code):
         return VBACurrency(value)
     return float(value)
 
 
-def as_python(value: object, cell: Cell | None = None) -> object:
+def as_python(value: object, cell: Cell | None = None, *, epoch_1904: bool = False) -> object:
     """A cell's value as ``as_vba`` reads it, but the Double where its Date or Currency cannot hold it."""
     try:
-        return as_vba(value, cell)
+        return as_vba(value, cell, epoch_1904=epoch_1904)
     except VBARuntimeError:
         return as_vba(value)

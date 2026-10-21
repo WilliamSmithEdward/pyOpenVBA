@@ -105,7 +105,7 @@ class EngineBook:
 
     @property
     def epoch_1904(self) -> bool:
-        return False
+        return self.book.epoch_1904
 
     @property
     def name(self) -> str:

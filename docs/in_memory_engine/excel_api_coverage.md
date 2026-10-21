@@ -775,3 +775,7 @@ blank and retains identity-based default colors. The reader sorts ordinary
 series by their declared order, retains IDs and refuses ambiguous or malformed
 identity/order metadata before integer expansion. The XML identity/order values
 are compared directly with the three independent native outputs.
+
+Native measurement paths retain their original Windows provenance. Chart fixture
+replays resolve those basenames explicitly so the same recorded inputs work on
+other platforms.

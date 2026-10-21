@@ -6,7 +6,7 @@ import importlib.util
 import json
 import os
 import re
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 import pytest
@@ -90,7 +90,7 @@ def test_native_saved_lifecycle_import_and_model_generated_reopen(control: dict[
     app.add_workbook()
     app.add_module(source, name='ChartLifecycle')
     app.run('Probe')
-    output = tmp_path / Path(control['file']).name
+    output = tmp_path / PureWindowsPath(control['file']).name
     app.save(output)
     reopened = ExcelApplication.open(output)
     reopened.add_module(source, name='ChartLifecycle')
@@ -211,7 +211,7 @@ def test_native_excel_reopens_generated_series_lifecycle(control: dict[str, Any]
     app.add_workbook()
     app.add_module(source, name='ChartLifecycle')
     app.run('Probe')
-    output = tmp_path / Path(control['file']).name
+    output = tmp_path / PureWindowsPath(control['file']).name
     app.save(output)
     native_lifecycle_session.open_document(output)
     result = native_lifecycle_session.run_vba(source, 'Snapshot', timeout=60.0)
@@ -253,7 +253,7 @@ def test_native_stable_default_names_runtime_and_persistence(control: dict[str, 
     app.add_workbook()
     app.add_module(source, name='StableSeries')
     assert app.run('Probe') == project(control['raw_result'])
-    output = tmp_path / Path(control['file']).name
+    output = tmp_path / PureWindowsPath(control['file']).name
     app.save(output)
     expected = project(control['reopened_result'])
     for path in (ROOT / output.name, output):

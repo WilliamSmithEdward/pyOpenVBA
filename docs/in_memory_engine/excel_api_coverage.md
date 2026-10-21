@@ -664,6 +664,38 @@ See [native controls](../../tests/test_excel_table_sort.py),
 [table metadata persistence](../../tests/test_excel_table_sort_persistence.py), and
 [retained evidence](../../tests/fixtures/table_sort/manifest.json).
 
+## Chart data admission
+
+Embedded-chart source inference and supported setters prepare replacement data
+before changing chart state. Failed source reads or value conversions preserve
+prior series identities, plot orientation, title/legend settings and drawing
+change flags. Existing native chart API controls remain unchanged; regression
+coverage is in [chart staging tests](../../tests/test_excel_chart_staging.py).
+
+Twenty additional native argument controls cover `SetSourceData`: fifteen replay
+complete original source/result pairs, and five compare complete scalar-case
+before/result/after bodies from an explicitly projected batch that later stopped
+on a separate diagnostic. Scalar sources return error 13; omitting Source while supplying PlotBy returns
+450, and unsupported PlotBy enum values return the measured automation error.
+Numeric-string and fractional PlotBy coercions follow the recorded controls.
+All failed admitted operations preserve the complete recorded chart snapshot.
+Raw evidence retains two deferred diagnostics: a successful native union source,
+whose inference remains unsupported, and a Nothing source that disconnected the
+held native chart. The latter is not treated as a passing in-memory lifetime
+assertion. See [argument controls](../../tests/test_excel_chart_source_arguments.py)
+and their [dispositions](../../tests/fixtures/chart_source_arguments/manifest.json).
+
+Engine resource bounds admit at most **one million cells/points** per source,
+series input or aggregate reference read, and **1,024 inferred series** per
+`SetSourceData` call. References are bounded to 32,768 characters before parsing
+or storing them. Imported literal-cache point indexes must be nonnegative
+integers below the point bound before dense allocation. These are engine
+admission bounds, not measured Excel maxima. Cross-workbook source ranges and
+cross-workbook or multi-area series ranges are explicitly unsupported rather
+than silently binding to a local sheet or only the first area. Imported chart
+content mutation, axes, series lifecycle and broader chart fidelity remain
+incomplete. No public member registration or checklist status changes here.
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in

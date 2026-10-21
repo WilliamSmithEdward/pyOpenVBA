@@ -1,0 +1,35 @@
+{
+  "raw_sha256": {
+    "chart-source-arguments-native.json": "74664cd29f572aa42a1aae1203d20cab9105c7bb55525a1125d9b1740ad081d6",
+    "chart-source-arguments-remaining-native.json": "edb6661d80433ead91e322ae7e1446d6e84e49b6ea77123d7d91b611307aba5e"
+  },
+  "admitted_remaining_controls": [
+    "plot-0",
+    "plot-negative",
+    "plot-3",
+    "plot-99",
+    "plot-true",
+    "plot-false",
+    "plot-empty",
+    "plot-null",
+    "plot-numeric-string",
+    "plot-bad-string",
+    "plot-2.5",
+    "plot-1.5",
+    "source-range",
+    "source-omitted",
+    "source-array"
+  ],
+  "scalar_case_projection": [
+    "source-42",
+    "source-0",
+    "source-text",
+    "source-empty",
+    "source-null"
+  ],
+  "projection": "Scalar batch stopped on Nothing. Compare complete before/result/after bodies for its five completed scalar cases. Remaining admitted controls replay their entire original source/result without projection. Host/instrumentation metadata is not an operation oracle.",
+  "deferred": {
+    "source-union": "Native succeeds, engine multi-area inference is not implemented.",
+    "source-nothing": "Native disconnects the held chart and aborts later operations; retained diagnostic, not an in-memory lifetime assertion."
+  }
+}

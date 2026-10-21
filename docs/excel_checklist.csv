@@ -430,8 +430,8 @@ Chart,GetChartElement,method,"GetChartElement(x As Long, y As Long, ElementID As
 Chart,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Chart,HasAxis,property,As Variant,,MISSING,,
 Chart,HasDataTable,property,As Boolean,,MISSING,,
-Chart,HasLegend,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-Chart,HasTitle,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Chart,HasLegend,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
+Chart,HasTitle,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Chart,HeightPercent,property,As Long,,MISSING,,
 Chart,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
 Chart,Index,"property, read-only",As Long,,MISSING,,
@@ -478,7 +478,7 @@ Chart,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,MISS
 Chart,SetDefaultChart,method,SetDefaultChart(Name As Variant),,MISSING,,
 Chart,SetElement,method,SetElement(Element As MsoChartElementType),,MISSING,,
 Chart,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
-Chart,SetSourceData,method,"SetSourceData(Source As Range, [PlotBy As Variant])",,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Chart,SetSourceData,method,"SetSourceData(Source As Range, [PlotBy As Variant])",,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_source_arguments.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Chart,Shapes,"property, read-only",As Shapes,,MISSING,,
 Chart,ShowAllFieldButtons,property,As Boolean,,MISSING,,
 Chart,ShowAxisFieldButtons,property,As Boolean,,MISSING,,
@@ -569,7 +569,7 @@ ChartTitle,ReadingOrder,property,As Long,,MISSING,,
 ChartTitle,Select,method,Select() As Variant,,MISSING,,
 ChartTitle,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 ChartTitle,Shadow,property,As Boolean,,MISSING,,
-ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 ChartTitle,Top,property,As Double,,MISSING,,
 ChartTitle,VerticalAlignment,property,As Variant,,MISSING,,
 ChartTitle,Width,"property, read-only",As Double,,MISSING,,
@@ -1508,7 +1508,7 @@ Series,MarkerForegroundColor,property,As Long,,MISSING,,
 Series,MarkerForegroundColorIndex,property,As XlColorIndex,,MISSING,,
 Series,MarkerSize,property,As Long,,MISSING,,
 Series,MarkerStyle,property,As XlMarkerStyle,,MISSING,,
-Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Series,Parent,"property, read-only",As Object,,MISSING,,
 Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,MISSING,,
 Series,Paste,method,Paste() As Variant,,MISSING,,
@@ -1529,9 +1529,9 @@ Series,Shadow,property,As Boolean,,MISSING,,
 Series,Smooth,property,As Boolean,,MISSING,,
 Series,Trendlines,method,Trendlines([Index As Variant]) As Object,,MISSING,,
 Series,Type,property,As Long,,MISSING,,
-Series,Values,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Series,Values,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Series,ValueSortOrder,property,As XlValueSortOrder,,MISSING,,
-Series,XValues,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Series,XValues,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 SeriesCollection,_Default,method,_Default(Index As Variant) As Series,,MISSING,,
 SeriesCollection,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 SeriesCollection,Add,method,"Add(Source As Variant, [Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant]) As Series",,MISSING,,

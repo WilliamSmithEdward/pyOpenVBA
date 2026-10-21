@@ -11,11 +11,16 @@ from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBAArray, VBAInt, VBASingle, error, to_bool, to_number, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 from pyopenvba.shapes._values import Shape, emu, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
+
+# Engine admission bounds, not native Excel limits.
+MAX_CHART_POINTS = 1_000_000
+MAX_CHART_SERIES = 1024
+MAX_CHART_REFERENCE_TEXT = 32_768
 
 CHART_TYPES = {51: 'column', 57: 'bar', 4: 'line', 65: 'lineMarkers', 5: 'pie', -4120: 'doughnut',
                -4169: 'scatter', 1: 'area'}
@@ -182,12 +187,15 @@ class Chart(VBAObject):
         self.sheet, self.shape = sheet, shape
         self.state = state(sheet, shape)
 
-    def changed(self) -> None:
+    def admit_change(self) -> None:
         from pyopenvba.apps.excel._protection import guard_drawing
 
         guard_drawing(self.sheet, 'editing a Chart')
         if self.state.original:
             raise VBAUnsupportedError('Editing the contents of an imported chart is not implemented')
+
+    def changed(self) -> None:
+        self.admit_change()
         self.state.dirty = True
         self.sheet.drawing_changed()
 
@@ -215,8 +223,10 @@ class Chart(VBAObject):
 
     @setter('HasTitle')
     def _has_title(self, value: object) -> None:
+        self.admit_change()
+        wanted = to_bool(value)
         self.changed()
-        self.state.title = (self.state.title or 'Chart Title') if to_bool(value) else None
+        self.state.title = (self.state.title or 'Chart Title') if wanted else None
 
     @member
     def HasLegend(self) -> object:
@@ -224,8 +234,10 @@ class Chart(VBAObject):
 
     @setter('HasLegend')
     def _legend(self, value: object) -> None:
+        self.admit_change()
+        wanted = to_bool(value)
         self.changed()
-        self.state.legend = to_bool(value)
+        self.state.legend = wanted
 
     @member
     def ChartTitle(self) -> object:
@@ -246,25 +258,38 @@ class Chart(VBAObject):
     def SetSourceData(self, Source: object = MISSING, PlotBy: object = MISSING) -> object:
         from pyopenvba.apps.excel._model import Range
 
-        if not isinstance(Source, Range) or len(Source.areas) != 1:
-            raise error(1004, 'SetSourceData requires a contiguous range')
+        if Source is MISSING:
+            raise error(450)
+        if Source is NOTHING:
+            raise VBAUnsupportedError('Chart source Nothing object lifetime behavior is not implemented')
+        if not isinstance(Source, Range):
+            raise error(13)
+        if len(Source.areas) != 1:
+            raise VBAUnsupportedError('Multi-area chart source data is not implemented')
+        if Source.sheet.book is not self.sheet.book:
+            raise VBAUnsupportedError('Cross-workbook chart source data is not implemented')
         area = Source.first
         height, width = area.bottom - area.top + 1, area.right - area.left + 1
-        orientation = (1 if width >= height else 2) if PlotBy is MISSING else int(to_number(PlotBy))
+        if height * width > MAX_CHART_POINTS:
+            raise VBAUnsupportedError('Chart source data exceeds the supported cell budget')
+        if PlotBy is NULL:
+            raise error(13)
+        orientation = (1 if width >= height else 2) if PlotBy is MISSING else int(to_integer(PlotBy, 'Long'))
         if orientation not in (1, 2):
-            raise error(1004, 'Invalid PlotBy value')
+            raise error(-2147467259, 'Automation error\nUnspecified error ')
+        self.admit_change()
         def value(row: int, column: int) -> object:
             return Range(Source.sheet, [Area(row, column, row, column)]).Value()
         def text_axis(values: list[object]) -> bool:
             return bool(values) and all(isinstance(item, str) or item is EMPTY for item in values) and any(
                 isinstance(item, str) and bool(item) for item in values)
-        self.changed()
-        self.state.plot_by = orientation
-        self.state.series.clear()
+        series_plan: list[SeriesState] = []
         if orientation == 2:
             names = text_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
             top = area.top + names
             labels = text_axis([value(row, area.left) for row in range(top, area.bottom + 1)])
+            if width - labels > MAX_CHART_SERIES:
+                raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
             for column in range(area.left + labels, area.right + 1):
                 series = SeriesState()
                 if names:
@@ -272,11 +297,13 @@ class Chart(VBAObject):
                 series.value_reference = reference(Source.sheet, Area(top, column, area.bottom, column))
                 if labels:
                     series.category_reference = reference(Source.sheet, Area(top, area.left, area.bottom, area.left))
-                self.state.series.append(series)
+                series_plan.append(series)
         else:
             names = text_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
             left = area.left + names
             labels = text_axis([value(area.top, col) for col in range(left, area.right + 1)])
+            if height - labels > MAX_CHART_SERIES:
+                raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
             for row in range(area.top + labels, area.bottom + 1):
                 series = SeriesState()
                 if names:
@@ -284,7 +311,10 @@ class Chart(VBAObject):
                 series.value_reference = reference(Source.sheet, Area(row, left, row, area.right))
                 if labels:
                     series.category_reference = reference(Source.sheet, Area(area.top, left, area.top, area.right))
-                self.state.series.append(series)
+                series_plan.append(series)
+        self.changed()
+        self.state.plot_by = orientation
+        self.state.series[:] = series_plan
         return EMPTY
 
 
@@ -300,8 +330,10 @@ class ChartTitle(VBAObject):
 
     @setter('Text')
     def _text(self, value: object) -> None:
+        self.chart.admit_change()
+        wanted = to_text(value)
         self.chart.changed()
-        self.chart.state.title = to_text(value)
+        self.chart.state.title = wanted
 
 
 class SeriesCollection(VBACollection):
@@ -339,8 +371,11 @@ class Series(VBAObject):
 
     @setter('Name')
     def _name(self, value: object) -> None:
-        self.chart.changed()
+        self.chart.admit_change()
         text = to_text(value)
+        if text.startswith('=') and len(text) > MAX_CHART_REFERENCE_TEXT:
+            raise VBAUnsupportedError('Chart references exceed the supported text budget')
+        self.chart.changed()
         self.entry.name_reference = text[1:] if text.startswith('=') else ''
         self.entry.name = text if not self.entry.name_reference else ''
 
@@ -352,8 +387,10 @@ class Series(VBAObject):
 
     @setter('Values')
     def _values(self, value: object) -> None:
+        self.chart.admit_change()
+        reference, values = series_input(value, sheet=self.chart.sheet)
         self.chart.changed()
-        self.entry.value_reference, self.entry.values = series_input(value)
+        self.entry.value_reference, self.entry.values = reference, values
 
     @member
     def XValues(self) -> object:
@@ -362,8 +399,10 @@ class Series(VBAObject):
 
     @setter('XValues')
     def _categories(self, value: object) -> None:
+        self.chart.admit_change()
+        reference, values = series_input(value, sheet=self.chart.sheet)
         self.chart.changed()
-        self.entry.category_reference, self.entry.categories = series_input(value)
+        self.entry.category_reference, self.entry.categories = reference, values
 
     def values(self) -> list[object]:
         return referenced_values(self.chart.sheet, self.entry.value_reference) if self.entry.value_reference else self.entry.values
@@ -395,27 +434,39 @@ def reference(sheet: Worksheet, area: Area) -> str:
 
     return quote_sheet_name(sheet.name) + '!' + str(Range(sheet, [area]).Address())
 
-def series_input(value: object) -> tuple[str, list[object]]:
+def series_input(value: object, *, sheet: Worksheet) -> tuple[str, list[object]]:
     from pyopenvba.apps.excel._model import Range
 
     if isinstance(value, Range):
+        if value.sheet.book is not sheet.book or len(value.areas) != 1:
+            raise VBAUnsupportedError('Cross-workbook or multi-area chart series input is not implemented')
+        if value.first.rows * value.first.columns > MAX_CHART_POINTS:
+            raise VBAUnsupportedError('Chart series input exceeds the supported cell budget')
         return reference(value.sheet, value.first), []
     if isinstance(value, VBAArray):
-        return '', list(value.elements())
+        if len(value.items) > MAX_CHART_POINTS:
+            raise VBAUnsupportedError('Chart series input exceeds the supported point budget')
+        return '', value.elements()
     if isinstance(value, str) and value.startswith('='):
+        if len(value) > MAX_CHART_REFERENCE_TEXT:
+            raise VBAUnsupportedError('Chart references exceed the supported text budget')
         return value[1:], []
     raise error(1004, 'Series data requires a range or array')
 
 def referenced_values(sheet: Worksheet, formula: str) -> list[object]:
     from pyopenvba.apps.excel._model import Range
 
+    if len(formula) > MAX_CHART_REFERENCE_TEXT:
+        raise VBAUnsupportedError('Chart references exceed the supported text budget')
     try:
         areas = parse_reference(formula)
     except ValueError as failure:
         raise VBAUnsupportedError(f'Chart reference expression {formula!r} is not implemented') from failure
+    if sum((area.bottom - area.top + 1) * (area.right - area.left + 1) for area in areas) > MAX_CHART_POINTS:
+        raise VBAUnsupportedError('Chart references exceed the supported cell budget')
+    owners = [sheet.book.sheet_named(area.sheet) if area.sheet else sheet for area in areas]
     result: list[object] = []
-    for area in areas:
-        owner = sheet.book.sheet_named(area.sheet) if area.sheet else sheet
+    for area, owner in zip(areas, owners, strict=True):
         for row in range(area.top, area.bottom + 1):
             for column in range(area.left, area.right + 1):
                 result.append(Range(owner, [Area(row, column, row, column)]).Value2())

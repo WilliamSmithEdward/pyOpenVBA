@@ -1,0 +1,31 @@
+{
+  "projection": {
+    "schema": "ConfigurationState",
+    "excluded_environment_fields": [
+      "Application.ActivePrinter"
+    ],
+    "initial_source_transform": "Remove the single ActivePrinter append expression and rename State to ConfigurationState.",
+    "initial_result_transform": "Omit only the ;printer=... field before LeftMargin in each snapshot.",
+    "all_other_source_and_result_fields": "preserved exactly",
+    "initial_private_raw_sha256": "0413b262aa25cac54038c5ef2fb64789cff4ecf3d3704abaf00984be6bced907",
+    "followup_configuration_raw_sha256": "aee28f6bbba86a717bd50b0f6de0d6947a8a61be445661992cfd44a67685fbd1",
+    "private_environment_records": "Not promoted",
+    "native_version_build": "16.0|20430"
+  },
+  "files": {
+    "configuration.json": "edc158809304d7646bc2b327772c9dcda79a928b4052bfd879828d5ed76dd653",
+    "delete-other-and-owner.xlsx": "dd9fab9cd60cfbf1f6999284ae4d343ab380981aba024523d8b668bdf6988152",
+    "enums-options.xlsx": "a3a39e90a85caa396f4411ae20b8e322670da327c2693a0b719ae6621106f657",
+    "first-page-automatic.xlsx": "4c233410e3d5affe3e713e149673da8a93b20b8ae228b9e4281c1a93b293b159",
+    "first-page-explicit.xlsx": "b06f546d3e660c59a402dbc182b57acdf9bf37024d2d2f3553a5d51bd884dbe2",
+    "margins-points.xlsx": "68425764dec43e58738100af180f1aaa34b6e4cd3cfdfe2f36b1107f42402873",
+    "name_lifecycle.json": "cc080fa81e0843cb7689a455c89e760fa20fd9d4c08cf09aee7ff48653e92aac",
+    "negative_margin_diagnostic.json": "d3a0922b526dbb9fa959b6a921ed5e1b4b509e08aa40e54fe0005461b81d23a6",
+    "print-names-clear.xlsx": "6d00b805f412cfea406ea835603e6cd009941f4b1465fe9d2ae373e869d943fc",
+    "print-names-quoted.xlsx": "b8c05a7349f5ca7932fea1a5bd0bd921692659e6ce9865fc721da5fd83bcc52f",
+    "rename-and-move.xlsx": "78cf6b710bc709c33485b5d6261f449bc476bab402b26f882a85ce4cce299a0d",
+    "representative-coercions.xlsx": "2831037963e0ae2dbe239cf17b418c34174399b853d75d0c0a7e15c266126fb7",
+    "scale-fit-first.xlsx": "c06c7aea0754c080712c9d1231090358db98ffc39443926c215495ce20312492",
+    "scale-zoom-first.xlsx": "23ee14042f83bf8bcfeed6b4441a014b019dae16803240e7bb3f1e287bcff923"
+  }
+}

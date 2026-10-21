@@ -116,6 +116,8 @@ def name_scope(book: Workbook, entry: NameEntry) -> str:
 
 def edit(target: Range, *, delete: bool) -> None:
     sheet, area = target.sheet, target.first
+    if sheet.advanced_filter is not None:
+        raise VBAUnsupportedError('Structural edits on an advanced-filtered sheet are not implemented')
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
     if sheet.merged_areas or sheet.shapes_:
@@ -220,6 +222,8 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     is a table the shift may run through, a row or a column of it going in or out, whose block the caller keeps
     up to date."""
     sheet = target.sheet
+    if sheet.advanced_filter is not None:
+        raise VBAUnsupportedError('Cell shifts on an advanced-filtered sheet are not implemented')
     if sheet.merged_areas or sheet.shapes_:
         raise VBAUnsupportedError("shifting cells on a sheet with merges or shapes is not implemented")
     shift = CellShift.of(area, delete=delete, vertical=vertical)

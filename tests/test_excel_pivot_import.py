@@ -61,13 +61,27 @@ def test_blank_workbook_has_empty_pivot_collections() -> None:
     assert app.evaluate('Worksheets(1).PivotTables.Count') == 0
 
 
-def test_pivot_mutations_remain_explicitly_unsupported() -> None:
+def test_unimplemented_pivot_source_and_layout_mutations_remain_explicitly_unsupported() -> None:
     app = ExcelApplication.open(ROOT / 'native-simple.xlsx', with_vba=False)
     for expression in ('ThisWorkbook.PivotCaches.Create(2)',
-                       'Worksheets(1).PivotTables(1).RefreshTable()',
                        'Worksheets(1).PivotTables(1).RowAxisLayout(1)'):
         with pytest.raises(VBAUnsupportedError):
             app.evaluate(expression)
+
+
+
+def test_imported_simple_pivot_refreshes_edited_source_and_persists_result(tmp_path: Path) -> None:
+    app = ExcelApplication.open(ROOT / 'native-simple.xlsx', with_vba=False)
+    pivot = 'Worksheets(1).PivotTables(1)'
+    assert app.evaluate(pivot + '.GetPivotData("Amount").Value2') == 150
+    app.workbook.sheets_[0].Range('B2').vba_set('Value2', 110)
+    # Source edits do not change the cached report before explicit refresh.
+    assert app.evaluate(pivot + '.GetPivotData("Amount").Value2') == 150
+    assert app.evaluate(pivot + '.RefreshTable()') is True
+    assert app.evaluate(pivot + '.GetPivotData("Amount").Value2') == 250
+    result = app.save(tmp_path / 'legacy-refreshed.xlsx')
+    reopened = ExcelApplication.open(result, with_vba=False)
+    assert reopened.evaluate(pivot + '.GetPivotData("Amount").Value2') == 250
 
 
 def test_pivot_parts_survive_cell_edit_and_reopen(tmp_path: Path) -> None:

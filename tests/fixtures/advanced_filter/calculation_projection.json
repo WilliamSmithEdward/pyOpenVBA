@@ -1,0 +1,8 @@
+{
+  "raw_fixture_sha256": "561bef2789e6b8ae8d2754c707e922430abcd313e81f98a77e5be98e24e83b9b",
+  "projection": "Only Application.CalculationState source expression and ;state=0/2 output fields are omitted. The member is unsupported; all remaining native values are compared exactly.",
+  "source_sha256": {
+    "automatic": "05d429d3fe4a36ce275155ccace19c7797980e923d1ff2083a3e25d9a0e8b4ef",
+    "manual": "0842efd246f5f0194dc4f7bdf6bb4e1a45956fb400235372fa94db3fa86f2b01"
+  }
+}

@@ -217,17 +217,9 @@ def _like(seen: _Seen, pattern: str) -> bool:
         return False
     _plain(seen.shown)
     _plain(pattern)
-    parts: list[str] = []
-    index = 0
-    while index < len(pattern):
-        char = pattern[index]
-        if char == "~" and index + 1 < len(pattern) and pattern[index + 1] in "*?":
-            parts.append(re.escape(pattern[index + 1]))
-            index += 2
-            continue
-        parts.append(".*" if char == "*" else "." if char == "?" else re.escape(char))
-        index += 1
-    return re.fullmatch("".join(parts), seen.shown, re.IGNORECASE | re.DOTALL) is not None
+    from pyopenvba.apps.excel._filter_wildcards import matches
+
+    return matches(seen.shown, pattern, escape_tilde=False)
 
 
 # --- the file's spelling -------------------------------------------------------------------------------
@@ -679,6 +671,8 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
                      visible_dropdown: object, sub_field: object) -> object:
     """Range.AutoFilter."""
     sheet = target.sheet
+    if sheet.advanced_filter is not None:
+        raise VBAUnsupportedError('AutoFilter combined with an active AdvancedFilter is not implemented')
     if sub_field is not MISSING:
         raise VBAUnsupportedError("AutoFilter's SubField is not implemented")
     hidden_button = visible_dropdown is not MISSING and not to_bool(visible_dropdown)
@@ -731,6 +725,18 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
 
 def show_all_data(sheet: Worksheet) -> None:
     """Worksheet.ShowAllData and AutoFilter.ShowAllData."""
+    if sheet.advanced_filter is not None:
+        area = sheet.advanced_filter
+        for row in range(area.top + 1, area.bottom + 1):
+            if sheet.dims.row_hidden(row):
+                sheet.dims.hide_row(row, False)
+        sheet.advanced_filter = None
+        sheet.advanced_filter_changed = True
+        _changed(sheet)
+        from pyopenvba.apps.excel import _events
+
+        _events.visibility_changed(sheet.book)
+        return
     found = sheet.auto_filter
     if found is None or not found.fields:
         raise error(1004, "ShowAllData method of Worksheet class failed")

@@ -13,12 +13,12 @@ from pyopenvba.apps.excel._model import Range
 from pyopenvba.apps.excel._pivot_create import node
 from pyopenvba.apps.excel._pivots import NS, decode_text
 from pyopenvba.apps.excel._typing import Typed
-from pyopenvba.exceptions import VBAError
+from pyopenvba.exceptions import VBAError, VBAUnsupportedError
 from pyopenvba.formula._calc import collate
 from pyopenvba.interpreter._values import EMPTY, MISSING, error, to_number
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._pivots import PivotTable
+    from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
 
 VALUES = -2
 _MONTHS: tuple[Sequence[str], ...] = ('Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.lower().split(),
@@ -138,8 +138,8 @@ def _line_xml(name: str, lines: list[Line]) -> XmlElement:
     return container
 
 
-def _cache(table: PivotTable, records: list[list[XmlElement]]) -> tuple[XmlElement, XmlElement, list[list[int]], list[list[int]]]:
-    fields = deepcopy(table.cache.root.find(NS + 'cacheFields'))
+def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[XmlElement, XmlElement, list[list[int]], list[list[int]]]:
+    fields = deepcopy(cache.root.find(NS + 'cacheFields'))
     assert fields is not None
     dictionaries: list[dict[tuple[str, object], int]] = []
     for field in fields:
@@ -149,7 +149,7 @@ def _cache(table: PivotTable, records: list[list[XmlElement]]) -> tuple[XmlEleme
             field.append(shared)
         dictionaries.append({item_key(entry): index for index, entry in enumerate(shared)})
     ids: list[list[int]] = []
-    encoded = deepcopy(table.cache.records) if table.cache.records is not None else node('pivotCacheRecords')
+    encoded = deepcopy(cache.records) if cache.records is not None else node('pivotCacheRecords')
     encoded.set('count', str(len(records)))
     encoded[:] = [entry for entry in encoded if entry.tag != NS + 'r']
     for record in records:
@@ -195,13 +195,32 @@ def _cache(table: PivotTable, records: list[list[XmlElement]]) -> tuple[XmlEleme
     return fields, encoded, ids, positions
 
 
-def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | None = None) -> None:
+CacheLayout = tuple[XmlElement, XmlElement, list[list[int]], list[list[int]]]
+
+
+@dataclass
+class RenderPlan:
+    table: PivotTable
+    root: XmlElement
+    fields: XmlElement
+    records: XmlElement
+    extent: Area
+    previous_areas: list[Area]
+    cells: dict[tuple[int, int], object]
+
+
+def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | None = None,
+                *, cache: PivotCache | None = None, normalized: CacheLayout | None = None,
+                cell_limit: int | None = None) -> RenderPlan:
     from pyopenvba.apps.excel._pivot_aggregate import aggregate, hide_values_row, records
 
     table = table.entry
-    records_ = records(table.cache)
+    cache = cache if cache is not None else table.cache
+    records_ = records(cache)
     root = deepcopy(definition)
     reports = data if data is not None else list(table.root.findall(f'{NS}dataFields/{NS}dataField'))
+    report_names = [decode_text(report.get('name', '')) for report in reports]
+    report_totals = ['Total ' + name for name in report_names]
     rows = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}rowFields/{NS}field')]
     columns = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}colFields/{NS}field')]
     pages = [int(entry.get('fld', '0')) for entry in reversed(root.findall(f'{NS}pageFields/{NS}pageField'))]
@@ -220,7 +239,7 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
         columns = [index for index in columns if index != VALUES]
     if len(reports) > 1 and VALUES not in rows and VALUES not in columns:
         columns.append(VALUES)
-    fields, cache_records, ids, positions = _cache(table, records_)
+    fields, cache_records, ids, positions = normalized if normalized is not None else cache_layout(cache, records_)
     row_lines = _lines(rows, ids, positions, len(reports), rows=True, grand=root.get('colGrandTotals', '1') != '0')
     col_lines = _lines(columns, ids, positions, len(reports), rows=False, grand=root.get('rowGrandTotals', '1') != '0')
     location = root.find(NS + 'location')
@@ -248,6 +267,8 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
                   max(area.right, area.left + 3 * page_columns - 2) if pages else area.right, table.sheet.name)
     if extent.right > MAX_COLUMNS:
         raise error(1004)
+    if cell_limit is not None and extent.rows * extent.columns > cell_limit:
+        raise VBAUnsupportedError("Pivot refresh exceeds the supported transaction output budget")
     for other in table.sheet.pivot_tables:
         other_location = other.root.find(NS + 'location')
         if other is not table and other_location is not None:
@@ -260,32 +281,44 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
         if value is not EMPTY:
             cells[area.top + row, area.left + column] = value
 
+    captions: dict[tuple[int, int], object] = {}
+    subtotals: dict[tuple[int, int], str] = {}
+
     def caption(field: int, position: int) -> object:
         if field == VALUES:
-            return decode_text(reports[position].get('name', ''))
-        shared = fields[field].find(NS + 'sharedItems')
-        assert shared is not None
-        return shown(shared[positions[field][position]])
+            return report_names[position]
+        key = field, position
+        if key not in captions:
+            shared = fields[field].find(NS + 'sharedItems')
+            assert shared is not None
+            captions[key] = shown(shared[positions[field][position]])
+        return captions[key]
+
+    def subtotal_caption(field: int, position: int) -> str:
+        key = field, position
+        if key not in subtotals:
+            subtotals[key] = str(caption(field, position)) + ' Total'
+        return subtotals[key]
 
     if rows:
         put(dr - 1, 0, 'Values' if rows == [VALUES] else 'Row Labels')
         if not columns and VALUES not in rows and reports:
-            put(dr - 1, dc, decode_text(reports[0].get('name', '')))
+            put(dr - 1, dc, report_names[0])
     elif not columns:
-        for index, report in enumerate(reports):
-            put(0, index, decode_text(report.get('name', '')))
+        for index, name in enumerate(report_names):
+            put(0, index, name)
     if any(index != VALUES for index in columns):
         put(0, dc, 'Column Labels')
         if len(reports) == 1:
-            put(0 if rows else dr, 0, decode_text(reports[0].get('name', '')))
+            put(0 if rows else dr, 0, report_names[0])
     previous: tuple[int, ...] = ()
     for offset, line in enumerate(col_lines):
         if columns:
             if line.kind == 'grand':
-                label = 'Total ' + decode_text(reports[line.data].get('name', '')) if VALUES in columns and reports else 'Grand Total'
+                label = report_totals[line.data] if VALUES in columns and reports else 'Grand Total'
                 put(1 if dr > 1 else 0, dc + offset, label)
             elif line.kind == 'default':
-                label = str(caption(columns[len(line.items) - 1], line.items[-1])) + ' Total'
+                label = subtotal_caption(columns[len(line.items) - 1], line.items[-1])
                 put(len(line.items), dc + offset, label)
             else:
                 for level, item in enumerate(line.items):
@@ -295,7 +328,7 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
     for offset, line in enumerate(row_lines):
         if rows:
             if line.kind == 'grand':
-                label = 'Total ' + decode_text(reports[line.data].get('name', '')) if VALUES in rows and reports else 'Grand Total'
+                label = report_totals[line.data] if VALUES in rows and reports else 'Grand Total'
             else:
                 label = caption(rows[len(line.items) - 1], line.items[-1])
             put(dr + offset, 0, label)
@@ -341,13 +374,10 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
         from pyopenvba.apps.excel._pivot_ranges import page_range
 
         previous_areas.extend(page_range(table).areas)
-    cleared = Range(table.sheet, previous_areas)
-    cleared.clear_contents_checked()
-    # Existing field/data proxies must continue to reference the same XML nodes.
-    pivot_fields = table.root.find(NS + 'pivotFields')
-    planned_fields = root.find(NS + 'pivotFields')
+    pivot_fields = root.find(NS + 'pivotFields')
+    planned_fields = deepcopy(pivot_fields)
     assert pivot_fields is not None and planned_fields is not None
-    for index, (original, planned) in enumerate(zip(pivot_fields, planned_fields)):
+    for index, (original, planned) in enumerate(zip(pivot_fields, planned_fields, strict=True)):
         original.attrib.clear()
         original.attrib.update(planned.attrib)
         original.set('dataField', str(int(any(int(entry.get('fld', '0')) == index for entry in reports))))
@@ -391,27 +421,49 @@ def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | N
         location.attrib.pop('colPageCount', None)
     root.set('dataOnRows', str(int(VALUES in rows)))
     hide_values_row(root)
+    return RenderPlan(table, root, fields, cache_records, extent, previous_areas, cells)
+
+
+def apply_render(plan: RenderPlan, *, cache: PivotCache | None = None) -> None:
+    """Apply a precomputed layout without emitting callbacks."""
+    table, root = plan.table, plan.root
+    cache = cache if cache is not None else table.cache
+    Range(table.sheet, plan.previous_areas).clear_contents_checked()
+    # Preserve retained source-field and data-field nodes, not just their values.
+    original_fields = table.root.find(NS + 'pivotFields')
+    planned_fields = root.find(NS + 'pivotFields')
+    assert original_fields is not None and planned_fields is not None
+    for original, planned in zip(original_fields, planned_fields, strict=True):
+        original.attrib.clear()
+        original.attrib.update(planned.attrib)
+        original[:] = list(planned)
+    root[list(root).index(planned_fields)] = original_fields
     table.root.attrib.clear()
     table.root.attrib.update(root.attrib)
     table.root[:] = list(root)
-    old_fields = table.cache.root.find(NS + 'cacheFields')
+    old_fields = cache.root.find(NS + 'cacheFields')
     assert old_fields is not None
-    index = list(table.cache.root).index(old_fields)
-    table.cache.root.remove(old_fields)
-    table.cache.root.insert(index, fields)
-    table.cache.records = cache_records
-    table.cache.changed = True
-    output = Range(table.sheet, [extent])
-    for (row, column), value in cells.items():
+    index = list(cache.root).index(old_fields)
+    cache.root.remove(old_fields)
+    cache.root.insert(index, plan.fields)
+    cache.records = plan.records
+    cache.changed = True
+    output = Range(table.sheet, [plan.extent])
+    for (row, column), value in plan.cells.items():
         output.store_typed(row, column, Typed(value))
     table.changed = True
     table.report_loaded = False
     table.report_metadata = None
     table.sheet.touched()
+
+
+def render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | None = None) -> None:
+    plan = plan_render(table, definition, data)
+    apply_render(plan)
     from pyopenvba.apps.excel import _events
 
-    _events.after_edit(output)
-    _events.pivot_updated(table)
+    _events.after_edit(Range(plan.table.sheet, [plan.extent]))
+    _events.pivot_updated(plan.table)
 
 
 def orient(field: object, value: object) -> None:

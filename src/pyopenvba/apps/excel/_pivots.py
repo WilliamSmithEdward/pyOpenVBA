@@ -18,7 +18,7 @@ from pyopenvba.apps.excel._xstring import decode as decode_text
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, utf16_text
+from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
 
 if TYPE_CHECKING:
     from pyopenvba.interpreter._objects import MemberSpec
@@ -170,9 +170,9 @@ class PivotCache(ExcelObject):
 
     @method
     def Refresh(self) -> object:
-        if self.index == 0:
-            raise error(1004)
-        raise VBAUnsupportedError('Refreshing populated pivot reports is not implemented')
+        from pyopenvba.apps.excel._pivot_refresh import refresh
+
+        return refresh(self)
 
     @member
     def Parent(self) -> object:
@@ -216,6 +216,14 @@ class PivotCache(ExcelObject):
     def EnableRefresh(self) -> object:
         return self.root.get('enableRefresh', '1') not in ('0', 'false')
 
+    @setter('EnableRefresh')
+    def set_enable_refresh(self, value: object) -> None:
+        if self.book.application.udf_callers:
+            raise VBAUnsupportedError('Changing PivotCache refresh flags from worksheet functions is not implemented')
+        self.root.set('enableRefresh', str(int(to_bool(value))))
+        self.changed = True
+        self.book.saved = False
+
     @member
     def RefreshOnFileOpen(self) -> object:
         return self.root.get('refreshOnLoad', '0') in ('1', 'true')
@@ -238,6 +246,13 @@ class PivotTable(ExcelObject):
         # each result cell afresh rather than caching its value here.
         self.report_metadata: PivotReport | None = None
         self.report_loaded = False
+
+    @method
+    def RefreshTable(self) -> object:
+        from pyopenvba.apps.excel._pivot_refresh import refresh
+
+        refresh(self.cache)
+        return True
 
     def _range(self, kind: str) -> object:
         location = self.root.find(NS + 'location')

@@ -31,6 +31,7 @@ REL_CHART = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 
 # Shared with the pivot reader: constructing a node does not parse XML.
 XmlElement = ET.Element
+XmlParseError = expat.ExpatError
 
 
 def xml_bytes(root: XmlElement) -> bytes:

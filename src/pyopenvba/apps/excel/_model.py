@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
+    from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
     from pyopenvba.apps.excel._conditional import Rule as ConditionalRule
@@ -1090,6 +1091,8 @@ class Worksheet(ExcelObject):
         #: The sheet's tables, in the order its file lists them (see _tables).
         self.tables: list[Table] = []
         self.pivot_tables: list[PivotTable] = []
+        self.page_setup_state: PageState | None = None
+        self.page_print_names_owned: set[str] = set()
         #: The sheet's data validation rules, in the order its file lists them (see _validation).
         self.validations: list[ValidationRule] = []
         #: True once a rule is added, changed or removed, so a save writes the rules again.
@@ -1116,6 +1119,9 @@ class Worksheet(ExcelObject):
         self.sort_state: SortState | None = None
         #: The sheet's AutoFilter: its range and the criteria on its columns.
         self.auto_filter: SheetFilter | None = None
+        #: An AdvancedFilter has no dropdowns but retains its filtered list.
+        self.advanced_filter: Area | None = None
+        self.advanced_filter_changed = False
         #: True once the filter is made, changed or removed, so a save writes it again.
         self.filter_changed = False
         #: What Protect set, or None while the sheet is not protected (see _protection).
@@ -1250,6 +1256,9 @@ class Worksheet(ExcelObject):
             raise error(1004, f"{wanted!r} is not a name a sheet can have")
         if any(sheet is not self and sheet.name.lower() == wanted.lower() for sheet in self.book.sheets_):
             raise error(1004, f"a sheet called {wanted} is already there")
+        from pyopenvba.apps.excel._names import rename_owned_reserved
+
+        rename_owned_reserved(self, wanted)
         self.name = wanted
         self.book.saved = False
 
@@ -1485,7 +1494,13 @@ class Worksheet(ExcelObject):
 
     @member
     def FilterMode(self) -> object:
-        return self.auto_filter is not None and bool(self.auto_filter.fields)
+        return self.advanced_filter is not None or (self.auto_filter is not None and bool(self.auto_filter.fields))
+
+    @member
+    def PageSetup(self) -> object:
+        from pyopenvba.apps.excel._page_setup import PageSetup
+
+        return PageSetup(self)
 
     @method
     def ShowAllData(self) -> object:
@@ -1528,6 +1543,15 @@ class Worksheet(ExcelObject):
 
         remove_document(self)
         self.book.sheets_.remove(self)
+        # Local names belong to the removed sheet, independently of RefersTo.
+        # Retaining them would make the writer silently globalize their scope.
+        from pyopenvba._a1 import split_sheet
+
+        retained = [entry for entry in self.book.names_.entries
+                    if split_sheet(entry.name)[0].casefold() != self.name.casefold()]
+        if len(retained) != len(self.book.names_.entries):
+            self.book.names_.entries[:] = retained
+            _names.changed(self.book)
         self.book.saved = False
         return EMPTY
 
@@ -3444,6 +3468,13 @@ class Range(ExcelObject):
         # AllowFiltering lets the user filter, not a macro.
         refuse(self.sheet, FILTERING)
         return range_autofilter(self, Field, Criteria1, Operator, Criteria2, VisibleDropDown, SubField)
+
+    @method
+    def AdvancedFilter(self, Action: object, CriteriaRange: object = MISSING, CopyToRange: object = MISSING,  # noqa: N803 -- Excel argument names
+                       Unique: object = MISSING) -> object:  # noqa: N803
+        from pyopenvba.apps.excel._advanced_filter import advanced_filter
+
+        return advanced_filter(self, Action, CriteriaRange, CopyToRange, Unique)
 
     @method
     def RemoveDuplicates(self, Columns: object = MISSING, Header: object = MISSING) -> object:

@@ -145,14 +145,15 @@ End Sub''', name='OrdinaryNames')
         if split_sheet(entry.name)[1] in ('Criteria', 'Extract') and split_sheet(entry.name)[0]:
             entry.attributes += ' xmlns:v="urn:vendor" v:opaque="value > &quot;quoted&quot;"'
     sheet.vba_set('Name', "O'Brien renamed")
-    assert all((entry.name, entry.refers_to, entry.attributes) == (name, refers, attrs)
-               for entry, name, refers, attrs in unrelated)
-    # Unrelated ordinary names remain outside this narrow migration; remove the
-    # deliberately unmigrated local name before testing owned-name persistence.
-    for entry, _name, _refers, _attrs in unrelated:
-        if split_sheet(entry.name)[0]:
-            app.workbook.names_.entries.remove(entry)
+    for entry, name, refers, attrs in unrelated:
+        owner, bare = split_sheet(name)
+        expected = "'O''Brien renamed'!" + bare if owner else name
+        assert (entry.name, entry.refers_to, entry.attributes) == (expected, refers, attrs)
+    # Ordinary local scope now migrates too; keep it through persistence rather
+    # than removing the intentionally deferred owner as the older test did.
     reopened = ExcelApplication.open(app.save(tmp_path / 'opaque-renamed.xlsm'), with_vba=False)
+    assert any(entry.name == "'O''Brien renamed'!UserLocal" for entry in reopened.workbook.names_.entries)
+    assert not any(entry.name == 'UserLocal' for entry in reopened.workbook.names_.entries)
     actual = [attribute_values(entry.attributes) for entry in reopened.workbook.names_.entries
               if split_sheet(entry.name)[1] in ('Criteria', 'Extract') and split_sheet(entry.name)[0]]
     assert len(actual) == 2

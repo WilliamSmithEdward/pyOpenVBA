@@ -88,26 +88,12 @@ def owned_reserved(sheet: Worksheet, supported: tuple[str, ...]) -> list[tuple[N
     return result
 
 
-def rename_owned_reserved(sheet: Worksheet, wanted: str) -> None:
-    """Stage all supported reserved-name changes before changing any entry."""
-    from pyopenvba.apps.excel._sheet_copy import formula
+def collation(text: str) -> tuple[object, ...]:
+    """The name word ordering shared by iteration and persisted definitions."""
+    from pyopenvba.apps.excel._sort import text_key
     from pyopenvba.exceptions import VBAUnsupportedError
 
-    planned: list[tuple[NameEntry, str, str]] = []
-    selected = owned_reserved(sheet, ('Print_Area', 'Print_Titles', '_FilterDatabase', 'Criteria', 'Extract'))
-    seen: set[str] = set()
-    for entry, bare in selected:
-        name = quote_sheet(wanted) + '!' + bare
-        if bare in seen or any(other is not entry and other.name.casefold() == name.casefold()
-                               for other in sheet.book.names_.entries):
-            raise VBAUnsupportedError('Renaming a worksheet with conflicting owned reserved names is not implemented')
-        seen.add(bare)
-        try:
-            refers = formula(entry.refers_to, sheet, wanted, False)
-        except FormulaError:
-            raise VBAUnsupportedError('Renaming a worksheet with an unrecognized owned reserved name is not implemented') from None
-        planned.append((entry, name, refers))
-    for entry, name, refers in planned:
-        entry.name, entry.refers_to = name, refers
-    if planned:
-        sheet.book.names_.changed = True
+    try:
+        return text_key(text, False)
+    except VBAUnsupportedError:
+        return (tuple(100 + ord(char) for char in text.lower()), (), ())

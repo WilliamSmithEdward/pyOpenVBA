@@ -2,7 +2,8 @@
 
 Snapshot: **20 October 2026**, covering the current source tree, including
 local AdvancedFilter, bounded AutoFilter wildcard matching, staged local Pivot
-refresh, worksheet page configuration, table-owned sorting, and ordinary conditional formatting.
+refresh, worksheet page configuration, table-owned sorting, bounded scalar/name
+worksheet renames, ordinary worksheet outlines and conditional formatting.
 This is a functionality summary for the in-memory Excel engine.
 **No functional area is complete yet.** Common worksheet operations have
 substantially more support than advanced Excel automation.
@@ -26,10 +27,10 @@ is a percentage of working macros or complete functionality.
 
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
-| Application, workbooks and worksheets | Partial | 127 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
+| Application, workbooks and worksheets | Partial | 127 / 752 | 6 | Core containers, opening/saving, sheet operations and settings, including bounded scalar/name worksheet renames. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
 | Cells and ranges | Partial | 118 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
-| Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
+| Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Bounded worksheet renames migrate ordinary local/global references and preserve scope/identity. Broader expression, relative/external-reference and mixed-feature lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
 | Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 46 / 155 | 25 | ListObjects, rows/columns, structured references, resizing, totals and ordinary local ListObject.Sort. Filtered/rich table sorting, configured structural edits, table-style objects and broader table-operation fidelity remain incomplete. |
@@ -110,6 +111,84 @@ enough to define one getter contract. Affected structural edits and whole-axis
 range copies or formatting pastes are declined atomically rather than losing
 outline metadata. Non-whole-axis `ShowDetail` and broader protection/UDF, outline
 style, structural and cross-feature behavior need further measurements.
+
+## Scalar worksheet renames
+
+`Worksheet.Name` now stages ordinary scalar cell formulas and defined names
+before changing the worksheet identity. Explicit self and other-sheet qualifiers,
+absolute/whole-row/whole-column references, ordinary local-name owners and
+global/local `RefersTo` expressions follow case-only and apostrophe/space renames.
+Implicit local references and formula string literals remain textually unchanged.
+Held worksheet, Range and Name objects retain their identities and CodeName.
+The dependency graph is rebuilt without executing formulas or event handlers in
+the rename transaction. Automatic calculation follows subsequent source edits;
+manual calculation preserves cached values until Calculate. Native save controls
+separately establish CalculateBeforeSave=False cached6 versus True calculated18.
+
+Evidence comprises **12 unchanged raw native controls and 12 macro-free native
+inputs**, including four ordering/address clarifiers. All ten engine-generated
+full-oracle outputs also passed native reopen/readback in one closed session.
+Ten complete runtime
+controls compare exact strings. Runtime book labels use explicitly recorded
+initial host context; CodeName is allocated by the ordinary module mechanism,
+not injected. Native input CodeName identity is checked separately. One INDIRECT
+control's full output remains deferred because Excel creates hidden
+`_xlfn.SINGLE` metadata absent even from its saved XML. Separate, explicitly
+labeled projections compare only its exact string/INDIRECT/implicit observations
+and input snapshot before the hidden name. A first ordering source remains
+whole-deferred because bare Name.Add overwrites an active local name in that
+native setup; this increment does not change Name.Add scope resolution.
+A corrected native control establishes bare-name word ordering, local names
+before a global of the same bare name, and decoded owner ordering independent
+of tab order. Iteration and persistence share that existing name collation.
+Held external addresses use the current owner, one prefix for a union, and
+measured quoting for ordinary BookN, period-only filenames, spaces/apostrophes.
+
+This remains a bounded partial operation. Target-owned shared/CSE storage, actual
+dynamic spills, 3D or
+unrecognized qualified references, external-link-bearing packages, charts,
+affected known secondary references and misplaced formula carriers are refused
+before mutation. Arbitrary unchanged opaque metadata retains the existing
+preservation policy.
+Known conditional and validation formulas, local control links/list ranges and
+local Pivot source bindings may coexist when parsed references prove unaffected.
+Original inline conditional/validation metadata is also inspected, including
+unmaterialized, wrapped and foreign carriers. Conditional roots, styles and
+context registries retain their identities. Unrelated shared/CSE storage on other
+sheets is admitted only after bounded ownership/coherence checks and when its
+formula text remains unchanged; manual cached values, members and effective saved
+dirty state are preserved. Target-owned shared/CSE storage, actual dynamic spills,
+tables and unmeasured drawing/Pivot package features remain refused.
+`tests/test_excel_worksheet_rename.py` retains these atomicity/identity/storage
+controls; existing conditional-copy, notes, Pivot and AutoFilter native fixture
+replays cover the unrelated-sheet workflows. Existing supported owned
+filter/print names migrate in the same plan. Enabled bound event sinks or
+actual/pending document handlers are also refused; the native core used disabled
+events, so broader event behavior is not claimed. Worksheet-function/reentrant
+rename calls remain unsupported. Plain measurement modules are admitted.
+
+The unrelated-feature repair passed the complete normal suite: **32,571 passed,
+1,227 skipped and 69 expected failures**. Subsequent storage/admission controls
+passed 721 affected tests (14 skipped, four expected failures), followed by
+273 focused rename/Pivot/checklist tests (ten skipped) after the final carrier
+checks. Original native fixture expectations remain unchanged.
+
+Implementation limits include 256 sheets, one million modeled cells, 100,000
+formulas, 10,000 names/parts and eight million aggregate source/staged text or
+metadata bytes. Formula tokens/nesting and stored metadata nodes/depth are also
+bounded; each expression is limited to 32,768 characters before lexing (an
+implementation limit, not a measured native limit). Pending document sources
+have the same per-source text bound and use the existing VBA lexer to inspect
+logical procedure headers without executing or registering them. Metadata reads limit actual decompression; namespace, DTD/entity and
+name-container admission preserve the existing parser policy. Stored cell/formula
+ownership is checked against the actual namespace-aware XML before the existing
+lexical reader is consulted; unsupported ownership or attribute spellings refuse
+before mutation, without comparing originals to legitimate current edits. Unsupported or
+malformed proposals leave cells, names, graph and package bytes unchanged.
+Registration and verified-member totals are unchanged. See the
+[rename tests](../../tests/test_excel_worksheet_rename.py),
+[owned-name regression](../../tests/test_excel_owned_reserved_names.py) and
+[unaltered native evidence](../../tests/fixtures/worksheet_rename).
 
 ## Advanced filtering
 

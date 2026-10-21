@@ -24,3 +24,6 @@
 
 # PageSetup native JSON evidence is hash-pinned byte-for-byte on every platform.
 tests/fixtures/page_setup/*.json -text whitespace=cr-at-eol
+
+# Hash-pinned native worksheet-outline evidence.
+tests/fixtures/worksheet_outlines/*.json -text whitespace=cr-at-eol

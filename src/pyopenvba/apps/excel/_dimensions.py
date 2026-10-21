@@ -37,9 +37,9 @@ from fractions import Fraction
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
-from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba.apps.excel import _font_rows
+from pyopenvba.apps.excel._advanced_filter import attribute_values
 from pyopenvba.apps.excel._styles import excel_number
 from pyopenvba.apps.excel._visible import unmeasured, visible_rows
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -249,6 +249,17 @@ def _ordered(attrs: dict[str, str], order: tuple[str, ...]) -> list[str]:
     return known + [key for key in attrs if key not in order]
 
 
+# Complete opening tags, including > and fake attribute names inside quoted values.
+_DIMENSION_CONTENT = r"(?:\"[^\"]*\"|'[^']*'|[^'\">])*"
+
+
+def _dimension_attributes(tag: str) -> dict[str, str]:
+    first = re.match(r'<[^\s/>]+', tag)
+    assert first is not None
+    tail = len(tag) - (2 if tag.endswith('/>') else 1)
+    return attribute_values(tag[first.end():tail])
+
+
 class SheetDimensions:
     """A worksheet's row heights, column widths and hidden rows and columns."""
 
@@ -297,9 +308,9 @@ class SheetDimensions:
     # -- reading a file
 
     def load(self, xml: str) -> None:
-        head = re.search(r"<sheetFormatPr\b[^>]*?/?>", xml)
+        head = re.search(r"<sheetFormatPr\b" + _DIMENSION_CONTENT + r"/?>", xml)
         if head is not None:
-            self.format = _attributes(head.group(0))
+            self.format = _dimension_attributes(head.group(0))
             if self.format.get("customHeight") in ("1", "true"):
                 self.all_rows = quarters_from_file(self.format.get("defaultRowHeight", "15"))
             self.zero_height = self.format.get("zeroHeight") in ("1", "true")
@@ -309,12 +320,12 @@ class SheetDimensions:
                 self.standard = standard_pixels(int(self.format["baseColWidth"]))
         cols = re.search(r"<cols\b[^>]*>(.*?)</cols>", xml, re.DOTALL)
         if cols is not None:
-            for tag in re.findall(r"<col\b[^>]*?/?>", cols.group(1)):
-                self._load_column(_attributes(tag))
+            for tag in re.findall(r"<col\b" + _DIMENSION_CONTENT + r"/?>", cols.group(1)):
+                self._load_column(_dimension_attributes(tag))
         data = re.search(r"<sheetData\b[^>]*>(.*?)</sheetData>", xml, re.DOTALL)
         if data is not None:
-            for tag in re.findall(r"<row\b[^>]*?/?>", data.group(1)):
-                self._load_row(_attributes(tag))
+            for tag in re.findall(r"<row\b" + _DIMENSION_CONTENT + r"/?>", data.group(1)):
+                self._load_row(_dimension_attributes(tag))
         self._drop_redundant_formats()
 
     def _style_read(self, text: str) -> tuple[Style, int]:

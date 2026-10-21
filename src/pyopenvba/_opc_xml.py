@@ -32,21 +32,23 @@ class OpcPart:
 
 
 @overload
-def opc_part(data: bytes, namespace: str, root_name: str) -> OpcPart: ...
+def opc_part(data: bytes, namespace: str, root_name: str, *, max_children: int | None = None) -> OpcPart: ...
 
 
 @overload
-def opc_part(data: bytes, namespace: str, root_name: str, *, container_path: tuple[str, ...]) -> OpcPart | None: ...
+def opc_part(data: bytes, namespace: str, root_name: str, *, container_path: tuple[str, ...], max_children: int | None = None) -> OpcPart | None: ...
 
 
 def opc_part(data: bytes, namespace: str, root_name: str, *,
-             container_path: tuple[str, ...] | None = None) -> OpcPart | None:
+             container_path: tuple[str, ...] | None = None, max_children: int | None = None) -> OpcPart | None:
     """Read direct children, optionally inside a path of same-namespace containers.
 
     Parse the complete original document so inherited namespace bindings remain
     valid. Explicit paths return None when absent; all spans remain absolute.
     Only the bounded path and the selected container's direct children are kept.
     """
+    if max_children is not None and max_children < 1:
+        raise ValueError("OPC child budget must be positive")
     data.decode("utf-8")
     if b"\x00" in data:
         raise ValueError("OPC metadata must use UTF-8")
@@ -96,6 +98,8 @@ def opc_part(data: bytes, namespace: str, root_name: str, *,
         elif active and depth == target_depth + 1 and current is not None:
             name, attrs, start_at, opening_end = current
             end_at = opening_end if data[opening_end - 2:opening_end] == b"/>" else _tag_end(data, at)
+            if max_children is not None and len(result.children) >= max_children:
+                raise ValueError("OPC metadata exceeds its direct-child budget")
             result.children.append((name, attrs, start_at, end_at))
             current = None
         if depth <= target_depth:

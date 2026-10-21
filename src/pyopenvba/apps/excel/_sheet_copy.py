@@ -51,6 +51,9 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     from pyopenvba.apps.excel._page_setup import guard_copy
 
     guard_copy(source)
+    from pyopenvba.apps.excel._outline import admit_sheet_copy
+
+    admit_sheet_copy(source)
     if source.shapes_:
         raise VBAUnsupportedError("Worksheet.Copy with drawings or controls is not implemented")
     if source.tables:
@@ -161,6 +164,9 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     copied.shared_groups = dict(source.shared_groups)
     copied.array_formulas = dict(source.array_formulas)
     copied.dims = source.dims.copied(copied)
+    from pyopenvba.apps.excel._outline import copied as copied_outline
+
+    copied_outline(source, copied)
     copied.merged_areas = [Area(a.top, a.left, a.bottom, a.right, name) for a in source.merged_areas]
     copied.merges_dirty = bool(copied.merged_areas)
     from pyopenvba.apps.excel._hyperlinks import sheet_copied

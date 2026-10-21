@@ -1,0 +1,700 @@
+{
+  "started_utc": "2026-10-21T01:04:20.450497+00:00",
+  "script_sha256": "89358271ed5cda09f066a07a5b765259a422dd4dd779a084c480e6b05e7803e1",
+  "instrumentation": "six cases; one serial owned ExcelSession; ASCII source; line_numbers=False; events disabled; 15 observed cells plus two held formula objects; macro-free51 before/reopen XML",
+  "controls": [
+    {
+      "name": "shared-owner-auto",
+      "source": "Option Explicit\nPublic src As Worksheet, calc As Worksheet, held As Range, heldAnchor As Range, member As Range\nSub Bind()\nSet src=ActiveWorkbook.Worksheets(1)\nSet calc=ActiveWorkbook.Worksheets(2)\nSet held=src.Range(\"A1\")\nSet heldAnchor=src.Range(\"B1\")\nSet member=src.Range(\"B3\")\nEnd Sub\nFunction CellState(c As Range) As String\nDim answer As String\nanswer=c.Address(False,False) & \":\" & CStr(c.Formula) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \":array=\" & CStr(c.HasArray)\nIf c.HasArray Then answer=answer & \":block=\" & c.CurrentArray.Address(False,False) & \":af=\" & c.FormulaArray\nCellState=answer\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim c As Range, result As String\nIf src Is Nothing Then Bind\nIf held Is Nothing Then Bind\nresult=\"owner=\" & src.Name & \";code=\" & src.CodeName & \";heldOwner=\" & held.Parent.Name & \";held=\" & held.Address(External:=True) & \";mode=\" & CStr(Application.Calculation) & \";beforeSave=\" & CStr(Application.CalculateBeforeSave)\nresult=result & \";heldAnchorOwner=\" & heldAnchor.Parent.Name & \";heldAnchor=[\" & CellState(heldAnchor) & \"];heldMemberOwner=\" & member.Parent.Name & \";heldMember=[\" & CellState(member) & \"]\"\nFor Each c In src.Range(\"A1:B3,D1:E2\").Cells\nresult=result & \";src=[\" & CellState(c) & \"]\"\nNext\nFor Each c In calc.Range(\"B2:C3,F1\").Cells\nresult=result & \";calc=[\" & CellState(c) & \"]\"\nNext\nSnapshot=result\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nOn Error GoTo Failed\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nApplication.CalculateBeforeSave=False\nSet src=ActiveWorkbook.Worksheets(1)\nsrc.Name=\"Data\"\nSet calc=ActiveWorkbook.Worksheets.Add(After:=src)\ncalc.Name=\"Calc\"\nsrc.Range(\"A1\").Value2=1\nsrc.Range(\"A2\").Value2=2\nsrc.Range(\"A3\").Value2=3\nsrc.Range(\"B1:B3\").Formula=\"=A1*2\"\ncalc.Range(\"F1\").Formula=\"=SUM(Data!B1:B3)\"\nApplication.Calculate\n\nPrepare=Snapshot()\nExit Function\nFailed:\nPrepare=\"PREPARE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim result As String\nBind\nApplication.Calculation=-4105\nApplication.Calculate\nApplication.CalculateBeforeSave=False\nresult=\"before=[\" & Snapshot() & \"]\"\nsrc.Name=\"O'Brien renamed\"\nresult=result & \";renamed=[\" & Snapshot() & \"]\"\nheld.Value2=9\nresult=result & \";edited=[\" & Snapshot() & \"]\"\n\nProbe=result & \";final=[\" & Snapshot() & \"]\"\nExit Function\nFailed:\nProbe=\"PROBE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\n",
+      "source_sha256": "938d2291b180b7cbb45ed4b5262b2e4ecad97a4935fbe6bd6e260a25bc513e8f",
+      "configuration": {
+        "name": "shared-owner-auto",
+        "setup": "src.Range(\"B1:B3\").Formula=\"=A1*2\"\ncalc.Range(\"F1\").Formula=\"=SUM(Data!B1:B3)\"",
+        "anchor": "src.Range(\"B1\")",
+        "member": "src.Range(\"B3\")"
+      },
+      "prepare_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "prepare_result": "owner=Data;code=Sheet1;heldOwner=Data;held=[Book1]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Data;heldAnchor=[B1:=A1*2:Double:2:array=False];heldMemberOwner=Data;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:1:Double:1:array=False];src=[B1:=A1*2:Double:2:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM(Data!B1:B3):Double:12:array=False]",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "result": "before=[owner=Data;code=Sheet1;heldOwner=Data;held=[Book1]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Data;heldAnchor=[B1:=A1*2:Double:2:array=False];heldMemberOwner=Data;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:1:Double:1:array=False];src=[B1:=A1*2:Double:2:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM(Data!B1:B3):Double:12:array=False]];renamed=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book1]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B1:=A1*2:Double:2:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:1:Double:1:array=False];src=[B1:=A1*2:Double:2:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:12:array=False]];edited=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book1]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B1:=A1*2:Double:18:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1:=A1*2:Double:18:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:28:array=False]];final=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book1]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B1:=A1*2:Double:18:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1:=A1*2:Double:18:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:28:array=False]]",
+      "save_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-owner-auto.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "save_result": "OK",
+      "save_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [
+            {
+              "cell": "B1",
+              "attributes": {
+                "t": "shared",
+                "ref": "B1:B3",
+                "si": "0"
+              },
+              "text": "A1*2"
+            },
+            {
+              "cell": "B2",
+              "attributes": {
+                "t": "shared",
+                "si": "0"
+              },
+              "text": ""
+            },
+            {
+              "cell": "B3",
+              "attributes": {
+                "t": "shared",
+                "si": "0"
+              },
+              "text": ""
+            }
+          ],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {},
+              "text": "SUM('O''Brien renamed'!B1:B3)"
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 3,
+        "shared_storage_established": true,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-owner-auto.xlsx",
+        "sha256": "7ce8232d225ce132f86cb057e282b3b71efef1e70c32b2af5697078e07f055a0",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "585924d6740c6ec255497ed387c112023673eabf70c96bc905522004a96c9e09",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "b26040f18444982474018b55234da27ace87b9a4937ecfe16d0d9e948ab73171",
+          "xl/worksheets/sheet2.xml": "262b82d05073325d5bbbf6b942059c2e4095bc066b329cb5bbad9330d55f05a8",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "ae1ecaf9f767efa61c3d99404f38e09f2d6d476736804fd7d84d8af2d28c5f28",
+          "docProps/core.xml": "00296f1a40e40a536b9d1e4216c25cdc03ba95c46a7908a6cb13b144c67044a6",
+          "docProps/app.xml": "bb313a02b83d5319bfc496ac959b2306e36beb73175a608d81edf1bf9534a6a0"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{E17B93B6-AB6B-4294-94D3-DCED75152738}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{E7911A54-A3D1-42EF-B168-43137B6F4BAA}\"/></bookViews><sheets><sheet name=\"O'Brien renamed\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcOnSave=\"0\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{4D093DF2-F14E-462F-8D03-E4E8442A2E15}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:B3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>9</v></c><c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>18</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c><c r=\"B2\"><f t=\"shared\" si=\"0\"/><v>4</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c><c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{D402FEC0-1154-4AA5-9607-10C1CBB51090}\"><dimension ref=\"F1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"6:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f>SUM('O''Brien renamed'!B1:B3)</f><v>28</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "after_save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "after_save_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[shared-owner-auto.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B1:=A1*2:Double:18:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1:=A1*2:Double:18:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:28:array=False]",
+      "reopened_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[shared-owner-auto.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B1:=A1*2:Double:18:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1:=A1*2:Double:18:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:28:array=False]"
+    },
+    {
+      "name": "shared-imported-cleared-master",
+      "source": "Option Explicit\nPublic src As Worksheet, calc As Worksheet, held As Range, heldAnchor As Range, member As Range\nSub Bind()\nSet src=ActiveWorkbook.Worksheets(1)\nSet calc=ActiveWorkbook.Worksheets(2)\nSet held=src.Range(\"A1\")\nSet heldAnchor=src.Range(\"B2\")\nSet member=src.Range(\"B3\")\nEnd Sub\nFunction CellState(c As Range) As String\nDim answer As String\nanswer=c.Address(False,False) & \":\" & CStr(c.Formula) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \":array=\" & CStr(c.HasArray)\nIf c.HasArray Then answer=answer & \":block=\" & c.CurrentArray.Address(False,False) & \":af=\" & c.FormulaArray\nCellState=answer\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim c As Range, result As String\nIf src Is Nothing Then Bind\nIf held Is Nothing Then Bind\nresult=\"owner=\" & src.Name & \";code=\" & src.CodeName & \";heldOwner=\" & held.Parent.Name & \";held=\" & held.Address(External:=True) & \";mode=\" & CStr(Application.Calculation) & \";beforeSave=\" & CStr(Application.CalculateBeforeSave)\nresult=result & \";heldAnchorOwner=\" & heldAnchor.Parent.Name & \";heldAnchor=[\" & CellState(heldAnchor) & \"];heldMemberOwner=\" & member.Parent.Name & \";heldMember=[\" & CellState(member) & \"]\"\nFor Each c In src.Range(\"A1:B3,D1:E2\").Cells\nresult=result & \";src=[\" & CellState(c) & \"]\"\nNext\nFor Each c In calc.Range(\"B2:C3,F1\").Cells\nresult=result & \";calc=[\" & CellState(c) & \"]\"\nNext\nSnapshot=result\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nOn Error GoTo Failed\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nApplication.CalculateBeforeSave=False\nSet src=ActiveWorkbook.Worksheets(1)\nsrc.Name=\"Data\"\nSet calc=ActiveWorkbook.Worksheets.Add(After:=src)\ncalc.Name=\"Calc\"\nsrc.Range(\"A1\").Value2=1\nsrc.Range(\"A2\").Value2=2\nsrc.Range(\"A3\").Value2=3\nsrc.Range(\"B1:B3\").Formula=\"=A1*2\"\ncalc.Range(\"F1\").Formula=\"=SUM(Data!B1:B3)\"\nApplication.Calculate\n\nPrepare=Snapshot()\nExit Function\nFailed:\nPrepare=\"PREPARE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim result As String\nBind\nApplication.Calculation=-4105\nApplication.Calculate\nApplication.CalculateBeforeSave=False\nresult=\"before=[\" & Snapshot() & \"]\"\nsrc.Name=\"O'Brien renamed\"\nresult=result & \";renamed=[\" & Snapshot() & \"]\"\nheld.Value2=9\nresult=result & \";edited=[\" & Snapshot() & \"]\"\n\nProbe=result & \";final=[\" & Snapshot() & \"]\"\nExit Function\nFailed:\nProbe=\"PROBE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\n",
+      "source_sha256": "7e709d77d8fc6ad841466c471fd1b96ddbe04b54130b5ea815476427dce41e69",
+      "configuration": {
+        "name": "shared-imported-cleared-master",
+        "setup": "src.Range(\"B1:B3\").Formula=\"=A1*2\"\ncalc.Range(\"F1\").Formula=\"=SUM(Data!B1:B3)\"",
+        "seed": true,
+        "seed_clear": true,
+        "anchor": "src.Range(\"B2\")",
+        "member": "src.Range(\"B3\")"
+      },
+      "prepare_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "prepare_result": "owner=Data;code=Sheet1;heldOwner=Data;held=[Book2]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Data;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=Data;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:1:Double:1:array=False];src=[B1:=A1*2:Double:2:array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM(Data!B1:B3):Double:12:array=False]",
+      "before_clear_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master-before-clear.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "before_clear_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "before_clear_result": "OK",
+      "before_clear_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [
+            {
+              "cell": "B1",
+              "attributes": {
+                "t": "shared",
+                "ref": "B1:B3",
+                "si": "0"
+              },
+              "text": "A1*2"
+            },
+            {
+              "cell": "B2",
+              "attributes": {
+                "t": "shared",
+                "si": "0"
+              },
+              "text": ""
+            },
+            {
+              "cell": "B3",
+              "attributes": {
+                "t": "shared",
+                "si": "0"
+              },
+              "text": ""
+            }
+          ],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {},
+              "text": "SUM(Data!B1:B3)"
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 3,
+        "shared_storage_established": true,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master-before-clear.xlsx",
+        "sha256": "e1f6476bd9eee756be222014c2298b96c87c66e0a6691aeb97279634869db7fa",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "491a8542f9ed85027c0d1b69fd9a63bc7dc662b2792a9df4cf1704f4aec2c015",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "4fa3efe449ba43741fa12fd25cebe9308db447e7b79784fce0a800fca75e106a",
+          "xl/worksheets/sheet2.xml": "2be49fb6884b79a242e7b0ded0a4ac37c432c3e9fab4f71fdad18b2a014f435c",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "ae1ecaf9f767efa61c3d99404f38e09f2d6d476736804fd7d84d8af2d28c5f28",
+          "docProps/core.xml": "9257038c7675818d278350317ec95a4165f7e4804a704f96a0251b4a6d9873b7",
+          "docProps/app.xml": "7292ca89dbee7498141c12ebbed07647daed23086e6919b6e38c3506d0013369"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{AA74825B-6653-46DD-A462-1D0EBBB7C216}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{4A8DC64B-1BF0-44DF-B7E4-138595045875}\"/></bookViews><sheets><sheet name=\"Data\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcOnSave=\"0\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{99F88746-2D6F-4123-8466-D5711800D8B1}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:B3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>1</v></c><c r=\"B1\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A1*2</f><v>2</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c><c r=\"B2\"><f t=\"shared\" si=\"0\"/><v>4</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c><c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{D737BD49-EE7B-4042-80B5-4CD71E487B73}\"><dimension ref=\"F1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"6:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f>SUM(Data!B1:B3)</f><v>12</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "clear_source": "Option Explicit\nPublic src As Worksheet, calc As Worksheet, held As Range, heldAnchor As Range, member As Range\nSub Bind()\nSet src=ActiveWorkbook.Worksheets(1)\nSet calc=ActiveWorkbook.Worksheets(2)\nSet held=src.Range(\"A1\")\nSet heldAnchor=src.Range(\"B2\")\nSet member=src.Range(\"B3\")\nEnd Sub\nFunction CellState(c As Range) As String\nDim answer As String\nanswer=c.Address(False,False) & \":\" & CStr(c.Formula) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \":array=\" & CStr(c.HasArray)\nIf c.HasArray Then answer=answer & \":block=\" & c.CurrentArray.Address(False,False) & \":af=\" & c.FormulaArray\nCellState=answer\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim c As Range, result As String\nIf src Is Nothing Then Bind\nIf held Is Nothing Then Bind\nresult=\"owner=\" & src.Name & \";code=\" & src.CodeName & \";heldOwner=\" & held.Parent.Name & \";held=\" & held.Address(External:=True) & \";mode=\" & CStr(Application.Calculation) & \";beforeSave=\" & CStr(Application.CalculateBeforeSave)\nresult=result & \";heldAnchorOwner=\" & heldAnchor.Parent.Name & \";heldAnchor=[\" & CellState(heldAnchor) & \"];heldMemberOwner=\" & member.Parent.Name & \";heldMember=[\" & CellState(member) & \"]\"\nFor Each c In src.Range(\"A1:B3,D1:E2\").Cells\nresult=result & \";src=[\" & CellState(c) & \"]\"\nNext\nFor Each c In calc.Range(\"B2:C3,F1\").Cells\nresult=result & \";calc=[\" & CellState(c) & \"]\"\nNext\nSnapshot=result\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nOn Error GoTo Failed\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nApplication.CalculateBeforeSave=False\nSet src=ActiveWorkbook.Worksheets(1)\nsrc.Name=\"Data\"\nSet calc=ActiveWorkbook.Worksheets.Add(After:=src)\ncalc.Name=\"Calc\"\nsrc.Range(\"A1\").Value2=1\nsrc.Range(\"A2\").Value2=2\nsrc.Range(\"A3\").Value2=3\nsrc.Range(\"B1:B3\").Formula=\"=A1*2\"\ncalc.Range(\"F1\").Formula=\"=SUM(Data!B1:B3)\"\nApplication.Calculate\n\nPrepare=Snapshot()\nExit Function\nFailed:\nPrepare=\"PREPARE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim result As String\nBind\nApplication.Calculation=-4105\nApplication.Calculate\nApplication.CalculateBeforeSave=False\nresult=\"before=[\" & Snapshot() & \"]\"\nsrc.Name=\"O'Brien renamed\"\nresult=result & \";renamed=[\" & Snapshot() & \"]\"\nheld.Value2=9\nresult=result & \";edited=[\" & Snapshot() & \"]\"\n\nProbe=result & \";final=[\" & Snapshot() & \"]\"\nExit Function\nFailed:\nProbe=\"PROBE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction ClearSeed() As String\nBind\nsrc.Range(\"B1\").ClearContents\nClearSeed=Snapshot()\nEnd Function",
+      "clear_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "clear_result": "owner=Data;code=Sheet1;heldOwner=Data;held='[shared-imported-cleared-master-before-clear.xlsx]Data'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Data;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=Data;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM(Data!B1:B3):Double:10:array=False]",
+      "seed_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master-seed.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "seed_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "seed_result": "OK",
+      "seed_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [
+            {
+              "cell": "B2",
+              "attributes": {
+                "t": "shared",
+                "ref": "B1:B3",
+                "si": "0"
+              },
+              "text": "A2*2"
+            },
+            {
+              "cell": "B3",
+              "attributes": {
+                "t": "shared",
+                "si": "0"
+              },
+              "text": ""
+            }
+          ],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {},
+              "text": "SUM(Data!B1:B3)"
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 2,
+        "shared_storage_established": true,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master-seed.xlsx",
+        "sha256": "4b6efeff34aa9b93353c6c8cb8ccb518efd90ac674fc7cc4d6c8bb3b182b2ccc",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "d4395c259df2339f332f310c8ff04a3af30df21907c522e52ba55faae8cc6230",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "230176ba9c51518cb86b7e4aebdbd855b6969126b89134351489bf9c9a16aa21",
+          "xl/worksheets/sheet2.xml": "9a9c3b586d6ed1d87d9cee95f673218b5ee19c2e1cfde78c2ceed44da2066dcc",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "b2c645941bf10a911f45530e779df93909e05c5f9ebfeb4bb75efc6bf55d06a1",
+          "docProps/core.xml": "9257038c7675818d278350317ec95a4165f7e4804a704f96a0251b4a6d9873b7",
+          "docProps/app.xml": "7292ca89dbee7498141c12ebbed07647daed23086e6919b6e38c3506d0013369"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{4AAA3DF7-6D9A-41AD-ADC2-7B2D459F0C50}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{4A8DC64B-1BF0-44DF-B7E4-138595045875}\"/></bookViews><sheets><sheet name=\"Data\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcOnSave=\"0\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{99F88746-2D6F-4123-8466-D5711800D8B1}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:B3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>1</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c><c r=\"B2\"><f t=\"shared\" ref=\"B1:B3\" si=\"0\">A2*2</f><v>4</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c><c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{D737BD49-EE7B-4042-80B5-4CD71E487B73}\"><dimension ref=\"F1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"6:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f>SUM(Data!B1:B3)</f><v>10</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "result": "before=[owner=Data;code=Sheet1;heldOwner=Data;held='[shared-imported-cleared-master-seed.xlsx]Data'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Data;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=Data;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM(Data!B1:B3):Double:10:array=False]];renamed=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[shared-imported-cleared-master-seed.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:10:array=False]];edited=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[shared-imported-cleared-master-seed.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:10:array=False]];final=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[shared-imported-cleared-master-seed.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:10:array=False]]",
+      "save_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "save_result": "OK",
+      "save_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [
+            {
+              "cell": "B2",
+              "attributes": {
+                "t": "shared",
+                "ref": "B2:B3",
+                "si": "0"
+              },
+              "text": "A2*2"
+            },
+            {
+              "cell": "B3",
+              "attributes": {
+                "t": "shared",
+                "si": "0"
+              },
+              "text": ""
+            }
+          ],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {},
+              "text": "SUM('O''Brien renamed'!B1:B3)"
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 2,
+        "shared_storage_established": true,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\shared-imported-cleared-master.xlsx",
+        "sha256": "1236ea94be2ad41752360c9e30ea579d62a80d3f12e51259f33bd24a1484138e",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "4bf8351cb1cd879b2dbb6af4bdf08c1ab1a560c62dfa8859a04d095b61fe9c68",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "37fb1a9fe517666e44e09883cf59ccf774d6d7634ebb1ff8c1d39439f897ff91",
+          "xl/worksheets/sheet2.xml": "75e657ff4bfb26f0050003d6537b6ec2c32df105dce5382f89c844953ef55e8d",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "b2c645941bf10a911f45530e779df93909e05c5f9ebfeb4bb75efc6bf55d06a1",
+          "docProps/core.xml": "9257038c7675818d278350317ec95a4165f7e4804a704f96a0251b4a6d9873b7",
+          "docProps/app.xml": "bb313a02b83d5319bfc496ac959b2306e36beb73175a608d81edf1bf9534a6a0"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{9D4AD8EB-F393-4B37-AAD9-1CC518C1B0F1}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{4A8DC64B-1BF0-44DF-B7E4-138595045875}\"/></bookViews><sheets><sheet name=\"O'Brien renamed\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcOnSave=\"0\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{99F88746-2D6F-4123-8466-D5711800D8B1}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:B3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>9</v></c></row><row r=\"2\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c><c r=\"B2\"><f t=\"shared\" ref=\"B2:B3\" si=\"0\">A2*2</f><v>4</v></c></row><row r=\"3\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c><c r=\"B3\"><f t=\"shared\" si=\"0\"/><v>6</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{D737BD49-EE7B-4042-80B5-4CD71E487B73}\"><sheetPr codeName=\"Sheet2\"/><dimension ref=\"F1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"6:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f>SUM('O''Brien renamed'!B1:B3)</f><v>10</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "after_save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "after_save_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[shared-imported-cleared-master.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:10:array=False]",
+      "reopened_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[shared-imported-cleared-master.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[B2:=A2*2:Double:4:array=False];heldMemberOwner=O'Brien renamed;heldMember=[B3:=A3*2:Double:6:array=False];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2:=A2*2:Double:4:array=False];src=[A3:3:Double:3:array=False];src=[B3:=A3*2:Double:6:array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!B1:B3):Double:10:array=False]"
+    },
+    {
+      "name": "cse-other-source-auto",
+      "source": "Option Explicit\nPublic src As Worksheet, calc As Worksheet, held As Range, heldAnchor As Range, member As Range\nSub Bind()\nSet src=ActiveWorkbook.Worksheets(1)\nSet calc=ActiveWorkbook.Worksheets(2)\nSet held=src.Range(\"A1\")\nSet heldAnchor=calc.Range(\"B2\")\nSet member=calc.Range(\"C3\")\nEnd Sub\nFunction CellState(c As Range) As String\nDim answer As String\nanswer=c.Address(False,False) & \":\" & CStr(c.Formula) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \":array=\" & CStr(c.HasArray)\nIf c.HasArray Then answer=answer & \":block=\" & c.CurrentArray.Address(False,False) & \":af=\" & c.FormulaArray\nCellState=answer\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim c As Range, result As String\nIf src Is Nothing Then Bind\nIf held Is Nothing Then Bind\nresult=\"owner=\" & src.Name & \";code=\" & src.CodeName & \";heldOwner=\" & held.Parent.Name & \";held=\" & held.Address(External:=True) & \";mode=\" & CStr(Application.Calculation) & \";beforeSave=\" & CStr(Application.CalculateBeforeSave)\nresult=result & \";heldAnchorOwner=\" & heldAnchor.Parent.Name & \";heldAnchor=[\" & CellState(heldAnchor) & \"];heldMemberOwner=\" & member.Parent.Name & \";heldMember=[\" & CellState(member) & \"]\"\nFor Each c In src.Range(\"A1:B3,D1:E2\").Cells\nresult=result & \";src=[\" & CellState(c) & \"]\"\nNext\nFor Each c In calc.Range(\"B2:C3,F1\").Cells\nresult=result & \";calc=[\" & CellState(c) & \"]\"\nNext\nSnapshot=result\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nOn Error GoTo Failed\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nApplication.CalculateBeforeSave=False\nSet src=ActiveWorkbook.Worksheets(1)\nsrc.Name=\"Data\"\nSet calc=ActiveWorkbook.Worksheets.Add(After:=src)\ncalc.Name=\"Calc\"\nsrc.Range(\"A1\").Value2=1\nsrc.Range(\"A2\").Value2=2\nsrc.Range(\"A3\").Value2=3\ncalc.Range(\"B2:C3\").FormulaArray=\"=Data!A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(B2:C3)\"\nApplication.Calculate\n\nPrepare=Snapshot()\nExit Function\nFailed:\nPrepare=\"PREPARE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim result As String\nBind\nApplication.Calculation=-4105\nApplication.Calculate\nApplication.CalculateBeforeSave=False\nresult=\"before=[\" & Snapshot() & \"]\"\nsrc.Name=\"O'Brien renamed\"\nresult=result & \";renamed=[\" & Snapshot() & \"]\"\nheld.Value2=9\nresult=result & \";edited=[\" & Snapshot() & \"]\"\n\nProbe=result & \";final=[\" & Snapshot() & \"]\"\nExit Function\nFailed:\nProbe=\"PROBE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\n",
+      "source_sha256": "e457bc33593fcb4f2c1bd3eb9f942f55f785b1b8fe81244bdba83aee35565fde",
+      "configuration": {
+        "name": "cse-other-source-auto",
+        "setup": "calc.Range(\"B2:C3\").FormulaArray=\"=Data!A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(B2:C3)\""
+      },
+      "prepare_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "prepare_result": "owner=Data;code=Sheet1;heldOwner=Data;held=[Book3]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C2:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[B3:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "result": "before=[owner=Data;code=Sheet1;heldOwner=Data;held=[Book3]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C2:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[B3:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];renamed=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book3]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];edited=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book3]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:18:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:33:array=False]];final=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book3]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:18:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:33:array=False]]",
+      "save_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-other-source-auto.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "save_result": "OK",
+      "save_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {},
+              "text": "SUM(B2:C3)"
+            },
+            {
+              "cell": "B2",
+              "attributes": {
+                "t": "array",
+                "ref": "B2:C3"
+              },
+              "text": "'O''Brien renamed'!A1:A2*{1,2}"
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 0,
+        "shared_storage_established": false,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-other-source-auto.xlsx",
+        "sha256": "fc000a110b0076ebc31c43b0718aba0c46ec0e64db6e465e2e01a68b4b7fb174",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "cde5e4641b648e3d7d6b0466178a374d83c745ccc68bae41b9ed7f88e12a1c83",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "81e3fe475bd709f6f5621b8155ffe08635f4d820f5876f537151f280eb2be33b",
+          "xl/worksheets/sheet2.xml": "cec74f5494c8e4f56b9bc63777ea1557959e1868035fcb8218a68496d30ef111",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "c67f66d3a0d6d3a4607d9fec20670a2a10fd83fa69e53d0947c89864c5da2b61",
+          "docProps/core.xml": "d1dc7d1f4d47841f654b2eb7e04dca55c61cb81faeab062c2679c79ce2347e9c",
+          "docProps/app.xml": "bb313a02b83d5319bfc496ac959b2306e36beb73175a608d81edf1bf9534a6a0"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{3C9711B7-F3EC-42D4-86D9-2E8B4CCF7D65}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{F8155A03-3BC1-4812-9CF1-7CCEA48BF0FD}\"/></bookViews><sheets><sheet name=\"O'Brien renamed\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcOnSave=\"0\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{2498E5F9-F183-4135-863B-8B1AE3BE43E9}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:A3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>9</v></c></row><row r=\"2\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c></row><row r=\"3\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{09A56670-95B3-48E3-9418-93725C4AED5E}\"><dimension ref=\"B1:F3\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f>SUM(B2:C3)</f><v>33</v></c></row><row r=\"2\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"B2\"><f t=\"array\" ref=\"B2:C3\">'O''Brien renamed'!A1:A2*{1,2}</f><v>9</v></c><c r=\"C2\"><v>18</v></c></row><row r=\"3\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"B3\"><v>2</v></c><c r=\"C3\"><v>4</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "after_save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "after_save_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-other-source-auto.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:18:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:33:array=False]",
+      "reopened_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-other-source-auto.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:18:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:33:array=False]"
+    },
+    {
+      "name": "cse-owner-auto",
+      "source": "Option Explicit\nPublic src As Worksheet, calc As Worksheet, held As Range, heldAnchor As Range, member As Range\nSub Bind()\nSet src=ActiveWorkbook.Worksheets(1)\nSet calc=ActiveWorkbook.Worksheets(2)\nSet held=src.Range(\"A1\")\nSet heldAnchor=src.Range(\"D1\")\nSet member=src.Range(\"E2\")\nEnd Sub\nFunction CellState(c As Range) As String\nDim answer As String\nanswer=c.Address(False,False) & \":\" & CStr(c.Formula) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \":array=\" & CStr(c.HasArray)\nIf c.HasArray Then answer=answer & \":block=\" & c.CurrentArray.Address(False,False) & \":af=\" & c.FormulaArray\nCellState=answer\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim c As Range, result As String\nIf src Is Nothing Then Bind\nIf held Is Nothing Then Bind\nresult=\"owner=\" & src.Name & \";code=\" & src.CodeName & \";heldOwner=\" & held.Parent.Name & \";held=\" & held.Address(External:=True) & \";mode=\" & CStr(Application.Calculation) & \";beforeSave=\" & CStr(Application.CalculateBeforeSave)\nresult=result & \";heldAnchorOwner=\" & heldAnchor.Parent.Name & \";heldAnchor=[\" & CellState(heldAnchor) & \"];heldMemberOwner=\" & member.Parent.Name & \";heldMember=[\" & CellState(member) & \"]\"\nFor Each c In src.Range(\"A1:B3,D1:E2\").Cells\nresult=result & \";src=[\" & CellState(c) & \"]\"\nNext\nFor Each c In calc.Range(\"B2:C3,F1\").Cells\nresult=result & \";calc=[\" & CellState(c) & \"]\"\nNext\nSnapshot=result\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nOn Error GoTo Failed\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nApplication.CalculateBeforeSave=False\nSet src=ActiveWorkbook.Worksheets(1)\nsrc.Name=\"Data\"\nSet calc=ActiveWorkbook.Worksheets.Add(After:=src)\ncalc.Name=\"Calc\"\nsrc.Range(\"A1\").Value2=1\nsrc.Range(\"A2\").Value2=2\nsrc.Range(\"A3\").Value2=3\nsrc.Range(\"D1:E2\").FormulaArray=\"=A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(Data!D1:E2)\"\nApplication.Calculate\n\nPrepare=Snapshot()\nExit Function\nFailed:\nPrepare=\"PREPARE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim result As String\nBind\nApplication.Calculation=-4105\nApplication.Calculate\nApplication.CalculateBeforeSave=False\nresult=\"before=[\" & Snapshot() & \"]\"\nsrc.Name=\"O'Brien renamed\"\nresult=result & \";renamed=[\" & Snapshot() & \"]\"\nheld.Value2=9\nresult=result & \";edited=[\" & Snapshot() & \"]\"\n\nProbe=result & \";final=[\" & Snapshot() & \"]\"\nExit Function\nFailed:\nProbe=\"PROBE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\n",
+      "source_sha256": "a1a1f6728b3788f0ea7711449c1d0f0dbdf7360b3a3f47d14b83db382e762808",
+      "configuration": {
+        "name": "cse-owner-auto",
+        "setup": "src.Range(\"D1:E2\").FormulaArray=\"=A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(Data!D1:E2)\"",
+        "anchor": "src.Range(\"D1\")",
+        "member": "src.Range(\"E2\")"
+      },
+      "prepare_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "prepare_result": "owner=Data;code=Sheet1;heldOwner=Data;held=[Book4]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Data;heldAnchor=[D1:=A1:A2*{1,2}:Double:1:array=True:block=D1:E2:af==A1:A2*{1,2}];heldMemberOwner=Data;heldMember=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1:=A1:A2*{1,2}:Double:1:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E1:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[D2:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM(Data!D1:E2):Double:9:array=False]",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "result": "before=[owner=Data;code=Sheet1;heldOwner=Data;held=[Book4]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Data;heldAnchor=[D1:=A1:A2*{1,2}:Double:1:array=True:block=D1:E2:af==A1:A2*{1,2}];heldMemberOwner=Data;heldMember=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1:=A1:A2*{1,2}:Double:1:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E1:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[D2:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM(Data!D1:E2):Double:9:array=False]];renamed=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book4]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[D1:=A1:A2*{1,2}:Double:1:array=True:block=D1:E2:af==A1:A2*{1,2}];heldMemberOwner=O'Brien renamed;heldMember=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1:=A1:A2*{1,2}:Double:1:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E1:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[D2:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!D1:E2):Double:9:array=False]];edited=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book4]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];heldMemberOwner=O'Brien renamed;heldMember=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E1:=A1:A2*{1,2}:Double:18:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[D2:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!D1:E2):Double:33:array=False]];final=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book4]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];heldMemberOwner=O'Brien renamed;heldMember=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E1:=A1:A2*{1,2}:Double:18:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[D2:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!D1:E2):Double:33:array=False]]",
+      "save_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-owner-auto.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "save_result": "OK",
+      "save_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [
+            {
+              "cell": "D1",
+              "attributes": {
+                "t": "array",
+                "ref": "D1:E2"
+              },
+              "text": "A1:A2*{1,2}"
+            }
+          ],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {},
+              "text": "SUM('O''Brien renamed'!D1:E2)"
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 0,
+        "shared_storage_established": false,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-owner-auto.xlsx",
+        "sha256": "4ae3ee650d9afa429975c2c981cc17bc85e5bffecd20d699f464c879c830de4b",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "33237ad4abaa123d4b424798de17a7ea0bb828cdba87ff7a623866db54be2421",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "3a8d0f617ff8b7950023aad0d257884cd583626237bbcd2538bbe1f0ce4aed79",
+          "xl/worksheets/sheet2.xml": "2312f1fb5b92d57b050ad3f206362b96f63674c243b5a3684829b1b29c67fc56",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "fd76f008becd8611c36c5678f1418e6e161c92dcbfcf2f35ad8103aa6da13686",
+          "docProps/core.xml": "4af3ab5fdee219484d26787e5f0803b446432a2df332e30f4f3a3e564a8c8e1d",
+          "docProps/app.xml": "bb313a02b83d5319bfc496ac959b2306e36beb73175a608d81edf1bf9534a6a0"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{C66DEAC3-8E18-4043-B33E-95D5C258C42A}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{44F773AF-5CD6-4602-B7C0-0D180EF6A7DD}\"/></bookViews><sheets><sheet name=\"O'Brien renamed\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcOnSave=\"0\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{1B3353F4-A606-4E79-923C-3BCB38AA6322}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:E3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>9</v></c><c r=\"D1\"><f t=\"array\" ref=\"D1:E2\">A1:A2*{1,2}</f><v>9</v></c><c r=\"E1\"><v>18</v></c></row><row r=\"2\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c><c r=\"D2\"><v>2</v></c><c r=\"E2\"><v>4</v></c></row><row r=\"3\" spans=\"1:5\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{D2E4E2FC-E042-4047-8EFD-52C07C4D8EDE}\"><dimension ref=\"F1\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"6:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f>SUM('O''Brien renamed'!D1:E2)</f><v>33</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "after_save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "after_save_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-owner-auto.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];heldMemberOwner=O'Brien renamed;heldMember=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E1:=A1:A2*{1,2}:Double:18:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[D2:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!D1:E2):Double:33:array=False]",
+      "reopened_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-owner-auto.xlsx]O''Brien renamed'!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=O'Brien renamed;heldAnchor=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];heldMemberOwner=O'Brien renamed;heldMember=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1:=A1:A2*{1,2}:Double:9:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E1:=A1:A2*{1,2}:Double:18:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[D2:=A1:A2*{1,2}:Double:2:array=True:block=D1:E2:af==A1:A2*{1,2}];src=[E2:=A1:A2*{1,2}:Double:4:array=True:block=D1:E2:af==A1:A2*{1,2}];calc=[B2::Empty::array=False];calc=[C2::Empty::array=False];calc=[B3::Empty::array=False];calc=[C3::Empty::array=False];calc=[F1:=SUM('O''Brien renamed'!D1:E2):Double:33:array=False]"
+    },
+    {
+      "name": "cse-manual-save-cached",
+      "source": "Option Explicit\nPublic src As Worksheet, calc As Worksheet, held As Range, heldAnchor As Range, member As Range\nSub Bind()\nSet src=ActiveWorkbook.Worksheets(1)\nSet calc=ActiveWorkbook.Worksheets(2)\nSet held=src.Range(\"A1\")\nSet heldAnchor=calc.Range(\"B2\")\nSet member=calc.Range(\"C3\")\nEnd Sub\nFunction CellState(c As Range) As String\nDim answer As String\nanswer=c.Address(False,False) & \":\" & CStr(c.Formula) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \":array=\" & CStr(c.HasArray)\nIf c.HasArray Then answer=answer & \":block=\" & c.CurrentArray.Address(False,False) & \":af=\" & c.FormulaArray\nCellState=answer\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim c As Range, result As String\nIf src Is Nothing Then Bind\nIf held Is Nothing Then Bind\nresult=\"owner=\" & src.Name & \";code=\" & src.CodeName & \";heldOwner=\" & held.Parent.Name & \";held=\" & held.Address(External:=True) & \";mode=\" & CStr(Application.Calculation) & \";beforeSave=\" & CStr(Application.CalculateBeforeSave)\nresult=result & \";heldAnchorOwner=\" & heldAnchor.Parent.Name & \";heldAnchor=[\" & CellState(heldAnchor) & \"];heldMemberOwner=\" & member.Parent.Name & \";heldMember=[\" & CellState(member) & \"]\"\nFor Each c In src.Range(\"A1:B3,D1:E2\").Cells\nresult=result & \";src=[\" & CellState(c) & \"]\"\nNext\nFor Each c In calc.Range(\"B2:C3,F1\").Cells\nresult=result & \";calc=[\" & CellState(c) & \"]\"\nNext\nSnapshot=result\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nOn Error GoTo Failed\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nApplication.CalculateBeforeSave=False\nSet src=ActiveWorkbook.Worksheets(1)\nsrc.Name=\"Data\"\nSet calc=ActiveWorkbook.Worksheets.Add(After:=src)\ncalc.Name=\"Calc\"\nsrc.Range(\"A1\").Value2=1\nsrc.Range(\"A2\").Value2=2\nsrc.Range(\"A3\").Value2=3\ncalc.Range(\"B2:C3\").FormulaArray=\"=Data!A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(B2:C3)\"\nApplication.Calculate\n\nPrepare=Snapshot()\nExit Function\nFailed:\nPrepare=\"PREPARE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim result As String\nBind\nApplication.Calculation=-4135\nApplication.Calculate\nApplication.CalculateBeforeSave=False\nresult=\"before=[\" & Snapshot() & \"]\"\nsrc.Name=\"O'Brien renamed\"\nresult=result & \";renamed=[\" & Snapshot() & \"]\"\nheld.Value2=9\nresult=result & \";edited=[\" & Snapshot() & \"]\"\n\nProbe=result & \";final=[\" & Snapshot() & \"]\"\nExit Function\nFailed:\nProbe=\"PROBE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\n",
+      "source_sha256": "fc1d9221aea56b60092817d771033e619dec90a0e0dbcbe39210835a032e0104",
+      "configuration": {
+        "name": "cse-manual-save-cached",
+        "setup": "calc.Range(\"B2:C3\").FormulaArray=\"=Data!A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(B2:C3)\"",
+        "manual": true
+      },
+      "prepare_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "prepare_result": "owner=Data;code=Sheet1;heldOwner=Data;held=[Book5]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C2:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[B3:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "result": "before=[owner=Data;code=Sheet1;heldOwner=Data;held=[Book5]Data!$A$1;mode=-4135;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C2:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[B3:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];renamed=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book5]O''Brien renamed'!$A$1;mode=-4135;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];edited=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book5]O''Brien renamed'!$A$1;mode=-4135;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];final=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book5]O''Brien renamed'!$A$1;mode=-4135;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]]",
+      "save_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-manual-save-cached.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "save_result": "OK",
+      "save_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {
+                "ca": "1"
+              },
+              "text": "SUM(B2:C3)"
+            },
+            {
+              "cell": "B2",
+              "attributes": {
+                "t": "array",
+                "ref": "B2:C3",
+                "ca": "1"
+              },
+              "text": "'O''Brien renamed'!A1:A2*{1,2}"
+            },
+            {
+              "cell": "C2",
+              "attributes": {
+                "ca": "1"
+              },
+              "text": ""
+            },
+            {
+              "cell": "B3",
+              "attributes": {
+                "ca": "1"
+              },
+              "text": ""
+            },
+            {
+              "cell": "C3",
+              "attributes": {
+                "ca": "1"
+              },
+              "text": ""
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 0,
+        "shared_storage_established": false,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-manual-save-cached.xlsx",
+        "sha256": "53da2e04da7d7522cf69fe4ec75c16696f7b4e943a381a882fbed97503caeb10",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "0f7472543c784eddddb6fa94b21a332e15d76bb269c410667902e56f792675cc",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "77ba2cb689544f6d65bf24d3f5cf71b6dbd2de009e8950fa5a8c6ecfe69a092a",
+          "xl/worksheets/sheet2.xml": "27913f909a795b8b71e4426e1c347ef455a0eb2070ac19ce6dff4623f94782d1",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "b171673e6b978f1ec110ded49908d605c93e6bc732edaad609a22032bab6fd02",
+          "docProps/core.xml": "bd435ba968664f82387c0aa933c1fd891e3e549beb71a971ab0e6b0ae46bcc8f",
+          "docProps/app.xml": "bb313a02b83d5319bfc496ac959b2306e36beb73175a608d81edf1bf9534a6a0"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{718D7F33-F25B-4255-90AA-784DA43A4F5F}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{DE111557-7A0F-4C75-9519-FEFA56EA71F5}\"/></bookViews><sheets><sheet name=\"O'Brien renamed\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcMode=\"manual\" calcCompleted=\"0\" calcOnSave=\"0\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{F636B319-B842-4CDB-B2B9-5A803DE7E910}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:A3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>9</v></c></row><row r=\"2\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c></row><row r=\"3\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{66115ADE-80E6-4DA7-A68B-B03A16530B35}\"><dimension ref=\"B1:F3\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f ca=\"1\">SUM(B2:C3)</f><v>9</v></c></row><row r=\"2\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"B2\"><f t=\"array\" ref=\"B2:C3\" ca=\"1\">'O''Brien renamed'!A1:A2*{1,2}</f><v>1</v></c><c r=\"C2\"><f ca=\"1\"/><v>2</v></c></row><row r=\"3\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"B3\"><f ca=\"1\"/><v>2</v></c><c r=\"C3\"><f ca=\"1\"/><v>4</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "after_save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "after_save_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-manual-save-cached.xlsx]O''Brien renamed'!$A$1;mode=-4135;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]",
+      "reopened_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-manual-save-cached.xlsx]O''Brien renamed'!$A$1;mode=-4135;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]"
+    },
+    {
+      "name": "cse-manual-save-calculate",
+      "source": "Option Explicit\nPublic src As Worksheet, calc As Worksheet, held As Range, heldAnchor As Range, member As Range\nSub Bind()\nSet src=ActiveWorkbook.Worksheets(1)\nSet calc=ActiveWorkbook.Worksheets(2)\nSet held=src.Range(\"A1\")\nSet heldAnchor=calc.Range(\"B2\")\nSet member=calc.Range(\"C3\")\nEnd Sub\nFunction CellState(c As Range) As String\nDim answer As String\nanswer=c.Address(False,False) & \":\" & CStr(c.Formula) & \":\" & TypeName(c.Value2) & \":\" & CStr(c.Value2) & \":array=\" & CStr(c.HasArray)\nIf c.HasArray Then answer=answer & \":block=\" & c.CurrentArray.Address(False,False) & \":af=\" & c.FormulaArray\nCellState=answer\nEnd Function\nFunction Snapshot() As String\nOn Error GoTo Failed\nDim c As Range, result As String\nIf src Is Nothing Then Bind\nIf held Is Nothing Then Bind\nresult=\"owner=\" & src.Name & \";code=\" & src.CodeName & \";heldOwner=\" & held.Parent.Name & \";held=\" & held.Address(External:=True) & \";mode=\" & CStr(Application.Calculation) & \";beforeSave=\" & CStr(Application.CalculateBeforeSave)\nresult=result & \";heldAnchorOwner=\" & heldAnchor.Parent.Name & \";heldAnchor=[\" & CellState(heldAnchor) & \"];heldMemberOwner=\" & member.Parent.Name & \";heldMember=[\" & CellState(member) & \"]\"\nFor Each c In src.Range(\"A1:B3,D1:E2\").Cells\nresult=result & \";src=[\" & CellState(c) & \"]\"\nNext\nFor Each c In calc.Range(\"B2:C3,F1\").Cells\nresult=result & \";calc=[\" & CellState(c) & \"]\"\nNext\nSnapshot=result\nExit Function\nFailed:\nSnapshot=\"SNAPSHOT-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nOn Error GoTo Failed\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nApplication.CalculateBeforeSave=False\nSet src=ActiveWorkbook.Worksheets(1)\nsrc.Name=\"Data\"\nSet calc=ActiveWorkbook.Worksheets.Add(After:=src)\ncalc.Name=\"Calc\"\nsrc.Range(\"A1\").Value2=1\nsrc.Range(\"A2\").Value2=2\nsrc.Range(\"A3\").Value2=3\ncalc.Range(\"B2:C3\").FormulaArray=\"=Data!A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(B2:C3)\"\nApplication.Calculate\n\nPrepare=Snapshot()\nExit Function\nFailed:\nPrepare=\"PREPARE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim result As String\nBind\nApplication.Calculation=-4135\nApplication.Calculate\nApplication.CalculateBeforeSave=True\nresult=\"before=[\" & Snapshot() & \"]\"\nsrc.Name=\"O'Brien renamed\"\nresult=result & \";renamed=[\" & Snapshot() & \"]\"\nheld.Value2=9\nresult=result & \";edited=[\" & Snapshot() & \"]\"\n\nProbe=result & \";final=[\" & Snapshot() & \"]\"\nExit Function\nFailed:\nProbe=\"PROBE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nEnd Function\n",
+      "source_sha256": "47b7ed84b485ebfda9a3d5d5127be1657e388688832bdca8d0ae7ca68c66ac29",
+      "configuration": {
+        "name": "cse-manual-save-calculate",
+        "setup": "calc.Range(\"B2:C3\").FormulaArray=\"=Data!A1:A2*{1,2}\"\ncalc.Range(\"F1\").Formula=\"=SUM(B2:C3)\"",
+        "manual": true,
+        "calculate_before_save": true
+      },
+      "prepare_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "prepare_result": "owner=Data;code=Sheet1;heldOwner=Data;held=[Book6]Data!$A$1;mode=-4105;beforeSave=False;heldAnchorOwner=Calc;heldAnchor=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C2:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[B3:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]",
+      "status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "result": "before=[owner=Data;code=Sheet1;heldOwner=Data;held=[Book6]Data!$A$1;mode=-4135;beforeSave=True;heldAnchorOwner=Calc;heldAnchor=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:=Data!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C2:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[B3:=Data!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[C3:=Data!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af==Data!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];renamed=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book6]O''Brien renamed'!$A$1;mode=-4135;beforeSave=True;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:1:Double:1:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];edited=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book6]O''Brien renamed'!$A$1;mode=-4135;beforeSave=True;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]];final=[owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[Book6]O''Brien renamed'!$A$1;mode=-4135;beforeSave=True;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:1:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:9:array=False]]",
+      "save_source": "Function SaveSample() As String\nOn Error GoTo Failed\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs \"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-manual-save-calculate.xlsx\",51\nApplication.DisplayAlerts=True\nSaveSample=\"OK\"\nExit Function\nFailed:\nSaveSample=\"SAVE-ERR:\" & CStr(Err.Number) & \":\" & Err.Description\nApplication.DisplayAlerts=True\nEnd Function",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "save_result": "OK",
+      "save_package": {
+        "formula_cells": {
+          "xl/worksheets/sheet1.xml": [],
+          "xl/worksheets/sheet2.xml": [
+            {
+              "cell": "F1",
+              "attributes": {},
+              "text": "SUM(B2:C3)"
+            },
+            {
+              "cell": "B2",
+              "attributes": {
+                "t": "array",
+                "ref": "B2:C3"
+              },
+              "text": "'O''Brien renamed'!A1:A2*{1,2}"
+            }
+          ]
+        },
+        "observed_shared_formula_nodes": 0,
+        "shared_storage_established": false,
+        "file": "F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\cse-manual-save-calculate.xlsx",
+        "sha256": "ae4359bda8aaa39b36724fc97bd99ae0bbbf1edfc701ff2bed4bb2d02c862de4",
+        "parts": {
+          "[Content_Types].xml": "8fe82ef8576a205ffa372851372ff96cbc8ddf27d8c3226fb47e5bd69d7498d3",
+          "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+          "xl/workbook.xml": "a3b2a39ae7f1dddb0cf606989ad1b10f15b92c0fb3c879990ca4ad4d56ead068",
+          "xl/_rels/workbook.xml.rels": "f77fbbc21e5e62fd81e7592b3656d5c78cfde52be91f97731d747e76bd864ed1",
+          "xl/worksheets/sheet1.xml": "8cabe6cbddb490300199cce994fbcfe023c9e714a83f5db823c28da1a6d2e74d",
+          "xl/worksheets/sheet2.xml": "fe7d1fc89547dc0e587c6c9dee5f2313fbcafbc24e2224ce4215ee6a02ae3321",
+          "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+          "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+          "xl/calcChain.xml": "f6ffafaa715a8278558bf06420eb665f1030bbda2f314e47cb60b7380252abfe",
+          "docProps/core.xml": "bd435ba968664f82387c0aa933c1fd891e3e549beb71a971ab0e6b0ae46bcc8f",
+          "docProps/app.xml": "bb313a02b83d5319bfc496ac959b2306e36beb73175a608d81edf1bf9534a6a0"
+        },
+        "xml": {
+          "xl/workbook.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x15 xr xr6 xr10 xr2\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr6=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision6\" xmlns:xr10=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision10\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\"><fileVersion appName=\"xl\" lastEdited=\"7\" lowestEdited=\"7\" rupBuild=\"30430\"/><workbookPr codeName=\"ThisWorkbook\" defaultThemeVersion=\"202300\"/><mc:AlternateContent xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"><mc:Choice Requires=\"x15\"><x15ac:absPath url=\"F:\\GitHub\\pyOpenVBA\\.cache\\worksheet-rename-next\\native-extended-shared-cse-inputs\\\" xmlns:x15ac=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac\"/></mc:Choice></mc:AlternateContent><xr:revisionPtr revIDLastSave=\"0\" documentId=\"8_{9F0B7A82-9BDB-4728-B232-CD3530B0352A}\" xr6:coauthVersionLast=\"47\" xr6:coauthVersionMax=\"47\" xr10:uidLastSave=\"{00000000-0000-0000-0000-000000000000}\"/><bookViews><workbookView xWindow=\"780\" yWindow=\"780\" windowWidth=\"7200\" windowHeight=\"4425\" activeTab=\"1\" xr2:uid=\"{644BEE29-6CCC-49B6-8557-EEE576185D3D}\"/></bookViews><sheets><sheet name=\"O'Brien renamed\" sheetId=\"1\" r:id=\"rId1\"/><sheet name=\"Calc\" sheetId=\"2\" r:id=\"rId2\"/></sheets><calcPr calcId=\"191029\" calcMode=\"manual\"/><extLst><ext uri=\"{140A7094-0E35-4892-8432-C4D2E57EDEB5}\" xmlns:x15=\"http://schemas.microsoft.com/office/spreadsheetml/2010/11/main\"><x15:workbookPr chartTrackingRefBase=\"1\"/></ext><ext uri=\"{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}\" xmlns:xcalcf=\"http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures\"><xcalcf:calcFeatures><xcalcf:feature name=\"microsoft.com:RD\"/><xcalcf:feature name=\"microsoft.com:Single\"/><xcalcf:feature name=\"microsoft.com:FV\"/><xcalcf:feature name=\"microsoft.com:CNMTM\"/><xcalcf:feature name=\"microsoft.com:LET_WF\"/><xcalcf:feature name=\"microsoft.com:LAMBDA_WF\"/><xcalcf:feature name=\"microsoft.com:ARRAYTEXT_WF\"/></xcalcf:calcFeatures></ext><ext uri=\"{D14903EA-33C4-47F7-8F05-3474C54BE107}\" xmlns:xlwcv=\"http://schemas.microsoft.com/office/spreadsheetml/2024/workbookCompatibilityVersion\"><xlwcv:version setVersion=\"2\"/></ext></extLst></workbook>",
+          "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{0F41F399-A430-4805-99FC-150EBA38C1CE}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"A1:A3\"/><sheetViews><sheetView workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\"><v>9</v></c></row><row r=\"2\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A2\"><v>2</v></c></row><row r=\"3\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A3\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+          "xl/worksheets/sheet2.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{BE9A5C56-0406-482E-ACAC-57CC039AB89A}\"><dimension ref=\"B1:F3\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"F1\"><f>SUM(B2:C3)</f><v>33</v></c></row><row r=\"2\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"B2\"><f t=\"array\" ref=\"B2:C3\">'O''Brien renamed'!A1:A2*{1,2}</f><v>9</v></c><c r=\"C2\"><v>18</v></c></row><row r=\"3\" spans=\"2:6\" x14ac:dyDescent=\"0.25\"><c r=\"B3\"><v>2</v></c><c r=\"C3\"><v>4</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+        }
+      },
+      "after_save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "after_save_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-manual-save-calculate.xlsx]O''Brien renamed'!$A$1;mode=-4135;beforeSave=True;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:18:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:33:array=False]",
+      "reopened_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None"
+      },
+      "reopened_result": "owner=O'Brien renamed;code=Sheet1;heldOwner=O'Brien renamed;held='[cse-manual-save-calculate.xlsx]O''Brien renamed'!$A$1;mode=-4135;beforeSave=True;heldAnchorOwner=Calc;heldAnchor=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];heldMemberOwner=Calc;heldMember=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];src=[A1:9:Double:9:array=False];src=[B1::Empty::array=False];src=[A2:2:Double:2:array=False];src=[B2::Empty::array=False];src=[A3:3:Double:3:array=False];src=[B3::Empty::array=False];src=[D1::Empty::array=False];src=[E1::Empty::array=False];src=[D2::Empty::array=False];src=[E2::Empty::array=False];calc=[B2:='O''Brien renamed'!A1:A2*{1,2}:Double:9:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C2:='O''Brien renamed'!A1:A2*{1,2}:Double:18:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[B3:='O''Brien renamed'!A1:A2*{1,2}:Double:2:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[C3:='O''Brien renamed'!A1:A2*{1,2}:Double:4:array=True:block=B2:C3:af=='O''Brien renamed'!A1:A2*{1,2}];calc=[F1:=SUM(B2:C3):Double:33:array=False]"
+    }
+  ],
+  "session_id": "32a79478f8fd",
+  "excel_pid": 42884,
+  "completed": true,
+  "closed_utc": "2026-10-21T01:04:30.432145+00:00"
+}

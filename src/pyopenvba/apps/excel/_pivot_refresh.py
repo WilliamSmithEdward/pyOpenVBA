@@ -3,10 +3,9 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from xml.parsers.expat import ExpatError
 
 from pyopenvba._a1 import Area, parse_area
-from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
+from pyopenvba.apps.excel._charts_file import XmlElement, XmlParseError, xml_tree
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, error
@@ -155,7 +154,7 @@ def admit_records(cache: PivotCache, part: str, budget: TextBudget) -> XmlElemen
         else:
             records = cache.records
         budget.metadata(records)
-    except (ValueError, ExpatError):
+    except (ValueError, XmlParseError):
         raise unsupported('reading malformed ordinary cache records') from None
     if records.tag != NS + 'pivotCacheRecords':
         raise unsupported('with an unknown cache record root')

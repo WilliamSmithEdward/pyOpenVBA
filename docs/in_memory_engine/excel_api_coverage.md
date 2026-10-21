@@ -284,7 +284,9 @@ unsupported cell features also remain outside refresh admission. Source and
 output planning have explicit size limits: at most 64 reports on the affected
 sheet, one million aggregate planning units and staged output cells, eight
 million charged text characters and 200,000 metadata nodes. Literal source
-rectangles are bound to their declared worksheet without defined-name lookup. Empty report expansion is supported;
+rectangles are bound to their declared worksheet without defined-name lookup.
+Malformed stored-record XML is rejected before any live refresh mutation.
+Empty report expansion is supported;
 expansion into populated ordinary cells, existing report page selectors, or
 intersecting final shared-report footprints is rejected before mutation. Native
 collision controls produce error-valued report states; those transitions remain

@@ -38,7 +38,7 @@ is a percentage of working macros or complete functionality.
 | Protection and permissions | Partial | 11 / 32 | 0 | Worksheet/workbook protection and enforcement for supported edits. Allow-edit ranges, user permissions and full protection semantics remain. |
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
 | Shapes and worksheet controls | Partial | 54 / 2,025 | 0 | Basic shapes/text boxes and nine Forms control types, with measured values, links and persistence. Rich drawing APIs, grouping/copying, pictures and newer controls remain incomplete. |
-| Charts and sparklines | Partial | 30 / 951 | 0 | Embedded charts, basic series/titles and eight persisted chart kinds. Axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
+| Charts and sparklines | Partial | 32 / 951 | 0 | Embedded charts, basic series/titles, ordinary series deletion/reordering with held-series identity, and eight persisted chart kinds. Axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
 | PivotTables and slicers | Partial | 66 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata, empty-report creation and data-only AddDataField totals using all eleven aggregate functions, with measured events, field ranges and saved-report edits. Native probes cover date/time serials, Currency, typed values, errors, numerical edge cases and immutable cache snapshots across saves. Compact row/column/page layouts, nested subtotals, Values-axis placement and field removal now aggregate cached records. Field/page range queries support native measured compact, tabular, outline, grouped and multi-area reports; sparse layouts avoid scanning all records for each blank intersection. Fixed-schema local cache refresh stages all linked supported same-sheet reports before publishing callbacks. Broader refresh, arbitrary layout edits, filtering, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
 | Queries and external data | Partial | 8 / 278 | 0 | Workbook queries plus local Power Query evaluation, refresh and sheet loading. Connection objects, remote connectors, QueryTables and full query semantics remain incomplete. |
 | Data model and OLAP | Missing | 0 / 261 | 0 | No in-memory Power Pivot model, relationships/measures or cube automation. Reading some external-pivot metadata does not implement these operations. |
@@ -48,7 +48,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,200 / 7,542** | **147** | **15.9% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,202 / 7,542** | **147** | **15.9% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -708,7 +708,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,756 entries across 70 implemented model types**:
-147 verified, 633 partial, 424 unassessed, 1,549 missing and 3 excluded. Its 1,204
+147 verified, 635 partial, 424 unassessed, 1,547 missing and 3 excluded. Its 1,206
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the
@@ -725,3 +725,53 @@ When support changes, regenerate `docs/excel_checklist.csv` with
 refresh the affected functional rows and totals here. An area's status becomes
 complete only after its required behavior, error cases, interactions and
 persistence have been auditedâ€”not merely when its member count reaches 100%.
+
+## Embedded chart series lifecycle
+
+Ordinary engine-created embedded charts support `Series.Delete` and `PlotOrder`.
+Deletion returns the measured Boolean result, compacts surviving order and keeps
+held surviving series attached to their original data. Deleted series reads
+through `CallByName` raise the measured automation error, including after a
+replacement series is added. Direct deleted `Name` access reports the measured
+invalid-object HRESULT; a narrow host dispatch hook preserves that distinction
+without changing ordinary VBA objects. Reordering moves the existing entry rather than copying its state;
+invalid measured zero/out-of-range orders leave entries and dirty flags intact.
+Argument coercion revalidates ownership and membership before applying an order,
+including when a VBA default getter deletes or reorders another series.
+`XValues` returns independent array storage, so reading or modifying a returned
+array cannot clear or change chart categories.
+
+Two independent native controls retain their complete raw source/results and
+explicitly project chart type/count, every series observation, operation result
+and held-series observation. Axis and parent-graph observations remain in the raw
+evidence and are explicitly deferred. The same projected final snapshots match
+two native-produced workbook imports and two model-generated save/reopens.
+This is partial lifecycle evidence, not a complete chart or member audit.
+See `tests/test_excel_chart_lifecycle.py` and `tests/fixtures/chart_lifecycle/`.
+
+Imported chart content mutation remains unsupported. Mutations and series access through a held chart after its
+owning drawing/sheet/workbook is detached are refused explicitly pending native
+lifetime measurements. Parent graphs, argument/coercion variants, styles after
+reordering, protection/UDF interactions, automatic axes/scales and broader chart
+editing remain incomplete. All five generated lifecycle workbooks passed native
+Excel readback (5/5, 5.93 seconds) in one closed owned session.
+
+Two further completed native `PlotOrder` matrices cover fractional rounding,
+numeric and invalid strings, Boolean/Empty/Null, range errors and numeric
+overflow, including complete before/after/reset series snapshots. Their replay
+explicitly defers the parent graph and a separate `Series.Index` late-binding
+discrepancy; those raw observations remain unchanged. Null assignment now raises
+the measured type-mismatch error. A third combined stale-series deletion control
+timed out without a complete returned value; it remains diagnostic only, and its
+eleven unexecuted follow-ups are not counted as passing evidence.
+
+Three additional complete native controls establish stable unnamed-series IDs,
+reordering/deletion and explicit/reference-name collisions. Default names follow
+the smallest unused series ID rather than reserving displayed text. Their five
+native-produced/imported and model-generated save/reopen pairs (including the
+two initial lifecycle controls) retain exact projected final snapshots. The
+writer preserves `c:idx` separately from `c:order`, leaves default formula names
+blank and retains identity-based default colors. The reader sorts ordinary
+series by their declared order, retains IDs and refuses ambiguous or malformed
+identity/order metadata before integer expansion. The XML identity/order values
+are compared directly with the three independent native outputs.

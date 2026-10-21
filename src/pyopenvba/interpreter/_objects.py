@@ -24,6 +24,7 @@ from typing import Any, ClassVar
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import (
+    EMPTY,
     ERR_MEMBER_NOT_FOUND,
     ERR_OBJECT_VARIABLE_NOT_SET,
     MISSING,
@@ -233,6 +234,18 @@ class VBAObject:
             function(self, value)
             return
         function(self, *self._bind(spec, args, named), value)
+
+    def vba_call_by_name(self, name: str, args: Sequence[object], *, assignment: bool = False,
+                         by_ref: bool = False) -> object:
+        """Late-bound host dispatch; normal objects use the same member machinery.
+
+        A host may override a measured COM proxy distinction without changing
+        ordinary VBA member access or other objects' CallByName behavior.
+        """
+        if assignment:
+            self.vba_set(name, args[-1], args[:-1], {}, by_ref=by_ref)
+            return EMPTY
+        return self.vba_get(name, args, {})
 
     def vba_call(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
         return self.vba_get(name, args, named)

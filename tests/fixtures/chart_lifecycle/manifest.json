@@ -1,0 +1,25 @@
+{
+  "raw_sha256": "cf3825f163089484eb945d1df1e7c74e90215042f2e82b5309891c457b8bdd92",
+  "admitted_projection": [
+    "series-delete",
+    "series-order"
+  ],
+  "projection": "Chart type, count, series names/order/formulas/values/categories, held series and operation results. Axis observations and parent graph remain retained but deferred; raw source/result bytes unchanged.",
+  "remaining_controls": "Retained research only: axes-baseline, manual-scale, axis-titles, axis-lifetime, bar-scatter, no-axis-types.",
+  "native_inputs": {
+    "series-delete.xlsx": "6079c9ecc89c43c9c44509b40b65dc07b625b39ebbf6b657b459e1679ad07f64",
+    "series-order.xlsx": "5f4a417859ba5108574321a6e25be8ea2cf2688fa7c966eb147f3a23b6512df2"
+  },
+  "coercions_raw_sha256": "07ab5a4535654930eda63d63f8993e81dc2570bb6f3e9b9dfa4898703f464316",
+  "coercions_admitted": [
+    "plot-order-numeric",
+    "plot-order-variants"
+  ],
+  "coercions_disposition": "Two completed controls: all values, errors and before/after/reset snapshots projected to defer Series.Parent and the Series.Index late-binding discrepancy (native438 versus current unsupported dispatch). All operation/coercion/error/state snapshots retained. Third combined stale-series delete case timed out without complete result, remaining11 unexecuted. No passing inference from timeout.",
+  "defaults_raw_sha256": "a47d7970d76967a064ddbd095ebf3d8dcc4329703ec6593b84b2290f0ee11843",
+  "defaults_inputs": {
+    "unnamed-reorder-delete-save.xlsx": "abb03aea717a1c06d2cf878b138c2876259ed5c169d459f1569f360be28cccbf",
+    "explicit-Series2-collision.xlsx": "9d62d9493a0fd48d0fb71e561e13f8971d157ddce9abf94b728d4b0614518a05",
+    "source-header-Series1-collision.xlsx": "ea6830365be7a4498d83ec37afe32862387f889a96a1c39c8787f5942007f21c"
+  }
+}

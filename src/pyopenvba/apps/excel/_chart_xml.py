@@ -62,6 +62,7 @@ class SeriesData:
     category_cache: Sequence[str | float | None] = ()
     category_format: str = "General"
     numeric_categories: bool = False
+    series_id: int | None = None
 
 
 # -- the pieces every kind shares ----------------------------------------
@@ -236,7 +237,8 @@ def _reference(element: str, formula: str, cache: str, *, numbers: bool) -> str:
 
 
 def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
-    colour = _accent(index)
+    identity = index if data.series_id is None else data.series_id
+    colour = _accent(identity)
     name = ""
     if data.name is not None:
         name = f"<c:tx><c:strRef><c:f>{escape_text(data.name)}</c:f>{_string_cache([data.name_cache])}</c:strRef></c:tx>"
@@ -278,10 +280,10 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         )
         body = f"{slices}{categories}{values}"
     return (
-        f'<c:ser><c:idx val="{index}"/><c:order val="{index}"/>{name}{body}'
+        f'<c:ser><c:idx val="{identity}"/><c:order val="{index}"/>{name}{body}'
         '<c:extLst><c:ext uri="{C3380CC4-5D6E-409C-BE32-E72D297353CC}"'
         ' xmlns:c16="http://schemas.microsoft.com/office/drawing/2014/chart">'
-        f'<c16:uniqueId val="{{{index:08X}{unique}}}"/></c:ext></c:extLst></c:ser>'
+        f'<c16:uniqueId val="{{{identity:08X}{unique}}}"/></c:ext></c:extLst></c:ser>'
     )
 
 

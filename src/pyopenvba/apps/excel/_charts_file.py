@@ -174,8 +174,25 @@ def read_chart(xml: str, part: str) -> ChartState:
         result.chart_type = -4169 if style is not None and style.attrib.get('val') == 'marker' else 74
     elif kind in ('pieChart', 'doughnutChart') or kind == 'areaChart' and group in ('standard', ''):
         result.chart_type = {'pieChart': 5, 'doughnutChart': -4120, 'areaChart': 1}[kind]
-    for series in entry.findall('c:ser', NS):
-        item = SeriesState()
+    def integer(series: ET.Element, name: str, fallback: int) -> int:
+        node = series.find('c:' + name, NS)
+        if node is None:
+            return fallback
+        text = node.get('val', '')
+        if not re.fullmatch(r'[0-9]{1,10}', text):
+            raise VBAUnsupportedError('Invalid chart series identity/order is not implemented')
+        value = int(text)
+        if value > 4_294_967_295:
+            raise VBAUnsupportedError('Chart series identity/order exceeds the supported integer range')
+        return value
+
+    stored_series = entry.findall('c:ser', NS)
+    ordered = [(integer(series, 'order', index), integer(series, 'idx', index), series)
+               for index, series in enumerate(stored_series)]
+    if len({item[0] for item in ordered}) != len(ordered) or len({item[1] for item in ordered}) != len(ordered):
+        raise VBAUnsupportedError('Ambiguous chart series identity/order is not implemented')
+    for _order, identity, series in sorted(ordered, key=lambda item: item[0]):
+        item = SeriesState(series_id=identity)
         name_ref = series.find('c:tx/c:strRef/c:f', NS)
         item.name_reference = name_ref.text or '' if name_ref is not None else ''
         name = series.find('c:tx/c:v', NS)
@@ -295,7 +312,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                categories=item.category_reference or ('' if item.categories else None),
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
                                category_format=source_format(sheet, item.category_reference),
-                               numeric_categories=numeric))
+                               numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None))
     kind = CHART_TYPES.get(chart.state.chart_type)
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')

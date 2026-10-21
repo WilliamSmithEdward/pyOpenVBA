@@ -173,14 +173,13 @@ def _call_by_name(interpreter: Interpreter, args: list[object], named: dict[str,
     if kind & (_LET | _SET):
         if not rest or (kind & _SET and not isinstance(rest[-1], VBAObject) and rest[-1] is not NOTHING):
             raise error(438, f"{target.vba_type_name} has no such member as {name}")
-        target.vba_set(name, rest[-1], rest[:-1], {}, by_ref=bool(kind & _SET))
-        return EMPTY
+        return target.vba_call_by_name(name, rest, assignment=True, by_ref=bool(kind & _SET))
     if not kind & (_METHOD | _GET) or (kind == _METHOD and spec is not None and spec.kind != "method"):
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
     strict = getattr(target, "vba_strict_call_types", False)
     if strict and kind == _GET and spec is not None and spec.kind == "method":
         raise error(438, f"{target.vba_type_name} has no such member as {name}")
-    return target.vba_get(name, rest, {})
+    return target.vba_call_by_name(name, rest)
 
 
 INTRINSICS["callbyname"] = _call_by_name

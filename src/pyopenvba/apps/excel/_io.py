@@ -54,6 +54,11 @@ _INLINE = re.compile(r"<is>(.*?)</is>", re.DOTALL)
 _TEXT = re.compile(r"<t[^>]*>(.*?)</t>", re.DOTALL)
 _SHARED_ITEM = re.compile(r"<si>(.*?)</si>", re.DOTALL)
 _DEFINED_NAME = re.compile(r"<definedName\b((?:[^\"'<>]|\"[^\"]*\"|'[^']*')*)>(.*?)</definedName>", re.DOTALL)
+def defined_name_spans(data: bytes) -> list[tuple[int, int]]:
+    """Byte ownership of names recognized by the existing lexical reader."""
+    return [match.span() for match in re.finditer(_DEFINED_NAME.pattern.encode('ascii'), data, re.DOTALL)]
+
+
 _FILTER_DATABASE = "_xlnm._FilterDatabase"
 _AUTO_FILTER = re.compile(r"<autoFilter\b[^>]*/>|<autoFilter\b.*?</autoFilter>", re.DOTALL)
 #: The worksheet children an autoFilter comes before, in the schema's order.
@@ -2078,13 +2083,9 @@ def _name_order(book: Workbook, name: str, local: str | None) -> tuple[object, .
 
 def _collation(text: str) -> tuple[object, ...]:
     """Text as Excel orders names: word sort ignoring case, and other text by its lower-case characters."""
-    from pyopenvba.apps.excel._sort import text_key
-    from pyopenvba.exceptions import VBAUnsupportedError
+    from pyopenvba.apps.excel._names import collation
 
-    try:
-        return text_key(text, False)
-    except VBAUnsupportedError:
-        return (tuple(100 + ord(char) for char in text.lower()), (), ())
+    return collation(text)
 
 
 def _write_names(book: Workbook, package: OpcFile) -> None:

@@ -1,0 +1,125 @@
+{
+  "raw_files": {
+    "native-core.json": "dd195e431ab1db9f56fd1df04255d1619f94e7b629ed6fe9653113cea6e5b248",
+    "native-save-cache.json": "0494b3316ad5d04d66288ab6907e373338444b2db5c564767eefea7003f7742e",
+    "native-order-address.json": "d5517a64d6f1637c22eaa0bdd0308b46526657419edb3995a2bf17be80f14e74",
+    "native-order-address-final.json": "74d2c80fade623eff2ff573ae5357660b86ea6438e3839a53ec3be695edc32e0"
+  },
+  "inspection_source_sha256": "b9bf110b611deeea1aabb12c5d3ec31b08c26a46f815252800da4e9d3718dfdf",
+  "measurement_script_sha256": "164030f9e1a4cef855dfa7ff99865f5854047521480eba649ca7819dd4b73774",
+  "cases": {
+    "native-core.json:automatic-scalar-identity": {
+      "sample": "automatic-scalar-identity.xlsx",
+      "initial_book_name": "Book1",
+      "runtime": "full",
+      "source_sha256": "1189b239244369505a3fb835ac10731faae3ec220b9ea5944c0e4146aa935f0c",
+      "sample_sha256": "b5fd1e666db7ae8685bca19d27a858821738c94cd728e5aa8b0b665eaebcb922",
+      "result_sha256": "41d14931a8279fffc4ce7737b4bf6a985afcace3c2df872bd5018a766303c48a",
+      "reopened_sha256": "e022e9f0ca639de89eaeadb6407b072ca8110541ab7bd16b180fb30a46435873"
+    },
+    "native-core.json:manual-scalar-cache": {
+      "sample": "manual-scalar-cache.xlsx",
+      "initial_book_name": "Book2",
+      "runtime": "full",
+      "source_sha256": "41a7da350fc6a4aae7f49ce4b30d7f40d0f2fe08c0afb43da2b07255135f5b23",
+      "sample_sha256": "dc6fc6b8f2c307d1f5307c7b4fdecd368ce278ac1650a8e95a9aea9e18021698",
+      "result_sha256": "fd566cafcef53d6e6af5c3e53f7a13e1f4500e35410838c2eed7d033d634bc14",
+      "reopened_sha256": "65548e9151201dc289c18faf23d2cf928b4463667c464ef773376ef7cc08ee9d"
+    },
+    "native-core.json:case-only-and-reference-spelling": {
+      "sample": "case-only-and-reference-spelling.xlsx",
+      "initial_book_name": "Book3",
+      "runtime": "full",
+      "source_sha256": "b73ff217c348e90930ff7231367339be6e2f60c9d173ad80a5d7f4c68a686663",
+      "sample_sha256": "c5186bc8ed555430bd2c6178eabbbb7eff9b397248fc05c47caaa142d60a0703",
+      "result_sha256": "105a1feda155da42600052d36e6174b5c2fb3ab6314a8ae1137261b4850d3099",
+      "reopened_sha256": "931539f2a586c73ff17d57e585e8739878cd49a6e06098a56cc5c525da78fd78"
+    },
+    "native-core.json:strings-indirect-local-reference": {
+      "sample": "strings-indirect-local-reference.xlsx",
+      "initial_book_name": "Book4",
+      "runtime": "deferred-hidden-name",
+      "source_sha256": "70c83ae56210f3a75dd6a78887c6b2b1bafc3ce70af0e39d1e4f9df8b90ae212",
+      "sample_sha256": "717a380edc3ad242262c436fc90a61387f2b002f918a7441a7e00dd999f2f799",
+      "result_sha256": "ee1b73592623927b0e58b116db1ebbb67acdaae493b705f477079362e1b6cd51",
+      "reopened_sha256": "5c13f198a1c064ddb7e1c89c66f88c1d832eecf16c53b2c3b065f801ede62389"
+    },
+    "native-core.json:ordinary-local-global-names": {
+      "sample": "ordinary-local-global-names.xlsx",
+      "initial_book_name": "Book5",
+      "runtime": "full",
+      "source_sha256": "4baf744c4d8e9e0542979d17a3aa15747311167f3b4accaf3a0277955405a24f",
+      "sample_sha256": "01c42a1800939ce80eb5724bfbf53486ad3cb94adf0a8b38875e2b40c96e14a2",
+      "result_sha256": "e3532eb3a81e484cccaa89ae39031b3bbc28109bb76ffca02c98854062adc77c",
+      "reopened_sha256": "8a693716b1d7e33cff05483ebfe4a919d2979935038c3f9ce4d86a5c282e62f5"
+    },
+    "native-core.json:invalid-name-atomicity": {
+      "sample": "invalid-name-atomicity.xlsx",
+      "initial_book_name": "Book6",
+      "runtime": "full",
+      "source_sha256": "cd34048a8a2c46c42fc1f2d7dbc925c8bc3fad0dca37042cb0ab383745872c17",
+      "sample_sha256": "db60d58e0e20f7cfaa2608447e1a95a94a070c9806efbdc9dd2ecffa60c738ed",
+      "result_sha256": "4bce647bff18a1c9fccdfb32297bd49acd1ced376bf8e71e4b00792acb502172",
+      "reopened_sha256": "bbd2d907f6703c5d1949349974cf88032aa4226b71f0fdec14b8823c4598d28f"
+    },
+    "native-save-cache.json:manual-dirty-save-no-calculate": {
+      "sample": "manual-dirty-save-no-calculate.xlsx",
+      "initial_book_name": "Book1",
+      "runtime": "full",
+      "source_sha256": "bfd60c45dc1de46505e126d3805a583bc6f9a82f4858fbf86dd4868a692210fb",
+      "sample_sha256": "2756cae517d7b7bbb3a5539b4fc81863fa2c1c5d7a52359ff6dcc7f2a7125419",
+      "result_sha256": "00940c49071f171b81d7ac025612ba4d216cf499f5197bebddceeda2fd7cb21b",
+      "reopened_sha256": "ac49cb6f6be870eeaab1241978bb03431192ffba47e81e79bcf066929c6bb1dc"
+    },
+    "native-save-cache.json:manual-dirty-save-calculate": {
+      "sample": "manual-dirty-save-calculate.xlsx",
+      "initial_book_name": "Book2",
+      "runtime": "full",
+      "source_sha256": "5c3f5a57eb56ad38e59f630a256b22b98b06f7142ff1c820e1f089fd41ea3729",
+      "sample_sha256": "3dcc904858693c6e533640c82885907b680434c94b9024614a260421b10d3d64",
+      "result_sha256": "0882c323b3e6fa371fd8f1a66208f78ed4132c0fa502844fd4a24f4cb6caa404",
+      "reopened_sha256": "875352d4b5d56b03564f98774a0f0cff90fb73582489f3da88e5d41d52f24048"
+    },
+    "native-order-address.json:ordering-varied": {
+      "sample": "ordering-varied.xlsx",
+      "initial_book_name": null,
+      "runtime": "deferred-name-add-scope",
+      "source_sha256": "b54587e25e59fcd3549eb42077b8b6c903daf2294fbec0bc95770b4a66f91733",
+      "sample_sha256": "4118924efcf5823c01755e70715c39d0a669653d0e202365cb27212a9d6bc815",
+      "result_sha256": "9a0750a25f86b8c03aedb297499abeb9adbec23f83949cb9bd2d3785fba5e4ca",
+      "reopened_sha256": "6955237d1cde604a10f2851d124d70b3f9de4ea946b239829f39171994493c5e"
+    },
+    "native-order-address.json:address": {
+      "sample": "address.xlsx",
+      "initial_book_name": "Book2",
+      "runtime": "full",
+      "source_sha256": "a978222ae02b7cc924410babda184bbd575dd59d12d66e67ac1318afea0e5c52",
+      "sample_sha256": "c0a7db9ae9b426b8179976dfcc9337c6c1cece2410389f0479802694519cdfa8",
+      "result_sha256": "a75883edf59389b1de72394bc5426d35c91177bb35462e8ae1c684ee1142e2db",
+      "reopened_sha256": "cb63e86a79b8a613f7d8fbfeb0ea1eafaa21372e62e63774226bd78e973e97c2"
+    },
+    "native-order-address-final.json:ordering-global-first": {
+      "sample": "ordering-global-first.xlsx",
+      "initial_book_name": null,
+      "runtime": "full",
+      "source_sha256": "c4ee52ac88e6e5a575c7f991acdd58382ef6cabf0f00d99a9313c10a502af7d0",
+      "sample_sha256": "807bc4a48c1f63b1fec349e40a2c178fca223d4ff1b1c81a55bc52dd42627bbe",
+      "result_sha256": "8eebd43b79ea888c7b4259a5ed574cb405a3b21846e6ec13553846b9af738681",
+      "reopened_sha256": "ad0e848312cf02445e6cb504be736d018f43df358c646ef4178cb4a7566b9ac6"
+    },
+    "native-order-address-final.json:RenameBook": {
+      "sample": "RenameBook.xlsx",
+      "initial_book_name": "Book2",
+      "runtime": "full",
+      "source_sha256": "e65a0731f7046c3c37c3d8161c668f7b5103a03f77526627debacd9aa570cf15",
+      "sample_sha256": "e7823dbc650fae2dc61a0cf2f98083e81f7d7a3be5db4eac56022a2c37a14f93",
+      "result_sha256": "a2b0e3b9c7841d349fd9176764912afcb3775b2afe4a249be92b451d5fc90b65",
+      "reopened_sha256": "3c7ea480e8b1b2338507e5879a55c7e835c309c86a205da41767e7ae91e76ea4"
+    }
+  },
+  "context": "Runtime tests explicitly prepare initial workbook name from the native before-address. CodeName is allocated normally by add_module; tests never assign it. No expected result normalization. One complete hidden-SINGLE control is deferred; separately labeled scalar string-text observations are copied exactly from raw evidence.",
+  "projections": {
+    "strings-indirect-local-reference": "Runtime: compare the exact literal/INDIRECT/error/implicit prefix before ;final=[. Input: compare exact observation prefix before ;name=[. Native hidden _xlfn.SINGLE creation is absent from its saved XML and is not implemented; the complete raw controls remain deferred.",
+    "ordering-varied": "Complete runtime source deferred because native bare Same Name.Add overwrites the active local Same; generic Name.Add scope resolution is not changed. Native input Snapshot is independently compared in full."
+  }
+}

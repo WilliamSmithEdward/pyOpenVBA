@@ -725,6 +725,12 @@ class Workbook(ExcelObject):
         return self._calculator
 
     @property
+    def calculation_in_progress(self) -> bool:
+        """Inspect active evaluation without allocating the lazy calculator."""
+        found = self._calculator
+        return found is not None and bool(found._working or found._calculation_depth or found._learning_depth)
+
+    @property
     def stylesheet(self) -> Stylesheet:
         """The workbook's cell formats: its own, or those of the template a new workbook starts from."""
         if self._stylesheet is None:
@@ -1255,14 +1261,12 @@ class Worksheet(ExcelObject):
         # apostrophe first or last, and History in any case are refused.
         if (not wanted or len(wanted) > 31 or any(char in wanted for char in "\\/?*[]:")
                 or wanted[0] == "'" or wanted[-1] == "'" or wanted.lower() == "history"):
-            raise error(1004, f"{wanted!r} is not a name a sheet can have")
+            raise error(1004, "Method 'Name' of object '_Worksheet' failed")
         if any(sheet is not self and sheet.name.lower() == wanted.lower() for sheet in self.book.sheets_):
-            raise error(1004, f"a sheet called {wanted} is already there")
-        from pyopenvba.apps.excel._names import rename_owned_reserved
+            raise error(1004, "That name is already taken. Try a different one.")
+        from pyopenvba.apps.excel._worksheet_rename import rename
 
-        rename_owned_reserved(self, wanted)
-        self.name = wanted
-        self.book.saved = False
+        rename(self, wanted)
 
     @member
     def Index(self) -> object:
@@ -2423,14 +2427,20 @@ class Range(ExcelObject):
         rows_fixed = True if RowAbsolute is MISSING else to_bool(RowAbsolute)
         columns_fixed = True if ColumnAbsolute is MISSING else to_bool(ColumnAbsolute)
         external = External is not MISSING and to_bool(External)
-        book = f"[{self.sheet.book.name}]" if external else ""
-        texts = [area.address(rows_fixed=rows_fixed, columns_fixed=columns_fixed, with_sheet=external)
-                 for area in self.areas]
+        texts = [area.address(rows_fixed=rows_fixed, columns_fixed=columns_fixed) for area in self.areas]
         if ReferenceStyle is not MISSING and int(to_integer(ReferenceStyle, "Long")) == -4150:  # xlR1C1
             # Relative parts count from RelativeTo, and from A1 without it, whatever is selected.
             anchor = RelativeTo.first if isinstance(RelativeTo, Range) else Area(1, 1, 1, 1)
             texts = [from_a1("=" + text, anchor.top, anchor.left)[1:] for text in texts]
-        return ",".join(book + text for text in texts)
+        prefix = ""
+        if external:
+            from pyopenvba._a1 import quote_sheet
+
+            owner, book = self.sheet.name, self.sheet.book.name
+            joined = f"[{book}]{owner}"
+            prefix = (("'" + joined.replace("'", "''") + "'")
+                      if quote_sheet(owner) != owner or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.]*", book) is None else joined) + "!"
+        return prefix + ",".join(texts)
 
     @member
     def AddressLocal(
@@ -4040,7 +4050,13 @@ class Names(VBACollection, ExcelObject):
 
         self._check_alive()
         entries = [entry for entry in self.entries if self.sheet is None or split_sheet(entry.name)[0].casefold() == self.sheet.name.casefold()]
-        return [DefinedName(entry) for entry in sorted(entries, key=lambda entry: (split_sheet(entry.name)[1].casefold(), entry.name.casefold()))]
+        from pyopenvba.apps.excel._names import collation
+
+        def order(entry: NameEntry) -> tuple[object, ...]:
+            scope, bare = split_sheet(entry.name)
+            return (collation(bare), 0 if scope else 1, collation(scope))
+
+        return [DefinedName(entry) for entry in sorted(entries, key=order)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
@@ -4097,7 +4113,12 @@ class Names(VBACollection, ExcelObject):
             # Measured (tests/fixtures/structured_references/): RefersTo will not take =Table1[Qty], though
             # RefersToR1C1 does.
             raise error(1004, "Application-defined or object-defined error")
-        text = "=" + ",".join(area.address(with_sheet=True) for area in refers.areas) if isinstance(refers, Range) else _names.qualify(to_text(refers), owner.name)
+        if isinstance(refers, Range):
+            from pyopenvba._a1 import quote_sheet
+
+            text = "=" + ",".join(quote_sheet(refers.sheet.name) + "!" + area.address() for area in refers.areas)
+        else:
+            text = _names.qualify(to_text(refers), owner.name)
         entry = next((one for one in self.entries if one.name.casefold() == wanted.casefold()), None)
         if entry is None:
             entry = NameEntry(wanted, text, self.book)

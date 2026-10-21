@@ -1,0 +1,150 @@
+{
+  "raw_files": {
+    "initial.json": "ec685b530df48ee8e79f7006853900b65dfdca1d92a3c121b5a06f65e071709f",
+    "followup.json": "e39ccdb73e5144322e0ad07d134333e141bdfd25b190a2ef2a6e7fc5689f31b5",
+    "clarifiers.json": "2a25c83610e6f3f79e7d9b281491780e20a0b9ecb06cf66dce726a4ef2f85e8a",
+    "granular.json": "a530588111971074021add26fe3733c42a94834729d9e71de906ecd76e8f575d"
+  },
+  "cases": {
+    "initial.json:defaults-and-options": {
+      "runtime": "admitted-full",
+      "source_sha256": "2cf5d802d6a3654a36d7252d28bd79ce16d2c592954b52ac246586e6bbe70a76",
+      "result_sha256": "a7a0c870b447df89405ec5f62effb654b79bcd581a52a501e76889c4c60f39d9"
+    },
+    "initial.json:ascending-formulas-styles-totals": {
+      "runtime": "admitted-full",
+      "source_sha256": "a776bf729a5495ae46271a8ef7bcb3658c97238dbb5ec0a32b80c715082412d1",
+      "result_sha256": "5c0ed9bfdc1b334f64ed9ba162dddb4c0c152c78a647bc946914102210ed74c4",
+      "sample": "ascending-formulas-styles-totals.xlsx",
+      "sample_sha256": "3ca2ee50990e04a37efc1c33fe403cbe897275a84e9f90dfcdb6b0a454487a8a",
+      "reopened_sha256": "6100b3e669f0e47fab35a9c416652effea9f92232fd674d03f2ae64c6b20124e",
+      "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
+    },
+    "initial.json:stable-multiple-text-numbers": {
+      "runtime": "admitted-full",
+      "source_sha256": "0223064821d8a75c834a03c5c30a37b7a82aa682ae3060554da65443b7d10d7b",
+      "result_sha256": "82c3f6cf85c10358b300b3306d65e99da8b4da888b8239852479f9b1ec80cc0a",
+      "sample": "stable-multiple-text-numbers.xlsx",
+      "sample_sha256": "e8e71ae94601f6e32fea834212141f25a7304afe98c089ee45e0dda815e08b04",
+      "reopened_sha256": "521c194095b6836f6337f934ff03b8841452ab365a4b8598afad447ca81b9184",
+      "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
+    },
+    "initial.json:hidden-headers": {
+      "runtime": "deferred-whole",
+      "source_sha256": "6ec00b1447cb9d4e43ea2364b4e904e2127d6c68d42a83723055c033fb826ba2",
+      "result_sha256": "8a2d49ad96c0baa345c5127b9ce7e4d945a78af003c41cb10c75ec70ba806f5e",
+      "sample": "hidden-headers.xlsx",
+      "sample_sha256": "c6a220f4a1b12957a39d9f35a67963612d2feda0d45f29917583bc8b0bff6dd6",
+      "reopened_sha256": "9945a50f6d00edb69e30f488394fd6b97ba48bd78d839811eb04d1abcdbecf9d",
+      "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
+    },
+    "initial.json:table-filtered-sort": {
+      "runtime": "deferred-whole",
+      "source_sha256": "7fd6c43994998c149dbd741ff4c4c6cfd50aa089e2d62ad1bb472af1e06367dc",
+      "result_sha256": "533305c6a196f5f68e419554a6ce6d1178049970376ca8755c36e52db85246d9",
+      "sample": "table-filtered-sort.xlsx",
+      "sample_sha256": "5af42422e23370afe9fbde442c1a532b6927a1f7abe45f142fe17c1962178e8d",
+      "reopened_sha256": "7e5faaa1d148cc282e2332f2ed3a12a573987832d8dd22b8981d46fc14321f21",
+      "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
+    },
+    "initial.json:held-resize-add-move": {
+      "runtime": "deferred-whole",
+      "source_sha256": "26edf9937d550496f4fb568290ef49b9380e99e7010dfa730e6ad474fa11a834",
+      "result_sha256": "9360142e8d359dc4a179718615ad08be8d376cf8ebce5905edee43b76dd5a734",
+      "sample": "held-resize-add-move.xlsx",
+      "sample_sha256": "2e646a69cfb2e9824dd20dbac15f696b185c1b2e307449063749483bba68489c",
+      "reopened_sha256": "d37d848fd38f4adca27c776a683e166e279c9d0b5610d74ff608fcaba7eca800",
+      "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
+    },
+    "initial.json:empty-fields-clear": {
+      "runtime": "admitted-full",
+      "source_sha256": "7ef947867c6606f44c48eeab18c1e6c069a4958812cb4a965fcf30184d271949",
+      "result_sha256": "4e9773dc7e5f4ad2fe2965485fd373b88a3866f901fc91213991f70d5d9221b5"
+    },
+    "initial.json:invalid-key-ranges": {
+      "runtime": "deferred-whole",
+      "source_sha256": "e41b2df64ef8c187f44bfb80120045fd06d074e590e83f3f71ff59e21addc80c",
+      "result_sha256": "1cb349a2dacd3944ce96d64ca13005b1efc6d2476895bca0c88b38b537312418"
+    },
+    "initial.json:protected-sort": {
+      "runtime": "admitted-full",
+      "source_sha256": "9eebcd95c09872e861109e93c5dfdefb81965112433c870bfc547e83b1538fd6",
+      "result_sha256": "5e445b0818d22d0e8dd223004b5d059bd82bef245cd60f27430290e0b0c20a58"
+    },
+    "initial.json:worksheet-udf-sort": {
+      "runtime": "admitted-full",
+      "source_sha256": "ccf6cb7f69723e461c74e879b3b491e2a2629a7deefae3bfe2a1697cd425d2ed",
+      "result_sha256": "11f1ed8a90810fc4ecbe1a9cda60cc8effd295b64129aaecff6da40023baefcc"
+    },
+    "initial.json:events-auto-manual-disabled": {
+      "runtime": "admitted-full",
+      "source_sha256": "9e8c6ecacf673956312cdaac6430a5e49f7e866f8e9684f72f32d21347ca176c",
+      "result_sha256": "fed78287a6f9b4be6980ff5dcb3649f78de910c173fd41532cc054d520327ad8"
+    },
+    "initial.json:independent-table-sheet-settings": {
+      "runtime": "admitted-full",
+      "source_sha256": "426af65d235534ec6f4975821f2bf8e5133840c0392e23115a529a1496806cfa",
+      "result_sha256": "9b255d552cb4f4809f2422cb5ba6e08253fe482466b231df5d27a564378879b6",
+      "sample": "independent-table-sheet-settings.xlsx",
+      "sample_sha256": "5c96b3332bf47271febbec894bd466709e39bab4ac59edd68f02b7810850567e",
+      "reopened_sha256": "f45f33a4b3148107651386cfcc17c8d4180b987d489f85a6e2dca880ed8eef08",
+      "inspection_source_sha256": "bf82292b5f6b5785dc25fc1eefe62b475d4ffc8f088f84e4b2a5db51f5bf2fdb"
+    },
+    "followup.json:direct-getters-and-key-span": {
+      "runtime": "admitted-full",
+      "source_sha256": "de925183b10e65533212619f1f2caa26f83f33001cb53a5ed21fb9cdcbc1f65d",
+      "result_sha256": "4df034744b7037f2c43a4a7c7fa47edc7a7106c2ee20356e3588cde29572714f",
+      "sample": "direct-getters-and-key-span.xlsx",
+      "sample_sha256": "1045c1064470e155f586f0af8ca41e781b14b6f0054fbf0e4439dd4d842a3033",
+      "reopened_sha256": "da251ac63b297417fa6794746c8f528be69c602c211c1c34e65fecd106865919",
+      "inspection_source_sha256": "484fe88952c7b4b628de794f40bbac70caa2780d6fb67f749cc599c583d04988"
+    },
+    "followup.json:header-and-enum-controls": {
+      "runtime": "deferred-whole",
+      "source_sha256": "81ef4664662679b59f0fccb6e8c518a3c592cc6f7e18b12e6d8976f5ad22eafc",
+      "result_sha256": "4b6a5f9cf6384511e3aa4790ab78bf15e76e6202bc1ee932e443e2698a750d83"
+    },
+    "followup.json:direct-held-lifecycle": {
+      "runtime": "deferred-whole",
+      "source_sha256": "e426088db46bb4b9f778cc8ee7cfcb5290da7410aa716e81175a1f0133e19404",
+      "result_sha256": "b858cb5cb229d2297e5cf9d69ac432dbc6337ac1cbf8e64ef9202185f13a9391",
+      "sample": "direct-held-lifecycle.xlsx",
+      "sample_sha256": "7b9b190472273894772f762e4cf45ffbfdb34fb9214f4401e2a013da060c09ca",
+      "reopened_sha256": "d37d848fd38f4adca27c776a683e166e279c9d0b5610d74ff608fcaba7eca800",
+      "inspection_source_sha256": "484fe88952c7b4b628de794f40bbac70caa2780d6fb67f749cc599c583d04988"
+    },
+    "followup.json:filtered-descending-blank-tails": {
+      "runtime": "deferred-whole",
+      "source_sha256": "94eae569ecc06b3d9de80bba7d09e92955434d85ba387e0e0aba30bdd5c63e0e",
+      "result_sha256": "c29f11ad37dc7d6e5f44eb8c3d884c4bb0e12eddd52d18ce4a24d3bd1f6e5223",
+      "sample": "filtered-descending-blank-tails.xlsx",
+      "sample_sha256": "37bd9d1b49b1dcbb6fc65dbd4946c798019c833ba6119507c7b7b8b02a19feff",
+      "reopened_sha256": "b122569ae3313b1c3d889a2f2a173851913163b6bbc0ff0e06759d74ba7cb06c",
+      "inspection_source_sha256": "484fe88952c7b4b628de794f40bbac70caa2780d6fb67f749cc599c583d04988"
+    },
+    "clarifiers.json:typed-versus-dynamic-hidden-getters": {
+      "runtime": "admitted-full",
+      "source_sha256": "56d5fd0c3404f005b2fa000e5b07f858ca2775b608dde085034b3c571ee6a564",
+      "result_sha256": "f4e870f2a334168d66aedba916f5d865d74a6aaf59dd35038795c7c43eb8de4b",
+      "sample": "typed-versus-dynamic-hidden-getters.xlsx",
+      "sample_sha256": "bc49b36cf2a84c06272cd4265ee587cf1c02a8d7a14882c8c8651c1e6ee87f3f",
+      "reopened_sha256": "035224e684a1666a4a73cfaa79373d83e710deb0958fa6bd142439fd65cf3654",
+      "inspection_source_sha256": "649a4b0b67a80c5b17f45893fc20b43211c1787e5614f8bfa567f383e27a387b"
+    },
+    "clarifiers.json:fresh-versus-held-options": {
+      "runtime": "deferred-whole",
+      "source_sha256": "5b4b2c84c91283f4685bebebf6f1487524c4f4e5f95df2b7ef5655594015ddc5",
+      "result_sha256": "2e32d0fa3622c0ef0f44c691e3d8741fd677a53c548ce4b0812db2a67f2119a3",
+      "sample": "fresh-versus-held-options.xlsx",
+      "sample_sha256": "91b4d105826c29102097a68f956740d1724c5082d182e8d9ab7d3778af32965b",
+      "reopened_sha256": "035224e684a1666a4a73cfaa79373d83e710deb0958fa6bd142439fd65cf3654",
+      "inspection_source_sha256": "649a4b0b67a80c5b17f45893fc20b43211c1787e5614f8bfa567f383e27a387b"
+    },
+    "granular.json:separate-range-assignment-and-parent": {
+      "runtime": "admitted-full",
+      "source_sha256": "bc05c98deba4332f575b7976f673da9ea5ac442872e5869d987c3e662f962a91",
+      "result_sha256": "09cc87363924b6e43af4d53efe791ebe9375e2afb1169f0d2c52eadc4c44cf5a"
+    }
+  },
+  "projection": "None. Admitted controls replay complete source/result strings unchanged. Eight other raw controls are retained whole as deferred evidence; independently successful native-input Snapshot/save/reopen checks do not admit their original mutation paths."
+}

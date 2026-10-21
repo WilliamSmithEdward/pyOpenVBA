@@ -1,0 +1,272 @@
+{
+  "started_utc": "2026-10-21T00:24:54.984538+00:00",
+  "instrumentation": "one owned ExcelSession; line_numbers=False; six controls; raw result and errors; native51 inputs",
+  "probes": [
+    {
+      "name": "fresh-unapplied-options",
+      "loaded": false,
+      "setup_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nDim w As Worksheet,s As Sort\nSet w=ActiveSheet\nw.Name=\"Data\"\nw.Range(\"J1:K1\").Value=Array(\"Key\",\"Value\")\nw.Range(\"J2:J5\").Value=3\nw.Range(\"J3\").Value=1:w.Range(\"J4\").Value=2\nSet s=w.Sort\ns.SetRange w.Range(\"J1:K5\")\ns.Header=2\ns.SortFields.Add w.Range(\"J2:J5\"),0,1\nPrepare=SortSnapshot()\nEnd Function\n",
+      "inspection_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "setup": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim s As Sort\nSet s=ActiveSheet.Sort\ns.MatchCase=True\ns.SortMethod=2\ns.Orientation=2\ns.SortFields(1).DataOption=1\nProbe=SortSnapshot()\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "result": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=True;orientation=2;method=2;fields=1[$J$2:$J$5:1:1];rng=$J$1:$K$5"
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\fresh-unapplied-options.xlsx",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{F880675E-FEBA-4D7F-839B-F1570FF8D25D}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"J1:K5\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J1\" t=\"s\"><v>0</v></c><c r=\"K1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J2\"><v>3</v></c></row><row r=\"3\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J3\"><v>1</v></c></row><row r=\"4\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J4\"><v>2</v></c></row><row r=\"5\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J5\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "reopened": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=0;rng=ERR:1004"
+      }
+    },
+    {
+      "name": "fresh-applied-edited-field",
+      "loaded": false,
+      "setup_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nDim w As Worksheet,s As Sort\nSet w=ActiveSheet\nw.Name=\"Data\"\nw.Range(\"J1:K1\").Value=Array(\"Key\",\"Value\")\nw.Range(\"J2:J5\").Value=3\nw.Range(\"J3\").Value=1:w.Range(\"J4\").Value=2\nSet s=w.Sort\ns.SetRange w.Range(\"J1:K5\")\ns.Header=2\ns.SortFields.Add w.Range(\"J2:J5\"),0,1\nPrepare=SortSnapshot()\nEnd Function\n",
+      "inspection_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "setup": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim s As Sort\nSet s=ActiveSheet.Sort\ns.Apply\ns.SortFields(1).Order=2\ns.SortFields(1).DataOption=1\ns.MatchCase=True\nProbe=SortSnapshot()\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "result": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=True;orientation=1;method=1;fields=1[$J$2:$J$5:2:1];rng=$J$1:$K$5"
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\fresh-applied-edited-field.xlsx",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{6C665583-D7AB-466F-A7D4-C13B1A193152}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"J1:K5\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J1\"><v>1</v></c></row><row r=\"2\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J2\"><v>2</v></c></row><row r=\"3\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J3\"><v>3</v></c></row><row r=\"4\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J4\"><v>3</v></c></row><row r=\"5\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J5\" t=\"s\"><v>0</v></c><c r=\"K5\" t=\"s\"><v>1</v></c></row></sheetData><sortState caseSensitive=\"1\" ref=\"J1:K5\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" ref=\"J2:J5\"/></sortState><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "reopened": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=True;orientation=1;method=1;fields=1[$J$2:$J$5:2:0];rng=$J$1:$K$5"
+      }
+    },
+    {
+      "name": "loaded-options",
+      "loaded": true,
+      "setup_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nDim w As Worksheet,s As Sort\nSet w=ActiveSheet\nw.Name=\"Data\"\nw.Range(\"J1:K1\").Value=Array(\"Key\",\"Value\")\nw.Range(\"J2:J5\").Value=3\nw.Range(\"J3\").Value=1:w.Range(\"J4\").Value=2\nSet s=w.Sort\ns.SetRange w.Range(\"J1:K5\")\ns.Header=2\ns.SortFields.Add w.Range(\"J2:J5\"),0,1\nPrepare=SortSnapshot()\nEnd Function\n",
+      "inspection_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "setup": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-options-before.xlsx",
+      "input_save": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "loaded_before": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim s As Sort\nSet s=ActiveSheet.Sort\ns.MatchCase=True\ns.SortMethod=2\ns.Orientation=2\ns.Header=1\nProbe=SortSnapshot()\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "result": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=1;case=True;orientation=2;method=2;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-options.xlsx",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{3E68DC20-3FBD-4166-BC7B-20735004B6EB}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"J1:K5\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J1\" t=\"s\"><v>0</v></c><c r=\"K1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J2\"><v>3</v></c></row><row r=\"3\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J3\"><v>1</v></c></row><row r=\"4\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J4\"><v>2</v></c></row><row r=\"5\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J5\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "reopened": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=0;rng=ERR:1004"
+      }
+    },
+    {
+      "name": "loaded-field-order-option",
+      "loaded": true,
+      "setup_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nDim w As Worksheet,s As Sort\nSet w=ActiveSheet\nw.Name=\"Data\"\nw.Range(\"J1:K1\").Value=Array(\"Key\",\"Value\")\nw.Range(\"J2:J5\").Value=3\nw.Range(\"J3\").Value=1:w.Range(\"J4\").Value=2\nSet s=w.Sort\ns.SetRange w.Range(\"J1:K5\")\ns.Header=2\ns.SortFields.Add w.Range(\"J2:J5\"),0,1\nPrepare=SortSnapshot()\nEnd Function\n",
+      "inspection_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "setup": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-field-order-option-before.xlsx",
+      "input_save": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "loaded_before": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim s As Sort\nSet s=ActiveSheet.Sort\ns.SortFields(1).Order=2\ns.SortFields(1).DataOption=1\nProbe=SortSnapshot()\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "result": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:2:1];rng=$J$1:$K$5"
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-field-order-option.xlsx",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{611E5888-2EC6-4DA8-B227-0C683940EE5A}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"J1:K5\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J1\" t=\"s\"><v>0</v></c><c r=\"K1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J2\"><v>3</v></c></row><row r=\"3\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J3\"><v>1</v></c></row><row r=\"4\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J4\"><v>2</v></c></row><row r=\"5\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J5\"><v>3</v></c></row></sheetData><sortState ref=\"J1:K5\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" ref=\"J2:J5\"/></sortState><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "reopened": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:2:0];rng=$J$1:$K$5"
+      }
+    },
+    {
+      "name": "loaded-clear",
+      "loaded": true,
+      "setup_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nDim w As Worksheet,s As Sort\nSet w=ActiveSheet\nw.Name=\"Data\"\nw.Range(\"J1:K1\").Value=Array(\"Key\",\"Value\")\nw.Range(\"J2:J5\").Value=3\nw.Range(\"J3\").Value=1:w.Range(\"J4\").Value=2\nSet s=w.Sort\ns.SetRange w.Range(\"J1:K5\")\ns.Header=2\ns.SortFields.Add w.Range(\"J2:J5\"),0,1\nPrepare=SortSnapshot()\nEnd Function\n",
+      "inspection_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "setup": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-clear-before.xlsx",
+      "input_save": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "loaded_before": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim s As Sort\nSet s=ActiveSheet.Sort\ns.SortFields.Clear\nProbe=SortSnapshot()\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "result": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=0;rng=ERR:1004"
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-clear.xlsx",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{51616012-5CC8-42B9-8F40-35A38E9B5F24}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"J1:K5\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J1\" t=\"s\"><v>0</v></c><c r=\"K1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J2\"><v>3</v></c></row><row r=\"3\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J3\"><v>1</v></c></row><row r=\"4\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J4\"><v>2</v></c></row><row r=\"5\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J5\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "reopened": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=0;rng=ERR:1004"
+      }
+    },
+    {
+      "name": "loaded-replace-range-fields",
+      "loaded": true,
+      "setup_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Prepare() As String\nDim w As Worksheet,s As Sort\nSet w=ActiveSheet\nw.Name=\"Data\"\nw.Range(\"J1:K1\").Value=Array(\"Key\",\"Value\")\nw.Range(\"J2:J5\").Value=3\nw.Range(\"J3\").Value=1:w.Range(\"J4\").Value=2\nSet s=w.Sort\ns.SetRange w.Range(\"J1:K5\")\ns.Header=2\ns.SortFields.Add w.Range(\"J2:J5\"),0,1\nPrepare=SortSnapshot()\nEnd Function\n",
+      "inspection_source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\n",
+      "setup": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=2;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "input_file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-replace-range-fields-before.xlsx",
+      "input_save": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "loaded_before": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=1[$J$2:$J$5:1:0];rng=$J$1:$K$5"
+      },
+      "source": "Function SortSnapshot() As String\nOn Error GoTo Failed\nDim s As Sort,f As SortField,r As Range,v As Variant,out As String\nSet s=ActiveSheet.Sort\nout=\"header=\" & s.Header & \";case=\" & s.MatchCase & \";orientation=\" & s.Orientation & \";method=\" & s.SortMethod & \";fields=\" & s.SortFields.Count\nFor Each f In s.SortFields\nSet r=f.Key\nout=out & \"[\" & r.Address & \":\" & f.Order & \":\" & f.DataOption & \"]\"\nNext\nout=out & \";rng=\"\nOn Error Resume Next\nSet r=s.Rng\nIf Err.Number<>0 Then\nout=out & \"ERR:\" & Err.Number\nErr.Clear\nElse\nout=out & r.Address\nEnd If\nOn Error GoTo Failed\nSortSnapshot=out\nExit Function\nFailed:\nSortSnapshot=out & \";ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function\nFunction Probe() As String\nOn Error GoTo Failed\nDim s As Sort\nSet s=ActiveSheet.Sort\ns.SetRange ActiveSheet.Range(\"M1:N5\")\ns.SortFields.Clear\ns.SortFields.Add ActiveSheet.Range(\"N2:N5\"),0,2\nProbe=SortSnapshot()\nExit Function\nFailed:\nProbe=\"ERR:\" & Err.Number & \":\" & Err.Description\nEnd Function",
+      "result": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=1[$N$2:$N$5:2:0];rng=ERR:1004"
+      },
+      "file": "C:\\Users\\William\\.codex\\worktrees\\excel-table-sort\\pyOpenVBA\\.cache\\worksheet-sort-persistence-samples\\loaded-replace-range-fields.xlsx",
+      "save_status": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": null
+      },
+      "xml": {
+        "xl/worksheets/sheet1.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{8BDE8318-AD00-4A71-892D-DC83E19261B1}\"><sheetPr codeName=\"Sheet1\"/><dimension ref=\"J1:K5\"/><sheetViews><sheetView tabSelected=\"1\" workbookViewId=\"0\"/></sheetViews><sheetFormatPr defaultRowHeight=\"15\" x14ac:dyDescent=\"0.25\"/><sheetData><row r=\"1\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J1\" t=\"s\"><v>0</v></c><c r=\"K1\" t=\"s\"><v>1</v></c></row><row r=\"2\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J2\"><v>3</v></c></row><row r=\"3\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J3\"><v>1</v></c></row><row r=\"4\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J4\"><v>2</v></c></row><row r=\"5\" spans=\"10:11\" x14ac:dyDescent=\"0.25\"><c r=\"J5\"><v>3</v></c></row></sheetData><pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>"
+      },
+      "reopened": {
+        "ok": true,
+        "dialogs": [],
+        "error": "None",
+        "value": "header=0;case=False;orientation=1;method=1;fields=0;rng=ERR:1004"
+      }
+    }
+  ],
+  "session_id": "da19c4c61460",
+  "excel_pid": 51672,
+  "completed": true,
+  "closed_utc": "2026-10-21T00:25:05.272160+00:00"
+}

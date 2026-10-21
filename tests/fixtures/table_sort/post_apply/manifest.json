@@ -1,0 +1,25 @@
+{
+  "raw_sha256": "11a65f9f82bed5aa3dd6819381cd2dc3882be5a6f80eb63dc962ee3b28e172ef",
+  "cases": {
+    "fresh-applied-order-options": {
+      "source_sha256": "53902f602b987412cfd22f272ccc6032fe873918aeeb732fec45079cc1e60f90",
+      "result_sha256": "eeb1503648cca6537b9cc4146783a1c2203878418e568b290d7af4bfd4a53323",
+      "reopened_sha256": "b564f707a5e81f25ff3912efcd171c9a45b782d7a15356c0a03796ad20e5f667"
+    },
+    "imported-order-options": {
+      "source_sha256": "53902f602b987412cfd22f272ccc6032fe873918aeeb732fec45079cc1e60f90",
+      "result_sha256": "9eaafb9b0be9b4ed9bca0d9cb8649fec5dbb6f7e9b5060d0b01b28f52429b75c",
+      "reopened_sha256": "ec25f502a99394da092ea14c009b053ebb739a0386db87bbf5f3a963b408f6c8"
+    },
+    "imported-clear": {
+      "source_sha256": "1ce3ba970eb99b8be6b1862d16cf56e88e22ffdc9ec535a9cd51d0028213f90d",
+      "result_sha256": "2a821438856385bf6df18899afafd646a4391a9fa00f5c21ff1b45a98fe72131",
+      "reopened_sha256": "2a821438856385bf6df18899afafd646a4391a9fa00f5c21ff1b45a98fe72131"
+    }
+  },
+  "samples": {
+    "fresh-applied-order-options.xlsx": "9dd7f46c75150a4768142c3bcea9f80a85ffd955cee0e54a9ccbe6f22badcca9",
+    "imported-order-options.xlsx": "605c2bf3ea72697690b56d32e75de2858e4edcd56dbbe9f638e6d7067fe21fe7",
+    "imported-clear.xlsx": "dfc49a3e2158ad650a7368a1d4b2ad4d141e3f207807e03d7befb55c9495f845"
+  }
+}

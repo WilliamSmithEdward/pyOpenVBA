@@ -133,3 +133,123 @@ def _tag_end(data: bytes, at: int) -> int:
         elif char == 62:
             return index + 1
     raise ValueError("Unterminated XML tag")
+
+
+@dataclass
+class OpcElement:
+    """A bounded selected subtree, with expanded names and text-presence flags."""
+
+    name: str
+    attributes: dict[str, str]
+    children: list[OpcElement] = field(default_factory=lambda: [])
+    has_text: bool = False
+    has_opaque: bool = False
+
+    def get(self, name: str, default: str = '') -> str:
+        return self.attributes.get(name, default)
+
+
+def bounded_child(data: bytes, namespace: str, root_name: str, child_name: str, *,
+                  max_bytes: int, max_elements: int) -> OpcElement | None:
+    """Scan the original document, retaining only one bounded direct child.
+
+    Same-local-name nodes in other namespaces or nested containers are refused,
+    rather than treated as an absent ordinary child. Unrelated sheet data is
+    streamed without an ElementTree or a document-size admission limit.
+    """
+    if max_bytes < 1 or max_elements < 1:
+        raise ValueError('Invalid metadata budget')
+    if any(re.fullmatch(r'[A-Za-z_][A-Za-z0-9_.-]*', name) is None for name in (root_name, child_name)):
+        raise ValueError('Invalid OPC element name')
+    if b'\x00' in data:
+        raise ValueError('OPC metadata must use UTF-8')
+    parser = expat.ParserCreate(encoding='utf-8', namespace_separator='}')
+    depth = 0
+    found: OpcElement | None = None
+    stack: list[OpcElement] = []
+    self_closing: list[bool] = []
+    beginning = 0
+    retained = 0
+    expected_root, expected_child = namespace + '}' + root_name, namespace + '}' + child_name
+
+    def refuse(*_args: object) -> NoReturn:
+        raise ValueError('Office XML must not contain DTDs or declared entities')
+
+    def budget(extra: int = 0) -> None:
+        if parser.CurrentByteIndex - beginning + extra > max_bytes:
+            raise ValueError('Selected OPC metadata exceeds its byte budget')
+
+    def start(name: str, attrs: dict[str, str]) -> None:
+        nonlocal depth, found, beginning, retained
+        level = depth
+        depth += 1
+        if depth > 256:
+            raise ValueError('Office XML nesting exceeds its supported depth')
+        if level == 0 and name != expected_root:
+            raise ValueError('Unexpected OPC document root')
+        if name.rsplit('}', 1)[-1] == child_name:
+            if level != 1 or name != expected_child or found is not None:
+                raise ValueError('Repeated, wrapped or foreign OPC metadata')
+            beginning = parser.CurrentByteIndex
+            found = OpcElement(name, attrs)
+            stack.append(found)
+            retained = 1
+        elif stack:
+            retained += 1
+            if retained > max_elements:
+                raise ValueError('Selected OPC metadata exceeds its element budget')
+            node = OpcElement(name, attrs)
+            stack[-1].children.append(node)
+            stack.append(node)
+        if stack:
+            opening_end = _tag_end(data, parser.CurrentByteIndex)
+            self_closing.append(data[opening_end - 2:opening_end] == b'/>')
+            budget(sum(len(key) + len(value) for key, value in attrs.items()))
+
+    def end(_name: str) -> None:
+        nonlocal depth
+        depth -= 1
+        if stack:
+            at = parser.CurrentByteIndex
+            # Explicit end callbacks point at </name>; self-closing callbacks
+            # already point past /> and must not charge the next sibling.
+            closing_bytes = 0 if self_closing.pop() else _tag_end(data, at) - at
+            budget(closing_bytes)
+            stack.pop()
+
+    def text(value: str) -> None:
+        if stack:
+            budget(len(value))
+            if value.strip():
+                stack[-1].has_text = True
+
+    def opaque(*values: str) -> None:
+        if stack:
+            budget(sum(len(value) for value in values))
+            stack[-1].has_opaque = True
+
+    def declaration(_version: str, encoding: str | None, _standalone: int) -> None:
+        if encoding is not None and encoding.lower().replace('-', '') != 'utf8':
+            raise ValueError('OPC metadata must use UTF-8')
+
+    parser.XmlDeclHandler = declaration
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    parser.StartElementHandler = start
+    parser.EndElementHandler = end
+    parser.CharacterDataHandler = text
+    parser.CommentHandler = opaque
+    parser.ProcessingInstructionHandler = opaque
+    parser.StartCdataSectionHandler = opaque
+    parser.StartDoctypeDeclHandler = refuse
+    parser.EntityDeclHandler = refuse
+    parser.ExternalEntityRefHandler = refuse
+    parser.SkippedEntityHandler = refuse
+    try:
+        for offset in range(0, len(data), 65_536):
+            parser.Parse(data[offset:offset + 65_536], False)
+            if stack and min(offset + 65_536, len(data)) - beginning > max_bytes:
+                raise ValueError('Selected OPC metadata exceeds its byte budget')
+        parser.Parse(b'', True)
+    except expat.ExpatError as failure:
+        raise ValueError('Invalid Office XML') from failure
+    return found

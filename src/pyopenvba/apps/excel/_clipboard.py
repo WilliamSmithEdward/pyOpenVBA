@@ -511,6 +511,12 @@ def _column_widths(source_sheet: Worksheet, made: Block, target: Range) -> None:
 
 def move(source: Range, area: Area, destination: Range) -> None:
     """Cut ``area`` to ``destination``'s top-left cell, taking every reference to it along."""
+    from pyopenvba.apps.excel._table_sort import guard_edit
+
+    for table in source.sheet.tables:
+        if not (area.bottom < table.area.top or table.area.bottom < area.top
+                or area.right < table.area.left or table.area.right < area.left):
+            guard_edit(table, 'moving')
     if source.sheet.advanced_filter is not None or destination.sheet.advanced_filter is not None:
         raise VBAUnsupportedError('Moving cells on an advanced-filtered sheet is not implemented')
     from pyopenvba.apps.excel import _merges
@@ -523,6 +529,10 @@ def move(source: Range, area: Area, destination: Range) -> None:
     landing = Area(top, left, top + area.rows - 1, left + area.columns - 1, target.name)
     if landing.bottom > MAX_ROWS or landing.right > MAX_COLUMNS:
         raise error(1004, "The cells would move past the edge of the worksheet")
+    for table in target.tables:
+        if not (landing.bottom < table.area.top or table.area.bottom < landing.top
+                or landing.right < table.area.left or table.area.right < landing.left):
+            guard_edit(table, 'moving cells into')
     conditional_copy_admitted(sheet, [area], target, [landing])
     from pyopenvba.apps.excel._conditional import NS
     from pyopenvba.apps.excel._xstring import decode

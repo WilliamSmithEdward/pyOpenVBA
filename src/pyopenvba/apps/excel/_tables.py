@@ -32,7 +32,7 @@ from __future__ import annotations
 import re
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field as dataclass_field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -47,6 +47,7 @@ from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MI
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook, Worksheet
+    from pyopenvba.apps.excel._sort import SortState
 
 #: ListObjects.Add's SourceType for a range of the sheet, and its answers to whether the range has headers.
 SOURCE_RANGE = 1
@@ -106,7 +107,8 @@ class Table:
     #: The part as the file had it, kept while nothing about the table changes.
     xml: str = ""
     changed: bool = False
-    view: ListObject | None = field(default=None, repr=False)
+    view: ListObject | None = dataclass_field(default=None, repr=False)
+    sort_state: SortState | None = dataclass_field(default=None, repr=False)
 
     @property
     def header_row(self) -> int:
@@ -181,7 +183,7 @@ def _column_name(text: str) -> str:
     return re.sub(r"_x([0-9A-Fa-f]{4})_", lambda found: chr(int(found.group(1), 16)), text)
 
 
-def table_xml(table: Table) -> str:
+def base_table_xml(table: Table) -> str:
     """The part for a table the model made, as Excel writes one."""
     reference = table.area.address(absolute=False)
     header = "" if table.headers else ' headerRowCount="0"'
@@ -203,7 +205,7 @@ def table_xml(table: Table) -> str:
             f'<tableColumns count="{len(table.columns)}">{columns}</tableColumns>{style}</table>')
 
 
-def patched_xml(table: Table) -> str:
+def _patched_xml(table: Table) -> str:
     """A table read from a file, its part brought up to date: name, block, AutoFilter and style changed in
     place, everything else -- totals, calculated columns, a query's fields -- as the file had it."""
     xml = table.xml
@@ -247,6 +249,18 @@ def patched_xml(table: Table) -> str:
     if shown is not None:
         return xml[: shown.start()] + style + xml[shown.end():]
     return xml.replace("</table>", style + "</table>", 1)
+
+
+def table_xml(table: Table) -> str:
+    from pyopenvba.apps.excel._table_sort import write_state
+
+    return write_state(table, base_table_xml(table))
+
+
+def patched_xml(table: Table) -> str:
+    from pyopenvba.apps.excel._table_sort import write_state
+
+    return write_state(table, _patched_xml(table))
 
 
 def _totals_counts(table: Table) -> str:
@@ -669,9 +683,13 @@ def edit_admitted(sheet: Worksheet, *, rows: bool, start: int, count: int, delet
     """Report, before anything moves, an insert or delete of whole rows or columns the model does not carry
     through a table: any through its columns, which Excel makes table columns of, and a delete of its header row
     or of all of it."""
+    from pyopenvba.apps.excel._table_sort import guard_edit
+
     end = start + count - 1
     for table in sheet.tables:
         area = table.area
+        if start <= (area.bottom if rows else area.right):
+            guard_edit(table, 'structurally shifting')
         if not rows:
             if (delete and start <= area.right and area.left <= end) or (not delete and area.left < start <= area.right):
                 raise VBAUnsupportedError("inserting or deleting columns through a table is not implemented")
@@ -785,6 +803,12 @@ class ListObject(ExcelObject):
     @member
     def Parent(self) -> object:
         return self.sheet
+
+    @member
+    def Sort(self) -> object:
+        from pyopenvba.apps.excel._table_sort import TableSortObject
+
+        return TableSortObject(self.table)
 
     @member
     def Range(self) -> object:

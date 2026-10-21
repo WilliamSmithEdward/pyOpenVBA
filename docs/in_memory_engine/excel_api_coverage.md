@@ -266,7 +266,9 @@ mutation; pending caches retain their standard error 1004.
 Evidence includes **four initial controls**, **nine follow-up controls** and
 **five successful calculation/event controls**, plus **two imported-refresh
 controls**, **three growth/collision controls**, and seven native macro-enabled save/reopen samples. Seven engine-generated
-and imported-refreshed output workbooks also reopen successfully in native Excel. Eighteen admitted runtime
+and imported-refreshed output workbooks also reopen successfully in native Excel. The existing
+macro-free simple Pivot fixture also has a model source-edit, refresh and
+save/reopen regression. Eighteen admitted runtime
 cases compare complete operation output;
 five explicitly project only host-specific `Application.Build` metadata while
 preserving the original raw results. Automatic source formulas refresh normally;

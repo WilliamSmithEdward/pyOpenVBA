@@ -6,7 +6,7 @@ import json
 import os
 from collections.abc import Iterator
 from hashlib import sha256
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 from zipfile import ZipFile
 
@@ -153,7 +153,7 @@ def test_handler_error_control_is_diagnostic_without_a_state_oracle_claim() -> N
 def test_native_post_import_refresh_and_generated_reopen(case: dict[str, Any], tmp_path: Path) -> None:
     assert sha256(case['source'].encode()).hexdigest() == MANIFEST['cases'][
         'imported.json:' + case['name']]['source_sha256']
-    app = ExcelApplication.open(ROOT / Path(case['input_file']).name, with_vba=False)
+    app = ExcelApplication.open(ROOT / PureWindowsPath(case['input_file']).name, with_vba=False)
     app.add_module(case['inspection_source'], name='RefreshProbe')
     app.add_module(case['source'], name='ImportedRefresh')
     sheet = app.workbook.sheets_[0]
@@ -176,7 +176,7 @@ def test_native_post_import_refresh_and_generated_reopen(case: dict[str, Any], t
 
 @pytest.mark.parametrize('case', IMPORTED, ids=lambda case: case['name'])
 def test_native_post_import_refreshed_input_rewrite(case: dict[str, Any], tmp_path: Path) -> None:
-    app = ExcelApplication.open(ROOT / Path(case['file']).name, with_vba=False)
+    app = ExcelApplication.open(ROOT / PureWindowsPath(case['file']).name, with_vba=False)
     app.add_module(case['inspection_source'], name='RefreshProbe')
     assert app.run('Snapshot') == case['reopened']
     first = next(table for sheet in app.workbook.sheets_ for table in sheet.pivot_tables
@@ -206,7 +206,7 @@ def test_generated_pivot_refresh_native_excel_reopen(
     if kind == 'generated':
         app = configured(case)
     else:
-        app = ExcelApplication.open(ROOT / Path(case['input_file']).name, with_vba=False)
+        app = ExcelApplication.open(ROOT / PureWindowsPath(case['input_file']).name, with_vba=False)
         app.add_module(case['inspection_source'], name='RefreshProbe')
         app.add_module(case['source'], name='ImportedRefresh')
     assert app.run('Probe') == case['raw_result']

@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._styles import Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
+    from pyopenvba.apps.excel._outline import OutlineState
     from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
@@ -1091,6 +1092,7 @@ class Worksheet(ExcelObject):
         #: The sheet's tables, in the order its file lists them (see _tables).
         self.tables: list[Table] = []
         self.pivot_tables: list[PivotTable] = []
+        self.outline_state: OutlineState | None = None
         self.page_setup_state: PageState | None = None
         self.page_print_names_owned: set[str] = set()
         #: The sheet's data validation rules, in the order its file lists them (see _validation).
@@ -1495,6 +1497,12 @@ class Worksheet(ExcelObject):
     @member
     def FilterMode(self) -> object:
         return self.advanced_filter is not None or (self.auto_filter is not None and bool(self.auto_filter.fields))
+
+    @member
+    def Outline(self) -> object:
+        from pyopenvba.apps.excel._outline import Outline
+
+        return Outline(self)
 
     @member
     def PageSetup(self) -> object:
@@ -2802,6 +2810,51 @@ class Range(ExcelObject):
     def Top(self) -> object:
         return _dimensions.read_top(self)
 
+    @method
+    def Group(self, start: object = MISSING, end: object = MISSING, by: object = MISSING,
+              periods: object = MISSING) -> object:
+        from pyopenvba.apps.excel._outline import group
+
+        if any(value is not MISSING for value in (start, end, by, periods)):
+            raise VBAUnsupportedError('Group with pivot/date/number arguments is not implemented')
+        return group(self, 'Group')
+
+    @method
+    def Ungroup(self) -> object:
+        from pyopenvba.apps.excel._outline import group
+
+        return group(self, 'Ungroup')
+
+    @method
+    def ClearOutline(self) -> object:
+        from pyopenvba.apps.excel._outline import group
+
+        return group(self, 'ClearOutline')
+
+    @member
+    def OutlineLevel(self) -> object:
+        from pyopenvba.apps.excel._outline import read_level
+
+        return read_level(self)
+
+    @setter('OutlineLevel')
+    def _set_outline_level(self, value: object) -> None:
+        from pyopenvba.apps.excel._outline import set_level
+
+        set_level(self, value)
+
+    @member
+    def ShowDetail(self) -> object:
+        from pyopenvba.apps.excel._outline import read_detail
+
+        return read_detail(self)
+
+    @setter('ShowDetail')
+    def _set_show_detail(self, value: object) -> None:
+        from pyopenvba.apps.excel._outline import set_detail
+
+        set_detail(self, value)
+
     @member
     def Hidden(self) -> object:
         return _dimensions.read_hidden(self)
@@ -3184,6 +3237,9 @@ class Range(ExcelObject):
         if bottom > MAX_ROWS or right > MAX_COLUMNS:
             raise error(1004, "Copy would extend beyond the worksheet")
         written = Area(target.top, target.left, bottom, right)
+        from pyopenvba.apps.excel._outline import guard_axis_copy
+
+        guard_axis_copy(self.sheet, area, Destination.sheet, written)
         from pyopenvba.apps.excel._conditional_transfer import plan as conditional_plan_for
         from pyopenvba.apps.excel._protection import whole
 

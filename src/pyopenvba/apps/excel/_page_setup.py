@@ -104,6 +104,17 @@ def _patch(xml: str, root_name: str, path: tuple[str, ...], values: dict[str, st
     return (part.data[:start] + updated + part.data[stop:]).decode('utf-8')
 
 
+def configuration_tag_end(data: bytes) -> int:
+    """End of an opening tag already validated in its full XML namespace context."""
+    return _opening_end(data)
+
+
+def patch_configuration(xml: str, root_name: str, path: tuple[str, ...],
+                        values: dict[str, str | None]) -> str:
+    """Patch owned configuration attributes in their complete namespace context."""
+    return _patch(xml, root_name, path, values)
+
+
 @dataclass
 class PageState:
     attributes: dict[tuple[str, ...], dict[str, str]] = field(default_factory=lambda: {})

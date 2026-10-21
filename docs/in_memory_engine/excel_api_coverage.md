@@ -26,14 +26,14 @@ is a percentage of working macros or complete functionality.
 
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
-| Application, workbooks and worksheets | Partial | 126 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
-| Cells and ranges | Partial | 113 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
+| Application, workbooks and worksheets | Partial | 127 / 752 | 6 | Core containers, opening/saving, sheet operations and settings. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
+| Cells and ranges | Partial | 118 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Full expression, relative-reference, external-reference and lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
 | Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 45 / 155 | 25 | ListObjects, rows/columns, structured references, resizing and totals. Table-style objects and broader table-operation fidelity remain incomplete. |
-| Sorting, filtering and outlines | Partial | 28 / 66 | 6 | Common sorts, AutoFilter wildcard matching with bounded state transitions and a measured local AdvancedFilter subset. Formula criteria, advanced-filter state migration, sort variants and outline/grouping APIs remain incomplete. |
+| Sorting, filtering and outlines | Partial | 35 / 66 | 6 | Common sorts, AutoFilter wildcard matching with bounded state transitions and a measured local AdvancedFilter subset. Formula criteria, advanced-filter state migration, sort variants, automatic outline styles, heterogeneous outline reads and broader grouping/editing interactions remain incomplete. Ordinary row/column outlines support grouped levels, summary sides, detail visibility and persisted metadata. |
 | Data validation | Partial | 19 / 21 | 14 | Validation rules, formulas, input/error messages and persistence. Remaining members and full rule/error behavior need auditing. |
 | Protection and permissions | Partial | 11 / 32 | 0 | Worksheet/workbook protection and enforcement for supported edits. Allow-edit ranges, user permissions and full protection semantics remain. |
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
@@ -48,7 +48,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,183 / 7,542** | **148** | **15.7% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,196 / 7,542** | **148** | **15.9% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -64,6 +64,45 @@ native Excel session**: ten AdvancedFilter, seven Pivot refresh and eleven page
 configuration/name-lifecycle cases. Every result matched its existing independent
 native oracle; no recorded expectations were normalized or changed. This validates
 the admitted cases together, rather than claiming full API conformance.
+
+## Worksheet outlines
+
+`Worksheet.Outline` and ordinary whole-row/column `Group`, `Ungroup`,
+`ClearOutline`, `OutlineLevel` and `ShowDetail` support measured level changes,
+summary placement and `ShowLevels`. Depths range from one through eight; collapsing
+or expanding updates visibility and dependent calculations. Ungrouping retains
+hidden detail, while clearing outlines removes their visibility state. Plain
+worksheet copies preserve these modeled settings.
+
+The evidence retains **24 exact native controls** and **12 macro-free native
+inputs**. Twelve runtime controls use explicitly documented observation subsets;
+unsupported mixed-range getter observations remain intact in the raw evidence.
+Six input snapshots also have exact model import/save/readback checks. All twelve
+generated-output controls passed native Excel readback in one closed session
+(12/12, 16.05 seconds). Additional
+regressions exercise metadata ownership, lossless row bodies and column attributes,
+combined-axis atomicity, calculation, protection and scope admission. See the
+[outline tests](../../tests/test_excel_outlines.py) and
+[native evidence](../../tests/fixtures/worksheet_outlines/initial.json).
+
+Outline-only changes patch owned metadata without rebuilding existing cell XML.
+Unknown row bodies, column attributes and sibling configuration remain preserved.
+The initial axis writer supports ordinary unprefixed SpreadsheetML row/column
+metadata; configuration-only changes also preserve prefixed worksheet content.
+Worksheet copying rejects unparsed qualified outline rows/columns before creating
+a destination, including sheets without explicit `outlinePr` flags. Axis admission
+also checks that loaded and actual direct row/column elements agree on
+nondefault outline metadata in both directions.
+Operations bound metadata work to 50,000 rows, 16,384 columns, 16 MiB XML and
+250,000 existing cell records for row-budget checks. These are implementation
+limits rather than Excel limits; unsupported cases fail before mutation.
+
+Automatic style creation, cell/Pivot grouping and heterogeneous `OutlineLevel`
+reads remain unsupported. Native mixed-range observations are not yet consistent
+enough to define one getter contract. Affected structural edits and whole-axis
+range copies or formatting pastes are declined atomically rather than losing
+outline metadata. Non-whole-axis `ShowDetail` and broader protection/UDF, outline
+style, structural and cross-feature behavior need further measurements.
 
 ## Advanced filtering
 
@@ -569,8 +608,8 @@ counts unique member names per remaining type. Every remaining type is assigned
 to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
-The checklist contains **2,749 entries across 69 implemented model types**:
-148 verified, 613 partial, 426 unassessed, 1,559 missing and 3 excluded. Its 1,187
+The checklist contains **2,756 entries across 70 implemented model types**:
+148 verified, 626 partial, 426 unassessed, 1,553 missing and 3 excluded. Its 1,200
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

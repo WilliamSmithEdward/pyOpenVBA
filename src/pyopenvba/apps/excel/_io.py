@@ -1211,8 +1211,11 @@ def save_workbook(book: Workbook, target: Path) -> None:
     moves = book.stylesheet.moved_from_file()
     for sheet in book.sheets_:
         # A sheet nobody wrote to keeps the bytes it arrived with, its view too unless the window changed it.
+        outline_changes = sheet.outline_state is not None and bool(sheet.outline_state.changes
+                                                                        or sheet.outline_state.changed_rows
+                                                                        or sheet.outline_state.changed_columns)
         page_changes = sheet.page_setup_state is not None and bool(sheet.page_setup_state.changes)
-        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes):
+        if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes or outline_changes):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
@@ -1221,12 +1224,18 @@ def save_workbook(book: Workbook, target: Path) -> None:
         )
         patched = with_view(sheet, _patched_sheet(sheet, original, package, collector) if sheet.dirty
                             else _restyled_sheet(original, moves), tabs=tabs)
+        if outline_changes:
+            from pyopenvba.apps.excel._outline import with_outline
+
+            patched = with_outline(sheet, patched)
         if page_changes:
             from pyopenvba.apps.excel._page_setup import with_setup
 
             patched = with_setup(sheet, patched)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
+            if outline_changes and sheet.outline_state is not None:
+                sheet.outline_state.axes_checked = False
     collector.write(package)
     from pyopenvba.apps.excel._pivot_rich import write as write_rich_pivots
 

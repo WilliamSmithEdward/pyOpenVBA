@@ -124,6 +124,9 @@ def edit(target: Range, *, delete: bool) -> None:
         raise VBAUnsupportedError("Whole-row/column edits on sheets with merges or shapes are not implemented")
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
+    from pyopenvba.apps.excel._outline import guard_axis_edit
+
+    guard_axis_edit(sheet, rows, start)
     edge = max(1, start - (not delete))
     affected = Area(edge, 1, MAX_ROWS, MAX_COLUMNS) if rows else Area(1, edge, MAX_ROWS, MAX_COLUMNS)
     _conditional_admitted(sheet, affected, lambda text, owner: rewrite(

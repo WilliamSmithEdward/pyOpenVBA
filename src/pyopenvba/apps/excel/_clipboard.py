@@ -331,6 +331,10 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     landing = Area(corner.top, corner.left, corner.top + height - 1, corner.left + width - 1)
     conditional_plan = None
     if kind in _EVERYTHING | {FORMATS}:
+        from pyopenvba.apps.excel._outline import guard_axis_copy
+
+        for part, _down, _across in made.parts:
+            guard_axis_copy(source_sheet, part, sheet, landing)
         from pyopenvba.apps.excel._conditional_transfer import plan as conditional_plan_for
 
         if len(target.areas) != 1:

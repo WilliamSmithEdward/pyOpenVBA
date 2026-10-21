@@ -131,7 +131,7 @@ def snapshot(app: ExcelApplication) -> object:
             tuple((entry.name, entry.body) for entry in book.package.entries) if book.package else None)
 
 
-@pytest.mark.parametrize('kind', ['malformed-name', 'name-collision', '3d', 'external', 'cf', 'validation', 'array'])
+@pytest.mark.parametrize('kind', ['malformed-name', 'name-collision', '3d', 'external', 'cf', 'validation', 'dynamic'])
 def test_unsupported_rename_admission_is_atomic(kind: str) -> None:
     app = prepared()
     sheet = app.workbook.sheets_[0]
@@ -149,7 +149,7 @@ def test_unsupported_rename_admission_is_atomic(kind: str) -> None:
     elif kind == 'validation':
         sheet.Range('A1').Validation().Add(1, Formula1='=Sheet1!A1', Formula2='10')
     else:
-        sheet.Range('D1:D2').vba_set('FormulaArray', '=A1:A2')
+        sheet.Range('D1').vba_set('Formula2', '=SEQUENCE(2)')
     before = snapshot(app)
     with pytest.raises(VBAUnsupportedError):
         sheet.vba_set('Name', 'Renamed')
@@ -552,14 +552,25 @@ def test_unrelated_structured_formulas_remain_unchanged_when_blank_sheet_is_rena
             tuple((key, id(cell), cell.formula) for key, cell in owner.cells_.items())) == before
 
 
-def test_affected_foreign_cse_formula_is_refused_before_any_scalar_change() -> None:
+def test_affected_foreign_cse_formula_and_scalar_change_preserve_members_and_persist(tmp_path: Path) -> None:
     app = prepared()
     owner = app.workbook.sheets_[1]
     owner.Range('D1:D2').vba_set('FormulaArray', '=Sheet1!A1:A2')
-    before = snapshot(app)
-    with pytest.raises(VBAUnsupportedError, match='affected shared/array/spill'):
-        app.workbook.sheets_[0].vba_set('Name', 'Renamed')
-    assert snapshot(app) == before
+    app.workbook.application.CalculateFull()
+    members = tuple(owner.cells_[key] for key in ((1, 4), (2, 4)))
+    blocks = dict(owner.array_formulas)
+    before = tuple(cell.value for cell in members)
+    app.workbook.sheets_[0].vba_set('Name', 'Renamed')
+    assert owner.cells_[(1, 4)].formula == '=Renamed!A1:A2'
+    assert owner.cells_[(1, 1)].formula == '=Renamed!A1*2'
+    assert owner.array_formulas == blocks
+    assert all(owner.cells_[key] is cell for key, cell in zip(((1, 4), (2, 4)), members, strict=True))
+    assert tuple(cell.value for cell in members) == before
+    loaded = ExcelApplication.open(app.save(tmp_path / 'renamed-array.xlsx'), with_vba=False)
+    assert loaded.sheet('Calc').formula('D1') == '=Renamed!A1:A2'
+    assert loaded.sheet('Calc').value('D1') == before[0]
+    loaded.sheet('Renamed').set_value('A1', 7)
+    assert loaded.sheet('Calc').value('D1') == 7
 
 
 @pytest.mark.parametrize('kind', ['shared', 'array'])

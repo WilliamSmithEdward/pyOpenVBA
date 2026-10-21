@@ -41,7 +41,7 @@ from pyopenvba.formula._calc.values import (
     Scalar,
     Value,
 )
-from pyopenvba.formula._calc.cells import CellError
+from pyopenvba.formula._calc.cells import CellError, UnsupportedFormulaError
 
 
 def _power(base: float, exponent: float) -> float:
@@ -1142,6 +1142,399 @@ def YIELD(
         return (gap(y + step) - gap(y - step)) / (2 * step)
 
     return checked(_newton(gap, slope, coupon_rate or 0.05))
+
+
+# Odd-coupon schedules and arithmetic adapted from pyOfficeEditor.
+# Fresh native controls for this implementation are retained separately.
+
+def _odd_yield_slope(count: int, remaining: float, rate: float, yld: float, redemption: float, frequency: int) -> float:
+    """A bond's price slope in the yield over ``count`` full coupons, the
+    first ``remaining`` periods away: each payment's time t, in periods,
+    times the payment over the growth to the power t + 1, summed and
+    divided by the frequency."""
+    coupon = precise.divide(precise.multiply(100.0, rate), frequency)
+    growth = precise.add(1.0, precise.divide(yld, frequency))
+    total = 0.0
+    for index in range(count):
+        time = precise.add(float(index), remaining)
+        total = precise.add(total, precise.divide(precise.multiply(time, coupon), _power(growth, precise.add(time, 1.0))))
+    time = precise.add(float(count - 1), remaining)
+    total = precise.add(total, precise.divide(precise.multiply(time, redemption), _power(growth, precise.add(time, 1.0))))
+    return -precise.divide(total, frequency)
+
+
+def _odd_yield_start(context: Context, settlement: int, maturity: int, rate: float, price: float, kind: int) -> float:
+    """YIELD's first estimate: the coupons over the term and the discount,
+    over the mean of par and price less a quarter of the discount, which on
+    a zero-coupon bond is one Halley step from 0. Par stands in for the
+    redemption. The term is whole years, then the days from settlement moved
+    into the last of them, 29 February to 1 March, over the basis' year, on
+    actual/actual the maturity's."""
+    epoch = context.epoch_1904
+    y1, m1, d1 = dates.calendar(settlement, epoch_1904=epoch)
+    y2, m2, d2 = dates.calendar(maturity, epoch_1904=epoch)
+    whole = y2 - y1
+    later = (m1, d1) > (m2, d2)
+    if whole and later:
+        whole -= 1
+    anchor = settlement
+    if whole:
+        year = y2 - 1 if later else y2
+        month, day = (3, 1) if (m1, d1) == (2, 29) and dates.days_in_month(year, 2) == 28 else (m1, d1)
+        anchor = dates.serial(year, month, day, epoch_1904=epoch)
+    stub = float(days_between(anchor, maturity, kind, epoch_1904=epoch))
+    length = 365.0 if kind == 3 else (366.0 if dates.days_in_month(y2, 2) == 29 else 365.0) if kind == 1 else 360.0
+    years = precise.add(float(whole), precise.divide(stub, length))
+    discount = precise.subtract(100.0, price)
+    # Measured to the bit on 562 starts: (100 r Y + B) / (100 Y - B Y / 2 -
+    # B / 4), B the discount, and no other arrangement.
+    top = precise.add(precise.multiply(100.0, precise.multiply(rate, years)), discount)
+    mean = precise.subtract(precise.multiply(100.0, years), precise.divide(precise.multiply(discount, years), 2.0))
+    return precise.divide(top, precise.subtract(mean, precise.divide(discount, 4.0)))
+
+
+def _step(context: Context, day: int, months: int) -> int:
+    """The quasi-coupon date ``months`` after ``day`` (before, when
+    negative), keeping the day of month the month allows, so that a date
+    clipped to the 28th stays on the 28th from then on."""
+    try:
+        return _months_back(context, day, -months, dates.calendar(day, epoch_1904=context.epoch_1904)[2], False)
+    except (ValueError, OverflowError) as error:
+        raise ExcelError(NUM) from error
+
+
+def _is_month_end(context: Context, day: int) -> bool:
+    year, month, number = dates.calendar(day, epoch_1904=context.epoch_1904)
+    return number == dates.days_in_month(year, month)
+
+
+def _month_end_days(context: Context, first: int, last: int) -> int:
+    """30/360 counting every month's last day, February's included, as the
+    30th: the length ODDLPRICE gives a quasi period on basis 0, and the
+    days it counts into one."""
+    y1, m1, d1 = dates.calendar(first, epoch_1904=context.epoch_1904)
+    y2, m2, d2 = dates.calendar(last, epoch_1904=context.epoch_1904)
+    d1 = 30 if d1 == dates.days_in_month(y1, m1) else d1
+    d2 = 30 if d2 == dates.days_in_month(y2, m2) else d2
+    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
+
+
+def _odd_last_dates(context: Context, last: int, maturity: int, frequency: int) -> list[int]:
+    """The quasi-coupon dates from the last interest date on, each a period
+    after the one before, to the first that covers the maturity. From a
+    month's last day, a date covers any maturity in its month, clipped to
+    the 28th or not."""
+    step = 12 // frequency
+    month_end = _is_month_end(context, last)
+    epoch = context.epoch_1904
+    ends = dates.calendar(maturity, epoch_1904=epoch)[:2]
+    found = [last]
+    while True:
+        following = _step(context, found[-1], step)
+        found.append(following)
+        if month_end and ends <= dates.calendar(following, epoch_1904=epoch)[:2]:
+            return found
+        if not month_end and maturity <= following:
+            return found
+
+
+def _odd_last_terms(
+    context: Context, settlement: int, maturity: int, last: int, frequency: int, kind: int
+) -> tuple[float, float, float]:
+    """ODDLPRICE's sums over the quasi periods, each count over the
+    period's normal length NL: DC, the days counted in each; A, those
+    accrued; DSC, those from settlement to the maturity. On basis 0, NL and
+    DC count month ends as the 30th while A and DSC count as YEARFRAC
+    does; a quasi period wholly accrued counts as one; the last runs to
+    the maturity for DC, even past its own end."""
+    epoch = context.epoch_1904
+
+    def part(first: int, final: int) -> float:
+        return float(days_between(first, final, kind, epoch_1904=epoch))
+
+    def whole(first: int, final: int) -> float:
+        return float(_month_end_days(context, first, final)) if kind == 0 else part(first, final)
+
+    quasi = _odd_last_dates(context, last, maturity, frequency)
+    counted = accrued = remaining = 0.0
+    for index in range(1, len(quasi)):
+        start, end = quasi[index - 1], quasi[index]
+        final = index == len(quasi) - 1
+        length = whole(start, end)
+        counted = precise.add(counted, precise.divide(whole(start, maturity if final else end), length))
+        if settlement >= end and not final:
+            accrued = precise.add(accrued, 1.0)
+        elif settlement > start:
+            accrued = precise.add(accrued, precise.divide(part(start, settlement), length))
+        stop = min(end, maturity)
+        if settlement < stop:
+            remaining = precise.add(remaining, precise.divide(part(max(start, settlement), stop), length))
+    return counted, accrued, remaining
+
+
+def _odd_last(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    last_interest: Scalar,
+    rate: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None,
+) -> tuple[float, float, float, float, float, float]:
+    """ODDLPRICE's and ODDLYIELD's arguments, checked: the redemption, the
+    coupon per period, DC, A and DSC, and the frequency."""
+    settled = serial_of(context, settlement)
+    due = serial_of(context, maturity)
+    previous = serial_of(context, last_interest)
+    coupon_rate = context.number(rate)
+    value = context.number(redemption)
+    times = _frequency(context, frequency)
+    kind = basis(context, basis_)
+    if not due > settled > previous or coupon_rate < 0 or value <= 0:
+        raise ExcelError(NUM)
+    counted, accrued, remaining = _odd_last_terms(context, settled, due, previous, times, kind)
+    coupon = precise.divide(precise.multiply(100.0, coupon_rate), times)
+    return value, coupon, counted, accrued, remaining, float(times)
+
+
+@function("ODDLPRICE", V, V, V, V, V, V, V, V, minimum=7)
+def ODDLPRICE(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    last_interest: Scalar,
+    rate: Scalar,
+    yld: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    value, coupon, counted, accrued, remaining, times = _odd_last(
+        context, settlement, maturity, last_interest, rate, redemption, frequency, basis_
+    )
+    y = context.number(yld)
+    if y < 0:
+        return NUM
+    discount = precise.add(1.0, precise.divide(precise.multiply(remaining, y), times))
+    paid = precise.add(value, precise.multiply(counted, coupon))
+    return checked(precise.subtract(precise.divide(paid, discount), precise.multiply(accrued, coupon)))
+
+
+@function("ODDLYIELD", V, V, V, V, V, V, V, V, minimum=7)
+def ODDLYIELD(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    last_interest: Scalar,
+    rate: Scalar,
+    pr: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    value, coupon, counted, accrued, remaining, times = _odd_last(
+        context, settlement, maturity, last_interest, rate, redemption, frequency, basis_
+    )
+    price = context.number(pr)
+    if price <= 0:
+        return NUM
+    # Measured: no days left to maturity, as 30/360 counts from the 30th to
+    # the 31st, gives 0.
+    if remaining == 0:
+        return 0.0
+    paid = precise.add(value, precise.multiply(counted, coupon))
+    cost = precise.add(price, precise.multiply(accrued, coupon))
+    return checked(precise.multiply(precise.divide(precise.subtract(paid, cost), cost), precise.divide(times, remaining)))
+
+
+def _extra_period(context: Context, settlement: int, first: int, frequency: int) -> int:
+    """The whole period ODDFPRICE adds to a long odd first period's
+    discounting, measured: when the first coupon falls on a month's last
+    day and settlement does not, unless settlement shares its month with a
+    quasi-coupon date other than the first coupon."""
+    if not _is_month_end(context, first) or _is_month_end(context, settlement):
+        return 0
+    epoch = context.epoch_1904
+    y1, m1, _ = dates.calendar(settlement, epoch_1904=epoch)
+    y2, m2, _ = dates.calendar(first, epoch_1904=epoch)
+    months = (y2 - y1) * 12 + m2 - m1
+    return 1 if months == 0 or months % (12 // frequency) else 0
+
+
+class _OddFirst:
+    """A bond with an odd first period, as ODDFPRICE prices it.
+
+    Measured: short or long is decided by the days from issue to the first
+    coupon against the coupon period E, the first coupon's own; an odd
+    period exactly E long is refused. A short one is Microsoft's formula
+    with DFC, A and DSC counted by the basis. A long one steps quasi-coupon
+    dates back from the first coupon past the issue, each from the one
+    before; each whole quasi period counts as one coupon's worth, the
+    partial first by its days, each over E on every basis but
+    actual/actual, where over its own length; the accrued periods count by
+    their days, and both are summed from the first coupon back.
+
+    ``time`` is the periods to the first coupon that discount every cash
+    flow; ``remaining`` and ``count``, the same without the extra period
+    and the coupons from settlement, shape ODDFYIELD's slope.
+    """
+
+    def __init__(
+        self, context: Context, settled: int, due: int, issued: int, first: int, frequency: int, kind: int
+    ) -> None:
+        epoch = context.epoch_1904
+
+        def days(start: int, end: int) -> float:
+            return float(days_between(start, end, kind, epoch_1904=epoch))
+
+        period = _period_days(context, settled, first, frequency, kind)
+        odd = days(issued, first)
+        if odd == period:
+            raise ExcelError(NUM)
+        self.frequency = frequency
+        self.after = _coupon_count(context, first, due, frequency)
+        self.long = odd > period
+        if not self.long:
+            self.counted, self.length = odd, period
+            self.accrued = precise.divide(days(issued, settled), period)
+            self.time = self.remaining = precise.divide(days(settled, first), period)
+            self.count = self.after + 1
+            return
+        quasi = [first]
+        while quasi[-1] > issued:
+            quasi.append(_step(context, quasi[-1], -(12 // frequency)))
+        shares: list[float] = []
+        accrued: list[float] = []
+        for position, (start, end) in enumerate(reversed(list(zip(quasi[1:], quasi[:-1], strict=True)))):
+            length = float(end - start) if kind == 1 else period
+            start = max(start, issued)
+            shares.append(precise.divide(days(start, end), length) if position == 0 else 1.0)
+            if settled >= end:
+                accrued.append(precise.divide(days(start, end), length))
+            elif settled > start:
+                accrued.append(precise.divide(days(start, settled), length))
+        self.counted, self.length = precise.summed(reversed(shares)), 1.0
+        self.accrued = precise.summed(reversed(accrued))
+        whole = _coupon_count(context, settled, first, frequency) - 1
+        self.remaining = precise.add(float(whole), precise.divide(_days_after(context, settled, first, frequency, kind), period))
+        self.time = precise.add(self.remaining, float(_extra_period(context, settled, first, frequency)))
+        self.count = self.after + whole + 1
+
+    def price(self, rate: float, yld: float, redemption: float) -> float:
+        """The redemption, then the odd coupon, then the regular coupons,
+        less the accrued interest; the time to the first coupon discounts
+        each of them."""
+        coupon = precise.divide(precise.multiply(100.0, rate), self.frequency)
+        growth = precise.add(1.0, precise.divide(yld, self.frequency))
+        odd = precise.divide(precise.divide(precise.multiply(coupon, self.counted), self.length), _power(growth, self.time))
+        if self.long:
+            owed = precise.multiply(coupon, self.accrued)
+        else:
+            owed = precise.divide(precise.multiply(precise.multiply(self.accrued, rate), 100.0), self.frequency)
+        coupons = 0.0
+        for index in range(1, self.after + 1):
+            coupons = precise.add(coupons, precise.divide(coupon, _power(growth, precise.add(float(index), self.time))))
+        value = precise.divide(redemption, _power(growth, precise.add(float(self.after), self.time)))
+        return precise.subtract(precise.add(precise.add(value, odd), coupons), owed)
+
+
+def _odd_first(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    issue: Scalar,
+    first_coupon: Scalar,
+    rate: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None,
+) -> tuple[_OddFirst, int, int, float, float, int]:
+    """ODDFPRICE's and ODDFYIELD's arguments, checked, and the bond.
+    Measured: the first coupon has to be one of the maturity's own coupon
+    dates."""
+    settled = serial_of(context, settlement)
+    due = serial_of(context, maturity)
+    issued = serial_of(context, issue)
+    first = serial_of(context, first_coupon)
+    coupon_rate = context.number(rate)
+    value = context.number(redemption)
+    times = _frequency(context, frequency)
+    kind = basis(context, basis_)
+    if not due > first > settled > issued or coupon_rate < 0 or value <= 0:
+        raise ExcelError(NUM)
+    if _coupons(context, first, due, times)[0] != first:
+        raise ExcelError(NUM)
+    return _OddFirst(context, settled, due, issued, first, times, kind), settled, due, coupon_rate, value, kind
+
+
+@function("ODDFPRICE", V, V, V, V, V, V, V, V, V, minimum=8)
+def ODDFPRICE(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    issue: Scalar,
+    first_coupon: Scalar,
+    rate: Scalar,
+    yld: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    bond, _, _, coupon_rate, value, _ = _odd_first(
+        context, settlement, maturity, issue, first_coupon, rate, redemption, frequency, basis_
+    )
+    y = context.number(yld)
+    if y < 0:
+        return NUM
+    return checked(bond.price(coupon_rate, y, value))
+
+
+@function("ODDFYIELD", V, V, V, V, V, V, V, V, V, minimum=8)
+def ODDFYIELD(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    issue: Scalar,
+    first_coupon: Scalar,
+    rate: Scalar,
+    pr: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    bond, settled, due, coupon_rate, value, kind = _odd_first(
+        context, settlement, maturity, issue, first_coupon, rate, redemption, frequency, basis_
+    )
+    target = context.number(pr)
+    if target <= 0:
+        return NUM
+    # Measured: YIELD's iteration from YIELD's start, with the slope of a
+    # regular bond whose coupons from settlement all come in full, the first
+    # at the odd coupon's time. It gives Excel's bits on 678 of 681 bonds
+    # with a short odd first period; with a long one, on 465 of 678, and
+    # within 1e-10 of Excel's answer on the rest, Excel's slope there being
+    # another. That slope can converge slowly where Excel's does not, so the
+    # iteration runs longer than YIELD's before giving up.
+    y = _odd_yield_start(context, settled, due, coupon_rate, target, kind)
+    remaining_work = 1_000_000
+    try:
+        for _ in range(_ODD_YIELD_STEPS):
+            remaining_work -= bond.after + bond.count + 2
+            if remaining_work < 0:
+                raise UnsupportedFormulaError("Odd-coupon yield exceeds the supported iteration work budget")
+            gap = precise.subtract(bond.price(coupon_rate, y, value), target)
+            step = precise.divide(gap, _odd_yield_slope(bond.count, bond.remaining, coupon_rate, y, value, bond.frequency))
+            if abs(step) < 1e-10:
+                return checked(y)
+            y = precise.subtract(y, step)
+    except ZeroDivisionError:
+        return NUM
+    return NUM
+
+
+_ODD_YIELD_STEPS = 1000
+
 
 
 def _duration(

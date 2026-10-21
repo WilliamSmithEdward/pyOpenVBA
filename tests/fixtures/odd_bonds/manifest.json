@@ -1,0 +1,13 @@
+{
+  "status": "WIP: not ready for merge",
+  "native_controls": 194,
+  "known_discrepancy": "calendar-edge-9: native ODDLPRICE(60,181,1,0.05,0.06,100,2,1) returns #NUM!; current prototype returns99.65823468402523",
+  "native_sha256": "3e5b44cb5e52d58a38f52b3e4476f6431481f95e13738d55a95dd9a13cb18a09",
+  "input_sha256": "a7887a1c306980d6a59a84d9ef95a1c567e32cd6c9162395c57e527174cbf3a8",
+  "script_sha256": "0b34e9ab86d9e0060a14bc7f519b3dc3d85b7e53c4452790b2a34ad6db5e962f",
+  "numeric_protocol": "Native Double copied with LSet into two signed32-bit words; Hex high-word then low-word decoded as big-endian IEEE754binary64. No decimal conversion of numeric oracle.",
+  "yield_tolerance": "ODDFYIELD uses its reference iteration stopping step<1e-10. Observed batch maximum absolute error1.51092818811982e-11 is retained as the regression limit; this is not a general solver error guarantee. Other three functions match raw native doubles exactly on this batch.",
+  "diagnostics": "Earlier failed runner-error attempt is retained in ignored cache, not passing evidence; independent2Dreturn diagnostic in native.json passed before this exact-bit batch.",
+  "resource_limit": "Prototype ODDFYIELD charges at most1million coupon terms across at most1000steps; conservative engine bound, not a native limit.",
+  "remaining": "Phantom1900 leap-day discrepancy, general yield convergence/domain/overflow, long-date runtime budgets and full date/epoch behavior require review before merge."
+}

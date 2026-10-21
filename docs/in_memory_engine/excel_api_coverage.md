@@ -29,7 +29,7 @@ is a percentage of working macros or complete functionality.
 | --- | --- | ---: | ---: | --- |
 | Application, workbooks and worksheets | Partial | 127 / 752 | 6 | Core containers, opening/saving, sheet operations and settings, including bounded scalar/name worksheet renames. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
 | Cells and ranges | Partial | 118 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
-| Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
+| Formulas and calculation | Partial | 392 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Bounded worksheet renames migrate ordinary local/global references and preserve scope/identity. Broader expression, relative/external-reference and mixed-feature lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
 | Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
@@ -49,7 +49,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,200 / 7,542** | **147** | **15.9% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,204 / 7,542** | **147** | **16.0% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -787,7 +787,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,756 entries across 70 implemented model types**:
-147 verified, 633 partial, 424 unassessed, 1,549 missing and 3 excluded. Its 1,204
+147 verified, 637 partial, 424 unassessed, 1,545 missing and 3 excluded. Its 1,208
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the
@@ -804,3 +804,24 @@ When support changes, regenerate `docs/excel_checklist.csv` with
 refresh the affected functional rows and totals here. An area's status becomes
 complete only after its required behavior, error cases, interactions and
 persistence have been auditedâ€”not merely when its member count reaches 100%.
+
+## Odd-coupon bonds: work in progress
+
+ODDFPRICE, ODDFYIELD, ODDLPRICE and ODDLYIELD have a reference-derived
+prototype using existing financial date, coupon and precision helpers. The
+worksheet-function catalog now has 27 unimplemented functions, down from 31;
+four registrations do not constitute completed conformance. This branch is
+**not ready for merge**. A finally-closed native session produced 194 independent
+cell observations and one macrofree workbook across all five bases, annual,
+semiannual and quarterly frequencies, short/long periods, monthends, date
+truncation and errors. Exact IEEE754numeric bits and raw errors are retained in
+[the fixture manifest](../../tests/fixtures/odd_bonds/manifest.json).
+
+Three functions match the recorded numerical doubles exactly on this batch.
+ODDFYIELD has an observed maximum absolute difference of 1.51092818811982e-11;
+its regression bound is that measured difference, not a universal solver
+accuracy guarantee. One explicit strict-xfail retains a native #NUM! versus
+numeric discrepancy involving the fictitious 1900 leap day. General solver
+convergence, extreme dates/rates, epoch behavior and resource limits remain
+open for review; no additional native gate or full financial conformance is
+claimed. [Tests](../../tests/test_excel_odd_bonds.py) preserve every raw case.

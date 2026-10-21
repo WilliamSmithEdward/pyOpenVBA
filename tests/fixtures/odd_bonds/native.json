@@ -1,0 +1,834 @@
+{
+  "started_utc": "2026-10-21T02:26:06.088349+00:00",
+  "source": "Private Type NativeDouble\n    value As Double\nEnd Type\nPrivate Type NativeWords\n    low As Long\n    high As Long\nEnd Type\nFunction DoubleBits(ByVal value As Double) As String\nDim d As NativeDouble,w As NativeWords\nd.value=value\nLSet w=d\nDoubleBits=Right$(\"00000000\" & Hex$(w.high),8) & Right$(\"00000000\" & Hex$(w.low),8)\nEnd Function\nSub Measure(ByRef output As String, ByVal i As Long, ByVal expression As String)\nDim cell As Range,v As Variant,item As String\nSet cell=ActiveSheet.Cells(i+1,1)\nOn Error GoTo Failed\ncell.Formula2=expression\nv=cell.Value2\nIf IsError(v) Then\nitem=CStr(VarType(v)) & \"|\" & CStr(v) & \"|\" & cell.Text\nElse\nitem=CStr(VarType(v)) & \"|\" & DoubleBits(CDbl(v))\nEnd If\noutput=output & CStr(i) & \"|\" & item & vbLf\nExit Sub\nFailed:\noutput=output & CStr(i) & \"|VBA-ERROR:\" & Err.Number & \":\" & Err.Description & vbLf\nEnd Sub\nFunction Probe() As String\nDim output As String\nApplication.EnableEvents=False\nApplication.Calculation=-4105\nActiveWorkbook.Date1904=False\nMeasure output,0,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,0)\"\nMeasure output,1,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,0)\"\nMeasure output,2,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,0)\"\nMeasure output,3,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,0)\"\nMeasure output,4,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,0)\"\nMeasure output,5,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,0)\"\nMeasure output,6,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,0)\"\nMeasure output,7,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,0)\"\nMeasure output,8,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)\"\nMeasure output,9,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)\"\nMeasure output,10,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,0)\"\nMeasure output,11,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,0)\"\nMeasure output,12,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,0)\"\nMeasure output,13,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,0)\"\nMeasure output,14,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,0)\"\nMeasure output,15,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,0)\"\nMeasure output,16,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,0)\"\nMeasure output,17,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,0)\"\nMeasure output,18,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,0)\"\nMeasure output,19,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,0)\"\nMeasure output,20,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,0)\"\nMeasure output,21,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,0)\"\nMeasure output,22,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,0)\"\nMeasure output,23,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,0)\"\nMeasure output,24,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,1)\"\nMeasure output,25,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,1)\"\nMeasure output,26,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,1)\"\nMeasure output,27,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,1)\"\nMeasure output,28,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,1)\"\nMeasure output,29,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,1)\"\nMeasure output,30,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,1)\"\nMeasure output,31,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,1)\"\nMeasure output,32,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,1)\"\nMeasure output,33,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,1)\"\nMeasure output,34,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,1)\"\nMeasure output,35,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,1)\"\nMeasure output,36,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,1)\"\nMeasure output,37,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,1)\"\nMeasure output,38,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,1)\"\nMeasure output,39,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,1)\"\nMeasure output,40,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,1)\"\nMeasure output,41,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,1)\"\nMeasure output,42,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,1)\"\nMeasure output,43,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,1)\"\nMeasure output,44,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,1)\"\nMeasure output,45,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,1)\"\nMeasure output,46,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,1)\"\nMeasure output,47,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,1)\"\nMeasure output,48,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,2)\"\nMeasure output,49,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,2)\"\nMeasure output,50,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,2)\"\nMeasure output,51,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,2)\"\nMeasure output,52,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,2)\"\nMeasure output,53,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,2)\"\nMeasure output,54,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,2)\"\nMeasure output,55,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,2)\"\nMeasure output,56,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,2)\"\nMeasure output,57,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,2)\"\nMeasure output,58,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,2)\"\nMeasure output,59,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,2)\"\nMeasure output,60,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,2)\"\nMeasure output,61,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,2)\"\nMeasure output,62,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,2)\"\nMeasure output,63,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,2)\"\nMeasure output,64,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,2)\"\nMeasure output,65,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,2)\"\nMeasure output,66,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,2)\"\nMeasure output,67,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,2)\"\nMeasure output,68,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,2)\"\nMeasure output,69,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,2)\"\nMeasure output,70,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,2)\"\nMeasure output,71,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,2)\"\nMeasure output,72,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,3)\"\nMeasure output,73,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,3)\"\nMeasure output,74,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,3)\"\nMeasure output,75,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,3)\"\nMeasure output,76,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,3)\"\nMeasure output,77,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,3)\"\nMeasure output,78,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,3)\"\nMeasure output,79,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,3)\"\nMeasure output,80,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,3)\"\nMeasure output,81,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,3)\"\nMeasure output,82,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,3)\"\nMeasure output,83,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,3)\"\nMeasure output,84,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,3)\"\nMeasure output,85,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,3)\"\nMeasure output,86,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,3)\"\nMeasure output,87,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,3)\"\nMeasure output,88,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,3)\"\nMeasure output,89,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,3)\"\nMeasure output,90,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,3)\"\nMeasure output,91,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,3)\"\nMeasure output,92,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,3)\"\nMeasure output,93,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,3)\"\nMeasure output,94,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,3)\"\nMeasure output,95,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,3)\"\nMeasure output,96,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,4)\"\nMeasure output,97,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,4)\"\nMeasure output,98,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,4)\"\nMeasure output,99,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,4)\"\nMeasure output,100,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,4)\"\nMeasure output,101,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,4)\"\nMeasure output,102,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,4)\"\nMeasure output,103,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,4)\"\nMeasure output,104,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,4)\"\nMeasure output,105,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,4)\"\nMeasure output,106,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,4)\"\nMeasure output,107,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,4)\"\nMeasure output,108,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,4)\"\nMeasure output,109,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,4)\"\nMeasure output,110,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,4)\"\nMeasure output,111,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,4)\"\nMeasure output,112,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,4)\"\nMeasure output,113,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,4)\"\nMeasure output,114,\"=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,4)\"\nMeasure output,115,\"=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,4)\"\nMeasure output,116,\"=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,4)\"\nMeasure output,117,\"=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,4)\"\nMeasure output,118,\"=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,4)\"\nMeasure output,119,\"=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,4)\"\nMeasure output,120,\"=ODDLPRICE(DATE(2021,9,10),DATE(2022,5,30),DATE(2021,8,31),0.1,0.1,100,4,1)\"\nMeasure output,121,\"=ODDLPRICE(DATE(2021,9,10),DATE(2022,5,27),DATE(2021,8,31),0.1,0.1,100,4,1)\"\nMeasure output,122,\"=ODDLPRICE(DATE(2018,4,2),DATE(2018,5,14),DATE(2018,2,28),0.1,0.1,100,2,0)\"\nMeasure output,123,\"=ODDLYIELD(DATE(2021,5,30),DATE(2021,5,31),DATE(2021,1,1),0.05,98,100,2,0)\"\nMeasure output,124,\"=ODDFPRICE(DATE(2021,11,3),DATE(2027,4,30),DATE(2021,10,29),DATE(2023,4,30),0.1,0.1,100,1,0)\"\nMeasure output,125,\"=ODDFYIELD(DATE(2022,4,12),DATE(2027,6,15),DATE(2021,10,29),DATE(2023,6,15),0.1,90,100,1,0)\"\nMeasure output,126,\"=ODDFPRICE(DATE(2021,2,1),DATE(2023,6,30),DATE(2020,12,31),DATE(2021,6,30),0.05,0.06,100,2,0)\"\nMeasure output,127,\"=ODDFPRICE(DATE(2021,2,3),DATE(2023,6,30),DATE(2021,1,1),DATE(2021,6,29),0.05,0.06,100,2,0)\"\nMeasure output,128,\"=ODDFPRICE(59,1000,1,181,0.05,0.06,100,2,1)\"\nMeasure output,129,\"=ODDLPRICE(60,181,1,0.05,0.06,100,2,1)\"\nMeasure output,130,\"=ODDFPRICE(\"\"bad\"\",DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)\"\nMeasure output,131,\"=ODDFPRICE(-1,DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)\"\nMeasure output,132,\"=ODDFPRICE(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)\"\nMeasure output,133,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),-0.01,0.06,100,2,0)\"\nMeasure output,134,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,0,2,0)\"\nMeasure output,135,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,3,0)\"\nMeasure output,136,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2.9,0)\"\nMeasure output,137,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,5)\"\nMeasure output,138,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,1.9)\"\nMeasure output,139,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,-1,100,2,0)\"\nMeasure output,140,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0,100,2,0)\"\nMeasure output,141,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0,0.06,100,2,0)\"\nMeasure output,142,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),\"\"0.05\"\",0.06,100,2,0)\"\nMeasure output,143,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),NA(),0.06,100,2,0)\"\nMeasure output,144,\"=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2)\"\nMeasure output,145,\"=ODDFPRICE(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,DATE(2024,6,30)+0.75,0.05,0.06,100,2,0)\"\nMeasure output,146,\"=ODDFYIELD(\"\"bad\"\",DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)\"\nMeasure output,147,\"=ODDFYIELD(-1,DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)\"\nMeasure output,148,\"=ODDFYIELD(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)\"\nMeasure output,149,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),-0.01,98,100,2,0)\"\nMeasure output,150,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,0,2,0)\"\nMeasure output,151,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,3,0)\"\nMeasure output,152,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2.9,0)\"\nMeasure output,153,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,5)\"\nMeasure output,154,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,1.9)\"\nMeasure output,155,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,-1,100,2,0)\"\nMeasure output,156,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0,100,2,0)\"\nMeasure output,157,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0,98,100,2,0)\"\nMeasure output,158,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),\"\"0.05\"\",98,100,2,0)\"\nMeasure output,159,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),NA(),98,100,2,0)\"\nMeasure output,160,\"=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2)\"\nMeasure output,161,\"=ODDFYIELD(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,DATE(2024,6,30)+0.75,0.05,98,100,2,0)\"\nMeasure output,162,\"=ODDLPRICE(\"\"bad\"\",DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,0)\"\nMeasure output,163,\"=ODDLPRICE(-1,DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,0)\"\nMeasure output,164,\"=ODDLPRICE(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,0)\"\nMeasure output,165,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),-0.01,0.06,100,2,0)\"\nMeasure output,166,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,0,2,0)\"\nMeasure output,167,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,3,0)\"\nMeasure output,168,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2.9,0)\"\nMeasure output,169,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,5)\"\nMeasure output,170,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,1.9)\"\nMeasure output,171,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,-1,100,2,0)\"\nMeasure output,172,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0,100,2,0)\"\nMeasure output,173,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0,0.06,100,2,0)\"\nMeasure output,174,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),\"\"0.05\"\",0.06,100,2,0)\"\nMeasure output,175,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),NA(),0.06,100,2,0)\"\nMeasure output,176,\"=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2)\"\nMeasure output,177,\"=ODDLPRICE(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,0.05,0.06,100,2,0)\"\nMeasure output,178,\"=ODDLYIELD(\"\"bad\"\",DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,0)\"\nMeasure output,179,\"=ODDLYIELD(-1,DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,0)\"\nMeasure output,180,\"=ODDLYIELD(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,0)\"\nMeasure output,181,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),-0.01,98,100,2,0)\"\nMeasure output,182,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,0,2,0)\"\nMeasure output,183,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,3,0)\"\nMeasure output,184,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2.9,0)\"\nMeasure output,185,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,5)\"\nMeasure output,186,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,1.9)\"\nMeasure output,187,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,-1,100,2,0)\"\nMeasure output,188,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0,100,2,0)\"\nMeasure output,189,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0,98,100,2,0)\"\nMeasure output,190,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),\"\"0.05\"\",98,100,2,0)\"\nMeasure output,191,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),NA(),98,100,2,0)\"\nMeasure output,192,\"=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2)\"\nMeasure output,193,\"=ODDLYIELD(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,0.05,98,100,2,0)\"\nProbe=output\nEnd Function\n",
+  "source_sha256": "9b1911cecce31b0db8f835b89614411d9a159360c730d31fddcf4d7a0830a84c",
+  "cases": [
+    {
+      "name": "ODDFPRICE-short-f1-b0",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,0)"
+    },
+    {
+      "name": "ODDFYIELD-short-f1-b0",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,0)"
+    },
+    {
+      "name": "ODDFPRICE-long-f1-b0",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,0)"
+    },
+    {
+      "name": "ODDFYIELD-long-f1-b0",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,0)"
+    },
+    {
+      "name": "ODDLPRICE-short-f1-b0",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,0)"
+    },
+    {
+      "name": "ODDLYIELD-short-f1-b0",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,0)"
+    },
+    {
+      "name": "ODDLPRICE-long-f1-b0",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,0)"
+    },
+    {
+      "name": "ODDLYIELD-long-f1-b0",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,0)"
+    },
+    {
+      "name": "ODDFPRICE-short-f2-b0",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-short-f2-b0",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-long-f2-b0",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-long-f2-b0",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-short-f2-b0",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-short-f2-b0",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-long-f2-b0",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-long-f2-b0",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-short-f4-b0",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,0)"
+    },
+    {
+      "name": "ODDFYIELD-short-f4-b0",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,0)"
+    },
+    {
+      "name": "ODDFPRICE-long-f4-b0",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,0)"
+    },
+    {
+      "name": "ODDFYIELD-long-f4-b0",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,0)"
+    },
+    {
+      "name": "ODDLPRICE-short-f4-b0",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,0)"
+    },
+    {
+      "name": "ODDLYIELD-short-f4-b0",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,0)"
+    },
+    {
+      "name": "ODDLPRICE-long-f4-b0",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,0)"
+    },
+    {
+      "name": "ODDLYIELD-long-f4-b0",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,0)"
+    },
+    {
+      "name": "ODDFPRICE-short-f1-b1",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,1)"
+    },
+    {
+      "name": "ODDFYIELD-short-f1-b1",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,1)"
+    },
+    {
+      "name": "ODDFPRICE-long-f1-b1",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,1)"
+    },
+    {
+      "name": "ODDFYIELD-long-f1-b1",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,1)"
+    },
+    {
+      "name": "ODDLPRICE-short-f1-b1",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,1)"
+    },
+    {
+      "name": "ODDLYIELD-short-f1-b1",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,1)"
+    },
+    {
+      "name": "ODDLPRICE-long-f1-b1",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,1)"
+    },
+    {
+      "name": "ODDLYIELD-long-f1-b1",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,1)"
+    },
+    {
+      "name": "ODDFPRICE-short-f2-b1",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,1)"
+    },
+    {
+      "name": "ODDFYIELD-short-f2-b1",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,1)"
+    },
+    {
+      "name": "ODDFPRICE-long-f2-b1",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,1)"
+    },
+    {
+      "name": "ODDFYIELD-long-f2-b1",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,1)"
+    },
+    {
+      "name": "ODDLPRICE-short-f2-b1",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,1)"
+    },
+    {
+      "name": "ODDLYIELD-short-f2-b1",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,1)"
+    },
+    {
+      "name": "ODDLPRICE-long-f2-b1",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,1)"
+    },
+    {
+      "name": "ODDLYIELD-long-f2-b1",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,1)"
+    },
+    {
+      "name": "ODDFPRICE-short-f4-b1",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,1)"
+    },
+    {
+      "name": "ODDFYIELD-short-f4-b1",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,1)"
+    },
+    {
+      "name": "ODDFPRICE-long-f4-b1",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,1)"
+    },
+    {
+      "name": "ODDFYIELD-long-f4-b1",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,1)"
+    },
+    {
+      "name": "ODDLPRICE-short-f4-b1",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,1)"
+    },
+    {
+      "name": "ODDLYIELD-short-f4-b1",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,1)"
+    },
+    {
+      "name": "ODDLPRICE-long-f4-b1",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,1)"
+    },
+    {
+      "name": "ODDLYIELD-long-f4-b1",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,1)"
+    },
+    {
+      "name": "ODDFPRICE-short-f1-b2",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,2)"
+    },
+    {
+      "name": "ODDFYIELD-short-f1-b2",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,2)"
+    },
+    {
+      "name": "ODDFPRICE-long-f1-b2",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,2)"
+    },
+    {
+      "name": "ODDFYIELD-long-f1-b2",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,2)"
+    },
+    {
+      "name": "ODDLPRICE-short-f1-b2",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,2)"
+    },
+    {
+      "name": "ODDLYIELD-short-f1-b2",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,2)"
+    },
+    {
+      "name": "ODDLPRICE-long-f1-b2",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,2)"
+    },
+    {
+      "name": "ODDLYIELD-long-f1-b2",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,2)"
+    },
+    {
+      "name": "ODDFPRICE-short-f2-b2",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,2)"
+    },
+    {
+      "name": "ODDFYIELD-short-f2-b2",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,2)"
+    },
+    {
+      "name": "ODDFPRICE-long-f2-b2",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,2)"
+    },
+    {
+      "name": "ODDFYIELD-long-f2-b2",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,2)"
+    },
+    {
+      "name": "ODDLPRICE-short-f2-b2",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,2)"
+    },
+    {
+      "name": "ODDLYIELD-short-f2-b2",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,2)"
+    },
+    {
+      "name": "ODDLPRICE-long-f2-b2",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,2)"
+    },
+    {
+      "name": "ODDLYIELD-long-f2-b2",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,2)"
+    },
+    {
+      "name": "ODDFPRICE-short-f4-b2",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,2)"
+    },
+    {
+      "name": "ODDFYIELD-short-f4-b2",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,2)"
+    },
+    {
+      "name": "ODDFPRICE-long-f4-b2",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,2)"
+    },
+    {
+      "name": "ODDFYIELD-long-f4-b2",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,2)"
+    },
+    {
+      "name": "ODDLPRICE-short-f4-b2",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,2)"
+    },
+    {
+      "name": "ODDLYIELD-short-f4-b2",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,2)"
+    },
+    {
+      "name": "ODDLPRICE-long-f4-b2",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,2)"
+    },
+    {
+      "name": "ODDLYIELD-long-f4-b2",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,2)"
+    },
+    {
+      "name": "ODDFPRICE-short-f1-b3",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,3)"
+    },
+    {
+      "name": "ODDFYIELD-short-f1-b3",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,3)"
+    },
+    {
+      "name": "ODDFPRICE-long-f1-b3",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,3)"
+    },
+    {
+      "name": "ODDFYIELD-long-f1-b3",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,3)"
+    },
+    {
+      "name": "ODDLPRICE-short-f1-b3",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,3)"
+    },
+    {
+      "name": "ODDLYIELD-short-f1-b3",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,3)"
+    },
+    {
+      "name": "ODDLPRICE-long-f1-b3",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,3)"
+    },
+    {
+      "name": "ODDLYIELD-long-f1-b3",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,3)"
+    },
+    {
+      "name": "ODDFPRICE-short-f2-b3",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,3)"
+    },
+    {
+      "name": "ODDFYIELD-short-f2-b3",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,3)"
+    },
+    {
+      "name": "ODDFPRICE-long-f2-b3",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,3)"
+    },
+    {
+      "name": "ODDFYIELD-long-f2-b3",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,3)"
+    },
+    {
+      "name": "ODDLPRICE-short-f2-b3",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,3)"
+    },
+    {
+      "name": "ODDLYIELD-short-f2-b3",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,3)"
+    },
+    {
+      "name": "ODDLPRICE-long-f2-b3",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,3)"
+    },
+    {
+      "name": "ODDLYIELD-long-f2-b3",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,3)"
+    },
+    {
+      "name": "ODDFPRICE-short-f4-b3",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,3)"
+    },
+    {
+      "name": "ODDFYIELD-short-f4-b3",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,3)"
+    },
+    {
+      "name": "ODDFPRICE-long-f4-b3",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,3)"
+    },
+    {
+      "name": "ODDFYIELD-long-f4-b3",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,3)"
+    },
+    {
+      "name": "ODDLPRICE-short-f4-b3",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,3)"
+    },
+    {
+      "name": "ODDLYIELD-short-f4-b3",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,3)"
+    },
+    {
+      "name": "ODDLPRICE-long-f4-b3",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,3)"
+    },
+    {
+      "name": "ODDLYIELD-long-f4-b3",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,3)"
+    },
+    {
+      "name": "ODDFPRICE-short-f1-b4",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,1,4)"
+    },
+    {
+      "name": "ODDFYIELD-short-f1-b4",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,1,4)"
+    },
+    {
+      "name": "ODDFPRICE-long-f1-b4",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,1,4)"
+    },
+    {
+      "name": "ODDFYIELD-long-f1-b4",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,1,4)"
+    },
+    {
+      "name": "ODDLPRICE-short-f1-b4",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,1,4)"
+    },
+    {
+      "name": "ODDLYIELD-short-f1-b4",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,1,4)"
+    },
+    {
+      "name": "ODDLPRICE-long-f1-b4",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,1,4)"
+    },
+    {
+      "name": "ODDLYIELD-long-f1-b4",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,1,4)"
+    },
+    {
+      "name": "ODDFPRICE-short-f2-b4",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,4)"
+    },
+    {
+      "name": "ODDFYIELD-short-f2-b4",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,4)"
+    },
+    {
+      "name": "ODDFPRICE-long-f2-b4",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,2,4)"
+    },
+    {
+      "name": "ODDFYIELD-long-f2-b4",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,2,4)"
+    },
+    {
+      "name": "ODDLPRICE-short-f2-b4",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,2,4)"
+    },
+    {
+      "name": "ODDLYIELD-short-f2-b4",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,2,4)"
+    },
+    {
+      "name": "ODDLPRICE-long-f2-b4",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,2,4)"
+    },
+    {
+      "name": "ODDLYIELD-long-f2-b4",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,2,4)"
+    },
+    {
+      "name": "ODDFPRICE-short-f4-b4",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,4,4)"
+    },
+    {
+      "name": "ODDFYIELD-short-f4-b4",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,4,4)"
+    },
+    {
+      "name": "ODDFPRICE-long-f4-b4",
+      "formula": "=ODDFPRICE(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,0.06,100,4,4)"
+    },
+    {
+      "name": "ODDFYIELD-long-f4-b4",
+      "formula": "=ODDFYIELD(DATE(2023,2,17),DATE(2028,6,30),DATE(2022,1,15),DATE(2024,6,30),0.05,98,100,4,4)"
+    },
+    {
+      "name": "ODDLPRICE-short-f4-b4",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,0.06,100,4,4)"
+    },
+    {
+      "name": "ODDLYIELD-short-f4-b4",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2023,11,15),DATE(2023,8,31),0.05,98,100,4,4)"
+    },
+    {
+      "name": "ODDLPRICE-long-f4-b4",
+      "formula": "=ODDLPRICE(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,0.06,100,4,4)"
+    },
+    {
+      "name": "ODDLYIELD-long-f4-b4",
+      "formula": "=ODDLYIELD(DATE(2023,10,15),DATE(2025,5,30),DATE(2023,8,31),0.05,98,100,4,4)"
+    },
+    {
+      "name": "calendar-edge-0",
+      "formula": "=ODDLPRICE(DATE(2021,9,10),DATE(2022,5,30),DATE(2021,8,31),0.1,0.1,100,4,1)"
+    },
+    {
+      "name": "calendar-edge-1",
+      "formula": "=ODDLPRICE(DATE(2021,9,10),DATE(2022,5,27),DATE(2021,8,31),0.1,0.1,100,4,1)"
+    },
+    {
+      "name": "calendar-edge-2",
+      "formula": "=ODDLPRICE(DATE(2018,4,2),DATE(2018,5,14),DATE(2018,2,28),0.1,0.1,100,2,0)"
+    },
+    {
+      "name": "calendar-edge-3",
+      "formula": "=ODDLYIELD(DATE(2021,5,30),DATE(2021,5,31),DATE(2021,1,1),0.05,98,100,2,0)"
+    },
+    {
+      "name": "calendar-edge-4",
+      "formula": "=ODDFPRICE(DATE(2021,11,3),DATE(2027,4,30),DATE(2021,10,29),DATE(2023,4,30),0.1,0.1,100,1,0)"
+    },
+    {
+      "name": "calendar-edge-5",
+      "formula": "=ODDFYIELD(DATE(2022,4,12),DATE(2027,6,15),DATE(2021,10,29),DATE(2023,6,15),0.1,90,100,1,0)"
+    },
+    {
+      "name": "calendar-edge-6",
+      "formula": "=ODDFPRICE(DATE(2021,2,1),DATE(2023,6,30),DATE(2020,12,31),DATE(2021,6,30),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "calendar-edge-7",
+      "formula": "=ODDFPRICE(DATE(2021,2,3),DATE(2023,6,30),DATE(2021,1,1),DATE(2021,6,29),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "calendar-edge-8",
+      "formula": "=ODDFPRICE(59,1000,1,181,0.05,0.06,100,2,1)"
+    },
+    {
+      "name": "calendar-edge-9",
+      "formula": "=ODDLPRICE(60,181,1,0.05,0.06,100,2,1)"
+    },
+    {
+      "name": "ODDFPRICE-bad-settlement",
+      "formula": "=ODDFPRICE(\"bad\",DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-negative-settlement",
+      "formula": "=ODDFPRICE(-1,DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-settlement-maturity",
+      "formula": "=ODDFPRICE(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-rate-negative",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),-0.01,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-redemption-zero",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,0,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-frequency-invalid",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,3,0)"
+    },
+    {
+      "name": "ODDFPRICE-frequency-truncated",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2.9,0)"
+    },
+    {
+      "name": "ODDFPRICE-basis-invalid",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,5)"
+    },
+    {
+      "name": "ODDFPRICE-basis-truncated",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2,1.9)"
+    },
+    {
+      "name": "ODDFPRICE-value-negative",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,-1,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-value-zero",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-rate-zero",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-numeric-text",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),\"0.05\",0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-propagated-error",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),NA(),0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFPRICE-omitted-basis",
+      "formula": "=ODDFPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0.06,100,2)"
+    },
+    {
+      "name": "ODDFPRICE-fractional-dates",
+      "formula": "=ODDFPRICE(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,DATE(2024,6,30)+0.75,0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-bad-settlement",
+      "formula": "=ODDFYIELD(\"bad\",DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-negative-settlement",
+      "formula": "=ODDFYIELD(-1,DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-settlement-maturity",
+      "formula": "=ODDFYIELD(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-rate-negative",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),-0.01,98,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-redemption-zero",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,0,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-frequency-invalid",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,3,0)"
+    },
+    {
+      "name": "ODDFYIELD-frequency-truncated",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2.9,0)"
+    },
+    {
+      "name": "ODDFYIELD-basis-invalid",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,5)"
+    },
+    {
+      "name": "ODDFYIELD-basis-truncated",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2,1.9)"
+    },
+    {
+      "name": "ODDFYIELD-value-negative",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,-1,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-value-zero",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,0,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-rate-zero",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0,98,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-numeric-text",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),\"0.05\",98,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-propagated-error",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),NA(),98,100,2,0)"
+    },
+    {
+      "name": "ODDFYIELD-omitted-basis",
+      "formula": "=ODDFYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),DATE(2024,6,30),0.05,98,100,2)"
+    },
+    {
+      "name": "ODDFYIELD-fractional-dates",
+      "formula": "=ODDFYIELD(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,DATE(2024,6,30)+0.75,0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-bad-settlement",
+      "formula": "=ODDLPRICE(\"bad\",DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-negative-settlement",
+      "formula": "=ODDLPRICE(-1,DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-settlement-maturity",
+      "formula": "=ODDLPRICE(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-rate-negative",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),-0.01,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-redemption-zero",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,0,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-frequency-invalid",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,3,0)"
+    },
+    {
+      "name": "ODDLPRICE-frequency-truncated",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2.9,0)"
+    },
+    {
+      "name": "ODDLPRICE-basis-invalid",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,5)"
+    },
+    {
+      "name": "ODDLPRICE-basis-truncated",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2,1.9)"
+    },
+    {
+      "name": "ODDLPRICE-value-negative",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,-1,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-value-zero",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-rate-zero",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-numeric-text",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),\"0.05\",0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-propagated-error",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),NA(),0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLPRICE-omitted-basis",
+      "formula": "=ODDLPRICE(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0.06,100,2)"
+    },
+    {
+      "name": "ODDLPRICE-fractional-dates",
+      "formula": "=ODDLPRICE(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,0.05,0.06,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-bad-settlement",
+      "formula": "=ODDLYIELD(\"bad\",DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-negative-settlement",
+      "formula": "=ODDLYIELD(-1,DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-settlement-maturity",
+      "formula": "=ODDLYIELD(DATE(2028,6,30),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-rate-negative",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),-0.01,98,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-redemption-zero",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,0,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-frequency-invalid",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,3,0)"
+    },
+    {
+      "name": "ODDLYIELD-frequency-truncated",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2.9,0)"
+    },
+    {
+      "name": "ODDLYIELD-basis-invalid",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,5)"
+    },
+    {
+      "name": "ODDLYIELD-basis-truncated",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2,1.9)"
+    },
+    {
+      "name": "ODDLYIELD-value-negative",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,-1,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-value-zero",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,0,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-rate-zero",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0,98,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-numeric-text",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),\"0.05\",98,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-propagated-error",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),NA(),98,100,2,0)"
+    },
+    {
+      "name": "ODDLYIELD-omitted-basis",
+      "formula": "=ODDLYIELD(DATE(2024,6,1),DATE(2028,6,30),DATE(2024,5,15),0.05,98,100,2)"
+    },
+    {
+      "name": "ODDLYIELD-fractional-dates",
+      "formula": "=ODDLYIELD(DATE(2024,6,1)+0.75,DATE(2028,6,30)+0.75,DATE(2024,5,15)+0.75,0.05,98,100,2,0)"
+    }
+  ],
+  "instrumentation": "One session freshbook Date1904False eventsdisabled Automatic; exact raw typed2Darray Double/errors; independent native input allformula cells; Save51 ifbatchsuccess",
+  "session_id": "598da2c02b68",
+  "excel_pid": 51652,
+  "diagnostic": {
+    "source": "Function Diagnostic() As Variant\nDim data(0 To 1,0 To 1) As Variant\ndata(0,0)=1.25\ndata(0,1)=\"x\"\ndata(1,0)=2.5\ndata(1,1)=\"y\"\nDiagnostic=data\nEnd Function",
+    "repr": "RunResult(outcome='passed', duration_s=0.0991409999987809, value=[[1.25, 'x'], [2.5, 'y']], output=[], error=None, message='', dialogs=[], screenshot='')",
+    "message": "",
+    "ok": true,
+    "value": [
+      [
+        1.25,
+        "x"
+      ],
+      [
+        2.5,
+        "y"
+      ]
+    ]
+  },
+  "status": {
+    "ok": true,
+    "outcome": "passed",
+    "dialogs": "[]",
+    "error": "None",
+    "message": "",
+    "output": [],
+    "repr": "RunResult(outcome='passed', duration_s=0.08061110001290217, value='0|5|40581EE449791377\\n1|5|3FAC7CA17E105FEF\\n2|5|40565646D9F9ADB1\\n3|5|3FA670D0EE87E962\\n4|5|4058FA7E839BCEC2\\n5|5|3FD2D19A1E7FD683\\n6|5|40589CB905D49EE8\\n7|5|3FB02542D16839A6\\n8|5|40581B9E6C5E0D1A\\n9|5|3FAC71BF34CB2A63\\n10|5|4056FD295367E695\\n11|5|3FA88DCFE2CF156C\\n12|5|4058FA7E839BCEC2\\n13|5|3FD2D19A1E7FD683\\n14|5|4058A068FE1CA802\\n15|5|3FB04022463F6C4B\\n16|5|405819F028E7443E\\n17|5|3FAC6C476A69D54B\\n18|5|4057542A664B0317\\n19|5|3FA9C50F1D89AD48\\n20|5|4058FA7E839BCEC2\\n21|5|3FD2D19A1E7FD683\\n22|5|4058A2365BD53B99\\n23|5|3FB04D300AFA1571\\n24|5|40581EF1C54B5401\\n25|5|3FAC7CC843C27BB9\\n26|5|40565697A210BCED\\n27|5|3FA6708D366E4054\\n28|5|4058FA685F96A217\\n29|5|3FD291CA2C89A52F\\n30|5|40589DE52A57AE71\\n31|5|3FB02E2408F2772C\\n32|5|40581BA8405A1E2C\\n33|5|3FAC71DC4815D4C8\\n34|5|4056FCB0EB40D594\\n35|5|3FA88B75F203BE32\\n36|5|4058FA6044156993\\n37|5|3FD27C30A6D2F723\\n38|5|40589D92AABEDAD6\\n39|5|3FB02B3B041B6EC3\\n40|5|405819FA92DC4B9D\\n41|5|3FAC6C66FDD7C82C\\n42|5|40575383DFED58F3\\n43|5|3FA9C1CF620BFD0D\\n44|5|4058FA6044156993\\n45|5|3FD27C30A6D2F723\\n46|5|40589F497465E127\\n47|5|3FB03766D00AB3A3\\n48|5|40581EE338ACD485\\n49|5|3FAC7C9BB89E1779\\n50|5|405651B7BA85FF04\\n51|5|3FA660632A7116E3\\n52|5|4058FA685F96A217\\n53|5|3FD291CA2C89A52F\\n54|5|40589DE52A57AE71\\n55|5|3FB02E2408F2772C\\n56|5|40581B9D579B0C7E\\n57|5|3FAC71B971E751BE\\n58|5|4056F89FBD374E56\\n59|5|3FA87C036B492E9E\\n60|5|4058FA6044156993\\n61|5|3FD27C30A6D2F723\\n62|5|40589D92AABEDAD6\\n63|5|3FB02B3B041B6EC3\\n64|5|405819EF1219F86D\\n65|5|3FAC6C41A8CBD810\\n66|5|40574F1218D0E72C\\n67|5|3FA9AF835CA8EE09\\n68|5|4058FA6044156993\\n69|5|3FD27C30A6D2F723\\n70|5|40589F497465E127\\n71|5|3FB03766D00AB3A3\\n72|5|40581EEF6153469F\\n73|5|3FAC7CC0F27CB628\\n74|5|40565697A210BCED\\n75|5|3FA6708D366E41D2\\n76|5|4058FA685F96A217\\n77|5|3FD291CA2C89A52F\\n78|5|40589DE52A57AE71\\n79|5|3FB02E2408F2772C\\n80|5|40581BAAF0AC7272\\n81|5|3FAC71E4DDF5A191\\n82|5|4056FD868205DFDD\\n83|5|3FA88E10CEF34126\\n84|5|4058FA6044156993\\n85|5|3FD27C30A6D2F723\\n86|5|40589D92AABEDAD6\\n87|5|3FB02B3B041B6EC3\\n88|5|405819FD68A9EA60\\n89|5|3FAC6C70314B913A\\n90|5|405753B33DF478E8\\n91|5|3FA9C23888A9887A\\n92|5|4058FA6044156993\\n93|5|3FD27C30A6D2F723\\n94|5|40589F497465E127\\n95|5|3FB03766D00AB3A3\\n96|5|40581EE449791377\\n97|5|3FAC7CA17E105FEF\\n98|5|40565646D9F9ADB1\\n99|5|3FA670D0EE87E962\\n100|5|4058FA7E839BCEC2\\n101|5|3FD2D19A1E7FD683\\n102|5|40589DAF86B4C645\\n103|5|3FB02C538FAFBBB7\\n104|5|40581B9E6C5E0D1A\\n105|5|3FAC71BF34CB2A63\\n106|5|4056FD295367E695\\n107|5|3FA88DCFE2CF156C\\n108|5|4058FA7664A07B1A\\n109|5|3FD2BB4849260550\\n110|5|40589D65E6C9B2D6\\n111|5|3FB029BE1C997624\\n112|5|405819F028E7443E\\n113|5|3FAC6C476A69D54B\\n114|5|4057542A664B0317\\n115|5|3FA9C50F1D89AD48\\n116|5|4058FA7E839BCEC2\\n117|5|3FD2D19A1E7FD683\\n118|5|40589F4E34BDF9A7\\n119|5|3FB037AF71E160EA\\n120|5|4059022B1F9C69A1\\n121|5|4058FED1CC330A25\\n122|5|4058FF54473650F8\\n123|5|0000000000000000\\n124|5|4056A6791DDECA1E\\n125|5|3FC010E6489696B2\\n126|10|Error 2036|#NUM!\\n127|10|Error 2036|#NUM!\\n128|10|Error 2036|#NUM!\\n129|10|Error 2036|#NUM!\\n130|10|Error 2015|#VALUE!\\n131|10|Error 2036|#NUM!\\n132|10|Error 2036|#NUM!\\n133|10|Error 2036|#NUM!\\n134|10|Error 2036|#NUM!\\n135|10|Error 2036|#NUM!\\n136|5|40581B9E6C5E0D1A\\n137|10|Error 2036|#NUM!\\n138|5|40581BA8405A1E2C\\n139|10|Error 2036|#NUM!\\n140|5|405E19C71C71C71C\\n141|5|4053A4376369A347\\n142|5|40581B9E6C5E0D1A\\n143|10|Error 2042|#N/A\\n144|5|40581B9E6C5E0D1A\\n145|5|40581B9E6C5E0D1A\\n146|10|Error 2015|#VALUE!\\n147|10|Error 2036|#NUM!\\n148|10|Error 2036|#NUM!\\n149|10|Error 2036|#NUM!\\n150|10|Error 2036|#NUM!\\n151|10|Error 2036|#NUM!\\n152|5|3FAC71BF34CB2A63\\n153|10|Error 2036|#NUM!\\n154|5|3FAC71DC4815D4C8\\n155|10|Error 2036|#NUM!\\n156|10|Error 2036|#NUM!\\n157|5|3F744DE62C4E7BD6\\n158|5|3FAC71BF34CB2A63\\n159|10|Error 2042|#N/A\\n160|5|3FAC71BF34CB2A63\\n161|5|3FAC71BF34CB2A63\\n162|10|Error 2015|#VALUE!\\n163|10|Error 2036|#NUM!\\n164|10|Error 2036|#NUM!\\n165|10|Error 2036|#NUM!\\n166|10|Error 2036|#NUM!\\n167|10|Error 2036|#NUM!\\n168|5|40582B69442288B2\\n169|10|Error 2036|#NUM!\\n170|5|40582B5FD30A76F3\\n171|10|Error 2036|#NUM!\\n172|5|405E19C71C71C71C\\n173|5|4054154020E76CC2\\n174|5|40582B69442288B2\\n175|10|Error 2042|#N/A\\n176|5|40582B69442288B2\\n177|5|40582B69442288B2\\n178|10|Error 2015|#VALUE!\\n179|10|Error 2036|#NUM!\\n180|10|Error 2036|#NUM!\\n181|10|Error 2036|#NUM!\\n182|10|Error 2036|#NUM!\\n183|10|Error 2036|#NUM!\\n184|5|3FAC9E445F19FF59\\n185|10|Error 2036|#NUM!\\n186|5|3FAC9DE512E9E936\\n187|10|Error 2036|#NUM!\\n188|10|Error 2036|#NUM!\\n189|5|3F747C438F253458\\n190|5|3FAC9E445F19FF59\\n191|10|Error 2042|#N/A\\n192|5|3FAC9E445F19FF59\\n193|5|3FAC9E445F19FF59\\n', output=[], error=None, message='', dialogs=[], screenshot='')"
+  },
+  "raw_result": "0|5|40581EE449791377\n1|5|3FAC7CA17E105FEF\n2|5|40565646D9F9ADB1\n3|5|3FA670D0EE87E962\n4|5|4058FA7E839BCEC2\n5|5|3FD2D19A1E7FD683\n6|5|40589CB905D49EE8\n7|5|3FB02542D16839A6\n8|5|40581B9E6C5E0D1A\n9|5|3FAC71BF34CB2A63\n10|5|4056FD295367E695\n11|5|3FA88DCFE2CF156C\n12|5|4058FA7E839BCEC2\n13|5|3FD2D19A1E7FD683\n14|5|4058A068FE1CA802\n15|5|3FB04022463F6C4B\n16|5|405819F028E7443E\n17|5|3FAC6C476A69D54B\n18|5|4057542A664B0317\n19|5|3FA9C50F1D89AD48\n20|5|4058FA7E839BCEC2\n21|5|3FD2D19A1E7FD683\n22|5|4058A2365BD53B99\n23|5|3FB04D300AFA1571\n24|5|40581EF1C54B5401\n25|5|3FAC7CC843C27BB9\n26|5|40565697A210BCED\n27|5|3FA6708D366E4054\n28|5|4058FA685F96A217\n29|5|3FD291CA2C89A52F\n30|5|40589DE52A57AE71\n31|5|3FB02E2408F2772C\n32|5|40581BA8405A1E2C\n33|5|3FAC71DC4815D4C8\n34|5|4056FCB0EB40D594\n35|5|3FA88B75F203BE32\n36|5|4058FA6044156993\n37|5|3FD27C30A6D2F723\n38|5|40589D92AABEDAD6\n39|5|3FB02B3B041B6EC3\n40|5|405819FA92DC4B9D\n41|5|3FAC6C66FDD7C82C\n42|5|40575383DFED58F3\n43|5|3FA9C1CF620BFD0D\n44|5|4058FA6044156993\n45|5|3FD27C30A6D2F723\n46|5|40589F497465E127\n47|5|3FB03766D00AB3A3\n48|5|40581EE338ACD485\n49|5|3FAC7C9BB89E1779\n50|5|405651B7BA85FF04\n51|5|3FA660632A7116E3\n52|5|4058FA685F96A217\n53|5|3FD291CA2C89A52F\n54|5|40589DE52A57AE71\n55|5|3FB02E2408F2772C\n56|5|40581B9D579B0C7E\n57|5|3FAC71B971E751BE\n58|5|4056F89FBD374E56\n59|5|3FA87C036B492E9E\n60|5|4058FA6044156993\n61|5|3FD27C30A6D2F723\n62|5|40589D92AABEDAD6\n63|5|3FB02B3B041B6EC3\n64|5|405819EF1219F86D\n65|5|3FAC6C41A8CBD810\n66|5|40574F1218D0E72C\n67|5|3FA9AF835CA8EE09\n68|5|4058FA6044156993\n69|5|3FD27C30A6D2F723\n70|5|40589F497465E127\n71|5|3FB03766D00AB3A3\n72|5|40581EEF6153469F\n73|5|3FAC7CC0F27CB628\n74|5|40565697A210BCED\n75|5|3FA6708D366E41D2\n76|5|4058FA685F96A217\n77|5|3FD291CA2C89A52F\n78|5|40589DE52A57AE71\n79|5|3FB02E2408F2772C\n80|5|40581BAAF0AC7272\n81|5|3FAC71E4DDF5A191\n82|5|4056FD868205DFDD\n83|5|3FA88E10CEF34126\n84|5|4058FA6044156993\n85|5|3FD27C30A6D2F723\n86|5|40589D92AABEDAD6\n87|5|3FB02B3B041B6EC3\n88|5|405819FD68A9EA60\n89|5|3FAC6C70314B913A\n90|5|405753B33DF478E8\n91|5|3FA9C23888A9887A\n92|5|4058FA6044156993\n93|5|3FD27C30A6D2F723\n94|5|40589F497465E127\n95|5|3FB03766D00AB3A3\n96|5|40581EE449791377\n97|5|3FAC7CA17E105FEF\n98|5|40565646D9F9ADB1\n99|5|3FA670D0EE87E962\n100|5|4058FA7E839BCEC2\n101|5|3FD2D19A1E7FD683\n102|5|40589DAF86B4C645\n103|5|3FB02C538FAFBBB7\n104|5|40581B9E6C5E0D1A\n105|5|3FAC71BF34CB2A63\n106|5|4056FD295367E695\n107|5|3FA88DCFE2CF156C\n108|5|4058FA7664A07B1A\n109|5|3FD2BB4849260550\n110|5|40589D65E6C9B2D6\n111|5|3FB029BE1C997624\n112|5|405819F028E7443E\n113|5|3FAC6C476A69D54B\n114|5|4057542A664B0317\n115|5|3FA9C50F1D89AD48\n116|5|4058FA7E839BCEC2\n117|5|3FD2D19A1E7FD683\n118|5|40589F4E34BDF9A7\n119|5|3FB037AF71E160EA\n120|5|4059022B1F9C69A1\n121|5|4058FED1CC330A25\n122|5|4058FF54473650F8\n123|5|0000000000000000\n124|5|4056A6791DDECA1E\n125|5|3FC010E6489696B2\n126|10|Error 2036|#NUM!\n127|10|Error 2036|#NUM!\n128|10|Error 2036|#NUM!\n129|10|Error 2036|#NUM!\n130|10|Error 2015|#VALUE!\n131|10|Error 2036|#NUM!\n132|10|Error 2036|#NUM!\n133|10|Error 2036|#NUM!\n134|10|Error 2036|#NUM!\n135|10|Error 2036|#NUM!\n136|5|40581B9E6C5E0D1A\n137|10|Error 2036|#NUM!\n138|5|40581BA8405A1E2C\n139|10|Error 2036|#NUM!\n140|5|405E19C71C71C71C\n141|5|4053A4376369A347\n142|5|40581B9E6C5E0D1A\n143|10|Error 2042|#N/A\n144|5|40581B9E6C5E0D1A\n145|5|40581B9E6C5E0D1A\n146|10|Error 2015|#VALUE!\n147|10|Error 2036|#NUM!\n148|10|Error 2036|#NUM!\n149|10|Error 2036|#NUM!\n150|10|Error 2036|#NUM!\n151|10|Error 2036|#NUM!\n152|5|3FAC71BF34CB2A63\n153|10|Error 2036|#NUM!\n154|5|3FAC71DC4815D4C8\n155|10|Error 2036|#NUM!\n156|10|Error 2036|#NUM!\n157|5|3F744DE62C4E7BD6\n158|5|3FAC71BF34CB2A63\n159|10|Error 2042|#N/A\n160|5|3FAC71BF34CB2A63\n161|5|3FAC71BF34CB2A63\n162|10|Error 2015|#VALUE!\n163|10|Error 2036|#NUM!\n164|10|Error 2036|#NUM!\n165|10|Error 2036|#NUM!\n166|10|Error 2036|#NUM!\n167|10|Error 2036|#NUM!\n168|5|40582B69442288B2\n169|10|Error 2036|#NUM!\n170|5|40582B5FD30A76F3\n171|10|Error 2036|#NUM!\n172|5|405E19C71C71C71C\n173|5|4054154020E76CC2\n174|5|40582B69442288B2\n175|10|Error 2042|#N/A\n176|5|40582B69442288B2\n177|5|40582B69442288B2\n178|10|Error 2015|#VALUE!\n179|10|Error 2036|#NUM!\n180|10|Error 2036|#NUM!\n181|10|Error 2036|#NUM!\n182|10|Error 2036|#NUM!\n183|10|Error 2036|#NUM!\n184|5|3FAC9E445F19FF59\n185|10|Error 2036|#NUM!\n186|5|3FAC9DE512E9E936\n187|10|Error 2036|#NUM!\n188|10|Error 2036|#NUM!\n189|5|3F747C438F253458\n190|5|3FAC9E445F19FF59\n191|10|Error 2042|#N/A\n192|5|3FAC9E445F19FF59\n193|5|3FAC9E445F19FF59\n",
+  "save_source": "Function SaveIt() As String\nApplication.DisplayAlerts=False\nActiveWorkbook.SaveAs Filename:=\"C:\\Users\\William\\.codex\\worktrees\\excel-odd-bonds\\pyOpenVBA\\.cache\\odd-bonds-native-v2.xlsx\",FileFormat:=51\nSaveIt=\"saved\"\nEnd Function",
+  "save_status": {
+    "ok": true,
+    "dialogs": "[]"
+  },
+  "save_result": "saved",
+  "file": "C:\\Users\\William\\.codex\\worktrees\\excel-odd-bonds\\pyOpenVBA\\.cache\\odd-bonds-native-v2.xlsx",
+  "file_sha256": "a7887a1c306980d6a59a84d9ef95a1c567e32cd6c9162395c57e527174cbf3a8",
+  "parts": {
+    "[Content_Types].xml": "336a2c2199c8d200313507ac174539e0004b84af390e3597bb427f623c6ab0d4",
+    "_rels/.rels": "73e5a29f48d5ab979eeda062493bc7e679265c1344ef936978b8becec5549497",
+    "xl/workbook.xml": "0bf3874c526c648c58d1920c1a71f7138162d1f0429ec0572a0d7ca6506fed6c",
+    "xl/_rels/workbook.xml.rels": "4f1efba4aa3b950708c680e09c734535837d148419c1ec396108366316c7e067",
+    "xl/worksheets/sheet1.xml": "c1db5f21db4025f30174a3b8c6202fcc107a76f7cdcb85917f74d6b6b10e17a6",
+    "xl/theme/theme1.xml": "0c8f48efbaa9f9470fd12aea56b8b7f992d43343c84808b46a0d1738ca46c7ab",
+    "xl/styles.xml": "ffbf8478ae7010457cd06d16f3ae1cfbf21ddf040f0093d465902e71f1037379",
+    "xl/calcChain.xml": "842f900a104544666ad6558a21b53de7ee4c1dc2f01902e9905b7cd609e89c5a",
+    "docProps/core.xml": "df5887646e9c3d76680a0594d0f61684e8e6ef15c03c423d4ff9f716cac07983",
+    "docProps/app.xml": "22b3e2a4f41a0a0b6c93cd0da7b28b84a2375b815f787624e81acaaf32a5d191"
+  },
+  "completed": true,
+  "closed_utc": "2026-10-21T02:26:14.655720+00:00"
+}

@@ -1,6 +1,7 @@
 """Embedded charts share their worksheet's drawing and cell state."""
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 import math
@@ -33,6 +34,7 @@ class SeriesState:
     values: list[object] = field(default_factory=lambda: [])
     category_reference: str = ''
     value_reference: str = ''
+    series_id: int = -1
 
 @dataclass
 class ChartState:
@@ -187,9 +189,17 @@ class Chart(VBAObject):
         self.sheet, self.shape = sheet, shape
         self.state = state(sheet, shape)
 
+    def admit_read(self) -> None:
+        if (not any(book is self.sheet.book for book in self.sheet.book.application.workbooks_.books)
+                or not any(sheet is self.sheet for sheet in self.sheet.book.sheets_)
+                or not any(shape is self.shape for shape in self.sheet.shapes_)
+                or self.sheet.chart_states.get(self.shape.shape_id) is not self.state):
+            raise VBAUnsupportedError('Accessing a detached chart is not implemented')
+
     def admit_change(self) -> None:
         from pyopenvba.apps.excel._protection import guard_drawing
 
+        self.admit_read()
         guard_drawing(self.sheet, 'editing a Chart')
         if self.state.original:
             raise VBAUnsupportedError('Editing the contents of an imported chart is not implemented')
@@ -291,7 +301,7 @@ class Chart(VBAObject):
             if width - labels > MAX_CHART_SERIES:
                 raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
             for column in range(area.left + labels, area.right + 1):
-                series = SeriesState()
+                series = SeriesState(series_id=len(series_plan))
                 if names:
                     series.name_reference = reference(Source.sheet, Area(area.top, column, area.top, column))
                 series.value_reference = reference(Source.sheet, Area(top, column, area.bottom, column))
@@ -305,7 +315,7 @@ class Chart(VBAObject):
             if height - labels > MAX_CHART_SERIES:
                 raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
             for row in range(area.top + labels, area.bottom + 1):
-                series = SeriesState()
+                series = SeriesState(series_id=len(series_plan))
                 if names:
                     series.name_reference = reference(Source.sheet, Area(row, area.left, row, area.left))
                 series.value_reference = reference(Source.sheet, Area(row, left, row, area.right))
@@ -343,12 +353,19 @@ class SeriesCollection(VBACollection):
         self.chart = chart
 
     def vba_items(self) -> list[object]:
+        self.chart.admit_read()
         return [Series(self.chart, entry) for entry in self.chart.state.series]
 
     @method
     def NewSeries(self) -> object:
+        self.chart.admit_change()
+        used = {entry.series_id if entry.series_id >= 0 else index
+                for index, entry in enumerate(self.chart.state.series)}
+        series_id = 0
+        while series_id in used:
+            series_id += 1
+        entry = SeriesState(series_id=series_id)
         self.chart.changed()
-        entry = SeriesState()
         self.chart.state.series.append(entry)
         return Series(self.chart, entry)
 
@@ -360,21 +377,67 @@ class Series(VBAObject):
         self.chart, self.entry = chart, entry
 
     def position(self) -> int:
-        return next(index + 1 for index, entry in enumerate(self.chart.state.series) if entry is self.entry)
+        self.chart.admit_read()
+        for index, entry in enumerate(self.chart.state.series):
+            if entry is self.entry:
+                return index + 1
+        raise error(-2147467261, 'This object is no longer valid.')
+
+    def vba_call_by_name(self, name: str, args: Sequence[object], *, assignment: bool = False,
+                         by_ref: bool = False) -> object:
+        self.chart.admit_read()
+        if (name.lower() in ('name', 'plotorder', 'formula', 'values', 'xvalues')
+                and not any(entry is self.entry for entry in self.chart.state.series)):
+            raise error(440, 'Automation error')
+        return super().vba_call_by_name(name, args, assignment=assignment, by_ref=by_ref)
+
+    @member
+    def PlotOrder(self) -> object:
+        return VBAInt(self.position(), 'Long')
+
+    @setter('PlotOrder')
+    def _plot_order(self, value: object) -> None:
+        self.position()
+        self.chart.admit_change()
+        if value is NULL:
+            raise error(13, 'Type mismatch')
+        wanted = int(to_integer(value, 'Long'))
+        current = self.position()
+        self.chart.admit_change()
+        if not 1 <= wanted <= len(self.chart.state.series):
+            raise error(1004, 'Application-defined or object-defined error')
+        if current == wanted:
+            return
+        entries = self.chart.state.series[:]
+        entries.pop(current - 1)
+        entries.insert(wanted - 1, self.entry)
+        self.chart.changed()
+        self.chart.state.series[:] = entries
+
+    @method
+    def Delete(self) -> object:
+        position = self.position()
+        self.chart.changed()
+        self.chart.state.series.pop(position - 1)
+        return True
 
     @member
     def Name(self) -> object:
+        self.position()
         if self.entry.name_reference:
             values = referenced_values(self.chart.sheet, self.entry.name_reference)
             return to_text(values[0]) if values else ''
-        return self.entry.name if self.entry.name is not None else f'Series{self.position()}'
+        identity = self.entry.series_id + 1 if self.entry.series_id >= 0 else self.position()
+        return self.entry.name if self.entry.name is not None else f'Series{identity}'
 
     @setter('Name')
     def _name(self, value: object) -> None:
+        self.position()
         self.chart.admit_change()
         text = to_text(value)
         if text.startswith('=') and len(text) > MAX_CHART_REFERENCE_TEXT:
             raise VBAUnsupportedError('Chart references exceed the supported text budget')
+        self.position()
         self.chart.changed()
         self.entry.name_reference = text[1:] if text.startswith('=') else ''
         self.entry.name = text if not self.entry.name_reference else ''
@@ -387,37 +450,43 @@ class Series(VBAObject):
 
     @setter('Values')
     def _values(self, value: object) -> None:
+        self.position()
         self.chart.admit_change()
         reference, values = series_input(value, sheet=self.chart.sheet)
+        self.position()
         self.chart.changed()
         self.entry.value_reference, self.entry.values = reference, values
 
     @member
     def XValues(self) -> object:
-        values = self.categories()
+        values = list(self.categories())
         return VBAArray([(1, len(values))], items=values)
 
     @setter('XValues')
     def _categories(self, value: object) -> None:
+        self.position()
         self.chart.admit_change()
         reference, values = series_input(value, sheet=self.chart.sheet)
+        self.position()
         self.chart.changed()
         self.entry.category_reference, self.entry.categories = reference, values
 
     def values(self) -> list[object]:
+        self.position()
         return referenced_values(self.chart.sheet, self.entry.value_reference) if self.entry.value_reference else self.entry.values
 
     def categories(self) -> list[object]:
+        self.position()
         if self.entry.category_reference:
             return referenced_values(self.chart.sheet, self.entry.category_reference)
         return self.entry.categories or [float(index + 1) for index in range(len(self.values()))]
 
     @member
     def Formula(self) -> object:
+        order = self.position()
         name = self.entry.name_reference or (quoted(self.entry.name) if self.entry.name is not None else '')
         categories = self.entry.category_reference or literal_array(self.entry.categories)
         values = self.entry.value_reference or literal_array(self.entry.values)
-        order = self.position()
         return f'=SERIES({name},{categories},{values},{order})'
 
 

@@ -1481,7 +1481,7 @@ Series,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 Series,Copy,method,Copy() As Variant,,MISSING,,
 Series,Creator,"property, read-only",As XlCreator,,MISSING,,
 Series,DataLabels,method,DataLabels([Index As Variant]) As Object,,MISSING,,
-Series,Delete,method,Delete() As Variant,,MISSING,,
+Series,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,ErrorBar,method,"ErrorBar(Direction As XlErrorBarDirection, Include As XlErrorBarInclude, Type As XlErrorBarType, [Amount As Variant], [MinusValues As Variant]) As Variant",,MISSING,,
 Series,ErrorBars,"property, read-only",As ErrorBars,,MISSING,,
 Series,Explosion,property,As Long,,MISSING,,
@@ -1508,14 +1508,14 @@ Series,MarkerForegroundColor,property,As Long,,MISSING,,
 Series,MarkerForegroundColorIndex,property,As XlColorIndex,,MISSING,,
 Series,MarkerSize,property,As Long,,MISSING,,
 Series,MarkerStyle,property,As XlMarkerStyle,,MISSING,,
-Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
+Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete
 Series,Parent,"property, read-only",As Object,,MISSING,,
 Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,MISSING,,
 Series,Paste,method,Paste() As Variant,,MISSING,,
 Series,PictureType,property,As XlChartPictureType,,MISSING,,
 Series,PictureUnit2,property,As Double,,MISSING,,
 Series,PlotColorIndex,"property, read-only",As Long,,MISSING,,
-Series,PlotOrder,property,As Long,,MISSING,,
+Series,PlotOrder,property,As Long,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,Points,method,Points([Index As Variant]) As Object,,MISSING,,
 Series,QuartileCalculationInclusiveMedian,property,As Boolean,,MISSING,,
 Series,RegionLabelOption,property,As XlRegionLabelOptions,,MISSING,,
@@ -1531,7 +1531,7 @@ Series,Trendlines,method,Trendlines([Index As Variant]) As Object,,MISSING,,
 Series,Type,property,As Long,,MISSING,,
 Series,Values,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Series,ValueSortOrder,property,As XlValueSortOrder,,MISSING,,
-Series,XValues,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
+Series,XValues,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_lifecycle.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit; category readback returns independent array storage
 SeriesCollection,_Default,method,_Default(Index As Variant) As Series,,MISSING,,
 SeriesCollection,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 SeriesCollection,Add,method,"Add(Source As Variant, [Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant]) As Series",,MISSING,,
@@ -1540,7 +1540,7 @@ SeriesCollection,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/exc
 SeriesCollection,Creator,"property, read-only",As XlCreator,,MISSING,,
 SeriesCollection,Extend,method,"Extend(Source As Variant, [Rowcol As Variant], [CategoryLabels As Variant]) As Variant",,MISSING,,
 SeriesCollection,Item,method,Item(Index As Variant) As Series,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-SeriesCollection,NewSeries,method,NewSeries() As Series,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+SeriesCollection,NewSeries,method,NewSeries() As Series,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete
 SeriesCollection,Parent,"property, read-only",As Object,,MISSING,,
 SeriesCollection,Paste,method,"Paste([Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant], [NewSeries As Variant]) As Variant",,MISSING,,
 Shape,Adjustments,"property, read-only",As Adjustments,,MISSING,,

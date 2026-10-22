@@ -35,7 +35,6 @@ GAPS: dict[str, str] = {
     'quoted_bracketed': "in brackets of their own Excel reads 'ThreeA:ThreeB'!A1 as a workbook named ThreeB, writing "
                         "it 'ThreeA:[ThreeB]ThreeB'!A1, #REF!; the model reads the 3D reference",
     'spaced_sheets_bracketed': "the same for 'Three A:Three B'!A1, which Excel writes 'Three A:[Three B]Three B'!A1",
-    'npv': 'Excel gives the cell of an NPV formula a currency format, so Value is a Currency; the model gives it none',
 }
 
 

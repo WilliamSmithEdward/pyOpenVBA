@@ -40,6 +40,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pair first sheet to last, and reads `Q1:Q4!A1` and `(ThreeA:ThreeB!A1)`
   otherwise, which the model follows.
 
+- A formula's cell takes the format Excel gives the financial functions:
+  DB, DDB, FV, IPMT, NPV, PMT, PPMT, PV, SLN, SYD and VDB the currency
+  format, so the cell's Value is a Currency, and IRR, MIRR and RATE 0%.
+  Every one of the engine's 501 functions was written alone to a General
+  cell in Excel to find them.
+
 - A sheet's name in a formula is quoted as Excel quotes it, over 76
   measured names: plain names in any script, full stops included, are
   bare, while names like cells (`'Q4'`), R1C1 rows and columns (`'R2'`,

@@ -1,0 +1,2067 @@
+{
+ "excel_version_build": "16.0|20430",
+ "measured_at": "2026-10-22T19:59:58.798395+00:00",
+ "functions": {
+  "ABS": {
+   "formula": "=ABS(A1)",
+   "format": "General"
+  },
+  "ACCRINT": {
+   "formula": "=ACCRINT(A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "ACCRINTM": {
+   "formula": "=ACCRINTM(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "ACOS": {
+   "formula": "=ACOS(A1)",
+   "format": "General"
+  },
+  "ACOSH": {
+   "formula": "=ACOSH(A1)",
+   "format": "General"
+  },
+  "ACOT": {
+   "formula": "=ACOT(A1)",
+   "format": "General"
+  },
+  "ACOTH": {
+   "formula": "=ACOTH(A1)",
+   "format": "General"
+  },
+  "ADDRESS": {
+   "formula": "=ADDRESS(A1,A1)",
+   "format": "General"
+  },
+  "AGGREGATE": {
+   "formula": "=AGGREGATE(A1,A1,A1)",
+   "format": "General"
+  },
+  "AMORDEGRC": {
+   "formula": "=AMORDEGRC(A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "AMORLINC": {
+   "formula": "=AMORLINC(A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "ANCHORARRAY": {
+   "formula": "=ANCHORARRAY(A1)",
+   "format": "!1004"
+  },
+  "AND": {
+   "formula": "=AND(A1)",
+   "format": "General"
+  },
+  "ARABIC": {
+   "formula": "=ARABIC(A1)",
+   "format": "General"
+  },
+  "AREAS": {
+   "formula": "=AREAS(A1)",
+   "format": "General"
+  },
+  "ARRAYTOTEXT": {
+   "formula": "=ARRAYTOTEXT(A1)",
+   "format": "General"
+  },
+  "ASC": {
+   "formula": "=ASC(A1)",
+   "format": "General"
+  },
+  "ASIN": {
+   "formula": "=ASIN(A1)",
+   "format": "General"
+  },
+  "ASINH": {
+   "formula": "=ASINH(A1)",
+   "format": "General"
+  },
+  "ATAN": {
+   "formula": "=ATAN(A1)",
+   "format": "General"
+  },
+  "ATAN2": {
+   "formula": "=ATAN2(A1,A1)",
+   "format": "General"
+  },
+  "ATANH": {
+   "formula": "=ATANH(A1)",
+   "format": "General"
+  },
+  "AVEDEV": {
+   "formula": "=AVEDEV(A1)",
+   "format": "General"
+  },
+  "AVERAGE": {
+   "formula": "=AVERAGE(A1)",
+   "format": "General"
+  },
+  "AVERAGEA": {
+   "formula": "=AVERAGEA(A1)",
+   "format": "General"
+  },
+  "AVERAGEIF": {
+   "formula": "=AVERAGEIF(A1,A1)",
+   "format": "General"
+  },
+  "AVERAGEIFS": {
+   "formula": "=AVERAGEIFS(A1,A1,A1)",
+   "format": "General"
+  },
+  "BAHTTEXT": {
+   "formula": "=BAHTTEXT(A1)",
+   "format": "General"
+  },
+  "BASE": {
+   "formula": "=BASE(A1,A1)",
+   "format": "General"
+  },
+  "BESSELI": {
+   "formula": "=BESSELI(A1,A1)",
+   "format": "General"
+  },
+  "BESSELJ": {
+   "formula": "=BESSELJ(A1,A1)",
+   "format": "General"
+  },
+  "BESSELK": {
+   "formula": "=BESSELK(A1,A1)",
+   "format": "General"
+  },
+  "BESSELY": {
+   "formula": "=BESSELY(A1,A1)",
+   "format": "General"
+  },
+  "BETA.DIST": {
+   "formula": "=BETA.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "BETA.INV": {
+   "formula": "=BETA.INV(A1,A1,A1)",
+   "format": "General"
+  },
+  "BETADIST": {
+   "formula": "=BETADIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "BETAINV": {
+   "formula": "=BETAINV(A1,A1,A1)",
+   "format": "General"
+  },
+  "BIN2DEC": {
+   "formula": "=BIN2DEC(A1)",
+   "format": "General"
+  },
+  "BIN2HEX": {
+   "formula": "=BIN2HEX(A1)",
+   "format": "General"
+  },
+  "BIN2OCT": {
+   "formula": "=BIN2OCT(A1)",
+   "format": "General"
+  },
+  "BINOM.DIST": {
+   "formula": "=BINOM.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "BINOM.DIST.RANGE": {
+   "formula": "=BINOM.DIST.RANGE(A1,A1,A1)",
+   "format": "General"
+  },
+  "BINOM.INV": {
+   "formula": "=BINOM.INV(A1,A1,A1)",
+   "format": "General"
+  },
+  "BINOMDIST": {
+   "formula": "=BINOMDIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "BITAND": {
+   "formula": "=BITAND(A1,A1)",
+   "format": "General"
+  },
+  "BITLSHIFT": {
+   "formula": "=BITLSHIFT(A1,A1)",
+   "format": "General"
+  },
+  "BITOR": {
+   "formula": "=BITOR(A1,A1)",
+   "format": "General"
+  },
+  "BITRSHIFT": {
+   "formula": "=BITRSHIFT(A1,A1)",
+   "format": "General"
+  },
+  "BITXOR": {
+   "formula": "=BITXOR(A1,A1)",
+   "format": "General"
+  },
+  "BYCOL": {
+   "formula": "=BYCOL(A1)",
+   "format": "General"
+  },
+  "BYROW": {
+   "formula": "=BYROW(A1)",
+   "format": "General"
+  },
+  "CEILING": {
+   "formula": "=CEILING(A1,A1)",
+   "format": "General"
+  },
+  "CEILING.MATH": {
+   "formula": "=CEILING.MATH(A1)",
+   "format": "General"
+  },
+  "CEILING.PRECISE": {
+   "formula": "=CEILING.PRECISE(A1)",
+   "format": "General"
+  },
+  "CELL": {
+   "formula": "=CELL(A1)",
+   "format": "General"
+  },
+  "CHAR": {
+   "formula": "=CHAR(A1)",
+   "format": "General"
+  },
+  "CHIDIST": {
+   "formula": "=CHIDIST(A1,A1)",
+   "format": "General"
+  },
+  "CHIINV": {
+   "formula": "=CHIINV(A1,A1)",
+   "format": "General"
+  },
+  "CHISQ.DIST": {
+   "formula": "=CHISQ.DIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "CHISQ.DIST.RT": {
+   "formula": "=CHISQ.DIST.RT(A1,A1)",
+   "format": "General"
+  },
+  "CHISQ.INV": {
+   "formula": "=CHISQ.INV(A1,A1)",
+   "format": "General"
+  },
+  "CHISQ.INV.RT": {
+   "formula": "=CHISQ.INV.RT(A1,A1)",
+   "format": "General"
+  },
+  "CHISQ.TEST": {
+   "formula": "=CHISQ.TEST(A1,A1)",
+   "format": "General"
+  },
+  "CHITEST": {
+   "formula": "=CHITEST(A1,A1)",
+   "format": "General"
+  },
+  "CHOOSE": {
+   "formula": "=CHOOSE(A1,A1)",
+   "format": "General"
+  },
+  "CHOOSECOLS": {
+   "formula": "=CHOOSECOLS(A1,A1)",
+   "format": "General"
+  },
+  "CHOOSEROWS": {
+   "formula": "=CHOOSEROWS(A1,A1)",
+   "format": "General"
+  },
+  "CLEAN": {
+   "formula": "=CLEAN(A1)",
+   "format": "General"
+  },
+  "CODE": {
+   "formula": "=CODE(A1)",
+   "format": "General"
+  },
+  "COLUMN": {
+   "formula": "=COLUMN()",
+   "format": "General"
+  },
+  "COLUMNS": {
+   "formula": "=COLUMNS(A1)",
+   "format": "General"
+  },
+  "COMBIN": {
+   "formula": "=COMBIN(A1,A1)",
+   "format": "General"
+  },
+  "COMBINA": {
+   "formula": "=COMBINA(A1,A1)",
+   "format": "General"
+  },
+  "COMPLEX": {
+   "formula": "=COMPLEX(A1,A1)",
+   "format": "General"
+  },
+  "CONCAT": {
+   "formula": "=CONCAT(A1)",
+   "format": "General"
+  },
+  "CONCATENATE": {
+   "formula": "=CONCATENATE(A1)",
+   "format": "General"
+  },
+  "CONFIDENCE": {
+   "formula": "=CONFIDENCE(A1,A1,A1)",
+   "format": "General"
+  },
+  "CONFIDENCE.NORM": {
+   "formula": "=CONFIDENCE.NORM(A1,A1,A1)",
+   "format": "General"
+  },
+  "CONFIDENCE.T": {
+   "formula": "=CONFIDENCE.T(A1,A1,A1)",
+   "format": "General"
+  },
+  "CONVERT": {
+   "formula": "=CONVERT(A1,A1,A1)",
+   "format": "General"
+  },
+  "CORREL": {
+   "formula": "=CORREL(A1,A1)",
+   "format": "General"
+  },
+  "COS": {
+   "formula": "=COS(A1)",
+   "format": "General"
+  },
+  "COSH": {
+   "formula": "=COSH(A1)",
+   "format": "General"
+  },
+  "COT": {
+   "formula": "=COT(A1)",
+   "format": "General"
+  },
+  "COTH": {
+   "formula": "=COTH(A1)",
+   "format": "General"
+  },
+  "COUNT": {
+   "formula": "=COUNT(A1)",
+   "format": "General"
+  },
+  "COUNTA": {
+   "formula": "=COUNTA(A1)",
+   "format": "General"
+  },
+  "COUNTBLANK": {
+   "formula": "=COUNTBLANK(A1)",
+   "format": "General"
+  },
+  "COUNTIF": {
+   "formula": "=COUNTIF(A1,A1)",
+   "format": "General"
+  },
+  "COUNTIFS": {
+   "formula": "=COUNTIFS(A1,A1)",
+   "format": "General"
+  },
+  "COUPDAYBS": {
+   "formula": "=COUPDAYBS(A1,A1,A1)",
+   "format": "General"
+  },
+  "COUPDAYS": {
+   "formula": "=COUPDAYS(A1,A1,A1)",
+   "format": "General"
+  },
+  "COUPDAYSNC": {
+   "formula": "=COUPDAYSNC(A1,A1,A1)",
+   "format": "General"
+  },
+  "COUPNCD": {
+   "formula": "=COUPNCD(A1,A1,A1)",
+   "format": "General"
+  },
+  "COUPNUM": {
+   "formula": "=COUPNUM(A1,A1,A1)",
+   "format": "General"
+  },
+  "COUPPCD": {
+   "formula": "=COUPPCD(A1,A1,A1)",
+   "format": "General"
+  },
+  "COVAR": {
+   "formula": "=COVAR(A1,A1)",
+   "format": "General"
+  },
+  "COVARIANCE.P": {
+   "formula": "=COVARIANCE.P(A1,A1)",
+   "format": "General"
+  },
+  "COVARIANCE.S": {
+   "formula": "=COVARIANCE.S(A1,A1)",
+   "format": "General"
+  },
+  "CRITBINOM": {
+   "formula": "=CRITBINOM(A1,A1,A1)",
+   "format": "General"
+  },
+  "CSC": {
+   "formula": "=CSC(A1)",
+   "format": "General"
+  },
+  "CSCH": {
+   "formula": "=CSCH(A1)",
+   "format": "General"
+  },
+  "CUMIPMT": {
+   "formula": "=CUMIPMT(A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "CUMPRINC": {
+   "formula": "=CUMPRINC(A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "DATE": {
+   "formula": "=DATE(A1,A1,A1)",
+   "format": "m/d/yyyy"
+  },
+  "DATEDIF": {
+   "formula": "=DATEDIF(A1,A1,A1)",
+   "format": "General"
+  },
+  "DATEVALUE": {
+   "formula": "=DATEVALUE(A1)",
+   "format": "General"
+  },
+  "DAVERAGE": {
+   "formula": "=DAVERAGE(A1,A1,A1)",
+   "format": "General"
+  },
+  "DAY": {
+   "formula": "=DAY(A1)",
+   "format": "General"
+  },
+  "DAYS": {
+   "formula": "=DAYS(A1,A1)",
+   "format": "General"
+  },
+  "DAYS360": {
+   "formula": "=DAYS360(A1,A1)",
+   "format": "General"
+  },
+  "DB": {
+   "formula": "=DB(A1,A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "DBCS": {
+   "formula": "=DBCS(A1)",
+   "format": "General"
+  },
+  "DCOUNT": {
+   "formula": "=DCOUNT(A1,A1,A1)",
+   "format": "General"
+  },
+  "DCOUNTA": {
+   "formula": "=DCOUNTA(A1,A1,A1)",
+   "format": "General"
+  },
+  "DDB": {
+   "formula": "=DDB(A1,A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "DEC2BIN": {
+   "formula": "=DEC2BIN(A1)",
+   "format": "General"
+  },
+  "DEC2HEX": {
+   "formula": "=DEC2HEX(A1)",
+   "format": "General"
+  },
+  "DEC2OCT": {
+   "formula": "=DEC2OCT(A1)",
+   "format": "General"
+  },
+  "DECIMAL": {
+   "formula": "=DECIMAL(A1,A1)",
+   "format": "General"
+  },
+  "DEGREES": {
+   "formula": "=DEGREES(A1)",
+   "format": "General"
+  },
+  "DELTA": {
+   "formula": "=DELTA(A1)",
+   "format": "General"
+  },
+  "DEVSQ": {
+   "formula": "=DEVSQ(A1)",
+   "format": "General"
+  },
+  "DGET": {
+   "formula": "=DGET(A1,A1,A1)",
+   "format": "General"
+  },
+  "DISC": {
+   "formula": "=DISC(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "DMAX": {
+   "formula": "=DMAX(A1,A1,A1)",
+   "format": "General"
+  },
+  "DMIN": {
+   "formula": "=DMIN(A1,A1,A1)",
+   "format": "General"
+  },
+  "DOLLAR": {
+   "formula": "=DOLLAR(A1)",
+   "format": "General"
+  },
+  "DOLLARDE": {
+   "formula": "=DOLLARDE(A1,A1)",
+   "format": "General"
+  },
+  "DOLLARFR": {
+   "formula": "=DOLLARFR(A1,A1)",
+   "format": "General"
+  },
+  "DPRODUCT": {
+   "formula": "=DPRODUCT(A1,A1,A1)",
+   "format": "General"
+  },
+  "DROP": {
+   "formula": "=DROP(A1,A1)",
+   "format": "General"
+  },
+  "DSTDEV": {
+   "formula": "=DSTDEV(A1,A1,A1)",
+   "format": "General"
+  },
+  "DSTDEVP": {
+   "formula": "=DSTDEVP(A1,A1,A1)",
+   "format": "General"
+  },
+  "DSUM": {
+   "formula": "=DSUM(A1,A1,A1)",
+   "format": "General"
+  },
+  "DURATION": {
+   "formula": "=DURATION(A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "DVAR": {
+   "formula": "=DVAR(A1,A1,A1)",
+   "format": "General"
+  },
+  "DVARP": {
+   "formula": "=DVARP(A1,A1,A1)",
+   "format": "General"
+  },
+  "ECMA.CEILING": {
+   "formula": "=ECMA.CEILING(A1,A1)",
+   "format": "General"
+  },
+  "EDATE": {
+   "formula": "=EDATE(A1,A1)",
+   "format": "General"
+  },
+  "EFFECT": {
+   "formula": "=EFFECT(A1,A1)",
+   "format": "General"
+  },
+  "ENCODEURL": {
+   "formula": "=ENCODEURL(A1)",
+   "format": "General"
+  },
+  "EOMONTH": {
+   "formula": "=EOMONTH(A1,A1)",
+   "format": "General"
+  },
+  "ERF": {
+   "formula": "=ERF(A1)",
+   "format": "General"
+  },
+  "ERF.PRECISE": {
+   "formula": "=ERF.PRECISE(A1)",
+   "format": "General"
+  },
+  "ERFC": {
+   "formula": "=ERFC(A1)",
+   "format": "General"
+  },
+  "ERFC.PRECISE": {
+   "formula": "=ERFC.PRECISE(A1)",
+   "format": "General"
+  },
+  "ERROR.TYPE": {
+   "formula": "=ERROR.TYPE(A1)",
+   "format": "General"
+  },
+  "EVEN": {
+   "formula": "=EVEN(A1)",
+   "format": "General"
+  },
+  "EXACT": {
+   "formula": "=EXACT(A1,A1)",
+   "format": "General"
+  },
+  "EXP": {
+   "formula": "=EXP(A1)",
+   "format": "General"
+  },
+  "EXPAND": {
+   "formula": "=EXPAND(A1,A1)",
+   "format": "General"
+  },
+  "EXPON.DIST": {
+   "formula": "=EXPON.DIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "EXPONDIST": {
+   "formula": "=EXPONDIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "F.DIST": {
+   "formula": "=F.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "F.DIST.RT": {
+   "formula": "=F.DIST.RT(A1,A1,A1)",
+   "format": "General"
+  },
+  "F.INV": {
+   "formula": "=F.INV(A1,A1,A1)",
+   "format": "General"
+  },
+  "F.INV.RT": {
+   "formula": "=F.INV.RT(A1,A1,A1)",
+   "format": "General"
+  },
+  "F.TEST": {
+   "formula": "=F.TEST(A1,A1)",
+   "format": "General"
+  },
+  "FACT": {
+   "formula": "=FACT(A1)",
+   "format": "General"
+  },
+  "FACTDOUBLE": {
+   "formula": "=FACTDOUBLE(A1)",
+   "format": "General"
+  },
+  "FALSE": {
+   "formula": "=FALSE()",
+   "format": "General"
+  },
+  "FDIST": {
+   "formula": "=FDIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "FILTER": {
+   "formula": "=FILTER(A1,A1)",
+   "format": "General"
+  },
+  "FIND": {
+   "formula": "=FIND(A1,A1)",
+   "format": "General"
+  },
+  "FINDB": {
+   "formula": "=FINDB(A1,A1)",
+   "format": "General"
+  },
+  "FINV": {
+   "formula": "=FINV(A1,A1,A1)",
+   "format": "General"
+  },
+  "FISHER": {
+   "formula": "=FISHER(A1)",
+   "format": "General"
+  },
+  "FISHERINV": {
+   "formula": "=FISHERINV(A1)",
+   "format": "General"
+  },
+  "FIXED": {
+   "formula": "=FIXED(A1)",
+   "format": "General"
+  },
+  "FLOOR": {
+   "formula": "=FLOOR(A1,A1)",
+   "format": "General"
+  },
+  "FLOOR.MATH": {
+   "formula": "=FLOOR.MATH(A1)",
+   "format": "General"
+  },
+  "FLOOR.PRECISE": {
+   "formula": "=FLOOR.PRECISE(A1)",
+   "format": "General"
+  },
+  "FORECAST": {
+   "formula": "=FORECAST(A1,A1,A1)",
+   "format": "General"
+  },
+  "FORECAST.LINEAR": {
+   "formula": "=FORECAST.LINEAR(A1,A1,A1)",
+   "format": "General"
+  },
+  "FORMULATEXT": {
+   "formula": "=FORMULATEXT(A1)",
+   "format": "General"
+  },
+  "FREQUENCY": {
+   "formula": "=FREQUENCY(A1,A1)",
+   "format": "General"
+  },
+  "FTEST": {
+   "formula": "=FTEST(A1,A1)",
+   "format": "General"
+  },
+  "FV": {
+   "formula": "=FV(A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "FVSCHEDULE": {
+   "formula": "=FVSCHEDULE(A1,A1)",
+   "format": "General"
+  },
+  "GAMMA": {
+   "formula": "=GAMMA(A1)",
+   "format": "General"
+  },
+  "GAMMA.DIST": {
+   "formula": "=GAMMA.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "GAMMA.INV": {
+   "formula": "=GAMMA.INV(A1,A1,A1)",
+   "format": "General"
+  },
+  "GAMMADIST": {
+   "formula": "=GAMMADIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "GAMMAINV": {
+   "formula": "=GAMMAINV(A1,A1,A1)",
+   "format": "General"
+  },
+  "GAMMALN": {
+   "formula": "=GAMMALN(A1)",
+   "format": "General"
+  },
+  "GAMMALN.PRECISE": {
+   "formula": "=GAMMALN.PRECISE(A1)",
+   "format": "General"
+  },
+  "GAUSS": {
+   "formula": "=GAUSS(A1)",
+   "format": "General"
+  },
+  "GCD": {
+   "formula": "=GCD(A1)",
+   "format": "General"
+  },
+  "GEOMEAN": {
+   "formula": "=GEOMEAN(A1)",
+   "format": "General"
+  },
+  "GESTEP": {
+   "formula": "=GESTEP(A1)",
+   "format": "General"
+  },
+  "GETPIVOTDATA": {
+   "formula": "=GETPIVOTDATA(A1,A1)",
+   "format": "General"
+  },
+  "GROUPBY": {
+   "formula": "=GROUPBY(A1,A1,A1)",
+   "format": "General"
+  },
+  "GROWTH": {
+   "formula": "=GROWTH(A1)",
+   "format": "General"
+  },
+  "HARMEAN": {
+   "formula": "=HARMEAN(A1)",
+   "format": "General"
+  },
+  "HEX2BIN": {
+   "formula": "=HEX2BIN(A1)",
+   "format": "General"
+  },
+  "HEX2DEC": {
+   "formula": "=HEX2DEC(A1)",
+   "format": "General"
+  },
+  "HEX2OCT": {
+   "formula": "=HEX2OCT(A1)",
+   "format": "General"
+  },
+  "HLOOKUP": {
+   "formula": "=HLOOKUP(A1,A1,A1)",
+   "format": "General"
+  },
+  "HOUR": {
+   "formula": "=HOUR(A1)",
+   "format": "General"
+  },
+  "HSTACK": {
+   "formula": "=HSTACK(A1)",
+   "format": "General"
+  },
+  "HYPERLINK": {
+   "formula": "=HYPERLINK(A1)",
+   "format": "General"
+  },
+  "HYPGEOM.DIST": {
+   "formula": "=HYPGEOM.DIST(A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "HYPGEOMDIST": {
+   "formula": "=HYPGEOMDIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "IF": {
+   "formula": "=IF(A1,A1)",
+   "format": "General"
+  },
+  "IFERROR": {
+   "formula": "=IFERROR(A1,A1)",
+   "format": "General"
+  },
+  "IFNA": {
+   "formula": "=IFNA(A1,A1)",
+   "format": "General"
+  },
+  "IFS": {
+   "formula": "=IFS(A1,A1)",
+   "format": "General"
+  },
+  "IMABS": {
+   "formula": "=IMABS(A1)",
+   "format": "General"
+  },
+  "IMAGINARY": {
+   "formula": "=IMAGINARY(A1)",
+   "format": "General"
+  },
+  "IMARGUMENT": {
+   "formula": "=IMARGUMENT(A1)",
+   "format": "General"
+  },
+  "IMCONJUGATE": {
+   "formula": "=IMCONJUGATE(A1)",
+   "format": "General"
+  },
+  "IMCOS": {
+   "formula": "=IMCOS(A1)",
+   "format": "General"
+  },
+  "IMCOSH": {
+   "formula": "=IMCOSH(A1)",
+   "format": "General"
+  },
+  "IMCOT": {
+   "formula": "=IMCOT(A1)",
+   "format": "General"
+  },
+  "IMCSC": {
+   "formula": "=IMCSC(A1)",
+   "format": "General"
+  },
+  "IMCSCH": {
+   "formula": "=IMCSCH(A1)",
+   "format": "General"
+  },
+  "IMDIV": {
+   "formula": "=IMDIV(A1,A1)",
+   "format": "General"
+  },
+  "IMEXP": {
+   "formula": "=IMEXP(A1)",
+   "format": "General"
+  },
+  "IMLN": {
+   "formula": "=IMLN(A1)",
+   "format": "General"
+  },
+  "IMLOG10": {
+   "formula": "=IMLOG10(A1)",
+   "format": "General"
+  },
+  "IMLOG2": {
+   "formula": "=IMLOG2(A1)",
+   "format": "General"
+  },
+  "IMPOWER": {
+   "formula": "=IMPOWER(A1,A1)",
+   "format": "General"
+  },
+  "IMPRODUCT": {
+   "formula": "=IMPRODUCT(A1)",
+   "format": "General"
+  },
+  "IMREAL": {
+   "formula": "=IMREAL(A1)",
+   "format": "General"
+  },
+  "IMSEC": {
+   "formula": "=IMSEC(A1)",
+   "format": "General"
+  },
+  "IMSECH": {
+   "formula": "=IMSECH(A1)",
+   "format": "General"
+  },
+  "IMSIN": {
+   "formula": "=IMSIN(A1)",
+   "format": "General"
+  },
+  "IMSINH": {
+   "formula": "=IMSINH(A1)",
+   "format": "General"
+  },
+  "IMSQRT": {
+   "formula": "=IMSQRT(A1)",
+   "format": "General"
+  },
+  "IMSUB": {
+   "formula": "=IMSUB(A1,A1)",
+   "format": "General"
+  },
+  "IMSUM": {
+   "formula": "=IMSUM(A1)",
+   "format": "General"
+  },
+  "IMTAN": {
+   "formula": "=IMTAN(A1)",
+   "format": "General"
+  },
+  "INDEX": {
+   "formula": "=INDEX(A1,1)",
+   "format": "General"
+  },
+  "INDIRECT": {
+   "formula": "=INDIRECT(A1)",
+   "format": "General"
+  },
+  "INT": {
+   "formula": "=INT(A1)",
+   "format": "General"
+  },
+  "INTERCEPT": {
+   "formula": "=INTERCEPT(A1,A1)",
+   "format": "General"
+  },
+  "INTRATE": {
+   "formula": "=INTRATE(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "IPMT": {
+   "formula": "=IPMT(A1,A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "IRR": {
+   "formula": "=IRR(A1)",
+   "format": "0%"
+  },
+  "ISBLANK": {
+   "formula": "=ISBLANK(A1)",
+   "format": "General"
+  },
+  "ISERR": {
+   "formula": "=ISERR(A1)",
+   "format": "General"
+  },
+  "ISERROR": {
+   "formula": "=ISERROR(A1)",
+   "format": "General"
+  },
+  "ISEVEN": {
+   "formula": "=ISEVEN(A1)",
+   "format": "General"
+  },
+  "ISFORMULA": {
+   "formula": "=ISFORMULA(A1)",
+   "format": "General"
+  },
+  "ISLOGICAL": {
+   "formula": "=ISLOGICAL(A1)",
+   "format": "General"
+  },
+  "ISNA": {
+   "formula": "=ISNA(A1)",
+   "format": "General"
+  },
+  "ISNONTEXT": {
+   "formula": "=ISNONTEXT(A1)",
+   "format": "General"
+  },
+  "ISNUMBER": {
+   "formula": "=ISNUMBER(A1)",
+   "format": "General"
+  },
+  "ISO.CEILING": {
+   "formula": "=ISO.CEILING(A1)",
+   "format": "General"
+  },
+  "ISODD": {
+   "formula": "=ISODD(A1)",
+   "format": "General"
+  },
+  "ISOMITTED": {
+   "formula": "=ISOMITTED(A1)",
+   "format": "General"
+  },
+  "ISOWEEKNUM": {
+   "formula": "=ISOWEEKNUM(A1)",
+   "format": "General"
+  },
+  "ISPMT": {
+   "formula": "=ISPMT(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "ISREF": {
+   "formula": "=ISREF(A1)",
+   "format": "General"
+  },
+  "ISTEXT": {
+   "formula": "=ISTEXT(A1)",
+   "format": "General"
+  },
+  "KURT": {
+   "formula": "=KURT(A1)",
+   "format": "General"
+  },
+  "LAMBDA": {
+   "formula": "=LAMBDA(x,x)(A1)",
+   "format": "General"
+  },
+  "LARGE": {
+   "formula": "=LARGE(A1,A1)",
+   "format": "General"
+  },
+  "LCM": {
+   "formula": "=LCM(A1)",
+   "format": "General"
+  },
+  "LEFT": {
+   "formula": "=LEFT(A1)",
+   "format": "General"
+  },
+  "LEFTB": {
+   "formula": "=LEFTB(A1)",
+   "format": "General"
+  },
+  "LEN": {
+   "formula": "=LEN(A1)",
+   "format": "General"
+  },
+  "LENB": {
+   "formula": "=LENB(A1)",
+   "format": "General"
+  },
+  "LET": {
+   "formula": "=LET(x,A1,x)",
+   "format": "General"
+  },
+  "LINEST": {
+   "formula": "=LINEST(A1)",
+   "format": "General"
+  },
+  "LN": {
+   "formula": "=LN(A1)",
+   "format": "General"
+  },
+  "LOG": {
+   "formula": "=LOG(A1)",
+   "format": "General"
+  },
+  "LOG10": {
+   "formula": "=LOG10(A1)",
+   "format": "General"
+  },
+  "LOGEST": {
+   "formula": "=LOGEST(A1)",
+   "format": "General"
+  },
+  "LOGINV": {
+   "formula": "=LOGINV(A1,A1,A1)",
+   "format": "General"
+  },
+  "LOGNORM.DIST": {
+   "formula": "=LOGNORM.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "LOGNORM.INV": {
+   "formula": "=LOGNORM.INV(A1,A1,A1)",
+   "format": "General"
+  },
+  "LOGNORMDIST": {
+   "formula": "=LOGNORMDIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "LOOKUP": {
+   "formula": "=LOOKUP(A1,A1)",
+   "format": "General"
+  },
+  "LOWER": {
+   "formula": "=LOWER(A1)",
+   "format": "General"
+  },
+  "MAKEARRAY": {
+   "formula": "=MAKEARRAY(A1,A1,A1)",
+   "format": "General"
+  },
+  "MAP": {
+   "formula": "=MAP(A1,LAMBDA(x,x))",
+   "format": "General"
+  },
+  "MATCH": {
+   "formula": "=MATCH(A1,A1)",
+   "format": "General"
+  },
+  "MAX": {
+   "formula": "=MAX(A1)",
+   "format": "General"
+  },
+  "MAXA": {
+   "formula": "=MAXA(A1)",
+   "format": "General"
+  },
+  "MAXIFS": {
+   "formula": "=MAXIFS(A1,A1,A1)",
+   "format": "General"
+  },
+  "MDETERM": {
+   "formula": "=MDETERM(A1)",
+   "format": "General"
+  },
+  "MDURATION": {
+   "formula": "=MDURATION(A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "MEDIAN": {
+   "formula": "=MEDIAN(A1)",
+   "format": "General"
+  },
+  "MID": {
+   "formula": "=MID(A1,A1,A1)",
+   "format": "General"
+  },
+  "MIDB": {
+   "formula": "=MIDB(A1,A1,A1)",
+   "format": "General"
+  },
+  "MIN": {
+   "formula": "=MIN(A1)",
+   "format": "General"
+  },
+  "MINA": {
+   "formula": "=MINA(A1)",
+   "format": "General"
+  },
+  "MINIFS": {
+   "formula": "=MINIFS(A1,A1,A1)",
+   "format": "General"
+  },
+  "MINUTE": {
+   "formula": "=MINUTE(A1)",
+   "format": "General"
+  },
+  "MINVERSE": {
+   "formula": "=MINVERSE(A1)",
+   "format": "General"
+  },
+  "MIRR": {
+   "formula": "=MIRR(A1,A1,A1)",
+   "format": "0%"
+  },
+  "MMULT": {
+   "formula": "=MMULT(A1,A1)",
+   "format": "General"
+  },
+  "MOD": {
+   "formula": "=MOD(A1,A1)",
+   "format": "General"
+  },
+  "MODE": {
+   "formula": "=MODE(A1)",
+   "format": "General"
+  },
+  "MODE.MULT": {
+   "formula": "=MODE.MULT(A1)",
+   "format": "General"
+  },
+  "MODE.SNGL": {
+   "formula": "=MODE.SNGL(A1)",
+   "format": "General"
+  },
+  "MONTH": {
+   "formula": "=MONTH(A1)",
+   "format": "General"
+  },
+  "MROUND": {
+   "formula": "=MROUND(A1,A1)",
+   "format": "General"
+  },
+  "MULTINOMIAL": {
+   "formula": "=MULTINOMIAL(A1)",
+   "format": "General"
+  },
+  "MUNIT": {
+   "formula": "=MUNIT(A1)",
+   "format": "General"
+  },
+  "N": {
+   "formula": "=N(A1)",
+   "format": "General"
+  },
+  "NA": {
+   "formula": "=NA()",
+   "format": "General"
+  },
+  "NEGBINOM.DIST": {
+   "formula": "=NEGBINOM.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "NEGBINOMDIST": {
+   "formula": "=NEGBINOMDIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "NETWORKDAYS": {
+   "formula": "=NETWORKDAYS(A1,A1)",
+   "format": "General"
+  },
+  "NETWORKDAYS.INTL": {
+   "formula": "=NETWORKDAYS.INTL(A1,A1)",
+   "format": "General"
+  },
+  "NOMINAL": {
+   "formula": "=NOMINAL(A1,A1)",
+   "format": "General"
+  },
+  "NORM.DIST": {
+   "formula": "=NORM.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "NORM.INV": {
+   "formula": "=NORM.INV(A1,A1,A1)",
+   "format": "General"
+  },
+  "NORM.S.DIST": {
+   "formula": "=NORM.S.DIST(A1,A1)",
+   "format": "General"
+  },
+  "NORM.S.INV": {
+   "formula": "=NORM.S.INV(A1)",
+   "format": "General"
+  },
+  "NORMDIST": {
+   "formula": "=NORMDIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "NORMINV": {
+   "formula": "=NORMINV(A1,A1,A1)",
+   "format": "General"
+  },
+  "NORMSDIST": {
+   "formula": "=NORMSDIST(A1)",
+   "format": "General"
+  },
+  "NORMSINV": {
+   "formula": "=NORMSINV(A1)",
+   "format": "General"
+  },
+  "NOT": {
+   "formula": "=NOT(A1)",
+   "format": "General"
+  },
+  "NOW": {
+   "formula": "=NOW()",
+   "format": "m/d/yyyy h:mm"
+  },
+  "NPER": {
+   "formula": "=NPER(A1,A1,A1)",
+   "format": "General"
+  },
+  "NPV": {
+   "formula": "=NPV(A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "NUMBERVALUE": {
+   "formula": "=NUMBERVALUE(A1)",
+   "format": "General"
+  },
+  "OCT2BIN": {
+   "formula": "=OCT2BIN(A1)",
+   "format": "General"
+  },
+  "OCT2DEC": {
+   "formula": "=OCT2DEC(A1)",
+   "format": "General"
+  },
+  "OCT2HEX": {
+   "formula": "=OCT2HEX(A1)",
+   "format": "General"
+  },
+  "ODD": {
+   "formula": "=ODD(A1)",
+   "format": "General"
+  },
+  "ODDFPRICE": {
+   "formula": "=ODDFPRICE(A1,A1,A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "ODDFYIELD": {
+   "formula": "=ODDFYIELD(A1,A1,A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "ODDLPRICE": {
+   "formula": "=ODDLPRICE(A1,A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "ODDLYIELD": {
+   "formula": "=ODDLYIELD(A1,A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "OFFSET": {
+   "formula": "=OFFSET(A1,A1,A1)",
+   "format": "General"
+  },
+  "OR": {
+   "formula": "=OR(A1)",
+   "format": "General"
+  },
+  "PDURATION": {
+   "formula": "=PDURATION(A1,A1,A1)",
+   "format": "General"
+  },
+  "PEARSON": {
+   "formula": "=PEARSON(A1,A1)",
+   "format": "General"
+  },
+  "PERCENTILE": {
+   "formula": "=PERCENTILE(A1,A1)",
+   "format": "General"
+  },
+  "PERCENTILE.EXC": {
+   "formula": "=PERCENTILE.EXC(A1,A1)",
+   "format": "General"
+  },
+  "PERCENTILE.INC": {
+   "formula": "=PERCENTILE.INC(A1,A1)",
+   "format": "General"
+  },
+  "PERCENTOF": {
+   "formula": "=PERCENTOF(A1,A1)",
+   "format": "General"
+  },
+  "PERCENTRANK": {
+   "formula": "=PERCENTRANK(A1,A1)",
+   "format": "General"
+  },
+  "PERCENTRANK.EXC": {
+   "formula": "=PERCENTRANK.EXC(A1,A1)",
+   "format": "General"
+  },
+  "PERCENTRANK.INC": {
+   "formula": "=PERCENTRANK.INC(A1,A1)",
+   "format": "General"
+  },
+  "PERMUT": {
+   "formula": "=PERMUT(A1,A1)",
+   "format": "General"
+  },
+  "PERMUTATIONA": {
+   "formula": "=PERMUTATIONA(A1,A1)",
+   "format": "General"
+  },
+  "PHI": {
+   "formula": "=PHI(A1)",
+   "format": "General"
+  },
+  "PI": {
+   "formula": "=PI()",
+   "format": "General"
+  },
+  "PIVOTBY": {
+   "formula": "=PIVOTBY(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "PMT": {
+   "formula": "=PMT(A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "POISSON": {
+   "formula": "=POISSON(A1,A1,A1)",
+   "format": "General"
+  },
+  "POISSON.DIST": {
+   "formula": "=POISSON.DIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "POWER": {
+   "formula": "=POWER(A1,A1)",
+   "format": "General"
+  },
+  "PPMT": {
+   "formula": "=PPMT(A1,A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "PRICE": {
+   "formula": "=PRICE(A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "PRICEDISC": {
+   "formula": "=PRICEDISC(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "PRICEMAT": {
+   "formula": "=PRICEMAT(A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "PROB": {
+   "formula": "=PROB(A1,A1,A1)",
+   "format": "General"
+  },
+  "PRODUCT": {
+   "formula": "=PRODUCT(A1)",
+   "format": "General"
+  },
+  "PROPER": {
+   "formula": "=PROPER(A1)",
+   "format": "General"
+  },
+  "PV": {
+   "formula": "=PV(A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "QUARTILE": {
+   "formula": "=QUARTILE(A1,A1)",
+   "format": "General"
+  },
+  "QUARTILE.EXC": {
+   "formula": "=QUARTILE.EXC(A1,A1)",
+   "format": "General"
+  },
+  "QUARTILE.INC": {
+   "formula": "=QUARTILE.INC(A1,A1)",
+   "format": "General"
+  },
+  "QUOTIENT": {
+   "formula": "=QUOTIENT(A1,A1)",
+   "format": "General"
+  },
+  "RADIANS": {
+   "formula": "=RADIANS(A1)",
+   "format": "General"
+  },
+  "RAND": {
+   "formula": "=RAND()",
+   "format": "General"
+  },
+  "RANDARRAY": {
+   "formula": "=RANDARRAY()",
+   "format": "General"
+  },
+  "RANDBETWEEN": {
+   "formula": "=RANDBETWEEN(A1,A1)",
+   "format": "General"
+  },
+  "RANK": {
+   "formula": "=RANK(A1,A1)",
+   "format": "General"
+  },
+  "RANK.AVG": {
+   "formula": "=RANK.AVG(A1,A1)",
+   "format": "General"
+  },
+  "RANK.EQ": {
+   "formula": "=RANK.EQ(A1,A1)",
+   "format": "General"
+  },
+  "RATE": {
+   "formula": "=RATE(A1,A1,A1)",
+   "format": "0%"
+  },
+  "RECEIVED": {
+   "formula": "=RECEIVED(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "REDUCE": {
+   "formula": "=REDUCE(A1,A1,A1)",
+   "format": "General"
+  },
+  "REGEXEXTRACT": {
+   "formula": "=REGEXEXTRACT(A1,A1)",
+   "format": "General"
+  },
+  "REGEXREPLACE": {
+   "formula": "=REGEXREPLACE(A1,A1,A1)",
+   "format": "General"
+  },
+  "REGEXTEST": {
+   "formula": "=REGEXTEST(A1,A1)",
+   "format": "General"
+  },
+  "REPLACE": {
+   "formula": "=REPLACE(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "REPLACEB": {
+   "formula": "=REPLACEB(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "REPT": {
+   "formula": "=REPT(A1,A1)",
+   "format": "General"
+  },
+  "RIGHT": {
+   "formula": "=RIGHT(A1)",
+   "format": "General"
+  },
+  "RIGHTB": {
+   "formula": "=RIGHTB(A1)",
+   "format": "General"
+  },
+  "ROMAN": {
+   "formula": "=ROMAN(A1)",
+   "format": "General"
+  },
+  "ROUND": {
+   "formula": "=ROUND(A1,A1)",
+   "format": "General"
+  },
+  "ROUNDDOWN": {
+   "formula": "=ROUNDDOWN(A1,A1)",
+   "format": "General"
+  },
+  "ROUNDUP": {
+   "formula": "=ROUNDUP(A1,A1)",
+   "format": "General"
+  },
+  "ROW": {
+   "formula": "=ROW()",
+   "format": "General"
+  },
+  "ROWS": {
+   "formula": "=ROWS(A1)",
+   "format": "General"
+  },
+  "RRI": {
+   "formula": "=RRI(A1,A1,A1)",
+   "format": "General"
+  },
+  "RSQ": {
+   "formula": "=RSQ(A1,A1)",
+   "format": "General"
+  },
+  "SCAN": {
+   "formula": "=SCAN(A1,A1,A1)",
+   "format": "General"
+  },
+  "SEARCH": {
+   "formula": "=SEARCH(A1,A1)",
+   "format": "General"
+  },
+  "SEARCHB": {
+   "formula": "=SEARCHB(A1,A1)",
+   "format": "General"
+  },
+  "SEC": {
+   "formula": "=SEC(A1)",
+   "format": "General"
+  },
+  "SECH": {
+   "formula": "=SECH(A1)",
+   "format": "General"
+  },
+  "SECOND": {
+   "formula": "=SECOND(A1)",
+   "format": "General"
+  },
+  "SEQUENCE": {
+   "formula": "=SEQUENCE(A1)",
+   "format": "General"
+  },
+  "SERIESSUM": {
+   "formula": "=SERIESSUM(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "SHEET": {
+   "formula": "=SHEET()",
+   "format": "General"
+  },
+  "SHEETS": {
+   "formula": "=SHEETS()",
+   "format": "General"
+  },
+  "SIGN": {
+   "formula": "=SIGN(A1)",
+   "format": "General"
+  },
+  "SIN": {
+   "formula": "=SIN(A1)",
+   "format": "General"
+  },
+  "SINGLE": {
+   "formula": "=SINGLE(A1)",
+   "format": "General"
+  },
+  "SINH": {
+   "formula": "=SINH(A1)",
+   "format": "General"
+  },
+  "SKEW": {
+   "formula": "=SKEW(A1)",
+   "format": "General"
+  },
+  "SKEW.P": {
+   "formula": "=SKEW.P(A1)",
+   "format": "General"
+  },
+  "SLN": {
+   "formula": "=SLN(A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "SLOPE": {
+   "formula": "=SLOPE(A1,A1)",
+   "format": "General"
+  },
+  "SMALL": {
+   "formula": "=SMALL(A1,A1)",
+   "format": "General"
+  },
+  "SORT": {
+   "formula": "=SORT(A1)",
+   "format": "General"
+  },
+  "SORTBY": {
+   "formula": "=SORTBY(A1,A1)",
+   "format": "General"
+  },
+  "SQRT": {
+   "formula": "=SQRT(A1)",
+   "format": "General"
+  },
+  "SQRTPI": {
+   "formula": "=SQRTPI(A1)",
+   "format": "General"
+  },
+  "STANDARDIZE": {
+   "formula": "=STANDARDIZE(A1,A1,A1)",
+   "format": "General"
+  },
+  "STDEV": {
+   "formula": "=STDEV(A1)",
+   "format": "General"
+  },
+  "STDEV.P": {
+   "formula": "=STDEV.P(A1)",
+   "format": "General"
+  },
+  "STDEV.S": {
+   "formula": "=STDEV.S(A1)",
+   "format": "General"
+  },
+  "STDEVA": {
+   "formula": "=STDEVA(A1)",
+   "format": "General"
+  },
+  "STDEVP": {
+   "formula": "=STDEVP(A1)",
+   "format": "General"
+  },
+  "STDEVPA": {
+   "formula": "=STDEVPA(A1)",
+   "format": "General"
+  },
+  "STEYX": {
+   "formula": "=STEYX(A1,A1)",
+   "format": "General"
+  },
+  "SUBSTITUTE": {
+   "formula": "=SUBSTITUTE(A1,A1,A1)",
+   "format": "General"
+  },
+  "SUBTOTAL": {
+   "formula": "=SUBTOTAL(A1,A1)",
+   "format": "General"
+  },
+  "SUM": {
+   "formula": "=SUM(A1)",
+   "format": "General"
+  },
+  "SUMIF": {
+   "formula": "=SUMIF(A1,A1)",
+   "format": "General"
+  },
+  "SUMIFS": {
+   "formula": "=SUMIFS(A1,A1,A1)",
+   "format": "General"
+  },
+  "SUMPRODUCT": {
+   "formula": "=SUMPRODUCT(A1)",
+   "format": "General"
+  },
+  "SUMSQ": {
+   "formula": "=SUMSQ(A1)",
+   "format": "General"
+  },
+  "SUMX2MY2": {
+   "formula": "=SUMX2MY2(A1,A1)",
+   "format": "General"
+  },
+  "SUMX2PY2": {
+   "formula": "=SUMX2PY2(A1,A1)",
+   "format": "General"
+  },
+  "SUMXMY2": {
+   "formula": "=SUMXMY2(A1,A1)",
+   "format": "General"
+  },
+  "SWITCH": {
+   "formula": "=SWITCH(A1,A1,A1)",
+   "format": "General"
+  },
+  "SYD": {
+   "formula": "=SYD(A1,A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "T": {
+   "formula": "=T(A1)",
+   "format": "General"
+  },
+  "T.DIST": {
+   "formula": "=T.DIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "T.DIST.2T": {
+   "formula": "=T.DIST.2T(A1,A1)",
+   "format": "General"
+  },
+  "T.DIST.RT": {
+   "formula": "=T.DIST.RT(A1,A1)",
+   "format": "General"
+  },
+  "T.INV": {
+   "formula": "=T.INV(A1,A1)",
+   "format": "General"
+  },
+  "T.INV.2T": {
+   "formula": "=T.INV.2T(A1,A1)",
+   "format": "General"
+  },
+  "T.TEST": {
+   "formula": "=T.TEST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "TAKE": {
+   "formula": "=TAKE(A1,A1)",
+   "format": "General"
+  },
+  "TAN": {
+   "formula": "=TAN(A1)",
+   "format": "General"
+  },
+  "TANH": {
+   "formula": "=TANH(A1)",
+   "format": "General"
+  },
+  "TBILLEQ": {
+   "formula": "=TBILLEQ(A1,A1,A1)",
+   "format": "General"
+  },
+  "TBILLPRICE": {
+   "formula": "=TBILLPRICE(A1,A1,A1)",
+   "format": "General"
+  },
+  "TBILLYIELD": {
+   "formula": "=TBILLYIELD(A1,A1,A1)",
+   "format": "General"
+  },
+  "TDIST": {
+   "formula": "=TDIST(A1,A1,A1)",
+   "format": "General"
+  },
+  "TEXT": {
+   "formula": "=TEXT(A1,A1)",
+   "format": "General"
+  },
+  "TEXTAFTER": {
+   "formula": "=TEXTAFTER(A1,A1)",
+   "format": "General"
+  },
+  "TEXTBEFORE": {
+   "formula": "=TEXTBEFORE(A1,A1)",
+   "format": "General"
+  },
+  "TEXTJOIN": {
+   "formula": "=TEXTJOIN(A1,A1,A1)",
+   "format": "General"
+  },
+  "TEXTSPLIT": {
+   "formula": "=TEXTSPLIT(A1,A1)",
+   "format": "General"
+  },
+  "TIME": {
+   "formula": "=TIME(A1,A1,A1)",
+   "format": "h:mm AM/PM"
+  },
+  "TIMEVALUE": {
+   "formula": "=TIMEVALUE(A1)",
+   "format": "General"
+  },
+  "TINV": {
+   "formula": "=TINV(A1,A1)",
+   "format": "General"
+  },
+  "TOCOL": {
+   "formula": "=TOCOL(A1)",
+   "format": "General"
+  },
+  "TODAY": {
+   "formula": "=TODAY()",
+   "format": "m/d/yyyy"
+  },
+  "TOROW": {
+   "formula": "=TOROW(A1)",
+   "format": "General"
+  },
+  "TRANSPOSE": {
+   "formula": "=TRANSPOSE(A1)",
+   "format": "General"
+  },
+  "TREND": {
+   "formula": "=TREND(A1)",
+   "format": "General"
+  },
+  "TRIM": {
+   "formula": "=TRIM(A1)",
+   "format": "General"
+  },
+  "TRIMMEAN": {
+   "formula": "=TRIMMEAN(A1,A1)",
+   "format": "General"
+  },
+  "TRIMRANGE": {
+   "formula": "=TRIMRANGE(A1)",
+   "format": "General"
+  },
+  "TRUE": {
+   "formula": "=TRUE()",
+   "format": "General"
+  },
+  "TRUNC": {
+   "formula": "=TRUNC(A1)",
+   "format": "General"
+  },
+  "TTEST": {
+   "formula": "=TTEST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "TYPE": {
+   "formula": "=TYPE(A1)",
+   "format": "General"
+  },
+  "UNICHAR": {
+   "formula": "=UNICHAR(A1)",
+   "format": "General"
+  },
+  "UNICODE": {
+   "formula": "=UNICODE(A1)",
+   "format": "General"
+  },
+  "UNIQUE": {
+   "formula": "=UNIQUE(A1)",
+   "format": "General"
+  },
+  "UPPER": {
+   "formula": "=UPPER(A1)",
+   "format": "General"
+  },
+  "USDOLLAR": {
+   "formula": "=USDOLLAR(A1)",
+   "format": "General"
+  },
+  "VALUE": {
+   "formula": "=VALUE(A1)",
+   "format": "General"
+  },
+  "VALUETOTEXT": {
+   "formula": "=VALUETOTEXT(A1)",
+   "format": "General"
+  },
+  "VAR": {
+   "formula": "=VAR(A1)",
+   "format": "General"
+  },
+  "VAR.P": {
+   "formula": "=VAR.P(A1)",
+   "format": "General"
+  },
+  "VAR.S": {
+   "formula": "=VAR.S(A1)",
+   "format": "General"
+  },
+  "VARA": {
+   "formula": "=VARA(A1)",
+   "format": "General"
+  },
+  "VARP": {
+   "formula": "=VARP(A1)",
+   "format": "General"
+  },
+  "VARPA": {
+   "formula": "=VARPA(A1)",
+   "format": "General"
+  },
+  "VDB": {
+   "formula": "=VDB(A1,A1,A1,A1,A1)",
+   "format": "$#,##0.00_);[Red]($#,##0.00)"
+  },
+  "VLOOKUP": {
+   "formula": "=VLOOKUP(A1,A1,A1)",
+   "format": "General"
+  },
+  "VSTACK": {
+   "formula": "=VSTACK(A1)",
+   "format": "General"
+  },
+  "WEEKDAY": {
+   "formula": "=WEEKDAY(A1)",
+   "format": "General"
+  },
+  "WEEKNUM": {
+   "formula": "=WEEKNUM(A1)",
+   "format": "General"
+  },
+  "WEIBULL": {
+   "formula": "=WEIBULL(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "WEIBULL.DIST": {
+   "formula": "=WEIBULL.DIST(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "WORKDAY": {
+   "formula": "=WORKDAY(A1,A1)",
+   "format": "General"
+  },
+  "WORKDAY.INTL": {
+   "formula": "=WORKDAY.INTL(A1,A1)",
+   "format": "General"
+  },
+  "WRAPCOLS": {
+   "formula": "=WRAPCOLS(A1,A1)",
+   "format": "General"
+  },
+  "WRAPROWS": {
+   "formula": "=WRAPROWS(A1,A1)",
+   "format": "General"
+  },
+  "XIRR": {
+   "formula": "=XIRR(A1,A1)",
+   "format": "General"
+  },
+  "XLOOKUP": {
+   "formula": "=XLOOKUP(A1,A1,A1)",
+   "format": "General"
+  },
+  "XMATCH": {
+   "formula": "=XMATCH(A1,A1)",
+   "format": "General"
+  },
+  "XNPV": {
+   "formula": "=XNPV(A1,A1,A1)",
+   "format": "General"
+  },
+  "XOR": {
+   "formula": "=XOR(A1)",
+   "format": "General"
+  },
+  "YEAR": {
+   "formula": "=YEAR(A1)",
+   "format": "General"
+  },
+  "YEARFRAC": {
+   "formula": "=YEARFRAC(A1,A1)",
+   "format": "General"
+  },
+  "YIELD": {
+   "formula": "=YIELD(A1,A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "YIELDDISC": {
+   "formula": "=YIELDDISC(A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "YIELDMAT": {
+   "formula": "=YIELDMAT(A1,A1,A1,A1,A1)",
+   "format": "General"
+  },
+  "Z.TEST": {
+   "formula": "=Z.TEST(A1,A1)",
+   "format": "General"
+  },
+  "ZTEST": {
+   "formula": "=ZTEST(A1,A1)",
+   "format": "General"
+  }
+ },
+ "formulas": {
+  "=NPV(0.1,100,200)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=PV(0.05,10,-100)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=FV(0.05,10,-100)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=PMT(0.05,10,1000)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=IPMT(0.05,1,10,1000)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=PPMT(0.05,1,10,1000)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=RATE(10,-100,800)": "0%",
+  "=IRR({-100,30,40,50})": "0%",
+  "=MIRR({-100,30,40,50},0.1,0.1)": "0%",
+  "=NPER(0.05,-100,800)": "General",
+  "=XNPV(0.1,{-100,50,60},{43831,44197,44562})": "General",
+  "=XIRR({-100,50,60},{43831,44197,44562})": "General",
+  "=EFFECT(0.1,12)": "General",
+  "=NOMINAL(0.1,12)": "General",
+  "=SLN(1000,100,5)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=SYD(1000,100,5,1)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=DB(1000,100,5,1)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=DDB(1000,100,5,1)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=VDB(1000,100,5,0,1)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=CUMIPMT(0.05,10,1000,1,1,0)": "General",
+  "=CUMPRINC(0.05,10,1000,1,1,0)": "General",
+  "=ISPMT(0.05,1,10,1000)": "General",
+  "=PDURATION(0.05,100,200)": "General",
+  "=RRI(10,100,200)": "General",
+  "=FVSCHEDULE(100,{0.1,0.2})": "General",
+  "=DOLLARDE(1.02,16)": "General",
+  "=DOLLARFR(1.125,16)": "General",
+  "=PRICE(43831,47484,0.05,0.06,100,2)": "General",
+  "=YIELD(43831,47484,0.05,95,100,2)": "General",
+  "=ACCRINT(43831,44013,44197,0.05,1000,2)": "General",
+  "=NPV(0.1,100,200)+1": "$#,##0.00_);[Red]($#,##0.00)",
+  "=1+NPV(0.1,100,200)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=NPV(0.1,100,200)*2": "General",
+  "=-PMT(0.05,10,1000)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=ROUND(PMT(0.05,10,1000),2)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=SUM(PV(0.05,10,-100),1)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=IF(TRUE,PMT(0.05,10,1000))": "General",
+  "=(FV(0.05,10,-100))": "$#,##0.00_);[Red]($#,##0.00)",
+  "=NPV(0.1,100,200)-PV(0.05,10,-100)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=DATE(2020,1,1)+PMT(0.05,10,1000)": "m/d/yyyy",
+  "=PMT(0.05,10,1000)+DATE(2020,1,1)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=ABS(PMT(0.05,10,1000))": "General",
+  "=MAX(PMT(0.05,10,1000),0)": "$#,##0.00_);[Red]($#,##0.00)",
+  "=RATE(10,-100,800)+0": "0%",
+  "=IRR({-100,30,40,50})*100": "General",
+  "=HYPERLINK(\"http://example.com\",\"x\")": "General",
+  "=DOLLAR(1234.5)": "General",
+  "=TEXT(1,\"0%\")": "General"
+ },
+ "readback": {
+  "=NPV(0.1,1,2)": "Currency|2.562|$2.56 |2.56198347107438",
+  "=PMT(0.05,10,1000)": "Currency|-129.5046|($129.50)|-129.504574965457",
+  "=RATE(10,-100,800)": "Double|0.042774978035587|4%|0.042774978035587",
+  "=SLN(1000,100,3)": "Currency|300|$300.00 |300",
+  "=IRR({-100,60,60})": "Double|0.130662386291807|13%|0.130662386291807"
+ }
+}

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import re
 
-from pyopenvba.formula._calc.cells import UnsupportedFormulaError
 from pyopenvba.formula._calc.reference import CellRef
 
 _BARE_SHEET_NAME = re.compile(r"^[A-Za-z_\\][A-Za-z0-9_.\\]*$")
@@ -19,12 +18,11 @@ def format_value(value: object, code: str, *, epoch_1904: bool = False) -> str:
     """The text a number format shows a value as, as TEXT gives it; #VALUE! where the format cannot show it."""
     # The tree's module reads quote_sheet_name from here, so the values, which read the tree, come in late.
     from pyopenvba.formula._calc.values import VALUE, ExcelError
-    from pyopenvba.formula._display import UndisplayableError, format_value as displayed
+    from pyopenvba.formula._display import UndisplayableError
+    from pyopenvba.formula._display import format_value as displayed
 
-    if epoch_1904:
-        raise UnsupportedFormulaError("dates in the 1904 date system are not implemented")
     try:
-        return displayed(value, code)
+        return displayed(value, code, epoch_1904=epoch_1904)
     except UndisplayableError:
         raise ExcelError(VALUE) from None
 

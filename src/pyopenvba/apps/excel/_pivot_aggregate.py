@@ -49,6 +49,9 @@ def hide_values_row(root: XmlElement) -> None:
 
 def records(cache: PivotCache) -> list[list[XmlElement]]:
     """Resolve cached shared-item references, never rereading worksheet source cells."""
+    from pyopenvba.apps.excel._pivots import refuse_1904_dates
+
+    refuse_1904_dates(cache)
     root = cache.records
     if root is None:
         package = cache.book.package

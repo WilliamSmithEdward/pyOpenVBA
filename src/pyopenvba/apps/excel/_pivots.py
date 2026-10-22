@@ -146,6 +146,17 @@ class PivotFields(_Collection):
     vba_type_name = 'PivotFields'
 
 
+def refuse_1904_dates(cache: PivotCache) -> None:
+    """Refuse a cache holding dates in a workbook on the 1904 calendar.
+
+    A cache keeps a date as the calendar date it is, and the model reads
+    and writes those as serials on the 1900 calendar only.
+    """
+    if cache.book.epoch_1904 and any(items.get('containsDate') in ('1', 'true')
+                                     for items in cache.root.iter(NS + 'sharedItems')):
+        raise VBAUnsupportedError('A PivotCache holding dates in a workbook on the 1904 calendar is not implemented')
+
+
 class PivotCache(ExcelObject):
     vba_type_name = 'PivotCache'
 

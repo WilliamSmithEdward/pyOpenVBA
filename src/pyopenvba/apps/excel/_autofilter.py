@@ -104,7 +104,7 @@ def _seen(sheet: Worksheet, row: int, column: int) -> _Seen:
         return _Seen("TRUE" if value else "FALSE", None, None, False)
     if isinstance(value, (int, float)):
         try:
-            text, _ = shown(float(value), cell.number_format)
+            text, _ = shown(float(value), cell.number_format, epoch_1904=sheet.book.epoch_1904)
         except UndisplayableError:
             text = "#"
         return _Seen(text, float(value), None, False)
@@ -145,27 +145,31 @@ class _Criterion:
         return _compare(_collated(seen.text), self.operator, _collated(self.operand))
 
 
-def _criterion(value: object) -> _Criterion:
+def _criterion(value: object, *, epoch_1904: bool = False) -> _Criterion:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         text = number_text(float(value), formula=True)
     else:
         text = to_text(value)
     body = text.strip(" ")
     operator = next((one for one in _OPERATORS if body.startswith(one)), "")
-    return _made(operator or "=", body[len(operator):].strip(" "))
+    return _made(operator or "=", body[len(operator):].strip(" "), epoch_1904=epoch_1904)
 
 
-def _made(operator: str, operand: str) -> _Criterion:
+def _made(operator: str, operand: str, *, epoch_1904: bool = False) -> _Criterion:
     """A criterion from its operator and operand, reading the operand as a number where it is one.
 
-    A number reads back spelled afresh, a date or time as its serial: >2.50 is >2.5.
+    A number reads back spelled afresh, a date or time as its serial on
+    the workbook's calendar: >2.50 is >2.5, and >2/15/2024 is >43875 on
+    the 1904 one (tests/fixtures/date1904/paths.json).
     """
-    from pyopenvba.apps.excel._typing import typed_text
+    from pyopenvba.apps.excel._typing import on_1904, typed_text
 
     number: float | None = None
     stored = operand
     if operator != "=" and operand:
         typed = typed_text(operand)
+        if epoch_1904:
+            typed = on_1904(typed, operand)
         if isinstance(typed.value, float):
             number = typed.value
             stored = number_text(number, formula=True)
@@ -304,10 +308,11 @@ def _field(sheet: Worksheet, area: Area, index: int, criteria1: object, operator
         return _dynamic(sheet, area, index, criteria1)
     if kind not in (0, AND, OR):
         raise VBAUnsupportedError(f"AutoFilter with Operator {kind} is not implemented")
+    epoch_1904 = sheet.book.epoch_1904
     if criteria2 is MISSING:
-        return _one(_criterion(criteria1))
-    first = _criterion("=" if criteria1 is MISSING else criteria1)
-    return _two(first, _criterion(criteria2), OR if kind == OR else AND)
+        return _one(_criterion(criteria1, epoch_1904=epoch_1904))
+    first = _criterion("=" if criteria1 is MISSING else criteria1, epoch_1904=epoch_1904)
+    return _two(first, _criterion(criteria2, epoch_1904=epoch_1904), OR if kind == OR else AND)
 
 
 def _values(criteria1: object) -> FieldFilter:

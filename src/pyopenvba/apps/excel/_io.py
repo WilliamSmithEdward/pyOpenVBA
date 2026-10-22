@@ -127,6 +127,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     book.package = package
     book.links_folder = str(path.resolve().parent)
     workbook_xml = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
+    from pyopenvba.apps.excel._date_system import read as read_date_system
+
+    read_date_system(book, package.read("xl/workbook.xml"))
     relationships = _relationship_map(package)
     strings = _shared_strings(package)
     stylesheet = book.stylesheet
@@ -1314,10 +1317,13 @@ def save_workbook(book: Workbook, target: Path) -> None:
     _write_links(book, package, str(target.resolve().parent))
     _write_styles(book, package)
     from pyopenvba.apps.excel._calculation_settings import write as write_calculation
+    from pyopenvba.apps.excel._date_system import write as write_date_system
 
-    text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
+    raw = package.read("xl/workbook.xml")
+    patched = write_date_system(book, raw)
+    text = patched.decode("utf-8", errors="replace")
     calculated_xml = write_calculation(book, text)
-    if calculated_xml != text:
+    if patched is not raw or calculated_xml != text:
         package.write("xl/workbook.xml", calculated_xml.encode("utf-8"))
     from pyopenvba.apps.excel._vba_save import persist_project
 
@@ -1337,6 +1343,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
     target.write_bytes(package.serialize())
     book.package = package
     book.deleted_document_names.clear()
+    book.date_system_changed = False
     saved(book)
 
 

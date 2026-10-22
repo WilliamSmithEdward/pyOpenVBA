@@ -139,6 +139,9 @@ def _line_xml(name: str, lines: list[Line]) -> XmlElement:
 
 
 def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[XmlElement, XmlElement, list[list[int]], list[list[int]]]:
+    from pyopenvba.apps.excel._pivots import refuse_1904_dates
+
+    refuse_1904_dates(cache)
     fields = deepcopy(cache.root.find(NS + 'cacheFields'))
     assert fields is not None
     dictionaries: list[dict[tuple[str, object], int]] = []

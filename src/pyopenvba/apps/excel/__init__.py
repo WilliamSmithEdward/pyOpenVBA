@@ -309,7 +309,7 @@ class SheetView(NamedRangeAPI):
                     continue
                 # A number is a Date or a Currency only through its cell's format, and only where one holds it.
                 number = isinstance(cell.value, (int, float)) and not isinstance(cell.value, bool)
-                line.append(_plain(as_python(cell.value, cell) if number else cell.value))
+                line.append(_plain(as_python(cell.value, cell, epoch_1904=self.sheet.book.epoch_1904) if number else cell.value))
             out.append(line)
         return out
 

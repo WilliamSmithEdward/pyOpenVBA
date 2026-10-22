@@ -2136,7 +2136,7 @@ Workbook,Creator,"property, read-only",As XlCreator,,MISSING,,
 Workbook,CustomDocumentProperties,"property, read-only",As Object,,MISSING,,
 Workbook,CustomViews,"property, read-only",As CustomViews,,MISSING,,
 Workbook,CustomXMLParts,"property, read-only",As CustomXMLParts,,MISSING,,
-Workbook,Date1904,property,As Boolean,,MISSING,,
+Workbook,Date1904,property,As Boolean,,PARTIAL,tests/test_excel_date1904.py; tests/fixtures/date1904/native.json; tests/fixtures/date1904/paths.json,"Each workbook's calendar reaches cells, typing, Value/Value2/Text, formulas, Text cells, Find/Replace, AutoFill, TextToColumns, AutoFilter and validation criteria, Evaluate and WorksheetFunction, over 8 native controls and 14 path probes; native Excel reopens the model's files. Power Query dates follow the calendar unmeasured; PivotCaches holding dates in a 1904 workbook, mixed-calendar copies, chart date axes and events remain gaps."
 Workbook,Deactivate,event,Deactivate(),,MISSING,,
 Workbook,DefaultPivotTableStyle,property,As Variant,,MISSING,,
 Workbook,DefaultSlicerStyle,property,As Variant,,MISSING,,

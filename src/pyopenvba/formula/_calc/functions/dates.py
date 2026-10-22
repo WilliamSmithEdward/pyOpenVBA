@@ -98,8 +98,9 @@ def _add_months(year: int, month: int, day: int, months: int) -> tuple[int, int,
 
 @function("EDATE", V, V)
 def EDATE(context: Context, start: Scalar, months: Scalar) -> Value:
+    # Day 0 of January 1900 stays day 0, so a month on is 31 January (tests/fixtures/date1904/paths.json).
     year, month, day = _calendar(context, start)
-    y, m, d = _add_months(year, month, max(day, 1), int(context.number(months)))
+    y, m, d = _add_months(year, month, day, int(context.number(months)))
     if not 1900 <= y <= 9999:
         return NUM
     return float(dates.serial(y, m, d, epoch_1904=context.epoch_1904))

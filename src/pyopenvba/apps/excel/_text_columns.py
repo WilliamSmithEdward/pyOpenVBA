@@ -54,7 +54,7 @@ _ORDERS = {MDY: "mdy", DMY: "dmy", YMD: "ymd", MYD: "myd", DYM: "dym", YDM: "ydm
 _LARGEST = 9.99999999999999e307
 _TRAILING_MINUS = re.compile(r"\s*([0-9][0-9.,]*)-\s*")
 #: What a date column reads a field as: runs of digits, words, and the separators between them.
-_DATE_TOKEN = re.compile(r"[0-9]+|[A-Za-z]+|[/\-. ]")
+_DATE_TOKEN = re.compile(r"[0-9]+|[A-Za-z]+|[/\-. :]")
 #: A run of separators, as the words of a field stand for it.
 _BREAK = "|"
 #: How many digits a date column puts in a day, a month and a year before the rest spill into the next.
@@ -145,11 +145,15 @@ def _field_info(value: object, *, fixed: bool) -> list[tuple[int, int]]:
     if value is MISSING:
         return []
     if not isinstance(value, VBAArray):
-        raise error(1004, "FieldInfo takes an array of pairs")
+        raise VBAUnsupportedError("FieldInfo that is not an array of pairs is not implemented")
+    items = value.elements()
+    if len(items) == 2 and not any(isinstance(one, VBAArray) for one in items):
+        # Array(1, xlMDYFormat) is one pair, as Array(Array(1, xlMDYFormat)) is (tests/fixtures/date1904/).
+        items = [value]
     pairs: list[tuple[int, int]] = []
-    for one in value.elements():
+    for one in items:
         if not isinstance(one, VBAArray) or len(one.elements()) != 2:
-            raise error(1004, "FieldInfo takes an array of pairs")
+            raise VBAUnsupportedError("FieldInfo that is not an array of pairs is not implemented")
         first, second = one.elements()
         pairs.append((int(to_integer(first, "Long")), int(to_integer(second, "Long"))))
     if fixed:
@@ -238,8 +242,12 @@ def _put_value(target: Range, row: int, column: int, value: object) -> None:
 
 def _write(target: Range, row: int, column: int, field: str, kind: int, separators: tuple[str, str],
            minus: bool) -> None:
-    """One field written into its cell as a column of ``kind`` takes it."""
-    from pyopenvba.apps.excel._typing import Typed, format_after
+    """One field written into its cell as a column of ``kind`` takes it.
+
+    On the 1904 calendar a date takes its 1904 serial, and one before
+    1904 stays text (tests/fixtures/date1904/paths.json).
+    """
+    from pyopenvba.apps.excel._typing import Typed, format_after, on_1904
 
     sheet = target.sheet
     current = sheet.style_at(row, column).number_format
@@ -249,6 +257,8 @@ def _write(target: Range, row: int, column: int, field: str, kind: int, separato
     if kind in _ORDERS:
         dated = _date(field, _ORDERS[kind])
         if dated is not None:
+            if sheet.book.epoch_1904:
+                dated = on_1904(dated, field)
             target.store_typed(row, column, Typed(dated.value, format_after(current, dated.number_format)))
             return
         # A field the column reads no date in is typed as a General column types it.
@@ -260,6 +270,8 @@ def _write(target: Range, row: int, column: int, field: str, kind: int, separato
                                       "implemented") from exc
         return
     found = _typed(field, current, separators, minus)
+    if sheet.book.epoch_1904:
+        found = on_1904(found, field)
     target.store_typed(row, column, Typed(found.value, format_after(current, found.number_format)))
 
 
@@ -293,7 +305,7 @@ def _date(field: str, order: str) -> Typed | None:
 
     The column fills its day, month and year in its order: each run of digits goes into the part it has reached,
     two digits to a day or a month and four to a year, the rest spilling into the next part, and a separator --
-    a slash, dash, point or space -- moves on to the next. A month's name fills a month. A run of digits with no
+    a slash, dash, point, colon or space -- moves on to the next. A month's name fills a month. A run of digits with no
     separator is cut by its length instead. Three parts make a date if they are one; two go by a fixed table:
     day and month, then year and month, in _DAY_FIRST's orders, month and day, then month and year, in the others;
     a day read so falls in the current year (tests/fixtures/text_to_columns.json).
@@ -339,7 +351,7 @@ def _parts(body: str, order: str) -> list[tuple[str, str]] | None:
         return None
     words: list[str] = []
     for token in tokens:
-        if token not in "/-. ":
+        if token not in "/-. :":
             words.append(token)
         elif not words:
             return None

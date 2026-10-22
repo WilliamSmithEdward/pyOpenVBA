@@ -121,20 +121,36 @@ class Typed:
     prefix: bool = False
 
 
-def typed(value: object, current: str = "General", *, raw: bool = False) -> Typed:
+def typed(value: object, current: str = "General", *, raw: bool = False, epoch_1904: bool = False) -> Typed:
     """A value written to a cell whose format is ``current``, as the cell keeps it.
 
     ``raw`` is Value2's write, which puts a Date or a Currency in as the
     Double under it and so brings no format with it.
     """
+    if epoch_1904 and not raw and isinstance(value, VBADate):
+        value = VBADate(value.serial - (1462 if value.serial >= 1 else 0))
     if raw and isinstance(value, VBADate):
         value = value.serial
     elif raw and isinstance(value, VBACurrency):
         value = float(value)
     if current == "@":
-        return _as_text(value)
+        return _as_text(value, epoch_1904=epoch_1904)
     found = _typed(value, fractions=reads_fractions(current))
+    if epoch_1904 and isinstance(value, str):
+        found = on_1904(found, value)
     return Typed(found.value, format_after(current, found.number_format), found.prefix)
+
+
+def on_1904(found: Typed, text: str) -> Typed:
+    """What typing ``text`` gives in a workbook on the 1904 calendar, ``found`` being what it gives on 1900's.
+
+    A date moves to the 1904 serial; one before 1 January 1904 stays the
+    text it was (tests/fixtures/date1904). A time alone keeps its number.
+    """
+    if not (found.number_format and is_date_format(found.number_format) and isinstance(found.value, (int, float))):
+        return found
+    shifted = found.value - 1462
+    return Typed(shifted, found.number_format, found.prefix) if shifted >= 0 else Typed(text)
 
 
 def format_after(current: str, brought: str | None) -> str | None:
@@ -193,20 +209,21 @@ def _typed_date(serial: float) -> Typed:
     return Typed(float(serial), "m/d/yyyy h:mm")
 
 
-def _as_text(value: object) -> Typed:
+def _as_text(value: object, *, epoch_1904: bool = False) -> Typed:
     """A value written to a Text cell: strings as they are, a Date or a Currency as the text Excel shows for it."""
     if isinstance(value, str):
         return Typed(value[1:], prefix=True) if value.startswith("'") else Typed(value)
     if isinstance(value, VBADate):
-        return Typed(_date_text(value.serial))
+        return Typed(_date_text(value.serial, epoch_1904=epoch_1904))
     if isinstance(value, VBACurrency):
         # The cell takes the Currency's format as well, which no other write to a Text cell does.
         return Typed(format_value(float(value), CURRENCY_VALUE), CURRENCY_VALUE)
     return _typed(value, fractions=False)
 
 
-def _date_text(serial: float) -> str:
-    """A Date as a Text cell keeps it: m/d/yyyy on Excel's calendar, h:mm:ss AM/PM, or both, two spaces apart."""
+def _date_text(serial: float, *, epoch_1904: bool = False) -> str:
+    """A Date as a Text cell keeps it: m/d/yyyy on the workbook's calendar, h:mm:ss AM/PM, or both, two spaces
+    apart. ``serial`` is the workbook's own, so day 0 of the 1904 calendar is a time alone too."""
     if serial < 0:
         raise error(1004, "Application-defined or object-defined error")
     day = math.floor(serial)
@@ -214,7 +231,7 @@ def _date_text(serial: float) -> str:
     if seconds >= 86400:
         day, seconds = day + 1, 0
     code = "h:mm:ss AM/PM" if not day else "m/d/yyyy  h:mm:ss AM/PM" if seconds else "m/d/yyyy"
-    return format_value(serial, code)
+    return format_value(serial, code, epoch_1904=epoch_1904)
 
 
 def date_serial(year: int, month: int, day: int) -> float | None:
@@ -584,14 +601,14 @@ def _clock_value(time: _Clock) -> tuple[float, str] | None:
 # --- the text a cell is edited as ------------------------------------------------------------------
 
 
-def edit_text(value: object, number_format: str) -> str:
+def edit_text(value: object, number_format: str, *, epoch_1904: bool = False) -> str:
     """What the formula bar shows for a constant: the text Find looks in among formulas and Replace changes.
 
     Measured through 20 numbers in 26 formats (scripts/measure_replace.py)
     and 152 times on the half second (scripts/measure_time_rounding.py).
     A number is spelled as Range.Formula spells it, under a percent format
     as a percentage. Under a date or time format it is the date m/d/yyyy on
-    Excel's calendar, the time h:mm:ss AM/PM, or both two spaces apart:
+    the workbook's calendar, the time h:mm:ss AM/PM, or both two spaces apart:
     the date where the format has one or the number is a day or more, the
     time where the format has one or the number is not a whole day. The
     time is the day's fraction rounded to the second as a cell rounds one,
@@ -607,19 +624,19 @@ def edit_text(value: object, number_format: str) -> str:
         return value.name
     if isinstance(value, (int, float)):
         number = float(value)
-        if date_time_codes(number_format) and 0 <= number < 2958466:
-            return _moment_text(number, number_format)
+        if date_time_codes(number_format) and 0 <= number < (2957004 if epoch_1904 else 2958466):
+            return _moment_text(number, number_format, epoch_1904=epoch_1904)
         if _is_percent(number_format):
             return number_text(number * 100, formula=True) + "%"
         return number_text(number, formula=True)
     return str(value)
 
 
-def _moment_text(number: float, code: str) -> str:
+def _moment_text(number: float, code: str, *, epoch_1904: bool = False) -> str:
     day = math.floor(number)
     parts: list[str] = []
     if is_date_format(code) or day >= 1:
-        parts.append(format_value(float(day), "m/d/yyyy"))
+        parts.append(format_value(float(day), "m/d/yyyy", epoch_1904=epoch_1904))
     if any(found[0] in "hsHMS" for found in date_time_codes(code)) or number != day:
         _, hour, minute, second, _ = clock(number - day)
         parts.append(f"{hour % 12 or 12}:{minute:02d}:{second:02d} {'AM' if hour < 12 else 'PM'}")
@@ -631,7 +648,7 @@ def _is_percent(code: str) -> bool:
     return "%" in re.sub(r'"[^"]*"|\\.|_.|\*.|\[[^\]]*\]', "", code)
 
 
-def replaced(text: str, current: str, *, prefixed: bool) -> Typed:
+def replaced(text: str, current: str, *, prefixed: bool, epoch_1904: bool = False) -> Typed:
     """What Replace leaves in a cell whose text it changed, the cell's format being ``current``.
 
     Replace types the new text as it would be typed into a General cell:
@@ -644,6 +661,8 @@ def replaced(text: str, current: str, *, prefixed: bool) -> Typed:
     if prefixed:
         return typed_text("'" + text)
     found = typed_text(text)
+    if epoch_1904:
+        found = on_1904(found, text)
     return Typed(found.value, format_after(current, found.number_format), found.prefix)
 
 

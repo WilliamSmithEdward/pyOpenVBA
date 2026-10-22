@@ -90,7 +90,7 @@ Application,DDEInitiate,method,"DDEInitiate(App As String, Topic As String) As L
 Application,DDEPoke,method,"DDEPoke(Channel As Long, Item As Variant, Data As Variant)",,MISSING,,
 Application,DDERequest,method,"DDERequest(Channel As Long, Item As String) As Variant",,MISSING,,
 Application,DDETerminate,method,DDETerminate(Channel As Long),,MISSING,,
-Application,DecimalSeparator,property,As String,,MISSING,,
+Application,DecimalSeparator,property,As String,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,Reads the en-US separator; setting another is refused as unsupported.
 Application,DefaultFilePath,property,As String,,MISSING,,
 Application,DefaultPivotTableLayoutOptions,"property, read-only",As DefaultPivotTableLayoutOptions,,MISSING,,
 Application,DefaultSaveFormat,property,As XlFileFormat,,MISSING,,
@@ -165,8 +165,8 @@ Application,IgnoreRemoteRequests,property,As Boolean,,MISSING,,
 Application,InchesToPoints,method,InchesToPoints(Inches As Double) As Double,,MISSING,,
 Application,InputBox,method,"InputBox(Prompt As String, [Title As Variant], [Default As Variant], [Left As Variant], [Top As Variant], [HelpFile As Variant], [HelpContextID As Variant], [Type As Variant]) As Variant",,MISSING,,
 Application,Interactive,property,As Boolean,,MISSING,,
-Application,International,"property, read-only",As Variant,,MISSING,,
-Application,Intersect,method,"Intersect(Arg1 As Range, Arg2 As Range, [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Range",,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Application,International,"property, read-only",As Variant,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Every index 1 to 46 as en-US answers them, error 1004 outside; the model works in that locale only."
+Application,Intersect,method,"Intersect(Arg1 As Range, Arg2 As Range, [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Range",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,Ranges on two sheets are error 1004; only each range's first area is intersected.
 Application,IsSandboxed,"property, read-only",As Boolean,,MISSING,,
 Application,Iteration,property,As Boolean,,MISSING,,
 Application,LanguageSettings,"property, read-only",As LanguageSettings,,MISSING,,
@@ -221,12 +221,12 @@ Application,ProtectedViewWindowResize,event,ProtectedViewWindowResize(Pvw As Pro
 Application,ProtectedViewWindows,"property, read-only",As ProtectedViewWindows,,MISSING,,
 Application,QuickAnalysis,"property, read-only",As QuickAnalysis,,MISSING,,
 Application,Quit,method,Quit(),,UNASSESSED,,
-Application,Range,"property, read-only",As Range,,UNASSESSED,,
+Application,Range,"property, read-only",As Range,,PARTIAL,tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,"Takes cells on another sheet, which the Range then belongs to; corners on two sheets are error 1004."
 Application,Ready,"property, read-only",As Boolean,,MISSING,,
 Application,RecentFiles,"property, read-only",As RecentFiles,,MISSING,,
 Application,RecordMacro,method,"RecordMacro([BasicCode As Variant], [XlmCode As Variant])",,MISSING,,
 Application,RecordRelative,"property, read-only",As Boolean,,MISSING,,
-Application,ReferenceStyle,property,As XlReferenceStyle,,MISSING,,
+Application,ReferenceStyle,property,As XlReferenceStyle,,PARTIAL,tests/test_excel_reference_style.py; tests/fixtures/reference_style.json,"Reads xlA1 or xlR1C1, ignores any other number; Evaluate reads R1C1 in the R1C1 style and refuses it in A1; calcPr refMode saved and read from the first workbook. The style's effect on the editing UI is outside the headless model."
 Application,RegisteredFunctions,"property, read-only",As Variant,,MISSING,,
 Application,RegisterXLL,method,RegisterXLL(Filename As String) As Boolean,,MISSING,,
 Application,Repeat,method,Repeat(),,MISSING,,
@@ -279,13 +279,13 @@ Application,StatusBar,property,As Variant,,UNASSESSED,,
 Application,TemplatesPath,"property, read-only",As String,,MISSING,,
 Application,ThisCell,"property, read-only",As Range,,MISSING,,
 Application,ThisWorkbook,"property, read-only",As Workbook,,UNASSESSED,,
-Application,ThousandsSeparator,property,As String,,MISSING,,
+Application,ThousandsSeparator,property,As String,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,Reads the en-US separator; setting another is refused as unsupported.
 Application,Top,property,As Double,,MISSING,,
 Application,TransitionMenuKey,property,As String,,MISSING,,
 Application,TransitionMenuKeyAction,property,As Long,,MISSING,,
 Application,TransitionNavigKeys,property,As Boolean,,MISSING,,
 Application,Undo,method,Undo(),,MISSING,,
-Application,Union,method,"Union(Arg1 As Range, Arg2 As Range, [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Range",,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Application,Union,method,"Union(Arg1 As Range, Arg2 As Range, [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Range",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,Ranges on two sheets are error 1004.
 Application,UsableHeight,"property, read-only",As Double,,MISSING,,
 Application,UsableWidth,"property, read-only",As Double,,MISSING,,
 Application,UseClusterConnector,property,As Boolean,,MISSING,,
@@ -293,7 +293,7 @@ Application,UsedObjects,"property, read-only",As UsedObjects,,MISSING,,
 Application,UserControl,property,As Boolean,,MISSING,,
 Application,UserLibraryPath,"property, read-only",As String,,MISSING,,
 Application,UserName,property,As String,,UNASSESSED,,
-Application,UseSystemSeparators,property,As Boolean,,MISSING,,
+Application,UseSystemSeparators,property,As Boolean,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Reads True; turning it off changes nothing shown, since the custom separators are the system's."
 Application,Value,"property, read-only",As String,,MISSING,,
 Application,VBE,"property, read-only",As VBE,,MISSING,,
 Application,Version,"property, read-only",As String,,UNASSESSED,,
@@ -2410,7 +2410,7 @@ Worksheet,Protection,"property, read-only",As Protection,,PARTIAL,tests/fixtures
 Worksheet,ProtectionMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json,True while the sheet is protected for the user interface only.
 Worksheet,ProtectScenarios,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,Saved and read as Excel saves and reads it.
 Worksheet,QueryTables,"property, read-only",As QueryTables,,MISSING,,
-Worksheet,Range,"property, read-only",As Range,,UNASSESSED,,
+Worksheet,Range,"property, read-only",As Range,,PARTIAL,tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,"A Range, a qualified reference or a defined name on another sheet is error 1004."
 Worksheet,ResetAllPageBreaks,method,ResetAllPageBreaks(),,MISSING,,
 Worksheet,Rows,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,SaveAs,method,"SaveAs(Filename As String, [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant])",,MISSING,,

@@ -1,0 +1,15 @@
+{
+  "measured_at": "2026-10-22T18:38:44.912919+00:00",
+  "excel_version_build": "16.0|20430",
+  "runtime": {
+    "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, v As Variant\nSet ws = Worksheets.Add\nOn Error Resume Next\ns = Application.ReferenceStyle\nApplication.ReferenceStyle = xlR1C1\ns = s & \"|\" & Err.Number & \":\" & Application.ReferenceStyle: Err.Clear\nws.Range(\"A1\").Value = 5: ws.Range(\"B2\").Value = 7\nws.Range(\"C3\").Formula = \"=A1*2\"\ns = s & \"|\" & ws.Range(\"C3\").Formula & \"|\" & ws.Range(\"C3\").FormulaR1C1 & \"|\" & ws.Range(\"C3\").FormulaLocal\ns = s & \"|\" & ws.Range(\"C3\").FormulaR1C1Local & \"|\" & ws.Range(\"A1\").Address & \"|\" & ws.Range(\"C3\").Value\nws.Range(\"D4\").Formula = \"=R1C1+1\"\ns = s & \"|\" & Err.Number & \":\" & ws.Range(\"D4\").Formula: Err.Clear\nws.Range(\"D5\").FormulaLocal = \"=R1C1+1\"\ns = s & \"|\" & Err.Number & \":\" & ws.Range(\"D5\").Formula: Err.Clear\nFor Each v In Array(\"=R1C1\", \"R1C1\", \"RC\", \"R[1]C[1]\", \"SUM(R1C1:R2C2)\", \"=A1\")\ns = s & \"|\" & ProbeEval(ws, CStr(v))\nNext\nFor Each v In Array(3, 0, -1, 1, xlR1C1)\nApplication.ReferenceStyle = v\ns = s & \"|\" & v & \">\" & Err.Number & \":\" & Application.ReferenceStyle: Err.Clear\nNext\nApplication.ReferenceStyle = xlA1\nFor Each v In Array(\"=R1C1\", \"R1C1\", \"A1\")\ns = s & \"|\" & ProbeEval(ws, CStr(v))\nNext\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\nFunction ProbeEval(ws As Worksheet, text As String) As String\nDim v As Variant\nOn Error Resume Next\nv = ws.Evaluate(text)\nIf Err.Number <> 0 Then\nProbeEval = \"e\" & Err.Number\nElseIf IsError(v) Then\nProbeEval = CStr(v)\nElseIf IsObject(v) Then\nProbeEval = TypeName(v)\nElse\nProbeEval = TypeName(v) & \":\" & CStr(v)\nEnd If\nEnd Function\n",
+    "result": "1|0:-4150|=A1*2|=R[-2]C[-2]*2|=A1*2|=R[-2]C[-2]*2|$A$1|10|0:=$A$1+1|0:=$A$1+1|Double:5|Double:5|Double:5|Double:7|Double:12|Double:5|3>0:-4150|0>0:-4150|-1>0:-4150|1>0:1|-4150>0:-4150|Error 2015|Error 2015|Double:5"
+  },
+  "file": {
+    "opened": "1|1|1",
+    "calcPr": {
+      "a1": "<calcPr calcId=\"191029\"/>",
+      "r1c1": "<calcPr calcId=\"191029\" refMode=\"R1C1\"/>"
+    }
+  }
+}

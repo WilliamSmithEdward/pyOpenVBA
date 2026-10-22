@@ -1,0 +1,13 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-22T18:46:50.522926+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "international",
+      "macro": "Function Probe() As String\nDim s As String, i As Long, v As Variant\nFor i = -1 To 60\nOn Error Resume Next\nv = Application.International(i)\nIf Err.Number <> 0 Then\ns = s & \"|\" & i & \"=e\" & Err.Number\nErr.Clear\nElseIf IsNull(v) Then\ns = s & \"|\" & i & \"=Null\"\nElse\ns = s & \"|\" & i & \"=\" & TypeName(v) & \":\" & CStr(v)\nEnd If\nOn Error GoTo 0\nNext\ns = s & \"|\" & TypeName(Application.DecimalSeparator) & \":\" & Application.DecimalSeparator\ns = s & \"|\" & TypeName(Application.ThousandsSeparator) & \":\" & Application.ThousandsSeparator\ns = s & \"|\" & TypeName(Application.UseSystemSeparators) & \":\" & Application.UseSystemSeparators\nProbe = Mid(s, 2)\nEnd Function\n",
+      "result": "-1=e1004|0=e1004|1=Double:1|2=Double:1|3=String:.|4=String:,|5=String:,|6=String:R|7=String:C|8=String:r|9=String:c|10=String:[|11=String:]|12=String:{|13=String:}|14=String:,|15=String:;|16=String:@|17=String:/|18=String::|19=String:y|20=String:m|21=String:d|22=String:h|23=String:m|24=String:s|25=String:$|26=String:General|27=Double:2|28=Double:0|29=Double:2|30=Double:3|31=Double:3|32=Double:0|33=Boolean:False|34=Boolean:False|35=Boolean:False|36=Boolean:False|37=Boolean:True|38=Boolean:False|39=Boolean:True|40=Boolean:True|41=Boolean:False|42=Boolean:False|43=Boolean:True|44=Boolean:True|45=Boolean:False|46=String:en-US|47=e1004|48=e1004|49=e1004|50=e1004|51=e1004|52=e1004|53=e1004|54=e1004|55=e1004|56=e1004|57=e1004|58=e1004|59=e1004|60=e1004|String:.|String:,|Boolean:True"
+    }
+  ]
+}

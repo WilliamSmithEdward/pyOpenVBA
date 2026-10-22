@@ -7,6 +7,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Column AutoFit: a column is as wide as Excel makes it for the text its
+  cells show. Each character of ASCII and Latin-1 is as wide as GDI makes it
+  in Aptos Narrow or Calibri 11, in any style, italic reaching a little
+  further. A number in General is a digit wide for each digit, point and
+  exponent sign. The text's width becomes the column's by Excel's rule, at
+  most 255 characters. Hidden and filtered rows count, merged cells and
+  empty text do not, a hidden column is shown, and a file keeps the width
+  with `bestFit="1"`. `Range("A2:A3").Columns.AutoFit` fits the range's
+  cells alone, and `Range("A2:A3").AutoFit` is error 1004. Nearly 14,000
+  live widths, 1,302 random texts, 138 numbers and a saved workbook agree.
+  Text that wraps, is indented or turned, another font or size, a `*` fill
+  and Windows-1252's characters past Latin-1, whose widths GDI makes
+  depend on their neighbours, report themselves unsupported. The Normal
+  style's font now changes between Aptos Narrow 11 and Calibri 11, which
+  make the same digit and row, and `Application.StandardFont` and
+  `StandardFontSize` read Aptos Narrow and 11.
+
 - What-if data tables: `Range.Table` with a row input cell, a column input
   cell or both, over one block or several. Each cell of a table works out
   the block's formula with the value it tries put in the input cell and

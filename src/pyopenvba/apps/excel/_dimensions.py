@@ -47,7 +47,7 @@ from pyopenvba.interpreter._values import EMPTY, NULL, error, to_number
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Range, Worksheet
-    from pyopenvba.apps.excel._styles import Side, Style
+    from pyopenvba.apps.excel._styles import Font, Side, Style
 
 #: Points in a pixel on the display the model emulates.
 PIXEL = 0.75
@@ -244,6 +244,11 @@ class ColumnRecord:
         return {key: out[key] for key in _ordered(out, _COLUMN_ORDER)}
 
 
+def known_normal(font: Font) -> bool:
+    """Whether a Normal font is one whose metrics on this display were measured, regular."""
+    return (font.name.lower(), float(font.size)) in _KNOWN_NORMAL and not font.bold and not font.italic
+
+
 def _ordered(attrs: dict[str, str], order: tuple[str, ...]) -> list[str]:
     known = [key for key in order if key in attrs]
     return known + [key for key in attrs if key not in order]
@@ -415,8 +420,7 @@ class SheetDimensions:
     # -- the standard sizes
 
     def normal_known(self) -> bool:
-        font = self.sheet.book.stylesheet.default.font
-        return (font.name.lower(), float(font.size)) in _KNOWN_NORMAL
+        return known_normal(self.sheet.book.stylesheet.default.font)
 
     def default_quarters(self) -> int:
         """How tall a row with no record is: what a macro sized every row to, or what the column formats make it.
@@ -857,6 +861,8 @@ class SheetDimensions:
 
     def set_column_width(self, column: int, pixels: int) -> None:
         record = self.touch_column(column)
+        # A width a macro sets is no longer AutoFit's (tests/fixtures/column_autofit.json).
+        record.extra.pop("bestFit", None)
         if pixels == 0:
             # Hidden, keeping a width of its own if it had one: a standard
             # column is written with a width of 0.
@@ -872,6 +878,14 @@ class SheetDimensions:
             record.width, record.hidden, record.width_as_read = None, False, ""
         else:
             record.width, record.custom, record.hidden, record.width_as_read = pixels, True, False, ""
+        self.settle_column(column)
+
+    def fit_column(self, column: int, pixels: int) -> None:
+        """The width AutoFit gives a column: its own, the column shown, and best fit as a file keeps it (see
+        _column_fit)."""
+        record = self.touch_column(column)
+        record.width, record.custom, record.hidden, record.width_as_read = pixels, True, False, ""
+        record.extra["bestFit"] = "1"
         self.settle_column(column)
 
     def hide_column(self, column: int, hidden: bool) -> None:
@@ -1381,18 +1395,19 @@ def write_column_width(target: Range, value: object) -> None:
     target.sheet.touched()
 
 
-def _whole(target: Range) -> tuple[Area, bool]:
+def _whole(target: Range, refused: str = "that needs whole rows or whole columns") -> tuple[Area, bool]:
     """The one area Hidden and AutoFit work on, and whether it is rows (else columns): whole rows or columns, or a
-    range Rows or Columns made, of which they take the rows or columns (tests/fixtures/range_lines.json)."""
+    range Rows or Columns made, of which they take the rows or columns (tests/fixtures/range_lines.json); error 1004
+    with ``refused`` for any other range."""
     if len(target.areas) != 1:
-        raise error(1004, "that needs whole rows or whole columns")
+        raise error(1004, refused)
     area = target.first
     rows, columns = area.left == 1 and area.right == MAX_COLUMNS, area.top == 1 and area.bottom == MAX_ROWS
     if rows == columns:
         # The whole sheet, or a block of it: rows or columns only when it was made as them.
         rows, columns = target.lines == "rows", target.lines == "columns"
     if rows == columns:
-        raise error(1004, "that needs whole rows or whole columns")
+        raise error(1004, refused)
     return area, rows
 
 
@@ -1502,8 +1517,10 @@ def read_left(target: Range) -> object:
 
 
 def autofit(target: Range) -> None:
-    """AutoFit on whole rows or columns: a row loses the height it kept; an empty column keeps its width."""
-    area, rows = _whole(target)
+    """AutoFit on rows or columns: a row loses the height it kept; a column is as wide as the widest text its cells
+    show, or keeps its width with none (see _column_fit). A range of cells is error 1004
+    (tests/fixtures/column_autofit.json)."""
+    area, rows = _whole(target, "AutoFit method of Range class failed")
     dims = _dims(target)
     unmeasured(target, "AutoFit", lines="rows" if rows else "columns")
     if rows:
@@ -1511,9 +1528,9 @@ def autofit(target: Range) -> None:
             dims.autofit_row(row)
         target.sheet.touched()
         return
-    for (_, column), cell in target.sheet.cells_.items():
-        if area.left <= column <= area.right and (cell.value is not EMPTY or cell.formula):
-            raise VBAUnsupportedError("AutoFit of a column holding values is not implemented: it measures their text")
+    from pyopenvba.apps.excel._column_fit import fit
+
+    fit(target.sheet, area)
 
 
 def read_standard_width(sheet: Worksheet) -> object:

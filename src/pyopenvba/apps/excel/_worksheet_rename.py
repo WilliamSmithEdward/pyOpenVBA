@@ -310,13 +310,11 @@ def rename(sheet: Worksheet, wanted: str) -> None:
         raise unsupported('during an active calculation')
     budget = Budget()
     _handlers(book, budget)
-    structured = {owner for owner in book.sheets_ if owner.shared_groups or owner.array_formulas or owner.spills
-                  or any(cell.dynamic or cell.spilled_from is not None for cell in owner.cells_.values())}
-    if any(owner.spills or any(cell.spilled_from is not None for cell in owner.cells_.values())
+    if any(owner.spills or any(cell.dynamic or cell.spilled_from is not None for cell in owner.cells_.values())
            for owner in book.sheets_):
         raise unsupported('with dynamic spill storage')
-    if sheet in structured or any(owner.tables for owner in book.sheets_):
-        raise unsupported('with shared/array/spill formulas or table references')
+    if any(owner.tables for owner in book.sheets_):
+        raise unsupported('with table references')
     from pyopenvba.apps.excel._worksheet_rename_secondary import admit
 
     try:
@@ -345,14 +343,11 @@ def rename(sheet: Worksheet, wanted: str) -> None:
         budget.text(entry.attributes)
     from pyopenvba.apps.excel._worksheet_rename_arrays import admit as storage_admit
 
-    if storage_admit(book, sheet, wanted, budget):
-        raise unsupported('with affected formula storage owners')
+    shared_updates = storage_admit(book, sheet, wanted, budget)
     for owner in book.sheets_:
         for cell in owner.cells_.values():
             if cell.formula:
                 proposed = _formula(cell.formula, sheet.name, wanted, budget)
-                if owner in structured and proposed != cell.formula:
-                    raise unsupported('with affected shared/array/spill formulas')
                 cells.append((owner, cell, proposed))
     names: list[tuple[NameEntry, str, str]] = []
     seen: set[str] = set()
@@ -376,6 +371,8 @@ def rename(sheet: Worksheet, wanted: str) -> None:
             owner.touched()
     for entry, name, refers in names:
         entry.name, entry.refers_to = name, refers
+    for key, area in shared_updates:
+        sheet.shared_groups[key] = area
     sheet.name = wanted
     book.names_.changed = bool(names) or book.names_.changed
     book.saved = False

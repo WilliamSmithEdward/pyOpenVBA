@@ -112,7 +112,7 @@ range copies or formatting pastes are declined atomically rather than losing
 outline metadata. Non-whole-axis `ShowDetail` and broader protection/UDF, outline
 style, structural and cross-feature behavior need further measurements.
 
-## Scalar worksheet renames
+## Fixed-formula worksheet renames
 
 `Worksheet.Name` now stages ordinary scalar cell formulas and defined names
 before changing the worksheet identity. Explicit self and other-sheet qualifiers,
@@ -144,8 +144,7 @@ of tab order. Iteration and persistence share that existing name collation.
 Held external addresses use the current owner, one prefix for a union, and
 measured quoting for ordinary BookN, period-only filenames, spaces/apostrophes.
 
-This remains a bounded partial operation. Target-owned shared/CSE storage, actual
-dynamic spills, 3D or
+This remains a bounded partial operation. Dynamic spill formulas, 3D or
 unrecognized qualified references, external-link-bearing packages, charts,
 affected known secondary references and misplaced formula carriers are refused
 before mutation. Arbitrary unchanged opaque metadata retains the existing
@@ -189,6 +188,37 @@ Registration and verified-member totals are unchanged. See the
 [rename tests](../../tests/test_excel_worksheet_rename.py),
 [owned-name regression](../../tests/test_excel_owned_reserved_names.py) and
 [unaltered native evidence](../../tests/fixtures/worksheet_rename).
+
+### Shared formulas and fixed CSE arrays
+
+Six additional exact native controls and eight macro-free native packages cover
+ordinary shared groups and fixed legacy CSE array formulas. Full runtime,
+engine-save/reopen and native-input public-rewrite comparisons preserve observed
+formula/value strings and explicitly recorded host settings. All six generated
+outputs passed native Excel reopening (6/6, 9.06 seconds) in one closed owned
+session. Shared followers
+retain their expanded formulas and group keys. Array anchors retain their fixed
+blocks and member identities; explicit source qualifiers change while implicit
+references remain local. Automatic source edits update dependent results;
+manual arrays retain all cached member values, with native SaveFalse versus
+SaveTrue controls distinguishing cached 9 from calculated 33.
+
+The imported cleared-master control admits B2 as master inside declared B1:B3.
+Its native reopened output later stores B2:B3; the evidence does not attribute
+that contraction specifically to rename. The model preserves its valid stored
+extent rather than inventing a general canonicalization rule. Dynamic arrays,
+spill refs/metadata, overlapping declared storage regions and richer formula
+storage remain unsupported. Bounds limit formula storage to 1,024 regions and
+250,000 declared cells before member iteration, with aggregate text charging
+before shared-master shifts. A whole-population expression-length preflight
+also precedes every shared lexer call when the storage helper is used directly. Namespace-aware admission validates data/row/cell/formula
+ownership and
+decoded key attributes before the existing lexical reader is consulted.
+Incompatible or unrecognized storage is refused before mutation; metadata work
+is bounded to one million nodes and 350,000 lexical records. These are conservative implementation limits,
+not Excel limits.
+See the [shared/CSE tests](../../tests/test_excel_worksheet_rename_arrays.py) and
+[unchanged native evidence](../../tests/fixtures/worksheet_rename_arrays/native.json).
 
 ## Advanced filtering
 

@@ -405,7 +405,7 @@ def check_range_set(target: Range, member: str) -> None:
     if found is None or member in _RANGE_FREE:
         return
     if member == "Hidden":
-        rows = target.whole == "rows" or (not target.whole and all(
+        rows = target.lines == "rows" or (not target.lines and all(
             area.left == 1 and area.right == MAX_COLUMNS for area in target.areas))
         refuse(sheet, refused_format("Range", member), "AllowFormattingRows" if rows else "AllowFormattingColumns")
         return

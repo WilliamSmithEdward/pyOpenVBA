@@ -113,6 +113,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Range.Rows` and `Range.Columns` answer a range, as Excel's do, not a list
+  of rows or columns: every Range member works on them, so
+  `UsedRange.Columns.ColumnWidth`, `.Rows.Hidden` and `.Columns.Font` act on
+  the cells. Count is the first area's rows or columns, an index a row or a
+  column counted from the first, a second index error 1004, and For Each
+  walks every area's. Offset, Resize and a row or column taken from one stay
+  rows or columns, so `Columns(2)(3)` is the column two to the right; Cells,
+  Areas, Union, Intersect and the selection are cells again. A range of
+  whole rows or columns follows the same rules, `Columns("A:C")(2)` being
+  column B. `Rows("1:2,5:5")` is a type mismatch. 79 live probes agree.
+
 - AutoFill by months from a single date that ends its month carries on
   through month ends, 2/29 then 3/31 and 4/30, as Excel does.
 - A TextToColumns date column reads a colon as a separator, so `12:30` in an

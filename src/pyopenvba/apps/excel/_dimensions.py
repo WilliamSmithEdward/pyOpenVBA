@@ -1382,14 +1382,15 @@ def write_column_width(target: Range, value: object) -> None:
 
 
 def _whole(target: Range) -> tuple[Area, bool]:
-    """The one area Hidden and AutoFit work on, and whether it is whole rows (else whole columns)."""
+    """The one area Hidden and AutoFit work on, and whether it is rows (else columns): whole rows or columns, or a
+    range Rows or Columns made, of which they take the rows or columns (tests/fixtures/range_lines.json)."""
     if len(target.areas) != 1:
         raise error(1004, "that needs whole rows or whole columns")
     area = target.first
     rows, columns = area.left == 1 and area.right == MAX_COLUMNS, area.top == 1 and area.bottom == MAX_ROWS
-    if rows and columns:
-        # The whole sheet: rows or columns only when it was made as them.
-        rows, columns = target.whole == "rows", target.whole == "columns"
+    if rows == columns:
+        # The whole sheet, or a block of it: rows or columns only when it was made as them.
+        rows, columns = target.lines == "rows", target.lines == "columns"
     if rows == columns:
         raise error(1004, "that needs whole rows or whole columns")
     return area, rows

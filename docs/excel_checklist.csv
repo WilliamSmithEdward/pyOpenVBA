@@ -168,7 +168,7 @@ Application,Interactive,property,As Boolean,,MISSING,,
 Application,International,"property, read-only",As Variant,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Every index 1 to 46 as en-US answers them, error 1004 outside; the model works in that locale only."
 Application,Intersect,method,"Intersect(Arg1 As Range, Arg2 As Range, [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Range",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,Ranges on two sheets are error 1004; only each range's first area is intersected.
 Application,IsSandboxed,"property, read-only",As Boolean,,MISSING,,
-Application,Iteration,property,As Boolean,,MISSING,,
+Application,Iteration,property,As Boolean,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"Reads and sets the setting from a logical, a number or text, other text being error 13; turned on in automatic mode it works loops out at once. Every calculation then works each loop out over and over, a sheet at a time in the order the sheets were made and row by row, until no number changes by MaxChange or MaxIterations passes are done. calcPr iterate saved, and brought by the first workbook opened; 56 live probes and three saved workbooks."
 Application,LanguageSettings,"property, read-only",As LanguageSettings,,MISSING,,
 Application,LargeOperationCellThousandCount,property,As Long,,MISSING,,
 Application,Left,property,As Double,,MISSING,,
@@ -180,8 +180,8 @@ Application,MailSession,"property, read-only",As Variant,,MISSING,,
 Application,MailSystem,"property, read-only",As XlMailSystem,,MISSING,,
 Application,MapPaperSize,property,As Boolean,,MISSING,,
 Application,MathCoprocessorAvailable,"property, read-only",As Boolean,,MISSING,,
-Application,MaxChange,property,As Double,,MISSING,,
-Application,MaxIterations,property,As Long,,MISSING,,
+Application,MaxChange,property,As Double,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"Takes any number, 0 and negative ones among them, which stop no iteration early; text is error 13. An iteration stops once no number changes by it or more. calcPr iterateDelta saved where not 0.001, and brought by the first workbook opened."
+Application,MaxIterations,property,As Long,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"1 to 32767, rounded as a Long is; outside that error 1004, overflow error 6, the setting kept. calcPr iterateCount saved where not 100, and brought by the first workbook opened."
 Application,MaxSupportedCompatibilityVersion,"property, read-only",As Long,,MISSING,,
 Application,MeasurementUnit,property,As Long,,MISSING,,
 Application,MergeInstances,property,As Boolean,,MISSING,,
@@ -2346,7 +2346,7 @@ Worksheet,Change,event,Change(Target As Range),,MISSING,,
 Worksheet,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Worksheet,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Worksheet,CircleInvalid,method,CircleInvalid(),,MISSING,,
-Worksheet,CircularReference,"property, read-only",As Range,,MISSING,,
+Worksheet,CircularReference,"property, read-only",As Range,,VERIFIED,tests/fixtures/iteration.json; tests/fixtures/self_reference.json; tests/test_excel_iteration.py,"A cell of a loop on the sheet, or Nothing with none or with Iteration on. A loop is found through the cells a formula reads as it is worked out, so ROWS, ROW, CELL(""address""), FORMULATEXT, an IF branch not taken and a MATCH stopping before the cell close none. Of two cells of one loop, or two loops on a sheet, Excel names either run to run; the model names the latest that closed one."
 Worksheet,ClearArrows,method,ClearArrows(),,MISSING,,
 Worksheet,ClearCircles,method,ClearCircles(),,MISSING,,
 Worksheet,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Loaded sheetPr identity; fresh names remain empty until project materialization, then allocate in tab order with collision/history handling. Copy/Move allocation measured; VBIDE renaming remains incomplete."

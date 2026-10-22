@@ -60,6 +60,17 @@ class _UDFWaiting(_Deeper):
     """A provisional UDF call ran before its pending UDF precedent was ready."""
 
 
+class _Loop(BaseException):  # noqa: N818 - how a calculation stops, not an error
+    """A formula asked for a cell that is being worked out under it, which closes a loop, or for a cell held in a
+    loop: it cannot be worked out, and nor can each formula asking for it, back to the first. ``origin`` is the cell
+    asked for again until the cells back to it, the ones on the loop, are held (see Calculator._hold). A
+    BaseException, as _Deeper is."""
+
+    def __init__(self, origin: CellKey | None) -> None:
+        super().__init__(origin)
+        self.origin = origin
+
+
 @dataclass(slots=True)
 class Compiled:
     """One cell's formula, parsed once; no node for one the parser cannot read, which keeps the value it has."""
@@ -100,6 +111,14 @@ class Calculator:
         #: Cells that could not be worked out because they feed
         #: themselves.  Excel shows zero in these and warns separately.
         self.circular: set[CellKey] = set()
+        #: The formulas held in loops, True for those on one and False for those reading one, found as formulas
+        #: are worked out; and the cells that closed a loop, latest last (see _hold).
+        self._loop: dict[CellKey, bool] = {}
+        self._closed: dict[CellKey, None] = {}
+        #: Loop cells being worked out from what the loop holds, and so not let go of when they come to a value.
+        self._marked: set[CellKey] = set()
+        #: Whether loops are being worked out over and over now (see _iterate).
+        self._iterating = 0
         self._built = False
         #: The cells being worked out, one inside another, and how many.
         self._working: set[CellKey] = set()
@@ -208,6 +227,8 @@ class Calculator:
     def _keep(self, key: CellKey, compiled: Compiled | None) -> None:
         """Keep ``compiled`` as the formula at ``key``, or none, and note which cells it reads."""
         old = self.compiled.pop(key, None)
+        self._loop.pop(key, None)
+        self._closed.pop(key, None)
         self._user_calls.discard(key)
         self._volatile_udfs.discard(key)
         self._volatile_formulas.discard(key)
@@ -272,6 +293,8 @@ class Calculator:
         self._readers.clear()
         self._blocks.clear()
         self.circular.clear()
+        self._loop.clear()
+        self._closed.clear()
         self._built = False
         for sheet in self.book.sheets_:
             for cell in sheet.cells_.values():
@@ -407,6 +430,9 @@ class Calculator:
                     cell.stale = True
                     roots.add(key)
         self._spoil(roots, set(roots))
+        # With Application.Iteration on, the formulas held in loops are left to the iteration after the rest.
+        iteration = self.book.application.iteration
+        held = set(self._loop) if iteration else set[CellKey]()
         worked: set[Worksheet] = set()
         self._scopes.append((None if only is None else only.name.lower(), areas))
         self._calculated_sheets.append(worked)
@@ -432,6 +458,8 @@ class Calculator:
                     continue
                 if areas is not None and not any(area.contains(row, column) for area in areas):
                     continue
+                if key in held:
+                    continue
                 if cell.stale:
                     try:
                         self.value_of(sheet.name, row, column, force=True)
@@ -453,6 +481,10 @@ class Calculator:
                             raise
                         continue
                     deferred.clear()
+            if iteration:
+                self._iterate(frozenset(
+                    key for key in self._loop if key[0] in owners
+                    and (areas is None or any(area.contains(key[1], key[2]) for area in areas))))
         finally:
             self._scopes.pop()
             self._calculated_sheets.pop()
@@ -508,7 +540,9 @@ class Calculator:
                 self._volatile_udfs.discard(key)
 
     def settle_entries(self) -> set[CellKey]:
-        """Give explicit formula assignments their initial result, including in manual mode.
+        """Give explicit formula assignments their initial result, including in manual mode, as Excel works a
+        formula out when it is written: what a loop's cells hold when a later formula closes it is what they came
+        to then, and a formula closing one is found then (tests/fixtures/iteration.json).
 
         Copied caches are not entries. Existing stale UDFs also settle here in
         automatic mode, before the edit's events are dispatched.
@@ -522,7 +556,7 @@ class Calculator:
             compiled = self.compiled.get((name, row, column))
             if cell is not None and cell.stale and owner is not None and compiled is not None \
                     and (self.automatic or (name, row, column) in entries) \
-                    and (compiled.calls_user or not self.automatic):
+                    and (compiled.calls_user or not self.automatic or (name, row, column) in entries):
                 try:
                     self._learning_depth += int((name, row, column) not in entries)
                     try:
@@ -533,6 +567,11 @@ class Calculator:
                     if self._user_unsupported(compiled):
                         raise
                     # Preserve valid formula text the engine cannot yet evaluate.
+                    continue
+                if self.automatic and not compiled.calls_user:
+                    # What it came to as it was written stays for a loop a later formula closes; a read works it out
+                    # again, as the model works formulas out when they are read.
+                    cell.stale = True
                     continue
                 worked.add((name, row, column))
                 if not self.automatic:
@@ -586,6 +625,145 @@ class Calculator:
     def recalculated(self, *, settled: set[CellKey] | None = None) -> list[Worksheet]:
         """Calculate after an edit, unless the application is in manual mode."""
         return self.calculate_all(settled=settled, background=True) if self.automatic else []
+
+    # --- loops of formulas -------------------------------------------------------------
+
+    def loop_cells(self) -> frozenset[CellKey]:
+        """The formulas held in loops. Excel finds a loop as it works formulas out, among the cells a formula reads
+        then: ROWS(A1:A10) in A5 reads no cell and closes none, nor does a MATCH there that stops at A3, where
+        SUM(A1:A10) does (tests/fixtures/self_reference.json). With Application.Iteration off none of them is
+        worked out: a formula just written there is 0, and the others keep what they hold until the loop is
+        broken. With it on every calculation works them out over and over (see _iterate)."""
+        return frozenset(self._loop)
+
+    @property
+    def iterates(self) -> bool:
+        """Whether every calculation works loops out, as a volatile formula is worked out every time."""
+        return self.book.application.iteration and bool(self._loop)
+
+    def _reads_loops(self) -> bool:
+        """Whether a formula reaching a loop reads what its cells hold and is worked out, as in an iteration and with
+        Application.Iteration on in manual mode, where Excel works a formula out once as it is written."""
+        return bool(self._iterating) or (self.book.application.iteration and not self.automatic)
+
+    def circular_cell(self, sheet: Worksheet) -> tuple[int, int] | None:
+        """Worksheet.CircularReference's cell: of the cells on loops on the sheet, the latest that closed one, or
+        else the first, row by row; none with Application.Iteration on. Of two cells of one loop on a sheet Excel
+        names either, run to run (tests/fixtures/iteration.json)."""
+        if self.book.application.iteration:
+            return None
+        name = sheet.name.lower()
+        for key in [key for key, on in self._loop.items() if on and key[0] == name]:
+            cell = self._cell(key)
+            if cell is not None and cell.stale:
+                # Still going round?
+                self.value_of(sheet.name, key[1], key[2])
+        here = [key for key, on in self._loop.items() if on and key[0] == name]
+        if not here:
+            return None
+        found = next((key for key in reversed(self._closed) if key in here), min(here))
+        return found[1], found[2]
+
+    def _held_value(self, cell: Cell) -> object:
+        """A cell held in a loop, asked for: what it holds, to a macro and to a formula reading the loop; any other
+        formula asking for it cannot be worked out either (see _hold)."""
+        if self._active_formulas and not self._udf_depth:
+            if not self._reads_loops():
+                raise _Loop(None)
+            asking = self._active_formulas[-1]
+            self._loop.setdefault(asking, False)
+            self._marked.add(asking)
+        return 0.0 if cell.value is EMPTY else cell.value
+
+    def _closing(self, key: CellKey, cell: Cell) -> object:
+        """A formula asked for ``key``, which is being worked out under it: a loop. Read where formulas read loops,
+        the cells from ``key`` up to the one asking are on it and are worked out from what it holds, a formula just
+        written starting at 0; anywhere else none of them can be worked out (see _hold), a macro a formula runs and
+        reads its own cell stopping where it reads it."""
+        self.circular.add(key)
+        if self._udf_depth or not self._reads_loops():
+            raise _Loop(key)
+        stack = self._active_formulas
+        for one in stack[stack.index(key):] if key in stack else stack:
+            self._loop[one] = True
+            self._marked.add(one)
+        self._closed.pop(key, None)
+        self._closed[key] = None
+        return 0.0 if cell.value is EMPTY else cell.value
+
+    def _hold(self, key: CellKey, cell: Cell, loop: _Loop) -> object:
+        """A formula that cannot be worked out, as it is on a loop or reads a cell held in one: it keeps what it holds,
+        a formula just written 0, and so does each formula asking for it, back to the first. The cells from the one
+        asked for again up to the one asking are on the loop and the one asked for closed it; those asking for them
+        only read it (tests/fixtures/iteration.json)."""
+        if cell.value is EMPTY:
+            cell.value = 0.0
+        self._loop[key] = loop.origin is not None or self._loop.get(key, False)
+        self._marked.discard(key)
+        cell.stale = False
+        self.circular.add(key)
+        if key == loop.origin:
+            self._closed.pop(key, None)
+            self._closed[key] = None
+            loop.origin = None
+        if self._active_formulas and not self._udf_depth:
+            raise loop
+        return cell.value
+
+    def _iterate(self, keys: frozenset[CellKey]) -> None:
+        """Work loops out over and over, as Excel does with Application.Iteration on. A pass works each formula held
+        in one out once, a sheet at a time in the order the sheets were made, whatever their tabs' order, and row by
+        row, each reading what the others hold by then, a formula just written starting at 0. Passes go on until no
+        number changes by MaxChange or more, text and logicals changing nothing, or MaxIterations of them are done
+        (tests/fixtures/iteration.json)."""
+        if not keys:
+            return
+        application = self.book.application
+        made = {sheet.name.lower(): sheet.made for sheet in self.book.sheets_}
+        cells: list[tuple[CellKey, Cell, Compiled]] = []
+        for key in sorted(keys, key=lambda key: (made.get(key[0], 0), key[1], key[2])):
+            cell = self._cell(key)
+            compiled = self.compiled.get(key)
+            if cell is not None and compiled is not None:
+                if cell.value is EMPTY:
+                    cell.value = 0.0
+                cells.append((key, cell, compiled))
+        for _ in range(application.max_iterations):
+            change = 0.0
+            for key, cell, compiled in cells:
+                before = cell.value
+                after = self._step(key, cell, compiled)
+                if isinstance(before, float | int) and isinstance(after, float | int) \
+                        and not isinstance(before, bool) and not isinstance(after, bool):
+                    change = max(change, abs(after - before))
+            if change < application.max_change:
+                break
+        from pyopenvba.apps.excel._controls import cell_changed
+
+        for key, cell, _ in cells:
+            owner = self._sheet_named(key[0])
+            if owner is not None:
+                cell_changed(owner, key[1], key[2], cell.value)
+
+    def _step(self, key: CellKey, cell: Cell, compiled: Compiled) -> object:
+        """A loop's formula worked out once, reading what the loop's cells hold."""
+        owner = self._sheet_named(key[0])
+        if owner is None:
+            return cell.value
+        self._iterating += 1
+        self._working.add(key)
+        self._active_formulas.append(key)
+        try:
+            value = self._computed(compiled, owner.name, key[1], key[2])
+        finally:
+            self._iterating -= 1
+            self._working.discard(key)
+            self._active_formulas.pop()
+        cell.value = value
+        cell.stale = False
+        for sheets in self._calculated_sheets:
+            sheets.add(owner)
+        return value
 
     def value_of(self, sheet: str, row: int, column: int, *, force: bool = False) -> object:
         """A cell's value, worked out first if it needs to be; a cell of an array formula, by working out the array.
@@ -659,6 +837,8 @@ class Calculator:
         if compiled is None:
             self.remember(sheet, row, column, cell)
             compiled = self.compiled[key]
+        if key in self._loop and (self._iterating or not (cell.stale or force)):
+            return self._held_value(cell)
         if self._calculation_depth and self._udf_depth and not self._provisional_disabled \
                 and self._active_formulas and cell.stale and compiled.calls_user \
                 and (compiled.udf_pending or self._full_calculation_depth) \
@@ -672,13 +852,14 @@ class Calculator:
             return cell.value
         if key in self._held_caches and not force and not self._calculation_depth:
             return cell.value
+        if key in self._working or key in self._waiting:
+            # A loop, found before manual mode's cache stands in for the cell: Excel finds it as the formula is
+            # written then too (tests/fixtures/iteration.json).
+            return self._closing(key, cell)
         if not self.automatic and not force and not self._calculation_depth:
             if self._active_formulas:
                 self._cached_inputs.add(self._active_formulas[-1])
             return cell.value
-        if key in self._working or key in self._waiting:
-            self.circular.add(key)
-            raise ExcelError("#CIRCULAR!")
         if self._depth >= _DEEPEST:
             raise _Deeper(sheet, row, column)
         self._working.add(key)
@@ -686,8 +867,12 @@ class Calculator:
         self._active_formulas.append(key)
         self._cached_inputs.discard(key)
         cached = False
+        caught: _Loop | None = None
+        value: object = EMPTY
         try:
             value = self._computed(compiled, sheet, row, column)
+        except _Loop as loop:
+            caught = loop
         finally:
             cached = key in self._cached_inputs
             self._cached_inputs.discard(key)
@@ -695,6 +880,13 @@ class Calculator:
             self._working.discard(key)
             self._active_formulas.pop()
             self._udf_waiting.pop(key, None)
+        if caught is not None:
+            return self._hold(key, cell, caught)
+        if key in self._marked:
+            # Worked out from what a loop holds, it stays on the loop.
+            self._marked.discard(key)
+        else:
+            self._loop.pop(key, None)
         cell.value = value
         cell.save_dirty = None
         self._held_caches.discard(key)
@@ -754,12 +946,6 @@ class Calculator:
             if compiled.dynamic:
                 return self._spilling(owner, row, column, Array([[failure.error]]))
             return model_value(failure.error) if block is None else _spread(owner, block, Array([[failure.error]]))
-        except ExcelError as failure:
-            if failure.name != "#CIRCULAR!":
-                raise
-            # Excel leaves a zero in a cell that feeds itself.
-            self.circular.add((sheet.lower(), row, column))
-            return 0.0
         except RecursionError:
             self.circular.add((sheet.lower(), row, column))
             return 0.0

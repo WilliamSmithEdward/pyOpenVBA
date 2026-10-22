@@ -7,6 +7,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Circular references and iterative calculation: `Application.Iteration`,
+  `MaxIterations` and `MaxChange`, and `Worksheet.CircularReference`. A loop
+  is found as Excel finds it, through the cells a formula reads as it is
+  worked out, so ROWS, an IF branch not taken or a MATCH that stops at its
+  match closes none. With iteration off, the formula closing a loop is 0,
+  as is any formula reading the loop, and the loop's other cells keep what
+  they hold. With it on, every calculation works the loops out over and
+  over, a sheet at a time in the order the sheets were made and row by row,
+  until no number changes by `MaxChange` or `MaxIterations` passes are done.
+  The settings are saved on `calcPr` and brought by the first workbook
+  opened. 93 live probes, 24 repeated runs and three saved workbooks agree.
+  Excel names either cell of a loop as `CircularReference`, run to run.
+
 - `Workbook.Date1904`: each workbook keeps its own 1900 or 1904 calendar,
   read from and saved to `workbookPr`. Cells, typing, Value, Text, formulas,
   Text cells, Find and Replace, AutoFill, TextToColumns, AutoFilter and

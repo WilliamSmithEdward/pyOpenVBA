@@ -112,7 +112,10 @@ _ROWS = re.compile(r"(\$?)([0-9]{1,7}):(\$?)([0-9]{1,7})" + _END)
 #: letters, digits, full stops, underscores, backslashes and question marks.
 _NAME = re.compile(r"(?:[^\W\d]|\\)[\w.\\?]*")
 #: A sheet name that needs no quotes, and a 3D pair of them, before ``!``.
-_BARE_SHEETS = re.compile(r"((?:[^\W\d]|\\)[\w.\\]*)(?::((?:[^\W\d]|\\)[\w.\\]*))?!")
+#: Past ASCII any character may stand in one: Excel writes x–y!B3 and
+#: ＡＢ!B3 bare (pyOpenVBA's tests/fixtures/sheet_quoting.json).
+_BARE_SHEET = r"(?:[^\W\d]|[\\\x80-\U0010ffff])[\w.\\\x80-\U0010ffff]*"
+_BARE_SHEETS = re.compile(rf"({_BARE_SHEET})(?::({_BARE_SHEET}))?!")
 _BOOK = re.compile(r"\[([^\]\[]+)\]")
 _TWO_CHARACTER_OPERATORS = ("<>", "<=", ">=")
 _OPERATORS = "+-*/^&=<>%:@"

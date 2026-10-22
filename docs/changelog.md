@@ -46,10 +46,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Every one of the engine's 501 functions was written alone to a General
   cell in Excel to find them.
 
-- A sheet's name in a formula is quoted as Excel quotes it, over 76
-  measured names: plain names in any script, full stops included, are
-  bare, while names like cells (`'Q4'`), R1C1 rows and columns (`'R2'`,
-  `'C1A'`) and logicals are in apostrophes.
+- A sheet's name in a formula is quoted as Excel quotes it, over 100
+  measured names and pyOfficeEditor's tables of the characters past ASCII
+  Excel quotes for: plain names in any script, full stops included, are
+  bare, and read back bare, while names like cells (`'Q4'`), R1C1 rows and
+  columns (`'R2'`, `'C1A'`) and logicals are in apostrophes.
 
 - `Application.ReferenceStyle`, `International`, `DecimalSeparator`,
   `ThousandsSeparator` and `UseSystemSeparators`, as Excel answers them in

@@ -141,3 +141,7 @@ name looking like a cell is not read as the cell.
     `Q4!A1`, and in brackets of their own `(ThreeA:ThreeB!A1)` as the name
     ThreeA to `ThreeB!A1` (`tests/fixtures/three_d_references.json`,
     `three_d_functions.json`, every function that takes a range measured).
+14. **Sheet names past ASCII.** The lexer reads a sheet's name written
+    without quotes with any character past ASCII in it, as Excel writes
+    `x–y!B3` and `ＡＢ!B3` (`tests/fixtures/sheet_quoting.json`), where
+    pyOfficeEditor's reads only Unicode letters and digits.

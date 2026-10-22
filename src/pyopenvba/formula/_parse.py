@@ -134,10 +134,13 @@ class Structured(Node):
 
 # --- tokens -------------------------------------------------------------------------
 
+#: A sheet's name written without quotes, which may run past ASCII: Excel writes Mär!B3, x–y!B3 and 日本!B3 bare
+#: (tests/fixtures/sheet_quoting.json).
+BARE_SHEET = r"[A-Za-z0-9_.\x80-\U0010ffff]+"
 #: A sheet name in front of a reference, quoted or not, or a 3D pair of them, Jan:Mar!.
-_SHEET = r"(?:'(?:[^']|'')+'|[A-Za-z0-9_.À-￿]+(?::[A-Za-z0-9_.À-￿]+)?)!"
+_SHEET = rf"(?:'(?:[^']|'')+'|{BARE_SHEET}(?::{BARE_SHEET})?)!"
 #: A 3D pair of sheets without quotes at the start of a token: its first sheet, then the rest after the colon.
-_BARE_PAIR = re.compile(r"([A-Za-z0-9_.À-￿]+):[A-Za-z0-9_.À-￿]+!")
+_BARE_PAIR = re.compile(rf"({BARE_SHEET}):{BARE_SHEET}!")
 _CELL = r"\$?[A-Za-z]{1,3}\$?[0-9]{1,7}"
 _WHOLE_COLUMNS = r"\$?[A-Za-z]{1,3}:\$?[A-Za-z]{1,3}"
 _WHOLE_ROWS = r"\$?[0-9]{1,7}:\$?[0-9]{1,7}"
@@ -148,9 +151,9 @@ _BRACKETED = rf"\[{_ESCAPED}*\]"
 STRUCTURED: Final = (rf"(?:{_SHEET})?(?:[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)?"
                      rf"\[(?:{_ESCAPED}*|\s*@?\s*{_BRACKETED}(?:\s*[,:]\s*{_BRACKETED})*\s*)\]")
 #: Another workbook as a file spells it, by its link's number: [1]Sheet1!, [1]Sheet1:Other! or, for its names, [1]!.
-_LINKED = r"\[[0-9]+\](?:[A-Za-z0-9_.À-￿]+(?::[A-Za-z0-9_.À-￿]+)?)?!"
+_LINKED = rf"\[[0-9]+\](?:{BARE_SHEET}(?::{BARE_SHEET})?)?!"
 #: Another workbook's sheet as a macro may write it, by its file's name: [Source.xlsx]Sheet1!.
-_BOOK_SHEET = r"\[[^\[\]'!]+\][A-Za-z0-9_.À-￿]+(?::[A-Za-z0-9_.À-￿]+)?!"
+_BOOK_SHEET = rf"\[[^\[\]'!]+\]{BARE_SHEET}(?::{BARE_SHEET})?!"
 
 _TOKEN: Final = re.compile(
     rf"""

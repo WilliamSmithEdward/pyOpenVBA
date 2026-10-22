@@ -4,12 +4,12 @@ from __future__ import annotations
 import re
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, column_letter, column_number
-from pyopenvba.formula._parse import STRUCTURED, FormulaError, split_sheet, tokenize
+from pyopenvba.formula._parse import BARE_SHEET, STRUCTURED, FormulaError, split_sheet, tokenize
 
 _OFFSET = r"(?:\[-?\d+\]|\d+)?"
 _ROW = rf"R{_OFFSET}"
 _COL = rf"C{_OFFSET}"
-_SHEET = r"(?:'(?:[^']|'')+'|[A-Za-z0-9_.À-￿]+)!"
+_SHEET = rf"(?:'(?:[^']|'')+'|{BARE_SHEET})!"
 #: A structured reference comes after the R1C1 forms, so that R[-1]C reads as one; what is in its brackets, a
 #: column named R1C1 or C, is left as it is.
 _SCAN = re.compile(

@@ -372,6 +372,29 @@ class Application(ExcelObject):
         return found
 
     @member
+    def StandardFont(self) -> object:
+        """The font a new workbook's Normal style takes, Aptos Narrow, as today's Excel's (tests/fixtures/
+        column_autofit.json)."""
+        return "Aptos Narrow"
+
+    @setter("StandardFont")
+    def _set_standard_font(self, value: object) -> None:
+        if to_text(value).lower() != "aptos narrow":
+            raise VBAUnsupportedError("Application.StandardFont set to another font, which new workbooks take, is not "
+                                      "implemented")
+
+    @member
+    def StandardFontSize(self) -> object:
+        """The size a new workbook's Normal font takes, 11."""
+        return 11.0
+
+    @setter("StandardFontSize")
+    def _set_standard_font_size(self, value: object) -> None:
+        if float(to_number(value)) != 11.0:
+            raise VBAUnsupportedError("Application.StandardFontSize set to another size, which new workbooks take, is "
+                                      "not implemented")
+
+    @member
     def DecimalSeparator(self) -> object:
         return "."
 

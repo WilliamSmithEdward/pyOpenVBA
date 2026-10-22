@@ -21,7 +21,7 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures" / "prote
 CASES: list[dict[str, Any]] = RECORD["cases"]
 
 #: Cases the model does not answer as Excel does, and why.
-KNOWN = {"autofit_allowed": "AutoFit of a column holding text measures the text, which the model does not"}
+KNOWN: dict[str, str] = {}
 
 
 def _module(case: dict[str, Any]) -> str:

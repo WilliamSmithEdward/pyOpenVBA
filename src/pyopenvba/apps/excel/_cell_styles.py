@@ -530,6 +530,9 @@ def _redefine(book: Workbook, place: int, entry: S.CellStyle, own: S.Style, incl
     if place == normal and old.font != new.font:
         stylesheet.renormal_font(new.font)
         _follow(book, lambda style: _in_first_font(style, normal, old.font, new.font))
+        for sheet in book.sheets_:
+            # Every row's fonts are measured beside the Normal one.
+            sheet.dims.invalidate_growth()
         reach -= {"font"}
     if not reach:
         return
@@ -904,7 +907,7 @@ class StyleFont(RangeFont):
 
     def guard_set(self, member: str) -> None:
         entry = self.owner.cell_style
-        if entry.builtin == 0 and member.casefold() not in _NORMAL_FONT:
+        if entry.builtin == 0 and member.casefold() not in _NORMAL_FONT | {"name", "size"}:
             raise VBAUnsupportedError(f"changing the Normal style's Font.{member}, which the sheets' column widths "
                                       "and row heights rest on, is not implemented")
 
@@ -912,6 +915,15 @@ class StyleFont(RangeFont):
         return get(self.font)
 
     def _write(self, change: Callable[[S.Font], S.Font]) -> None:
+        if self.owner.cell_style.builtin == 0:
+            from pyopenvba.apps.excel._dimensions import known_normal
+
+            # Between the two Normal fonts measured, which make the same digit and the same row, the sheets'
+            # widths and heights stay as they are.
+            font = change(self.font)
+            if not known_normal(font):
+                raise VBAUnsupportedError(f"changing the Normal font to {font.name} {font.size:g}, which the sheets' "
+                                          "column widths and row heights rest on, is not implemented")
         _change(self.owner, lambda own: replace(own, font=change(own.font)))
 
     def _color(self, what: str) -> object:

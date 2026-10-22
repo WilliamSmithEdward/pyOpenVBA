@@ -9,7 +9,11 @@ parameter uses decides what a range given to it does:
   array back, which is how ``ABS({-1,-2})`` is ``{1,2}``.
 - ``RANGE``: the reference, array or scalar as it is, for a function that
   reads many values, such as SUM, or needs the shape, such as INDEX.
-- ``REFERENCE``: a reference and nothing else, for ROW, OFFSET and the like.
+- ``REFERENCE``: a reference and nothing else, for ROW, OFFSET, COUNTIF's
+  ranges and the like. Anything else is ``#VALUE!``, and an array is one
+  ``#VALUE!`` an item: the call runs once per item as it does for a single
+  value, and no item is a reference. That is how ``COUNTIF(x,1)`` inside a
+  LAMBDA given an array comes to be an array, which GROUPBY then refuses.
 - ``LAZY``: the argument's tree, not yet evaluated, for IF and the others
   that evaluate only what they need.
 
@@ -40,6 +44,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba.formula._calc.nodes import Call, Missing, NameReference, Node, Paren
+from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.values import EMPTY, REF as REF_ERROR, VALUE, Array, ExcelError, Reference, Scalar, Value
 
 if TYPE_CHECKING:
@@ -158,8 +163,22 @@ def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
         if isinstance(node, Missing):
             args.append(EMPTY)
             continue
-        whole = kind is Kind.ARRAY and not (context.legacy and index in entry.legacy_cell)
-        value = context.evaluate_array(node) if whole else context.evaluate(node)
+        as_cell = context.legacy and index in entry.legacy_cell
+        whole = kind is Kind.ARRAY and not as_cell
+        if as_cell:
+            # A legacy_cell place is worked out as a cell works a value out, a range cut to the formula's row or
+            # column, even inside an argument worked out whole: INDEX(TRANSPOSE(A1:A3),1,2) in row 6 is #VALUE!
+            # (pyOfficeEditor's measurement).
+            saved = context.array
+            context.array = False
+            try:
+                value = context.evaluate(node)
+                if isinstance(value, Reference):
+                    value = context.implicit(value)
+            finally:
+                context.array = saved
+        else:
+            value = context.evaluate_array(node) if whole else context.evaluate(node)
         if index in entry.reject_references and isinstance(value, Reference):
             return REF_ERROR
         if index in entry.reject_references and isinstance(value, Array) and not context.array:
@@ -180,7 +199,13 @@ def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
                 else:
                     lifted.append(index)
         elif kind is Kind.REFERENCE and not isinstance(value, Reference):
-            return VALUE
+            if isinstance(value, CellError):
+                # An error where only a range will do is handed on, ROW(#REF!) and LET(x,NA(),COUNTIF(x,1)) being
+                # the error (pyOpenVBA's tests/fixtures/formula/reference_errors.json).
+                return value
+            if not isinstance(value, Array):
+                return VALUE
+            lifted.append(index)
         args.append(value)
     if lifted:
         return _lift(entry, context, args, lifted)
@@ -196,10 +221,13 @@ def invoke(entry: Function, context: Context, args: list[Any]) -> Value:
 
 
 def _lift(entry: Function, context: Context, args: list[Any], positions: list[int]) -> Array:
-    """Call once per item of the arrays given for single values."""
+    """Call once per item of the arrays given for single values or for
+    references, an item never being a reference."""
     arrays: list[Array] = [args[index] for index in positions]
     height = max(array.height for array in arrays)
     width = max(array.width for array in arrays)
+    if any(entry.kind(index) is Kind.REFERENCE for index in positions):
+        return Array([[VALUE] * width for _ in range(height)])
     rows: list[list[Scalar]] = []
     for row in range(height):
         items: list[Scalar] = []

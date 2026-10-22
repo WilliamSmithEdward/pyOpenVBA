@@ -1,9 +1,11 @@
 # Excel API coverage
 
-Snapshot: **20 October 2026**, covering the current source tree, including
+Snapshot: **22 October 2026**, covering the current source tree, including
 local AdvancedFilter, bounded AutoFilter wildcard matching, staged local Pivot
 refresh, worksheet page configuration, table-owned sorting, bounded scalar/name
-worksheet renames, ordinary worksheet outlines and conditional formatting.
+worksheet renames, ordinary worksheet outlines, conditional formatting, primary
+chart axes, workbook date systems and pyOfficeEditor's formula engine to its
+commit 4723383.
 This is a functionality summary for the in-memory Excel engine.
 **No functional area is complete yet.** Common worksheet operations have
 substantially more support than advanced Excel automation.
@@ -29,7 +31,7 @@ is a percentage of working macros or complete functionality.
 | --- | --- | ---: | ---: | --- |
 | Application, workbooks and worksheets | Partial | 128 / 752 | 6 | Core containers, opening/saving, sheet operations and settings, including bounded scalar/name worksheet renames. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
 | Cells and ranges | Partial | 118 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
-| Formulas and calculation | Partial | 388 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
+| Formulas and calculation | Partial | 393 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Bounded worksheet renames migrate ordinary local/global references and preserve scope/identity. Broader expression, relative/external-reference and mixed-feature lifecycle behavior remains incomplete. |
 | Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Rich text, gradients, advanced display formats and remaining formatting APIs need work. |
 | Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
@@ -49,7 +51,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,224 / 7,542** | **147** | **16.2% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,229 / 7,542** | **147** | **16.3% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -866,7 +868,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,843 entries across 73 implemented model types**:
-147 verified, 657 partial, 424 unassessed, 1,612 missing and 3 excluded. Its 1,228
+147 verified, 657 partial, 429 unassessed, 1,607 missing and 3 excluded. Its 1,233
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

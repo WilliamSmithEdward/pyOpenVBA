@@ -175,6 +175,18 @@ class Book(Protocol):
         file records it, or ``None`` when the cell holds no such formula."""
         ...
 
+    def external_sheets(self, book: str, first: str, last: str | None) -> list[str] | None:
+        """The sheets of a linked workbook a reference names, ``first``, or
+        ``first`` to ``last`` in that workbook's order, as the engine names
+        them; an empty list when the workbook has no such sheet, and
+        ``None`` when there is no link ``book`` to read them from."""
+        ...
+
+    def external_name(self, book: str, name: str) -> Node | None:
+        """A name defined in a linked workbook, as a formula reading that
+        workbook, or ``None`` when the link has no such name."""
+        ...
+
 
 _ARITHMETIC = frozenset({"+", "-", "*", "/", "^"})
 _COMPARISON: dict[str, Callable[[int], bool]] = {
@@ -189,6 +201,8 @@ _GETTING_DATA = "#GETTING_DATA"
 #: How deep LAMBDAs may call one another here: each level costs Python a
 #: dozen frames, so a deeper recursion keeps the value Excel cached.
 _MAX_DEPTH = 60
+#: The prefix a file writes before a function passed as a value.
+_ETA = "_XLETA."
 
 
 class Context:
@@ -314,7 +328,12 @@ class Context:
         if prefix is None:
             return [self.sheet]
         if prefix.book is not None:
-            raise UnsupportedFormulaError("a reference to another workbook")
+            if prefix.sheet is None:
+                return REF
+            linked = self.book.external_sheets(prefix.book, prefix.sheet, prefix.last_sheet)
+            if linked is None:
+                raise UnsupportedFormulaError("a reference to another workbook the file keeps no copy of")
+            return linked or REF
         if prefix.sheet is None:
             return REF
         first = self.book.sheet_key(prefix.sheet)
@@ -335,8 +354,13 @@ class Context:
             for scope in reversed(self.scopes):
                 if key in scope.values:
                     return scope.values[key]
+            if key.startswith(_ETA):
+                return self._eta(key[len(_ETA) :])
         if node.prefix is not None and node.prefix.book is not None:
-            raise UnsupportedFormulaError("a name defined in another workbook")
+            if node.prefix.sheet is not None:
+                raise UnsupportedFormulaError("a name defined for one sheet of another workbook")
+            found = self.book.external_name(node.prefix.book, node.name)
+            return REF if found is None else self.evaluate(found)
         sheet = None
         if node.prefix is not None:
             if node.prefix.sheet is None:
@@ -517,29 +541,50 @@ class Context:
         if not isinstance(target, Lambda):
             return target if isinstance(target, CellError) else VALUE
         args = [EMPTY if isinstance(arg, Missing) else self.evaluate(arg) for arg in nodes]
-        return self.apply(target, args)
+        empty = frozenset(index for index, arg in enumerate(nodes) if isinstance(arg, Missing))
+        return self.apply(target, args, empty)
 
-    def apply(self, function: Lambda, args: list[Value]) -> Value:
+    def _eta(self, name: str) -> Value:
+        """``_xleta.SUM``: the function as a value."""
+        entry = registry.FUNCTIONS.get(name)
+        if entry is not None:
+            return Lambda.eta(name, entry.minimum)
+        if is_excel_function(name):
+            raise UnsupportedFormulaError(f"the function {name}")
+        return NAME
+
+    def apply(self, function: Lambda, args: list[Value], empty: frozenset[int] = frozenset()) -> Value:
         """A LAMBDA called with values: its parameters bound to them, in the
-        scope it was made in. Optional parameters left out read as blank,
-        and ISOMITTED says which they were; leaving out any other, or giving
-        more arguments than parameters, is ``#VALUE!`` (pyOpenVBA's
-        tests/fixtures/bound_names.json)."""
-        if len(args) > len(function.parameters) or function.body is None:
-            return VALUE
-        if any(name not in function.optional for name in function.parameters[len(args) :]):
-            return VALUE
+        scope it was made in. Measured: fewer arguments than its required
+        parameters, or more than all of them, are ``#VALUE!``; an optional
+        parameter left out, or any argument left empty (the positions in
+        ``empty``), reads as blank, and ISOMITTED says which they were
+        (pyOpenVBA's tests/fixtures/bound_names.json too). A function
+        passed by name is called with the values as its arguments, each
+        taken the way that function takes it."""
+        if function.builtin is not None:
+            # Names no formula can spell, bound to the values, so that the
+            # call reads each as it reads any argument.
+            names = tuple(f"?{index}" for index in range(len(args)))
+            values = dict(zip(names, args, strict=True))
+            body: Node = Call(function.builtin, tuple(NameReference(name) for name in names))
+            closure: tuple[Scope, ...] = ()
+            omitted: frozenset[str] = frozenset()
+        else:
+            if not function.required <= len(args) <= len(function.parameters) or function.body is None:
+                return VALUE
+            values = dict(zip(function.parameters, args, strict=False))
+            omitted = frozenset(function.parameters[len(args) :]) | {function.parameters[index] for index in empty}
+            for name in omitted:
+                values[name] = EMPTY
+            body, closure = function.body, function.closure
         if self._depth >= _MAX_DEPTH:
             raise UnsupportedFormulaError(f"a LAMBDA calling itself more than {_MAX_DEPTH} deep")
-        values = dict(zip(function.parameters, args, strict=False))
-        omitted = frozenset(function.parameters[len(args) :])
-        for name in omitted:
-            values[name] = EMPTY
         saved = self.scopes
-        self.scopes = [*function.closure, Scope(values, omitted)]
+        self.scopes = [*closure, Scope(values, omitted)]
         self._depth += 1
         try:
-            return self.evaluate(function.body)
+            return self.evaluate(body)
         finally:
             self._depth -= 1
             self.scopes = saved

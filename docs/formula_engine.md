@@ -2,7 +2,7 @@
 
 Cells are worked out by `pyopenvba.formula._calc`, pyOfficeEditor's
 formula engine (`pyofficeeditor.excel._calc`), copied in from its commit
-81481d2 with its imports pointed at pyOpenVBA. Its modules keep their
+4723383 with its imports pointed at pyOpenVBA. Its modules keep their
 names, so the next copy is a diff of the same files:
 
 ```console
@@ -15,12 +15,28 @@ the changes below, each made for one of pyOpenVBA's live measurements,
 and a new copy has to keep them or show they are no longer needed. A
 module both projects changed is merged three ways, pyOfficeEditor's
 module at the commit last copied being the base, rewritten as the script
-rewrites it: `git merge-file` took `functions/financial.py` from 098e441
-to ed27bf2 so, and 94ea041's XIRR and 81481d2's PRICE, DURATION and
-MDURATION, which touched no line pyOpenVBA changed, went in as their
-diffs.
+rewrites it:
+
+```console
+python scripts/copy_formula_engine.py --merge 4723383 [path to pyOfficeEditor]
+```
+
+merges every module so and leaves each conflict marked. The merge from
+81481d2 to 4723383 brought in ODDFPRICE, ODDFYIELD, ODDLPRICE, ODDLYIELD,
+GROUPBY, PIVOTBY and BAHTTEXT, YIELD, PMT, IPMT, PPMT, CUMIPMT and
+CUMPRINC to the bit, Kahan's e^x - 1, functions passed by name
+(`_xleta.SUM`), dates and times read from text as Excel reads them, and
+reference-only parameters taking an array one item at a time. Its six
+conflicts were the LAMBDA both projects had given optional parameters
+(pyOfficeEditor's count of required ones is kept, with pyOpenVBA's `[y]`
+read as one), TEXTJOIN, TRANSPOSE and an import. pyOfficeEditor's own
+workbook driver learned circular references, data tables, linked
+workbooks' cached values and error checking in those commits; pyOpenVBA
+does not use that driver, so those wait for its own.
 `tests/test_excel_formula_corpus.py` runs pyOfficeEditor's own corpus
-through the copy, so both sets of measurements hold at once.
+through the copy, and `tests/test_formula_engine_sync.py` the tests
+pyOfficeEditor wrote for the commits merged, so both sets of
+measurements hold at once.
 
 `cells.py` and `host.py` are pyOpenVBA's own: TEXT, DOLLAR and FIXED
 format through the display engine `Range.Text` uses.
@@ -43,7 +59,10 @@ name looking like a cell is not read as the cell.
    - `legacy_as_cell`: IF, IFS, IFERROR, IFNA, SWITCH and CHOOSE work
      their arguments out as a cell does inside an argument worked out
      whole: `SUMPRODUCT(IF(A1:A3>1,1,0))` is #VALUE! in row 5, 1 in row 2.
-   - `legacy_cell`: TRANSPOSE's argument is not worked out whole.
+   - `legacy_cell`: TRANSPOSE's argument is worked out as a cell works a
+     value out, a range cut to the formula's row or column, even inside an
+     argument worked out whole: `INDEX(TRANSPOSE(A1:A3),1,2)` is #VALUE! in
+     row 6.
    - `legacy_corner`: `N(A1:A3)` is A1's value.
 2. **Defined names.** A name's formula is worked out as an array formula,
    legacy rules off, and its last sum snaps as a cell's does:
@@ -95,3 +114,13 @@ name looking like a cell is not read as the cell.
 10. **A name in quotes.** `'A1'` and `Data!'A1'` are names, the way A1
     spells a name R1C1 read where A1 reads a cell; with no such name
     defined they are #NAME? (`tests/fixtures/formula_notation.json`).
+11. **An error where only a range will do** is handed on: `ROW(#REF!)`
+    and `LET(x,NA(),COUNTIF(x,1))` are the error, as Excel gives them for
+    every reference-only parameter measured
+    (`tests/fixtures/formula/reference_errors.json`); pyOfficeEditor makes
+    them #VALUE!. An array there is still one #VALUE! an item.
+12. **The workbook.** The `Book` protocol leaves out pyOfficeEditor's
+    `pivot_reports`, since GETPIVOTDATA is pyOpenVBA's own
+    (`functions/pivotdata.py`), and the model's book answers
+    `external_sheets` and `external_name` by reporting a reference to
+    another workbook unsupported until linked workbooks are read.

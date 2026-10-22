@@ -74,12 +74,15 @@ def LET(context: Context, *nodes: Node) -> Value:
 
 @function("LAMBDA", LAZY, minimum=1, maximum=254)
 def LAMBDA(context: Context, *nodes: Node) -> Value:
+    """Optional parameters come after the others; one before a required one is ``#VALUE!``."""
     bound = [_parameter(node) for node in nodes[:-1]]
+    optional = [left_out for _, left_out in bound]
+    if any(optional[index] and not optional[index + 1] for index in range(len(optional) - 1)):
+        return VALUE
     parameters = tuple(name for name, _ in bound)
     if len(set(parameters)) != len(parameters):
         return VALUE
-    optional = frozenset(name for name, left_out in bound if left_out)
-    return Lambda.make(parameters, nodes[-1], tuple(context.scopes), optional)
+    return Lambda.make(parameters, nodes[-1], tuple(context.scopes), optional.count(False))
 
 
 @function("ISOMITTED", LAZY)

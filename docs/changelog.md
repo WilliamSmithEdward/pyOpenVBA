@@ -14,6 +14,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   do, over 8 native controls and 14 probes. A PivotCache holding dates in a
   1904 workbook reports itself unsupported.
 
+- The formula engine takes in pyOfficeEditor's work to its commit 4723383:
+  ODDFPRICE, ODDFYIELD, ODDLPRICE and ODDLYIELD, GROUPBY, PIVOTBY and
+  BAHTTEXT, a function passed by name where a LAMBDA goes, YIELD, PMT, IPMT,
+  PPMT, CUMIPMT and CUMPRINC to the bit, and dates and times read from text
+  as Excel reads them over 18,937 measured strings. 501 of Excel's 525
+  functions are there now. 194 odd-coupon cells measured on their own match
+  to the bit but for nine long-first-period yields within 1.6e-11.
+
 - VBA PivotTable.GetPivotData returns the matching displayed cell as a Range,
   with fourteen optional field/item pairs, named arguments, native defaults
   and error 1004 for invalid selections. Native controls include grouped,
@@ -45,6 +53,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A TextToColumns date column reads a colon as a separator, so `12:30` in an
   MDY column is 30 December; `FieldInfo:=Array(1, xlMDYFormat)` is one pair.
 - `EDATE(0,1)` is 31, not 32.
+- Range.Formula takes `#REF!` where a function wants a reference, and the
+  function hands the error on, as Excel does: `=COUNTIF(#REF!,1)` is #REF!.
+- In a formula written with Range.Formula, `INDEX(TRANSPOSE(A1:A3),1,2)` is
+  #VALUE! in a row the range does not reach.
 
 - The in-memory VBA library implements Rate, IRR, MIRR, NPV, IPmt and PPmt,
   including typed Double arrays, named/optional arguments, convergence errors

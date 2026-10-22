@@ -586,9 +586,10 @@ def ATAN2(context: Context, x: Scalar, y: Scalar) -> Value:
 
 # SINH, COSH and TANH are EXP's (e^x - e^-x)/2, (e^x + e^-x)/2 and their
 # ratio, each operation as the x87 rounds it: measured, to the bit on 1221
-# arguments for COSH and for the others from 1 up. Below 1 Excel avoids the
-# cancellation some way these differences of e^x - 1 approach, a unit in
-# the last place off in about one argument in four.
+# arguments for COSH and for the others from 1 up. Below 1 SINH and TANH
+# avoid the cancellation with a = e^x - 1 and b = e^-x - 1: SINH is
+# (a - b)/2, TANH (a - b)/(a + b + 2). Measured on 1500 arguments from
+# 1e-10 to 1, and one unit in the last place either side of 1.
 _CANCELS = 1.0
 
 
@@ -619,9 +620,8 @@ def TANH(context: Context, number: Scalar) -> Value:
         # tanh(20) is within a unit in the last place of 1.
         return math.copysign(1.0, value)
     if abs(value) < _CANCELS:
-        # Measured: the sine over the cosine, which is the sine itself
-        # while the cosine rounds to 1.
-        return checked(precise.divide(_hyperbolic_sine(value), _hyperbolic_cosine(value)))
+        grow, shrink = precise.exp_less_one(value), precise.exp_less_one(-value)
+        return checked(precise.divide(precise.subtract(grow, shrink), precise.add(precise.add(grow, shrink), 2.0)))
     grow, shrink = precise.exp(value), precise.exp(-value)
     return checked(precise.divide(precise.subtract(grow, shrink), precise.add(grow, shrink)))
 

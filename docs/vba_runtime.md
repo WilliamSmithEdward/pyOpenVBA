@@ -1385,7 +1385,7 @@ the cells it spilled into count as its own when anything reading them is
 marked stale. A save writes the metadata and rich values Excel keeps for
 them (`_dynamic_file`).
 
-493 of Excel's 525 worksheet functions are implemented, with Excel's
+501 of Excel's 525 worksheet functions are implemented, with Excel's
 precedence, coercion and comparisons and its arithmetic as the x87 does
 it: all 10,958 formulas of pyOfficeEditor's corpus come to what Excel
 calculated (`tests/fixtures/formula_corpus/`), to the bit but for a few

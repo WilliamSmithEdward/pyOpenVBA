@@ -25,7 +25,7 @@ from pyopenvba.formula._calc.functions.statistics import (
     quartile_inclusive,
 )
 from pyopenvba.formula._calc.numbers import total
-from pyopenvba.formula._calc.registry import A, R, V, function
+from pyopenvba.formula._calc.registry import REF, A, V, function
 from pyopenvba.formula._calc.values import (
     DIV0,
     NA,
@@ -165,7 +165,7 @@ def _visible(
     return found
 
 
-@function("SUBTOTAL", V, R, maximum=255)
+@function("SUBTOTAL", V, REF, maximum=255)
 def SUBTOTAL(context: Context, which: Scalar, *refs: Value) -> Value:
     number = context.integer(which)
     hidden = number > 100

@@ -62,8 +62,11 @@ def numbers(context: Context, args: tuple[Value, ...], *, logicals: bool = False
 
 
 def area_of(value: Value) -> Area:
-    """The one area of a range argument, or ``#VALUE!``."""
-    if isinstance(value, Reference) and value.area is not None:
+    """The one area of a range argument, or ``#VALUE!``. Measured: a range
+    of a closed workbook, read from its link, is ``#VALUE!`` to the
+    functions that take their ranges this way, SUMIF's family and the
+    database functions."""
+    if isinstance(value, Reference) and value.area is not None and not value.area.external:
         return value.area
     raise ExcelError(VALUE)
 

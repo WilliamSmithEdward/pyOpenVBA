@@ -132,6 +132,13 @@ class Area:
     def is_cell(self) -> bool:
         return self.top == self.bottom and self.left == self.right
 
+    @property
+    def external(self) -> bool:
+        """Whether the area is on a sheet of another workbook, read from its
+        link's cache: such a sheet is named ``[1]Sheet1``, which no sheet of
+        the workbook itself can be, a sheet's name never holding ``[``."""
+        return self.sheet.startswith("[")
+
     def contains(self, row: int, column: int) -> bool:
         return self.top <= row <= self.bottom and self.left <= column <= self.right
 
@@ -235,20 +242,31 @@ class Lambda(CellError):  # noqa: N818 - an error value, not an exception
     It is an error value, ``#CALC!``, because that is what Excel shows for
     a LAMBDA left uncalled in a cell; MAP, REDUCE and the rest, and a call
     such as ``LAMBDA(x,x*2)(4)``, use it as the function it is. It keeps
-    the names in scope where it was made. ``optional`` are the parameters
-    written in brackets, ``[y]``, which a call may leave out.
+    the names in scope where it was made.
+
+    A function's name passed where a LAMBDA goes, ``BYROW(A1:B2,SUM)``,
+    which a file writes ``_xleta.SUM``, is one too: ``builtin`` names the
+    function, called with whatever arguments the caller passes.
+
+    ``required`` is how many arguments a call must pass: the parameters
+    before the optional ones, which a file writes ``_xlop.y`` and the
+    screen ``[y]``, or the fewest a function passed by name takes.
     """
 
     parameters: tuple[str, ...] = ()
     body: Node | None = None
     closure: tuple[Scope, ...] = ()
-    optional: frozenset[str] = frozenset()
+    builtin: str | None = None
+    required: int = 0
 
     @classmethod
-    def make(
-        cls, parameters: tuple[str, ...], body: Node, closure: tuple[Scope, ...], optional: frozenset[str] = frozenset()
-    ) -> Lambda:
-        return cls(CALC.code, parameters, body, closure, optional)
+    def make(cls, parameters: tuple[str, ...], body: Node, closure: tuple[Scope, ...], required: int) -> Lambda:
+        return cls(CALC.code, parameters, body, closure, required=required)
+
+    @classmethod
+    def eta(cls, name: str, required: int) -> Lambda:
+        """The function ``name`` as a value, as ``_xleta.SUM`` gives it."""
+        return cls(CALC.code, builtin=name, required=required)
 
 
 # ----------------------------------------------------------------------
@@ -256,21 +274,32 @@ class Lambda(CellError):  # noqa: N818 - an error value, not an exception
 # ----------------------------------------------------------------------
 
 _CURRENCY = "$\u20ac"
-_MANTISSA = re.compile(r"(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)?(?:\.[0-9]*)?")
+#: Measured: digits may be grouped by commas when the first group is not
+#: all zeros and every later group has three digits or more, so
+#: ``1,0000`` is 10000 and ``0,123`` is not a number.
+_MANTISSA = re.compile(r"(?:0*[1-9][0-9]*(?:,[0-9]{3,})+|[0-9]+)?(?:\.[0-9]*)?")
 _EXPONENT = re.compile(r"[eE][+-]?[0-9]+")
 _FRACTION = re.compile(r" ([0-9]+)/([0-9]+)")
+#: The largest numerator or denominator a fraction may have, measured.
+_FRACTION_PART = 32767
 
 
 def text_to_number(text: str, today: dt.date, *, epoch_1904: bool = False) -> float | None:
     """The number text stands for, as typing it into a cell would make it,
     or ``None`` when it is not one."""
-    body = text.strip(" ")
-    if not body:
-        return None
-    number = _plain_number(body)
+    number = plain_number(text)
     if number is not None:
         return number
-    return parse_date_time(body, today, epoch_1904=epoch_1904)
+    return parse_date_time(text, today, epoch_1904=epoch_1904)
+
+
+def plain_number(text: str) -> float | None:
+    """The number text stands for when it is written as one, with its sign,
+    currency or percent, rather than as a date or a time; ``None`` when it
+    is not. Measured, this is the text Excel's error checking calls a
+    number stored as text."""
+    body = text.strip(" ")
+    return _plain_number(body) if body else None
 
 
 def _skip(text: str, index: int) -> int:
@@ -280,7 +309,8 @@ def _skip(text: str, index: int) -> int:
 
 
 def _plain_number(text: str) -> float | None:
-    """A number with its sign, currency, percent and parentheses."""
+    """A number with its sign, currency or percent, and parentheses.
+    Measured: a currency sign and a percent sign together are not one."""
     index = 0
     sign = ""
     currency = percent = parenthesis = False
@@ -291,11 +321,11 @@ def _plain_number(text: str) -> float | None:
         char = text[index]
         if char in "+-" and not sign and not parenthesis:
             sign = char
-        elif char in _CURRENCY and not currency:
+        elif char in _CURRENCY and not currency and not percent:
             currency = True
         elif char == "(" and not parenthesis and not sign:
             parenthesis = True
-        elif char == "%" and not percent:
+        elif char == "%" and not percent and not currency:
             percent = True
         else:
             break
@@ -310,7 +340,8 @@ def _plain_number(text: str) -> float | None:
     fraction = None
     if exponent:
         index = exponent.end()
-    elif "," not in digits and "." not in digits:
+    elif "." not in digits:
+        # Measured: a fraction may follow digits grouped by thousands.
         fraction = _FRACTION.match(text, index)
         if fraction:
             index = fraction.end()
@@ -319,17 +350,17 @@ def _plain_number(text: str) -> float | None:
         return None
     value = found
     if fraction:
-        denominator = int(fraction.group(2))
-        if denominator == 0:
+        numerator, denominator = int(fraction.group(1)), int(fraction.group(2))
+        if denominator == 0 or numerator > _FRACTION_PART or denominator > _FRACTION_PART:
             return None
-        value = value + int(fraction.group(1)) / denominator
+        value = value + numerator / denominator
 
     while True:
         index = _skip(text, index)
         if index >= len(text):
             break
         char = text[index]
-        if char == "%" and not percent:
+        if char == "%" and not percent and not currency:
             percent = True
         elif char == ")" and parenthesis:
             parenthesis = False
@@ -421,6 +452,7 @@ __all__ = [
     "Scope",
     "Value",
     "compare",
+    "plain_number",
     "scalar_text",
     "text_to_number",
 ]

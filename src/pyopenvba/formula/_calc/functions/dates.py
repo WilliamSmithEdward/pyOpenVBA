@@ -150,8 +150,7 @@ def _date_text(context: Context, value: Scalar) -> float:
     text only, and not a plain number."""
     if not isinstance(value, str):
         raise ExcelError(VALUE)
-    body = value.strip(" ")
-    found = dates.parse_date_time(body, context.today, epoch_1904=context.epoch_1904)
+    found = dates.parse_date_time(value, context.today, epoch_1904=context.epoch_1904)
     if found is None:
         raise ExcelError(VALUE)
     return found

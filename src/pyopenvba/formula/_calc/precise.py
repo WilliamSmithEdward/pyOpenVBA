@@ -312,22 +312,47 @@ def binary_power(t: Fraction) -> Fraction:
 
 
 def exp_less_one(value: float) -> float:
-    """``e^x - 1`` as F2XM1 gives it for a small argument: ``2^t - 1``
-    with ``t = x * log2 e`` in a register, rounded to 64 bits and then to
-    a double, so without the cancellation ``EXP(x) - 1`` suffers."""
-    t = register(Fraction(value) * _L2E_64)
-    with localcontext() as context:
-        context.prec = _WIDE
-        y = Decimal(t.numerator) / Decimal(t.denominator) * _LN2
-        if abs(y) >= Decimal("1e-5"):
-            less_one = y.exp() - 1
-        else:
-            # The series, where exp(y) - 1 would cancel away its digits.
-            less_one = term = y
-            for k in range(2, 12):
-                term = term * y / k
-                less_one += term
-    return extended(Fraction(less_one))
+    """``e^x - 1`` as Excel computes it. Below 1 in size it uses Kahan's
+    trick: with ``u`` EXP's double, ``(u - 1) * x / ln u``, where the
+    logarithm undoes the error ``u`` was rounded with. From 1 up it is
+    ``u - 1``. Each step is rounded as the x87 rounds it. Measured through
+    SINH, TANH, COTH and CSCH below 1, 1500 of 1500 each, and through
+    WEIBULL.DIST's distribution, 900 of 900."""
+    u = exp(value)
+    if abs(value) >= 1.0:
+        return subtract(u, 1.0)
+    if u == 1.0:
+        return value
+    return divide(multiply(subtract(u, 1.0), value), ln(u))
+
+
+#: ``ln(1 + x)`` switches from its series to LN at this size of x.
+_LN_ONE_PLUS_SERIES = 0.375
+
+
+def ln_one_plus(value: float) -> float:
+    """``ln(1 + x)`` as Excel computes it. Below 0.375 in size it is
+    ``2 atanh(s)`` with ``s = x / (2 + x)`` and ``z = s^2``: the terms
+    ``s (z^k (1/(2k+1)))`` added in order, largest first, until one no
+    longer changes their sum, then ``2 (s + sum)``. From 0.375 up it is LN
+    of ``1 + x`` rounded. Each step is rounded as the x87 rounds it.
+    Measured through PMT, which is built on it: 1128 rates pinned to one
+    double, 745 of them chosen where the sum lands within 0.01 of a unit
+    of a midpoint, and the switch at 0.375 one unit either side."""
+    if abs(value) >= _LN_ONE_PLUS_SERIES:
+        return ln(add(1.0, value))
+    s = divide(value, add(2.0, value))
+    z = multiply(s, s)
+    power = 1.0
+    total = 0.0
+    order = 1
+    while True:
+        order += 2
+        power = multiply(power, z)
+        grown = add(total, multiply(s, multiply(power, 1.0 / order)))
+        if grown == total:
+            return multiply(2.0, add(s, total))
+        total = grown
 
 
 def sine_cosine(value: float) -> tuple[Fraction, Fraction]:
@@ -392,6 +417,7 @@ __all__ = [
     "exp_less_one",
     "extended",
     "ln",
+    "ln_one_plus",
     "log10",
     "multiply",
     "reduced",

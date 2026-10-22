@@ -304,7 +304,7 @@ class Context:
         if isinstance(sheets, CellError):
             return sheets
         ref = node.ref
-        return Reference(tuple(Area(sheet, ref.row, ref.column, ref.row, ref.column) for sheet in sheets))
+        return _on(sheets, ref.row, ref.column, ref.row, ref.column)
 
     def _area(self, node: AreaReference) -> Value:
         sheets = self._sheets(node.prefix)
@@ -312,7 +312,7 @@ class Context:
             return sheets
         top, bottom = sorted((node.first.row, node.last.row))
         left, right = sorted((node.first.column, node.last.column))
-        return Reference(tuple(Area(sheet, top, left, bottom, right) for sheet in sheets))
+        return _on(sheets, top, left, bottom, right)
 
     def _axis(self, node: AxisReference) -> Value:
         sheets = self._sheets(node.prefix)
@@ -320,8 +320,8 @@ class Context:
             return sheets
         axis = node.ref
         if axis.is_row:
-            return Reference(tuple(Area(sheet, axis.low, 1, axis.high, MAX_COLUMN) for sheet in sheets))
-        return Reference(tuple(Area(sheet, 1, axis.low, MAX_ROW, axis.high) for sheet in sheets))
+            return _on(sheets, axis.low, 1, axis.high, MAX_COLUMN)
+        return _on(sheets, 1, axis.low, MAX_ROW, axis.high)
 
     def _sheets(self, prefix: Prefix | None) -> list[str] | CellError:
         """The sheets a reference's prefix names, in the workbook's order."""
@@ -489,7 +489,8 @@ class Context:
         for side in (left, right):
             if isinstance(side, CellError):
                 return side
-        if not isinstance(left, Reference) or not isinstance(right, Reference):
+        if not isinstance(left, Reference) or not isinstance(right, Reference) or left.three_d or right.three_d:
+            # No union, intersection or range takes a 3D reference (pyOpenVBA's tests/fixtures/three_d_references.json).
             return VALUE
         if node.op == ",":
             return Reference(left.areas + right.areas)
@@ -658,10 +659,12 @@ class Context:
 
     def implicit(self, reference: Reference) -> Scalar:
         """The implicit intersection: the cell of the range in the
-        formula's row, for a column, or column, for a row."""
+        formula's row, for a column, or column, for a row. A 3D reference
+        has no value: #REF!, as one alone in a cell is (pyOpenVBA's
+        tests/fixtures/three_d_references.json)."""
         area = reference.area
         if area is None:
-            return VALUE
+            return REF if reference.three_d else VALUE
         if area.is_cell:
             return self.book.cell(area.sheet, area.top, area.left)
         row, column = area.top, area.left
@@ -677,10 +680,10 @@ class Context:
 
     def grid(self, reference: Reference) -> Scalar | Array:
         """Every value of a one-area range, as an array; a single cell as
-        its value."""
+        its value. A 3D reference is no array: #REF!."""
         area = reference.area
         if area is None:
-            return VALUE
+            return REF if reference.three_d else VALUE
         if area.is_cell:
             return self.book.cell(area.sheet, area.top, area.left)
         rows: list[list[Scalar]] = [[EMPTY] * area.width for _ in range(area.height)]
@@ -772,6 +775,11 @@ class Context:
         if not math.isfinite(number) or abs(number) > 2.0**53:
             raise ExcelError(NUM)
         return int(number)
+
+
+def _on(sheets: list[str], top: int, left: int, bottom: int, right: int) -> Reference:
+    """The same cells on each of ``sheets``: a 3D reference when there is more than one."""
+    return Reference(tuple(Area(sheet, top, left, bottom, right) for sheet in sheets), three_d=len(sheets) > 1)
 
 
 def _same(value: Scalar) -> Scalar:

@@ -126,5 +126,8 @@ def _cells_format(node: Node, context: Context, sheet: Worksheet) -> str:
     if not isinstance(value, Reference):
         return ""
     first = value.areas[0]
+    if first.external:
+        # A link keeps another workbook's values, not their formats.
+        return ""
     code = sheet.book.sheet_named(first.sheet).style_at(first.top, first.left).number_format
     return "" if code in ("General", "") else code

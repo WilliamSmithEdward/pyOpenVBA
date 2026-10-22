@@ -377,8 +377,10 @@ def INDIRECT(context: Context, text: Scalar, a1: Scalar | None = None) -> Value:
     if not isinstance(node, (CellReference, AreaReference, AxisReference, NameReference)):
         return REF_ERROR
     # Measured: text naming another workbook's cells is #REF! while that
-    # workbook is closed, as it is to everything here.
-    if node.prefix is not None and node.prefix.book is not None:
+    # workbook is closed, as it is to everything here, and so is a 3D
+    # reference, even ThreeA:ThreeA!A1 (pyOpenVBA's
+    # tests/fixtures/three_d_references.json).
+    if node.prefix is not None and (node.prefix.book is not None or node.prefix.last_sheet is not None):
         return REF_ERROR
     found = context.evaluate(node)
     return Reference(found.areas, indirect=True) if isinstance(found, Reference) else REF_ERROR

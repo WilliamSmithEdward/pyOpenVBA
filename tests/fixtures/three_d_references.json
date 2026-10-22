@@ -1,0 +1,308 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-22T19:43:36.365432+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "alone",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=ThreeA:ThreeB!A1\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=ThreeA:ThreeB!A1"
+    },
+    {
+      "name": "alone_area",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=ThreeA:ThreeB!A1:B2\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=ThreeA:ThreeB!A1:B2"
+    },
+    {
+      "name": "alone_column",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=ThreeA:ThreeB!C:C\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=ThreeA:ThreeB!C:C"
+    },
+    {
+      "name": "alone_one_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=ThreeA:ThreeA!A1\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|=ThreeA!A1"
+    },
+    {
+      "name": "alone_reversed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=ThreeB:ThreeA!A1\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=ThreeA:ThreeB!A1"
+    },
+    {
+      "name": "plus_one",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=ThreeA:ThreeB!A1+1\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=ThreeA:ThreeB!A1+1"
+    },
+    {
+      "name": "negated",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=-ThreeA:ThreeB!A1\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=-ThreeA:ThreeB!A1"
+    },
+    {
+      "name": "if_returns_it",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=IF(TRUE,ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=IF(TRUE,ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "choose_returns_it",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=CHOOSE(1,ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=CHOOSE(1,ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "iferror",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=IFERROR(ThreeA:ThreeB!A1,\"\"caught\"\")\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "caught|=IFERROR(ThreeA:ThreeB!A1,\"caught\")"
+    },
+    {
+      "name": "let",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=LET(x,ThreeA:ThreeB!A1,SUM(x))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=LET(x,ThreeA:ThreeB!A1,SUM(x))"
+    },
+    {
+      "name": "name_summed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(BothSheets)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM(BothSheets)"
+    },
+    {
+      "name": "name_alone",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=BothSheets\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=BothSheets"
+    },
+    {
+      "name": "quoted",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM('ThreeA:ThreeB'!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM(ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "sum_reversed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeB:ThreeA!A1:B2)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "66|=SUM(ThreeA:ThreeB!A1:B2)"
+    },
+    {
+      "name": "sum_one_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeA!A1:B2)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "6|=SUM(ThreeA!A1:B2)"
+    },
+    {
+      "name": "sum_with_others",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1,5,ThreeA!B1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "18|=SUM(ThreeA:ThreeB!A1,5,ThreeA!B1)"
+    },
+    {
+      "name": "sum_times_one",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1*1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(ThreeA:ThreeB!A1*1)"
+    },
+    {
+      "name": "union",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM((ThreeA:ThreeB!A1,ThreeA!B1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM((ThreeA:ThreeB!A1,ThreeA!B1))"
+    },
+    {
+      "name": "intersection",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1:B2 ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2015|=SUM(ThreeA:ThreeB!A1:B2 ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "range_to_a_cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1:ThreeB!B1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2015|=SUM(ThreeA:ThreeB!A1:ThreeB!B1)"
+    },
+    {
+      "name": "range_on_from_an_area",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1:B1:C3)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2015|=SUM(ThreeA:ThreeB!A1:B1:C3)"
+    },
+    {
+      "name": "bracketed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=(ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=(ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "bracketed_summed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM((ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM((ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "bracketed_negated",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=-(ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=-(ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "bracketed_after_operator",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=1+(ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=1+(ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "bracketed_twice",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(((ThreeA:ThreeB!A1)))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM(((ThreeA:ThreeB!A1)))"
+    },
+    {
+      "name": "bracketed_area",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM((ThreeA:ThreeB!A1:B2))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM((ThreeA:ThreeB!A1:B2))"
+    },
+    {
+      "name": "bracketed_beside_another",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1,(ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM(ThreeA:ThreeB!A1,(ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "bracketed_in_if",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=IF(TRUE,(ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=IF(TRUE,(ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "bracketed_one_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=(ThreeA!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|=(ThreeA!A1)"
+    },
+    {
+      "name": "quoted_bracketed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(('ThreeA:ThreeB'!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(('ThreeA:[ThreeB]ThreeB'!A1))"
+    },
+    {
+      "name": "bracketed_after_one_plus",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=(1+ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=(1+ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "bracketed_before_plus_one",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=(ThreeA:ThreeB!A1+1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=(ThreeA:ThreeB!A1+1)"
+    },
+    {
+      "name": "bracketed_union_second",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM((ThreeA!B1,ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM((ThreeA!B1,ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "bracketed_around_sum",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=(SUM(ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=(SUM(ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "bracketed_let",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=LET(x,(ThreeA:ThreeB!A1),SUM(x))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=LET(x,(ThreeA:ThreeB!A1),SUM(x))"
+    },
+    {
+      "name": "sum_of_if",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(IF(TRUE,ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM(IF(TRUE,ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "sum_of_choose",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(CHOOSE(1,ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM(CHOOSE(1,ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "spilled",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1#)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(ThreeA:ThreeB!A1#)"
+    },
+    {
+      "name": "indirect",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(INDIRECT(\"\"ThreeA:ThreeB!A1\"\"))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(INDIRECT(\"ThreeA:ThreeB!A1\"))"
+    },
+    {
+      "name": "indirect_one_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(INDIRECT(\"\"ThreeA:ThreeA!A1\"\"))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(INDIRECT(\"ThreeA:ThreeA!A1\"))"
+    },
+    {
+      "name": "indirect_quoted",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(INDIRECT(\"\"'ThreeA:ThreeB'!A1\"\"))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(INDIRECT(\"'ThreeA:ThreeB'!A1\"))"
+    },
+    {
+      "name": "alone_formula2",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula2 = \"=ThreeA:ThreeB!A1\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=ThreeA:ThreeB!A1"
+    },
+    {
+      "name": "alone_area_formula2",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula2 = \"=ThreeA:ThreeB!A1:B2\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=ThreeA:ThreeB!A1:B2"
+    },
+    {
+      "name": "sum_times_one_formula2",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula2 = \"=SUM(ThreeA:ThreeB!A1*1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(ThreeA:ThreeB!A1*1)"
+    },
+    {
+      "name": "bracketed_beside_a_name",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nThisWorkbook.Names.Add Name:=\"ThreeA\", RefersTo:=\"=ThreeB!$B$1\"\nws.Range(\"C3\").Formula = \"=SUM((ThreeA:ThreeB!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nThisWorkbook.Names(\"ThreeA\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "30|=SUM((ThreeA:ThreeB!A1))"
+    },
+    {
+      "name": "beside_a_name",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nThisWorkbook.Names.Add Name:=\"ThreeA\", RefersTo:=\"=ThreeB!$B$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:ThreeB!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nThisWorkbook.Names(\"ThreeA\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM(ThreeA:ThreeB!A1)"
+    },
+    {
+      "name": "cell_like_sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"Q1\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Q4\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=Q1:Q4!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(Q1:Q4!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2015|=SUM(Q1:'Q4'!A1)"
+    },
+    {
+      "name": "cell_like_sheets_bracketed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"Q1\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Q4\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=Q1:Q4!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM((Q1:Q4!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2015|=SUM((Q1:'Q4'!A1))"
+    },
+    {
+      "name": "cell_like_sheets_alone",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"Q1\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Q4\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=Q1:Q4!$A$1\"\nws.Range(\"C3\").Formula = \"=Q1:Q4!A1\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2015|=Q1:'Q4'!A1"
+    },
+    {
+      "name": "cell_like_sheets_quoted",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"Q1\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Q4\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=Q1:Q4!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM('Q1:Q4'!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM('Q1:Q4'!A1)"
+    },
+    {
+      "name": "column_like_sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"AB\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"CD\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=AB:CD!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(AB:CD!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM(AB:CD!A1)"
+    },
+    {
+      "name": "column_like_sheets_bracketed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"AB\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"CD\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=AB:CD!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM((AB:CD!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM((AB:CD!A1))"
+    },
+    {
+      "name": "cell_like_last_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Q4\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:Q4!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(ThreeA:Q4!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM('ThreeA:Q4'!A1)"
+    },
+    {
+      "name": "reversed_bracketed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"ThreeB\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:ThreeB!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM((ThreeB:ThreeA!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2029|=SUM((ThreeB:ThreeA!A1))"
+    },
+    {
+      "name": "spaced_sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"Three A\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Three B\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=Three A:Three B!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM('Three A:Three B'!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM('Three A:Three B'!A1)"
+    },
+    {
+      "name": "spaced_sheets_reversed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"Three A\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Three B\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=Three A:Three B!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM('Three B:Three A'!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM('Three A:Three B'!A1)"
+    },
+    {
+      "name": "one_end_spaced",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"ThreeA\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Three B\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=ThreeA:Three B!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM('ThreeA:Three B'!A1)\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|=SUM('ThreeA:Three B'!A1)"
+    },
+    {
+      "name": "spaced_sheets_bracketed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, a As Worksheet, b As Worksheet, s As String\nSet ws = Worksheets.Add\nSet a = Worksheets.Add(After:=ws)\na.Name = \"Three A\"\na.Range(\"A1\").Value = 1: a.Range(\"B1\").Value = 2: a.Range(\"A2\").Value = 3: a.Range(\"B2\").Value = \"x\"\na.Range(\"C3\").Value = 5\nSet b = Worksheets.Add(After:=a)\nb.Name = \"Three B\"\nb.Range(\"A1\").Value = 10: b.Range(\"B1\").Value = 20: b.Range(\"A2\").Value = 30: b.Range(\"B2\").Value = True\nb.Range(\"C3\").Value = 50\nThisWorkbook.Names.Add Name:=\"BothSheets\", RefersTo:=\"=Three A:Three B!$A$1\"\nws.Range(\"C3\").Formula = \"=SUM(('Three A:Three B'!A1))\"\ns = CStr(ws.Range(\"C3\").Value) & \"|\" & ws.Range(\"C3\").Formula\nThisWorkbook.Names(\"BothSheets\").Delete\nApplication.DisplayAlerts = False\nws.Delete\na.Delete\nb.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2023|=SUM(('Three A:[Three B]Three B'!A1))"
+    }
+  ]
+}

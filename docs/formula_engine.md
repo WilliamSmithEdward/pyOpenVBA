@@ -121,6 +121,23 @@ name looking like a cell is not read as the cell.
     them #VALUE!. An array there is still one #VALUE! an item.
 12. **The workbook.** The `Book` protocol leaves out pyOfficeEditor's
     `pivot_reports`, since GETPIVOTDATA is pyOpenVBA's own
-    (`functions/pivotdata.py`), and the model's book answers
-    `external_sheets` and `external_name` by reporting a reference to
-    another workbook unsupported until linked workbooks are read.
+    (`functions/pivotdata.py`). The model's book answers `external_sheets`
+    and `external_name` from the copy of a linked workbook's cells and
+    names the file keeps (`apps/excel/_external_links.py`), and reports a
+    workbook it keeps no copy of unsupported
+    (`tests/fixtures/external_links.json`).
+13. **3D references.** `Reference.three_d` marks cells on two or more
+    sheets, `Jan:Mar!A1`, which are no value: where one is wanted, alone,
+    with an operator or behind `@`, they are #REF!, and no union,
+    intersection or range takes them. `registry.THREE_D_READ` lists the 62
+    functions that read every sheet, SUM, LARGE, NPV, CONCAT, VSTACK and
+    TOCOL among them, and `THREE_D_ARRAY` the 41 that give #REF!, the ones
+    taking an array, SUMPRODUCT, MMULT, SORT, with ANCHORARRAY and SINGLE;
+    any other function given one for a range, and N and T, give #VALUE!.
+    VSTACK, HSTACK, TOCOL and TOROW take each area of a union or a 3D
+    reference in turn, and CONCAT and TEXTJOIN each sheet's. ISREF calls
+    one no reference, and INDIRECT's text naming one is #REF!. The lexer
+    reads `Q1:Q4!A1`, a first sheet named like a cell, as the cell Q1 to
+    `Q4!A1`, and in brackets of their own `(ThreeA:ThreeB!A1)` as the name
+    ThreeA to `ThreeB!A1` (`tests/fixtures/three_d_references.json`,
+    `three_d_functions.json`, every function that takes a range measured).

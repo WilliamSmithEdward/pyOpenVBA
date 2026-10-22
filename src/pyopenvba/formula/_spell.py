@@ -161,6 +161,10 @@ class Names(Protocol):
         """A sheet's own name, found in any case, or None."""
         ...
 
+    def order(self) -> list[str]:
+        """The workbook's sheets' own names, in its order."""
+        ...
+
     def defined(self, name: str, sheet: str) -> str | None:
         """A defined name's own spelling as a formula on ``sheet`` would find it, or None."""
         ...
@@ -211,6 +215,8 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
     pieces: list[str] = []
     declared: dict[str, str] = {}
     array = 0
+    #: The brackets open, innermost last: True for a call's, False for brackets of their own.
+    calls: list[bool] = []
     previous: Token | None = None
     index = 0
     while index < len(tokens):
@@ -227,6 +233,12 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
             array += 1
         elif token.kind == "rbrace":
             array -= 1
+        elif token.kind == "open":
+            calls.append(previous is not None and previous.kind in ("name", "close"))
+        elif token.kind == "close" and calls:
+            calls.pop()
+        # Excel reads 'ThreeA:ThreeB'!A1 in brackets of their own as another workbook's: it is kept as written.
+        pair = calls[-1:] != [False]
         text = token.text
         if token.kind == "op" and text in "+-" and _unary(previous) and tokens[index + 1].kind == "number":
             # A sign before a number, with no space between, is the number's own.
@@ -236,7 +248,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
         elif token.kind == "number":
             text = _number(text, negative=False)
         elif token.kind == "ref":
-            text = _reference(text, names)
+            text = _reference(text, names, pair=pair)
         elif token.kind == "structured" and token.at in bound_at:
             # A LAMBDA's parameter a call may leave out, [y], as it is written.
             pass
@@ -248,7 +260,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
             text = _structured(token, token.at in one_value, names)
         elif token.kind == "error":
             head, _, error = text.rpartition("#")
-            text = _prefix(head[:-1], names) + "!#" + error.upper() if head else text.upper()
+            text = _prefix(head[:-1], names, pair=pair) + "!#" + error.upper() if head else text.upper()
         elif token.kind == "name" and token.at in bound_at:
             # A name a LET or a LAMBDA binds is spelled everywhere as the formula first writes it, where it is bound:
             # LET(a1,5,A1) reads back as LET(a1,5,a1) (tests/fixtures/bound_names.json).
@@ -505,14 +517,27 @@ def _number(text: str, *, negative: bool) -> str:
     return number_text(-value if negative and value else value, formula=True)
 
 
-def _prefix(head: str, names: Names) -> str:
-    """A sheet written before ``!``, as its own name when the workbook has it."""
+def _prefix(head: str, names: Names, *, pair: bool = True) -> str:
+    """A sheet written before ``!``, as its own name when the workbook has it. A 3D pair of the workbook's sheets is
+    written first to last in its order, as the one sheet when both are the same, and in apostrophes together when
+    either needs them (tests/fixtures/three_d_references.json), unless ``pair`` is False."""
     sheet, _ = split_sheet(head + "!")
     found = names.sheet(sheet)
-    return head if found is None else quote_sheet(found)
+    if found is not None:
+        return quote_sheet(found)
+    first, colon, last = sheet.partition(":")
+    order = names.order() if pair and colon else []
+    folded = [one.casefold() for one in order]
+    if first.casefold() not in folded or last.casefold() not in folded:
+        return head
+    start, end = sorted((order[folded.index(first.casefold())], order[folded.index(last.casefold())]), key=order.index)
+    if start == end:
+        return quote_sheet(start)
+    both = f"{start}:{end}"
+    return both if quote_sheet(start) == start and quote_sheet(end) == end else "'" + both.replace("'", "''") + "'"
 
 
-def _reference(text: str, names: Names) -> str:
+def _reference(text: str, names: Names, *, pair: bool = True) -> str:
     head, bang, body = text.rpartition("!")
     corners = [_corner(part) for part in body.split(":")]
     if len(corners) == 2:
@@ -521,7 +546,7 @@ def _reference(text: str, names: Names) -> str:
         first_row, second_row = _ordered(first_row, second_row)
         corners = [(first_column, first_row), (second_column, second_row)]
     spelled_body = ":".join(_render(column, row) for column, row in corners)
-    return (_prefix(head, names) + "!" if bang else "") + spelled_body
+    return (_prefix(head, names, pair=pair) + "!" if bang else "") + spelled_body
 
 
 def _corner(text: str) -> tuple[tuple[str, int] | None, tuple[str, int] | None]:

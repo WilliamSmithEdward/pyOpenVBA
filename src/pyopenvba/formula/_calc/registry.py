@@ -68,6 +68,29 @@ LAZY = Kind.LAZY
 #: The most arguments Excel lets a call have.
 MAX_ARGUMENTS = 255
 
+#: The functions that read every sheet of a 3D reference, Jan:Mar!A1, given for a range, and those that give #REF!
+#: for one: the ones that take it as an array, which it cannot be, and the operators' ANCHORARRAY, Jan:Mar!A1#, and
+#: SINGLE, @Jan:Mar!A1.
+#: Every other function given one for a range gives #VALUE!, and one given for a single value is #REF!, as pyOpenVBA
+#: measured every function that takes a range (tests/fixtures/three_d_functions.json).
+THREE_D_READ = frozenset({
+    "AND", "AVEDEV", "AVERAGE", "AVERAGEA", "CONCAT", "COUNT", "COUNTA", "DEVSQ", "FREQUENCY", "GEOMEAN", "HARMEAN",
+    "HSTACK", "KURT", "LARGE", "MAX", "MAXA", "MEDIAN", "MIN", "MINA", "MIRR", "NPV", "OR", "PERCENTILE",
+    "PERCENTILE.EXC", "PERCENTILE.INC", "PERCENTRANK", "PERCENTRANK.EXC", "PERCENTRANK.INC", "PRODUCT", "QUARTILE",
+    "QUARTILE.EXC", "QUARTILE.INC", "RANK", "RANK.AVG", "RANK.EQ", "SHEET", "SHEETS", "SKEW", "SKEW.P", "SMALL",
+    "STDEV", "STDEV.P", "STDEV.S", "STDEVA", "STDEVP", "STDEVPA", "SUM", "SUMSQ", "TEXTJOIN", "TOCOL", "TOROW",
+    "TRIMMEAN", "VAR", "VAR.P", "VAR.S", "VARA", "VARP", "VARPA", "VSTACK", "XOR", "Z.TEST", "ZTEST",
+})
+THREE_D_ARRAY = frozenset({
+    "ANCHORARRAY", "ARRAYTOTEXT", "CHISQ.TEST", "CHITEST", "CORREL", "COVAR", "COVARIANCE.P", "COVARIANCE.S",
+    "EXPAND", "F.TEST", "FORECAST", "FORECAST.LINEAR", "FTEST", "INTERCEPT", "MDETERM", "MINVERSE", "MMULT", "MODE",
+    "MODE.MULT", "MODE.SNGL", "PEARSON", "PROB", "RSQ", "SINGLE", "SLOPE", "SORT", "SORTBY", "STEYX", "SUMPRODUCT",
+    "SUMX2MY2", "SUMX2PY2", "SUMXMY2", "T.TEST", "TEXTAFTER", "TEXTBEFORE", "TEXTSPLIT", "TRANSPOSE", "TTEST",
+    "UNIQUE", "WRAPCOLS", "WRAPROWS",
+})
+#: Functions whose single value is a range's cell, N and T: a 3D reference given there is #VALUE! too.
+THREE_D_REFUSED_VALUES = frozenset({"N", "T"})
+
 Implementation = Callable[..., Any]
 
 
@@ -179,6 +202,9 @@ def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
                 context.array = saved
         else:
             value = context.evaluate_array(node) if whole else context.evaluate(node)
+        if isinstance(value, Reference) and value.three_d and entry.name not in THREE_D_READ \
+                and (kind is not Kind.VALUE or entry.name in THREE_D_REFUSED_VALUES):
+            return REF_ERROR if entry.name in THREE_D_ARRAY else VALUE
         if index in entry.reject_references and isinstance(value, Reference):
             return REF_ERROR
         if index in entry.reject_references and isinstance(value, Array) and not context.array:

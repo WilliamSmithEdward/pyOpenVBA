@@ -19,7 +19,13 @@ MAX_COLUMNS: Final = 16384
 _CELL = re.compile(r"^([A-Za-z]{1,3})([0-9]{1,7})$")
 _COLUMN = re.compile(r"^([A-Za-z]{1,3})$")
 _ROW = re.compile(r"^([0-9]{1,7})$")
-_PLAIN_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+#: A sheet's name a formula may write without apostrophes: a letter or underscore, in any script, then letters,
+#: digits, underscores and full stops.
+_PLAIN_NAME = re.compile(r"[^\W\d][\w.]*")
+#: A row, a column or a cell in R1C1 at the start of a name: R2, C3, RC1, R1C1.
+_R1C1_START = re.compile(r"(RC|R|C)([0-9]+)", re.IGNORECASE)
+#: Another workbook's sheet as a file spells it, by its link's number, [1]Sheet1 or [1]Sheet1:Other, with no quotes.
+_LINKED_NAME = re.compile(r"\[[0-9]+\](?:[A-Za-z_][A-Za-z0-9_.]*(?::[A-Za-z_][A-Za-z0-9_.]*)?)?")
 
 
 def column_letter(index: int) -> str:
@@ -46,13 +52,34 @@ def column_number(letters: str) -> int:
 def quote_sheet(name: str) -> str:
     """A sheet's name as a formula reference spells it.
 
-    Anything but a plain identifier is wrapped in apostrophes, and an
-    apostrophe inside the name is doubled, because a single one would
-    close the quoting early and leave a reference to something else.
+    A plain name a formula would not read as something else is written
+    bare. Anything else is wrapped in apostrophes, and an apostrophe
+    inside the name is doubled, because a single one would close the
+    quoting early and leave a reference to something else.
     """
-    if _PLAIN_NAME.fullmatch(name):
+    if _LINKED_NAME.fullmatch(name) or (_PLAIN_NAME.fullmatch(name) and not _read_otherwise(name)):
         return name
     return "'" + name.replace("'", "''") + "'"
+
+
+def _read_otherwise(name: str) -> bool:
+    """Whether a formula would read a plain name as something other than a sheet, so that Excel writes it in
+    apostrophes: a cell, Q4 or A01, though not LOG10, the name of a function; a logical; R, C or RC; or a row, a
+    column or a cell of R1C1, R2, C3 or RC1, alone or going on with anything but a full stop, R1x and C1A, though
+    R1.x is plain, and so is a row past the last one, where Excel takes a column of any number
+    (tests/fixtures/sheet_quoting.json)."""
+    if name.upper() in ("TRUE", "FALSE", "R", "C", "RC"):
+        return True
+    cell = _CELL.match(name)
+    if cell is not None and 1 <= int(cell.group(2)) <= MAX_ROWS and column_number(cell.group(1)) <= MAX_COLUMNS:
+        from pyopenvba.formula._calc.catalog import is_excel_function
+
+        return not is_excel_function(name)
+    start = _R1C1_START.match(name)
+    if start is None or name[start.end() :].startswith("."):
+        return False
+    number = int(start.group(2))
+    return number >= 1 and (start.group(1).upper() != "R" or number <= MAX_ROWS)
 
 
 @dataclass(frozen=True, slots=True)

@@ -58,6 +58,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
+    from pyopenvba.apps.excel._external_links import LinkedBook
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
@@ -762,6 +763,9 @@ class Workbook(ExcelObject):
         #: The folder the workbook's links were read from or last written for, which a DOS path a link names is
         #: saved relative to (see _hyperlinks_file).
         self.links_folder = ""
+        #: The other workbooks the file links to, by the number its formulas give each, with the cells it keeps of
+        #: them (see _external_links).
+        self.linked_books: dict[int, LinkedBook] = {}
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
         self.sheet_name_counter = 1
@@ -4573,7 +4577,17 @@ class _BookNames:
         self.at = (sheet, row, column)
 
     def sheet(self, name: str) -> str | None:
-        return next((one.name for one in self.book.sheets_ if one.name.lower() == name.lower()), None)
+        """A sheet's own name, or another workbook's sheet as the file names it by its link, [1]Sheet1 (see
+        _external_links)."""
+        found = next((one.name for one in self.book.sheets_ if one.name.lower() == name.lower()), None)
+        if found is None and ("[" in name or "\\" in name or name.lower().endswith((".xlsx", ".xlsm", ".xlsb", ".xls"))):
+            from pyopenvba.apps.excel._external_links import linked_sheet
+
+            return linked_sheet(self.book, name)
+        return found
+
+    def order(self) -> list[str]:
+        return [one.name for one in self.book.sheets_]
 
     def defined(self, name: str, sheet: str) -> str | None:
         from pyopenvba._a1 import split_sheet
@@ -4683,9 +4697,14 @@ def _array_formula_text(sheet: Worksheet, formula: str, row: int, column: int) -
 
 
 def shown_formula(sheet: Worksheet, row: int, column: int, formula: str) -> str:
-    """A cell's formula as Range.Formula shows it: in a table, without the table's name where Excel leaves it
-    out (see pyopenvba.formula._structured)."""
-    if not sheet.tables or "[" not in formula:
+    """A cell's formula as Range.Formula shows it: another workbook by its path (see _external_links), and in a
+    table, without the table's name where Excel leaves it out (see pyopenvba.formula._structured)."""
+    if "[" not in formula:
+        return formula
+    from pyopenvba.apps.excel._external_links import shown as linked_shown
+
+    formula = linked_shown(sheet.book, formula)
+    if not sheet.tables:
         return formula
     from pyopenvba.apps.excel._tables import table_at
     from pyopenvba.formula._structured import shown

@@ -15,8 +15,10 @@ which the file does not record, so such a name reports itself.
 
 from __future__ import annotations
 
+import dataclasses
 import os
 import re
+import typing
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
@@ -45,6 +47,7 @@ from pyopenvba.formula._values import BLANK, ExcelError
 from pyopenvba.interpreter._values import EMPTY as NOTHING_THERE, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._external_links import LinkedBook
     from pyopenvba.apps.excel._pivot_reports import PivotReport
     from pyopenvba.apps.excel._calc import Calculator
     from pyopenvba.apps.excel._model import Worksheet
@@ -126,12 +129,52 @@ class EngineBook:
     def sheet_order(self) -> list[str]:
         return [sheet.name for sheet in self.book.sheets_]
 
+    def _linked(self, book: str) -> LinkedBook | None:
+        """The linked workbook a formula names by its link's number, as a file spells it, or by its file's name."""
+        books = self.book.linked_books
+        if book.isdigit():
+            return books.get(int(book))
+        return next((linked for linked in books.values() if linked.file.casefold() == book.casefold()), None)
+
     def external_sheets(self, book: str, first: str, last: str | None) -> list[str] | None:
-        """No linked workbook's cached sheets are read yet, so a reference to another workbook is unsupported."""
-        return None
+        """The sheets of a linked workbook a reference names, as the engine keys them, [1]Sheet1, in that workbook's
+        order; none where it has no such sheet, and None where the workbook has no such link. Their cells are the
+        ones the link keeps (see _external_links)."""
+        linked = self._linked(book)
+        if linked is None:
+            return None
+        names = [sheet.casefold() for sheet in linked.sheets]
+        try:
+            start = names.index(first.casefold())
+            end = start if last is None else names.index(last.casefold())
+        except ValueError:
+            return []
+        low, high = sorted((start, end))
+        return [f"[{linked.number}]{sheet}" for sheet in linked.sheets[low:high + 1]]
 
     def external_name(self, book: str, name: str) -> Node | None:
-        raise UnsupportedFormulaError("a name defined in another workbook")
+        """A linked workbook's own name, as a formula reading that workbook, or None where its link has no such name."""
+        linked = self._linked(book)
+        if linked is None:
+            raise UnsupportedFormulaError("a name defined in another workbook the file keeps no copy of")
+        refers = next((text for key, text in linked.names.items() if key.casefold() == name.casefold()), None)
+        if refers is None:
+            return None
+        try:
+            return _in_book(parse(refers.removeprefix("=")), str(linked.number))
+        except FormulaSyntaxError:
+            return None
+
+    def _kept(self, sheet: str) -> dict[tuple[int, int], object] | None:
+        """The cells a link keeps of a linked workbook's sheet keyed [1]Sheet1, or None for one of this workbook."""
+        if not sheet.startswith("["):
+            return None
+        number, _, name = sheet[1:].partition("]")
+        linked = self.book.linked_books.get(int(number)) if number.isdigit() else None
+        if linked is None:
+            return {}
+        index = next((at for at, one in enumerate(linked.sheets) if one.casefold() == name.casefold()), None)
+        return {} if index is None else linked.cells[index]
 
     def pivot_reports(self, sheet: str) -> list[PivotReport]:
         reports: list[PivotReport] = []
@@ -155,6 +198,10 @@ class EngineBook:
         return parse(prefixed(in_file(formula, self.table_names(), at_escaped=True)))
 
     def cell(self, sheet: str, row: int, column: int) -> Scalar:
+        kept = self._kept(sheet)
+        if kept is not None:
+            # A cell the link does not keep is blank.
+            return scalar(kept.get((row, column), NOTHING_THERE))
         return scalar(self.calculator.value_of(sheet, row, column))
 
     def user_function(self, context: Context, name: str, args: tuple[Node, ...]) -> Value | None:
@@ -165,6 +212,10 @@ class EngineBook:
 
     def cells(self, area: Area) -> Iterator[tuple[int, int, Scalar]]:
         """The cells of an area that hold something, row by row."""
+        kept = self._kept(area.sheet)
+        if kept is not None:
+            return iter([(row, column, scalar(kept[(row, column)]))
+                         for row, column in sorted(key for key in kept if area.contains(*key))])
         owner = self._sheet(area.sheet)
         for (top, left), block in list(owner.array_formulas.items()):
             if block.top <= area.bottom and area.top <= block.bottom and block.left <= area.right \
@@ -204,27 +255,38 @@ class EngineBook:
         return TableShape(found.name, area.sheet, area.top, area.left, area.bottom, area.right, int(found.headers),
                           int(found.totals), found.columns)
 
+    # A link keeps a linked sheet's values and nothing else: no tables, formulas, hidden rows or spills.
+
     def table_at(self, sheet: str, row: int, column: int) -> TableShape | None:
+        if self._kept(sheet) is not None:
+            return None
         for table in self._sheet(sheet).tables:
             if table.area.contains(row, column):
                 return self.table(table.name)
         return None
 
     def formula_text(self, sheet: str, row: int, column: int) -> str | None:
+        if self._kept(sheet) is not None:
+            return None
         text = self.calculator.formula_at(sheet, row, column)
         return text[1:] if text.startswith("=") else None
 
     def used(self, sheet: str) -> tuple[int, int]:
+        kept = self._kept(sheet)
+        if kept is not None:
+            return max((row for row, _ in kept), default=0), max((column for _, column in kept), default=0)
         bounds = self._sheet(sheet).used_bounds()
         return (0, 0) if bounds is None else (bounds[2], bounds[3])
 
     def row_hidden(self, sheet: str, row: int) -> bool:
-        return row in self.calculator.hidden_rows(sheet, True)
+        return self._kept(sheet) is None and row in self.calculator.hidden_rows(sheet, True)
 
     def row_filtered(self, sheet: str, row: int) -> bool:
-        return row in self.calculator.hidden_rows(sheet, False)
+        return self._kept(sheet) is None and row in self.calculator.hidden_rows(sheet, False)
 
     def subtotal(self, sheet: str, row: int, column: int) -> bool:
+        if self._kept(sheet) is not None:
+            return False
         cell = self._sheet(sheet).cells_.get((row, column))
         if cell is None or not cell.formula:
             return False
@@ -237,6 +299,8 @@ class EngineBook:
     def spill(self, sheet: str, row: int, column: int) -> Area | None:
         """The block a dynamic-array formula in a cell spilled into, the formula worked out first; None for a cell
         holding no such formula, or one whose answer is kept out (see _spills)."""
+        if self._kept(sheet) is not None:
+            return None
         owner = self._sheet(sheet)
         if (row, column) not in owner.spills:
             return None
@@ -334,6 +398,29 @@ def calls_user(node: Node) -> bool:
 
     return any(isinstance(one, Call) and one.function not in registry.FUNCTIONS and not is_excel_function(one.name)
                for one in walk(node))
+
+
+_NODES = typing.get_args(Node)
+
+
+def _in_book(node: Node, book: str) -> Node:
+    """A formula of a linked workbook, as one defining a name there, with each reference and name in it made to name
+    that workbook, as pyOfficeEditor's engine does it (its commit 691adba)."""
+    changes: dict[str, object] = {}
+    for item in dataclasses.fields(node):
+        value = getattr(node, item.name)
+        if isinstance(value, Prefix):
+            if value.book is None:
+                changes[item.name] = Prefix(value.sheet, value.last_sheet, book)
+        elif isinstance(node, NameReference) and item.name == "prefix" and value is None:
+            changes[item.name] = Prefix(book=book)
+        elif isinstance(value, _NODES):
+            changes[item.name] = _in_book(typing.cast("Node", value), book)
+        elif isinstance(value, tuple):
+            parts = typing.cast("tuple[object, ...]", value)
+            if parts and all(isinstance(part, _NODES) for part in parts):
+                changes[item.name] = tuple(_in_book(typing.cast("Node", part), book) for part in parts)
+    return dataclasses.replace(node, **changes) if changes else node
 
 
 def _check_absolute(text: str) -> None:

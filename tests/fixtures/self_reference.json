@@ -1,0 +1,193 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-22T20:46:40.251337+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "sum",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=SUM(A1:A10)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "rows",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ROWS(A1:A10)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "10|Nothing"
+    },
+    {
+      "name": "columns",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=COLUMNS(A1:A10)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "row",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ROW(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|Nothing"
+    },
+    {
+      "name": "column",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=COLUMN(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "row_range",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ROW(A1:A10)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "areas",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=AREAS(A1:A10)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "isref",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ISREF(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|Nothing"
+    },
+    {
+      "name": "sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=SHEET(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=SHEETS(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "cell_address",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=CELL(\"\"address\"\",A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$5|Nothing"
+    },
+    {
+      "name": "cell_row",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=CELL(\"\"row\"\",A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|Nothing"
+    },
+    {
+      "name": "cell_contents",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=CELL(\"\"contents\"\",A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "cell_type",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=CELL(\"\"type\"\",A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "formulatext",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=FORMULATEXT(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "=FORMULATEXT(A5)|Nothing"
+    },
+    {
+      "name": "isformula",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ISFORMULA(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|Nothing"
+    },
+    {
+      "name": "index",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=INDEX(A1:A10,1)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "index_self",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=INDEX(A1:A10,5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "offset",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=SUM(OFFSET(A5,1,0))\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "6|Nothing"
+    },
+    {
+      "name": "offset_self",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=OFFSET(A4,1,0)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "indirect",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=INDIRECT(\"\"A4\"\")\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "4|Nothing"
+    },
+    {
+      "name": "indirect_self",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=INDIRECT(\"\"A5\"\")\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "counta",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=COUNTA(A1:A10)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "countblank",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=COUNTBLANK(A1:A10)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "isblank",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ISBLANK(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "n",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=N(A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$5"
+    },
+    {
+      "name": "rows_in_sum",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ROWS(A1:A10)+1\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11|Nothing"
+    },
+    {
+      "name": "rows_of_sum",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=ROWS(A1:A10)*SUM(A1)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "10|Nothing"
+    },
+    {
+      "name": "if_rows",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=IF(TRUE,ROWS(A1:A10),A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "10|Nothing"
+    },
+    {
+      "name": "if_false_branch",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=IF(TRUE,1,A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "choose_unused",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=CHOOSE(1,7,A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "7|Nothing"
+    },
+    {
+      "name": "iferror_unused",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=IFERROR(1,A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "let_unused",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=LET(x,A5,1)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "lookup",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=MATCH(3,A1:A10,0)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3|Nothing"
+    },
+    {
+      "name": "vlookup_self",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=VLOOKUP(3,A1:A10,1,FALSE)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3|Nothing"
+    },
+    {
+      "name": "columns_range_op",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=COLUMNS(A1:A10 A5)\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Nothing"
+    },
+    {
+      "name": "sumproduct_rows",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, i As Long, s As String\nSet ws = Worksheets.Add\nFor i = 1 To 10\n    If i <> 5 Then ws.Cells(i, 1).Value = i\nNext\nws.Range(\"A5\").Formula = \"=SUMPRODUCT(ROW(A1:A10))\"\ns = CStr(ws.Range(\"A5\").Value) & \"|\"\nIf ws.CircularReference Is Nothing Then s = s & \"Nothing\" Else s = s & ws.CircularReference.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "55|Nothing"
+    }
+  ]
+}

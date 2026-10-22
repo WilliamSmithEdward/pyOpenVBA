@@ -211,24 +211,24 @@ class EngineBook:
         return call_user_function(self.book, context, name, args)
 
     def cells(self, area: Area) -> Iterator[tuple[int, int, Scalar]]:
-        """The cells of an area that hold something, row by row."""
+        """The cells of an area that hold something, row by row, each worked out as it is reached: a lookup that
+        stops early reads no further, as Excel's does, and so closes no loop through the cells past its match
+        (tests/fixtures/self_reference.json)."""
         kept = self._kept(area.sheet)
         if kept is not None:
-            return iter([(row, column, scalar(kept[(row, column)]))
-                         for row, column in sorted(key for key in kept if area.contains(*key))])
+            yield from [(row, column, scalar(kept[(row, column)]))
+                        for row, column in sorted(key for key in kept if area.contains(*key))]
+            return
         owner = self._sheet(area.sheet)
         for (top, left), block in list(owner.array_formulas.items()):
             if block.top <= area.bottom and area.top <= block.bottom and block.left <= area.right \
                     and area.left <= block.right:
                 # An array formula's other cells are there once it is worked out.
                 self.calculator.value_of(area.sheet, top, left)
-        held = owner.cells_
-        found: list[tuple[int, int, Scalar]] = []
-        for row, column in sorted(key for key in held if area.contains(*key)):
+        for row, column in sorted(key for key in owner.cells_ if area.contains(*key)):
             value = self.cell(area.sheet, row, column)
             if not isinstance(value, Empty):
-                found.append((row, column, value))
-        return iter(found)
+                yield row, column, value
 
     def defined_name(self, name: str, sheet: str | None) -> Node | None:
         """A name's formula, scoped to ``sheet`` or, with None, to the workbook: that scope and no other."""

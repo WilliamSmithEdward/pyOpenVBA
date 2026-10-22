@@ -1,0 +1,340 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-22T21:10:32.725982+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "defaults",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\ns = Application.Iteration & \"|\" & Application.MaxIterations & \"|\" & Application.MaxChange\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "False|100|0.001"
+    },
+    {
+      "name": "set",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True: Application.MaxIterations = 50: Application.MaxChange = 0.01\ns = Application.Iteration & \"|\" & Application.MaxIterations & \"|\" & Application.MaxChange\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|50|0.01"
+    },
+    {
+      "name": "iteration_from_a_number",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = 2: s = CStr(Application.Iteration)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True"
+    },
+    {
+      "name": "iteration_from_text",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = \"True\": s = CStr(Application.Iteration)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True"
+    },
+    {
+      "name": "iteration_from_other_text",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nOn Error Resume Next\nApplication.Iteration = \"abc\": s = Err.Number & \":\" & Application.Iteration\nOn Error GoTo 0\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "13:False"
+    },
+    {
+      "name": "max_iterations_bounds",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nDim v As Variant\nOn Error Resume Next\nFor Each v In Array(0, 1, 32767, 32768, -5, 2.5, 3.5, 1E+20)\n    Err.Clear: Application.MaxIterations = v\n    s = s & \"|\" & Err.Number & \":\" & Application.MaxIterations\nNext\nOn Error GoTo 0\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "|1004:100|0:1|0:32767|1004:32767|1004:32767|0:2|0:4|6:4"
+    },
+    {
+      "name": "max_change_bounds",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nDim v As Variant\nOn Error Resume Next\nFor Each v In Array(0, -1, 1E+300, 1E-300, 0.5)\n    Err.Clear: Application.MaxChange = v\n    s = s & \"|\" & Err.Number & \":\" & Application.MaxChange\nNext\nErr.Clear: Application.MaxChange = \"abc\": s = s & \"|\" & Err.Number & \":\" & Application.MaxChange\nOn Error GoTo 0\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "|0:0|0:-1|0:1E+300|0:1E-300|0:0.5|13:0.5"
+    },
+    {
+      "name": "off_self",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & ws.CircularReference.Address\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|$A$1|0"
+    },
+    {
+      "name": "off_none",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\ns = TypeName(ws.CircularReference)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Nothing"
+    },
+    {
+      "name": "off_pair",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=B1+1\": ws.Range(\"B1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value) & \"|\" & ws.CircularReference.Address\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|0|$B$1"
+    },
+    {
+      "name": "off_pair_reversed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"B1\").Formula = \"=A1+1\": ws.Range(\"A1\").Formula = \"=B1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value) & \"|\" & ws.CircularReference.Address\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|1|$A$1"
+    },
+    {
+      "name": "off_dependent",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"C1\").Formula = \"=A1*2+3\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"C1\").Value) & \"|\" & ws.CircularReference.Address\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|0|$A$1"
+    },
+    {
+      "name": "off_value_kept",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Value = 5: ws.Range(\"B1\").Formula = \"=A1*2\"\nws.Range(\"A1\").Formula = \"=B1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|10"
+    },
+    {
+      "name": "on_self",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.CalculateFull: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\ns = s & \"|\" & TypeName(ws.CircularReference)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "100|200|300|Nothing"
+    },
+    {
+      "name": "on_self_one_iteration",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True: Application.MaxIterations = 1\nws.Range(\"A1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|2"
+    },
+    {
+      "name": "on_converging",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=(A1+10)/2\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9.9993896484375|9.99969482421875"
+    },
+    {
+      "name": "on_converging_coarse",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True: Application.MaxChange = 0.1\nws.Range(\"A1\").Formula = \"=(A1+10)/2\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9.921875"
+    },
+    {
+      "name": "on_converging_exact_change",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True: Application.MaxChange = 0.625\nws.Range(\"A1\").Formula = \"=(A1+10)/2\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9.6875"
+    },
+    {
+      "name": "on_pair",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=B1+1\": ws.Range(\"B1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "199|200|399|400"
+    },
+    {
+      "name": "on_interest",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"B1\").Formula = \"=1000+B2\": ws.Range(\"B2\").Formula = \"=B1*0.1\"\ns = CStr(ws.Range(\"B1\").Value) & \"|\" & CStr(ws.Range(\"B2\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1111.111|111.1111"
+    },
+    {
+      "name": "on_interest_reversed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"B2\").Formula = \"=B1*0.1\": ws.Range(\"B1\").Formula = \"=1000+B2\"\ns = CStr(ws.Range(\"B1\").Value) & \"|\" & CStr(ws.Range(\"B2\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1111.111|111.1111"
+    },
+    {
+      "name": "on_dependent",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=(A1+10)/2\": ws.Range(\"C1\").Formula = \"=A1*2\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"C1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9.99984741210938|19.9996948242188"
+    },
+    {
+      "name": "on_three",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=C1+1\": ws.Range(\"B1\").Formula = \"=A1+1\": ws.Range(\"C1\").Formula = \"=B1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value) & \"|\" & CStr(ws.Range(\"C1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "298|299|300"
+    },
+    {
+      "name": "on_after_off",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = True: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|100|200|200|200"
+    },
+    {
+      "name": "on_a_value_changes",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Value = 1: ws.Range(\"B1\").Formula = \"=(B1+A1*10)/2\"\ns = CStr(ws.Range(\"B1\").Value)\nws.Range(\"A1\").Value = 2: s = s & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9.9993896484375|19.9993896111846"
+    },
+    {
+      "name": "on_error_in_loop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=1/(A1-A1)\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Error 2007"
+    },
+    {
+      "name": "on_text_in_loop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1&\"\"x\"\"\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0x"
+    },
+    {
+      "name": "on_sum_range",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Value = 1: ws.Range(\"A2\").Value = 2: ws.Range(\"A3\").Formula = \"=SUM(A1:A3)\"\ns = CStr(ws.Range(\"A3\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "300"
+    },
+    {
+      "name": "on_manual",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True: Application.Calculation = xlCalculationManual\nws.Range(\"A1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value)\nws.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Calculation = xlCalculationAutomatic: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|101|201|301"
+    },
+    {
+      "name": "off_dependent_recalculated",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"C1\").Formula = \"=A1*2+3\"\nApplication.Calculate: s = CStr(ws.Range(\"C1\").Value)\nApplication.CalculateFull: s = s & \"|\" & CStr(ws.Range(\"C1\").Value) & \"|\" & ws.CircularReference.Address\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|0|$A$1"
+    },
+    {
+      "name": "off_broken",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"A1\").Value = 5\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & TypeName(ws.CircularReference)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|Nothing"
+    },
+    {
+      "name": "off_both_at_once",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1:A2\").Formula = \"=A2+1\"\nws.Range(\"A2\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"A2\").Value) & \"|\" & ws.CircularReference.Address\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "2|0|$A$2"
+    },
+    {
+      "name": "off_across_sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nDim other As Worksheet\nSet other = Worksheets.Add(After:=ws)\nws.Range(\"A1\").Formula = \"='\" & other.Name & \"'!A1+1\": other.Range(\"A1\").Formula = \"='\" & ws.Name & \"'!A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(other.Range(\"A1\").Value)\ns = s & \"|\" & IIf(ws.CircularReference.Parent.Name = ws.Name, \"ws\", \"other\") & ws.CircularReference.Address\ns = s & \"|\" & IIf(other.CircularReference.Parent.Name = ws.Name, \"ws\", \"other\") & other.CircularReference.Address\nApplication.DisplayAlerts = False: other.Delete: Application.DisplayAlerts = True\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|0|ws$A$1|other$A$1"
+    },
+    {
+      "name": "off_two_loops",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"B1\").Formula = \"=B1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value) & \"|\" & ws.CircularReference.Address\nws.Range(\"B1\").Value = 1: s = s & \"|\" & ws.CircularReference.Address\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|0|$B$1|$A$1"
+    },
+    {
+      "name": "off_precedent_edit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+D1\": ws.Range(\"C1\").Formula = \"=A1+1\"\nws.Range(\"D1\").Value = 5\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"C1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|0"
+    },
+    {
+      "name": "off_dependent_after_broken",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"C1\").Formula = \"=A1*2+3\"\nws.Range(\"A1\").Value = 1\ns = CStr(ws.Range(\"C1\").Value) & \"|\" & TypeName(ws.CircularReference)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|Nothing"
+    },
+    {
+      "name": "off_stale_member",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"A1\").Formula = \"=A2+1\": ws.Range(\"A2\").Formula = \"=A3+1\": ws.Range(\"A3\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"A2\").Value) & \"|\" & CStr(ws.Range(\"A3\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "2|1|0"
+    },
+    {
+      "name": "off_upstream_formula",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nws.Range(\"D1\").Formula = \"=2*3\": ws.Range(\"A1\").Formula = \"=A1+D1\"\nws.Range(\"D1\").Formula = \"=2*4\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"D1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|8"
+    },
+    {
+      "name": "on_across_sheets_closing_on_other",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nDim other As Worksheet\nApplication.Iteration = True\nSet other = Worksheets.Add(After:=ws)\nws.Range(\"A1\").Formula = \"=1000+'\" & other.Name & \"'!A1\": other.Range(\"A1\").Formula = \"='\" & ws.Name & \"'!A1*0.1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(other.Range(\"A1\").Value)\nApplication.DisplayAlerts = False: other.Delete: Application.DisplayAlerts = True\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1111.111|111.1111"
+    },
+    {
+      "name": "on_across_sheets_closing_on_other_before",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nDim other As Worksheet\nApplication.Iteration = True\nSet other = Worksheets.Add(Before:=ws)\nws.Range(\"A1\").Formula = \"=1000+'\" & other.Name & \"'!A1\": other.Range(\"A1\").Formula = \"='\" & ws.Name & \"'!A1*0.1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(other.Range(\"A1\").Value)\nApplication.DisplayAlerts = False: other.Delete: Application.DisplayAlerts = True\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1111.111|111.1111"
+    },
+    {
+      "name": "on_text_beside_number",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"B1\").Formula = \"=B1&\"\"x\"\"\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & Len(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "200|101"
+    },
+    {
+      "name": "on_logical_loop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=NOT(A1)\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True"
+    },
+    {
+      "name": "on_logical_beside_number",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"B1\").Formula = \"=NOT(B1)\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "200|False"
+    },
+    {
+      "name": "on_unrelated_edit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1+1\"\nws.Range(\"D5\").Value = 1: s = CStr(ws.Range(\"A1\").Value)\nws.Range(\"D6\").Formula = \"=1+1\": s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "200|300"
+    },
+    {
+      "name": "on_precedent_edit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1+D1\"\ns = CStr(ws.Range(\"A1\").Value)\nws.Range(\"D1\").Value = 1: s = s & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|100"
+    },
+    {
+      "name": "on_dependent_edit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1+1\": ws.Range(\"C1\").Formula = \"=A1*2\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"C1\").Value)\nws.Range(\"C1\").Formula = \"=A1*3\": s = s & \"|\" & CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"C1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "200|400|300|900"
+    },
+    {
+      "name": "on_upstream_formula",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"D1\").Formula = \"=2*5\": ws.Range(\"A1\").Formula = \"=(A1+D1)/2\"\ns = CStr(ws.Range(\"A1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9.9993896484375"
+    },
+    {
+      "name": "on_downstream_converging",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1*0+5\": ws.Range(\"A2\").Formula = \"=(A2+A1)/2\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"A2\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|4.9993896484375"
+    },
+    {
+      "name": "on_cycle_against_position",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A3\").Formula = \"=A1+1\": ws.Range(\"A2\").Formula = \"=A3+1\": ws.Range(\"A1\").Formula = \"=A2+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"A2\").Value) & \"|\" & CStr(ws.Range(\"A3\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "150|152|151"
+    },
+    {
+      "name": "on_cycle_with_position",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A2+1\": ws.Range(\"A2\").Formula = \"=A3+1\": ws.Range(\"A3\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"A2\").Value) & \"|\" & CStr(ws.Range(\"A3\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "149|151|150"
+    },
+    {
+      "name": "on_across_sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nDim other As Worksheet\nApplication.Iteration = True\nSet other = Worksheets.Add(After:=ws)\nother.Range(\"A1\").Formula = \"='\" & ws.Name & \"'!A1*0.1\": ws.Range(\"A1\").Formula = \"=1000+'\" & other.Name & \"'!A1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(other.Range(\"A1\").Value)\nApplication.DisplayAlerts = False: other.Delete: Application.DisplayAlerts = True\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1111.111|111.1111"
+    },
+    {
+      "name": "on_across_sheets_reversed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nDim other As Worksheet\nApplication.Iteration = True\nSet other = Worksheets.Add(Before:=ws)\nother.Range(\"A1\").Formula = \"='\" & ws.Name & \"'!A1*0.1\": ws.Range(\"A1\").Formula = \"=1000+'\" & other.Name & \"'!A1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(other.Range(\"A1\").Value)\nApplication.DisplayAlerts = False: other.Delete: Application.DisplayAlerts = True\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1111.111|111.1111"
+    },
+    {
+      "name": "on_zero_change",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True: Application.MaxChange = 0\nws.Range(\"A1\").Formula = \"=(A1+10)/2\": ws.Range(\"B1\").Formula = \"=B1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "10|100"
+    },
+    {
+      "name": "on_negative_change",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True: Application.MaxChange = -1\nws.Range(\"A1\").Formula = \"=A1*0+5\": ws.Range(\"B1\").Formula = \"=B1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|100"
+    },
+    {
+      "name": "on_settles",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=A1*0+5\": ws.Range(\"B1\").Formula = \"=A1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|6"
+    },
+    {
+      "name": "on_two_loops",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Formula = \"=(A1+10)/2\": ws.Range(\"B1\").Formula = \"=B1+1\"\ns = CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Calculate: s = s & \"|\" & CStr(ws.Range(\"A1\").Value) & \"|\" & CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "10|100|10|200"
+    },
+    {
+      "name": "on_ordinary_formula",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String\nSet ws = Worksheets.Add\nApplication.Iteration = True\nws.Range(\"A1\").Value = 3: ws.Range(\"B1\").Formula = \"=A1*2\"\ns = CStr(ws.Range(\"B1\").Value)\nApplication.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "6"
+    }
+  ],
+  "repeated": {
+    "off_pair_reversed": [
+      "0|1|$A$1",
+      "0|1|$A$1",
+      "0|1|$A$1",
+      "0|1|$A$1",
+      "0|1|$A$1",
+      "0|1|$B$1"
+    ],
+    "off_both_at_once": [
+      "2|0|$A$2",
+      "2|0|$A$2",
+      "2|0|$A$2",
+      "2|0|$A$1",
+      "2|0|$A$2",
+      "2|0|$A$2"
+    ],
+    "off_two_loops": [
+      "0|0|$B$1|$A$1",
+      "0|0|$B$1|$A$1",
+      "0|0|$B$1|$A$1",
+      "0|0|$B$1|$A$1",
+      "0|0|$B$1|$A$1",
+      "0|0|$B$1|$A$1"
+    ],
+    "off_pair": [
+      "1|0|$B$1",
+      "1|0|$B$1",
+      "1|0|$B$1",
+      "1|0|$B$1",
+      "1|0|$B$1",
+      "1|0|$A$1"
+    ]
+  },
+  "file": {
+    "settings": {
+      "iterating": "Application.Iteration = True: Application.MaxIterations = 50: Application.MaxChange = 0.01",
+      "not_iterating": "Application.Iteration = False: Application.MaxIterations = 50: Application.MaxChange = 0.01",
+      "defaults": "Application.Iteration = False: Application.MaxIterations = 100: Application.MaxChange = 0.001"
+    },
+    "calcPr": {
+      "iterating": "<calcPr calcId=\"191029\" iterate=\"1\" iterateCount=\"50\" iterateDelta=\"0.01\"/>",
+      "not_iterating": "<calcPr calcId=\"191029\" iterateCount=\"50\" iterateDelta=\"0.01\"/>",
+      "defaults": "<calcPr calcId=\"191029\"/>"
+    },
+    "opened": "False|100|0.001|False|100|0.001|True|50|0.01"
+  }
+}

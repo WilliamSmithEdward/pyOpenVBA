@@ -145,3 +145,11 @@ name looking like a cell is not read as the cell.
     without quotes with any character past ASCII in it, as Excel writes
     `x–y!B3` and `ＡＢ!B3` (`tests/fixtures/sheet_quoting.json`), where
     pyOfficeEditor's reads only Unicode letters and digits.
+15. **Cells read as Excel reads them.** A circular reference is the cells a
+    formula reads as it is worked out, so what is never read closes no
+    loop (`tests/fixtures/self_reference.json`). IFERROR and IFNA work their
+    fallback out only when the first argument holds an error, or #N/A, in
+    a legacy formula or where the fallback is one cell: `IFERROR(1,A5)` in
+    A5 is 1. An exact MATCH, VLOOKUP or HLOOKUP over cells reads them in
+    order and stops at its match, through the model's book handing cells
+    over one at a time: `MATCH(3,A1:A10,0)` in A5 is 3.

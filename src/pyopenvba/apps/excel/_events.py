@@ -163,11 +163,12 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
         calculator.pending_notifications.update(prior)
         calculator.pending_notifications.update(sheet for sheet in book.sheets_
             if any(cell.formula and cell.stale for cell in sheet.cells_.values()))
-    if not (calculator.has_volatile_formulas or calculator.has_pending_udfs
+    # With Application.Iteration on, a loop of formulas is worked out at every calculation, as a volatile formula is.
+    if not (calculator.has_volatile_formulas or calculator.has_pending_udfs or calculator.iterates
             or calculator.has_held_caches or calculator.pending_notifications) \
             and (not _on(book) or not _listening_for_calculate(book)):
         return
-    if not _on(book) and not (calculator.has_volatile_formulas or calculator.has_pending_udfs):
+    if not _on(book) and not (calculator.has_volatile_formulas or calculator.has_pending_udfs or calculator.iterates):
         return
     worked = calculator.recalculated(settled=settled)
     calculated_all(book, list(set(worked) | prior))

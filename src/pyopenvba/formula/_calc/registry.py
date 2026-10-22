@@ -43,7 +43,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
-from pyopenvba.formula._calc.nodes import Call, Missing, NameReference, Node, Paren
+from pyopenvba.formula._calc.nodes import Call, CellReference, Missing, NameReference, Node, Paren
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.values import EMPTY, REF as REF_ERROR, VALUE, Array, ExcelError, Reference, Scalar, Value
 
@@ -90,6 +90,13 @@ THREE_D_ARRAY = frozenset({
 })
 #: Functions whose single value is a range's cell, N and T: a 3D reference given there is #VALUE! too.
 THREE_D_REFUSED_VALUES = frozenset({"N", "T"})
+
+#: The functions whose last argument, what they give for an error, Excel works out only when the first holds one:
+#: IFERROR(1,A5) in A5 reads no A5 and closes no loop (pyOpenVBA's tests/fixtures/self_reference.json).
+_FALLBACKS: dict[str, Callable[[object], bool]] = {
+    "IFERROR": lambda value: isinstance(value, CellError),
+    "IFNA": lambda value: isinstance(value, CellError) and value.code == "#N/A",
+}
 
 Implementation = Callable[..., Any]
 
@@ -184,6 +191,12 @@ def call(entry: Function, context: Context, nodes: tuple[Node, ...]) -> Value:
             args.append(node)
             continue
         if isinstance(node, Missing):
+            args.append(EMPTY)
+            continue
+        if index == 1 and entry.name in _FALLBACKS and not isinstance(args[0], Array) \
+                and not _FALLBACKS[entry.name](args[0]) and (context.legacy or isinstance(node, CellReference)):
+            # Not needed, the fallback is not worked out; it could only have stretched the answer into an array
+            # where it is a range or an array itself in a dynamic formula, which is worked out as before.
             args.append(EMPTY)
             continue
         as_cell = context.legacy and index in entry.legacy_cell

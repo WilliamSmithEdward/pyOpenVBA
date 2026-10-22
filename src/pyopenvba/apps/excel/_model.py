@@ -15,6 +15,7 @@ Font, Interior, Borders, alignment -- lives in
 
 from __future__ import annotations
 
+import itertools
 import re
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
@@ -77,6 +78,8 @@ if TYPE_CHECKING:
 _LIBRARY = "excel"
 #: The cells Range.Value reads in full: a whole column, 1,048,576 rows.
 _WHOLE_COLUMN_CELLS = 1_048_576
+#: Counts the sheets made, so that each knows which came first (see Worksheet.made).
+_SHEETS_MADE = itertools.count()
 #: The longest formula Excel keeps, in characters, and the longest FormulaArray takes
 #: (tests/fixtures/formula_refusals.json).
 LONGEST_FORMULA = 8192
@@ -216,6 +219,11 @@ class Application(ExcelObject):
         self.enable_events = True
         self.calculation = -4105  # xlCalculationAutomatic
         self.calculate_before_save = True
+        #: Whether a loop of formulas is worked out over and over, and how many times and to what change at most, as
+        #: Application.Iteration, MaxIterations and MaxChange have it (see _calc).
+        self.iteration = False
+        self.max_iterations = 100
+        self.max_change = 0.001
         #: xlA1 or xlR1C1, as Application.ReferenceStyle has it.
         self.reference_style = 1
         self.use_system_separators = True
@@ -314,6 +322,42 @@ class Application(ExcelObject):
     @setter("CalculateBeforeSave")
     def _set_calculate_before_save(self, value: object) -> None:
         self.calculate_before_save = to_bool(value)
+
+    @member
+    def Iteration(self) -> object:
+        return self.iteration
+
+    @setter("Iteration")
+    def _set_iteration(self, value: object) -> None:
+        """Turned on, it works each loop of formulas out at once, as automatic calculation does; turned off, the
+        loops keep what they hold (tests/fixtures/iteration.json)."""
+        before = self.iteration
+        self.iteration = to_bool(value)
+        if self.iteration and not before and self.calculation != -4135:  # xlCalculationManual
+            for book in self.workbooks_.books:
+                if book.calculator.loop_cells():
+                    _events.calculated_all(book, book.calculator.calculate_all(volatile=False))
+
+    @member
+    def MaxIterations(self) -> object:
+        return VBAInt(self.max_iterations, "Long")
+
+    @setter("MaxIterations")
+    def _set_max_iterations(self, value: object) -> None:
+        """1 to 32767, rounded as a Long is; anything else is error 1004 and leaves the setting as it was."""
+        count = int(to_integer(value, "Long"))
+        if not 1 <= count <= 32767:
+            raise error(1004, "Unable to set the MaxIterations property of the Application class")
+        self.max_iterations = count
+
+    @member
+    def MaxChange(self) -> object:
+        return self.max_change
+
+    @setter("MaxChange")
+    def _set_max_change(self, value: object) -> None:
+        """Any number at all, 0 and negative ones among them, which then stop no iteration early."""
+        self.max_change = float(to_number(value))
 
     @member
     def International(self, Index: object = MISSING) -> object:
@@ -1176,6 +1220,9 @@ class Worksheet(ExcelObject):
     def __init__(self, book: Workbook, name: str) -> None:
         self.book = book
         self.name = name
+        #: When the sheet was made among the workbook's, which orders the sheets of a loop of formulas as an
+        #: iteration works them out, whatever their tabs' order (see _calc).
+        self.made = next(_SHEETS_MADE)
         #: The name the sheet goes by in VBA, Sheet1 in Sheet1.Range("A1"), and its own module's; "" for a sheet a
         #: macro added, which Excel leaves without one.
         self.code_name = ""
@@ -1538,6 +1585,13 @@ class Worksheet(ExcelObject):
             return Range(self, [Area(1, 1, 1, 1, self.name)])
         top, left, bottom, right = bounds
         return Range(self, [Area(top, left, bottom, right, self.name)])
+
+    @member
+    def CircularReference(self) -> object:
+        """A cell of a loop of formulas on the sheet, the one whose formula closed the latest loop still there; Nothing
+        for none, and with Application.Iteration on (tests/fixtures/iteration.json)."""
+        found = self.book.calculator.circular_cell(self)
+        return NOTHING if found is None else Range(self, [Area(found[0], found[1], found[0], found[1], self.name)])
 
     @member
     def StandardHeight(self) -> object:

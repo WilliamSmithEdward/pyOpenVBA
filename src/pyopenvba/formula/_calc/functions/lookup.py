@@ -75,6 +75,22 @@ def _exact(values: list[Scalar], target: Scalar, *, wildcards: bool, last: bool 
     return None
 
 
+def _first_cell(context: Context, line: Area, target: Scalar) -> int | None:
+    """Where the first cell of one row or column of cells equal to ``target`` is along it, the cells read in order
+    and none past it, as Excel reads them for an exact lookup: MATCH(3,A1:A10,0) in A5 stops at A3, so reads no A5
+    and closes no loop (pyOpenVBA's tests/fixtures/self_reference.json). A blank cell matches nothing, as in
+    :func:`_exact`."""
+    pattern = isinstance(target, str) and _collate.has_wildcards(target)
+    for row, column, value in context.book.cells(line):
+        if pattern:
+            found = isinstance(value, str) and isinstance(target, str) and _collate.wildcard_match(target, value)
+        else:
+            found = _same_kind(target, value) and _order(value, target) == 0
+        if found:
+            return row - line.top if line.width == 1 else column - line.left
+    return None
+
+
 def _approximate(values: list[Scalar], target: Scalar, *, descending: bool = False) -> int | None:
     """Binary search, among values of ``target``'s type, for the last not
     above it, or with ``descending`` the last not below it."""
@@ -114,6 +130,20 @@ def _table_lookup(
     target = _lookup_value(value)
     which = int(context.number(index))
     exact = approximate is not None and not context.logical(approximate)
+    area = table.area if isinstance(table, Reference) else None
+    if exact and area is not None:
+        if which < 1:
+            return VALUE
+        if which > (area.width if vertical else area.height):
+            return REF_ERROR
+        keys = Area(area.sheet, area.top, area.left, area.bottom if vertical else area.top,
+                    area.left if vertical else area.right)
+        position = _first_cell(context, keys, target)
+        if position is None:
+            return NA
+        if vertical:
+            return context.book.cell(area.sheet, area.top + position, area.left + which - 1)
+        return context.book.cell(area.sheet, area.top + which - 1, area.left + position)
     grid = matrix(context, table)
     lines = grid.rows if vertical else [list(column) for column in zip(*grid.rows, strict=True)]
     if which < 1:
@@ -144,6 +174,10 @@ def MATCH(context: Context, value: Scalar, array: Value, kind: Scalar | None = N
         return NA
     target = _lookup_value(value)
     mode = 1.0 if kind is None else context.number(kind)
+    area = array.area if isinstance(array, Reference) else None
+    if mode == 0 and area is not None and (area.height == 1 or area.width == 1):
+        position = _first_cell(context, area, target)
+        return NA if position is None else float(position + 1)
     values = _vector(context, array)
     if mode == 0:
         position = _exact(values, target, wildcards=True)

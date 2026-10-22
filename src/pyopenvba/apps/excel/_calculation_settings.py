@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 _CALC = re.compile(r'<calcPr\b[^>]*(?:/>|>.*?</calcPr>)', re.DOTALL)
 _MODES = {'manual': -4135, 'auto': -4105, 'autoNoTable': 2}
+#: What a calcPr attribute left out means, where it is not 1 (ECMA-376 Part 1, 18.2.2).
+_DEFAULTS = {'calcMode': 'auto', 'refMode': 'A1', 'iterate': '0', 'iterateCount': '100', 'iterateDelta': '0.001'}
 
 
 def read(book: Workbook, xml: str) -> None:
@@ -26,6 +28,14 @@ def read(book: Workbook, xml: str) -> None:
     # A workbook saved in the R1C1 style says so; one opened after another keeps the style the application has
     # (tests/fixtures/reference_style.json).
     application.reference_style = -4150 if values.get('refMode') == 'R1C1' else 1
+    # So do the iteration's settings, which the first workbook Excel opens brings (tests/fixtures/iteration.json).
+    application.iteration = values.get('iterate', '0').lower() in ('1', 'true')
+    count = values.get('iterateCount', '100')
+    application.max_iterations = int(count) if count.isdigit() and 1 <= int(count) <= 32767 else 100
+    try:
+        application.max_change = float(values.get('iterateDelta', '0.001'))
+    except ValueError:
+        application.max_change = 0.001
 
 
 def write(book: Workbook, xml: str) -> str:
@@ -47,8 +57,19 @@ def write(book: Workbook, xml: str) -> str:
     elif 'refMode' in values:
         # Saved in the A1 style, the workbook says nothing of it.
         changed = re.sub(r'\srefMode="[^"]*"', '', changed)
+    # The iteration's settings are written where they are not Excel's own, off, 100 and 0.001, each on its own
+    # (tests/fixtures/iteration.json).
+    from pyopenvba.apps.excel._styles import excel_number
+
+    for name, value, default in (('iterate', '1' if application.iteration else '0', '0'),
+                                 ('iterateCount', str(application.max_iterations), '100'),
+                                 ('iterateDelta', excel_number(application.max_change), '0.001')):
+        if value != default:
+            desired[name] = value
+        elif name in values:
+            changed = re.sub(r'\s' + name + r'="[^"]*"', '', changed)
     for name, value in desired.items():
-        if values.get(name, 'auto' if name == 'calcMode' else 'A1' if name == 'refMode' else '1') == value:
+        if values.get(name, _DEFAULTS.get(name, '1')) == value:
             continue
         pattern = re.compile(r'\s' + name + r'="[^"]*"')
         if pattern.search(changed):

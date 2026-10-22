@@ -11,9 +11,8 @@ from pyopenvba.apps.excel._chart_axes import NO_AXES, SUPPORTED, AxisState, Titl
 from pyopenvba.apps.excel._chart_xml import format_number
 
 if TYPE_CHECKING:
-    from xml.etree.ElementTree import Element
-
     from pyopenvba.apps.excel._charts import ChartState
+    from pyopenvba.apps.excel._charts_file import XmlElement as Element
 
 NS = {
     "c": "http://schemas.openxmlformats.org/drawingml/2006/chart",

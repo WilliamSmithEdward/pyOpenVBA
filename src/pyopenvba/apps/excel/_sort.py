@@ -327,7 +327,7 @@ class SortRange(Range):
     vba_type_name = "Range"
 
     def __init__(self, owner: ExcelObject, selected: Range) -> None:
-        super().__init__(selected.sheet, selected.areas, whole=selected.whole)
+        super().__init__(selected.sheet, selected.areas, whole=selected.whole, lines=selected.lines)
         self.owner = owner
 
     def _check_alive(self) -> None:

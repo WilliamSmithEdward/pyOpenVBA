@@ -1548,7 +1548,10 @@ class Worksheet(ExcelObject):
         if Index is MISSING:
             return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)], whole="rows")
         if isinstance(Index, str):
-            # Rows("3") is the whole row, the way Rows("3:5") is.
+            # Rows("3") is the whole row, the way Rows("3:5") is; several, Rows("1:2,5:5"), are a type mismatch
+            # (tests/fixtures/range_lines.json).
+            if "," in Index:
+                raise error(13, "Type mismatch")
             wanted = Index if ":" in Index else f"{Index}:{Index}"
             return Range(self, parse_reference(wanted, sheet=self.name), whole="rows")
         row = int(to_integer(Index, "Long"))
@@ -1559,7 +1562,9 @@ class Worksheet(ExcelObject):
         if Index is MISSING:
             return Range(self, [Area(1, 1, MAX_ROWS, MAX_COLUMNS, self.name)], whole="columns")
         if isinstance(Index, str):
-            # Columns("C") is the whole column, the way Columns("C:D") is.
+            # Columns("C") is the whole column, the way Columns("C:D") is; several are a type mismatch, as Rows' are.
+            if "," in Index:
+                raise error(13, "Type mismatch")
             wanted = Index if ":" in Index else f"{Index}:{Index}"
             return Range(self, parse_reference(wanted, sheet=self.name), whole="columns")
         column = int(to_integer(Index, "Long"))
@@ -1989,7 +1994,7 @@ class Range(ExcelObject):
             # deleted range can no longer supply its default value.
             return self
 
-    def __init__(self, sheet: Worksheet, areas: list[Area], *, whole: str = "") -> None:
+    def __init__(self, sheet: Worksheet, areas: list[Area], *, whole: str = "", lines: str = "") -> None:
         self.sheet = sheet
         self.areas = areas or [Area(1, 1, 1, 1, sheet.name)]
         #: "rows" or "columns" for a range made as whole rows or columns.
@@ -1997,6 +2002,10 @@ class Range(ExcelObject):
         #: Rows("1:1048576").Hidden hides rows and Columns("A:XFD").Hidden
         #: columns, where Cells.Hidden is an error.
         self.whole = whole
+        #: "rows" or "columns" for a range Rows or Columns made, whole or not: its Count, its items and For Each go by
+        #: its first area's rows or columns, every area's for For Each, and AutoFit and Hidden take its rows or
+        #: columns; its other members act on its cells (tests/fixtures/range_lines.json).
+        self.lines = lines or whole
 
     def guard_set(self, member: str) -> None:
         from pyopenvba.apps.excel._protection import check_range_set
@@ -2666,11 +2675,31 @@ class Range(ExcelObject):
         return VBAInt(self._count(), "LongLong")
 
     def _count(self) -> int:
-        if self.whole == "rows":
-            return sum(area.rows for area in self.areas)
-        if self.whole == "columns":
-            return sum(area.columns for area in self.areas)
+        # A range of rows or columns counts its first area's alone (tests/fixtures/range_lines.json).
+        if self.lines == "rows":
+            return self.first.rows
+        if self.lines == "columns":
+            return self.first.columns
         return sum(area.rows * area.columns for area in self.areas)
+
+    def _line(self, index: object) -> Range:
+        """The row or column ``index`` of a range of rows or columns, counted from its first area's first and past
+        its last if need be; error 1004 before the first."""
+        area = self.first
+        position = int(to_integer(index, "Long"))
+        if position < 1:
+            raise error(1004, "Application-defined or object-defined error")
+        if self.lines == "rows":
+            row = area.top + position - 1
+            if row > MAX_ROWS:
+                raise error(1004, "Application-defined or object-defined error")
+            line = Area(row, area.left, row, area.right, area.sheet)
+        else:
+            column = area.left + position - 1
+            if column > MAX_COLUMNS:
+                raise error(1004, "Application-defined or object-defined error")
+            line = Area(area.top, column, area.bottom, column, area.sheet)
+        return Range(self.sheet, [line], whole=self.whole, lines=self.lines)
 
     @member
     def Next(self) -> object:
@@ -2718,32 +2747,36 @@ class Range(ExcelObject):
         return NULL
 
     @member
-    def Rows(self, Index: object = MISSING) -> object:
-        area = self.first
-        if Index is MISSING:
-            return RowsOf(self)
-        row = area.top + int(to_integer(Index, "Long")) - 1
-        return Range(self.sheet, [Area(row, area.left, row, area.right, area.sheet)])
+    def Rows(self, Index: object = MISSING, Second: object = MISSING) -> object:
+        """The range as its rows, or its Item(Index), a row (see lines); a second index is error 1004 there."""
+        rows = Range(self.sheet, list(self.areas), whole=self.whole if self.whole == "rows" else "", lines="rows")
+        return rows if Index is MISSING else rows.Item(Index, Second)
 
     @member
-    def Columns(self, Index: object = MISSING) -> object:
-        area = self.first
-        if Index is MISSING:
-            return ColumnsOf(self)
-        column = area.left + int(to_integer(Index, "Long")) - 1
-        return Range(self.sheet, [Area(area.top, column, area.bottom, column, area.sheet)])
+    def Columns(self, Index: object = MISSING, Second: object = MISSING) -> object:
+        """The range as its columns, or its Item(Index), a column (see lines); a second index is error 1004 there."""
+        columns = Range(self.sheet, list(self.areas), whole=self.whole if self.whole == "columns" else "",
+                        lines="columns")
+        return columns if Index is MISSING else columns.Item(Index, Second)
 
     @member
     def Cells(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:
+        """The range as its cells, or one of them, whatever Rows or Columns made it (tests/fixtures/range_lines.json)."""
+        cells = Range(self.sheet, list(self.areas)) if self.lines else self
         if RowIndex is MISSING:
-            return self
-        return self.vba_get("Item", [RowIndex, ColumnIndex])
+            return cells
+        return cells.vba_get("Item", [RowIndex, ColumnIndex])
 
     @member
     def Item(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:
         area = self.first
         if RowIndex is MISSING:
             raise error(449)
+        if self.lines:
+            # A range of rows or columns takes one index, a row or a column (tests/fixtures/range_lines.json).
+            if ColumnIndex is not MISSING and ColumnIndex is not NOTHING:
+                raise error(1004, "Application-defined or object-defined error")
+            return self._line(RowIndex)
         if ColumnIndex is MISSING or ColumnIndex is NOTHING:
             # One index walks the range left to right, then down.
             position = int(to_integer(RowIndex, "Long")) - 1
@@ -2795,7 +2828,8 @@ class Range(ExcelObject):
             if top < 1 or left < 1 or bottom > MAX_ROWS or right > MAX_COLUMNS:
                 raise error(1004, "Offset would leave the sheet")
             areas.append(Area(top, left, bottom, right, area.sheet))
-        return Range(self.sheet, areas)
+        # A range of rows or columns stays one (tests/fixtures/range_lines.json).
+        return Range(self.sheet, areas, lines=self.lines)
 
     @member
     def Resize(self, RowSize: object = MISSING, ColumnSize: object = MISSING) -> object:
@@ -2807,7 +2841,8 @@ class Range(ExcelObject):
         if area.top + rows - 1 > MAX_ROWS or area.left + columns - 1 > MAX_COLUMNS:
             # Past the sheet's last row or column is error 1004 (native probes).
             raise error(ERR_APPLICATION_DEFINED, "Resize goes past the sheet")
-        return Range(self.sheet, [Area(area.top, area.left, area.top + rows - 1, area.left + columns - 1, area.sheet)])
+        return Range(self.sheet, [Area(area.top, area.left, area.top + rows - 1, area.left + columns - 1, area.sheet)],
+                     lines=self.lines)
 
     @member
     def EntireRow(self) -> object:
@@ -3097,7 +3132,9 @@ class Range(ExcelObject):
         before = self.sheet.selection_range
         shown = [(one.top, one.left, one.bottom, one.right) for one in before.areas] if before is not None \
             else [(1, 1, 1, 1)]
-        self.sheet.selection_range = self
+        # The selection is the range's cells, whatever Rows or Columns made it (tests/fixtures/range_lines.json).
+        self.sheet.selection_range = self if self.lines == self.whole else Range(self.sheet, list(self.areas),
+                                                                                 whole=self.whole)
         self.sheet.active_cell_range = Range(
             self.sheet, [Area(self.first.top, self.first.left, self.first.top, self.first.left, self.first.sheet)]
         )
@@ -3894,7 +3931,7 @@ class Range(ExcelObject):
     def AutoFit(self) -> object:
         from pyopenvba.apps.excel._protection import refuse, whole_lines
 
-        allow = "AllowFormattingRows" if whole_lines(self) == "rows" else "AllowFormattingColumns"
+        allow = "AllowFormattingRows" if (self.lines or whole_lines(self)) == "rows" else "AllowFormattingColumns"
         refuse(self.sheet, "AutoFit method of Range class failed", allow)
         _dimensions.autofit(self)
         return EMPTY
@@ -3937,8 +3974,28 @@ class Range(ExcelObject):
 
     def vba_iterate(self) -> Iterator[object]:
         self._check_alive()
+        if self.lines:
+            yield from self._walk_lines()
+            return
         for row, column in self.positions():
             yield Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
+
+    def _walk_lines(self) -> Iterator[Range]:
+        """For Each over a range of rows or columns: every area's, one at a time; the rows of an area spanning every
+        row of the sheet only as far down as the sheet uses."""
+        for area in self.areas:
+            if self.lines == "columns":
+                for column in range(area.left, area.right + 1):
+                    yield Range(self.sheet, [Area(area.top, column, area.bottom, column, area.sheet)], whole=self.whole,
+                                lines="columns")
+                continue
+            bottom = area.bottom
+            if area.rows >= MAX_ROWS:
+                used = self.sheet.used_bounds()
+                bottom = area.top if used is None else min(area.bottom, max(used[2], area.top))
+            for row in range(area.top, bottom + 1):
+                yield Range(self.sheet, [Area(row, area.left, row, area.right, area.sheet)], whole=self.whole,
+                            lines="rows")
 
     def _read(self, row: int, column: int, *, raw: bool = False) -> object:
         """A cell's value as VBA reads it; ``raw`` is Value2, which leaves a number a Double whatever its format."""
@@ -4157,53 +4214,6 @@ class Areas(VBACollection, ExcelObject):
 
     def vba_items(self) -> list[object]:
         return [Range(self.target.sheet, [area]) for area in self.target.areas]
-
-
-class RowsOf(VBACollection, ExcelObject):
-    """A range's rows, one Range each."""
-
-    vba_type_name = "Range"
-
-    def __init__(self, target: Range) -> None:
-        self.target = target
-
-    def vba_items(self) -> list[object]:
-        area = _walked(self.target)
-        return [
-            Range(self.target.sheet, [Area(row, area.left, row, area.right, area.sheet)])
-            for row in range(area.top, area.bottom + 1)
-        ]
-
-    @member
-    def Count(self) -> object:
-        return VBAInt(self.target.first.rows, "Long")
-
-
-class ColumnsOf(VBACollection, ExcelObject):
-    """A range's columns, one Range each."""
-
-    vba_type_name = "Range"
-
-    def __init__(self, target: Range) -> None:
-        self.target = target
-
-    def vba_items(self) -> list[object]:
-        area = _walked(self.target)
-        return [
-            Range(self.target.sheet, [Area(area.top, column, area.bottom, column, area.sheet)])
-            for column in range(area.left, area.right + 1)
-        ]
-
-    @member
-    def Count(self) -> object:
-        return VBAInt(self.target.first.columns, "Long")
-
-
-def _walked(target: Range) -> Area:
-    """The block For Each walks a range's rows or columns over: all of it, but for one spanning every row or
-    column of the sheet, which is cut to what the sheet uses (see Range.bounded)."""
-    area = target.first
-    return target.bounded() if area.rows >= MAX_ROWS or area.columns >= MAX_COLUMNS else area
 
 
 # --- names -------------------------------------------------------------------------------------

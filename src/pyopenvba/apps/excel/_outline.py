@@ -175,8 +175,9 @@ def axis(target: Range) -> tuple[bool, int, int]:
     area = target.first
     rows = area.left == 1 and area.right == MAX_COLUMNS
     columns = area.top == 1 and area.bottom == MAX_ROWS
-    if rows and columns:
-        rows, columns = target.whole == 'rows', target.whole == 'columns'
+    if rows == columns:
+        # The whole sheet, or a block of it: rows or columns as Rows or Columns made it.
+        rows, columns = target.lines == 'rows', target.lines == 'columns'
     if rows == columns:
         raise unsupported('on ranges other than whole rows or columns')
     return (True, area.top, area.bottom) if rows else (False, area.left, area.right)

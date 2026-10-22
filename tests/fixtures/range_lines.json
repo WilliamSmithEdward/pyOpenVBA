@@ -1,0 +1,403 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-22T23:18:23.424324+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "rows_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Rows.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "areas_columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3,E1:F5\").Columns.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "areas_rows_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3,E1:F5\").Rows.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "areas_cells_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3,E1:F5\").Cells.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "19"
+    },
+    {
+      "name": "column_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$1:$B$3"
+    },
+    {
+      "name": "row_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Rows(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$2:$C$2"
+    },
+    {
+      "name": "column_item_past",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(5).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$E$1:$E$3"
+    },
+    {
+      "name": "column_item_zero",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(0).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E1004"
+    },
+    {
+      "name": "row_item_negative",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Rows(-1).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E1004"
+    },
+    {
+      "name": "columns_item_member",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Item(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$1:$B$3"
+    },
+    {
+      "name": "columns_item_two",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Item(1, 2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E1004"
+    },
+    {
+      "name": "rows_item_two",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Rows.Item(2, 1).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E1004"
+    },
+    {
+      "name": "columns_default_two",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(2, 1).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E1004"
+    },
+    {
+      "name": "column_then_cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(2)(3).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$D$1:$D$3"
+    },
+    {
+      "name": "columns_address",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1:$C$3"
+    },
+    {
+      "name": "columns_value",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"B2\").Columns.Value)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "B2"
+    },
+    {
+      "name": "columns_typename",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(TypeName(ws.Range(\"A1:C3\").Columns))\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Range"
+    },
+    {
+      "name": "columns_cells_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Cells.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9"
+    },
+    {
+      "name": "columns_rows_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Rows.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "columns_columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Columns.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "column_columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(2).Columns.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1"
+    },
+    {
+      "name": "column_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(2).Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1"
+    },
+    {
+      "name": "columns_offset_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Offset(1, 0).Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "columns_offset_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Offset(1, 0)(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$2:$B$4"
+    },
+    {
+      "name": "columns_resize_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Resize(2).Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "columns_entire_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.EntireColumn.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "columns_areas_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Areas(1).Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "9"
+    },
+    {
+      "name": "rows_cells_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Rows.Cells(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$1"
+    },
+    {
+      "name": "columns_first_cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Cells(1, 2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$1"
+    },
+    {
+      "name": "columns_range_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Range(\"B2\").Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$2"
+    },
+    {
+      "name": "sheet_columns_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Columns(\"A:C\")(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B:$B"
+    },
+    {
+      "name": "sheet_columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Columns(\"A:C\").Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "sheet_rows_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Rows(\"1:3\")(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$2:$2"
+    },
+    {
+      "name": "sheet_columns_cells_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Columns(\"A:C\").Cells(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$1"
+    },
+    {
+      "name": "sheet_columns_item_two",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Columns(\"B:C\").Item(1, 1).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E1004"
+    },
+    {
+      "name": "range_columns_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A:C\")(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$1"
+    },
+    {
+      "name": "range_columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A:C\").Columns.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "entire_column_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"B2\").EntireColumn.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1"
+    },
+    {
+      "name": "entire_column_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"B2:C2\").EntireColumn(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$C:$C"
+    },
+    {
+      "name": "entire_row_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"B2:B3\").EntireRow(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$3:$3"
+    },
+    {
+      "name": "used_columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.UsedRange.Columns.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "6"
+    },
+    {
+      "name": "used_columns_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.UsedRange.Columns(3).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$C$1:$C$6"
+    },
+    {
+      "name": "columns_hidden_read",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.Hidden)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "False"
+    },
+    {
+      "name": "columns_width_read",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.ColumnWidth)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "8.43"
+    },
+    {
+      "name": "rows_height_read",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Rows.RowHeight)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "15"
+    },
+    {
+      "name": "columns_union",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(Union(ws.Range(\"A1:C3\").Columns, ws.Range(\"E1:E2\")).Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "11"
+    },
+    {
+      "name": "columns_intersect",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(Intersect(ws.Range(\"A1:C3\").Columns, ws.Range(\"B1:D2\")).Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "4"
+    },
+    {
+      "name": "sheet_areas_rows_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Rows(\"1:2,5:5\").Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E13"
+    },
+    {
+      "name": "entire_areas_columns_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1,C1:D1\").EntireColumn.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1"
+    },
+    {
+      "name": "entire_areas_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1,C1:D1\").EntireColumn(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B:$B"
+    },
+    {
+      "name": "columns_areas_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:B2,E1:F1\").Columns(3).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$C$1:$C$2"
+    },
+    {
+      "name": "columns_count_large",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns.CountLarge)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "rows_resize_item",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Rows.Resize(2, 2)(2).Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$2:$B$2"
+    },
+    {
+      "name": "column_entire_row",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1:C3\").Columns(2).EntireRow.Address)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$1:$3"
+    },
+    {
+      "name": "rows_value_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\n\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(UBound(ws.Range(\"A1:C3\").Rows(2).Value, 2))\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3"
+    },
+    {
+      "name": "walk_columns",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"A1:C3\").Columns\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1:$A$3,$B$1:$B$3,$C$1:$C$3,"
+    },
+    {
+      "name": "walk_rows",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"A1:C2\").Rows\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1:$C$1,$A$2:$C$2,"
+    },
+    {
+      "name": "walk_area_columns",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"A1:B2,E1:F1\").Columns\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1:$A$2,$B$1:$B$2,$E$1,$F$1,"
+    },
+    {
+      "name": "walk_sheet_columns",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Columns(\"B:D\")\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B:$B,$C:$C,$D:$D,"
+    },
+    {
+      "name": "walk_entire_rows",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"B2:B3\").EntireRow\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$2:$2,$3:$3,"
+    },
+    {
+      "name": "walk_column_cells",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"A1:C3\").Columns(2)\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$B$1:$B$3,"
+    },
+    {
+      "name": "walk_offset_columns",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"A1:B2\").Columns.Offset(1, 0)\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$2:$A$3,$B$2:$B$3,"
+    },
+    {
+      "name": "walk_sheet_area_rows",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Rows(\"1:2,5:5\")\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E92"
+    },
+    {
+      "name": "walk_cells_of_columns",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"A1:B2\").Columns.Cells\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1,$B$1,$A$2,$B$2,"
+    },
+    {
+      "name": "walk_entire_area_columns",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nFor Each one In ws.Range(\"A1,C1:D1\").EntireColumn\n    s = s & one.Address & \",\"\nNext\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(s)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A:$A,$C:$C,$D:$D,"
+    },
+    {
+      "name": "columns_width_write",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A1:C3\").Columns.ColumnWidth = 12\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Columns(1).ColumnWidth & \"|\" & ws.Columns(3).ColumnWidth & \"|\" & ws.Columns(4).ColumnWidth)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "12|12|8.43"
+    },
+    {
+      "name": "rows_height_write",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A1:C2\").Rows.RowHeight = 30\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Rows(1).RowHeight & \"|\" & ws.Rows(3).RowHeight)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "30|15"
+    },
+    {
+      "name": "columns_hidden_write",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"B1:C3\").Columns.Hidden = True\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Columns(2).Hidden & \"|\" & ws.Columns(3).Hidden & \"|\" & ws.Columns(4).Hidden)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|True|False"
+    },
+    {
+      "name": "rows_hidden_write",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A2:C3\").Rows.Hidden = True\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Rows(2).Hidden & \"|\" & ws.Rows(4).Hidden)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|False"
+    },
+    {
+      "name": "columns_value_write",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"B2:C3\").Columns.Value = 7\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"B2\").Value & \"|\" & ws.Range(\"C3\").Value & \"|\" & ws.Range(\"D3\").Value)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "7|7|D3"
+    },
+    {
+      "name": "columns_font_write",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A1:B1\").Columns.Font.Bold = True\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1\").Font.Bold & \"|\" & ws.Range(\"A2\").Font.Bold)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|False"
+    },
+    {
+      "name": "columns_clear",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A1:B2\").Columns.ClearContents\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A1\").Formula & \"|\" & ws.Range(\"C1\").Formula)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "|C1"
+    },
+    {
+      "name": "columns_delete",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"B1:B2\").Columns.Delete\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"B1\").Formula & \"|\" & ws.Range(\"B3\").Formula)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "C1|B3"
+    },
+    {
+      "name": "rows_delete",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A2:B2\").Rows.Delete\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"A2\").Formula & \"|\" & ws.Range(\"C2\").Formula)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "A3|C2"
+    },
+    {
+      "name": "columns_insert",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"B1:B2\").Columns.Insert\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Range(\"B1\").Formula & \"|\" & ws.Range(\"C1\").Formula & \"|\" & ws.Range(\"B3\").Formula)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "|B1|B3"
+    },
+    {
+      "name": "columns_select",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Activate: ws.Range(\"B2:C3\").Columns.Select\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(TypeName(Selection) & \"|\" & Selection.Address & \"|\" & Selection.Count)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Range|$B$2:$C$3|4"
+    },
+    {
+      "name": "rows_autofit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A1\").Font.Size = 30: ws.Range(\"A1:A2\").Rows.AutoFit\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(ws.Rows(1).RowHeight & \"|\" & ws.Rows(2).RowHeight)\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "39|15"
+    },
+    {
+      "name": "cells_autofit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, s As String, one As Range, r As Long, c As Long\nSet ws = Worksheets.Add\nFor r = 1 To 6\n    For c = 1 To 6\n        ws.Cells(r, c).Value = \"'\" & ws.Cells(r, c).Address(False, False)\n    Next\nNext\nOn Error Resume Next\nErr.Clear\nws.Range(\"A1\").Font.Size = 30: ws.Range(\"A1:A2\").AutoFit\nIf Err.Number <> 0 Then\n    s = \"E\" & Err.Number\nElse\n    Err.Clear\n    s = CStr(\"done\")\n    If Err.Number <> 0 Then s = \"E\" & Err.Number\nEnd If\nOn Error GoTo 0\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "E1004"
+    }
+  ]
+}

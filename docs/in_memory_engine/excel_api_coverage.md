@@ -39,7 +39,7 @@ is a percentage of working macros or complete functionality.
 | Protection and permissions | Partial | 11 / 32 | 0 | Worksheet/workbook protection and enforcement for supported edits. Allow-edit ranges, user permissions and full protection semantics remain. |
 | Comments and hyperlinks | Partial | 35 / 74 | 25 | Classic notes and cell hyperlinks, including many edit/move/save paths. Threaded comments, richer note geometry and remaining hyperlink behavior are incomplete. |
 | Shapes and worksheet controls | Partial | 54 / 2,025 | 0 | Basic shapes/text boxes and nine Forms control types, with measured values, links and persistence. Rich drawing APIs, grouping/copying, pictures and newer controls remain incomplete. |
-| Charts and sparklines | Partial | 32 / 951 | 0 | Embedded charts, basic series/titles, ordinary series deletion/reordering with held-series identity, and eight persisted chart kinds. Axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
+| Charts and sparklines | Partial | 53 / 951 | 0 | Embedded charts, basic series/titles, ordinary series deletion/reordering with held-series identity, and eight persisted chart kinds. Primary axes, title lifetimes and explicit manual scale configuration now work for common 2D column, bar and scatter charts; effective automatic scales, secondary axes, richer formatting, imported-content mutation, chart sheets and sparklines remain incomplete. |
 | PivotTables and slicers | Partial | 66 / 637 | 0 | Imported report queries, GETPIVOTDATA, cache metadata, empty-report creation and data-only AddDataField totals using all eleven aggregate functions, with measured events, field ranges and saved-report edits. Native probes cover date/time serials, Currency, typed values, errors, numerical edge cases and immutable cache snapshots across saves. Compact row/column/page layouts, nested subtotals, Values-axis placement and field removal now aggregate cached records. Field/page range queries support native measured compact, tabular, outline, grouped and multi-area reports; sparse layouts avoid scanning all records for each blank intersection. Fixed-schema local cache refresh stages all linked supported same-sheet reports before publishing callbacks. Broader refresh, arbitrary layout edits, filtering, grouping and slicers remain incomplete; general linked rich-data creation is unsupported. |
 | Queries and external data | Partial | 8 / 278 | 0 | Workbook queries plus local Power Query evaluation, refresh and sheet loading. Connection objects, remote connectors, QueryTables and full query semantics remain incomplete. |
 | Data model and OLAP | Missing | 0 / 261 | 0 | No in-memory Power Pivot model, relationships/measures or cube automation. Reading some external-pivot metadata does not implement these operations. |
@@ -49,7 +49,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,202 / 7,542** | **147** | **15.9% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,223 / 7,542** | **147** | **16.2% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -805,6 +805,55 @@ than silently binding to a local sheet or only the first area. Imported chart
 content mutation, axes, series lifecycle and broader chart fidelity remain
 incomplete. No public member registration or checklist status changes here.
 
+## Primary chart axes and titles
+
+Common 2D column, bar and scatter charts expose primary `Chart.Axes`, `Axes.Item`
+and collection iteration/count, indexed `Chart.HasAxis`, axis type/group/parent,
+title presence, `AxisTitle.Text`/`Caption`/`Delete`, and manual minimum, maximum,
+major unit, auto flags and reversed order. Pie/doughnut axis absence and retained
+held-axis/title proxies across measured chart-type changes follow native controls.
+Empty title text clears title presence; a recreated title does not revive a deleted
+held proxy. Absent titles are native-style object proxies whose reads report 424.
+Deleted-title direct reads and late-bound `CallByName` reads retain their distinct
+measured errors through an optional host dispatch hook; other objects retain the
+existing dispatch path.
+
+Generated chart XML keeps stable local axis IDs, manual bounds/units, reversal,
+visibility and title text. A native hidden-axis Save51/reopen control confirms that
+manual bounds, reversed order and title remain readable while the axis is excluded
+from the visible collection. Ordinary imported primary settings can be read, while
+all imported-content mutations retain the existing unsupported guard. Linked
+axis titles, logarithmic/secondary/combo axes and richer imported axis
+configurations are not admitted as ordinary editable state. Imported reads require
+actual chart/plot namespace ownership, bounded ASCII axis IDs,
+a unique primary definition/scaling/visibility/orientation,
+and reciprocal cross-axis links. Unknown opaque formatting metadata remains
+unchanged during read-only access and save. The axes extension retains series
+creation IDs separately from plot order during generated persistence. Drawing
+protection refuses supported axis/title mutations before publishing state.
+
+Control characters and unpaired surrogates requiring Office literal escaping are
+refused before changing title state; ordinary XML text is escaped on write.
+Effective automatic scale numbers depend on native layout and remain explicitly
+unsupported, as does setting an auto flag to False when it would need to freeze
+an unknown effective value. Setting explicit manual numbers and returning them
+to automatic configuration are supported. The native comparisons explicitly omit
+only numeric fields whose immediately preceding IsAuto flag is True from axis
+snapshots and the separately deferred
+Series parent graph; all axis flags/title/presence/lifetime and operation results
+remain exact, including every manual scale number and every category/error scale
+observation. Explicit numeric manual settings also have separate persistence assertions.
+See [axis controls and regressions](../../tests/test_excel_chart_axes.py),
+[raw evidence and projection](../../tests/fixtures/chart_axes/manifest.json), and
+[generic late-binding regression controls](../../tests/test_vba_call_by_name_host_dispatch.py).
+
+The combined chart lifecycle/axes gate reopened **nine engine-generated outputs**
+in one owned native Excel session. Two explicit-series lifecycle/order cases,
+three stable default-name/creation-ID cases, and four primary-axis/title/manual
+configuration cases matched their existing independent observations. Automatic
+effective layout values and the separately deferred Series parent graph retain
+the explicit projection described above; rendering is not measured by this gate.
+
 ## Inventory scope and maintenance
 
 The reference is the Microsoft Excel 16.0 object-library dump in
@@ -816,8 +865,8 @@ counts unique member names per remaining type. Every remaining type is assigned
 to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
-The checklist contains **2,756 entries across 70 implemented model types**:
-147 verified, 635 partial, 424 unassessed, 1,547 missing and 3 excluded. Its 1,206
+The checklist contains **2,843 entries across 73 implemented model types**:
+147 verified, 656 partial, 424 unassessed, 1,613 missing and 3 excluded. Its 1,227
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

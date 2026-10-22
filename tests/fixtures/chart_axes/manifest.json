@@ -1,0 +1,36 @@
+{
+  "raw_sha256": {
+    "initial.json": "cf3825f163089484eb945d1df1e7c74e90215042f2e82b5309891c457b8bdd92",
+    "followup.json": "2f07e3c6b507b7f7a4550cdaea74449023c27764973d8de3bad35659095619b0",
+    "absence.json": "da2470d3a4c14b3dd5fe65426f079322aadbcf14277c19f67174153a31601aa3",
+    "hidden-save.json": "174b03b8cba5a12a59360cf1809d2f0a05bdffa36a242b0722254a0747560f58"
+  },
+  "native_inputs": {
+    "manual-scale.xlsx": "cff69bacf402039ad4718a0edb610d999b22d51e5f8d40b9a2c56e9ee29b193f",
+    "axis-titles.xlsx": "a24491a0b1c0c03ffb3ba7d138e09bf294c364468b51c9daeec429b74a59e01c",
+    "bar-scatter.xlsx": "41557a1d8d91ebb8e749cc74862cf769091d64aadd1c2f7fe526006bc686bd44",
+    "hidden-save.xlsx": "1777e38ebabb006a0fa76bcfef98e0df4d30b4a552d90686501a36b29bf056a5"
+  },
+  "projection": "Preserve axis presence/type/group/reverse/title/parent and every operation result. For each AxisSnap scale field, omit its effective numeric observation ONLY when that exact immediately preceding native IsAuto flag is True(11). Retain all IsAutoFalse manual numeric values and all IsAuto-error/category numeric errors. Source driver conditionally reads the same fields; no raw or expected-value normalization. Series Parent graph remains separately deferred. Automatic effective layout/freezing remain unsupported.",
+  "admitted_initial": [
+    "manual-scale",
+    "axis-titles",
+    "axis-lifetime",
+    "bar-scatter",
+    "no-axis-types"
+  ],
+  "admitted_followup": [
+    "type-transitions",
+    "presence-and-held-title",
+    "empty-title"
+  ],
+  "deferred_followup": "manual-coercion complete native raw retained; automatic False freezes a native effective value not yet computable in memory.",
+  "hidden_save": "Full runtime before/after and saved readback preserved with same declared effective-number/Series-parent projection; numeric hidden manual values separately asserted.",
+  "provenance": {
+    "initial.json": "Byte-exact original chart-first-native.json, Excel16.0 build20430 sessionaa7c9643a3b9; all8raw controls retained.",
+    "followup.json": "Byte-exact original chart-axes-followup-native.json, sessioncc9cd7e6a110; all4raw controls retained.",
+    "absence.json": "Byte-exact original chart-title-absence-native.json; full direct/late-bound absence/deleted-title identity oracle.",
+    "hidden-save.json": "Byte-exact original chart-axis-hidden-save-native.json, sessiona4a83c84a530; nativeSave51/reopen andfullchartXML.",
+    "native_inputs": "Manual-scale/axis-titles/bar-scatter are byte-exact chart-first-native-samples; hidden-save is byte-exact chart-axis-hidden-save-native.xlsx. Source/rawrecordcontains corresponding nativeSave51 filename+SHA. All four are macro-free native files."
+  }
+}

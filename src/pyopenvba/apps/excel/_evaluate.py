@@ -44,6 +44,15 @@ def evaluated(sheet: Worksheet, text: str) -> object:
     if len(text) > LONGEST:
         return VBAErrorValue(UNREADABLE)
     body = text.strip().removeprefix("=")
+    if sheet.book.application.reference_style == -4150:
+        # In the R1C1 style Evaluate reads R1C1 references, relative ones from A1, and still takes A1 ones
+        # (tests/fixtures/reference_style.json).
+        from pyopenvba.formula._r1c1 import to_a1
+
+        try:
+            body = to_a1("=" + body, 1, 1)[1:]
+        except ValueError:
+            return VBAErrorValue(UNREADABLE)
     try:
         tokens = P.tokenize(body)
     except P.FormulaError:
@@ -51,6 +60,10 @@ def evaluated(sheet: Worksheet, text: str) -> object:
     if any(token.kind == "structured" and following.kind in ("ref", "name", "structured")
            and following.at == token.at + len(token.text) for token, following in zip(tokens, tokens[1:])):
         raise VBAUnsupportedError(f"Evaluate of {text!r}, which names another workbook, is not implemented")
+    if sheet.book.application.reference_style != -4150 and _reads_r1c1(tokens):
+        # In the A1 style a name A1 cannot read, R1C1 or RC, leaves the text unreadable
+        # (tests/fixtures/reference_style.json).
+        return VBAErrorValue(UNREADABLE)
     calculator = sheet.book.calculator
     try:
         node = calculator.engine_book.read("=" + body)
@@ -65,6 +78,17 @@ def evaluated(sheet: Worksheet, text: str) -> object:
     if isinstance(value, Reference):
         return _range(sheet, value) if value.areas else Range(sheet, [])
     return answer(value)
+
+
+def _reads_r1c1(tokens: list[P.Token]) -> bool:
+    """Whether an expression names what A1 cannot read as a name, an R1C1 reference such as R1C1 or RC."""
+    from pyopenvba.formula._r1c1 import refused_in_a1
+
+    for index, token in enumerate(tokens):
+        called = index + 1 < len(tokens) and tokens[index + 1].text == "("
+        if token.kind == "name" and not called and refused_in_a1(token.text.rpartition("!")[2]):
+            return True
+    return False
 
 
 class _FromNoCell(EngineBook):

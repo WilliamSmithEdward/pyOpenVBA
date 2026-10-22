@@ -22,6 +22,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   functions are there now. 194 odd-coupon cells measured on their own match
   to the bit but for nine long-first-period yields within 1.6e-11.
 
+- `Application.ReferenceStyle`, `International`, `DecimalSeparator`,
+  `ThousandsSeparator` and `UseSystemSeparators`, as Excel answers them in
+  en-US. In the R1C1 style Evaluate reads R1C1 references, and a workbook
+  saved in it keeps `refMode` on calcPr. A sweep of 77 everyday macros now
+  agrees with Excel throughout.
+
 - VBA PivotTable.GetPivotData returns the matching displayed cell as a Range,
   with fourteen optional field/item pairs, named arguments, native defaults
   and error 1004 for invalid selections. Native controls include grouped,
@@ -57,6 +63,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   function hands the error on, as Excel does: `=COUNTIF(#REF!,1)` is #REF!.
 - In a formula written with Range.Formula, `INDEX(TRANSPOSE(A1:A3),1,2)` is
   #VALUE! in a row the range does not reach.
+- `Worksheet.Range` given cells, a reference or a name on another sheet, and
+  `Union` or `Intersect` of ranges on two sheets, are error 1004 as in
+  Excel; `Application.Range` still takes another sheet's cells.
 
 - The in-memory VBA library implements Rate, IRR, MIRR, NPV, IPmt and PPmt,
   including typed Double arrays, named/optional arguments, convergence errors

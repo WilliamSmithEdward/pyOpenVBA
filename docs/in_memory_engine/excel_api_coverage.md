@@ -29,7 +29,7 @@ is a percentage of working macros or complete functionality.
 
 | Functionality | Status | Registered / reference members | Verified members | Supported behavior and main gaps |
 | --- | --- | ---: | ---: | --- |
-| Application, workbooks and worksheets | Partial | 128 / 752 | 6 | Core containers, opening/saving, sheet operations and settings, including bounded scalar/name worksheet renames. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
+| Application, workbooks and worksheets | Partial | 133 / 752 | 6 | Core containers, opening/saving, sheet operations and settings, including bounded scalar/name worksheet renames. Adding worksheets or a first VBA project preserves prefixed OPC relationship/content-type metadata. Many application services, workbook features and host-specific behaviors remain. |
 | Cells and ranges | Partial | 118 / 215 | 29 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 393 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes. Registered functions still need behavioral audits; remaining functions and Excel numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Bounded worksheet renames migrate ordinary local/global references and preserve scope/identity. Broader expression, relative/external-reference and mixed-feature lifecycle behavior remains incomplete. |
@@ -51,7 +51,7 @@ is a percentage of working macros or complete functionality.
 | Printing and publishing | Partial | 27 / 152 | 0 | Persisted worksheet PageSetup margins, scaling, initial paper/layout enums, print options and scoped print areas/titles. Printer services, header/footer editing, pagination, rendering and publishing remain incomplete. |
 | Add-ins and embedded automation | Missing | 0 / 124 | 0 | No full Excel AddIns, embedded OLE/ActiveX or external automation-host implementation. |
 | Legacy features and utilities | Missing | 0 / 386 | 0 | Legacy menus/toolbars, dialog/module-sheet utilities, SmartTags, scenarios and assorted web/research services remain. |
-| **Total** | **Incomplete** | **1,229 / 7,542** | **147** | **16.3% of reference members have registrations; 2.0% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
+| **Total** | **Incomplete** | **1,234 / 7,542** | **147** | **16.4% of reference members have registrations; 1.9% are checklist-verified. These are API inventory ratios, not compatibility scores.** |
 
 â€  Excel events use the interpreter's event dispatcher and sinks rather than
 ordinary registered object members. The registration counter therefore does not
@@ -868,7 +868,7 @@ to one functional area. Properties, methods and events count as member names;
 enum constants are outside this table.
 
 The checklist contains **2,843 entries across 73 implemented model types**:
-147 verified, 657 partial, 429 unassessed, 1,607 missing and 3 excluded. Its 1,233
+147 verified, 664 partial, 427 unassessed, 1,602 missing and 3 excluded. Its 1,238
 registered entries include four helpers/entries without a matching reference
 member; the table's numerator excludes those four. Entirely unimplemented types
 are included in this table's denominator even though they are absent from the

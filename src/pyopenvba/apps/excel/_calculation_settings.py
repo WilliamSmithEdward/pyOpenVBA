@@ -23,6 +23,9 @@ def read(book: Workbook, xml: str) -> None:
     values = attributes(found.group(0)) if found else {}
     application.calculation = _MODES.get(values.get('calcMode', 'auto'), -4105)
     application.calculate_before_save = values.get('calcOnSave', '1').lower() not in ('0', 'false')
+    # A workbook saved in the R1C1 style says so; one opened after another keeps the style the application has
+    # (tests/fixtures/reference_style.json).
+    application.reference_style = -4150 if values.get('refMode') == 'R1C1' else 1
 
 
 def write(book: Workbook, xml: str) -> str:
@@ -39,8 +42,13 @@ def write(book: Workbook, xml: str) -> str:
     elif 'calcCompleted' in values:
         desired['calcCompleted'] = '0' if pending else '1'
     changed = old
+    if application.reference_style == -4150:
+        desired['refMode'] = 'R1C1'
+    elif 'refMode' in values:
+        # Saved in the A1 style, the workbook says nothing of it.
+        changed = re.sub(r'\srefMode="[^"]*"', '', changed)
     for name, value in desired.items():
-        if values.get(name, 'auto' if name == 'calcMode' else '1') == value:
+        if values.get(name, 'auto' if name == 'calcMode' else 'A1' if name == 'refMode' else '1') == value:
             continue
         pattern = re.compile(r'\s' + name + r'="[^"]*"')
         if pattern.search(changed):

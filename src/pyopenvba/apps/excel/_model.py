@@ -181,6 +181,25 @@ def _merged(one: Area, other: Area) -> Area | None:
     return None
 
 
+#: Application.International's answers in the en-US locale the model works in, by xlApplicationInternational index:
+#: country codes, separators, the letters R1C1 and number formats use, currency and date settings, and at 46 the
+#: culture's name (tests/fixtures/international.json).
+_INTERNATIONAL: dict[int, object] = {
+    1: 1.0, 2: 1.0, 3: ".", 4: ",", 5: ",", 6: "R", 7: "C", 8: "r", 9: "c", 10: "[", 11: "]", 12: "{", 13: "}",
+    14: ",", 15: ";", 16: "@", 17: "/", 18: ":", 19: "y", 20: "m", 21: "d", 22: "h", 23: "m", 24: "s", 25: "$",
+    26: "General", 27: 2.0, 28: 0.0, 29: 2.0, 30: 3.0, 31: 3.0, 32: 0.0, 33: False, 34: False, 35: False,
+    36: False, 37: True, 38: False, 39: True, 40: True, 41: False, 42: False, 43: True, 44: True, 45: False,
+    46: "en-US",
+}
+
+
+def _separator_kept(name: str, value: object, current: str) -> None:
+    """Setting a separator to the one it is; another one would change every number shown, which the model does not
+    follow."""
+    if to_text(value) != current:
+        raise VBAUnsupportedError(f"Application.{name} set to another separator is not implemented")
+
+
 class Application(ExcelObject):
     """The Excel instance: the root of everything a macro can reach."""
 
@@ -196,6 +215,9 @@ class Application(ExcelObject):
         self.enable_events = True
         self.calculation = -4105  # xlCalculationAutomatic
         self.calculate_before_save = True
+        #: xlA1 or xlR1C1, as Application.ReferenceStyle has it.
+        self.reference_style = 1
+        self.use_system_separators = True
         self.status_bar: object = False
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
@@ -291,6 +313,55 @@ class Application(ExcelObject):
     @setter("CalculateBeforeSave")
     def _set_calculate_before_save(self, value: object) -> None:
         self.calculate_before_save = to_bool(value)
+
+    @member
+    def International(self, Index: object = MISSING) -> object:
+        """A setting of the en-US locale the model works in, by its xlApplicationInternational index; any other
+        index is error 1004 (tests/fixtures/international.json)."""
+        if Index is MISSING:
+            raise error(449)
+        found = _INTERNATIONAL.get(int(to_integer(Index, "Long")), MISSING)
+        if found is MISSING:
+            raise error(1004, "Application-defined or object-defined error")
+        return found
+
+    @member
+    def DecimalSeparator(self) -> object:
+        return "."
+
+    @setter("DecimalSeparator")
+    def _set_decimal_separator(self, value: object) -> None:
+        _separator_kept("DecimalSeparator", value, ".")
+
+    @member
+    def ThousandsSeparator(self) -> object:
+        return ","
+
+    @setter("ThousandsSeparator")
+    def _set_thousands_separator(self, value: object) -> None:
+        _separator_kept("ThousandsSeparator", value, ",")
+
+    @member
+    def UseSystemSeparators(self) -> object:
+        return self.use_system_separators
+
+    @setter("UseSystemSeparators")
+    def _set_use_system_separators(self, value: object) -> None:
+        # The custom separators are the system's, so turning this off changes nothing the model shows.
+        self.use_system_separators = to_bool(value)
+
+    @member
+    def ReferenceStyle(self) -> object:
+        """xlA1 (1) or xlR1C1 (-4150). Formulas and addresses read as A1 either way; Evaluate reads R1C1 in the
+        R1C1 style, and a workbook keeps the style it was saved in (tests/fixtures/reference_style.json)."""
+        return VBAInt(self.reference_style, "Long")
+
+    @setter("ReferenceStyle")
+    def _set_reference_style(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        # Any other number leaves the style as it was, with no error.
+        if wanted in (1, -4150):
+            self.reference_style = wanted
 
     @member
     def Caller(self, Index: object = MISSING) -> object:
@@ -420,8 +491,8 @@ class Application(ExcelObject):
 
     @member(default=True)
     def Range(self, Cell1: object = MISSING, Cell2: object = MISSING) -> object:
-        sheet = self._require_sheet()
-        return sheet.vba_get("Range", [Cell1, Cell2])
+        """The active sheet's Range, but cells on another sheet are taken there (tests/fixtures/cross_sheet_ranges.json)."""
+        return self._require_sheet().resolved_range(Cell1, Cell2, foreign=True)
 
     @member
     def Cells(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:
@@ -460,6 +531,8 @@ class Application(ExcelObject):
         ranges = [one for one in (Arg1, Arg2, *rest) if isinstance(one, Range)]
         if len(ranges) < 2:
             raise error(ERR_APPLICATION_DEFINED, "Intersect needs two ranges")
+        if any(one.sheet is not ranges[0].sheet for one in ranges):
+            raise error(1004, "Method 'Intersect' of object '_Application' failed")
         sheet = ranges[0].sheet
         top = max(one.first.top for one in ranges)
         left = max(one.first.left for one in ranges)
@@ -474,6 +547,9 @@ class Application(ExcelObject):
         ranges = [one for one in (Arg1, Arg2, *rest) if isinstance(one, Range)]
         if not ranges:
             raise error(ERR_APPLICATION_DEFINED, "Union needs a range")
+        if any(one.sheet is not ranges[0].sheet for one in ranges):
+            # Union of cells on two sheets is error 1004 (tests/fixtures/cross_sheet_ranges.json).
+            raise error(1004, "Method 'Union' of object '_Application' failed")
         areas: list[Area] = []
         for one in ranges:
             areas.extend(one.areas)
@@ -1323,20 +1399,34 @@ class Worksheet(ExcelObject):
 
     @member
     def Range(self, Cell1: object = MISSING, Cell2: object = MISSING) -> object:
+        """This sheet's cells only: a Range, a qualified reference or a name on another sheet is error 1004
+        (tests/fixtures/cross_sheet_ranges.json). Application.Range takes them (see resolved_range)."""
+        return self.resolved_range(Cell1, Cell2, foreign=False)
+
+    def resolved_range(self, Cell1: object, Cell2: object = MISSING, *, foreign: bool) -> Range:
+        """Cell1, or the block from Cell1 to Cell2. A name or a qualified reference can point at another sheet,
+        and so can a Range; where ``foreign``, as Application.Range has it, the Range then belongs to that sheet,
+        but its two corners have to share one."""
         if Cell1 is MISSING:
             raise error(449)
-        first = self._as_area(Cell1)
-        # A name or a qualified reference can point at another sheet,
-        # and the Range then belongs to that sheet, not to this one.
-        owner = self.book.sheet_named(first[0].sheet) if first[0].sheet else self
+        owner, first = self._located(Cell1)
+        other, second = (owner, first) if Cell2 is MISSING else self._located(Cell2)
+        if other is not owner or (owner is not self and not foreign):
+            raise error(1004, "Method 'Range' of object '_Worksheet' failed")
         if Cell2 is MISSING:
             return Range(owner, first)
-        second = self._as_area(Cell2)
         top = min(first[0].top, second[0].top)
         left = min(first[0].left, second[0].left)
         bottom = max(first[-1].bottom, second[-1].bottom)
         right = max(first[-1].right, second[-1].right)
         return Range(owner, [Area(top, left, bottom, right, owner.name)])
+
+    def _located(self, value: object) -> tuple[Worksheet, list[Area]]:
+        """The sheet a Range argument's cells are on, and the cells."""
+        if isinstance(value, Range):
+            return value.sheet, list(value.areas)
+        areas = self._as_area(value)
+        return (self.book.sheet_named(areas[0].sheet) if areas[0].sheet else self), areas
 
     def _as_area(self, value: object) -> list[Area]:
         if isinstance(value, Range):

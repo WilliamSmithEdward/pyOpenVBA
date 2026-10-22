@@ -1,0 +1,88 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-22T18:35:51.783598+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "range_both_cells_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(w2.Cells(1, 1), w2.Cells(2, 2))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "range_one_cell_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(ws.Cells(1, 1), w2.Cells(2, 2))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "range_first_cell_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(w2.Cells(1, 1), ws.Cells(2, 2))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "range_one_range_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(w2.Range(\"A1:B2\"))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "range_own_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(ws.Range(\"A1\"), ws.Range(\"B2\"))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|ws|$A$1:$B$2"
+    },
+    {
+      "name": "range_text_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(\"'\" & w2.Name & \"'!A1\")\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "range_text_own_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(\"'\" & ws.Name & \"'!A1:B2\")\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|ws|$A$1:$B$2"
+    },
+    {
+      "name": "range_name_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = ws.Range(\"CrossSheetProbe\")\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "range_name_own_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = w2.Range(\"CrossSheetProbe\")\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|w2|$C$4"
+    },
+    {
+      "name": "application_range_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = Application.Range(w2.Cells(1, 1), w2.Cells(2, 2))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|w2|$A$1:$B$2"
+    },
+    {
+      "name": "application_range_mixed",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = Application.Range(ws.Cells(1, 1), w2.Cells(2, 2))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "application_range_text_other_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = Application.Range(\"'\" & w2.Name & \"'!B3\")\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|w2|$B$3"
+    },
+    {
+      "name": "union_two_sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = Union(ws.Range(\"A1\"), w2.Range(\"A1\"))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "union_one_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = Union(ws.Range(\"A1\"), ws.Range(\"C3\"))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|ws|$A$1,$C$3"
+    },
+    {
+      "name": "intersect_two_sheets",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = Intersect(ws.Range(\"A1:B2\"), w2.Range(\"A1:B2\"))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004"
+    },
+    {
+      "name": "intersect_one_sheet",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, w2 As Worksheet, r As Range, s As String\nSet ws = Worksheets.Add\nSet w2 = Worksheets.Add\nThisWorkbook.Names.Add Name:=\"CrossSheetProbe\", RefersTo:=\"='\" & w2.Name & \"'!$C$4\"\nOn Error Resume Next\nSet r = Intersect(ws.Range(\"A1:B2\"), ws.Range(\"B2:C3\"))\ns = CStr(Err.Number)\nErr.Clear\nIf Not r Is Nothing Then s = s & \"|\" & IIf(r.Parent.Name = ws.Name, \"ws\", IIf(r.Parent.Name = w2.Name, \"w2\", \"other\")) & \"|\" & r.Address\nOn Error GoTo 0\nThisWorkbook.Names(\"CrossSheetProbe\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nw2.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "0|ws|$B$2"
+    }
+  ]
+}

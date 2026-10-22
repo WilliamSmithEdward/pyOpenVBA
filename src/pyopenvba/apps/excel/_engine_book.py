@@ -25,7 +25,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _parse as P
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc import registry
-from pyopenvba.formula._calc.cells import CellError
+from pyopenvba.formula._calc.cells import CellError, UnsupportedFormulaError
 from pyopenvba.formula._calc.evaluator import TableShape
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
 from pyopenvba.formula._calc.nodes import (
@@ -125,6 +125,13 @@ class EngineBook:
 
     def sheet_order(self) -> list[str]:
         return [sheet.name for sheet in self.book.sheets_]
+
+    def external_sheets(self, book: str, first: str, last: str | None) -> list[str] | None:
+        """No linked workbook's cached sheets are read yet, so a reference to another workbook is unsupported."""
+        return None
+
+    def external_name(self, book: str, name: str) -> Node | None:
+        raise UnsupportedFormulaError("a name defined in another workbook")
 
     def pivot_reports(self, sheet: str) -> list[PivotReport]:
         reports: list[PivotReport] = []

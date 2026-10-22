@@ -13,7 +13,7 @@ from fractions import Fraction
 
 from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.arithmetic import checked
-from pyopenvba.formula._calc.functions.common import matrix, numbers
+from pyopenvba.formula._calc.functions.common import numbers
 from pyopenvba.formula._calc.numbers import total
 from pyopenvba.formula._calc.precise import (
     add,
@@ -27,11 +27,12 @@ from pyopenvba.formula._calc.precise import (
     subtract,
     summed,
 )
-from pyopenvba.formula._calc.registry import R, V, function
+from pyopenvba.formula._calc.registry import REF, R, V, function
 from pyopenvba.formula._calc.values import (
     DIV0,
     NA,
     NUM,
+    VALUE,
     Array,
     Empty,
     Reference,
@@ -56,22 +57,27 @@ def COUNT(context: Context, *args: Value) -> Value:
 
 @function("COUNTA", R, maximum=255)
 def COUNTA(context: Context, *args: Value) -> Value:
+    """Measured: a range's blank cells are not counted, but every item of
+    an array is, a blank one too, as VSTACK or GROUPBY keeps it."""
     count = 0
     for arg in args:
-        if isinstance(arg, (Reference, Array)):
+        if isinstance(arg, Reference):
             count += sum(1 for value, _ in context.scalars(arg) if not isinstance(value, Empty))
+        elif isinstance(arg, Array):
+            count += arg.height * arg.width
         else:
             count += 1
     return float(count)
 
 
-@function("COUNTBLANK", R)
-def COUNTBLANK(context: Context, range_: Value) -> Value:
-    if isinstance(range_, Reference):
-        cells = sum(area.height * area.width for area in range_.areas)
-        filled = sum(1 for value, _ in context.scalars(range_) if value != "")
-        return float(cells - filled)
-    return float(sum(1 for value in matrix(context, range_).items() if isinstance(value, Empty) or value == ""))
+@function("COUNTBLANK", REF)
+def COUNTBLANK(context: Context, range_: Reference) -> Value:
+    """Measured: only a range of one area will do."""
+    area = range_.area
+    if area is None:
+        return VALUE
+    filled = sum(1 for value, _ in context.scalars(range_) if value != "")
+    return float(area.height * area.width - filled)
 
 
 @function("AVERAGE", R, maximum=255)
@@ -352,17 +358,17 @@ def _rank(context: Context, number: Scalar, ref: Value, order: Scalar | None, *,
     return before + (ties + 1) / 2
 
 
-@function("RANK", V, R, V, minimum=2)
+@function("RANK", V, REF, V, minimum=2)
 def RANK(context: Context, number: Scalar, ref: Value, order: Scalar | None = None) -> Value:
     return _rank(context, number, ref, order, average=False)
 
 
-@function("RANK.EQ", V, R, V, minimum=2)
+@function("RANK.EQ", V, REF, V, minimum=2)
 def RANK_EQ(context: Context, number: Scalar, ref: Value, order: Scalar | None = None) -> Value:
     return _rank(context, number, ref, order, average=False)
 
 
-@function("RANK.AVG", V, R, V, minimum=2)
+@function("RANK.AVG", V, REF, V, minimum=2)
 def RANK_AVG(context: Context, number: Scalar, ref: Value, order: Scalar | None = None) -> Value:
     return _rank(context, number, ref, order, average=True)
 

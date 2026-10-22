@@ -11,7 +11,12 @@ pyOfficeEditor's workbook driver, engine.py, which pyOpenVBA does not use.
 
 prints how each copied module differs from its source; with --write it
 copies the source over. The copies carry pyOpenVBA's own changes too, so
-read the differences before writing, and merge where both have moved.
+read the differences before writing, and merge where both have moved:
+
+    python scripts/copy_formula_engine.py --merge BASE [path to pyOfficeEditor]
+
+merges what pyOfficeEditor changed since BASE, the commit last copied,
+into each copy three ways, leaving conflicts marked in the file.
 """
 
 from __future__ import annotations
@@ -20,6 +25,7 @@ import argparse
 import difflib
 import re
 import subprocess
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -66,11 +72,62 @@ def rewritten(text: str) -> str:
     return text
 
 
+def merge(source: Path, base: str) -> None:
+    """Merge pyOfficeEditor's changes from ``base`` to HEAD into each copy, three ways.
+
+    pyOfficeEditor's module at ``base`` is the merge base and its module at
+    HEAD the other side, both rewritten as a copy is; ``git merge-file``
+    leaves each conflict marked in the copy. A module new since ``base`` is
+    copied whole.
+    """
+    head = _git(source, "rev-parse", "--short", "HEAD").strip()
+    conflicted: list[str] = []
+    for path, target in copies(source).items():
+        theirs = rewritten(_git(source, "show", f"HEAD:{path}"))
+        ours = target.read_text(encoding="utf-8") if target.exists() else None
+        try:
+            original: str | None = rewritten(_git(source, "show", f"{base}:{path}"))
+        except subprocess.CalledProcessError:
+            original = None
+        name = target.relative_to(ROOT).as_posix()
+        if ours == theirs or original == theirs:
+            continue
+        if ours is None or original is None or ours == original:
+            if ours is not None and original is None:
+                print(f"{name}: here but not in pyOfficeEditor {base}; left alone")
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(theirs, encoding="utf-8", newline="\n")
+            print(f"{name}: {'new, copied' if ours is None else 'taken from pyOfficeEditor'}")
+            continue
+        with tempfile.TemporaryDirectory() as folder:
+            sides = []
+            for side, text in (("ours", ours), ("base", original), ("theirs", theirs)):
+                sides.append(Path(folder) / side)
+                sides[-1].write_text(text, encoding="utf-8", newline="\n")
+            done = subprocess.run(["git", "merge-file", "-p", "-L", "pyOpenVBA", "-L", f"pyOfficeEditor {base}",
+                                   "-L", f"pyOfficeEditor {head}", *map(str, sides)],
+                                  capture_output=True, text=True, encoding="utf-8")
+        if done.returncode < 0:
+            raise SystemExit(f"git merge-file failed on {name}: {done.stderr}")
+        target.write_text(done.stdout, encoding="utf-8", newline="\n")
+        print(f"{name}: merged" + (f", {done.returncode} conflicts" if done.returncode else ""))
+        if done.returncode:
+            conflicted.append(name)
+    print(f"merged pyOfficeEditor {base}..{head}; " + (f"conflicts in {', '.join(conflicted)}" if conflicted
+                                                      else "no conflicts"))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=(__doc__ or "").split("\n", 1)[0])
     parser.add_argument("source", nargs="?", type=Path, default=DEFAULT_SOURCE, help="a pyOfficeEditor checkout")
     parser.add_argument("--write", action="store_true", help="copy the source over the modules that differ")
+    parser.add_argument("--merge", metavar="BASE", help="merge pyOfficeEditor's changes since BASE, the commit "
+                        "last copied, into the copies three ways")
     options = parser.parse_args()
+    if options.merge:
+        merge(options.source, options.merge)
+        return
     head = _git(options.source, "rev-parse", "--short", "HEAD").strip()
     differing = 0
     for path, target in copies(options.source).items():

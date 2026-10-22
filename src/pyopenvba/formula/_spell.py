@@ -45,12 +45,13 @@ from pyopenvba.formula._calc.catalog import is_excel_function
 from pyopenvba.formula._calc.nodes import function_key
 from pyopenvba.formula._calc.registry import FUNCTIONS
 from pyopenvba.formula._deep import deep
-from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, NameNode, Node, Reference,
-                                      Structured, Token, Unary, literal, parse, read_structured, split_sheet, tokenize)
+from pyopenvba.formula._parse import (REFERENCE_OPS, Binary, Call, FormulaError, Invoke, Literal, NameNode, Node,
+                                      Reference, Structured, Token, Unary, literal, parse, read_structured, split_sheet,
+                                      tokenize)
 from pyopenvba.formula._prefixes import bound
 from pyopenvba.formula._r1c1 import is_cell, refused_in_a1
 from pyopenvba.formula._structured import TableShape, one_cell, spelled as spelled_reference
-from pyopenvba.formula._values import number_text
+from pyopenvba.formula._values import ExcelError, number_text
 
 #: The largest number a formula can hold written out.
 LARGEST: Final = 9.99999999999999e307
@@ -302,6 +303,10 @@ def _referring(node: Node | None) -> bool:
     here.
     """
     if isinstance(node, (Reference, Structured)) or isinstance(node, Unary) and node.op == "#":
+        return True
+    if isinstance(node, Literal) and isinstance(node.value, ExcelError) and node.value.name == "#REF!":
+        # What a deleted reference leaves is taken where a reference goes: ROW(#REF!) is #REF!
+        # (tests/fixtures/formula/reference_errors.json).
         return True
     if isinstance(node, Call):
         name = function_key(node.name)

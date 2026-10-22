@@ -5,25 +5,23 @@ Measured: the time-value functions raise ``1 + rate`` to a power the way
 the ``^`` operator does (see :func:`~.evaluator.power`), so a whole number
 of periods is multiplied out square by square, and they are plain double
 arithmetic: FV, PV, NPER, NPV and the rest give Excel's bits even where
-those are a hundred units in the last place from the exact value. PMT is
-the exception, being within one unit of exact, so it is computed exactly
-and rounded once.
+those are a hundred units in the last place from the exact value. PMT,
+IPMT, PPMT, CUMIPMT and CUMPRINC are the exception: they form
+``(1 + rate)^-n`` through Excel's own accurate logarithm and exponential
+(see :func:`_loan`), and give Excel's bits too.
 
 RATE, IRR, XIRR and YIELD solve by iteration, and Excel stops short of
-the root. RATE, IRR and XIRR follow Excel's own iterations step by step,
-so they stop where it does, to the bit. YIELD converges fully, so it
-agrees with Excel to a few hundred units in the last place and not to the
-bit.
+the root. Each follows Excel's own iteration step by step, so it stops
+where Excel does, to the bit.
 """
 
 from __future__ import annotations
 
 import itertools
 import math
-from collections.abc import Callable
-from decimal import ROUND_HALF_UP, Decimal, localcontext
+from decimal import ROUND_HALF_UP, Decimal
 
-from pyopenvba.formula._calc import dates, precise, special
+from pyopenvba.formula._calc import dates, precise
 from pyopenvba.formula._calc.evaluator import Context, power
 from pyopenvba.formula._calc.functions.arithmetic import checked, rounded
 from pyopenvba.formula._calc.functions.common import matrix
@@ -98,57 +96,93 @@ def _balance(rate: float, periods: float, payment: float, present: float, future
     return precise.add(precise.add(precise.multiply(present, growth), precise.multiply(payment, factor)), future)
 
 
-def _growth(rate: Decimal, periods: float) -> Decimal:
-    """``(1 + rate) ^ periods``, exactly to fifty digits."""
-    base = 1 + rate
-    if base <= 0 and periods != math.trunc(periods):
+def _discount(periods: float, log_growth: float) -> float:
+    """``(1 + r)^-periods`` from ``log_growth = ln(1 + r)``, as ``e^-x``,
+    ``x = periods ln(1 + r)``."""
+    return precise.exp(-precise.multiply(periods, log_growth))
+
+
+def _repaid(periods: float, log_growth: float) -> float:
+    """``1 - (1 + r)^-periods``, the share of a loan that that many
+    payments repay, formed as ``-(e^-x - 1)``."""
+    return -precise.exp_less_one(-precise.multiply(periods, log_growth))
+
+
+def _loan(rate: float, periods: float, present: float, future: float, due: int) -> tuple[float, float, float]:
+    """What PMT, IPMT, PPMT and the cumulative functions share, each step
+    through Excel's own accurate logarithm and exponential: ``ln(1 + r)``;
+    ``(pv + fv)/w``, with ``w`` the share of the loan the ``n`` payments
+    repay; and the factor that turns a balance into a period's interest,
+    ``r``, or at the start of each period ``1/(1/r + 1)``."""
+    log_growth = precise.ln_one_plus(rate)
+    repaid = _repaid(periods, log_growth)
+    if repaid == 0 or math.isinf(repaid):
         raise ExcelError(NUM)
-    if base == 0:
-        return Decimal(0)
-    return base ** Decimal(periods)
-
-
-def _exact_payment(rate: float, periods: float, present: float, future: float, due: int) -> Decimal:
-    if periods == 0:
-        raise ExcelError(NUM)
-    r = Decimal(rate)
-    if r == 0:
-        return -(Decimal(present) + Decimal(future)) / Decimal(periods)
-    growth = _growth(r, periods)
-    if growth == 1:
-        raise ExcelError(NUM)
-    return -(r * (Decimal(future) + Decimal(present) * growth)) / ((1 + r * due) * (growth - 1))
-
-
-def _exact_future(rate: Decimal, periods: float, paid: Decimal, present: float, due: int) -> Decimal:
-    if rate == 0:
-        return -(Decimal(present) + paid * Decimal(periods))
-    growth = _growth(rate, periods)
-    return -(Decimal(present) * growth + paid * (1 + rate * due) * (growth - 1) / rate)
-
-
-def _exact_interest(rate: float, period: float, periods: float, present: float, future: float, due: int) -> Decimal:
-    """IPMT's interest for a period: the balance owed going into it, times
-    the rate."""
-    r = Decimal(rate)
-    paid = _exact_payment(rate, periods, present, future, due)
-    if period == 1:
-        interest = Decimal(0) if due else -Decimal(present)
-    elif due:
-        interest = _exact_future(r, period - 2, paid, present, 1) - paid
-    else:
-        interest = _exact_future(r, period - 1, paid, present, 0)
-    return interest * r
+    share = precise.divide(precise.add(present, future), repaid)
+    factor = precise.divide(1.0, precise.add(precise.divide(1.0, rate), 1.0)) if due else rate
+    return log_growth, share, factor
 
 
 def payment(rate: float, periods: float, present: float, future: float, due: int) -> float:
-    """The periodic payment, from the exact formula rounded once.
+    """PMT as Excel computes it: ``-((pv + fv)/w - fv) r`` with the pieces
+    of :func:`_loan`. Measured: 15,553 of 15,555 payments to the bit, the
+    structure pinned by twelve present or future values sharing each rate
+    and term. The two misses are one loan whose logarithm, inside e^x - 1,
+    lies too near a midpoint for anything but the x87's own FYL2X to
+    decide."""
+    if periods == 0 or rate <= -1:
+        raise ExcelError(NUM)
+    if rate == 0:
+        return checked(-precise.divide(precise.add(present, future), periods))
+    _, share, factor = _loan(rate, periods, present, future, due)
+    return checked(-precise.multiply(precise.subtract(share, future), factor))
 
-    Measured: PMT, IPMT, PPMT, CUMIPMT and CUMPRINC are all within a few
-    units in the last place of the exact values, which no double formula
-    reaches, so these five are computed exactly."""
-    with localcontext(special.CONTEXT):
-        return checked(float(_exact_payment(rate, periods, present, future, due)))
+
+def interest(rate: float, period: float, periods: float, present: float, future: float, due: int) -> float:
+    """IPMT as Excel computes it: the balance going into ``period``,
+    ``(pv + fv)/w_n w_m - fv`` with ``m = n - per + 1`` payments left,
+    times the rate factor, each piece as :func:`payment` forms its own.
+    Measured: 2,640 of 2,640 to the bit, fv = 0 in groups of twelve present
+    values sharing everything else and fv random."""
+    if rate == 0 or (period == 1 and due):
+        return 0.0
+    log_growth, share, factor = _loan(rate, periods, present, future, due)
+    owed = precise.subtract(precise.multiply(share, _repaid(periods - period + 1, log_growth)), future)
+    return checked(-precise.multiply(owed, factor))
+
+
+def principal(rate: float, period: float, periods: float, present: float, future: float, due: int) -> float:
+    """PPMT as Excel computes it: ``-((pv + fv)/w_n (1 + r)^-m) f``, the
+    loan's share discounted over the ``m`` payments left. Measured: 2,640
+    of 2,640 to the bit, on the same loans as :func:`interest`, where the
+    payment less the interest gives Excel's bits on fewer than half."""
+    if rate == 0 or (period == 1 and due):
+        return payment(rate, periods, present, future, due)
+    log_growth, share, factor = _loan(rate, periods, present, future, due)
+    return checked(-precise.multiply(precise.multiply(share, _discount(periods - period + 1, log_growth)), factor))
+
+
+def repayments(rate: float, periods: float, present: float, first: int, last: int, due: int) -> tuple[float, float]:
+    """CUMPRINC and CUMIPMT from period ``first`` to ``last``, in closed
+    form. The principal those payments repay is ``pv/w_n (1 + r)^-(n -
+    last + 1) w_count``, times ``1 + r`` when payments fall at the end of
+    each period; at the start, a first payment in the span is all principal
+    and is added on its own. The interest is the payments less the
+    principal. Measured: 2,640 of 2,640 of each to the bit, half of them in
+    groups of twelve present values sharing everything else."""
+    if first > last:
+        return 0.0, 0.0
+    log_growth, share, factor = _loan(rate, periods, present, 0.0, due)
+    paid = -precise.multiply(share, factor)
+    opening = bool(due) and first == 1
+    if opening:
+        first = 2
+    count = float(last - first + 1)
+    span = precise.multiply(share, -precise.multiply(_discount(periods - last + 1, log_growth), _repaid(count, log_growth)))
+    if opening:
+        return checked(precise.add(paid, span)), checked(precise.subtract(precise.multiply(count, paid), span))
+    repaid = span if due else precise.multiply(span, precise.add(1.0, rate))
+    return checked(repaid), checked(precise.subtract(precise.multiply(count, paid), repaid))
 
 
 @function("FV", V, V, V, V, V, minimum=3)
@@ -211,11 +245,15 @@ def NPER(
 def _period_arguments(
     context: Context, rate: Scalar, per: Scalar, nper: Scalar, pv: Scalar, fv: Scalar | None, type_: Scalar | None
 ) -> tuple[float, float, float, float, float, int]:
+    """IPMT's and PPMT's arguments. Measured: the period may run past the
+    term, up to the term plus one, so ``IPMT(r,10.5,10,pv)`` has a value;
+    a rate of -1 or below is refused, as PMT refuses it."""
+    r = context.number(rate)
     period = context.number(per)
     periods = context.number(nper)
-    if period < 1 or period > periods:
+    if r <= -1 or period < 1 or periods - period + 1 <= 0:
         raise ExcelError(NUM)
-    return context.number(rate), period, periods, context.number(pv), _optional(context, fv, 0.0), _due(context, type_)
+    return r, period, periods, context.number(pv), _optional(context, fv, 0.0), _due(context, type_)
 
 
 @function("IPMT", V, V, V, V, V, V, minimum=4)
@@ -228,8 +266,7 @@ def IPMT(
     fv: Scalar | None = None,
     type_: Scalar | None = None,
 ) -> Value:
-    with localcontext(special.CONTEXT):
-        return checked(float(_exact_interest(*_period_arguments(context, rate, per, nper, pv, fv, type_))))
+    return interest(*_period_arguments(context, rate, per, nper, pv, fv, type_))
 
 
 @function("PPMT", V, V, V, V, V, V, minimum=4)
@@ -242,50 +279,38 @@ def PPMT(
     fv: Scalar | None = None,
     type_: Scalar | None = None,
 ) -> Value:
-    r, period, periods, present, future, due = _period_arguments(context, rate, per, nper, pv, fv, type_)
-    with localcontext(special.CONTEXT):
-        paid = _exact_payment(r, periods, present, future, due)
-        return checked(float(paid - _exact_interest(r, period, periods, present, future, due)))
+    return principal(*_period_arguments(context, rate, per, nper, pv, fv, type_))
 
 
 def _cumulative(
     context: Context, rate: Scalar, nper: Scalar, pv: Scalar, start: Scalar, end: Scalar, type_: Scalar
-) -> tuple[float, float, int, int, int, float]:
+) -> tuple[float, float, float, int, int, int]:
+    """CUMIPMT's and CUMPRINC's arguments. Measured: the checks read the
+    periods as given, then a fractional start rounds up and a fractional
+    end down, so a span holding no whole period is 0."""
     r = context.number(rate)
     periods = context.number(nper)
     present = context.number(pv)
-    first = math.trunc(context.number(start))
-    last = math.trunc(context.number(end))
+    first = context.number(start)
+    last = context.number(end)
     due = context.number(type_)
     if r <= 0 or periods <= 0 or present <= 0 or first < 1 or last < first or last > periods or due not in (0, 1):
         raise ExcelError(NUM)
-    return r, periods, first, last, int(due), present
+    return r, periods, present, math.ceil(first), math.floor(last), int(due)
 
 
 @function("CUMIPMT", V, V, V, V, V, V)
 def CUMIPMT(
     context: Context, rate: Scalar, nper: Scalar, pv: Scalar, start: Scalar, end: Scalar, type_: Scalar
 ) -> Value:
-    r, periods, first, last, due, present = _cumulative(context, rate, nper, pv, start, end, type_)
-    with localcontext(special.CONTEXT):
-        total = sum(
-            (_exact_interest(r, period, periods, present, 0.0, due) for period in range(first, last + 1)), Decimal(0)
-        )
-        return checked(float(total))
+    return repayments(*_cumulative(context, rate, nper, pv, start, end, type_))[1]
 
 
 @function("CUMPRINC", V, V, V, V, V, V)
 def CUMPRINC(
     context: Context, rate: Scalar, nper: Scalar, pv: Scalar, start: Scalar, end: Scalar, type_: Scalar
 ) -> Value:
-    r, periods, first, last, due, present = _cumulative(context, rate, nper, pv, start, end, type_)
-    with localcontext(special.CONTEXT):
-        paid = _exact_payment(r, periods, present, 0.0, due)
-        total = sum(
-            (paid - _exact_interest(r, period, periods, present, 0.0, due) for period in range(first, last + 1)),
-            Decimal(0),
-        )
-        return checked(float(total))
+    return repayments(*_cumulative(context, rate, nper, pv, start, end, type_))[0]
 
 
 def _cash_flows(context: Context, values: tuple[Value, ...]) -> list[float]:
@@ -370,41 +395,6 @@ def XNPV(context: Context, rate: Scalar, values: Value, when: Value) -> Value:
     if r <= -1:
         return NUM
     return checked(_xnpv(r, amounts, days))
-
-
-def _newton(
-    function_: Callable[[float], float], slope: Callable[[float], float], guess: float, *, limit: int = 100
-) -> float:
-    """A root by Newton's method, run until it stops moving; ``#NUM!``
-    when it does not settle or leaves the range a rate can have."""
-    x = guess
-    best, best_error = x, math.inf
-    previous = math.inf
-    for _ in range(limit):
-        try:
-            value = function_(x)
-            gradient = slope(x)
-        except (OverflowError, ZeroDivisionError):
-            raise ExcelError(NUM) from None
-        if abs(value) < best_error:
-            best, best_error = x, abs(value)
-        if value == 0:
-            return x
-        if gradient == 0 or not math.isfinite(gradient) or not math.isfinite(value):
-            raise ExcelError(NUM)
-        step = value / gradient
-        new = x - step
-        if not math.isfinite(new) or new <= -1:
-            raise ExcelError(NUM)
-        if new == x or abs(step) <= abs(new) * 1e-15:
-            return new
-        if abs(step) >= abs(previous) and abs(step) < 1e-10 * max(1.0, abs(x)):
-            # The steps have stopped shrinking: rounding, not the root, is
-            # moving it now.
-            return best
-        previous = step
-        x = new
-    raise ExcelError(NUM)
 
 
 @function("XIRR", R, R, V, minimum=2)
@@ -1055,23 +1045,101 @@ def COUPNUM(context: Context, settlement: Scalar, maturity: Scalar, frequency: S
 def _price(
     context: Context, settlement: int, maturity: int, rate: float, yld: float, redemption: float, frequency: int, kind: int
 ) -> float:
-    """A bond's price per 100 of face value at a yield."""
+    """A bond's price per 100 of face value at a yield, each step as the x87
+    rounds it, which YIELD's iteration shows where PRICE alone does not."""
     period = _period_days(context, settlement, maturity, frequency, kind)
-    remaining = _to_coupon(context, settlement, maturity, frequency, kind) / period
+    remaining = precise.divide(_to_coupon(context, settlement, maturity, frequency, kind), period)
     count = _coupon_count(context, settlement, maturity, frequency)
     accrued = _days_before(context, settlement, maturity, frequency, kind)
-    coupon = 100 * rate / frequency
+    coupon = precise.divide(precise.multiply(100.0, rate), frequency)
     if count == 1:
-        return (redemption + coupon) / (1 + remaining * yld / frequency) - coupon * (accrued / period)
+        discount = precise.add(1.0, precise.divide(precise.multiply(remaining, yld), frequency))
+        return precise.subtract(precise.divide(precise.add(redemption, coupon), discount), precise.multiply(coupon, precise.divide(accrued, period)))
     # Measured, 1,078 of 1,078 bonds: the coupons summed first, then the
     # redemption, then the accrued interest taken off, formed from the rate
     # as A/E * rate * 100 / frequency rather than from the coupon.
-    growth = 1 + yld / frequency
+    growth = precise.add(1.0, precise.divide(yld, frequency))
     price = 0.0
     for index in range(count):
-        price += coupon / _power(growth, index + remaining)
-    price += redemption / _power(growth, count - 1 + remaining)
-    return price - accrued / period * rate * 100 / frequency
+        price = precise.add(price, precise.divide(coupon, _power(growth, precise.add(float(index), remaining))))
+    price = precise.add(price, precise.divide(redemption, _power(growth, precise.add(float(count - 1), remaining))))
+    interest = precise.multiply(precise.multiply(precise.divide(accrued, period), rate), 100.0)
+    return precise.subtract(price, precise.divide(interest, frequency))
+
+
+def _price_slope(
+    context: Context, settlement: int, maturity: int, rate: float, yld: float, redemption: float, frequency: int, kind: int
+) -> float:
+    """The slope of :func:`_price` in the yield, from its own terms."""
+    period = _period_days(context, settlement, maturity, frequency, kind)
+    remaining = precise.divide(_to_coupon(context, settlement, maturity, frequency, kind), period)
+    count = _coupon_count(context, settlement, maturity, frequency)
+    return _slope(count, remaining, rate, yld, redemption, frequency)
+
+
+def _slope(count: int, remaining: float, rate: float, yld: float, redemption: float, frequency: int) -> float:
+    """A bond's price slope in the yield over ``count`` full coupons, the
+    first ``remaining`` periods away: each payment's time t, in periods,
+    times the payment over the growth to the power t + 1, summed and
+    divided by the frequency."""
+    coupon = precise.divide(precise.multiply(100.0, rate), frequency)
+    growth = precise.add(1.0, precise.divide(yld, frequency))
+    total = 0.0
+    for index in range(count):
+        time = precise.add(float(index), remaining)
+        total = precise.add(total, precise.divide(precise.multiply(time, coupon), _power(growth, precise.add(time, 1.0))))
+    time = precise.add(float(count - 1), remaining)
+    total = precise.add(total, precise.divide(precise.multiply(time, redemption), _power(growth, precise.add(time, 1.0))))
+    return -precise.divide(total, frequency)
+
+
+def _yield_start(context: Context, settlement: int, maturity: int, rate: float, price: float, kind: int) -> float:
+    """YIELD's first estimate: the coupons over the term and the discount,
+    over the mean of par and price less a quarter of the discount, which on
+    a zero-coupon bond is one Halley step from 0. Par stands in for the
+    redemption. The term is whole years, then the days from settlement moved
+    into the last of them, 29 February to 1 March, over the basis' year, on
+    actual/actual the maturity's."""
+    epoch = context.epoch_1904
+    y1, m1, d1 = dates.calendar(settlement, epoch_1904=epoch)
+    y2, m2, d2 = dates.calendar(maturity, epoch_1904=epoch)
+    whole = y2 - y1
+    later = (m1, d1) > (m2, d2)
+    if whole and later:
+        whole -= 1
+    anchor = settlement
+    if whole:
+        year = y2 - 1 if later else y2
+        month, day = (3, 1) if (m1, d1) == (2, 29) and dates.days_in_month(year, 2) == 28 else (m1, d1)
+        anchor = dates.serial(year, month, day, epoch_1904=epoch)
+    stub = float(days_between(anchor, maturity, kind, epoch_1904=epoch))
+    length = 365.0 if kind == 3 else (366.0 if dates.days_in_month(y2, 2) == 29 else 365.0) if kind == 1 else 360.0
+    years = precise.add(float(whole), precise.divide(stub, length))
+    discount = precise.subtract(100.0, price)
+    # Measured to the bit on 562 starts: (100 r Y + B) / (100 Y - B Y / 2 -
+    # B / 4), B the discount, and no other arrangement.
+    top = precise.add(precise.multiply(100.0, precise.multiply(rate, years)), discount)
+    mean = precise.subtract(precise.multiply(100.0, years), precise.divide(precise.multiply(discount, years), 2.0))
+    return precise.divide(top, precise.subtract(mean, precise.divide(discount, 4.0)))
+
+
+def _yield_one_coupon(
+    context: Context, settlement: int, maturity: int, rate: float, price: float, redemption: float, frequency: int, kind: int
+) -> float:
+    """YIELD with one coupon left, in closed form. Measured: on every
+    actual basis the period is the calendar's, and the days to redemption
+    are counted by the basis, not as what is left of the period."""
+    if kind in (0, 4):
+        period = _period_days(context, settlement, maturity, frequency, kind)
+    else:
+        previous, following = _coupons(context, settlement, maturity, frequency)
+        period = float(following - previous)
+    accrued = _days_before(context, settlement, maturity, frequency, kind)
+    remaining = float(days_between(settlement, maturity, kind, epoch_1904=context.epoch_1904))
+    per_coupon = precise.divide(rate, frequency)
+    paid = precise.add(precise.divide(price, 100.0), precise.multiply(precise.divide(accrued, period), per_coupon))
+    gain = precise.subtract(precise.add(precise.divide(redemption, 100.0), per_coupon), paid)
+    return precise.multiply(precise.divide(gain, paid), precise.divide(precise.multiply(float(frequency), period), remaining))
 
 
 def _bond(
@@ -1126,22 +1194,377 @@ def YIELD(
     target = context.number(pr)
     if target <= 0:
         return NUM
-    count = _coupon_count(context, first, last, times)
-    if count == 1:
-        period = _period_days(context, first, last, times, kind)
-        accrued = _days_before(context, first, last, times, kind)
-        remaining = _to_coupon(context, first, last, times, kind)
-        paid = target / 100 + accrued / period * coupon_rate / times
-        return checked((value / 100 + coupon_rate / times - paid) / paid * (times * period / remaining))
+    if _coupon_count(context, first, last, times) == 1:
+        return checked(_yield_one_coupon(context, first, last, coupon_rate, target, value, times, kind))
+    # Measured: Newton's method from _yield_start with PRICE's own slope,
+    # stopping when a step would be under 1e-10 and answering with the
+    # yield it would have stepped from, so up to 1e-10 short of the root;
+    # 1,494 of 1,496 probes to the bit, the other two a unit in the last
+    # place away, one of them where ^ itself is.
+    y = _yield_start(context, first, last, coupon_rate, target, kind)
+    try:
+        for _ in range(_YIELD_STEPS):
+            gap = precise.subtract(_price(context, first, last, coupon_rate, y, value, times, kind), target)
+            step = precise.divide(gap, _price_slope(context, first, last, coupon_rate, y, value, times, kind))
+            if abs(step) < _YIELD_CLOSE:
+                return checked(y)
+            y = precise.subtract(y, step)
+    except ZeroDivisionError:
+        return NUM
+    return NUM
 
-    def gap(y: float) -> float:
-        return _price(context, first, last, coupon_rate, y, value, times, kind) - target
 
-    def slope(y: float) -> float:
-        step = max(abs(y), 1e-4) * 1e-7
-        return (gap(y + step) - gap(y - step)) / (2 * step)
+_YIELD_STEPS = 100
+_YIELD_CLOSE = 1e-10
 
-    return checked(_newton(gap, slope, coupon_rate or 0.05))
+
+# ----------------------------------------------------------------------
+# Bonds with an odd first or last period
+#
+# Measured on 1,500 random bonds of each kind and a few hundred designed
+# ones, Microsoft's formulas hold, with day counts and quasi-coupon dates
+# of Excel's own. ODDLPRICE and ODDLYIELD give Excel's bits on all of
+# them, ODDFPRICE on all but four a unit in the last place away.
+# ----------------------------------------------------------------------
+
+
+def _step(context: Context, day: int, months: int) -> int:
+    """The quasi-coupon date ``months`` after ``day`` (before, when
+    negative), keeping the day of month the month allows, so that a date
+    clipped to the 28th stays on the 28th from then on."""
+    try:
+        return _months_back(context, day, -months, dates.calendar(day, epoch_1904=context.epoch_1904)[2], False)
+    except (ValueError, OverflowError) as error:
+        raise ExcelError(NUM) from error
+
+
+def _is_month_end(context: Context, day: int) -> bool:
+    year, month, number = dates.calendar(day, epoch_1904=context.epoch_1904)
+    return number == dates.days_in_month(year, month)
+
+
+def _month_end_days(context: Context, first: int, last: int) -> int:
+    """30/360 counting every month's last day, February's included, as the
+    30th: the length ODDLPRICE gives a quasi period on basis 0, and the
+    days it counts into one."""
+    y1, m1, d1 = dates.calendar(first, epoch_1904=context.epoch_1904)
+    y2, m2, d2 = dates.calendar(last, epoch_1904=context.epoch_1904)
+    d1 = 30 if d1 == dates.days_in_month(y1, m1) else d1
+    d2 = 30 if d2 == dates.days_in_month(y2, m2) else d2
+    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
+
+
+def _odd_last_dates(context: Context, last: int, maturity: int, frequency: int) -> list[int]:
+    """The quasi-coupon dates from the last interest date on, each a period
+    after the one before, to the first that covers the maturity. From a
+    month's last day, a date covers any maturity in its month, clipped to
+    the 28th or not."""
+    step = 12 // frequency
+    month_end = _is_month_end(context, last)
+    epoch = context.epoch_1904
+    ends = dates.calendar(maturity, epoch_1904=epoch)[:2]
+    found = [last]
+    while True:
+        following = _step(context, found[-1], step)
+        found.append(following)
+        if month_end and ends <= dates.calendar(following, epoch_1904=epoch)[:2]:
+            return found
+        if not month_end and maturity <= following:
+            return found
+
+
+def _odd_last_terms(
+    context: Context, settlement: int, maturity: int, last: int, frequency: int, kind: int
+) -> tuple[float, float, float]:
+    """ODDLPRICE's sums over the quasi periods, each count over the
+    period's normal length NL: DC, the days counted in each; A, those
+    accrued; DSC, those from settlement to the maturity. On basis 0, NL and
+    DC count month ends as the 30th while A and DSC count as YEARFRAC
+    does; a quasi period wholly accrued counts as one; the last runs to
+    the maturity for DC, even past its own end."""
+    epoch = context.epoch_1904
+
+    def part(first: int, final: int) -> float:
+        return float(days_between(first, final, kind, epoch_1904=epoch))
+
+    def whole(first: int, final: int) -> float:
+        return float(_month_end_days(context, first, final)) if kind == 0 else part(first, final)
+
+    quasi = _odd_last_dates(context, last, maturity, frequency)
+    counted = accrued = remaining = 0.0
+    for index in range(1, len(quasi)):
+        start, end = quasi[index - 1], quasi[index]
+        final = index == len(quasi) - 1
+        length = whole(start, end)
+        counted = precise.add(counted, precise.divide(whole(start, maturity if final else end), length))
+        if settlement >= end and not final:
+            accrued = precise.add(accrued, 1.0)
+        elif settlement > start:
+            accrued = precise.add(accrued, precise.divide(part(start, settlement), length))
+        stop = min(end, maturity)
+        if settlement < stop:
+            remaining = precise.add(remaining, precise.divide(part(max(start, settlement), stop), length))
+    return counted, accrued, remaining
+
+
+def _odd_last(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    last_interest: Scalar,
+    rate: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None,
+) -> tuple[float, float, float, float, float, float]:
+    """ODDLPRICE's and ODDLYIELD's arguments, checked: the redemption, the
+    coupon per period, DC, A and DSC, and the frequency."""
+    settled = serial_of(context, settlement)
+    due = serial_of(context, maturity)
+    previous = serial_of(context, last_interest)
+    coupon_rate = context.number(rate)
+    value = context.number(redemption)
+    times = _frequency(context, frequency)
+    kind = basis(context, basis_)
+    if not due > settled > previous or coupon_rate < 0 or value <= 0:
+        raise ExcelError(NUM)
+    counted, accrued, remaining = _odd_last_terms(context, settled, due, previous, times, kind)
+    coupon = precise.divide(precise.multiply(100.0, coupon_rate), times)
+    return value, coupon, counted, accrued, remaining, float(times)
+
+
+@function("ODDLPRICE", V, V, V, V, V, V, V, V, minimum=7)
+def ODDLPRICE(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    last_interest: Scalar,
+    rate: Scalar,
+    yld: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    value, coupon, counted, accrued, remaining, times = _odd_last(
+        context, settlement, maturity, last_interest, rate, redemption, frequency, basis_
+    )
+    y = context.number(yld)
+    if y < 0:
+        return NUM
+    discount = precise.add(1.0, precise.divide(precise.multiply(remaining, y), times))
+    paid = precise.add(value, precise.multiply(counted, coupon))
+    return checked(precise.subtract(precise.divide(paid, discount), precise.multiply(accrued, coupon)))
+
+
+@function("ODDLYIELD", V, V, V, V, V, V, V, V, minimum=7)
+def ODDLYIELD(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    last_interest: Scalar,
+    rate: Scalar,
+    pr: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    value, coupon, counted, accrued, remaining, times = _odd_last(
+        context, settlement, maturity, last_interest, rate, redemption, frequency, basis_
+    )
+    price = context.number(pr)
+    if price <= 0:
+        return NUM
+    # Measured: no days left to maturity, as 30/360 counts from the 30th to
+    # the 31st, gives 0.
+    if remaining == 0:
+        return 0.0
+    paid = precise.add(value, precise.multiply(counted, coupon))
+    cost = precise.add(price, precise.multiply(accrued, coupon))
+    return checked(precise.multiply(precise.divide(precise.subtract(paid, cost), cost), precise.divide(times, remaining)))
+
+
+def _extra_period(context: Context, settlement: int, first: int, frequency: int) -> int:
+    """The whole period ODDFPRICE adds to a long odd first period's
+    discounting, measured: when the first coupon falls on a month's last
+    day and settlement does not, unless settlement shares its month with a
+    quasi-coupon date other than the first coupon."""
+    if not _is_month_end(context, first) or _is_month_end(context, settlement):
+        return 0
+    epoch = context.epoch_1904
+    y1, m1, _ = dates.calendar(settlement, epoch_1904=epoch)
+    y2, m2, _ = dates.calendar(first, epoch_1904=epoch)
+    months = (y2 - y1) * 12 + m2 - m1
+    return 1 if months == 0 or months % (12 // frequency) else 0
+
+
+class _OddFirst:
+    """A bond with an odd first period, as ODDFPRICE prices it.
+
+    Measured: short or long is decided by the days from issue to the first
+    coupon against the coupon period E, the first coupon's own; an odd
+    period exactly E long is refused. A short one is Microsoft's formula
+    with DFC, A and DSC counted by the basis. A long one steps quasi-coupon
+    dates back from the first coupon past the issue, each from the one
+    before; each whole quasi period counts as one coupon's worth, the
+    partial first by its days, each over E on every basis but
+    actual/actual, where over its own length; the accrued periods count by
+    their days, and both are summed from the first coupon back.
+
+    ``time`` is the periods to the first coupon that discount every cash
+    flow; ``remaining`` and ``count``, the same without the extra period
+    and the coupons from settlement, shape ODDFYIELD's slope.
+    """
+
+    def __init__(
+        self, context: Context, settled: int, due: int, issued: int, first: int, frequency: int, kind: int
+    ) -> None:
+        epoch = context.epoch_1904
+
+        def days(start: int, end: int) -> float:
+            return float(days_between(start, end, kind, epoch_1904=epoch))
+
+        period = _period_days(context, settled, first, frequency, kind)
+        odd = days(issued, first)
+        if odd == period:
+            raise ExcelError(NUM)
+        self.frequency = frequency
+        self.after = _coupon_count(context, first, due, frequency)
+        self.long = odd > period
+        if not self.long:
+            self.counted, self.length = odd, period
+            self.accrued = precise.divide(days(issued, settled), period)
+            self.time = self.remaining = precise.divide(days(settled, first), period)
+            self.count = self.after + 1
+            return
+        quasi = [first]
+        while quasi[-1] > issued:
+            quasi.append(_step(context, quasi[-1], -(12 // frequency)))
+        shares: list[float] = []
+        accrued: list[float] = []
+        for position, (start, end) in enumerate(reversed(list(zip(quasi[1:], quasi[:-1], strict=True)))):
+            length = float(end - start) if kind == 1 else period
+            start = max(start, issued)
+            shares.append(precise.divide(days(start, end), length) if position == 0 else 1.0)
+            if settled >= end:
+                accrued.append(precise.divide(days(start, end), length))
+            elif settled > start:
+                accrued.append(precise.divide(days(start, settled), length))
+        self.counted, self.length = precise.summed(reversed(shares)), 1.0
+        self.accrued = precise.summed(reversed(accrued))
+        whole = _coupon_count(context, settled, first, frequency) - 1
+        self.remaining = precise.add(float(whole), precise.divide(_days_after(context, settled, first, frequency, kind), period))
+        self.time = precise.add(self.remaining, float(_extra_period(context, settled, first, frequency)))
+        self.count = self.after + whole + 1
+
+    def price(self, rate: float, yld: float, redemption: float) -> float:
+        """The redemption, then the odd coupon, then the regular coupons,
+        less the accrued interest; the time to the first coupon discounts
+        each of them."""
+        coupon = precise.divide(precise.multiply(100.0, rate), self.frequency)
+        growth = precise.add(1.0, precise.divide(yld, self.frequency))
+        odd = precise.divide(precise.divide(precise.multiply(coupon, self.counted), self.length), _power(growth, self.time))
+        if self.long:
+            owed = precise.multiply(coupon, self.accrued)
+        else:
+            owed = precise.divide(precise.multiply(precise.multiply(self.accrued, rate), 100.0), self.frequency)
+        coupons = 0.0
+        for index in range(1, self.after + 1):
+            coupons = precise.add(coupons, precise.divide(coupon, _power(growth, precise.add(float(index), self.time))))
+        value = precise.divide(redemption, _power(growth, precise.add(float(self.after), self.time)))
+        return precise.subtract(precise.add(precise.add(value, odd), coupons), owed)
+
+
+def _odd_first(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    issue: Scalar,
+    first_coupon: Scalar,
+    rate: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None,
+) -> tuple[_OddFirst, int, int, float, float, int]:
+    """ODDFPRICE's and ODDFYIELD's arguments, checked, and the bond.
+    Measured: the first coupon has to be one of the maturity's own coupon
+    dates."""
+    settled = serial_of(context, settlement)
+    due = serial_of(context, maturity)
+    issued = serial_of(context, issue)
+    first = serial_of(context, first_coupon)
+    coupon_rate = context.number(rate)
+    value = context.number(redemption)
+    times = _frequency(context, frequency)
+    kind = basis(context, basis_)
+    if not due > first > settled > issued or coupon_rate < 0 or value <= 0:
+        raise ExcelError(NUM)
+    if _coupons(context, first, due, times)[0] != first:
+        raise ExcelError(NUM)
+    return _OddFirst(context, settled, due, issued, first, times, kind), settled, due, coupon_rate, value, kind
+
+
+@function("ODDFPRICE", V, V, V, V, V, V, V, V, V, minimum=8)
+def ODDFPRICE(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    issue: Scalar,
+    first_coupon: Scalar,
+    rate: Scalar,
+    yld: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    bond, _, _, coupon_rate, value, _ = _odd_first(
+        context, settlement, maturity, issue, first_coupon, rate, redemption, frequency, basis_
+    )
+    y = context.number(yld)
+    if y < 0:
+        return NUM
+    return checked(bond.price(coupon_rate, y, value))
+
+
+@function("ODDFYIELD", V, V, V, V, V, V, V, V, V, minimum=8)
+def ODDFYIELD(
+    context: Context,
+    settlement: Scalar,
+    maturity: Scalar,
+    issue: Scalar,
+    first_coupon: Scalar,
+    rate: Scalar,
+    pr: Scalar,
+    redemption: Scalar,
+    frequency: Scalar,
+    basis_: Scalar | None = None,
+) -> Value:
+    bond, settled, due, coupon_rate, value, kind = _odd_first(
+        context, settlement, maturity, issue, first_coupon, rate, redemption, frequency, basis_
+    )
+    target = context.number(pr)
+    if target <= 0:
+        return NUM
+    # Measured: YIELD's iteration from YIELD's start, with the slope of a
+    # regular bond whose coupons from settlement all come in full, the first
+    # at the odd coupon's time. It gives Excel's bits on 678 of 681 bonds
+    # with a short odd first period; with a long one, on 465 of 678, and
+    # within 1e-10 of Excel's answer on the rest, Excel's slope there being
+    # another. That slope can converge slowly where Excel's does not, so the
+    # iteration runs longer than YIELD's before giving up.
+    y = _yield_start(context, settled, due, coupon_rate, target, kind)
+    try:
+        for _ in range(_ODD_YIELD_STEPS):
+            gap = precise.subtract(bond.price(coupon_rate, y, value), target)
+            step = precise.divide(gap, _slope(bond.count, bond.remaining, coupon_rate, y, value, bond.frequency))
+            if abs(step) < _YIELD_CLOSE:
+                return checked(y)
+            y = precise.subtract(y, step)
+    except ZeroDivisionError:
+        return NUM
+    return NUM
+
+
+_ODD_YIELD_STEPS = 1000
 
 
 def _duration(

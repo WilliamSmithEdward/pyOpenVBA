@@ -26,9 +26,11 @@ from pyopenvba.formula._calc.values import (
     NA,
     NUM,
     VALUE,
+    Area,
     Array,
     Empty,
     ExcelError,
+    Reference,
     Scalar,
     Value,
 )
@@ -71,7 +73,7 @@ def _from_lines(lines: list[Line], by_column: bool) -> Array:
     return Array([[line[row] for line in lines] for row in range(len(lines[0]))])
 
 
-def _sort_key(value: Scalar) -> Key:
+def sort_key(value: Scalar) -> Key:
     """Where a value sorts: numbers, then text, logicals, errors, blanks."""
     if isinstance(value, bool):
         return 2, value
@@ -88,8 +90,8 @@ def _same_key(value: Scalar) -> Key:
     """What makes two values one for UNIQUE: case never matters, and a
     blank is the empty text."""
     if isinstance(value, Empty):
-        return _sort_key("")
-    return _sort_key(value)
+        return sort_key("")
+    return sort_key(value)
 
 
 # ----------------------------------------------------------------------
@@ -165,7 +167,7 @@ def _sorted(lines: list[Line], keys: list[Line], orders: list[int]) -> list[Line
     first key first; lines with equal keys keep their order."""
     positions = list(range(len(lines)))
     for index in reversed(range(len(orders))):
-        positions.sort(key=lambda position: _sort_key(keys[position][index]), reverse=orders[index] < 0)
+        positions.sort(key=lambda position: sort_key(keys[position][index]), reverse=orders[index] < 0)
     return [lines[position] for position in positions]
 
 
@@ -275,14 +277,27 @@ def _span(size: int, count: int, *, take: bool) -> range:
     return range(max(size + count, 0)) if count < 0 else range(min(count, size), size)
 
 
+def _spans(context: Context, height: int, width: int, rows: Scalar | None, columns: Scalar | None, *, take: bool) -> tuple[range, range]:
+    """The rows and columns TAKE keeps, or DROP leaves, of a block."""
+    down = range(height) if rows is None or isinstance(rows, Empty) else _span(height, context.integer(rows), take=take)
+    across = range(width) if columns is None or isinstance(columns, Empty) else _span(width, context.integer(columns), take=take)
+    return down, across
+
+
 def _cut(context: Context, array: Value, rows: Scalar | None, columns: Scalar | None, *, take: bool) -> Value:
+    """TAKE's or DROP's part of an array, or of a range the part of it that
+    is still a range, as ``COUNTIF(TAKE(A1:A9,3),1)`` needs. Measured: a
+    reference of several areas is ``#VALUE!``."""
+    if isinstance(array, Reference):
+        area = array.area
+        if area is None:
+            return VALUE
+        down, across = _spans(context, area.height, area.width, rows, columns, take=take)
+        if not down or not across:
+            return CALC
+        return Reference.of(Area(area.sheet, area.top + down[0], area.left + across[0], area.top + down[-1], area.left + across[-1]))
     grid = matrix(context, array)
-    down = range(grid.height)
-    across = range(grid.width)
-    if rows is not None and not isinstance(rows, Empty):
-        down = _span(grid.height, context.integer(rows), take=take)
-    if columns is not None and not isinstance(columns, Empty):
-        across = _span(grid.width, context.integer(columns), take=take)
+    down, across = _spans(context, grid.height, grid.width, rows, columns, take=take)
     if not down or not across:
         return CALC
     return Array([[grid.rows[row][column] for column in across] for row in down])
@@ -327,14 +342,16 @@ def CHOOSECOLS(context: Context, array: Value, *picks: Value) -> Value:
 
 @function("VSTACK", A, maximum=254)
 def VSTACK(context: Context, *arrays: Value) -> Value:
-    grids = [matrix(context, array) for array in arrays]
+    # An error or a function given on its own is one item of the stack, as
+    # HSTACK(SUM,AVERAGE) makes the list of functions GROUPBY takes.
+    grids = [context.array_of(array) for array in arrays]
     width = max(grid.width for grid in grids)
     return Array([list(row) + [NA] * (width - len(row)) for grid in grids for row in grid.rows])
 
 
 @function("HSTACK", A, maximum=254)
 def HSTACK(context: Context, *arrays: Value) -> Value:
-    grids = [matrix(context, array) for array in arrays]
+    grids = [context.array_of(array) for array in arrays]
     height = max(grid.height for grid in grids)
     rows: list[Line] = [[] for _ in range(height)]
     for grid in grids:
@@ -448,4 +465,4 @@ def ARRAYTOTEXT(context: Context, array: Value, form: Scalar | None = None) -> V
     return VALUE if len(text) > MAX_TEXT else text
 
 
-__all__: list[str] = []
+__all__ = ["sort_key"]

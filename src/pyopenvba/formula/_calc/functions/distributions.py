@@ -34,8 +34,6 @@ from pyopenvba.formula._calc.cells import CellError
 
 D = Decimal
 Exact = Callable[[Decimal], Decimal]
-#: Where WEIBULL.DIST's distribution turns from ``-expm1(-t)`` to ``1 - exp(-t)``.
-_HALF_LIFE = math.log(2.0)
 #: 1/sqrt(2 pi), the double the normal density multiplies by.
 _INVERSE_ROOT_TWO_PI = 0.3989422804014327
 
@@ -958,9 +956,10 @@ def _raised(base: float, exponent: float) -> float:
 def _weibull(context: Context, x: Scalar, alpha: Scalar, beta: Scalar, cumulative: Scalar) -> Value:
     """Measured on 500 random arguments: the density is ``a / b^a``, times
     ``x^(a-1)``, times ``exp(-(x/b)^a)``, every power an exponential of a
-    logarithm, 500 of 500. The distribution is ``1 - exp(-t)`` from
-    ``t = ln 2`` up, all of them; below, ``-expm1(-t)`` is Excel's value 111
-    times in 159 and a unit in the last place off the rest."""
+    logarithm, 500 of 500. The distribution is ``-(e^-t - 1)`` as
+    :func:`~pyopenvba.formula._calc.precise.exp_less_one` takes it,
+    which is ``1 - exp(-t)`` from ``t = 1`` up: 500 of 500, and 400 of 400
+    where the two sides of that switch differ."""
     value = context.number(x)
     shape = context.number(alpha)
     scale = context.number(beta)
@@ -972,8 +971,6 @@ def _weibull(context: Context, x: Scalar, alpha: Scalar, beta: Scalar, cumulativ
         return checked(shape / scale) if shape == 1 else (0.0 if shape > 1 else NUM)
     stretched = _raised(precise.divide(value, scale), shape)
     if _flag(context, cumulative):
-        if stretched >= _HALF_LIFE:
-            return checked(precise.subtract(1.0, precise.exp(-stretched)))
         return checked(-precise.exp_less_one(-stretched))
     decay = precise.exp(-stretched)
     if decay == 0.0:

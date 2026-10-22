@@ -30,7 +30,7 @@ from pyopenvba.formula._calc.nodes import Node
 from pyopenvba.formula._calc.numbers import total
 from pyopenvba.formula._calc.parser import parse
 from pyopenvba.formula._calc.precise import divide, multiply, square_root
-from pyopenvba.formula._calc.registry import R, V, function
+from pyopenvba.formula._calc.registry import REF, V, function
 from pyopenvba.formula._calc.values import (
     DIV0,
     NUM,
@@ -179,12 +179,12 @@ def _selected(context: Context, database: Value, field: Scalar, criteria: Value)
     return _numbers(values)
 
 
-@function("DSUM", R, V, R)
+@function("DSUM", REF, V, REF)
 def DSUM(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return checked(total(_selected(context, database, field, criteria)))
 
 
-@function("DAVERAGE", R, V, R)
+@function("DAVERAGE", REF, V, REF)
 def DAVERAGE(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values = _selected(context, database, field, criteria)
     if not values:
@@ -192,7 +192,7 @@ def DAVERAGE(context: Context, database: Value, field: Scalar, criteria: Value) 
     return checked(divide(total(values), float(len(values))))
 
 
-@function("DCOUNT", R, V, R)
+@function("DCOUNT", REF, V, REF)
 def DCOUNT(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values, named = records(context, database, field, criteria)
     if not named:
@@ -200,7 +200,7 @@ def DCOUNT(context: Context, database: Value, field: Scalar, criteria: Value) ->
     return float(sum(1 for value in values if isinstance(value, float)))
 
 
-@function("DCOUNTA", R, V, R)
+@function("DCOUNTA", REF, V, REF)
 def DCOUNTA(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values, named = records(context, database, field, criteria)
     if not named:
@@ -208,7 +208,7 @@ def DCOUNTA(context: Context, database: Value, field: Scalar, criteria: Value) -
     return float(sum(1 for value in values if not isinstance(value, Empty)))
 
 
-@function("DGET", R, V, R)
+@function("DGET", REF, V, REF)
 def DGET(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values, named = records(context, database, field, criteria)
     if not named or not values:
@@ -218,17 +218,17 @@ def DGET(context: Context, database: Value, field: Scalar, criteria: Value) -> V
     return values[0]
 
 
-@function("DMAX", R, V, R)
+@function("DMAX", REF, V, REF)
 def DMAX(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return max(_selected(context, database, field, criteria), default=0.0)
 
 
-@function("DMIN", R, V, R)
+@function("DMIN", REF, V, REF)
 def DMIN(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return min(_selected(context, database, field, criteria), default=0.0)
 
 
-@function("DPRODUCT", R, V, R)
+@function("DPRODUCT", REF, V, REF)
 def DPRODUCT(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     values = _selected(context, database, field, criteria)
     if not values:
@@ -247,22 +247,22 @@ def _spread(context: Context, database: Value, field: Scalar, criteria: Value, *
     return checked(square_root(found) if root else found)
 
 
-@function("DSTDEV", R, V, R)
+@function("DSTDEV", REF, V, REF)
 def DSTDEV(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=True, root=True)
 
 
-@function("DSTDEVP", R, V, R)
+@function("DSTDEVP", REF, V, REF)
 def DSTDEVP(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=False, root=True)
 
 
-@function("DVAR", R, V, R)
+@function("DVAR", REF, V, REF)
 def DVAR(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=True, root=False)
 
 
-@function("DVARP", R, V, R)
+@function("DVARP", REF, V, REF)
 def DVARP(context: Context, database: Value, field: Scalar, criteria: Value) -> Value:
     return _spread(context, database, field, criteria, sample=False, root=False)
 

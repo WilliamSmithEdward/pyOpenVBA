@@ -1,0 +1,10 @@
+{
+  "implementation": "pyOfficeEditor 4dc2270, copied with the engine from 4723383",
+  "native_controls": 194,
+  "known_discrepancy": "calendar-edge-9: Excel gives #NUM! for ODDLPRICE(60,181,1,0.05,0.06,100,2,1), a bond settled at the start of 1900; the engine gives 99.65823468402523 (tests/fixtures/formula/early_1900_dates.json)",
+  "native_sha256": "3e5b44cb5e52d58a38f52b3e4476f6431481f95e13738d55a95dd9a13cb18a09",
+  "input_sha256": "a7887a1c306980d6a59a84d9ef95a1c567e32cd6c9162395c57e527174cbf3a8",
+  "script_sha256": "0b34e9ab86d9e0060a14bc7f519b3dc3d85b7e53c4452790b2a34ad6db5e962f",
+  "numeric_protocol": "Each native Double copied with LSet into two signed 32-bit words, written high word then low word in hex and read back as a big-endian IEEE 754 binary64.",
+  "yield_tolerance": "The nine ODDFYIELD cells with a long odd first period come within 1.52e-11 of Excel's answer, whose iteration takes another slope; every other number matches to the bit."
+}

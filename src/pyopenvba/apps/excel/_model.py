@@ -59,6 +59,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
+    from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._external_links import LinkedBook
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
@@ -603,14 +604,14 @@ class Application(ExcelObject):
     @method
     def Calculate(self) -> object:
         for book in self.workbooks_.books:
-            worked = book.calculator.calculate_all()
+            worked = book.calculator.calculate_all(asked=True)
             _events.calculated_all(book, worked)
         return EMPTY
 
     @method
     def CalculateFull(self) -> object:
         for book in self.workbooks_.books:
-            worked = book.calculator.calculate_all(full=True)
+            worked = book.calculator.calculate_all(full=True, asked=True)
             _events.calculated_all(book, worked)
         return EMPTY
 
@@ -618,7 +619,7 @@ class Application(ExcelObject):
     def CalculateFullRebuild(self) -> object:
         for book in self.workbooks_.books:
             book.calculator.rebuild(keep_pending=True)
-            worked = book.calculator.calculate_all(full=True)
+            worked = book.calculator.calculate_all(full=True, asked=True)
             _events.calculated_all(book, worked)
         return EMPTY
 
@@ -1076,7 +1077,7 @@ class Workbook(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        _events.calculated_all(self, self.calculator.calculate_all())
+        _events.calculated_all(self, self.calculator.calculate_all(asked=True))
         return EMPTY
 
     def vba_sink_attached(self) -> None:
@@ -1232,6 +1233,8 @@ class Worksheet(ExcelObject):
         self.shared_groups: dict[int, Area] = {}
         #: The array formulas: each one's block by its first cell, which holds the formula (see _arrays).
         self.array_formulas: dict[tuple[int, int], Area] = {}
+        #: The what-if data tables Range.Table made, by the first of the cells each works out (see _data_tables).
+        self.data_tables: dict[tuple[int, int], DataTable] = {}
         #: What each dynamic-array formula's answer wants to spill into, by its first cell (see _spills).
         self.spills: dict[tuple[int, int], Spill] = {}
         #: The sheet's tables, in the order its file lists them (see _tables).
@@ -1758,7 +1761,7 @@ class Worksheet(ExcelObject):
     def Calculate(self) -> object:
         """Calculate this sheet against foreign caches and deliver pending notifications."""
         self.book.calculator.settle_automatic_cache()
-        _events.calculated_all(self.book, self.book.calculator.calculate_all(self))
+        _events.calculated_all(self.book, self.book.calculator.calculate_all(self, asked=True))
         return EMPTY
 
     def vba_sink_attached(self) -> None:
@@ -2325,7 +2328,13 @@ class Range(ExcelObject):
             raise VBAUnsupportedError(f"Formula2 of {formula} is not implemented") from None
 
     def _read_formulas(self, *, r1c1: bool, at: bool = False) -> object:
+        from pyopenvba.apps.excel._data_tables import table_at
+
         def read(row: int, column: int) -> object:
+            table = table_at(self.sheet, row, column) if self.sheet.data_tables else None
+            if table is not None:
+                # A data table's cells say =TABLE(), Formula2 included (see _data_tables).
+                return table.formula(r1c1=r1c1)
             found = _arrays.array_at(self.sheet, row, column) if self.sheet.array_formulas else None
             if found is not None:
                 # Every cell of an array formula reports the array's formula.
@@ -2369,6 +2378,15 @@ class Range(ExcelObject):
             raise VBAUnsupportedError("FormulaArray set to a value rather than a formula is not implemented")
         if len(text) > LONGEST_ARRAY_FORMULA:
             raise error(1004, "Unable to set the FormulaArray property of the Range class")
+        if self.sheet.data_tables:
+            from pyopenvba.apps.excel._data_tables import met as tables_met
+
+            tables, split = tables_met(self.sheet, self.areas)
+            if split:
+                # Part of a data table takes no array formula (tests/fixtures/data_tables.json).
+                raise error(1004, "Unable to set the FormulaArray property of the Range class")
+            if tables:
+                raise VBAUnsupportedError("FormulaArray written over a whole data table is not implemented")
         whole(self.sheet, self.areas, "Changing")
         _arrays.put(self, _array_formula_text(self.sheet, text, self.first.top, self.first.left))
         if not self.sheet.book.calculator.automatic:
@@ -2384,6 +2402,14 @@ class Range(ExcelObject):
     @member
     def CurrentArray(self) -> object:
         return Range(self.sheet, [_arrays.current_array(self)])
+
+    @method
+    def Table(self, RowInput: object = MISSING, ColumnInput: object = MISSING) -> object:
+        """A what-if data table over the range, which Excel answers True (see _data_tables)."""
+        from pyopenvba.apps.excel._data_tables import make
+
+        make(self, RowInput, ColumnInput)
+        return True
 
     @member
     def Validation(self) -> object:
@@ -2673,6 +2699,8 @@ class Range(ExcelObject):
         """Work the range's formulas out again; Excel answers Null."""
         calculator = self.sheet.book.calculator
         if calculator.automatic:
+            # Not a calculation that works data tables out in semi-automatic calculation
+            # (tests/fixtures/data_tables.json).
             _events.calculated_all(self.sheet.book, calculator.calculate_all())
         else:
             # Deliver earlier notifications, then retain this limited
@@ -3429,6 +3457,10 @@ class Range(ExcelObject):
         covered, cut = _arrays.met(Destination.sheet, [written])
         if cut:
             raise error(1004, _arrays.PART_OF_AN_ARRAY)
+        if Destination.sheet.data_tables:
+            from pyopenvba.apps.excel._data_tables import refuse
+
+            refuse(Destination.sheet, [written], "Copying onto")
         # Snapshot before clearing or writing: source and destination can overlap.
         fragments = _arrays.copy_fragments(self.sheet, area)
         arrays = [fragment for _, fragment in fragments]
@@ -3446,6 +3478,11 @@ class Range(ExcelObject):
             anchor = self.sheet.cells_.get((original.top, original.left))
             assert anchor is not None
             sources[position] = replace(sources.get(position, Cell()), formula=anchor.formula, shared=None, dynamic=False)
+        if self.sheet.data_tables:
+            from pyopenvba.apps.excel._data_tables import as_values
+
+            # A data table's cells are copied as the values they show (tests/fixtures/data_tables.json).
+            as_values(self.sheet, sources, (area.top, area.left))
         from pyopenvba.apps.excel._row_formats import shown_formats
 
         whole_rows, whole_columns = area.whole_rows and written.whole_rows, area.whole_columns and written.whole_columns
@@ -3635,6 +3672,10 @@ class Range(ExcelObject):
                 edge = area.left if across > 0 else area.right
                 rest = (area.left + 1, area.right) if across > 0 else (area.left, area.right - 1)
                 plans.append((Area(area.top, edge, area.bottom, edge), Area(area.top, rest[0], area.bottom, rest[1])))
+        if self.sheet.data_tables:
+            from pyopenvba.apps.excel._data_tables import refuse as refuse_tables
+
+            refuse_tables(self.sheet, [one for plan in plans for one in plan], "Filling from or into")
         from pyopenvba.apps.excel._protection import whole
 
         whole(self.sheet, [target for _, target in plans], "Filling")
@@ -3808,6 +3849,10 @@ class Range(ExcelObject):
 
         if not _merges.writable(self.sheet, row, column):
             return True
+        if self.sheet.data_tables:
+            from pyopenvba.apps.excel._data_tables import refuse
+
+            refuse(self.sheet, [Area(row, column, row, column)], "Replace in")
         cell = self.sheet.cell(row, column)
         array = _arrays.array_at(self.sheet, row, column)
         if array is not None:

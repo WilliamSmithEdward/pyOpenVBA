@@ -160,9 +160,11 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
             rule.child_order = order
     initialize(copied)
     copied.conditional_changed = bool(conditional)
-    # The copied cells keep their shared formulas, so the copy keeps the blocks those name, and its arrays.
+    # The copied cells keep their shared formulas, so the copy keeps the blocks those name, its arrays and its data
+    # tables, whose input cells are on the sheet.
     copied.shared_groups = dict(source.shared_groups)
     copied.array_formulas = dict(source.array_formulas)
+    copied.data_tables = dict(source.data_tables)
     copied.dims = source.dims.copied(copied)
     from pyopenvba.apps.excel._outline import copied as copied_outline
 

@@ -62,6 +62,10 @@ def merge(target: Range, across: bool) -> None:
     sheet, area = target.sheet, target.first
     if across and any(one.rows > 1 and intersects(one, area) for one in sheet.merged_areas):
         raise VBAUnsupportedError("Across merges over existing multi-row merges are not implemented")
+    if sheet.data_tables:
+        from pyopenvba.apps.excel._data_tables import refuse
+
+        refuse(sheet, [area], "Merging", whole=True)
     areas = (Area(row, area.left, row, area.right, sheet.name)
              for row in range(area.top, area.bottom + 1)) if across else iter([area])
     for wanted in areas:

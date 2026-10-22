@@ -318,7 +318,8 @@ def _admit(sheet: Worksheet, area: Area) -> None:
     if (any(area.contains(*key) and cell.dynamic for key, cell in sheet.cells_.items())
             or any(meets(area, box) for box in [*sheet.merged_areas, *sheet.array_formulas.values(),
                                         *(spill.area for spill in sheet.spills.values()),
-                                        *(table.area for table in sheet.tables)])
+                                        *(table.area for table in sheet.tables),
+                                        *(table.area for table in sheet.data_tables.values())])
             or any(area.contains(*key) for key in sheet.notes) or touches(sheet, [area])
             or any(meets(area, part) for rule in sheet.validations for part in rule.areas)
             or any(meets(area, part) for rule in sheet.conditional_formats for part in rule.areas)):

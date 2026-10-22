@@ -122,6 +122,10 @@ def autofill(source: Range, destination: object, kind_argument: object) -> objec
 
         refuse_growth(sheet, filled, "AutoFill into")
     _check_modelled(sheet, area, target)
+    if sheet.data_tables:
+        from pyopenvba.apps.excel._data_tables import refuse
+
+        refuse(sheet, [area, filled], "AutoFill from or into")
     source_arrays, partial_source = _arrays.met(sheet, [area])
     replaced_arrays, partial_destination = _arrays.met(sheet, [filled])
     if partial_source or partial_destination:

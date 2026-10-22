@@ -148,6 +148,10 @@ def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: boo
         arrays, partial_arrays = met(sheet, [block])
         if arrays or partial_arrays:
             raise error(1004, PART_OF_AN_ARRAY)
+        if sheet.data_tables:
+            from pyopenvba.apps.excel._data_tables import refuse
+
+            refuse(sheet, [block], "Sorting")
     if block is None or first >= last:
         return None
     calculator = sheet.book.calculator

@@ -100,26 +100,39 @@ def shift_admitted(sheet: Worksheet, area: Area, region: Area, *, delete: bool) 
 
 
 def write_admitted(target: Range) -> bool:
-    """Whether a Value or Formula write goes ahead: not when it meets part of an array, which it leaves as it was.
+    """Whether a Value or Formula write goes ahead: not when it meets part of an array, or of a data table, which it
+    leaves as it was.
 
-    One that covers arrays whole takes them away, for plain cells to
-    replace them.
+    One that covers arrays or data tables whole takes them away, for plain
+    cells to replace them (see _data_tables).
     """
+    from pyopenvba.apps.excel import _data_tables
+
     whole, part = met(target.sheet, target.areas)
-    if part:
+    tables, split = _data_tables.met(target.sheet, target.areas)
+    if part or split:
         return False
     for anchor in whole:
         del target.sheet.array_formulas[anchor]
+    for anchor in tables:
+        del target.sheet.data_tables[anchor]
     return True
 
 
 def clear_admitted(target: Range) -> None:
-    """Refuse a clear over part of an array; take away the arrays it clears whole."""
+    """Refuse a clear over part of an array or of a data table; take away the ones it clears whole."""
+    from pyopenvba.apps.excel import _data_tables
+
     whole, part = met(target.sheet, target.areas)
+    tables, split = _data_tables.met(target.sheet, target.areas)
     if part:
         raise error(1004, PART_OF_AN_ARRAY)
+    if split:
+        raise error(1004, _data_tables.PART_OF_A_TABLE)
     for anchor in whole:
         del target.sheet.array_formulas[anchor]
+    for anchor in tables:
+        del target.sheet.data_tables[anchor]
 
 
 def refuse(sheet: Worksheet, areas: list[Area], doing: str) -> None:
@@ -175,25 +188,31 @@ def put(target: Range, formula: str, *, limit: int = LONGEST) -> None:
 
 
 def has_array(target: Range) -> object:
-    """HasArray: True, False or Null, as the module docstring has it."""
+    """HasArray: True, False or Null, as the module docstring has it; a data table's cells count as an array's
+    (see _data_tables)."""
+    from pyopenvba.apps.excel._data_tables import met as tables_met, table_at
+
     whole, part = met(target.sheet, target.areas)
     arrays = whole + part
+    if target.sheet.data_tables:
+        tables, split = tables_met(target.sheet, target.areas)
+        arrays += tables + split
     if not arrays:
         return False
     first = target.first
-    if len(arrays) == 1 and array_at(target.sheet, first.top, first.left) is not None:
+    if len(arrays) == 1 and (array_at(target.sheet, first.top, first.left) is not None
+                             or table_at(target.sheet, first.top, first.left) is not None):
         return True
     return NULL
 
 
 def formula_array(target: Range, formula_of: Callable[[int, int], str]) -> object:
-    """FormulaArray read: the array's formula, a formula every cell shares, or Null."""
+    """FormulaArray read: the array's formula, a data table's =TABLE(), a formula every cell shares, or Null."""
     first = target.first
     held = has_array(target)
     if held is True:
         found = array_at(target.sheet, first.top, first.left)
-        assert found is not None
-        return formula_of(*found[0])
+        return formula_of(*(found[0] if found is not None else (first.top, first.left)))
     if held is NULL:
         return NULL
     texts: set[str] = set()
@@ -209,12 +228,18 @@ def formula_array(target: Range, formula_of: Callable[[int, int], str]) -> objec
 
 
 def current_array(target: Range) -> Area:
-    """The block of the array the range's first cell is part of; error 1004 when it is part of none."""
+    """The block of the array the range's first cell is part of, or of the data table, its first row and column
+    included; error 1004 when it is part of none."""
+    from pyopenvba.apps.excel._data_tables import table_at
+
     first = target.first
     found = array_at(target.sheet, first.top, first.left)
-    if found is None:
+    if found is not None:
+        return found[1]
+    table = table_at(target.sheet, first.top, first.left) if target.sheet.data_tables else None
+    if table is None:
         raise error(1004, "No array formula at this cell")
-    return found[1]
+    return table.block
 
 
 def edit_admitted(sheet: Worksheet, *, rows: bool, start: int, count: int, delete: bool) -> None:

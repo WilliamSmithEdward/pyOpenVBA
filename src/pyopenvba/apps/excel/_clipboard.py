@@ -344,8 +344,15 @@ def paste_special(target: Range, what: object, operation: object, skip_blanks: o
     covered, divided = _arrays.met(sheet, [landing]) if kind in _CONTENT_FORMULAS | _CONTENT_VALUES or op else ([], [])
     if divided or op and covered:
         raise error(1004, _arrays.PART_OF_AN_ARRAY)
+    from pyopenvba.apps.excel import _data_tables
+
+    if sheet.data_tables and (kind in _CONTENT_FORMULAS | _CONTENT_VALUES or op):
+        _data_tables.refuse(sheet, [landing], "PasteSpecial onto")
     source_cells = {position: _snapshot(cell) for position, cell in source_sheet.cells_.items()
                     if made.covers(*position)}
+    if source_sheet.data_tables:
+        # A data table's cells are copied as the values they show (tests/fixtures/data_tables.json).
+        _data_tables.as_values(source_sheet, source_cells, (0, 0))
     array_plans: list[tuple[Area, int, int]] = []
     origins: dict[tuple[int, int], tuple[int, int]] = {}
     if kind in _CONTENT_FORMULAS:
@@ -533,6 +540,11 @@ def move(source: Range, area: Area, destination: Range) -> None:
         if not (landing.bottom < table.area.top or table.area.bottom < landing.top
                 or landing.right < table.area.left or table.area.right < landing.left):
             guard_edit(table, 'moving cells into')
+    if sheet.data_tables or target.data_tables:
+        from pyopenvba.apps.excel._data_tables import refuse
+
+        refuse(sheet, [area], "Cutting", whole=True)
+        refuse(target, [landing], "Cutting onto", whole=True)
     conditional_copy_admitted(sheet, [area], target, [landing])
     from pyopenvba.apps.excel._conditional import NS
     from pyopenvba.apps.excel._xstring import decode

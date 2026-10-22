@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number
 from pyopenvba._xml import attributes
-from pyopenvba.apps.excel import _arrays, _hyperlinks, _shared, _spills, _tables, _validation, _windows
+from pyopenvba.apps.excel import _arrays, _data_tables, _hyperlinks, _shared, _spills, _tables, _validation, _windows
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
@@ -132,6 +132,7 @@ def edit(target: Range, *, delete: bool) -> None:
     _conditional_admitted(sheet, affected, lambda text, owner: rewrite(
         text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
     _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
+    _data_tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _windows.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     caches = _spills.cached(sheet)
@@ -171,6 +172,8 @@ def edit(target: Range, *, delete: bool) -> None:
                                               delete=delete))
     _arrays.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                               delete=delete))
+    _data_tables.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
+                                                   delete=delete))
     _tables.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                               delete=delete), rows=rows)
     _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
@@ -237,6 +240,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     affected = Area(edge, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], edge, band[1], MAX_COLUMNS)
     _conditional_admitted(sheet, affected, lambda text, owner: rewrite_shift(text, owner, sheet.name, shift))
     _arrays.shift_admitted(sheet, area, region, delete=delete)
+    _data_tables.shift_admitted(sheet, area, region, delete=delete)
     _tables.refuse(sheet, region, "Shifting", allowing=through)
     caches = _spills.cached(sheet)
     moved: dict[tuple[int, int], Cell] = {}
@@ -287,6 +291,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
             sheet.book.names_.changed = True
     _shared.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _arrays.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    _data_tables.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _hyperlinks.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     if notes:

@@ -19,7 +19,33 @@ MAX_COLUMNS: Final = 16384
 _CELL = re.compile(r"^([A-Za-z]{1,3})([0-9]{1,7})$")
 _COLUMN = re.compile(r"^([A-Za-z]{1,3})$")
 _ROW = re.compile(r"^([0-9]{1,7})$")
-_PLAIN_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+#: Past ASCII, the characters Excel quotes a sheet's name for wherever they stand in it, and those it quotes a name
+#: for only when the name starts with them; every other character past ASCII reads as a letter. pyOfficeEditor
+#: measured them a character at a time over eight blocks of Unicode (its commit a74926e,
+#: scripts/measure_sheet_names.py), and a sample agrees here (tests/fixtures/sheet_quoting.json).
+_QUOTED_ANYWHERE: Final = (
+    (0x00A0, 0x00A0), (0x00A2, 0x00A3), (0x00A5, 0x00A6), (0x00A9, 0x00A9), (0x00AB, 0x00AC),
+    (0x00AE, 0x00AE), (0x00BB, 0x00BB), (0x2011, 0x2012), (0x2017, 0x2017), (0x201A, 0x201B),
+    (0x201E, 0x201F), (0x2022, 0x2024), (0x2031, 0x2031), (0x2034, 0x2034), (0x2036, 0x203A),
+    (0x203C, 0x2043), (0x2045, 0x2051), (0x2053, 0x205E), (0x2065, 0x2069), (0x20B6, 0x20C0),
+    (0x3018, 0x301C), (0x3030, 0x3030), (0x303D, 0x303D), (0xFF5F, 0xFF60),
+)
+_QUOTED_FIRST: Final = (
+    (0x2000, 0x200F), (0x2028, 0x202F), (0x2044, 0x2044), (0x2052, 0x2052), (0x205F, 0x2064),
+    (0x206A, 0x206F), (0x20A0, 0x20B5), (0x2100, 0x2101), (0x2104, 0x2104), (0x2106, 0x2106),
+    (0x2108, 0x2108), (0x2114, 0x2114), (0x2117, 0x2118), (0x211E, 0x2120), (0x2123, 0x2123),
+    (0x2125, 0x2125), (0x2127, 0x2127), (0x2129, 0x2129), (0x212E, 0x212E), (0x213A, 0x213B),
+    (0x2140, 0x2144), (0x214A, 0x214D), (0x214F, 0x214F), (0x219A, 0x219F), (0x2201, 0x2201),
+    (0x2204, 0x2206), (0x2209, 0x220A), (0x220C, 0x220E), (0x2210, 0x2210), (0x2212, 0x2214),
+    (0x2216, 0x2219), (0x221B, 0x221C), (0x3004, 0x3004), (0x3020, 0x3020), (0x302A, 0x302F),
+    (0x3036, 0x3037), (0x303E, 0x303F),
+)
+#: A name that may read as a cell: one to three letters and a number.
+_CELL_LIKE = re.compile(r"([A-Za-z]{1,3})([0-9]+)")
+#: A row, a column or a cell in R1C1 at the start of a name: R2, C3, RC1, R1C1.
+_R1C1_START = re.compile(r"(RC|R|C)([0-9]+)", re.IGNORECASE)
+#: Another workbook's sheet as a file spells it, by its link's number, [1]Sheet1 or [1]Sheet1:Other, with no quotes.
+_LINKED_NAME = re.compile(r"\[[0-9]+\](?:[A-Za-z_][A-Za-z0-9_.]*(?::[A-Za-z_][A-Za-z0-9_.]*)?)?")
 
 
 def column_letter(index: int) -> str:
@@ -46,13 +72,48 @@ def column_number(letters: str) -> int:
 def quote_sheet(name: str) -> str:
     """A sheet's name as a formula reference spells it.
 
-    Anything but a plain identifier is wrapped in apostrophes, and an
-    apostrophe inside the name is doubled, because a single one would
-    close the quoting early and leave a reference to something else.
+    A plain name a formula would not read as something else is written
+    bare. Anything else is wrapped in apostrophes, and an apostrophe
+    inside the name is doubled, because a single one would close the
+    quoting early and leave a reference to something else.
     """
-    if _PLAIN_NAME.fullmatch(name):
+    if _LINKED_NAME.fullmatch(name) or (_plain(name) and not _read_otherwise(name)):
         return name
     return "'" + name.replace("'", "''") + "'"
+
+
+def _plain(name: str) -> bool:
+    """Whether every character of a name may stand bare where it is: in ASCII a letter or an underscore first, then
+    letters, digits, underscores and full stops; past ASCII any character the two tables above leave out."""
+    if not name:
+        return False
+    first = ord(name[0])
+    if first < 128:
+        if not (name[0].isalpha() or name[0] == "_"):
+            return False
+    elif _within(first, _QUOTED_ANYWHERE) or _within(first, _QUOTED_FIRST):
+        return False
+    return all((char.isalnum() or char in "_.") if char.isascii() else not _within(ord(char), _QUOTED_ANYWHERE)
+               for char in name[1:])
+
+
+def _within(point: int, spans: tuple[tuple[int, int], ...]) -> bool:
+    return any(low <= point <= high for low, high in spans)
+
+
+def _read_otherwise(name: str) -> bool:
+    """Whether a formula would read a plain name as something other than a sheet, so that Excel writes it in
+    apostrophes: a logical; a cell, Q4 or A01, though no name starting LOG10, the name of a function, LOG100 among
+    them; R, C or RC; or R, C or RC with a number from 1 to 1048576, alone or going on with anything but a full
+    stop, R2, C3, RC1, R1x and C1A, though R1.x is plain (tests/fixtures/sheet_quoting.json, and pyOfficeEditor's
+    1,246 names)."""
+    if name.upper() in ("TRUE", "FALSE", "R", "C", "RC"):
+        return True
+    cell = _CELL_LIKE.fullmatch(name)
+    if cell is not None and 1 <= int(cell.group(2)) <= MAX_ROWS and column_number(cell.group(1)) <= MAX_COLUMNS:
+        return not name.upper().startswith("LOG10")
+    start = _R1C1_START.match(name)
+    return start is not None and not name[start.end() :].startswith(".") and 1 <= int(start.group(2)) <= MAX_ROWS
 
 
 @dataclass(frozen=True, slots=True)

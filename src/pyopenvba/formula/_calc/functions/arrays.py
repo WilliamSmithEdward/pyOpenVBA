@@ -340,18 +340,27 @@ def CHOOSECOLS(context: Context, array: Value, *picks: Value) -> Value:
 # ----------------------------------------------------------------------
 
 
+def _each_area(context: Context, value: Value) -> list[Array]:
+    """A value as the arrays it holds: one for each area of a reference
+    with several, a union or a 3D reference, which VSTACK, HSTACK, TOCOL and
+    TOROW take in turn (pyOpenVBA's tests/fixtures/three_d_functions.json)."""
+    if isinstance(value, Reference) and len(value.areas) > 1:
+        return [context.array_of(Reference.of(area)) for area in value.areas]
+    return [context.array_of(value)]
+
+
 @function("VSTACK", A, maximum=254)
 def VSTACK(context: Context, *arrays: Value) -> Value:
     # An error or a function given on its own is one item of the stack, as
     # HSTACK(SUM,AVERAGE) makes the list of functions GROUPBY takes.
-    grids = [context.array_of(array) for array in arrays]
+    grids = [grid for array in arrays for grid in _each_area(context, array)]
     width = max(grid.width for grid in grids)
     return Array([list(row) + [NA] * (width - len(row)) for grid in grids for row in grid.rows])
 
 
 @function("HSTACK", A, maximum=254)
 def HSTACK(context: Context, *arrays: Value) -> Value:
-    grids = [context.array_of(array) for array in arrays]
+    grids = [grid for array in arrays for grid in _each_area(context, array)]
     height = max(grid.height for grid in grids)
     rows: list[Line] = [[] for _ in range(height)]
     for grid in grids:
@@ -361,11 +370,14 @@ def HSTACK(context: Context, *arrays: Value) -> Value:
 
 
 def _flattened(context: Context, array: Value, ignore: Scalar | None, by_column: Scalar | None) -> Line:
-    grid = matrix(context, array)
+    if isinstance(array, CellError):
+        raise ExcelError(array)
+    grids = _each_area(context, array)
     skip = _count(context, ignore, 0)
     if not 0 <= skip <= 3:
         raise ExcelError(VALUE)
-    lines = _columns(grid) if _flag(context, by_column) else grid.rows
+    by_columns = _flag(context, by_column)
+    lines = [line for grid in grids for line in (_columns(grid) if by_columns else grid.rows)]
     found = [
         value
         for line in lines

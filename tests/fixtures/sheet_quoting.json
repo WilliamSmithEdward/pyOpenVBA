@@ -1,0 +1,508 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-22T20:04:04.105635+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "plain",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Totals\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=Totals!A1|7"
+    },
+    {
+      "name": "plain_digits",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Data2\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=Data2!A1|7"
+    },
+    {
+      "name": "underscore_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"_x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=_x!A1|7"
+    },
+    {
+      "name": "underscore_digit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x_1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=x_1!A1|7"
+    },
+    {
+      "name": "full_stop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x.y\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=x.y!A1|7"
+    },
+    {
+      "name": "space",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Data 1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='Data 1'!A1|7"
+    },
+    {
+      "name": "digit_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"1Data\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='1Data'!A1|7"
+    },
+    {
+      "name": "hyphen",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Ab-c\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='Ab-c'!A1|7"
+    },
+    {
+      "name": "dollar",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"a$b\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='a$b'!A1|7"
+    },
+    {
+      "name": "hash_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"#x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='#x'!A1|7"
+    },
+    {
+      "name": "apostrophe",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"O'Neil\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='O''Neil'!A1|7"
+    },
+    {
+      "name": "accented",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Donn\" & ChrW(233) & \"es\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=Donn\u00e9es!A1|7"
+    },
+    {
+      "name": "cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Q4\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='Q4'!A1|7"
+    },
+    {
+      "name": "cell_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"A1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='A1'!A1|7"
+    },
+    {
+      "name": "last_cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"XFD1048576\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='XFD1048576'!A1|7"
+    },
+    {
+      "name": "past_last_column",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"XFE1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=XFE1!A1|7"
+    },
+    {
+      "name": "four_letters",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"AAAA1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=AAAA1!A1|7"
+    },
+    {
+      "name": "past_last_row",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"A1048577\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=A1048577!A1|7"
+    },
+    {
+      "name": "cell_like_word",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"LOG10\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=LOG10!A1|7"
+    },
+    {
+      "name": "cell_then_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"A1B\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=A1B!A1|7"
+    },
+    {
+      "name": "letters",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"AB\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=AB!A1|7"
+    },
+    {
+      "name": "r1c1",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1C1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1C1'!A1|7"
+    },
+    {
+      "name": "r_alone",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R'!A1|7"
+    },
+    {
+      "name": "c_alone",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C'!A1|7"
+    },
+    {
+      "name": "rc",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RC\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='RC'!A1|7"
+    },
+    {
+      "name": "r_digits",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R2\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R2'!A1|7"
+    },
+    {
+      "name": "c_digits",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C3\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C3'!A1|7"
+    },
+    {
+      "name": "r_c_digits",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R2C\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R2C'!A1|7"
+    },
+    {
+      "name": "lower_r1c1",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"r1c1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='r1c1'!A1|7"
+    },
+    {
+      "name": "true",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"TRUE\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='TRUE'!A1|7"
+    },
+    {
+      "name": "false",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"false\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='false'!A1|7"
+    },
+    {
+      "name": "function_name",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"SUM\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=SUM!A1|7"
+    },
+    {
+      "name": "error_like",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"NA\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=NA!A1|7"
+    },
+    {
+      "name": "cell_like_not_a_function",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"LOH10\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='LOH10'!A1|7"
+    },
+    {
+      "name": "cell_like_lower",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"q4\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='q4'!A1|7"
+    },
+    {
+      "name": "rc_digit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RC1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='RC1'!A1|7"
+    },
+    {
+      "name": "r1c1_then_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1C1A\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1C1A'!A1|7"
+    },
+    {
+      "name": "full_stop_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \".x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='.x'!A1|7"
+    },
+    {
+      "name": "full_stop_last",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x.\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=x.!A1|7"
+    },
+    {
+      "name": "comma",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x,y\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='x,y'!A1|7"
+    },
+    {
+      "name": "plus",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x+y\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='x+y'!A1|7"
+    },
+    {
+      "name": "ampersand",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x&y\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='x&y'!A1|7"
+    },
+    {
+      "name": "parenthesis",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x(y)\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='x(y)'!A1|7"
+    },
+    {
+      "name": "accented_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(201) & \"t\" & ChrW(233)\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=\u00c9t\u00e9!A1|7"
+    },
+    {
+      "name": "cjk",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(25968) & ChrW(25454)\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=\u6570\u636e!A1|7"
+    },
+    {
+      "name": "digits_only",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"2020\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='2020'!A1|7"
+    },
+    {
+      "name": "digit_full_stop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"1.5\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='1.5'!A1|7"
+    },
+    {
+      "name": "letter_digit_full_stop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x1.5\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=x1.5!A1|7"
+    },
+    {
+      "name": "r_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Rx\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=Rx!A1|7"
+    },
+    {
+      "name": "c_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"Cx\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=Cx!A1|7"
+    },
+    {
+      "name": "r_digit_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1x'!A1|7"
+    },
+    {
+      "name": "c_digit_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C1A\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C1A'!A1|7"
+    },
+    {
+      "name": "rc_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RCx\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=RCx!A1|7"
+    },
+    {
+      "name": "r1c_underscore",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1C1_\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1C1_'!A1|7"
+    },
+    {
+      "name": "rc_digit_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RC1x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='RC1x'!A1|7"
+    },
+    {
+      "name": "r_zero",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R0\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=R0!A1|7"
+    },
+    {
+      "name": "c_zero",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C0\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=C0!A1|7"
+    },
+    {
+      "name": "past_last_r1c1_row",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1048577\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=R1048577!A1|7"
+    },
+    {
+      "name": "past_last_r1c1_column",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C16385\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C16385'!A1|7"
+    },
+    {
+      "name": "last_r1c1_cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1048576C16384\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1048576C16384'!A1|7"
+    },
+    {
+      "name": "rr",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RR\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=RR!A1|7"
+    },
+    {
+      "name": "cc",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"CC\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=CC!A1|7"
+    },
+    {
+      "name": "row_zero",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"A0\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=A0!A1|7"
+    },
+    {
+      "name": "leading_zero_row",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"A01\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='A01'!A1|7"
+    },
+    {
+      "name": "two_letter_cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"AB12\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='AB12'!A1|7"
+    },
+    {
+      "name": "c_past_zzz",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C18279\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C18279'!A1|7"
+    },
+    {
+      "name": "c_65536",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C65536\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C65536'!A1|7"
+    },
+    {
+      "name": "c_65537",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C65537\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C65537'!A1|7"
+    },
+    {
+      "name": "c_large",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C999999\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C999999'!A1|7"
+    },
+    {
+      "name": "r1c_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1Cx\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1Cx'!A1|7"
+    },
+    {
+      "name": "r1c0",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1C0\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1C0'!A1|7"
+    },
+    {
+      "name": "r1c_past_last_column",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1C16385\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1C16385'!A1|7"
+    },
+    {
+      "name": "rc0",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RC0\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=RC0!A1|7"
+    },
+    {
+      "name": "r_leading_zero",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R01\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R01'!A1|7"
+    },
+    {
+      "name": "r_digits_full_stop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1.x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=R1.x!A1|7"
+    },
+    {
+      "name": "c_digit_underscore",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C1_\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C1_'!A1|7"
+    },
+    {
+      "name": "r_digit_full_stop_last",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1.\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=R1.!A1|7"
+    },
+    {
+      "name": "c_digit_full_stop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C1.x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=C1.x!A1|7"
+    },
+    {
+      "name": "r1c1_full_stop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1C1.x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='R1C1.x'!A1|7"
+    },
+    {
+      "name": "rc_digit_full_stop",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RC1.x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=RC1.x!A1|7"
+    },
+    {
+      "name": "r_digits_decimal",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"R1.5\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=R1.5!A1|7"
+    },
+    {
+      "name": "c_last_row_number",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C1048576\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='C1048576'!A1|7"
+    },
+    {
+      "name": "c_past_last_row_number",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"C1048577\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=C1048577!A1|7"
+    },
+    {
+      "name": "rc_past_last_row_number",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"RC1048577\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=RC1048577!A1|7"
+    },
+    {
+      "name": "log100",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"LOG100\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=LOG100!A1|7"
+    },
+    {
+      "name": "log1000",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"LOG1000\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=LOG1000!A1|7"
+    },
+    {
+      "name": "log10_letter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"LOG10X\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=LOG10X!A1|7"
+    },
+    {
+      "name": "letter_log10",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"XLOG10\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=XLOG10!A1|7"
+    },
+    {
+      "name": "log9",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"LOG9\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='LOG9'!A1|7"
+    },
+    {
+      "name": "copyright_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(169) & \"x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='\u00a9x'!A1|7"
+    },
+    {
+      "name": "copyright_last",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x\" & ChrW(169)\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='x\u00a9'!A1|7"
+    },
+    {
+      "name": "euro_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(8364) & \"x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='\u20acx'!A1|7"
+    },
+    {
+      "name": "euro_last",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x\" & ChrW(8364)\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=x\u20ac!A1|7"
+    },
+    {
+      "name": "umlaut_digit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(220) & \"1\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=\u00dc1!A1|7"
+    },
+    {
+      "name": "omega_word",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(937) & \"mega\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=\u03a9mega!A1|7"
+    },
+    {
+      "name": "full_width_letters",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(65313) & ChrW(65314)\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=\uff21\uff22!A1|7"
+    },
+    {
+      "name": "full_width_digit",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(65297)\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=\uff11!A1|7"
+    },
+    {
+      "name": "no_break_space",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x\" & ChrW(160) & \"y\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='x\u00a0y'!A1|7"
+    },
+    {
+      "name": "en_dash",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = \"x\" & ChrW(8211) & \"y\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "=x\u2013y!A1|7"
+    },
+    {
+      "name": "em_space_first",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, target As Worksheet\nSet ws = Worksheets.Add\nSet target = Worksheets.Add(After:=ws)\ntarget.Name = ChrW(8195) & \"x\"\ntarget.Range(\"A1\").Value = 7\nws.Range(\"A1\").Formula = \"='\" & Replace(target.Name, \"'\", \"''\") & \"'!A1\"\nProbe = ws.Range(\"A1\").Formula & \"|\" & CStr(ws.Range(\"A1\").Value)\nApplication.DisplayAlerts = False\nws.Delete\ntarget.Delete\nApplication.DisplayAlerts = True\nEnd Function\n",
+      "result": "='\u2003x'!A1|7"
+    }
+  ]
+}

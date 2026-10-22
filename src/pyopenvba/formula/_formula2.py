@@ -163,7 +163,8 @@ class _Walk:
         if node is None or isinstance(node, Literal):
             return False
         if isinstance(node, Reference):
-            return ":" in node.text
+            # A sheet's name cannot hold a colon: one there is a 3D reference's, cells on several sheets.
+            return ":" in node.text or ":" in node.sheet
         if isinstance(node, Structured):
             raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
         if isinstance(node, ArrayLiteral):

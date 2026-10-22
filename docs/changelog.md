@@ -22,6 +22,36 @@ All notable changes to pyOpenVBA are documented here. This project follows
   functions are there now. 194 odd-coupon cells measured on their own match
   to the bit but for nine long-first-period yields within 1.6e-11.
 
+- Formulas read a closed linked workbook from the copy of its cells and
+  names the file keeps, `[1]Sheet1!A1` and `[1]!Rate`, a 3D range across
+  its sheets among them. Range.Formula shows the link as the path of the
+  workbook it points at, a macro may name it by that path or its file's
+  name, and calculation, full calculation and a row put in follow Excel
+  over 19 measured formulas and pyOfficeEditor's 25 cases. Saving keeps
+  the link's parts. A formula naming a workbook the file has no link to
+  is reported unsupported.
+
+- 3D references, `Jan:Mar!A1`, work out as Excel's do over 277 measured
+  formulas, every function that takes a range among them: alone, with an
+  operator or behind `@` they are #REF!; 62 functions read every sheet,
+  SUM to NPV, CONCAT and TOCOL; 41 that take an array give #REF!; any
+  other function given one gives #VALUE!. VSTACK, HSTACK, TOCOL and TOROW
+  take each area of a union or a 3D reference in turn. Excel writes the
+  pair first sheet to last, and reads `Q1:Q4!A1` and `(ThreeA:ThreeB!A1)`
+  otherwise, which the model follows.
+
+- A formula's cell takes the format Excel gives the financial functions:
+  DB, DDB, FV, IPMT, NPV, PMT, PPMT, PV, SLN, SYD and VDB the currency
+  format, so the cell's Value is a Currency, and IRR, MIRR and RATE 0%.
+  Every one of the engine's 501 functions was written alone to a General
+  cell in Excel to find them.
+
+- A sheet's name in a formula is quoted as Excel quotes it, over 100
+  measured names and pyOfficeEditor's tables of the characters past ASCII
+  Excel quotes for: plain names in any script, full stops included, are
+  bare, and read back bare, while names like cells (`'Q4'`), R1C1 rows and
+  columns (`'R2'`, `'C1A'`) and logicals are in apostrophes.
+
 - `Application.ReferenceStyle`, `International`, `DecimalSeparator`,
   `ThousandsSeparator` and `UseSystemSeparators`, as Excel answers them in
   en-US. In the R1C1 style Evaluate reads R1C1 references, and a workbook

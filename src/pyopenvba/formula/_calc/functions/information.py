@@ -75,7 +75,9 @@ def ISODD(context: Context, value: Scalar) -> Value:
 
 @function("ISREF", LAZY)
 def ISREF(context: Context, value: Node) -> Value:
-    return isinstance(context.evaluate(value), Reference)
+    # A 3D reference is none (pyOpenVBA's tests/fixtures/three_d_functions.json).
+    found = context.evaluate(value)
+    return isinstance(found, Reference) and not found.three_d
 
 
 @function("ISFORMULA", REF)

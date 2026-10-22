@@ -134,8 +134,13 @@ class Structured(Node):
 
 # --- tokens -------------------------------------------------------------------------
 
-#: A sheet name in front of a reference, quoted or not.
-_SHEET = r"(?:'(?:[^']|'')+'|[A-Za-z0-9_.À-￿]+)!"
+#: A sheet's name written without quotes, which may run past ASCII: Excel writes Mär!B3, x–y!B3 and 日本!B3 bare
+#: (tests/fixtures/sheet_quoting.json).
+BARE_SHEET = r"[A-Za-z0-9_.\x80-\U0010ffff]+"
+#: A sheet name in front of a reference, quoted or not, or a 3D pair of them, Jan:Mar!.
+_SHEET = rf"(?:'(?:[^']|'')+'|{BARE_SHEET}(?::{BARE_SHEET})?)!"
+#: A 3D pair of sheets without quotes at the start of a token: its first sheet, then the rest after the colon.
+_BARE_PAIR = re.compile(rf"({BARE_SHEET}):{BARE_SHEET}!")
 _CELL = r"\$?[A-Za-z]{1,3}\$?[0-9]{1,7}"
 _WHOLE_COLUMNS = r"\$?[A-Za-z]{1,3}:\$?[A-Za-z]{1,3}"
 _WHOLE_ROWS = r"\$?[0-9]{1,7}:\$?[0-9]{1,7}"
@@ -145,11 +150,17 @@ _BRACKETED = rf"\[{_ESCAPED}*\]"
 #: A structured reference: a table's name, or none inside the table, and what stands in its brackets.
 STRUCTURED: Final = (rf"(?:{_SHEET})?(?:[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)?"
                      rf"\[(?:{_ESCAPED}*|\s*@?\s*{_BRACKETED}(?:\s*[,:]\s*{_BRACKETED})*\s*)\]")
+#: Another workbook as a file spells it, by its link's number: [1]Sheet1!, [1]Sheet1:Other! or, for its names, [1]!.
+_LINKED = rf"\[[0-9]+\](?:{BARE_SHEET}(?::{BARE_SHEET})?)?!"
+#: Another workbook's sheet as a macro may write it, by its file's name: [Source.xlsx]Sheet1!.
+_BOOK_SHEET = rf"\[[^\[\]'!]+\]{BARE_SHEET}(?::{BARE_SHEET})?!"
 
 _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
   | (?P<text>"(?:[^"]|"")*")
+  | (?P<linked_ref>(?:{_LINKED}|{_BOOK_SHEET})(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
+  | (?P<linked_name>{_LINKED}[A-Za-z_\\À-￿][A-Za-z0-9_.?\\À-￿]*)
   | (?P<structured>{STRUCTURED})
   | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
   | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
@@ -177,6 +188,8 @@ class Token:
 def tokenize(source: str, *, spaces: bool = False) -> list[Token]:
     """Every token of a formula, without the leading equals sign; ``spaces`` keeps the runs of white space too."""
     out: list[Token] = []
+    #: The brackets open, innermost last: True for a function's, False for brackets of their own.
+    calls: list[bool] = []
     position = 0
     while position < len(source):
         match = _TOKEN.match(source, position)
@@ -184,15 +197,40 @@ def tokenize(source: str, *, spaces: bool = False) -> list[Token]:
             raise FormulaError(f"cannot read the formula at {source[position:position + 12]!r}")
         position = match.end()
         kind = match.lastgroup or ""
+        if kind in ("linked_ref", "linked_name"):
+            # A reference to another workbook reads as any other, its sheet being [1]Sheet1.
+            kind = kind[len("linked_"):]
+        if kind == "open":
+            # A call's bracket follows its name, or a LAMBDA's, (LAMBDA(x,x))(1).
+            last = next((one for one in reversed(out) if one.kind != "ws"), None)
+            calls.append(last is not None and last.kind in ("name", "close"))
+        elif kind == "close" and calls:
+            calls.pop()
         if kind == "ws" and not spaces:
             continue
         if kind == "ref" and not _on_the_sheet(match.group(0)):
             # XFE1 and A1048577 are past the sheet's edge: names, as Excel reads them
             # (tests/fixtures/formula_notation.json).
             kind = "name"
-        out.append(Token(kind, match.group(0), match.start()))
+        out.extend(_three_d(Token(kind, match.group(0), match.start()), bracketed=calls[-1:] == [False]))
     out.append(Token("eof", "", len(source)))
     return _bind_cells(out)
+
+
+def _three_d(token: Token, *, bracketed: bool) -> list[Token]:
+    """A token behind a 3D pair of sheets without quotes, Q1:Q4!A1, as Excel reads it: as one reference, unless the
+    first sheet is a cell, or the pair is in brackets of their own, where the first sheet stands alone, the cell Q1
+    or the name ThreeA, and the range operator joins it to the rest (tests/fixtures/three_d_references.json)."""
+    found = _BARE_PAIR.match(token.text) if token.kind in ("ref", "name", "error") else None
+    if found is None:
+        return [token]
+    first = found.group(1)
+    cell = _CELL_NAME.fullmatch(first) is not None and _on_the_sheet(first)
+    if not (bracketed or cell):
+        return [token]
+    after = token.at + len(first)
+    return [Token("ref" if cell else "name", first, token.at), Token("op", ":", after),
+            *_three_d(Token(token.kind, token.text[len(first) + 1 :], after + 1), bracketed=bracketed)]
 
 
 #: The functions that bind names, as a formula or a file spells them.

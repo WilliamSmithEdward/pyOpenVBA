@@ -17,10 +17,14 @@ What a formula brings follows its shape:
 * ``*``, ``/``, ``^``, ``&`` and comparisons bring nothing, even from a
   percentage;
 * DATE and TODAY bring m/d/yyyy, NOW m/d/yyyy h:mm and TIME h:mm AM/PM;
+  DB, DDB, FV, IPMT, NPV, PMT, PPMT, PV, SLN, SYD and VDB the currency
+  format, and IRR, MIRR and RATE 0%;
 * SUM, MAX, MIN, INT, ROUND, ROUNDDOWN, ROUNDUP, TRUNC and MOD hand on
   their first argument's format that there is one: SUM(5,A1) is a date
-  when A1 is. Every other function measured brings nothing -- AVERAGE,
-  ABS, MEDIAN, SUMIF, IF, INDEX and VLOOKUP among them.
+  when A1 is. Every other function brings nothing -- AVERAGE, ABS,
+  MEDIAN, SUMIF, IF, INDEX and VLOOKUP among them, as each of the
+  engine's functions written alone shows
+  (tests/fixtures/function_formats.json).
 """
 
 from __future__ import annotations
@@ -48,8 +52,15 @@ from pyopenvba.formula._deep import deep
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
 
-#: Functions whose answer brings a format of its own.
-_BRINGS: Final = {"DATE": "m/d/yyyy", "TODAY": "m/d/yyyy", "NOW": "m/d/yyyy h:mm", "TIME": "h:mm AM/PM"}
+#: The currency format the financial functions bring, as en-US Excel writes it.
+_CURRENCY: Final = "$#,##0.00_);[Red]($#,##0.00)"
+#: Functions whose answer brings a format of its own, every one of the engine's functions measured
+#: (tests/fixtures/function_formats.json).
+_BRINGS: Final = {
+    "DATE": "m/d/yyyy", "TODAY": "m/d/yyyy", "NOW": "m/d/yyyy h:mm", "TIME": "h:mm AM/PM",
+    **dict.fromkeys(("DB", "DDB", "FV", "IPMT", "NPV", "PMT", "PPMT", "PV", "SLN", "SYD", "VDB"), _CURRENCY),
+    **dict.fromkeys(("IRR", "MIRR", "RATE"), "0%"),
+}
 #: Functions that hand on the format of their first argument that has one.
 _HANDS_ON: Final = frozenset({"SUM", "MAX", "MIN", "INT", "ROUND", "ROUNDDOWN", "ROUNDUP", "TRUNC", "MOD"})
 #: What names cells as it is written: a reference or a defined name.
@@ -126,5 +137,8 @@ def _cells_format(node: Node, context: Context, sheet: Worksheet) -> str:
     if not isinstance(value, Reference):
         return ""
     first = value.areas[0]
+    if first.external:
+        # A link keeps another workbook's values, not their formats.
+        return ""
     code = sheet.book.sheet_named(first.sheet).style_at(first.top, first.left).number_format
     return "" if code in ("General", "") else code

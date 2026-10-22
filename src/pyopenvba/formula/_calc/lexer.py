@@ -102,8 +102,8 @@ ERROR_CODES = (
 _SPACE = re.compile(r"[ \t\r\n]+")
 _NUMBER = re.compile(r"(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
 #: What may not follow a reference, because the reference would then be the
-#: start of something longer: a name, a call, a table.
-_END = r"(?![\w.\\?$(\[])"
+#: start of something longer: a name, a call, a table, a sheet's name.
+_END = r"(?![\w.\\?$(\[!])"
 _CELL = re.compile(r"(\$?)([A-Za-z]{1,3})(\$?)([0-9]{1,7})" + _END)
 _AREA = re.compile(r"(\$?)([A-Za-z]{1,3})(\$?)([0-9]{1,7}):(\$?)([A-Za-z]{1,3})(\$?)([0-9]{1,7})" + _END)
 _COLUMNS = re.compile(r"(\$?)([A-Za-z]{1,3}):(\$?)([A-Za-z]{1,3})" + _END)
@@ -112,7 +112,10 @@ _ROWS = re.compile(r"(\$?)([0-9]{1,7}):(\$?)([0-9]{1,7})" + _END)
 #: letters, digits, full stops, underscores, backslashes and question marks.
 _NAME = re.compile(r"(?:[^\W\d]|\\)[\w.\\?]*")
 #: A sheet name that needs no quotes, and a 3D pair of them, before ``!``.
-_BARE_SHEETS = re.compile(r"((?:[^\W\d]|\\)[\w.\\]*)(?::((?:[^\W\d]|\\)[\w.\\]*))?!")
+#: Past ASCII any character may stand in one: Excel writes x–y!B3 and
+#: ＡＢ!B3 bare (pyOpenVBA's tests/fixtures/sheet_quoting.json).
+_BARE_SHEET = r"(?:[^\W\d]|[\\\x80-\U0010ffff])[\w.\\\x80-\U0010ffff]*"
+_BARE_SHEETS = re.compile(rf"({_BARE_SHEET})(?::({_BARE_SHEET}))?!")
 _BOOK = re.compile(r"\[([^\]\[]+)\]")
 _TWO_CHARACTER_OPERATORS = ("<>", "<=", ">=")
 _OPERATORS = "+-*/^&=<>%:@"
@@ -137,6 +140,9 @@ class _Lexer:
         self.text = formula
         self.position = 0
         self.tokens: list[Token] = []
+        #: The brackets open where the lexer is, innermost last: True for a
+        #: function's, False for brackets of their own.
+        self.calls: list[bool] = []
 
     def fail(self, message: str, position: int | None = None) -> FormulaSyntaxError:
         return FormulaSyntaxError(message, self.text, self.position if position is None else position)
@@ -144,6 +150,14 @@ class _Lexer:
     def emit(self, kind: Kind, end: int, node: Node | None = None) -> None:
         self.tokens.append(Token(kind, self.text[self.position : end], self.position, node))
         self.position = end
+        if kind is Kind.OPEN:
+            # A bracket after a closing one calls a LAMBDA, (LAMBDA(x,x))(1).
+            previous = next((one for one in reversed(self.tokens[:-1]) if one.kind is not Kind.SPACE), None)
+            self.calls.append(previous is not None and previous.kind is Kind.CLOSE)
+        elif kind is Kind.FUNCTION:
+            self.calls.append(True)
+        elif kind is Kind.CLOSE and self.calls:
+            self.calls.pop()
 
     def run(self) -> list[Token]:
         text = self.text
@@ -267,6 +281,12 @@ class _Lexer:
         sheets = _BARE_SHEETS.match(text, position)
         if sheets is None:
             return None, start
+        if sheets.group(2) is not None and book is None and (self.calls[-1:] == [False] or _is_cell(sheets.group(1))):
+            # Excel reads Q1:Q4!A1 as the cell Q1 to Q4!A1, and in brackets of
+            # their own (ThreeA:ThreeB!A1) as the name ThreeA to ThreeB!A1,
+            # #NAME? unless there is one (pyOpenVBA's
+            # tests/fixtures/three_d_references.json).
+            return None, start
         return Prefix(sheets.group(1), sheets.group(2), book), sheets.end()
 
     def target(self, start: int, prefix: Prefix | None) -> tuple[Node | None, int]:
@@ -365,6 +385,12 @@ def _quoted_prefix(content: str) -> Prefix:
         content = content[found.end() :]
     first, colon, last = content.partition(":")
     return Prefix(first, last if colon else None, book)
+
+
+def _is_cell(word: str) -> bool:
+    """Whether a word is a cell on the sheet, Q4, as a formula reads it."""
+    found = _CELL.fullmatch(word)
+    return found is not None and _cell(*found.groups()) is not None
 
 
 def _cell(dollar_column: str, letters: str, dollar_row: str, digits: str) -> CellRef | None:

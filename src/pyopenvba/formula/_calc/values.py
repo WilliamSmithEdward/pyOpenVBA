@@ -166,6 +166,10 @@ class Reference:
     #: INDIRECT keeps its reference identity for most consumers, but Excel's
     #: Evaluate passes it differently to GETPIVOTDATA. This is provenance only.
     indirect: bool = field(default=False, compare=False, repr=False)
+    #: A 3D reference, Jan:Mar!A1, an area on each of two or more sheets:
+    #: no value, only what the functions that read every sheet take
+    #: (pyOpenVBA's tests/fixtures/three_d_functions.json).
+    three_d: bool = False
 
     @classmethod
     def of(cls, area: Area) -> Reference:

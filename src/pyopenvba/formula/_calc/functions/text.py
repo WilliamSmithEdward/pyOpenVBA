@@ -248,6 +248,10 @@ def CONCATENATE(context: Context, *parts: Scalar) -> Value:
 
 
 def _pieces(context: Context, value: Value) -> list[Scalar]:
+    """A part's values row by row: a 3D reference's area on each sheet in turn, where a union is #VALUE!
+    (pyOpenVBA's tests/fixtures/three_d_functions.json)."""
+    if isinstance(value, Reference) and value.three_d:
+        return [piece for area in value.areas for piece in matrix(context, Reference.of(area)).items()]
     if isinstance(value, (Reference, Array)):
         return list(matrix(context, value).items())
     return [value]

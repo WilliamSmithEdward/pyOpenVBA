@@ -126,10 +126,14 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     book = Workbook(application, path.name, str(path.parent))
     book.package = package
     book.links_folder = str(path.resolve().parent)
-    workbook_xml = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
+    workbook_part = package.read("xl/workbook.xml")
+    workbook_xml = workbook_part.decode("utf-8", errors="replace")
+    from pyopenvba.apps.excel._charts_file import xml_tree
     from pyopenvba.apps.excel._date_system import read as read_date_system
+    from pyopenvba.apps.excel._external_links import read as read_links
 
-    read_date_system(book, package.read("xl/workbook.xml"))
+    read_date_system(book, workbook_part)
+    read_links(book, package, xml_tree(workbook_part))
     relationships = _relationship_map(package)
     strings = _shared_strings(package)
     stylesheet = book.stylesheet

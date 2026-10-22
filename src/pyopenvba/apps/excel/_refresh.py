@@ -149,7 +149,8 @@ def _to_m(sheet: Worksheet, row: int, column: int) -> object:
     if value is EMPTY:
         return None
     if isinstance(value, VBADate):
-        return value.to_datetime()
+        # On the 1904 calendar a cell's serial counts from 1 January 1904, a time of day alone included.
+        return VBADate(value.serial + 1462).to_datetime() if sheet.book.epoch_1904 else value.to_datetime()
     if isinstance(value, bool):
         return value
     if isinstance(value, (int, float, VBACurrency)):
@@ -237,6 +238,16 @@ def write_table(book: Workbook, target: LoadTarget, table: Table) -> None:
     sheet.shape_changed()
 
 
+def _serial(sheet: Worksheet, value: _dt.date) -> float:
+    """A date a query loads, as the serial its workbook's calendar keeps for it."""
+    serial = VBADate.from_datetime(value).serial
+    if not sheet.book.epoch_1904:
+        return serial
+    if serial < 1462:
+        raise VBAUnsupportedError("loading a date before 1904 into a workbook on the 1904 calendar is not implemented")
+    return serial - 1462
+
+
 def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
     from pyopenvba.apps.excel._model import stored_value
 
@@ -247,11 +258,11 @@ def _put(sheet: Worksheet, row: int, column: int, value: object) -> None:
     if value is None:
         cell.value = EMPTY
     elif isinstance(value, _dt.datetime):
-        cell.value = VBADate.from_datetime(value).serial
+        cell.value = _serial(sheet, value)
         if cell.number_format in ("General", ""):
             sheet.set_number_format(row, column, "m/d/yyyy h:mm")
     elif isinstance(value, _dt.date):
-        cell.value = VBADate.from_datetime(value).serial
+        cell.value = _serial(sheet, value)
         if cell.number_format in ("General", ""):
             sheet.set_number_format(row, column, "m/d/yyyy")
     elif isinstance(value, Duration):

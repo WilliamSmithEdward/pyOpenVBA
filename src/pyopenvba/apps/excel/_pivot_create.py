@@ -169,7 +169,8 @@ def _materialize(cache: PivotCache, charge_text: Callable[[object], None] | None
             from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS
             caption = next((name for name, number in ERROR_NUMBERS.items() if number == value.number), '#VALUE!')
         else:
-            caption = format_value(value, selected.sheet.style_at(area.top, column).number_format)
+            caption = format_value(value, selected.sheet.style_at(area.top, column).number_format,
+                                   epoch_1904=selected.sheet.book.epoch_1904)
         captions.append(caption)
     reserved = {caption.casefold() for caption in captions if caption}
     used: set[str] = set()
@@ -254,12 +255,15 @@ def _materialize(cache: PivotCache, charge_text: Callable[[object], None] | None
 
 def plan_materialize(cache: PivotCache, *, source: Range | None = None, charge_text: Callable[[object], None] | None = None) -> PivotCache:
     """Read the source into a detached cache snapshot, without publishing it."""
+    from pyopenvba.apps.excel._pivots import refuse_1904_dates
+
     planned = copy(cache)
     planned.root = deepcopy(cache.root)
     planned.records = None
     if source is not None:
         planned.pending_source = source
     _materialize(planned, charge_text)
+    refuse_1904_dates(planned)
     return planned
 
 

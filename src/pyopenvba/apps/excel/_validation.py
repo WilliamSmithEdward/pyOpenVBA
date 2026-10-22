@@ -465,7 +465,7 @@ class Validation(ExcelObject):
         except ValueError:
             return "=" + _moved(formula, rule.anchor, self._here())
         if rule.kind == DATE:
-            return shown(number, "m/d/yyyy")[0]
+            return shown(number, "m/d/yyyy", epoch_1904=self.sheet.book.epoch_1904)[0]
         if rule.kind == TIME:
             return shown(number, "h:mm:ss AM/PM")[0]
         return formula
@@ -473,12 +473,19 @@ class Validation(ExcelObject):
     def _stored(self, kind: int, value: object) -> str:
         """An argument to Add or Modify as the file keeps it."""
         from pyopenvba.apps.excel._model import spelled_formula
-        from pyopenvba.apps.excel._typing import typed_text
+        from pyopenvba.apps.excel._typing import on_1904, typed_text
         from pyopenvba.formula._values import number_text
 
         if value is MISSING or value is None or value is EMPTY:
             return ""
+        epoch_1904 = self.sheet.book.epoch_1904
         if isinstance(value, VBADate):
+            if epoch_1904 and value.serial >= 1:
+                # The bound is the workbook's serial, as a Date written to a cell is (tests/fixtures/date1904/).
+                if value.serial < 1462:
+                    raise VBAUnsupportedError("a validation bound before the 1904 calendar's first day is not "
+                                              "implemented")
+                return number_text(value.serial - 1462, formula=True)
             return number_text(value.serial, formula=True)
         if isinstance(value, (int, float)) and not isinstance(value, bool):
             return number_text(float(value), formula=True)
@@ -492,7 +499,14 @@ class Validation(ExcelObject):
             return spelled
         if kind == LIST:
             return '"' + text.replace('"', '""') + '"'
-        typed = typed_text(text).value
+        found = typed_text(text)
+        if epoch_1904:
+            moved = on_1904(found, text)
+            if moved is not found and isinstance(moved.value, str):
+                raise VBAUnsupportedError("a validation bound before the 1904 calendar's first day is not "
+                                          "implemented")
+            found = moved
+        typed = found.value
         if isinstance(typed, VBADate):
             typed = typed.serial
         if isinstance(typed, (int, float)) and not isinstance(typed, bool):

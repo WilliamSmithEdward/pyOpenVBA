@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbook.Date1904`: each workbook keeps its own 1900 or 1904 calendar,
+  read from and saved to `workbookPr`. Cells, typing, Value, Text, formulas,
+  Text cells, Find and Replace, AutoFill, TextToColumns, AutoFilter and
+  validation criteria, Evaluate and WorksheetFunction follow it as Excel's
+  do, over 8 native controls and 14 probes. A PivotCache holding dates in a
+  1904 workbook reports itself unsupported.
+
 - VBA PivotTable.GetPivotData returns the matching displayed cell as a Range,
   with fourteen optional field/item pairs, named arguments, native defaults
   and error 1004 for invalid selections. Native controls include grouped,
@@ -32,6 +39,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- AutoFill by months from a single date that ends its month carries on
+  through month ends, 2/29 then 3/31 and 4/30, as Excel does.
+- A TextToColumns date column reads a colon as a separator, so `12:30` in an
+  MDY column is 30 December; `FieldInfo:=Array(1, xlMDYFormat)` is one pair.
+- `EDATE(0,1)` is 31, not 32.
 
 - The in-memory VBA library implements Rate, IRR, MIRR, NPV, IPmt and PPmt,
   including typed Double arrays, named/optional arguments, convergence errors

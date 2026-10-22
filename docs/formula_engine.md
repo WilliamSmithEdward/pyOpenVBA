@@ -82,7 +82,9 @@ name looking like a cell is not read as the cell.
    BYCOL given no function are #CALC!
    (`tests/fixtures/formula_refusals.json`); LAMBDA's parameter in
    brackets, `[y]` or a file's `_xlop.y`, may be left out of a call, and
-   leaving out any other is #VALUE! (`tests/fixtures/bound_names.json`).
+   leaving out any other is #VALUE! (`tests/fixtures/bound_names.json`);
+   EDATE keeps the 1900 calendar's day 0, so `EDATE(0,1)` is 31
+   (`tests/fixtures/date1904/paths.json`).
 8. **Values from VBA.** `nodes.Given` carries a value into a call from
    outside any formula, as WorksheetFunction hands one: a scalar, an array
    with blanks in it, or cells. `values.Omitted`, what an argument left

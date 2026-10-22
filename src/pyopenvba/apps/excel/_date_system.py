@@ -16,9 +16,17 @@ _ATTRIBUTE = re.compile(rb"([A-Za-z_:][A-Za-z0-9_.:-]*)\s*=\s*(?:\"[^\"]*\"|'[^'
 
 
 def read(book: Workbook, raw: bytes) -> None:
-    """Read only the actual direct workbook properties; reject ambiguous flags."""
-    part = opc_part(raw, NS, 'workbook')
-    properties = [attrs for local, attrs, _, _ in part.children if local == NS + '}workbookPr']
+    """Read only the actual direct workbook properties; reject ambiguous flags.
+
+    The part is read in whatever encoding it declares, with DTDs and
+    declared entities refused, as every other Office XML part is.
+    """
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    root = xml_tree(raw)
+    if root.tag != '{' + NS + '}workbook':
+        raise VBAUnsupportedError('A workbook part outside the transitional SpreadsheetML namespace is not implemented')
+    properties = [child.attrib for child in root if child.tag == '{' + NS + '}workbookPr']
     if len(properties) > 1:
         raise VBAUnsupportedError('Ambiguous workbook date-system properties')
     flag = properties[0].get('date1904', '0') if properties else '0'
@@ -31,6 +39,11 @@ def write(book: Workbook, raw: bytes) -> bytes:
     """Change the one owned attribute, retaining opaque attributes and siblings."""
     if not book.date_system_changed:
         return raw
+    try:
+        raw.decode('utf-8')
+    except UnicodeDecodeError:
+        raise VBAUnsupportedError('Changing the date system of a workbook part that is not UTF-8 is not '
+                                  'implemented') from None
     part = opc_part(raw, NS, 'workbook')
     properties = [entry for entry in part.children if entry[0] == NS + '}workbookPr']
     if len(properties) > 1:

@@ -149,7 +149,7 @@ def find(target: Range, what: object, after: object = MISSING, look_in: object =
         found = Range(target.sheet, [Area(row, column, row, column, target.sheet.name)])
         if cell is not None and source == -4123:
             # Among formulas a constant reads as the formula bar shows it: 1234 in #,##0 is 1234, not 1,234.
-            value = cell.formula or edit_text(cell.value, cell.number_format)
+            value = cell.formula or edit_text(cell.value, cell.number_format, epoch_1904=target.sheet.book.epoch_1904)
         else:
             value = to_text(found.Text())
             if cell is not None and isinstance(cell.value, bool):
@@ -207,7 +207,7 @@ def replace(target: Range, what: object, replacement: object, look_at: object = 
         cell = sheet.cells_.get((row, column))
         if cell is None:
             continue
-        before = cell.formula or edit_text(cell.value, cell.number_format)
+        before = cell.formula or edit_text(cell.value, cell.number_format, epoch_1904=sheet.book.epoch_1904)
         after = _substituted(pattern, before, new) if before else None
         if after is not None:
             if not target.replaced_in(row, column, after):

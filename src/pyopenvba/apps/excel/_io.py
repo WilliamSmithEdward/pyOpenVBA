@@ -1319,9 +1319,11 @@ def save_workbook(book: Workbook, target: Path) -> None:
     from pyopenvba.apps.excel._calculation_settings import write as write_calculation
     from pyopenvba.apps.excel._date_system import write as write_date_system
 
-    text = write_date_system(book, package.read("xl/workbook.xml")).decode("utf-8")
+    raw = package.read("xl/workbook.xml")
+    patched = write_date_system(book, raw)
+    text = patched.decode("utf-8", errors="replace")
     calculated_xml = write_calculation(book, text)
-    if calculated_xml.encode("utf-8") != package.read("xl/workbook.xml"):
+    if patched is not raw or calculated_xml != text:
         package.write("xl/workbook.xml", calculated_xml.encode("utf-8"))
     from pyopenvba.apps.excel._vba_save import persist_project
 

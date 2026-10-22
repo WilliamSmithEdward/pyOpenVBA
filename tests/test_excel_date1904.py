@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
+import os
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -42,6 +45,31 @@ def test_native_import_and_generated_roundtrip(control: dict[str, Any], tmp_path
         loaded = ExcelApplication.open(selected)
         loaded.add_module(observer, name='InspectControl')
         assert loaded.run('Snapshot') == control['reopened_result']
+
+
+@pytest.fixture(scope='module')
+def native_session() -> Iterator[Any]:
+    harness = pytest.importorskip('pyvbaharness')
+    with harness.ExcelSession() as excel:
+        yield excel
+
+
+@pytest.mark.skipif(os.environ.get('RUN_LIVE_EXCEL') != '1' or importlib.util.find_spec('pyvbaharness') is None,
+                    reason='requires explicitly enabled native Excel')
+@pytest.mark.parametrize('control', RAW['probes'], ids=lambda control: control['name'])
+def test_native_excel_reopens_generated_workbook(control: dict[str, Any], tmp_path: Path,
+                                                 native_session: Any) -> None:
+    """Excel reads the model's saved workbook as it read the one it saved itself."""
+    path = tmp_path / (control['name'] + '.xlsx')
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(control['source'], name='DateControl')
+    app.run('Probe')
+    app.save(path)
+    native_session.open_document(path)
+    result = native_session.run_vba(control['source'].split('Function Probe()')[0], 'Snapshot', timeout=60.0)
+    assert result.ok and not result.dialogs, result
+    assert result.value == control['reopened_result']
 
 
 @pytest.mark.parametrize('prefix', ['', 's:'])
@@ -87,3 +115,21 @@ def test_empty_property_insertion_and_unmodified_bytes() -> None:
     app.workbook.set_Date1904(True)
     changed = write(app.workbook, raw)
     assert b'<fileVersion/><workbookPr date1904="1"/><sheets/>' in changed
+
+
+PATHS: list[dict[str, Any]] = json.loads((ROOT / 'paths.json').read_text(encoding='utf-8'))['probes']
+#: The year the paths were measured in, which a date typed without one falls in.
+MEASURED_YEAR = int(next(probe['result'] for probe in PATHS if probe['name'] == 'year'))
+
+
+@pytest.mark.parametrize('probe', [probe for probe in PATHS if probe['name'] != 'year'], ids=lambda probe: probe['name'])
+def test_date_paths_in_a_1904_workbook(probe: dict[str, Any], monkeypatch: pytest.MonkeyPatch) -> None:
+    """Text cells, Find and Replace, AutoFill, TextToColumns, filters, validation and formulas, measured by
+    scripts/measure_date1904_paths.py."""
+    from pyopenvba.apps.excel import _typing
+
+    monkeypatch.setattr(_typing, '_this_year', lambda: MEASURED_YEAR)
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(probe['macro'], name='Harness')
+    assert app.run('Harness.Probe') == probe['result']

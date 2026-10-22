@@ -3678,7 +3678,7 @@ class Range(ExcelObject):
                 _arrays.clear_admitted(target)
                 for each_row, each_column in target.cell_positions():
                     target._store(each_row, each_column, replaced(text, self.sheet.style_at(each_row, each_column).number_format,
-                                                                prefixed=False))
+                                                                prefixed=False, epoch_1904=self.sheet.book.epoch_1904))
             _events.changed(target)
             return True
         prefixed = cell is not None and not cell.formula and isinstance(cell.value, str) \
@@ -3692,7 +3692,7 @@ class Range(ExcelObject):
             self.sheet.book.calculator.settle_entries()
         else:
             self._store(row, column, replaced(text, self.sheet.style_at(row, column).number_format,
-                                              prefixed=prefixed))
+                                              prefixed=prefixed, epoch_1904=self.sheet.book.epoch_1904))
         # Replace reports each cell as it changes it.
         _events.changed(Range(self.sheet, [Area(row, column, row, column, self.sheet.name)]))
         return True

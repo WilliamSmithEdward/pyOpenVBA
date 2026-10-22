@@ -56,7 +56,7 @@ import datetime as _dt
 import math
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING
 
@@ -87,6 +87,8 @@ _MONTHS = [["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct"
 _QUARTERS = {"q", "qtr", "quarter"}
 _WRAP = 2**32
 _EPOCH = _dt.date(1899, 12, 30)
+#: Days from the 1900 calendar's day 0 to the 1904 calendar's.
+_1904_DAYS = 1462.0
 
 
 def autofill(source: Range, destination: object, kind_argument: object) -> object:
@@ -407,7 +409,7 @@ class _Plan:
             makers: dict[int, tuple[int, int, Callable[[int], object]]] = {}
             for run in _runs(items):
                 series = _series([items[index] for index in run], self.kind, self.single,
-                                 len(run) == 1 and positions[run[0]] in crossed)
+                                 len(run) == 1 and positions[run[0]] in crossed, self.sheet.book.epoch_1904)
                 if series is not None:
                     for place, index in enumerate(run):
                         makers[index] = (place, len(run), series)
@@ -506,7 +508,8 @@ class _Copied:
 _COPIED = _Copied()
 
 
-def _series(run: list[_Item], kind: int, single: bool, crossed: bool) -> Callable[[int], object] | None:
+def _series(run: list[_Item], kind: int, single: bool, crossed: bool,
+            epoch_1904: bool = False) -> Callable[[int], object] | None:
     """How a run carries on: its value at each step along it, or None where it repeats."""
     if kind in (COPY, FORMATS):
         return None
@@ -519,7 +522,7 @@ def _series(run: list[_Item], kind: int, single: bool, crossed: bool) -> Callabl
     if first.kind == "time":
         return _times(run, kind)
     if first.kind == "date":
-        return _dates(run, kind)
+        return _dates_1904(run, kind) if epoch_1904 else _dates(run, kind)
     if first.kind in ("day", "month"):
         return _names(run, kind)
     return _texts(run, kind)
@@ -598,7 +601,9 @@ def _dates(run: list[_Item], kind: int) -> Callable[[int], object] | None:
         if kind == WEEKDAYS:
             return lambda along: _weekdays(day, along) + keep
         if kind == MONTHS or (kind != DAYS and run[0].number_format == "mmm-yy"):
-            return lambda along: _months(day, along, end=False) + keep
+            # A day that ends its month carries on through month ends: 2/29 is followed by 3/31 and 4/30
+            # (tests/fixtures/date1904/paths.json). By years it keeps its day.
+            return lambda along: _months(day, along, end=_ends_month(day)) + keep
         if kind == YEARS:
             return lambda along: _months(day, 12 * along, end=False) + keep
         return lambda along: day + along + keep
@@ -654,10 +659,37 @@ def _aligned(days: list[int]) -> tuple[bool, bool]:
     return len({date for _, _, date in parts}) == 1, all(date == _month_length(year, month) for year, month, date in parts)
 
 
+def _dates_1904(run: list[_Item], kind: int) -> Callable[[int], object] | None:
+    """A run of dates in a workbook on the 1904 calendar, whose day n is the 1900 calendar's day n + 1462.
+
+    Every day of the 1904 calendar lies past the 1900 calendar's false
+    29 February, so the run carries on as its days would there, measured
+    by tests/fixtures/date1904/paths.json.
+    """
+    series = _dates([replace(item, value=item.value + _1904_DAYS) for item in run], kind)
+    if series is None:
+        return None
+    found = series
+
+    def on_1904(along: int) -> object:
+        value = found(along)
+        assert isinstance(value, (int, float))
+        if value < _1904_DAYS:
+            raise VBAUnsupportedError("AutoFill before the 1904 calendar's first day is not implemented")
+        return float(value) - _1904_DAYS
+
+    return on_1904
+
+
 def _calendar(day: int) -> tuple[int, int, int]:
     if day < 61:
         raise VBAUnsupportedError("AutoFill by months or weekdays before 1 March 1900 is not implemented")
     return excel_date(day)
+
+
+def _ends_month(day: int) -> bool:
+    year, month, date = _calendar(day)
+    return date == _month_length(year, month)
 
 
 def _month_length(year: int, month: int) -> int:

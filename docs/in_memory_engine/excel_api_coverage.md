@@ -938,21 +938,33 @@ Native measurement paths retain their original Windows provenance. Chart fixture
 replays resolve those basenames explicitly so the same recorded inputs work on
 other platforms.
 
-## Workbook date-system checkpoint
+## Workbook date systems
 
-`Workbook.Date1904` is partially implemented for ordinary cells. Workbook-local
-1900/1904 selection now reaches date formulas, TEXT, Range.Text, typed date strings,
-and the distinct VBA Date conversions of Value and Value2. Toggling retains stored
-serial numbers; automatic mode recalculates date-dependent formulas, while manual
-mode retains their caches until calculation. Saving patches workbookPr.date1904
-and preserves unrelated properties and namespace bindings.
+`Workbook.Date1904` reads and sets a workbook's calendar. Each workbook keeps its
+own: date formulas, TEXT, Range.Text, typed date strings and the VBA Date that
+Value gives and takes follow it, while Value2 and stored serials do not move.
+Toggling keeps every stored serial; automatic mode recalculates date-dependent
+formulas, and manual mode keeps their caches until the next calculation. Saving
+patches `workbookPr` and keeps its other attributes and namespace bindings.
 
-[Eight native controls](../../tests/fixtures/date1904/native.json), their original
-macro-free inputs, and [runtime/import/save tests](../../tests/test_excel_date1904.py)
-cover numeric boundaries, VBA Date writes, parsed strings, toggles, coercion,
-structure protection and two-workbook isolation. The focused date/typing gate passes
-1,851 tests with one inherited expected failure; strict typing reports no errors.
-This checkpoint does not establish 1904 fidelity for filters, validation,
-TextToColumns, queries, chart/Pivot date metadata, mixed-epoch copies or event
-ordering. Mutating the setting during formula evaluation is explicitly unsupported.
-No engine-generated output has yet been reopened in native Excel for this increment.
+The features that turn dates into serials or serials into text follow the
+calendar as Excel's do: a Date written to a Text cell, the formula-bar text that
+Find and Replace see (Range.Formula is the serial on both calendars), AutoFill's
+day, weekday, month and year series, TextToColumns, AutoFilter and validation
+criteria, Evaluate and WorksheetFunction, which reads a VBA Date as its text in
+the active workbook. A Date a user-defined function returns lands as VBA's own
+serial, unformatted, as it does in Excel. Two rules found along the way hold on
+both calendars: a single date that ends its month fills by months through month
+ends (2/29, 3/31, 4/30), and a TextToColumns date column reads a colon as it
+reads a slash, so `12:30` in an MDY column is 30 December. `EDATE(0,1)` is 31.
+
+[Eight native controls](../../tests/fixtures/date1904/native.json) with their
+macro-free inputs, and [fourteen path probes](../../tests/fixtures/date1904/paths.json)
+from `scripts/measure_date1904_paths.py`, are replayed by
+[`tests/test_excel_date1904.py`](../../tests/test_excel_date1904.py); native Excel
+reopens all eight model-written workbooks with the same readings. Power Query
+reads and loads dates on the workbook's calendar, which is not yet measured.
+A PivotCache holding dates in a 1904 workbook, a validation bound or a loaded
+date before 1904, AutoFill past the calendar's first day and changing the setting
+during formula evaluation report themselves unsupported. Mixed-calendar copies
+between workbooks, chart date axes and event ordering are not established.

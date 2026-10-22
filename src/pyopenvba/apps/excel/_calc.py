@@ -12,6 +12,9 @@ Calculation retains learned dependency order and resolves new references
 on demand, including INDIRECT. Manual mode keeps caches after input edits;
 explicit formula assignments obtain initial values. Pending UDF references
 can defer a provisional call until the remaining scheduled cells are ready.
+A data table's cell is worked out by trying its values in the table's
+input cells (see Calculator._tried), and in semi-automatic calculation
+only by a calculation a macro asked for.
 """
 
 from __future__ import annotations
@@ -20,7 +23,7 @@ import datetime as _dt
 from collections import deque
 from collections.abc import Generator
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
@@ -37,6 +40,7 @@ from pyopenvba.formula._values import BLANK, REF, ExcelError
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, VBAInt
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._model import Cell, Workbook, Worksheet
 
 CellKey = tuple[str, int, int]
@@ -89,6 +93,9 @@ class Compiled:
     unread: str = ""
     #: A dynamic-array formula, worked out whole and spilled (see _spills).
     dynamic: bool = False
+    #: The data table the cell is one of, which works it out by trying values in its input cells (see _tried); its
+    #: precedents are the formula it works out and the cells holding the values it tries.
+    table: DataTable | None = None
 
 
 class Calculator:
@@ -141,6 +148,14 @@ class Calculator:
         self._cached_inputs: set[CellKey] = set()
         #: The cells put off until a cell too deep to work out inside them is worked out.
         self._waiting: set[CellKey] = set()
+        #: How many calculations a macro asked for are running, which alone work data tables out in semi-automatic
+        #: calculation, and the formulas being worked out with a value tried in a data table's input cell, which are
+        #: put back after it (see _tried).
+        self._asked = 0
+        self._trying: list[set[CellKey]] = []
+        #: The data tables that kept what they held while semi-automatic calculation waited, so that what read them
+        #: then is worked out again with them by the next calculation that works them out.
+        self._waited: set[CellKey] = set()
 
     # --- keeping track ------------------------------------------------------------
 
@@ -162,6 +177,16 @@ class Calculator:
         if not cell.formula:
             self._keep(key, None)
             return
+        tabled = self._sheet_named(sheet)
+        if tabled is not None and tabled.data_tables:
+            from pyopenvba.apps.excel._data_tables import table_at
+
+            table = table_at(tabled, row, column)
+            if table is not None:
+                worked_out, tried = table.trial(row, column)
+                self._keep(key, Compiled(node=None, table=table, precedents=[
+                    Area(*one, *one, tabled.name) for one in [worked_out, *(value for _, value in tried)]]))
+                return
         formula = cell.formula
         try:
             compiled = deep(lambda: self._compiled(formula, sheet, row, column))
@@ -404,18 +429,25 @@ class Calculator:
     def calculate_all(self, only: Worksheet | None = None, *, volatile: bool = True,
                       settled: set[CellKey] | None = None, udf_volatile: bool | None = None,
                       full: bool = False, background: bool = False,
-                      areas: tuple[Area, ...] | None = None, force: bool = False) -> list[Worksheet]:
+                      areas: tuple[Area, ...] | None = None, force: bool = False,
+                      asked: bool = False) -> list[Worksheet]:
         """Work out stale and volatile formulas, even in manual mode; report sheets actually calculated.
 
         only limits the work to one sheet, as Worksheet.Calculate does;
         volatile False leaves volatile formulas be, which is how pending
         formulas are settled without an edit (see Excel object vba_sink_attached).
+        asked for Application.Calculate's and Worksheet.Calculate's, which
+        work data tables out in semi-automatic calculation, as Range.Calculate's
+        does not (tests/fixtures/data_tables.json).
         """
         self.build()
         if only is None:
             self.automatic_pending = False
         if not self.compiled:
             return []
+        if self._waited and not (self.book.application.calculation == 2 and not (asked or self._asked)):
+            waited, self._waited = self._waited, set()
+            self._spoil(waited, set(waited))
         volatile_users = volatile if udf_volatile is None else udf_volatile
         roots: set[CellKey] = set()
         for key, compiled in self.compiled.items():
@@ -438,6 +470,7 @@ class Calculator:
         self._calculated_sheets.append(worked)
         self._calculation_depth += 1
         self._full_calculation_depth += int(full)
+        self._asked += int(asked)
         self._provisional_errors.append(False)
         try:
             owners = {sheet.name.lower(): sheet for sheet in self.book.sheets_ if only is None or sheet is only}
@@ -490,6 +523,7 @@ class Calculator:
             self._calculated_sheets.pop()
             self._calculation_depth -= 1
             self._full_calculation_depth -= int(full)
+            self._asked -= int(asked)
             if self._provisional_errors.pop():
                 interpreter = self.book.application.interpreter
                 if interpreter is not None:
@@ -850,6 +884,11 @@ class Calculator:
                 return EMPTY
         if not (cell.stale or force):
             return cell.value
+        if compiled.table is not None and self.book.application.calculation == 2 and not self._asked:
+            # In semi-automatic calculation a data table keeps what it holds until a calculation asked for
+            # (tests/fixtures/data_tables.json).
+            self._waited.add(key)
+            return cell.value
         if key in self._held_caches and not force and not self._calculation_depth:
             return cell.value
         if key in self._working or key in self._waiting:
@@ -898,6 +937,9 @@ class Calculator:
             compiled.udf_pending = False
         if (self._calculation_depth or self._learning_depth) and (not self._scopes or self._scopes[-1][1] is None):
             self._calculation_order.setdefault(key, None)
+        if any(key in reading for reading in self._trying):
+            # A value worked out with a value tried in a data table's input cell is put back, unseen (see _tried).
+            return value
         from pyopenvba.apps.excel._controls import cell_changed
 
         owner = next(one for one in self.book.sheets_ if one.name.lower() == sheet.lower())
@@ -910,6 +952,8 @@ class Calculator:
         return value
 
     def _computed(self, compiled: Compiled, sheet: str, row: int, column: int) -> object:
+        if compiled.table is not None:
+            return self._tried(compiled.table, sheet, row, column)
         if compiled.node is None:
             raise VBAUnsupportedError(f"working out a formula the model cannot read is not implemented: "
                                       f"{compiled.unread}")
@@ -949,6 +993,93 @@ class Calculator:
         except RecursionError:
             self.circular.add((sheet.lower(), row, column))
             return 0.0
+
+    def _tried(self, table: DataTable, sheet: str, row: int, column: int) -> object:
+        """A data table's cell: the formula it works out, worked out with the values it tries put in the table's input
+        cells and every formula reading them, on any sheet, worked out again with them; then each of those cells is
+        as it was, and the input cells hold what they held, a formula included. A blank formula comes to 0, and an
+        input cell taken away to #REF! (tests/fixtures/data_tables.json)."""
+        if table.broken:
+            return ExcelError("#REF!")
+        from pyopenvba.apps.excel._model import Cell
+
+        owner = self._worksheet(sheet)
+        worked_out, tried = table.trial(row, column)
+        # Each value tried is what its cell comes to before any is tried.
+        values = [(at, self.value_of(owner.name, *source)) for at, source in tried]
+        name = owner.name.lower()
+        inputs = {(name, *at) for at, _ in values}
+        reading = self._closure(inputs) - inputs
+        if any((one := self.compiled.get(key)) is not None and one.dynamic for key in reading):
+            raise VBAUnsupportedError("a data table whose input cell a dynamic-array formula reads is not implemented")
+        saved = {key: None if (cell := self._cell(key)) is None else (cell.value, cell.stale, cell.save_dirty)
+                 for key in reading}
+        pending = {key for key in reading if (one := self.compiled.get(key)) is not None and one.udf_pending}
+        held = self._held_caches & reading
+        originals = {at: owner.cells_.get(at) for at, _ in values}
+        for key in reading:
+            cell = self._cell(key)
+            if cell is not None and cell.formula:
+                cell.stale = True
+        self._trying.append(reading)
+        # Worked out whatever the mode, sheet or range a calculation keeps to, from the top.
+        self._scopes.append((None, None))
+        self._calculation_depth += 1
+        depth, self._depth = self._depth, 0
+        try:
+            for at, value in values:
+                original = originals[at]
+                owner.cells_[at] = Cell(value=value) if original is None else replace(
+                    original, value=value, formula="", stale=False, shared=None, dynamic=False, spilled_from=None)
+            answer = self.value_of(owner.name, *worked_out)
+        finally:
+            self._depth = depth
+            self._calculation_depth -= 1
+            self._scopes.pop()
+            self._trying.pop()
+            for at, original in originals.items():
+                if original is None:
+                    owner.cells_.pop(at, None)
+                else:
+                    owner.cells_[at] = original
+            for key, state in saved.items():
+                if state is None:
+                    made = self._sheet_named(key[0])
+                    if made is not None:
+                        made.cells_.pop((key[1], key[2]), None)
+                    continue
+                cell = self._cell(key)
+                if cell is not None:
+                    cell.value, cell.stale, cell.save_dirty = state
+            for key in pending:
+                if key in self.compiled:
+                    self.compiled[key].udf_pending = True
+            self._held_caches |= held
+        # The formula as it stands, so that what the table cell reads is worked out under it, and what changes it
+        # next reaches the cell through it.
+        depth, self._depth = self._depth, 0
+        try:
+            self.value_of(owner.name, *worked_out)
+        finally:
+            self._depth = depth
+        return 0.0 if answer is EMPTY else answer
+
+    def _closure(self, keys: set[CellKey]) -> set[CellKey]:
+        """The formulas reading ``keys``, those reading them, and so on, with every cell of each array formula among
+        them."""
+        found: set[CellKey] = set()
+        wave = set(keys)
+        while wave:
+            following: set[CellKey] = set()
+            for name, row, column in wave:
+                for key in self._reading(name, row, column) - found:
+                    found.add(key)
+                    following.add(key)
+                    for member in self._members(key) - found:
+                        found.add(member)
+                        following.add(member)
+            wave = following
+        return found
 
     def _spilling(self, owner: Worksheet, row: int, column: int, answer: Array) -> object:
         """A dynamic-array formula's answer spilled from its cell; the value the cell keeps."""

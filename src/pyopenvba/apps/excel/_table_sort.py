@@ -406,7 +406,8 @@ class TableSortObject(SortObject):
         if filtering(sheet):
             raise unsupported('on filtered sheets')
         guard_extensions(sheet)
-        blocks = [*sheet.merged_areas, *sheet.array_formulas.values(), *(spill.area for spill in sheet.spills.values())]
+        blocks = [*sheet.merged_areas, *sheet.array_formulas.values(), *(spill.area for spill in sheet.spills.values()),
+                  *(table.area for table in sheet.data_tables.values())]
         blocks.extend(area for rule in [*sheet.conditional_formats, *sheet.validations] for area in rule.areas)
         if (any(meets(data, area) for area in blocks) or any(data.contains(*key) for key in sheet.notes)
                 or touches(sheet, [data]) or any(data.contains(*key) and cell.dynamic for key, cell in sheet.cells_.items())):

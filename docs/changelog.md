@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- What-if data tables: `Range.Table` with a row input cell, a column input
+  cell or both, over one block or several. Each cell of a table works out
+  the block's formula with the value it tries put in the input cell and
+  every formula reading the input, on any sheet, worked out again; then
+  everything is put back, an input cell holding a formula included. A
+  blank formula comes to 0. The cells say `=TABLE(,A1)`, are an array to
+  `HasArray`, `FormulaArray` and `CurrentArray`, and hold 0 until first
+  worked out. In semi-automatic calculation they wait for
+  `Application.Calculate` or `Worksheet.Calculate`; `Range.Calculate`
+  does not work them out. Writes, clears, inserts, deletes and cell shifts
+  through a table are refused or ignored as Excel does, with its messages;
+  a table moves whole and its input cells follow, one taken away being
+  `#REF!`. A copy of its cells is their values. A file keeps the table as
+  Excel does, `<f t="dataTable">` on its first cell, and Excel opened the
+  model's files without a repair. 44 live probes and six workbooks agree.
+
 - Circular references and iterative calculation: `Application.Iteration`,
   `MaxIterations` and `MaxChange`, and `Worksheet.CircularReference`. A loop
   is found as Excel finds it, through the cells a formula reads as it is

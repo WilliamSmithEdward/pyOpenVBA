@@ -620,6 +620,8 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
         raise error(1004, "A table cannot overlap another table.")
     if any(_meets(one, area) for one in [*sheet.array_formulas.values(), *sheet.merged_areas]):
         raise VBAUnsupportedError("a table over array formulas or merged cells is not implemented")
+    if any(_meets(one.block, area) for one in sheet.data_tables.values()):
+        raise VBAUnsupportedError("a table over a data table is not implemented")
     first_row = [sheet.book.calculator.value_of(sheet.name, area.top, column)
                  for column in range(area.left, area.right + 1)]
     if headers == GUESS:

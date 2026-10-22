@@ -62,6 +62,10 @@ def remove_duplicates(target: Range, columns: object, header: object) -> object:
         arrays, partial_arrays = met(sheet, [Area(first, area.left, area.bottom, area.right)])
         if arrays or partial_arrays:
             raise error(1004, PART_OF_AN_ARRAY)
+        if sheet.data_tables:
+            from pyopenvba.apps.excel._data_tables import refuse
+
+            refuse(sheet, [Area(first, area.left, area.bottom, area.right)], "RemoveDuplicates over")
     picked = _columns(columns, area.columns)
     if not picked:
         return EMPTY

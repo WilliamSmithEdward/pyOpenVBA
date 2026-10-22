@@ -39,6 +39,7 @@ from pyopenvba.powerquery._opc import OpcFile
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, sheet_entries
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
     from pyopenvba.apps.excel._refresh import LoadTarget
     from pyopenvba.apps.excel._styles import Stylesheet
@@ -282,6 +283,8 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
     #: Each dynamic-array formula's block, and the error only a dynamic array has that one shows.
     dynamic: dict[tuple[int, int], Area] = {}
     rich: dict[tuple[int, int], RichError] = {}
+    #: Each data table's <f>, kept on its first cell (see _data_tables).
+    tables: dict[tuple[int, int], dict[str, str]] = {}
     for row_xml in _ROW.findall(rows):
         for cell_xml in _CELL.findall(row_xml):
             attributes = _tag_attributes(cell_xml)
@@ -315,6 +318,9 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
                 elif element.get("t") == "array" and formula:
                     # An array formula: its first cell holds it, the rest of its block the values it gave.
                     sheet.array_formulas[(row, column)] = parse_area(element.get("ref") or reference, sheet="")
+                elif element.get("t") == "dataTable":
+                    # A data table: its first cell holds the table, every cell of it the value it gave.
+                    tables[(row, column)] = {**element, "ref": element.get("ref") or reference}
             value = _cell_value(cell_xml, kind, strings)
             error = metadata.errors.get(int(value_meta)) if metadata is not None and value_meta.isdigit() else None
             if error is not None:
@@ -343,8 +349,29 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
         top, left, text = first
         cell.formula = shift_text(text, row - top, column - left)
         cell.stale |= cell.value is EMPTY
+    _read_data_tables(sheet, tables)
     _read_spills(sheet, dynamic, rich)
     sheet.dims.settle_growth()
+
+
+def _read_data_tables(sheet: Worksheet, tables: dict[tuple[int, int], dict[str, str]]) -> None:
+    """The data tables a file keeps, each cell of one saying its =TABLE() and holding the value it gave; one the file
+    marks ca is worked out again (see _data_tables)."""
+    from pyopenvba.apps.excel._data_tables import read
+
+    for anchor, element in tables.items():
+        table = read(element, element["ref"])
+        if table is None or (table.area.top, table.area.left) != anchor:
+            continue
+        sheet.data_tables[anchor] = table
+        text = table.formula()
+        area = table.area
+        for row in range(area.top, area.bottom + 1):
+            for column in range(area.left, area.right + 1):
+                cell = sheet.cell(row, column, create=True)
+                assert cell is not None
+                cell.formula, cell.shared = text, None
+                cell.stale = table.always or cell.value is EMPTY
 
 
 def _read_spills(sheet: Worksheet, dynamic: dict[tuple[int, int], Area], rich: dict[tuple[int, int], RichError]) \
@@ -1729,6 +1756,24 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
         return calculated_always(formula, knows)
 
     formulas = formula_elements(sheet, spell, always) | elements(sheet, spell, always)
+    automatic = sheet.book.calculator.automatic
+    #: The cells whose last value a save keeps though they are to be worked out again: every formula's in manual
+    #: calculation, and a data table's in semi-automatic, which only a calculation asked for works out.
+    kept: set[tuple[int, int]] = set()
+    if sheet.data_tables:
+        from pyopenvba.apps.excel._data_tables import elements as table_elements
+
+        def unsettled(table: DataTable) -> bool:
+            area = table.area
+            return not automatic and any(
+                cell is not None and (cell.stale if cell.save_dirty is None else cell.save_dirty)
+                for row in range(area.top, area.bottom + 1) for column in range(area.left, area.right + 1)
+                for cell in [sheet.cells_.get((row, column))])
+
+        tabled = table_elements(sheet, unsettled)
+        formulas |= tabled
+        if sheet.book.application.calculation == 2:  # xlCalculationSemiautomatic
+            kept.update(tabled)
     dynamic: dict[tuple[int, int], tuple[str, str | None]] = {}
     from pyopenvba.apps.excel._pivot_create import rich_errors
 
@@ -1756,7 +1801,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
             formulas[position] = formulas[position].replace('<f', '<f ca="1"', 1)
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
-                                    formulas, dynamic, keep_stale=not sheet.book.calculator.automatic)
+                                    formulas, dynamic, keep_stale=not automatic, kept=kept)
     for row in set(sheet.dims.rows) | sheet.dims.shaped_rows() | {row for row, _ in sheet.notes}:
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)
@@ -1924,11 +1969,13 @@ def _dynamic_element(sheet: Worksheet, position: tuple[int, int], cell: Cell, sp
 
 def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], stylesheet: Stylesheet,
                     formulas: dict[tuple[int, int], str],
-                    dynamic: dict[tuple[int, int], tuple[str, str | None]] | None = None, *, keep_stale: bool = False) -> str:
+                    dynamic: dict[tuple[int, int], tuple[str, str | None]] | None = None, *, keep_stale: bool = False,
+                    kept: Collection[tuple[int, int]] = ()) -> str:
     """A row with the model's cells written into it in column order, in place of the ones it had.
 
-    ``formulas`` is the ``<f>`` of each formula cell, a shared formula's included, and ``dynamic`` what each
-    dynamic-array formula's cell carries besides (see _cell_xml).
+    ``formulas`` is the ``<f>`` of each formula cell, a shared formula's included, "" for a cell that carries none
+    though it holds one, as a data table's do but its first, and ``dynamic`` what each dynamic-array formula's cell
+    carries besides (see _cell_xml). A stale formula's value is kept with ``keep_stale``, and in the cells ``kept``.
     """
     head_end = row_xml.index(">")
     closed = row_xml[head_end - 1] == "/"
@@ -1936,7 +1983,8 @@ def _row_with_cells(row_xml: str, row: int, cells: list[tuple[int, Cell]], style
     rest = "" if closed else _CELL.sub("", row_xml[head_end + 1 : row_xml.rindex("</row>")])
     extras = dynamic or {}
     written = "".join(_cell_xml(f"{column_letter(column)}{row}", cell, _style_for(cell, stylesheet),
-                                formulas.get((row, column)), extras.get((row, column)), keep_stale=keep_stale)
+                                formulas.get((row, column)), extras.get((row, column)),
+                                keep_stale=keep_stale or (row, column) in kept)
                       for column, cell in cells)
     return f"{opening}{written}{rest}</row>"
 
@@ -1955,7 +2003,7 @@ def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None
             extra, rich = dynamic
             if rich is not None:
                 kind, body = ' t="e"', rich
-        element = formula or f"<f>{_formula_xml(cell.formula[1:], ())}</f>"
+        element = formula if formula is not None else f"<f>{_formula_xml(cell.formula[1:], ())}</f>"
         return f'<c r="{reference}"{attributes}{kind}{extra}>{element}{body}</c>'
     if cell.spilled_from is not None:
         # A cell a formula spilled into keeps its value as a formula's is kept: text is t="str".

@@ -118,6 +118,10 @@ def text_to_columns(target: Range, destination: object, data_type: object, text_
         corner_row, corner_column = destination.first.top, destination.first.left
     written = Range(sheet, [Area(corner_row, corner_column, corner_row + len(rows) - 1,
                                  corner_column + width - 1, sheet.name)])
+    if sheet.data_tables:
+        from pyopenvba.apps.excel._data_tables import refuse
+
+        refuse(sheet, list(written.areas), "TextToColumns into")
     with writing(sheet):
         for offset, (fields, value) in enumerate(rows):
             row = corner_row + offset

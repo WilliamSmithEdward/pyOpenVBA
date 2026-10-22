@@ -320,7 +320,7 @@ def admit_cells(sheet: Worksheet, areas: list[Area]) -> None:
     if sheet.auto_filter is not None or getattr(sheet, 'advanced_filter', None) is not None:
         raise unsupported('on filtered sheets')
     blocks = [*sheet.merged_areas, *sheet.array_formulas.values(), *(spill.area for spill in sheet.spills.values()),
-              *(table.area for table in sheet.tables)]
+              *(table.area for table in sheet.tables), *(table.area for table in sheet.data_tables.values())]
     blocks.extend(part for rule in [*sheet.conditional_formats, *sheet.validations] for part in rule.areas)
     if (any(meets(area, block) for area in areas for block in blocks)
             or any(any(area.contains(*key) for area in areas) for key in sheet.notes)

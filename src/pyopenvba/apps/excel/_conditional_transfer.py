@@ -98,6 +98,8 @@ def _layers(sheet: Worksheet, area: Area, *, content: bool) -> None:
     if any(meets(area, array) for array in sheet.array_formulas.values()) or any(
             meets(area, spill.area) for spill in sheet.spills.values()):
         raise _unsupported('involving arrays or spills')
+    if any(meets(area, table.area) for table in sheet.data_tables.values()):
+        raise _unsupported('involving data tables')
     if not content:
         return
     from pyopenvba.apps.excel._hyperlinks import touches

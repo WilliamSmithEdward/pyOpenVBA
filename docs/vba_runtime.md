@@ -1530,7 +1530,9 @@ cell engine has -- through `WorksheetFunction.X`, which raises error
 1004 when the answer is an error, or the late-bound `Application.X`,
 which hands the error back as a value
 (`tests/fixtures/worksheet_functions.json`, 160 calls made both ways). A
-range argument is its cells, a VBA array a row or, with two dimensions
+range argument is its cells, those of another open workbook included,
+whichever workbook is active (`tests/fixtures/excel_everyday_3.json`,
+`functions_of_another_book`); a VBA array a row or, with two dimensions
 or as an array of arrays, rows; a Date is its serial, Empty an argument
 left out, and Null error 1004. The arguments are worked out as an array
 formula works them out, so a range or array given where one value is

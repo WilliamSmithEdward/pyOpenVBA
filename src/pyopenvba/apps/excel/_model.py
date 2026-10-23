@@ -456,7 +456,10 @@ class Application(ExcelObject):
 
     @member
     def StatusBar(self) -> object:
-        return self.status_bar
+        """Always text: what a macro set, a number or a logical as Excel spells it, FALSE while Excel keeps the bar
+        (tests/fixtures/excel_everyday_3.json, statusbar_types)."""
+        value = self.status_bar
+        return ("TRUE" if value else "FALSE") if isinstance(value, bool) else to_text(value)
 
     @setter("StatusBar")
     def _set_status_bar(self, value: object) -> None:

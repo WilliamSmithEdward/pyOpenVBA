@@ -17,18 +17,22 @@ in VBA as it does in a cell. Measured in live Excel
 - An error answer is error 1004 from WorksheetFunction and an error value
   from Application. A WorksheetFunction member the type library types
   other than Variant cannot hand back an array: that is error 13.
+- A range of another open workbook is its cells as well, whichever
+  workbook is active (scripts/measure_excel_everyday_3.py).
 """
 
 from __future__ import annotations
 
+import dataclasses
+from collections.abc import Iterator
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Final
 
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.apps.excel._engine_book import EngineBook
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.nodes import Given, Missing, Node
-from pyopenvba.formula._calc.values import Array, Empty, Omitted, Reference, Scalar, Value
+from pyopenvba.formula._calc.values import Area, Array, Empty, Omitted, Reference, Scalar, Value
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
@@ -44,8 +48,10 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Application, Workbook
-    from pyopenvba.formula._calc.evaluator import Context
+    from pyopenvba.apps.excel._calc import Calculator
+    from pyopenvba.apps.excel._model import Application, Worksheet
+    from pyopenvba.apps.excel._pivot_reports import PivotReport
+    from pyopenvba.formula._calc.evaluator import Context, TableShape
 
 #: WorksheetFunction members the type library types As Variant; every other one answers a single value.
 _VARIANT: Final = frozenset({
@@ -80,11 +86,12 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     if sheet is None:
         raise error(1004, "There is no workbook open")
     values = _laid_out(list(args), named or {})
-    nodes = tuple(_node(value, sheet.book) for value in values)
-    single = not any(isinstance(value, (Range, VBAArray)) for value in values)
     calculator = sheet.book.calculator
+    books = _OpenBooks(calculator)
+    nodes = tuple(_node(value, books) for value in values)
+    single = not any(isinstance(value, (Range, VBAArray)) for value in values)
     now = calculator.now()
-    context = Context(calculator.engine_book, sheet.name, 1, 1, array=True, today=now.date(), now=now)
+    context = Context(books, sheet.name, 1, 1, array=True, today=now.date(), now=now)
     entry = registry.FUNCTIONS[function]
     try:
         found = registry.call(entry, context, nodes) if entry.minimum <= len(nodes) <= entry.maximum else VALUE
@@ -110,20 +117,17 @@ def _laid_out(args: list[object], named: dict[str, object]) -> list[object]:
     return args
 
 
-def _node(value: object, book: Workbook) -> Node:
+def _node(value: object, books: _OpenBooks) -> Node:
     """A VBA argument as the engine takes it: Empty as an argument left out, a Range as its cells."""
     from pyopenvba.apps.excel._model import Range
-    from pyopenvba.formula._calc.values import Area, Reference
 
     if value is MISSING or value is EMPTY:
         return Missing()
     if value is NULL:
         raise error(1004, "A worksheet function cannot take Null")
     if isinstance(value, Range):
-        if value.sheet.book is not book:
-            raise VBAUnsupportedError("a worksheet function given a range of another workbook is not implemented")
-        return Given(Reference(tuple(Area(value.sheet.name, one.top, one.left, one.bottom, one.right)
-                                     for one in value.areas)))
+        sheet = books.key(value.sheet)
+        return Given(Reference(tuple(Area(sheet, one.top, one.left, one.bottom, one.right) for one in value.areas)))
     if isinstance(value, VBAArray):
         return Given(_given_array(value))
     return Given(_given_item(value))
@@ -157,6 +161,70 @@ def _given_array(array: VBAArray) -> Array:
     (low, high), (left, right) = array.bounds
     return Array([[_given_item(array.get([row, column])) for column in range(left, right + 1)]
                   for row in range(low, high + 1)])
+
+
+class _OpenBooks(EngineBook):
+    """The active workbook as the engine reads it, along with the sheets of other open workbooks a macro hands
+    ranges of. Such a sheet goes by a key no sheet's name can be, so two workbooks' Sheet1 stay apart, and is read
+    from its own workbook, worked out by that workbook's calculator."""
+
+    def __init__(self, calculator: Calculator) -> None:
+        super().__init__(calculator)
+        self._others: dict[str, tuple[EngineBook, str]] = {}
+
+    def key(self, sheet: Worksheet) -> str:
+        """The name the engine reads a sheet by: its own in the active workbook, a key in another."""
+        if sheet.book is self.book:
+            return sheet.name
+        key = f"\0{id(sheet.book)}\0{sheet.name}"
+        self._others[key] = (sheet.book.calculator.engine_book, sheet.name)
+        return key
+
+    def _routed(self, sheet: str) -> tuple[EngineBook, str]:
+        """The engine book a sheet is read through, and its name there."""
+        return self._others.get(sheet) or (self.calculator.engine_book, sheet)
+
+    def cell(self, sheet: str, row: int, column: int) -> Scalar:
+        book, name = self._routed(sheet)
+        return book.cell(name, row, column)
+
+    def cells(self, area: Area) -> Iterator[tuple[int, int, Scalar]]:
+        book, name = self._routed(area.sheet)
+        return book.cells(dataclasses.replace(area, sheet=name))
+
+    def used(self, sheet: str) -> tuple[int, int]:
+        book, name = self._routed(sheet)
+        return book.used(name)
+
+    def row_hidden(self, sheet: str, row: int) -> bool:
+        book, name = self._routed(sheet)
+        return book.row_hidden(name, row)
+
+    def row_filtered(self, sheet: str, row: int) -> bool:
+        book, name = self._routed(sheet)
+        return book.row_filtered(name, row)
+
+    def subtotal(self, sheet: str, row: int, column: int) -> bool:
+        book, name = self._routed(sheet)
+        return book.subtotal(name, row, column)
+
+    def formula_text(self, sheet: str, row: int, column: int) -> str | None:
+        book, name = self._routed(sheet)
+        return book.formula_text(name, row, column)
+
+    def pivot_reports(self, sheet: str) -> list[PivotReport]:
+        book, name = self._routed(sheet)
+        return book.pivot_reports(name)
+
+    def table_at(self, sheet: str, row: int, column: int) -> TableShape | None:
+        book, name = self._routed(sheet)
+        found = book.table_at(name, row, column)
+        return None if found is None else dataclasses.replace(found, sheet=sheet)
+
+    def spill(self, sheet: str, row: int, column: int) -> Area | None:
+        book, name = self._routed(sheet)
+        found = book.spill(name, row, column)
+        return None if found is None else dataclasses.replace(found, sheet=sheet)
 
 
 def _returned(context: Context, found: Value, name: str, *, raising: bool) -> object:

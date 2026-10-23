@@ -73,7 +73,8 @@ def test_file_edit_preserves_other_bytes_and_namespace_only_values() -> None:
     group = root.find(NS + 'conditionalFormatting')
     assert group is not None and group.get('sqref') == 'B2:B7'
     assert group.get('{urn:extension}setting') == 'q:token'
-    assert group.get('xmlns:q') == 'urn:value'
+    # The value's prefix keeps meaning urn:value through the worksheet, which declares it once, as Excel writes it.
+    assert root.get('xmlns:q') == 'urn:value' and group.get('xmlns:q') is None
     rule = group.find(NS + 'cfRule')
     assert rule is not None and rule.get('{http://schemas.openxmlformats.org/markup-compatibility/2006}PreserveElements') == 'q:keep'
     assert rule.find('.//{urn:extension}opaque') is not None

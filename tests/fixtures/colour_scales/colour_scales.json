@@ -1,0 +1,209 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    If IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        If v Is Nothing Then Show = \"Nothing\" Else Show = \"Object:\" & TypeName(v)\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long, f As Object, i As Long, c As Object\n    For r = 1 To 12\n        out = out & ws.Cells(r, 1).DisplayFormat.Interior.Color & \",\"\n    Next\n    On Error Resume Next\n    out = out & \" n=\" & ws.Cells.FormatConditions.Count\n    For i = 1 To ws.Cells.FormatConditions.Count\n        Set f = ws.Cells.FormatConditions(i)\n        out = out & \" [\" & TypeName(f) & \":\" & f.Type & \":\" & f.Priority & \":\" & f.AppliesTo.Address\n        If TypeName(f) = \"ColorScale\" Then\n            out = out & \":\" & f.ColorScaleCriteria.Count\n            For Each c In f.ColorScaleCriteria\n                out = out & \" c\" & c.Index & \"=\" & c.Type\n                Err.Clear: out = out & \"/\" & c.Value: If Err.Number <> 0 Then out = out & \"/E\" & Err.Number\n                Err.Clear: out = out & \"/\" & c.FormatColor.Color: If Err.Number <> 0 Then out = out & \"/E\" & Err.Number\n                Err.Clear: out = out & \"/\" & c.FormatColor.ThemeColor: If Err.Number <> 0 Then out = out & \"/E\" & Err.Number\n                Err.Clear: out = out & \"/\" & c.FormatColor.TintAndShade: If Err.Number <> 0 Then out = out & \"/E\" & Err.Number\n            Next\n        End If\n        out = out & \"]\"\n    Next\n    Dump = out\nEnd Function\n\nPrivate Function Colours(ws As Object, column As Long) As String\n    Dim out As String, r As Long\n    For r = 1 To 101\n        out = out & ws.Cells(r, column).DisplayFormat.Interior.Color & \",\"\n    Next\n    Colours = out\nEnd Function\n",
+ "list": "For i = 1 To 11: ws.Cells(i, 1).Value = (i - 1) * 10: Next\n",
+ "layouts": [
+  {
+   "name": "two_default",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\n",
+   "answers": "Empty;2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "reopened": "2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "three_default",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\n",
+   "answers": "Empty;7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "two_numbers",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\nf.ColorScaleCriteria(1).Type = xlConditionValueNumber\nf.ColorScaleCriteria(1).Value = 20\nf.ColorScaleCriteria(2).Type = xlConditionValueNumber\nf.ColorScaleCriteria(2).Value = 80\n",
+   "answers": "Empty;2650623,2650623,2650623,3901183,5151743,6467839,7718399,8968959,10285055,10285055,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=0/20/2650623/0/0 c2=0/80/10285055/0/0]",
+   "reopened": "2650623,2650623,2650623,3901183,5151743,6467839,7718399,8968959,10285055,10285055,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=0/20/2650623/0/0 c2=0/80/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"num\" val=\"20\"/><cfvo type=\"num\" val=\"80\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "three_percent",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nf.ColorScaleCriteria(1).Type = xlConditionValuePercent\nf.ColorScaleCriteria(1).Value = 10\nf.ColorScaleCriteria(2).Type = xlConditionValuePercent\nf.ColorScaleCriteria(2).Value = 50\nf.ColorScaleCriteria(3).Type = xlConditionValuePercent\nf.ColorScaleCriteria(3).Value = 90\n",
+   "answers": "Empty;7039480,7039480,7440889,7842555,8243965,8711167,8577240,8443313,8309386,8109667,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=3/10/7039480/0/0 c2=3/50/8711167/0/0 c3=3/90/8109667/0/0]",
+   "reopened": "7039480,7039480,7440889,7842555,8243965,8711167,8577240,8443313,8309386,8109667,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=3/10/7039480/0/0 c2=3/50/8711167/0/0 c3=3/90/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"percent\" val=\"10\"/><cfvo type=\"percent\" val=\"50\"/><cfvo type=\"percent\" val=\"90\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "three_percentile",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nf.ColorScaleCriteria(1).Type = xlConditionValuePercentile\nf.ColorScaleCriteria(1).Value = 25\nf.ColorScaleCriteria(2).Type = xlConditionValuePercentile\nf.ColorScaleCriteria(2).Value = 50\nf.ColorScaleCriteria(3).Type = xlConditionValuePercentile\nf.ColorScaleCriteria(3).Value = 75\n",
+   "answers": "Empty;7039480,7039480,7039480,7373817,8042492,8711167,8510145,8243075,8109667,8109667,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=5/25/7039480/0/0 c2=5/50/8711167/0/0 c3=5/75/8109667/0/0]",
+   "reopened": "7039480,7039480,7039480,7373817,8042492,8711167,8510145,8243075,8109667,8109667,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=5/25/7039480/0/0 c2=5/50/8711167/0/0 c3=5/75/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"percentile\" val=\"25\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"percentile\" val=\"75\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "three_mid_number",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nf.ColorScaleCriteria(2).Type = xlConditionValueNumber\nf.ColorScaleCriteria(2).Value = 30\n",
+   "answers": "Empty;7039480,7574778,8110076,8711167,8644073,8576979,8509629,8376998,8309648,8242554,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=0/30/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7574778,8110076,8711167,8644073,8576979,8509629,8376998,8309648,8242554,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=0/30/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"num\" val=\"30\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "colours",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nf.ColorScaleCriteria(1).FormatColor.Color = RGB(0, 0, 255)\nf.ColorScaleCriteria(2).FormatColor.Color = RGB(255, 255, 255)\nf.ColorScaleCriteria(3).FormatColor.Color = RGB(255, 0, 0)\n",
+   "answers": "Empty;16711680,16724787,16737894,16751001,16764108,16777215,13487615,10132223,6711039,3355647,255,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/16711680/0/0 c2=5/50/16777215/0/0 c3=2/100/255/0/0]",
+   "reopened": "16711680,16724787,16737894,16751001,16764108,16777215,13487615,10132223,6711039,3355647,255,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/16711680/0/0 c2=5/50/16777215/0/0 c3=2/100/255/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FF0000FF\"/><color rgb=\"FFFFFFFF\"/><color rgb=\"FFFF0000\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "theme_colour",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\nf.ColorScaleCriteria(1).FormatColor.ThemeColor = xlThemeColorAccent1\nf.ColorScaleCriteria(1).FormatColor.TintAndShade = 0.4\n",
+   "answers": "Empty;14791492,14399830,13942633,13485436,13028238,12571041,12113844,11656646,11199449,10742252,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/14791492/5/0.399975585192419 c2=2/100/10285055/0/0]",
+   "reopened": "14791492,14399830,13942633,13485436,13028238,12571041,12113844,11656646,11199449,10742252,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/14791492/5/0.399975585192419 c2=2/100/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color theme=\"4\" tint=\"0.39997558519241921\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "formula",
+   "setup": "ws.Range(\"C1\").Value = 30\nSet f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\nf.ColorScaleCriteria(1).Type = xlConditionValueFormula\nf.ColorScaleCriteria(1).Value = \"=$C$1\"\n",
+   "answers": "Empty;2650623,2650623,2650623,2650623,3703807,4822527,5875711,6994431,8047615,9166335,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=4/=$C$1/2650623/0/0 c2=2/100/10285055/0/0]",
+   "reopened": "2650623,2650623,2650623,2650623,3703807,4822527,5875711,6994431,8047615,9166335,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=4/=$C$1/2650623/0/0 c2=2/100/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"formula\" val=\"$C$1\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "odd_cells",
+   "setup": "ws.Range(\"A3\").Value = \"text\"\nws.Range(\"A5\").ClearContents\nws.Range(\"A7\").Formula = \"=1/0\"\nws.Range(\"A9\").Value = True\nSet f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\n",
+   "answers": "Empty;7039480,7373817,16777215,8042492,16777215,8711167,16777215,8510145,16777215,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7373817,16777215,8042492,16777215,8711167,16777215,8510145,16777215,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "all_same",
+   "setup": "ws.Range(\"A1:A11\").Value = 5\nSet f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\n",
+   "answers": "Empty;8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/5/7039480/0/0 c2=5/50/8711167/0/0 c3=2/5/8109667/0/0]",
+   "reopened": "8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/5/7039480/0/0 c2=5/50/8711167/0/0 c3=2/5/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "negatives",
+   "setup": "For i = 1 To 11: ws.Cells(i, 1).Value = (i - 6) * 10: Next\nSet f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\n",
+   "answers": "Empty;7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/-50/7039480/0/0 c2=5/50/8711167/0/0 c3=2/50/8109667/0/0]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/-50/7039480/0/0 c2=5/50/8711167/0/0 c3=2/50/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "one_number",
+   "setup": "ws.Range(\"A1:A11\").ClearContents\nws.Range(\"A4\").Value = 7\nSet f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\n",
+   "answers": "Empty;16777215,16777215,16777215,10285055,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/7/2650623/0/0 c2=2/7/10285055/0/0]",
+   "reopened": "16777215,16777215,16777215,10285055,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/7/2650623/0/0 c2=2/7/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "two_scales",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\nSet g = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\n",
+   "answers": "Empty;2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=2 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0] [ColorScale:3:2:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=2 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0] [ColorScale:3:2:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule><cfRule type=\"colorScale\" priority=\"2\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "scale_then_fill",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nSet g = ws.Range(\"A1:A12\").FormatConditions.Add(xlCellValue, xlGreater, \"50\")\ng.Interior.Color = RGB(0, 0, 255)\n",
+   "answers": "Empty;7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=2 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0] [FormatCondition:1:2:$A$1:$A$12]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=2 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0] [FormatCondition:1:2:$A$1:$A$12]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule><cfRule type=\"cellIs\" dxfId=\"2\" priority=\"2\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "fill_then_scale",
+   "setup": "Set g = ws.Range(\"A1:A12\").FormatConditions.Add(xlCellValue, xlGreater, \"50\")\ng.Interior.Color = RGB(0, 0, 255)\nSet f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\n",
+   "answers": "Empty;7039480,7373817,7708154,8042492,8376829,8711167,16711680,16711680,16711680,16711680,16711680,16777215, n=2 [FormatCondition:1:1:$A$1:$A$12] [ColorScale:3:2:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,16711680,16711680,16711680,16711680,16711680,16777215, n=2 [FormatCondition:1:1:$A$1:$A$12] [ColorScale:3:2:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"cellIs\" dxfId=\"1\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule><cfRule type=\"colorScale\" priority=\"2\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "fill_first_stops",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nSet g = ws.Range(\"A1:A12\").FormatConditions.Add(xlCellValue, xlGreater, \"50\")\ng.Interior.Color = RGB(0, 0, 255)\ng.SetFirstPriority\ng.StopIfTrue = True\n",
+   "answers": "Empty;7039480,7373817,7708154,8042492,8376829,8711167,16711680,16711680,16711680,16711680,16711680,16777215, n=2 [FormatCondition:1:1:$A$1:$A$12] [ColorScale:3:2:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,16711680,16711680,16711680,16711680,16711680,16777215, n=2 [FormatCondition:1:1:$A$1:$A$12] [ColorScale:3:2:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"2\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>50</formula></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "type_names",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nv = TypeName(f) & \":\" & TypeName(f.ColorScaleCriteria) & \":\" & TypeName(f.ColorScaleCriteria(1)) & \":\" & TypeName(f.ColorScaleCriteria(1).FormatColor)\n",
+   "answers": "String:ColorScale:ColorScaleCriteria:ColorScaleCriterion:FormatColor;7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "stop_if_true",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nv = f.StopIfTrue\nf.StopIfTrue = True\n",
+   "answers": "S450;Boolean:False;7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "criterion_zero",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nv = f.ColorScaleCriteria(0).Type\n",
+   "answers": "S9;Empty;7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "7039480,7373817,7708154,8042492,8376829,8711167,8643552,8510145,8376482,8243075,8109667,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "criterion_past",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\nv = f.ColorScaleCriteria(3).Type\n",
+   "answers": "S9;Empty;2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "reopened": "2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "scale_type_four",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=4)\n",
+   "answers": "S9;Empty;16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=0",
+   "reopened": "16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=0",
+   "file": ""
+  },
+  {
+   "name": "scale_omitted",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale\n",
+   "answers": "S450;Empty;16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=0",
+   "reopened": "16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=0",
+   "file": ""
+  },
+  {
+   "name": "value_of_lowest",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\nv = f.ColorScaleCriteria(1).Value\n",
+   "answers": "Double:0;2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "reopened": "2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "lowest_given_value",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=2)\nf.ColorScaleCriteria(1).Value = 5\n",
+   "answers": "S1004;Empty;2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "reopened": "2650623,3374591,4164351,4888319,5678079,6467839,7191807,7981567,8705535,9495295,10285055,16777215, n=1 [ColorScale:3:1:$A$1:$A$12:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A12\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "applies_moved",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nf.ModifyAppliesToRange ws.Range(\"A1:A6\")\n",
+   "answers": "Empty;7039480,7708154,8376829,8643552,8376482,8109667,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$A$1:$A$6:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/50/8109667/0/0]",
+   "reopened": "7039480,7708154,8376829,8643552,8376482,8109667,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$A$1:$A$6:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/50/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"A1:A6\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "deleted",
+   "setup": "Set f = ws.Range(\"A1:A12\").FormatConditions.AddColorScale(ColorScaleType:=3)\nf.Delete\n",
+   "answers": "Empty;16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=0",
+   "reopened": "16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=0",
+   "file": ""
+  },
+  {
+   "name": "gradient_two",
+   "setup": "For i = 1 To 101: ws.Cells(i, 2).Value = i - 1: Next\nws.Range(\"B1:B101\").FormatConditions.AddColorScale 2\nv = Colours(ws, 2)\n",
+   "answers": "String:2650623,2716415,2782207,2847999,2914047,2979839,3045631,3176959,3243007,3308799,3374591,3440383,3506431,3637759,3703551,3769343,3835391,3901183,3966975,4098303,4164351,4230143,4295935,4361727,4427775,4559103,4624895,4690943,4756735,4822527,4888319,4954367,5085695,5151487,5217279,5283327,5349119,5414911,5546239,5612287,5678079,5743871,5809663,5875711,6007039,6072831,6138623,6204671,6270463,6336255,6467839,6533631,6599423,6665215,6731263,6797055,6862847,6994175,7060223,7126015,7191807,7257599,7323647,7454975,7520767,7586559,7652607,7718399,7784191,7915519,7981567,8047359,8113151,8178943,8244991,8376319,8442111,8508159,8573951,8639743,8705535,8771583,8902911,8968703,9034495,9100543,9166335,9232127,9363455,9429503,9495295,9561087,9626879,9692927,9824255,9890047,9955839,10021887,10087679,10153471,10285055,;16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$B$1:$B$101:2 c1=1/0/2650623/0/0 c2=2/100/10285055/0/0]",
+   "reopened": "16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$B$1:$B$101:2 c1=1/0/2650623/0/0 c2=2/0/10285055/0/0]",
+   "file": "<conditionalFormatting sqref=\"B1:B101\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FFFF7128\"/><color rgb=\"FFFFEF9C\"/></colorScale></cfRule></conditionalFormatting>"
+  },
+  {
+   "name": "gradient_three",
+   "setup": "For i = 1 To 101: ws.Cells(i, 2).Value = i - 1: Next\nws.Range(\"B1:B101\").FormatConditions.AddColorScale 3\nv = Colours(ws, 2)\n",
+   "answers": "String:7039480,7039992,7106296,7106808,7173112,7173880,7239928,7240696,7306745,7307513,7373817,7374329,7440633,7441145,7507449,7508218,7574266,7575034,7641082,7641850,7708154,7708666,7774971,7775483,7841787,7842555,7908603,7909371,7975419,7976188,8042492,8043004,8109308,8109820,8176124,8176892,8242941,8243709,8309757,8310525,8376829,8377341,8443645,8444158,8510462,8511230,8577278,8578046,8644094,8644862,8711167,8711164,8710905,8710646,8710387,8710128,8644333,8644074,8643815,8643555,8643552,8643293,8577498,8577239,8576980,8576721,8576462,8510666,8510407,8510148,8510145,8509886,8509627,8443832,8443573,8443313,8443054,8442795,8377000,8376741,8376482,8376479,8376220,8375961,8310165,8309906,8309647,8309388,8309129,8243334,8243075,8243072,8242812,8242553,8242294,8176499,8176240,8175981,8175722,8175463,8109667,;16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$B$1:$B$101:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/100/8109667/0/0]",
+   "reopened": "16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215,16777215, n=1 [ColorScale:3:1:$B$1:$B$101:3 c1=1/0/7039480/0/0 c2=5/50/8711167/0/0 c3=2/0/8109667/0/0]",
+   "file": "<conditionalFormatting sqref=\"B1:B101\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+  }
+ ]
+}

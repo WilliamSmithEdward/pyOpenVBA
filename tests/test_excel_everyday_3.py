@@ -19,7 +19,6 @@ PROBES: list[dict[str, Any]] = json.loads(
     (Path(__file__).parent / 'fixtures/excel_everyday_3.json').read_text(encoding='utf-8'))['probes']
 #: What each probe the model cannot answer yet needs.
 GAPS = {
-    'cf_color_scale': 'colour scales',
     'cf_databar_iconset': 'data bars and icon sets',
 }
 

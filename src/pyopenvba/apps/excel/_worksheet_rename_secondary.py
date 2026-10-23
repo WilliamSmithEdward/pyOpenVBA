@@ -48,12 +48,35 @@ def conditional(root: XmlElement, old: str, wanted: str, budget: Budget) -> None
     for key, value in root.attrib.items():
         budget.text(key)
         budget.text(value)
+    if root.tag == NS + 'cfRule' and root.get('type') == 'colorScale':
+        colour_scale(root, old, wanted, budget)
+        return
     if root.tag != NS + 'cfRule' or root.get('type') not in CONDITIONAL_KINDS or not attributes_known(root, CONDITIONAL_ATTRIBUTES):
         raise unsupported('with unknown conditional reference metadata')
     for child in root:
         if child.tag != NS + 'formula' or list(child) or not attributes_known(child, set()):
             raise unsupported('with conditional reference extensions')
         reference(child.text or '', old, wanted, budget, encoded=True)
+
+
+def colour_scale(root: XmlElement, old: str, wanted: str, budget: Budget) -> None:
+    """A colour scale's points and colours, of which only a formula point can name a sheet."""
+    from pyopenvba.apps.excel._worksheet_rename import unsupported
+
+    scale = root.find(NS + 'colorScale')
+    if not attributes_known(root, {'type', 'priority'}) or len(root) != 1 or scale is None or scale.attrib:
+        raise unsupported('with unknown conditional reference metadata')
+    for child in scale:
+        for key, value in child.attrib.items():
+            budget.text(key)
+            budget.text(value)
+        if list(child):
+            raise unsupported('with conditional reference extensions')
+        if child.tag == NS + 'cfvo' and attributes_known(child, {'type', 'val', 'gte'}):
+            if child.get('type') == 'formula':
+                reference(child.get('val', ''), old, wanted, budget)
+        elif child.tag != NS + 'color' or not attributes_known(child, {'rgb', 'theme', 'tint', 'indexed', 'auto'}):
+            raise unsupported('with conditional reference extensions')
 
 
 def worksheet(raw: bytes, old: str, wanted: str, budget: Budget) -> None:

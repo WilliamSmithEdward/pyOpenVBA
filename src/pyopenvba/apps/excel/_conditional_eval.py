@@ -162,6 +162,14 @@ def display_style(sheet: Worksheet, row: int, column: int) -> styles.Style:
         if rule.deleted or not any(area.top <= row <= area.bottom and area.left <= column <= area.right
                                    for area in rule.areas):
             continue
+        if rule.root.get('type') == 'colorScale':
+            from pyopenvba.apps.excel._colour_scales import scale_patch
+
+            # A colour scale is a fill at its priority, for numbers alone (see _colour_scales).
+            shown = scale_patch(sheet, rule, row, column)
+            if shown is not None:
+                patches.append(shown)
+            continue
         if not _matches(sheet, rule, row, column):
             continue
         patch = rule.dxf

@@ -55,7 +55,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.formula._display import clock, format_value
+from pyopenvba.formula._display import clock, format_value, keeps_text
 from pyopenvba.formula._parse import literal
 from pyopenvba.formula._values import ERRORS, ExcelError, number_text
 from pyopenvba.interpreter._values import EMPTY, VBACurrency, VBADate, VBAErrorValue, error
@@ -133,8 +133,11 @@ def typed(value: object, current: str = "General", *, raw: bool = False, epoch_1
         value = value.serial
     elif raw and isinstance(value, VBACurrency):
         value = float(value)
-    if current == "@":
-        return _as_text(value, epoch_1904=epoch_1904)
+    if keeps_text(current):
+        found = _as_text(value, epoch_1904=epoch_1904)
+        # Text itself, a built-in format, gives way to the format a Currency brings; a Text cell's format of the
+        # workbook's own stays (tests/fixtures/text_cells.json).
+        return found if current == "@" else Typed(found.value, None, found.prefix)
     found = _typed(value, fractions=reads_fractions(current))
     if epoch_1904 and isinstance(value, str):
         found = on_1904(found, value)

@@ -4121,7 +4121,9 @@ class Range(ExcelObject):
 
     def _keeps_text(self, row: int, column: int) -> bool:
         """Whether a position is a Text cell, which keeps whatever string is written to it as text."""
-        return self.sheet.style_at(row, column).number_format == "@"
+        from pyopenvba.formula._display import keeps_text
+
+        return keeps_text(self.sheet.style_at(row, column).number_format)
 
     def _put_formula(self, row: int, column: int, formula: str, *, dynamic: bool = False) -> bool:
         """Write one formula into one cell, ``dynamic`` for a dynamic-array formula; False when a protected sheet

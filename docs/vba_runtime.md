@@ -1118,8 +1118,9 @@ layouts and all 246 colours measured):
   span, then of its segment, each channel stepping from the segment's
   first colour by that fraction of the way and cut toward zero.
 * A scale is a fill at its priority. A lowest or highest criterion's
-  Value reads that value of the range as it stands, and setting it is
-  error 1004; StopIfTrue reads False and cannot be set.
+  Value reads that value of the range as it stands once the scale has
+  coloured a cell, and 0 before, and setting it is error 1004; StopIfTrue
+  reads False and cannot be set.
 * A Value given as text is a formula: `"=$C$1"` the formula, `"40"` the
   number, `"abc"` a string. It reads back after "=" until the file is
   opened again. A formula point that answers text leaves the scale
@@ -1145,6 +1146,29 @@ and saved again):
 * A worksheet whose extension holds other rules, such as a cell rule
   naming another sheet, keeps that extension as the file had it; a data
   bar or icon set there reports itself unsupported.
+
+**Inserts and deletes.** Rows, columns and cells inserted or deleted move
+a sheet's conditional formats as Excel moves them
+(`tests/fixtures/conditional_edits/`, 303 layouts and Excel's file edited
+and saved again):
+
+* Through whole rows or columns a rule's range moves as a reference does,
+  an area spanning every line staying whole, and inserted lines take the
+  rules of the line they copy their formats from. A delete puts the areas
+  it cuts after the rest and joins areas it brings together.
+* A cell shift carries an area in its band and cuts a block the band runs
+  through into Excel's strips. A delete taking a block's whole band keeps
+  a rule a formula decides whole, as a reference, and cuts a colour scale,
+  data bar, icon set or statistical rule like any other block.
+* Formulas and points follow their cells or become `#REF!`. Excel makes a
+  rule anew after a `#REF!`, or when a delete shrinks a statistical or
+  drawn rule as it shrinks whole lines, unless one of its areas moved
+  whole. The rule made anew takes the workbook's highest priority plus
+  one, and two more for each rule the delete cuts ahead of it on the sheet.
+* What Excel would split, join or number in ways not measured reports
+  itself unsupported: a relative reference left reading at different
+  distances, rules alike beside one made anew, several ranges made anew
+  at once.
 
 The operation checklist, `docs/excel_checklist.csv`, records every
 conditional format member's status.

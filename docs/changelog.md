@@ -116,6 +116,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   read back, that file changed and saved again, and the model's own files
   opened in Excel agree.
 
+- Conditional formats move with rows, columns and cells inserted and
+  deleted, as Excel moves them. A rule's range shifts, stretches and
+  shrinks as a reference does, takes the inserted lines it copies its
+  formats from, and goes when its cells go. A block a cell shift runs
+  through is cut into Excel's strips, in Excel's order. Formulas, points
+  and references from other sheets follow their cells or become `#REF!`.
+  Where Excel makes a rule anew, after a `#REF!` or a statistical or drawn
+  rule cut as whole lines are, it takes Excel's new priority unless one of
+  its areas moved whole. 303 live layouts, Excel's file read back, that file
+  edited and saved again, and the model's own files opened in Excel agree.
+  What Excel splits, joins or numbers in ways not measured reports itself
+  unsupported.
+
 - A third sweep of 65 everyday macros agrees with Excel in full: newer
   worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
   object, AutoFilter, hyperlinks, notes, protection, conditional formats,
@@ -333,10 +346,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   colouring nothing, its lowest and highest reading 0. `FormatColor.Color`
   is a Long, as Excel's is.
 
-- Inserting or deleting rows or columns, or renaming a sheet, reports
-  itself unsupported where a colour scale's, data bar's or icon set's
-  point formula would need rewriting. The model checked a rule's own
-  formulas alone and left a point's naming the old cells.
+- Renaming a sheet reports itself unsupported where a colour scale's, data
+  bar's or icon set's point formula would need rewriting. The model checked
+  a rule's own formulas alone and left a point's naming the old sheet.
+
+- A whole-column conditional format is saved as `B1:B1048576` and a
+  whole-row one as `A2:XFD2`, as Excel saves them. The model wrote `B:B`.
+
+- A colour scale's or data bar's point reading `#REF!` stays in the
+  Excel 2007 rule. The model took the `!` for a sheet's name and moved the
+  rule into Excel 2010's extension.
+
+- Conditional formats read from a file show their areas in Excel's order:
+  a rule a formula decides by each area's top row, then its bottom, then
+  its left column; a colour scale, data bar or icon set in the file's
+  order, as top 10, average and unique rules already did.
+
+- A colour scale's lowest and highest points read 0 until the scale has
+  coloured a cell, as Excel's do, in a session and in a file just opened.
 
 - `Sort.Apply` with no range or no field sorts nothing and raises no
   error, as Excel does. The model raised error 1004.

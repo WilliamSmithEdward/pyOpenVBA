@@ -165,11 +165,13 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             from pyopenvba.apps.excel._windows import read_view
 
             sheet.validations = read_rules(sheet_xml)
-            from pyopenvba.apps.excel._conditional import read_rules as read_conditional_rules
+            from pyopenvba.apps.excel._conditional import read_sheet_rules
 
-            sheet.conditional_formats = read_conditional_rules(
+            sheet.conditional_formats, understood = read_sheet_rules(
                 sheet_xml, imported=workbook_format(book) == 51,
-                plain_load=workbook_format(book) == 51 or not package.has('xl/vbaProject.bin'))
+                plain_load=workbook_format(book) == 51 or not package.has('xl/vbaProject.bin'),
+                sheet_index=book.sheets_.index(sheet))
+            sheet.conditional_foreign = not understood
             from pyopenvba.apps.excel._conditional_border_context import initialize
 
             initialize(sheet)
@@ -1367,7 +1369,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
         for sheet in book.sheets_:
             if sheet.part_name and any(canonical_load(rule) for rule in sheet.conditional_formats):
                 original = package.read(sheet.part_name).decode('utf-8')
-                rewritten = conditional_xml(original, sheet.conditional_formats)
+                rewritten = conditional_xml(original, sheet.conditional_formats, extension=not sheet.conditional_foreign)
                 if rewritten != original:
                     package.write(sheet.part_name, rewritten.encode('utf-8'))
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -1830,7 +1832,8 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
     if sheet.conditional_changed:
         from pyopenvba.apps.excel._conditional import with_rules as with_conditional_rules
 
-        patched = with_conditional_rules(patched, sheet.conditional_formats)
+        patched = with_conditional_rules(patched, sheet.conditional_formats,
+                                         extension=not sheet.conditional_foreign)
         sheet.conditional_changed = False
     if sheet.merges_dirty:
         markup = ""

@@ -35,9 +35,8 @@ _CORNER = re.compile(r"^(\$?)([A-Za-z]+)?(\$?)([0-9]+)?$")
 
 
 def _conditional_admitted(sheet: Worksheet, region: Area, rewrite_rule: Callable[[str, str], str]) -> None:
-    """Reject before mutation when a rule's cells or stored references must move."""
-    from pyopenvba.apps.excel._conditional import NS
-    from pyopenvba.apps.excel._xstring import decode
+    """Reject before mutation when a rule's cells or stored references, its points' among them, must move."""
+    from pyopenvba.apps.excel._conditional_extension import point_formulas
 
     for owner in sheet.book.sheets_:
         for rule in owner.conditional_formats:
@@ -47,8 +46,7 @@ def _conditional_admitted(sheet: Worksheet, region: Area, rewrite_rule: Callable
                                            or area.right < region.left or region.right < area.left)
                                       for area in rule.areas):
                 raise VBAUnsupportedError('Structural edits moving conditional formatting ranges are not implemented')
-            for node in rule.root.findall(NS + 'formula'):
-                text = decode(node.text or '')
+            for text in point_formulas(rule):
                 if rewrite_rule(text, owner.name) != text:
                     raise VBAUnsupportedError('Structural edits rewriting conditional formatting formulas are not implemented')
 

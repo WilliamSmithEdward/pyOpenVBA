@@ -51,6 +51,9 @@ def conditional(root: XmlElement, old: str, wanted: str, budget: Budget) -> None
     if root.tag == NS + 'cfRule' and root.get('type') == 'colorScale':
         colour_scale(root, old, wanted, budget)
         return
+    if root.tag == NS + 'cfRule' and root.get('type') in ('dataBar', 'iconSet'):
+        drawn(root, old, wanted, budget)
+        return
     if root.tag != NS + 'cfRule' or root.get('type') not in CONDITIONAL_KINDS or not attributes_known(root, CONDITIONAL_ATTRIBUTES):
         raise unsupported('with unknown conditional reference metadata')
     for child in root:
@@ -73,9 +76,43 @@ def colour_scale(root: XmlElement, old: str, wanted: str, budget: Budget) -> Non
         if list(child):
             raise unsupported('with conditional reference extensions')
         if child.tag == NS + 'cfvo' and attributes_known(child, {'type', 'val', 'gte'}):
-            if child.get('type') == 'formula':
-                reference(child.get('val', ''), old, wanted, budget)
+            _point(child, old, wanted, budget)
         elif child.tag != NS + 'color' or not attributes_known(child, {'rgb', 'theme', 'tint', 'indexed', 'auto'}):
+            raise unsupported('with conditional reference extensions')
+
+
+def _point(point: XmlElement, old: str, wanted: str, budget: Budget) -> None:
+    """A point's value, which any but a lowest or highest can hold as a formula."""
+    from pyopenvba.apps.excel._conditional_extension import NUMBER
+
+    value = point.get('val', '')
+    if point.get('type') not in ('min', 'max') and not NUMBER.fullmatch(value):
+        reference(value, old, wanted, budget)
+
+
+def drawn(root: XmlElement, old: str, wanted: str, budget: Budget) -> None:
+    """A data bar's or icon set's cfRule: its formula, its points and colours, and the link to its x14:cfRule,
+    whose formulas admit checks through the rule's settings."""
+    from pyopenvba.apps.excel._conditional_extension import LINK_URI, X14
+    from pyopenvba.apps.excel._worksheet_rename import unsupported
+
+    shape = NS + ('dataBar' if root.get('type') == 'dataBar' else 'iconSet')
+    if not attributes_known(root, {'type', 'priority'}):
+        raise unsupported('with unknown conditional reference metadata')
+    for child in root:
+        for key, value in child.attrib.items():
+            budget.text(key)
+            budget.text(value)
+        if child.tag == NS + 'formula' and not list(child):
+            reference(child.text or '', old, wanted, budget, encoded=True)
+        elif child.tag == shape:
+            for part in child:
+                if part.tag == NS + 'cfvo' and attributes_known(part, {'type', 'val', 'gte'}) and not list(part):
+                    _point(part, old, wanted, budget)
+                elif part.tag != NS + 'color' or list(part):
+                    raise unsupported('with conditional reference extensions')
+        elif not (child.tag == NS + 'extLst' and [(ext.tag, ext.get('uri')) for ext in child] == [(NS + 'ext', LINK_URI)]
+                  and all(named.tag == X14 + 'id' for named in child[0])):
             raise unsupported('with conditional reference extensions')
 
 
@@ -140,6 +177,11 @@ def admit(book: Workbook, old: str, wanted: str, budget: Budget) -> None:
                 container(rule.container)
                 containers.add(rule.container)
             conditional(rule.root, old, wanted, budget)
+            if rule.root.get('type') in ('dataBar', 'iconSet'):
+                from pyopenvba.apps.excel._conditional_extension import point_formulas
+
+                for text in point_formulas(rule):
+                    reference(text, old, wanted, budget)
         for validation in owner.validations:
             if validation.extension:
                 raise unsupported('with extended validation references')

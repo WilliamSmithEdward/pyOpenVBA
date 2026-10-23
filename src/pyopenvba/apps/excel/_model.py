@@ -982,6 +982,13 @@ class Workbook(ExcelObject):
         return styles if Index is MISSING else styles.vba_get("Item", [Index])
 
     @member
+    def IconSets(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._icon_sets import IconSets
+
+        sets = IconSets(self)
+        return sets if Index is MISSING else sets.vba_get("Item", [Index])
+
+    @member
     def VBProject(self) -> object:
         from pyopenvba.apps.excel._vbide import project_for
 
@@ -1284,6 +1291,9 @@ class Worksheet(ExcelObject):
         #: Cache against the exact OPC entry; replacing a part invalidates it.
         self.conditional_extensions: bool | None = None
         self.conditional_extension_entry: Entry | None = None
+        #: True when the sheet's Excel 2010 extension holds conditional formats the model does not read
+        #: (_conditional_extension), which then keeps that extension as the file had it.
+        self.conditional_foreign = False
         self.merged_areas: list[Area] = []
         self.merges_dirty = False
         self.visible = -1  # xlSheetVisible
@@ -2177,8 +2187,10 @@ class Range(ExcelObject):
             # actual cache without re-entering the caller's unfinished formula.
             cell = replace(cell, value=0.0)
         if self.sheet.conditional_formats:
-            from pyopenvba.apps.excel._conditional_eval import conditional_number_format
+            from pyopenvba.apps.excel._conditional_eval import conditional_number_format, value_hidden
 
+            if value_hidden(self.sheet, row, column, cell.value):
+                return ""
             style = self.sheet.style_at(self.first.top, self.first.left)
             cell = replace(cell, style=replace(style, number_format=conditional_number_format(
                 self.sheet, self.first.top, self.first.left)))

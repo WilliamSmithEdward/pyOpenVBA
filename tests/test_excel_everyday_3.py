@@ -17,10 +17,8 @@ from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 
 PROBES: list[dict[str, Any]] = json.loads(
     (Path(__file__).parent / 'fixtures/excel_everyday_3.json').read_text(encoding='utf-8'))['probes']
-#: What each probe the model cannot answer yet needs.
-GAPS = {
-    'cf_databar_iconset': 'data bars and icon sets',
-}
+#: What each probe the model cannot answer yet needs; none now.
+GAPS: dict[str, str] = {}
 
 
 def _answer(macro: str) -> object:

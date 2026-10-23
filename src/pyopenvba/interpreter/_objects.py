@@ -108,6 +108,9 @@ class VBAObject:
     #: The code a document module adds to this object -- a sheet's or the workbook's own module -- whose Public
     #: members it answers as its own: Sheet2.WriteHere, Sheet2.Counter. None for an object with no module.
     vba_document: Any = None
+    #: True for an object a late-bound property takes by Let as itself rather than its default member, as Excel's
+    #: IconSetCondition.IconSet takes one of Workbook.IconSets, where Set is error 438 (native probe).
+    vba_let_as_object: bool = False
 
     _vba_members: ClassVar[dict[str, MemberSpec]] = {}
 

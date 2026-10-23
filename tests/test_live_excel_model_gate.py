@@ -1723,6 +1723,42 @@ def test_excel_reads_the_colour_scales_this_wrote(tmp_path: Path) -> None:
         assert read[layout["name"]] == layout["reopened"], layout["name"]
 
 
+def test_excel_reads_the_data_bars_and_icon_sets_this_wrote(tmp_path: Path) -> None:
+    """Every rule tests/fixtures/data_bars_icons measured, made by the model, saved and opened in Excel, which
+    reads each sheet as it read its own file; and Excel's file changed by the model as Excel changed it, which
+    Excel reads as it had the changes before saving."""
+    import json
+
+    from test_excel_data_bars_icons import FIXTURES, RESAVED, saved_layouts
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((FIXTURES / "data_bars_icons.json").read_text(encoding="utf-8"))
+    made = tmp_path / "data_bars_icons.xlsx"
+    saved_layouts(made)
+    changed = tmp_path / "data_bars_icons_resaved.xlsx"
+    app = ExcelApplication.open(FIXTURES / "data_bars_icons.xlsx", with_vba=False)
+    steps = "".join(f"Private Sub Change{index}(ws As Object)\nOn Error Resume Next\n{one['step']}End Sub\n"
+                    for index, one in enumerate(RESAVED))
+    calls = "\n".join(f'Change{index} ActiveWorkbook.Worksheets("{one["name"]}")' for index, one in enumerate(RESAVED))
+    app.add_module(steps + f"Public Sub Change()\n{calls}\nEnd Sub\n", name="Changer")
+    app.run("Change")
+    app.save(changed)
+    reader = (record["helper"] + "Public Function Report() As String\nDim ws As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\n"
+              "Report = out\nEnd Function\n")
+    read: list[dict[str, str]] = []
+    for path in (made, changed):
+        with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+            excel.open_document(path)
+            result = excel.run_vba(reader, "Report", timeout=600.0)
+            assert result.ok, result.message
+        read.append(dict(one.split("^", 1) for one in str(result.value).split("|") if one))
+    for layout in record["layouts"]:
+        assert read[0][layout["name"]] == layout["reopened"], layout["name"]
+    for one in record["resaved"]:
+        assert read[1][one["name"]] == re.sub(r"^S\d+;", "", one["answers"]), one["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

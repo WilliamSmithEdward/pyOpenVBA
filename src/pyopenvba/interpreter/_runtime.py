@@ -1688,7 +1688,9 @@ class Interpreter:
         if statement.kind == "set" and not is_object(value) and value is not NOTHING:
             raise error(ERR_MEMBER_NOT_FOUND, "Set needs an object on the right")
         if statement.kind == "let" and isinstance(value, VBAObject):
-            value = value.vba_value()
+            # A property takes some objects themselves by Let; anything else hands over its default member.
+            if not (value.vba_let_as_object and isinstance(statement.target, A.Member)):
+                value = value.vba_value()
         elif statement.kind == "let" and value is NOTHING:
             # Nothing has no value to let: v = Range("A1:B1").Style, whose cells differ, is error 91.
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)

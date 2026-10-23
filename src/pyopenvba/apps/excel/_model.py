@@ -29,7 +29,7 @@ from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _arrays, _dimensions, _events, _merges, _names
+from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -2171,9 +2171,8 @@ class Range(ExcelObject):
             style = self.sheet.style_at(self.first.top, self.first.left)
             cell = replace(cell, style=replace(style, number_format=conditional_number_format(
                 self.sheet, self.first.top, self.first.left)))
-        dims = self.sheet.dims
-        return _display_text(cell, _dimensions.characters_read(dims.column_shown_pixels(self.first.left)),
-                             epoch_1904=self.sheet.book.epoch_1904)
+        # What the cell shows, in what its column has room for (tests/fixtures/narrow_text.json).
+        return _column_fit.narrowed(self.sheet, row, column, cell)
 
     @member
     def Formula(self) -> object:
@@ -2575,6 +2574,7 @@ class Range(ExcelObject):
 
         text = normalized(to_text(value))
         restyle(self, lambda style: applying(style, "number_format", number_format=text))
+        _column_fit.widen(self.sheet, self.areas)
 
     @member
     def Style(self) -> object:
@@ -2587,6 +2587,7 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._cell_styles import set_style
 
         set_style(self, value)
+        _column_fit.widen(self.sheet, self.areas)
 
     # The Local spellings are in the language of the user's settings, which the model keeps English: the same
     # text as the plain ones, as an English Excel has them (tests/fixtures/excel_model/probes.txt).
@@ -4652,35 +4653,6 @@ _register_worksheet_functions()
 
 
 # --- helpers ----------------------------------------------------------------------------------------
-
-
-def _display_text(cell: Cell, characters: float, *, epoch_1904: bool = False) -> str:
-    """What the cell shows: its value through its number format, in a column ``characters`` wide.
-
-    A value its format cannot show, a date before 1900 say, fills the
-    column with as many # as it is characters wide (measured at 40 and 60).
-    What a ``*`` fill pads the cell with depends on its width in pixels and
-    the font's, which is not modelled, and neither is a value too wide for
-    its column, which Excel shows as # or with fewer digits.
-    """
-    from pyopenvba.formula._display import UndisplayableError, shown
-    from pyopenvba.formula._values import ExcelError
-
-    value = cell.value.serial if isinstance(cell.value, VBADate) else cell.value
-    if value is EMPTY:
-        return ""
-    if isinstance(value, ExcelError):
-        return value.name
-    if not isinstance(value, (bool, str, int, float)):
-        return to_text(value)
-    try:
-        text, fills = shown(value, cell.number_format, epoch_1904=epoch_1904)
-    except UndisplayableError:
-        return "#" * int(characters)
-    if fills:
-        raise VBAUnsupportedError("what a number format with a * fill shows depends on the cell's width in pixels, "
-                                  "which pyOpenVBA does not model")
-    return text
 
 
 def _formula_text(value: object) -> str:

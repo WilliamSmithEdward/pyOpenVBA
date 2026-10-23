@@ -4,22 +4,24 @@ tests/fixtures/number_formats.json is what scripts/measure_number_formats.py
 saw in live Excel: 156 format codes, each set on a cell in a column 60
 characters wide, with 28 values written to it in turn and read back
 through Range.Text and through WorksheetFunction.Text. The model runs the
-same macro. Where the section showing a value has a ``*`` fill, what the
-cell shows depends on its width in pixels, which the model does not
-measure, so Range.Text says so instead.
+same macro. Where the section showing a value has a ``*`` fill, how many
+times it repeats depends on the column's width in pixels, and this
+fixture's display was at another scale than the 96 DPI the model
+measures (tests/fixtures/narrow_text.json counts the fills); where the
+fill goes, and what is around it, is checked here.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.formula._display import UndisplayableError, format_value, shown
+from pyopenvba.formula._display import UndisplayableError, displayed, format_value, shown
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / "fixtures" / "number_formats.json").read_text(encoding="utf-8"))
@@ -118,15 +120,19 @@ FILLED = [(entry, expression) for entry in CODES if entry not in PLAIN for expre
 
 @pytest.mark.parametrize("entry,expression", FILLED,
                          ids=[f"{entry['code']} {expression}" for entry, expression in FILLED])
-def test_a_filled_cell_says_what_it_cannot_show(entry: dict[str, Any], expression: str) -> None:
-    """A value shown through a * fill reports itself; one shown without the fill reads as Excel's does."""
+def test_a_filled_cell_fills_where_excel_does(entry: dict[str, Any], expression: str) -> None:
+    """A value shown through a * fill has the fill's character repeated where Excel repeats it, and nothing else
+    between; one shown without the fill reads as Excel's does."""
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(f"Public Function Probe() As String\nColumns(1).ColumnWidth = 60\n"
                    f"Range(\"A1\").NumberFormat = {_vba_text(entry['code'])}\nRange(\"A1\").Value = {expression}\n"
                    "Probe = Range(\"A1\").Text\nEnd Function\n", name="Probe")
+    got, want = str(app.run("Probe")), entry["text"][VALUES.index(expression)]
     if _fills(entry["code"], expression):
-        with pytest.raises(VBAUnsupportedError, match=r"\* fill"):
-            app.run("Probe")
+        laid = displayed(_value(expression), entry["code"])
+        pattern = re.escape(laid.text[:laid.fill_at]) + f"{re.escape(laid.fill)}+" + re.escape(laid.text[laid.fill_at:])
+        assert re.fullmatch(pattern, want), want
+        assert re.fullmatch(pattern, got), got
     else:
-        assert app.run("Probe") == entry["text"][VALUES.index(expression)]
+        assert got == want

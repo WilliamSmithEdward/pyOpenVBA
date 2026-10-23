@@ -6,8 +6,9 @@ refresh, worksheet page configuration, table-owned sorting, bounded scalar/name
 worksheet renames, ordinary worksheet outlines, conditional formatting, primary
 chart axes, workbook date systems, pyOfficeEditor's formula engine to its
 commit 4723383, closed linked workbooks, 3D references, iterative
-calculation of circular references, what-if data tables and column AutoFit.
-This is a functionality summary for the in-memory Excel engine.
+calculation of circular references, what-if data tables, column AutoFit and
+Range.Text in narrow columns, with `*` fills and the widening a number format
+gives a column. This is a functionality summary for the in-memory Excel engine.
 **No functional area is complete yet.** Common worksheet operations have
 substantially more support than advanced Excel automation.
 
@@ -34,7 +35,7 @@ is a percentage of working macros or complete functionality.
 | Cells and ranges | Partial | 119 / 215 | 31 | Reads/writes, formulas, references, copying, moving and many editing operations. Native probes cover Currency precision and SpreadsheetML text/formula persistence for literal escapes, controls and Unicode. What-if data tables made by Range.Table work out, refuse, move, copy and save as Excel's do over 44 live probes and six workbooks. Full argument, error, structural-edit and mixed-feature fidelity remains incomplete. |
 | Formulas and calculation | Partial | 393 / 463 | 0 | Broad worksheet-function exposure, dependency calculation, UDFs, arrays and calculation modes: 501 of Excel's 525 functions, from pyOfficeEditor's engine at its commit 4723383 with the tests it measured. A closed linked workbook is read from the copy of its cells the file keeps, and 3D references and sheet names in formulas follow Excel over 377 live probes. Circular references are found as Excel finds them, through the cells a formula reads as it is worked out, and kept or worked out over and over with Application.Iteration, over 93 live probes, 24 repeated runs and three saved workbooks. Registered functions still need behavioral audits; the cube, web and ETS forecast functions, early-1900 bond dates, new links to other workbooks and other numerical edge cases are incomplete. |
 | Defined names | Partial | 15 / 30 | 0 | Workbook/sheet names and reference evaluation. Bounded worksheet renames migrate ordinary local/global references and preserve scope/identity. Broader expression, relative/external-reference and mixed-feature lifecycle behavior remains incomplete. |
-| Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Column AutoFit measures text as Excel does for ASCII and Latin-1 in Aptos Narrow and Calibri 11. Rich text, gradients, advanced display formats, AutoFit of other fonts, sizes and wrapped text, and remaining formatting APIs need work. |
+| Cell formatting and styles | Partial | 103 / 206 | 20 | Fonts, fills, borders, number formats, alignment and named styles. Ordinary conditional DisplayFormat views are supported. Column AutoFit measures text as Excel does for ASCII and Latin-1 in Aptos Narrow and Calibri 11, and a number format a macro sets widens a column as Excel's does. Range.Text cuts a General number to fit a narrow column, shows other values as #, and repeats `*` fills. Rich text, gradients, advanced display formats, AutoFit of other fonts, sizes and wrapped text, and remaining formatting APIs need work. |
 | Conditional formatting | Partial | 77 / 212 | 0 | Cell-value/expression, top/bottom, above/below average/deviation and duplicate/unique rules, with specialized objects, lifecycle, differential styles, displayed formatting and conditional number formats. Text, blank, error and time-period predicates also support generated formulas, styles and worksheet copying. Measured disjoint range copies and all/formats pastes support fresh rules and loaded rules with distinct validated group identities within one workbook. Loaded group ordering, plain-load mode, shared-child deletion/range changes and ordinary formula rebasing have native controls. Measured worksheet copies initialize independent dense group identities and child order. Shared-group range transfers, broader worksheet-copy/context behavior, overlapping, tiled, transposed and cross-workbook transfers, structural edits, color scales, bars, icon sets and pivot scopes remain incomplete. |
 | Excel tables | Partial | 46 / 155 | 25 | ListObjects, rows/columns, structured references, resizing, totals and ordinary local ListObject.Sort. Filtered/rich table sorting, configured structural edits, table-style objects and broader table-operation fidelity remain incomplete. |
 | Sorting, filtering and outlines | Partial | 38 / 66 | 5 | Common worksheet/table sorts, direct sort-owned range parents, persisted ordinary worksheet/table settings, AutoFilter wildcard matching with bounded state transitions and a measured local AdvancedFilter subset. Ordinary row/column outlines support grouped levels, summary sides, detail visibility and persisted metadata. Formula criteria, advanced-filter state migration, sort variants, automatic outline styles, heterogeneous outline reads and broader grouping/editing interactions remain incomplete. |
@@ -587,9 +588,10 @@ native reopen controls cover both macro-free and macro-enabled workbooks.
 Worksheet UDF attempts return `False` without changing the workbook; ordinary
 macro calls still perform the copy. Overlaps,
 tiling, transposition, shared-group or ambiguous loaded sources, merging paste modes, cross-book
-transfers and affected mixed-feature combinations remain guarded. Narrow-column
-`Range.Text` width truncation remains incomplete; these controls use measured
-20-character columns to isolate conditional formatting behavior. See the
+transfers and affected mixed-feature combinations remain guarded. These
+controls use measured 20-character columns to keep conditional formatting apart
+from narrow-column `Range.Text`, which
+[the narrow-text tests](../../tests/test_excel_narrow_text.py) cover. See the
 [transfer regressions](../../tests/test_excel_conditional_transfer_core.py) and
 [native transfer/import tests](../../tests/test_excel_conditional_transfer_native.py).
 

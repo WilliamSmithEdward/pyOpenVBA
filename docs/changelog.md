@@ -7,6 +7,39 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.Text` in a column too narrow for what a cell shows, as Excel
+  shows it on a 96-DPI display. A number in General loses decimals, then
+  goes to scientific notation, then shows 0 or -0 where it rounds to that;
+  General beside other text, as in `General" kg"`, does the same in what
+  the text leaves. Any other number, a date, a logical or an error fills
+  the column with `#` once it no longer fits. A cell has its column's width
+  less 5 pixels to show its text in, less 9 for each indent level and a
+  little for italic; a merged cell has its columns', and one that shrinks
+  its text shows it all. Text shows whole, unless a section with a fill
+  lays it out. Measured at every width from 2 to 130 pixels in Aptos
+  Narrow and Calibri 11, regular, bold and italic.
+
+- `*` fills: `Range.Text` repeats the fill's character as often as it fits
+  beside the rest, each `_x` counted a space wide, to 255 characters in
+  all. The Comma, Currency and Accounting styles now read as Excel's do,
+  where `Range.Text` refused any fill before. AutoFit counts a fill as
+  nothing, an `_x` as wide as `x` and a `?` with no digit to show as wide
+  as a 0.
+
+- Setting `NumberFormat`, `NumberFormatLocal` or `Style` widens a column
+  wherever AutoFit would make it wider for a number one of the cells now
+  shows, as Excel does, even where the number already shows whole. A
+  column sized by hand or hidden, a merged cell, General, text, logicals
+  and errors widen nothing, and a column never narrows. A saved file keeps
+  the width with `bestFit="1"`, as AutoFit's.
+
+  What is not measured reports itself or is left: Excel shows -1.5E-100 two
+  pixels early at 50 pixels, and a negative number General shows beside a
+  fill as 0 in the five pixels where a digit fits and its sign does not; a
+  hidden column's text depends on what Excel drew there before and is
+  unsupported; in another font or size `Range.Text` is unsupported where
+  the text may not fit, and a format leaves such a column as it is.
+
 - Column AutoFit: a column is as wide as Excel makes it for the text its
   cells show. Each character of ASCII and Latin-1 is as wide as GDI makes it
   in Aptos Narrow or Calibri 11, in any style, italic reaching a little
@@ -17,9 +50,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   with `bestFit="1"`. `Range("A2:A3").Columns.AutoFit` fits the range's
   cells alone, and `Range("A2:A3").AutoFit` is error 1004. Nearly 14,000
   live widths, 1,302 random texts, 138 numbers and a saved workbook agree.
-  Text that wraps, is indented or turned, another font or size, a `*` fill
-  and Windows-1252's characters past Latin-1, whose widths GDI makes
-  depend on their neighbours, report themselves unsupported. The Normal
+  Text that wraps, is indented or turned, another font or size and
+  Windows-1252's characters past Latin-1, whose widths GDI makes depend on
+  their neighbours, report themselves unsupported. The Normal
   style's font now changes between Aptos Narrow 11 and Calibri 11, which
   make the same digit and row, and `Application.StandardFont` and
   `StandardFontSize` read Aptos Narrow and 11.

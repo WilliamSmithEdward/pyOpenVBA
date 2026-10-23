@@ -29,7 +29,7 @@ NORMALS = {'aptos_narrow': 'Aptos Narrow', 'calibri': 'Calibri'}
 #: Probes replayed as they ran in Excel.
 WHOLE = [name for name in PROBES if name.startswith(('display_', 'runs_', 'latin_', 'ranges_', 'states_'))]
 #: The cells cases AutoFit was not measured over, which report themselves unsupported.
-UNMEASURED_CELLS = {'wrapped', 'line_break', 'indent', 'turned', 'big_font', 'mixed_runs', 'wrapped_beside',
+UNMEASURED_CELLS = {'wrapped', 'line_break', 'indent', 'turned', 'mixed_runs', 'wrapped_beside',
                     'line_break_unwrapped', 'line_break_wraps'}
 
 
@@ -124,9 +124,10 @@ def test_what_autofit_looks_at(normal: str, name: str) -> None:
     assert _run(source) == f'{name}={measured[name]}'
 
 
-def test_another_size() -> None:
-    with pytest.raises(VBAUnsupportedError, match='11pt'):
-        _run(_module('Aptos Narrow', 'ws.Range("A1").Value = "\'abc": ws.Range("A1").Font.Size = 14: '
+def test_a_size_past_72pt() -> None:
+    # Other sizes are measured in tests/test_excel_autofit_sizes.py.
+    with pytest.raises(VBAUnsupportedError, match='8 to 72pt'):
+        _run(_module('Aptos Narrow', 'ws.Range("A1").Value = "\'abc": ws.Range("A1").Font.Size = 80: '
                                      's = s & " " & Fitted(ws, 1)'))
 
 

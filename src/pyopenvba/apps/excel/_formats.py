@@ -221,6 +221,14 @@ class Font(ExcelObject):
         if not 1 <= size <= 409.5:
             raise error(1004, "Unable to set the Size property of the Font class")
         self._write(lambda font: replace(font, size=size))
+        self._resized()
+
+    def _resized(self) -> None:
+        """A new size widens a column a number no longer fits, as a format does; bold does not
+        (tests/fixtures/general_widening.json)."""
+        from pyopenvba.apps.excel._column_fit import widen
+
+        widen(self.target.sheet, list(self.target.areas))
 
     @member
     def Bold(self) -> object:

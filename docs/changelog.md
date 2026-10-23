@@ -7,6 +7,30 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- AutoFit, `Range.Text` in narrow columns and the widening a format gives
+  a column work at every font size from 8pt to 72pt, in Aptos Narrow and
+  Calibri, where they took 11pt alone. A text is as wide as GDI makes it at
+  the font's height in pixels, the size times 4/3. A big font adds 2 pixels
+  to the column for every 4 its digits are wider than 5: none to 12pt, 2
+  from 13pt, 22 at 72pt. Italic reaches further by a fifth of the font's
+  ascent, in steps. `Range.Text` keeps the same pixels beside a text. The
+  widths of 191 characters at 86 heights, in both fonts and four styles,
+  are baked from GDI, which gave live Excel's 11pt widths exactly. 35 sizes
+  of 31 texts in each font and style, ten sizes of `Range.Text` at every
+  width and seven of widening agree. Below 8pt Excel draws both fonts in
+  another, which reports itself unsupported.
+
+- Setting `Font.Size` widens a column wherever AutoFit would make it wider
+  for a number one of its cells shows, as a number format does, even to
+  the size the font had; a date written by value widens on it.
+  `Font.Bold` widens nothing.
+
+  A number General shows widens its column too, when General is set on it
+  or its font's size is set. That width is not AutoFit's for the whole
+  number: 1234.5 at 24pt widens to show 1235, 98765.4321 at 18pt to show
+  98765.4. The model leaves such a column as it is, and those cases, out
+  of 12 numbers measured at 6 sizes, are known gaps.
+
 - `Range.Text` in a column too narrow for what a cell shows, as Excel
   shows it on a 96-DPI display. A number in General loses decimals, then
   goes to scientific notation, then shows 0 or -0 where it rounds to that;
@@ -29,16 +53,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Setting `NumberFormat`, `NumberFormatLocal` or `Style` widens a column
   wherever AutoFit would make it wider for a number one of the cells now
   shows, as Excel does, even where the number already shows whole. A
-  column sized by hand or hidden, a merged cell, General, text, logicals
-  and errors widen nothing, and a column never narrows. A saved file keeps
-  the width with `bestFit="1"`, as AutoFit's.
+  column sized by hand or hidden, a merged cell, text, logicals and errors
+  widen nothing, and a column never narrows. A saved file keeps the width
+  with `bestFit="1"`, as AutoFit's.
 
-  What is not measured reports itself or is left: Excel shows -1.5E-100 two
-  pixels early at 50 pixels, and a negative number General shows beside a
-  fill as 0 in the five pixels where a digit fits and its sign does not; a
-  hidden column's text depends on what Excel drew there before and is
-  unsupported; in another font or size `Range.Text` is unsupported where
-  the text may not fit, and a format leaves such a column as it is.
+  What is not measured reports itself or is left: Excel shows a negative
+  number General shows beside a fill as 0 in the five pixels where a digit
+  fits and its sign does not; a hidden column's text depends on what Excel
+  drew there before and is unsupported; in another font `Range.Text` is
+  unsupported where the text may not fit, and a format leaves such a
+  column as it is. A General number without a decimal point is measured by
+  its characters, one with a point by its digits, so `-2E-100` fits where
+  Excel shows it, and a number that rounds to 0 shows 0 until five digits
+  fit.
 
 - Column AutoFit: a column is as wide as Excel makes it for the text its
   cells show. Each character of ASCII and Latin-1 is as wide as GDI makes it
@@ -50,9 +77,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   with `bestFit="1"`. `Range("A2:A3").Columns.AutoFit` fits the range's
   cells alone, and `Range("A2:A3").AutoFit` is error 1004. Nearly 14,000
   live widths, 1,302 random texts, 138 numbers and a saved workbook agree.
-  Text that wraps, is indented or turned, another font or size and
-  Windows-1252's characters past Latin-1, whose widths GDI makes depend on
-  their neighbours, report themselves unsupported. The Normal
+  Text that wraps, is indented or turned, another font and Windows-1252's
+  characters past Latin-1, whose widths GDI makes depend on their
+  neighbours, report themselves unsupported. The Normal
   style's font now changes between Aptos Narrow 11 and Calibri 11, which
   make the same digit and row, and `Application.StandardFont` and
   `StandardFontSize` read Aptos Narrow and 11.

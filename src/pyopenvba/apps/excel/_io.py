@@ -1810,9 +1810,11 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
     sheet.dims.saved()
     if sheet.filter_changed:
         patched = _with_auto_filter(sheet, patched)
-    if sheet.advanced_filter_changed:
+    if sheet.advanced_filter_changed or sheet.filter_changed:
         from pyopenvba.apps.excel._advanced_filter import with_filter_mode
 
+        # filterMode says the sheet's own filter has criteria; a table's never sets it
+        # (tests/fixtures/autofilter_file/, tests/fixtures/table_autofilter/).
         filtered = sheet.advanced_filter is not None or (sheet.auto_filter is not None and bool(sheet.auto_filter.fields))
         patched = with_filter_mode(patched, filtered)
         sheet.advanced_filter_changed = False

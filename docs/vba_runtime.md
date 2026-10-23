@@ -654,6 +654,17 @@ layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).
   filter, as CurrentRegion grows, so a row written just below it joins
   it. Filtering again and ApplyFilter take that row in; the file and the
   hidden name keep the range as it was until then.
+* A table has a filter of its own (`tests/fixtures/table_autofilter/`, 76
+  layouts and the file Excel saved of them). A range inside a table
+  filters it, the field counted from the table's first column, and one
+  reaching past the table is error 1004. `ListObject.AutoFilter` is the
+  filter, Nothing while ShowAutoFilter is False, and its Range the whole
+  table. The criteria live in the table's part, no _FilterDatabase name is
+  made, and the totals row never hides. The sheet's AutoFilter,
+  ShowAllData and AutoFilterMode = False reach the filter at the active
+  cell, a table's where it is in one. FilterMode follows that filter as it
+  stood when the sheet was last activated, its selection moved or a
+  filter changed, and edits hold back by FilterMode.
 
 **Editing a filtered sheet.** While a sheet is in filter mode Excel holds
 most edits to what shows (`tests/fixtures/autofilter_edits.json`, 195

@@ -27,9 +27,11 @@ if TYPE_CHECKING:
 
 
 def filtering(sheet: Worksheet) -> bool:
-    """Whether the sheet is in filter mode: a column of its AutoFilter has criteria."""
-    found = sheet.auto_filter
-    return sheet.advanced_filter is not None or (found is not None and bool(found.fields))
+    """Whether the sheet is in filter mode: a column of its AutoFilter has criteria, or of a table's as FilterMode
+    took it last (see _table_filters)."""
+    from pyopenvba.apps.excel._table_filters import filter_mode
+
+    return filter_mode(sheet)
 
 
 def bands(first: int, last: int, hidden: set[int]) -> list[tuple[int, int]]:

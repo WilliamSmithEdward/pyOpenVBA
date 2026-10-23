@@ -46,6 +46,7 @@ from pyopenvba.interpreter._values import (EMPTY, ERR_SUBSCRIPT_OUT_OF_RANGE, MI
                                            to_bool, to_integer, to_text)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.apps.excel._sort import SortState
 
@@ -99,7 +100,11 @@ class Table:
     last_column: bool = False
     row_stripes: bool = True
     column_stripes: bool = False
+    #: ShowAutoFilter, and the filter's criteria once it has had any (see _table_filters).
     auto_filter: bool = True
+    filter: SheetFilter | None = dataclass_field(default=None, repr=False)
+    #: The block a file gave the filter, which leaves a totals row out, and the table's own block then.
+    filter_ref: tuple[Area, Area] | None = dataclass_field(default=None, repr=False)
     uid: str = ""
     #: The part the table was read from or written to, and the sheet relationship naming it; "" for a new table.
     part: str = ""
@@ -145,15 +150,33 @@ def read_table(sheet: Worksheet, part: str, relationship: str, xml: str) -> Tabl
             totals_label=_column_name(one.get("totalsRowLabel", "")), totals_function=one.get("totalsRowFunction", ""),
             totals_formula=_read_formula(formula.group(1)) if formula else "",
             calculated=_read_formula(calculated.group(1)) if calculated else ""))
-    return Table(
+    element = _FILTER.search(xml)
+    table = Table(
         sheet=sheet, id=int(head.get("id", "0") or 0), name=head.get("displayName") or head.get("name", ""),
         area=parse_area(head.get("ref", "A1"), sheet=""), columns=columns,
         headers=head.get("headerRowCount", "1") != "0", totals=int(head.get("totalsRowCount", "0") or 0) > 0,
         totals_shown=head.get("totalsRowShown", "1") != "0",
         style=shown.get("name", ""), first_column=shown.get("showFirstColumn") == "1",
         last_column=shown.get("showLastColumn") == "1", row_stripes=shown.get("showRowStripes") == "1",
-        column_stripes=shown.get("showColumnStripes") == "1", auto_filter=_FILTER.search(xml) is not None,
+        column_stripes=shown.get("showColumnStripes") == "1", auto_filter=element is not None,
         uid=head.get("xr:uid", ""), part=part, relationship=relationship, xml=xml)
+    if element is not None:
+        _read_filter(table, element.group(0))
+    return table
+
+
+def _read_filter(table: Table, element: str) -> None:
+    """A table's filter as its part spells it: the criteria on its columns, and the block it gives."""
+    from pyopenvba.apps.excel._autofilter import read_filter
+
+    found = read_filter(table.sheet, element)
+    if found is None:
+        return
+    block = Area(found.area.top, found.area.left, found.area.bottom, found.area.right)
+    if block != table.area:
+        table.filter_ref = (block, table.area)
+    if found.fields or found.tail:
+        table.filter = found
 
 
 def _opening(element: str) -> str:
@@ -190,8 +213,7 @@ def base_table_xml(table: Table) -> str:
     data = table.data
     filtered = Area(table.area.top, table.area.left, data.bottom if data is not None else table.area.top,
                     table.area.right).address(absolute=False)
-    auto_filter = f'<autoFilter ref="{filtered}" xr:uid="{table.uid}"/>' if table.auto_filter and table.headers \
-        else ""
+    auto_filter = _filter_element(table, filtered, None)
     names = [one.name for one in all_tables(table.sheet)]
     columns = "".join(_patched_column(f'<tableColumn id="{column.id}" xr3:uid="{column.uid}" name=""/>', column, names)
                       for column in table.columns)
@@ -232,16 +254,13 @@ def _patched_xml(table: Table) -> str:
     filtered = Area(table.area.top, table.area.left, data.bottom if data is not None else table.area.top,
                     table.area.right).address(absolute=False)
     existing = _FILTER.search(xml)
-    if table.auto_filter and table.headers:
-        if existing is not None:
-            element = re.sub(r'(\sref=")[^"]*(")', rf"\g<1>{filtered}\2", existing.group(0), count=1)
-            xml = xml[: existing.start()] + element + xml[existing.end():]
-        else:
-            opened = _TABLE.search(xml)
-            assert opened is not None
-            xml = xml[: opened.end()] + f'<autoFilter ref="{filtered}" xr:uid="{table.uid}"/>' + xml[opened.end():]
-    elif existing is not None:
-        xml = xml[: existing.start()] + xml[existing.end():]
+    element = _filter_element(table, filtered, existing.group(0) if existing is not None else None)
+    if existing is not None:
+        xml = xml[: existing.start()] + element + xml[existing.end():]
+    elif element:
+        opened = _TABLE.search(xml)
+        assert opened is not None
+        xml = xml[: opened.end()] + element + xml[opened.end():]
     style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
              f'showColumnStripes="{int(table.column_stripes)}"/>')
@@ -249,6 +268,21 @@ def _patched_xml(table: Table) -> str:
     if shown is not None:
         return xml[: shown.start()] + style + xml[shown.end():]
     return xml.replace("</table>", style + "</table>", 1)
+
+
+def _filter_element(table: Table, filtered: str, existing: str | None) -> str:
+    """The table's autoFilter element, "" where it shows none: the block it covers, and the criteria on its
+    columns once it has had any, written as a sheet's filter writes them (tests/fixtures/table_autofilter/)."""
+    from pyopenvba.apps.excel._table_filters import table_filter
+
+    found = table_filter(table)
+    if found is None:
+        return ""
+    if found.fields or found.tail or (existing is not None and "<filterColumn" in existing):
+        return found.xml()
+    if existing is not None:
+        return re.sub(r'(\sref=")[^"]*(")', rf"\g<1>{filtered}\2", existing, count=1)
+    return f'<autoFilter ref="{filtered}" xr:uid="{table.uid}"/>'
 
 
 def table_xml(table: Table) -> str:
@@ -629,6 +663,12 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
                 for row in range(area.top + 1, area.bottom + 1) for column in range(area.left, area.right + 1)]
         headers = YES if all(isinstance(one, str) and one for one in first_row) \
             and not all(isinstance(one, str) for one in rest) else NO
+    from pyopenvba.apps.excel._table_filters import take_over, taken_over
+
+    taken = take_over(sheet, area)
+    if taken is not None and headers == NO:
+        raise VBAUnsupportedError("a table that puts a header row in over the sheet's filtered range is not "
+                                  "implemented")
     if headers == NO:
         from pyopenvba.apps.excel._editing import shift_cells
 
@@ -651,6 +691,8 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
                   area=area, columns=[TableColumn(name, index + 1, guid()) for index, name in enumerate(names)],
                   style=style, uid=uid, changed=True)
     sheet.tables.append(table)
+    if taken is not None:
+        taken_over(table, taken)
     sheet.touched()
     return table
 
@@ -893,13 +935,27 @@ class ListObject(ExcelObject):
         self._changed()
 
     @member
+    def AutoFilter(self) -> object:
+        from pyopenvba.apps.excel._autofilter import AutoFilter
+        from pyopenvba.apps.excel._table_filters import table_filter
+
+        return NOTHING if table_filter(self.table) is None else AutoFilter(self.sheet, self.table)
+
+    @member
     def ShowAutoFilter(self) -> object:
         return self.table.auto_filter
 
     @setter("ShowAutoFilter")
     def _set_show_auto_filter(self, value: object) -> None:
-        self.table.auto_filter = to_bool(value)
+        from pyopenvba.apps.excel._table_filters import refocus, turn_off
+
+        wanted = to_bool(value)
+        if self.table.auto_filter and not wanted:
+            # Its criteria go and its rows show (tests/fixtures/table_autofilter/).
+            turn_off(self.table)
+        self.table.auto_filter = wanted
         self._changed()
+        refocus(self.sheet)
 
     @member
     def ShowTableStyleRowStripes(self) -> object:

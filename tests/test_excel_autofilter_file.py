@@ -105,6 +105,26 @@ def test_the_filters_hidden_names_are_written_as_excel_writes_them(model_file: t
     assert _elements(model_file[0])[1] == RECORD["names"]
 
 
+def _filter_modes(path: Path) -> dict[str, bool]:
+    """Whether each sheet's sheetPr says filterMode, by sheet name."""
+    with zipfile.ZipFile(path) as package:
+        workbook = package.read("xl/workbook.xml").decode("utf-8")
+        relationships = package.read("xl/_rels/workbook.xml.rels").decode("utf-8")
+        targets = {rid: target for rid, target in re.findall(r'Id="([^"]+)"[^>]*?Target="([^"]+)"', relationships)}
+        targets |= {rid: target for target, rid in re.findall(r'Target="([^"]+)"[^>]*?Id="([^"]+)"', relationships)}
+        found: dict[str, bool] = {}
+        for name, rid in re.findall(r'<sheet\b[^>]*?name="([^"]+)"[^>]*?r:id="([^"]+)"', workbook):
+            text = package.read("xl/" + targets[rid].lstrip("/").removeprefix("xl/")).decode("utf-8")
+            head = re.search(r"<sheetPr\b[^>]*>", text)
+            found[name] = head is not None and 'filterMode="1"' in head.group(0)
+    return found
+
+
+def test_a_filter_with_criteria_puts_the_sheet_in_filter_mode_as_excels_file_does(
+        model_file: tuple[Path, list[str]]) -> None:
+    assert _filter_modes(model_file[0]) == _filter_modes(FIXTURES / "autofilter.xlsx")
+
+
 def test_names_are_written_in_excels_order(tmp_path: Path) -> None:
     app = ExcelApplication()
     app.add_workbook()

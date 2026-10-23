@@ -63,9 +63,11 @@ def add_row(table: Table, position: int | None, always_insert: bool) -> int:
         raise error(9, "Subscript out of range")
     at_end = index == count + 1
     if not at_end:
+        from pyopenvba.apps.excel._table_filters import refuse_filtered
         from pyopenvba.apps.excel._table_sort import guard_edit
 
         guard_edit(table, 'inserting inside')
+        refuse_filtered(table, "putting a row inside")
     below = Area(row, area.left, row, area.right, sheet.name)
     if at_end and not table.totals and not always_insert and _empty(sheet, below):
         pass
@@ -81,9 +83,11 @@ def add_row(table: Table, position: int | None, always_insert: bool) -> int:
 
 def delete_row(table: Table, index: int) -> None:
     """ListRow.Delete: the row's cells in the table's columns deleted, those under them moving up."""
+    from pyopenvba.apps.excel._table_filters import refuse_filtered
     from pyopenvba.apps.excel._table_sort import guard_edit
 
     guard_edit(table, 'deleting rows from')
+    refuse_filtered(table, "deleting a row from")
 
     from pyopenvba.apps.excel._editing import shift_cells
     from pyopenvba.apps.excel._model import Range
@@ -191,6 +195,9 @@ def add_column(table: Table, position: int | None) -> int:
     name = column_names([*names, ""])[-1]
     table.columns.insert(index - 1, TableColumn(name=name, id=max(one.id for one in table.columns) + 1, uid=guid()))
     name_columns(table, [one.name for one in table.columns])
+    from pyopenvba.apps.excel._table_filters import column_added
+
+    column_added(table, index)
     _changed(table)
     return index
 
@@ -208,6 +215,9 @@ def delete_column(table: Table, index: int) -> None:
     sheet, area = table.sheet, table.area
     if len(table.columns) <= 1:
         raise VBAUnsupportedError("deleting a table's last column is not implemented")
+    from pyopenvba.apps.excel._table_filters import column_deleted
+
+    column_deleted(table, index)
     gone = table.columns[index - 1]
     column = area.left + index - 1
     band = Area(area.top, column, area.bottom, column, sheet.name)
@@ -251,6 +261,9 @@ def resize(table: Table, area: Area) -> None:
     if any(other is not table and other.area.top <= area.bottom and area.top <= other.area.bottom
            and other.area.left <= area.right and area.left <= other.area.right for other in table.sheet.tables):
         raise error(1004, "A table cannot overlap another table.")
+    from pyopenvba.apps.excel._table_filters import resized
+
+    resized(table, area)
     kept = min(area.columns, len(table.columns))
     lost = {one.name.lower() for one in table.columns[kept:]}
     table.columns = table.columns[:kept]
@@ -279,6 +292,9 @@ def delete_table(table: Table) -> None:
             return "#REF!" if read_structured(token.text).table.lower() == wanted else None
         return "#REF!" if token.kind == "name" and token.text.lower() == wanted else None
 
+    from pyopenvba.apps.excel._table_filters import deleted
+
+    deleted(table)
     sheet.tables.remove(table)
     for row in range(area.top, area.bottom + 1):
         for column in range(area.left, area.right + 1):

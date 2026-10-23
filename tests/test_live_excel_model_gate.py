@@ -13,6 +13,7 @@ installed.  Skipped everywhere else, including CI.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -1605,13 +1606,21 @@ def test_excel_reads_the_filtered_edits_this_made(tmp_path: Path) -> None:
     record = json.loads((Path(__file__).parent / "fixtures" / "autofilter_edits.json").read_text(encoding="utf-8"))
     layouts = [layout for layout in record["layouts"] if layout["name"] not in UNSUPPORTED]
     build = ["Public Sub Build()", "Dim wb As Object, ws As Object", "Set wb = ActiveWorkbook"]
-    bodies: list[str] = []
+    # Every sheet is named before any layout runs, a copy's destination beside its sheet as the copy would add it:
+    # the model renames no sheet once a formula holds a qualified error, which some layouts leave.
+    added = 'Set dest = ws.Parent.Worksheets.Add(After:=ws)\ndest.Name = ws.Name & "_to"\n'
     for index, layout in enumerate(layouts):
         build += ["Set ws = wb.Worksheets(1)" if index == 0 else
                   "Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))",
-                  f'ws.Name = "{layout["name"][:28]}"', f"Case{index} ws"]
+                  f'ws.Name = "{layout["name"][:28]}"']
+        if added in layout["setup"]:
+            build += [f'wb.Worksheets.Add(After:=ws).Name = "{layout["name"][:28]}_to"']
+    bodies: list[str] = []
+    for index, layout in enumerate(layouts):
+        setup = layout["setup"].replace(added, 'Set dest = ws.Parent.Worksheets(ws.Name & "_to")\n')
+        build += [f'Set ws = wb.Worksheets("{layout["name"][:28]}")', "ws.Activate", f"Case{index} ws"]
         bodies.append("\n".join([f"Private Sub Case{index}(ws As Object)", "Dim v As Variant, dest As Object",
-                                 "On Error Resume Next", *(record["table"] + layout["setup"]).splitlines(),
+                                 "On Error Resume Next", *(record["table"] + setup).splitlines(),
                                  "End Sub"]) + "\n")
     build += ["End Sub"]
     app = ExcelApplication()
@@ -1631,6 +1640,35 @@ def test_excel_reads_the_filtered_edits_this_made(tmp_path: Path) -> None:
     for layout in layouts:
         # What Excel read after the edit, past the error and the value the setup left.
         assert read[layout["name"][:28]] == "hidden=" + layout["answers"].split(";hidden=", 1)[1], layout["name"]
+
+
+def test_excel_reads_the_table_filters_this_wrote(tmp_path: Path) -> None:
+    """Every table filter tests/fixtures/table_autofilter measured, made by the model, saved and opened in Excel,
+    which reads each sheet as it read its own file."""
+    import json
+
+    from test_excel_table_autofilter import UNSUPPORTED, saved_layouts
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "table_autofilter" / "table_autofilter.json")
+                        .read_text(encoding="utf-8"))
+    path = tmp_path / "table_filters.xlsx"
+    saved_layouts(path)
+    reader = (record["helper"] + record["dump"] + "Public Function Report() As String\nDim ws As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & \"^\" & TableDump(ws) & \"|\"\nNext\n"
+              "Report = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if one)
+
+    def named(dump: str) -> str:
+        return re.sub(r"\[Table\d+ ", "[Table ", dump)
+
+    for layout in record["layouts"]:
+        if layout["name"] not in UNSUPPORTED:
+            assert named(read[layout["name"][:31]]) == named(layout["reopened"]), layout["name"]
 
 
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:

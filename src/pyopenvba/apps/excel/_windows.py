@@ -449,6 +449,9 @@ def activate(target: Range) -> None:
         return
     sheet.active_cell_range = Range(sheet, [Area(first.top, first.left, first.top, first.left, first.sheet)])
     sheet.view.changed = True
+    from pyopenvba.apps.excel._table_filters import refocus
+
+    refocus(sheet)
 
 
 def goto(application: Application, reference: object, scroll: object) -> None:

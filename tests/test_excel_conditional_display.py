@@ -157,10 +157,11 @@ def test_unsupported_advanced_rule_does_not_silently_report_base_font() -> None:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._conditional import NS, Rule
 
+    # A rule type no Excel writes stands for one the model cannot evaluate; a data bar draws and formats nothing.
     sheet.conditional_formats.append(Rule([Area(1, 1, 1, 1)],
-                                         XmlElement(NS + 'cfRule', {'type': 'dataBar', 'priority': '1'})))
+                                         XmlElement(NS + 'cfRule', {'type': 'futureRule', 'priority': '1'})))
     display = DisplayFormat(Range(sheet, [Area(1, 1, 1, 1)]))
-    with pytest.raises(VBAUnsupportedError, match='dataBar'):
+    with pytest.raises(VBAUnsupportedError, match='futureRule'):
         obj(display.Font()).vba_get('Bold')
 
 

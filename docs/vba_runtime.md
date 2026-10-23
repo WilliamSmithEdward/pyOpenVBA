@@ -1120,6 +1120,31 @@ layouts and all 246 colours measured):
 * A scale is a fill at its priority. A lowest or highest criterion's
   Value reads that value of the range as it stands, and setting it is
   error 1004; StopIfTrue reads False and cannot be set.
+* A Value given as text is a formula: `"=$C$1"` the formula, `"40"` the
+  number, `"abc"` a string. It reads back after "=" until the file is
+  opened again. A formula point that answers text leaves the scale
+  colouring nothing.
+
+**Data bars and icon sets.** `FormatConditions.AddDatabar` and
+`AddIconSetCondition` make Excel's default bar and traffic lights, and
+every property of the bar, its points, border, axis and negative bars,
+and of the set, its criteria and icons, reads and sets as Excel's does
+(`tests/fixtures/data_bars_icons/`, 248 layouts and Excel's file changed
+and saved again):
+
+* A bar or an icon draws nothing DisplayFormat shows. ShowValue False on
+  a bar, or ShowIconOnly on a set, makes a number's Text "", unless a
+  rule above it that stops matches first.
+* `IconSetCondition.IconSet` takes one of `Workbook.IconSets` by Let;
+  `Set` is error 438. A new set keeps the criteria a macro changed and
+  resets those still at their defaults.
+* A file keeps an Excel 2007 rule as one while it needs nothing newer.
+  Excel 2010's worksheet extension holds what more a bar needs, and an
+  icon set of stars, triangles or boxes, custom icons or a point naming
+  another sheet alone, with the ids Excel keeps for rules through a save.
+* A worksheet whose extension holds other rules, such as a cell rule
+  naming another sheet, keeps that extension as the file had it; a data
+  bar or icon set there reports itself unsupported.
 
 The operation checklist, `docs/excel_checklist.csv`, records every
 conditional format member's status.

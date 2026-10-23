@@ -135,10 +135,11 @@ def test_native_color_only_border_paints_continuous_over_lower_dash() -> None:
 def test_unknown_rule_is_reported_only_when_reached() -> None:
     _, sheet = sheet_with()
     first = add(sheet, '<formula>TRUE</formula>', '', stop=True)
-    add(sheet, '', '', priority=2, kind='dataBar')
+    # A rule type no Excel writes stands for one the model cannot evaluate; a data bar draws and formats nothing.
+    add(sheet, '', '', priority=2, kind='futureRule')
     assert display_style(sheet, 1, 1) == sheet.style_at(1, 1)
     first.deleted = True
-    with pytest.raises(VBAUnsupportedError, match='dataBar'):
+    with pytest.raises(VBAUnsupportedError, match='futureRule'):
         display_style(sheet, 1, 1)
 
 

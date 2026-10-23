@@ -162,6 +162,9 @@ def display_style(sheet: Worksheet, row: int, column: int) -> styles.Style:
         if rule.deleted or not any(area.top <= row <= area.bottom and area.left <= column <= area.right
                                    for area in rule.areas):
             continue
+        if rule.root.get('type') in ('dataBar', 'iconSet'):
+            # A bar or an icon is drawn, and formats nothing DisplayFormat shows (see _data_bars, _icon_sets).
+            continue
         if rule.root.get('type') == 'colorScale':
             from pyopenvba.apps.excel._colour_scales import scale_patch
 
@@ -184,6 +187,40 @@ def display_style(sheet: Worksheet, row: int, column: int) -> styles.Style:
     for patch in reversed(patches):
         result = _overlay(result, patch)
     return result
+
+
+def value_hidden(sheet: Worksheet, row: int, column: int, value: object) -> bool:
+    """Whether a data bar with ShowValue False or an icon set with ShowIconOnly True covers a cell holding the
+    number ``value``, which then shows no text; text, errors and logicals show. A rule above it that matches and
+    stops the rules after it leaves the value shown (tests/fixtures/data_bars_icons/)."""
+    if not isinstance(value, float):
+        return False
+    covering = sorted((rule for rule in sheet.conditional_formats if not rule.deleted and any(
+        area.top <= row <= area.bottom and area.left <= column <= area.right for area in rule.areas)),
+        key=lambda entry: int(entry.root.get('priority', '0')))
+    if not any(_hides(rule) for rule in covering):
+        return False
+    for rule in covering:
+        if _hides(rule):
+            return True
+        if rule.root.get('type') not in ('dataBar', 'iconSet', 'colorScale') \
+                and rule.root.get('stopIfTrue', '0') in ('1', 'true') and _matches(sheet, rule, row, column):
+            return False
+    return False
+
+
+def _hides(rule: Rule) -> bool:
+    """Whether a rule is a data bar or an icon set that hides the value it draws beside."""
+    kind = rule.root.get('type')
+    if kind not in ('dataBar', 'iconSet'):
+        return False
+    if rule.state is not None:
+        return not rule.state.show_value
+    if rule.extension_only:
+        shape = rule.extension[0] if rule.extension is not None and len(rule.extension) else None
+    else:
+        shape = rule.root.find(NS + kind)
+    return shape is not None and shape.get('showValue', '1') in ('0', 'false')
 
 
 def conditional_number_format(sheet: Worksheet, row: int, column: int) -> str:

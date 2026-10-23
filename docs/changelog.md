@@ -91,11 +91,36 @@ All notable changes to pyOpenVBA are documented here. This project follows
   layouts, all 246 colours measured, Excel's file read back, and the
   model's own file opened in Excel agree.
 
-- A third sweep of 65 everyday macros agrees with Excel in 64: newer
+- Data bars: `FormatConditions.AddDatabar` and the Databar, with MinPoint
+  and MaxPoint and their Modify, BarColor, BarFillType, BarBorder,
+  Direction, ShowValue, PercentMin and PercentMax, AxisPosition, AxisColor
+  and NegativeBarFormat, each with Excel's defaults and errors. A bar with
+  ShowValue False hides a number's text. The file keeps a bar as Excel
+  writes it: an Excel 2007 rule while it needs nothing newer, with Excel
+  2010's extension beside it once it does (a length of 0 or 100, a solid
+  fill, a border, a direction, negative bars of their own, an axis, an
+  automatic point), and in the extension alone when a point's formula
+  names another sheet.
+
+- Icon sets: `FormatConditions.AddIconSetCondition`, the IconSetCondition,
+  its IconCriteria and `Workbook.IconSets`, with Excel's 20 sets and their
+  icons, each criterion's Type, Value, Operator and Icon, custom icons,
+  ReverseOrder, ShowIconOnly and PercentileValues. A new set keeps or
+  resets the criteria as Excel does. Stars, triangles, boxes and custom
+  icons go in Excel 2010's extension alone, as Excel writes them.
+
+- A workbook's data bars, icon sets and colour scales in Excel 2010's
+  extension are read with the rest, and kept through a save: a rule keeps
+  its id, a new one takes a new GUID, and one read without an id takes the
+  id Excel makes of its sheet and priority. 248 live layouts, Excel's file
+  read back, that file changed and saved again, and the model's own files
+  opened in Excel agree.
+
+- A third sweep of 65 everyday macros agrees with Excel in full: newer
   worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
   object, AutoFilter, hyperlinks, notes, protection, conditional formats,
-  outlines, page setup, number formats and VBA's Format, Split and arrays.
-  The other one reports itself unsupported: data bars with icon sets.
+  data bars, icon sets, outlines, page setup, number formats and VBA's
+  Format, Split and arrays.
 
 - A worksheet function a macro calls takes a range of another open
   workbook as that workbook's cells, whichever workbook is active:
@@ -291,6 +316,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `ns0:conditionalFormatting`), a changed rule's without the worksheet's
   namespaces declared on it again, and each `cfRule`'s attributes in the
   schema's order.
+
+- A rule a macro adds to a range a loaded workbook already formats joins
+  that range's `conditionalFormatting`, after the rules the file held, as
+  Excel adds it. The model wrote a second element for the same range.
+
+- A colour scale criterion's Type and Value follow Excel. Made a number,
+  its value is 0; a percent, its share of the way, 0, 50 or 100; a
+  percentile, 10, 50 or 90; a formula keeps the value. The lowest and the
+  highest belong to the ends, error 5 elsewhere. A Value given as text is a
+  formula, "40" reading back as "=40" until the file is opened again and
+  "abc" a string, where the model took it as a number or refused it. A
+  formula naming the scale's own sheet loses the sheet's name. A scale
+  whose formula names another sheet goes in Excel 2010's extension alone,
+  as Excel keeps it. A formula point that answers text leaves the scale
+  colouring nothing, its lowest and highest reading 0. `FormatColor.Color`
+  is a Long, as Excel's is.
+
+- Inserting or deleting rows or columns, or renaming a sheet, reports
+  itself unsupported where a colour scale's, data bar's or icon set's
+  point formula would need rewriting. The model checked a rule's own
+  formulas alone and left a point's naming the old cells.
 
 - `Sort.Apply` with no range or no field sorts nothing and raises no
   error, as Excel does. The model raised error 1004.

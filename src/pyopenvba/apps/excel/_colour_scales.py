@@ -12,6 +12,15 @@ tests/fixtures/colour_scales/):
   a formula's answer. A lowest or highest one's Value reads that value of
   the range as it stands, and setting it is error 1004. Its FormatColor is
   an RGB colour, or a theme colour with a tint Excel keeps in 32767ths.
+- Made a number, a criterion's value becomes 0; a percent or percentile,
+  the criterion's share of the way, 0, 50 or 100; a formula, it keeps its
+  value. The lowest and the highest belong to the ends, error 5 elsewhere.
+  A number given as Value stays one, and text is a formula, read back
+  after "=" until the file is opened again, when a number a file spells
+  reads as one (scripts/measure_data_bars_icons.py,
+  tests/fixtures/data_bars_icons/; _conditional_extension.given_text).
+- A formula naming another sheet puts the scale in Excel 2010's extension
+  alone, as an x14:cfRule of the same points and colours.
 - Only numbers are coloured: text, blanks, errors and logicals keep their
   fill, and a percentile counts the numbers alone. A cell takes the colour
   of its place between the criteria, the first colour at or below the
@@ -31,17 +40,28 @@ is not a number.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel import _styles as styles
 from pyopenvba.apps.excel._charts_file import XmlElement
-from pyopenvba.apps.excel._conditional import NS, Rule, RuleObject, changed, formula_anchor, guard
+from pyopenvba.apps.excel._conditional import NS, PointRule, Rule, RuleObject, changed, formula_anchor, guard
+from pyopenvba.apps.excel._conditional_extension import (
+    NUMBER,
+    X14,
+    XM,
+    given_text,
+    identified,
+    names_a_sheet,
+    x14_color,
+    x14_point,
+)
 from pyopenvba.apps.excel._differential import read_color
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import VBACollection, member, setter
-from pyopenvba.interpreter._values import VBAInt, error, to_integer, to_number, to_text
+from pyopenvba.interpreter._values import VBAInt, error, to_integer, to_number
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -80,6 +100,57 @@ def _scale(rule: Rule) -> tuple[list[XmlElement], list[XmlElement]]:
     return points, colours
 
 
+def extension_known(entry: XmlElement, *, paired: bool) -> bool:
+    """Whether an x14:cfRule of type colorScale holds only what this module reads: a scale the extension holds
+    alone, its points then its colours."""
+    keys = {key for key in entry.attrib if not key.startswith('xmlns')}
+    if paired or not keys <= {'type', 'priority', 'id'} or len(entry) != 1 or entry[0].tag != X14 + 'colorScale':
+        return False
+    children = list(entry[0])
+    points = [child for child in children if child.tag == X14 + 'cfvo']
+    colours = children[len(points):]
+    return (len(points) in (2, 3) and children[:len(points)] == points and len(colours) == len(points)
+            and all(colour.tag == X14 + 'color' and not len(colour) for colour in colours)
+            and all(point.get('type') in _KINDS and len(point) <= 1
+                    and all(child.tag == XM + 'f' for child in point) for point in points))
+
+
+def from_extension(entry: XmlElement) -> XmlElement:
+    """The colorScale element an x14:cfRule's scale reads as, for the code here."""
+    scale = XmlElement(NS + 'colorScale')
+    for child in entry[0]:
+        if child.tag == X14 + 'cfvo':
+            formula = child.find(XM + 'f')
+            attributes = {'type': child.get('type', '')}
+            if formula is not None:
+                attributes['val'] = formula.text or ''
+            scale.append(XmlElement(NS + 'cfvo', attributes))
+        else:
+            scale.append(XmlElement(NS + 'color', dict(child.attrib)))
+    return scale
+
+
+def placed(rule: Rule) -> tuple[XmlElement | None, XmlElement | None]:
+    """A scale's cfRule, or its x14:cfRule alone once a point's formula names another sheet."""
+    scale = rule.root.find(NS + 'colorScale')
+    alone = scale is not None and any(names_a_sheet(point.get('val', '')) for point in scale.findall(NS + 'cfvo')
+                                      if point.get('type') not in ('min', 'max'))
+    if not alone or scale is None:
+        return deepcopy(rule.root), None
+    if rule.root.find(NS + 'formula') is not None:
+        raise VBAUnsupportedError('Saving a colour scale naming another sheet with a formula of its own is not '
+                                  'implemented')
+    entry = XmlElement(X14 + 'cfRule', {'type': 'colorScale', 'priority': rule.root.get('priority', '1'),
+                                        'id': identified(rule)})
+    shown = XmlElement(X14 + 'colorScale')
+    for point in scale.findall(NS + 'cfvo'):
+        shown.append(x14_point(point.get('type', ''), point.get('val')))
+    for colour in scale.findall(NS + 'color'):
+        shown.append(x14_color(colour, 'color'))
+    entry.append(shown)
+    return None, entry
+
+
 # --- the colour a cell shows ---------------------------------------------------------------------------
 
 
@@ -90,29 +161,23 @@ def scale_patch(sheet: Worksheet, rule: Rule, row: int, column: int) -> XmlEleme
 
     value = scalar(sheet.book.calculator.value_of(sheet.name, row, column))
     population = numbers(sheet, rule)
-    if not isinstance(value, float) or not population:
+    if not isinstance(value, float) or not population or not drawn(sheet, rule):
         return None
     points, elements = _scale(rule)
-    stops = [_point(sheet, rule, point, population) for point in points]
     colours = [_channels(sheet, element) for element in elements]
-    low, high = stops[0], stops[-1]
-    if high == low:
-        shown = colours[-1]
-    elif high < low or not low <= stops[len(stops) // 2] <= high:
+    low, high = _point(sheet, rule, points[0], population), _point(sheet, rule, points[-1], population)
+    if high < low:
         raise VBAUnsupportedError('A colour scale whose points are out of order is not implemented')
-    elif value <= low:
+    # A middle point counts only between the ends, so a cell past them takes an end's colour whatever it is.
+    if high > low and value <= low:
         shown = colours[0]
-    elif value >= high:
+    elif high > low and value >= high:
         shown = colours[-1]
     else:
-        whole = (value - low) / (high - low)
-        places = [(stop - low) / (high - low) for stop in stops]
-        shown = colours[-1]
-        for first, last, start, end in zip(places, places[1:], colours, colours[1:], strict=False):
-            if whole <= last and last > first:
-                fraction = (whole - first) / (last - first)
-                shown = tuple(a + int((b - a) * fraction) for a, b in zip(start, end, strict=True))
-                break
+        stops = [low, *(_point(sheet, rule, point, population) for point in points[1:-1]), high]
+        if not low <= stops[len(stops) // 2] <= high:
+            raise VBAUnsupportedError('A colour scale whose points are out of order is not implemented')
+        shown = colours[-1] if high == low else _blend(value, stops, colours)
     dxf = XmlElement(NS + 'dxf')
     pattern = XmlElement(NS + 'patternFill')
     pattern.append(XmlElement(NS + 'bgColor', {'rgb': 'FF' + ''.join(f'{one:02X}' for one in shown)}))
@@ -120,6 +185,18 @@ def scale_patch(sheet: Worksheet, rule: Rule, row: int, column: int) -> XmlEleme
     fill.append(pattern)
     dxf.append(fill)
     return dxf
+
+
+def _blend(value: float, stops: list[float], colours: list[tuple[int, ...]]) -> tuple[int, ...]:
+    """The colour of a value between the ends: its place as a fraction of the whole span, then of its segment."""
+    low, high = stops[0], stops[-1]
+    whole = (value - low) / (high - low)
+    places = [(stop - low) / (high - low) for stop in stops]
+    for first, last, start, end in zip(places, places[1:], colours, colours[1:], strict=False):
+        if whole <= last and last > first:
+            fraction = (whole - first) / (last - first)
+            return tuple(a + int((b - a) * fraction) for a, b in zip(start, end, strict=True))
+    return colours[-1]
 
 
 def _channels(sheet: Worksheet, element: XmlElement) -> tuple[int, ...]:
@@ -137,10 +214,8 @@ def _point(sheet: Worksheet, rule: Rule, point: XmlElement, population: tuple[fl
     text = point.get('val', '0')
     if kind == 'formula':
         return _formula(sheet, rule, text)
-    try:
-        number = float(text)
-    except ValueError:
-        raise VBAUnsupportedError('A colour scale point whose value is a formula is not implemented') from None
+    # Any point's value can be a formula, the number it answers then standing for the value.
+    number = float(text) if NUMBER.fullmatch(text) else _formula(sheet, rule, text)
     if kind == 'num':
         return number
     if kind == 'percent':
@@ -154,7 +229,8 @@ def _point(sheet: Worksheet, rule: Rule, point: XmlElement, population: tuple[fl
     raise VBAUnsupportedError(f'A colour scale point of type {kind!r} is not implemented')
 
 
-def _formula(sheet: Worksheet, rule: Rule, text: str) -> float:
+def _answer(sheet: Worksheet, rule: Rule, text: str) -> object:
+    """What a point's formula answers, worked out from the rule's top left cell."""
     from pyopenvba.apps.excel._udf import evaluation_origin
     from pyopenvba.formula._calc.evaluator import Context
     from pyopenvba.formula._calc.lexer import FormulaSyntaxError
@@ -165,18 +241,30 @@ def _formula(sheet: Worksheet, rule: Rule, text: str) -> float:
     context = Context(calculator.engine_book, sheet.name, anchor.top, anchor.left, today=now.date(), now=now)
     try:
         with evaluation_origin(sheet.book.application, 'conditional'):
-            found = context.first(context.formula(calculator.engine_book.read('=' + text.removeprefix('='))))
+            return context.first(context.formula(calculator.engine_book.read('=' + text.removeprefix('='))))
     except FormulaSyntaxError:
         raise VBAUnsupportedError('A colour scale point with an unreadable formula is not implemented') from None
+
+
+def _formula(sheet: Worksheet, rule: Rule, text: str) -> float:
+    found = _answer(sheet, rule, text)
     if not isinstance(found, float):
         raise VBAUnsupportedError('A colour scale point whose formula is not a number is not implemented')
     return found
 
 
+def drawn(sheet: Worksheet, rule: Rule) -> bool:
+    """Whether Excel can draw the scale: not when a formula point answers other than a number, when it colours
+    nothing and its lowest and highest points read 0 (tests/fixtures/data_bars_icons/, scale_formula_bare)."""
+    points, _ = _scale(rule)
+    return all(isinstance(_answer(sheet, rule, point.get('val', '')), float)
+               for point in points if point.get('type') == 'formula')
+
+
 # --- VBA -----------------------------------------------------------------------------------------------
 
 
-class ColorScale(RuleObject):
+class ColorScale(PointRule):
     vba_type_name = 'ColorScale'
 
     @member
@@ -186,14 +274,6 @@ class ColorScale(RuleObject):
     @member
     def ColorScaleCriteria(self) -> object:
         return ColorScaleCriteria(self)
-
-    @member
-    def StopIfTrue(self) -> object:
-        return False
-
-    @setter('StopIfTrue')
-    def set_stop(self, value: object) -> None:
-        raise error(450)
 
 
 class ColorScaleCriteria(VBACollection, ExcelObject):
@@ -238,47 +318,67 @@ class ColorScaleCriterion(ExcelObject):
 
     @setter('Type')
     def set_type(self, value: object) -> None:
+        """A number's value becomes 0, a percent's the point's share of the way (0, 50 or 100), a percentile's 10,
+        50 or 90 for its place, and a formula keeps the value; the lowest and highest belong to the ends."""
         guard(self.owner.sheet)
         wanted = int(to_integer(value, 'Long'))
         if wanted not in _CFVO:
             raise error(5)
-        point = self._point()
-        point.set('type', _CFVO[wanted])
-        if wanted in (1, 2):
+        points, _ = _scale(self.owner.rule)
+        if (wanted == 1 and self.index != 1) or (wanted == 2 and self.index != len(points)):
+            raise error(5)
+        point, given = self._point(), self.owner.rule.given
+        kind = _CFVO[wanted]
+        if kind == point.get('type'):
+            return
+        if kind in ('min', 'max'):
             point.attrib.pop('val', None)
-        elif point.get('val') is None:
-            point.set('val', '0')
+            given.pop(self.index, None)
+        elif kind == 'num' or kind in ('percent', 'percentile') or point.get('val') is None:
+            share = (self.index - 1) * 100 // (len(points) - 1)
+            if kind == 'percentile':
+                share = {0: 10, 100: 90}.get(share, share)
+            point.set('val', str(share) if kind in ('percent', 'percentile') else '0')
+            given[self.index] = False
+        elif self.index not in given:
+            # A formula keeps the number the point read as.
+            given[self.index] = not NUMBER.fullmatch(point.get('val', ''))
+        point.set('type', kind)
         self._changed()
 
     @member
     def Value(self) -> object:
-        """A lowest or highest point's is that number of the range as it stands; a formula's is its text."""
+        """A lowest or highest point's is that number of the range as it stands; any other's is a number, or a
+        formula's text after "=": what VBA gave it, else what the file spells (a formula's always text)."""
         from pyopenvba.apps.excel._conditional_stats import numbers
 
         point = self._point()
         kind = point.get('type', '')
         if kind in ('min', 'max'):
             population = numbers(self.owner.sheet, self.owner.rule)
-            return (population[0] if kind == 'min' else population[-1]) if population else 0.0
+            if not population or not drawn(self.owner.sheet, self.owner.rule):
+                return 0.0
+            return population[0] if kind == 'min' else population[-1]
         text = point.get('val', '0')
-        if kind == 'formula':
-            return '=' + text
-        try:
-            return float(text)
-        except ValueError:
-            return '=' + text
+        text_given = self.owner.rule.given.get(self.index)
+        if text_given is None:
+            text_given = kind == 'formula' or not NUMBER.fullmatch(text)
+        return '=' + text if text_given else float(text)
 
     @setter('Value')
     def set_value(self, value: object) -> None:
+        """A number stays one; text is a formula (_conditional_extension.given_text)."""
         guard(self.owner.sheet)
         point = self._point()
         kind = point.get('type', '')
         if kind in ('min', 'max'):
             raise error(1004)
-        if kind == 'formula':
-            point.set('val', to_text(value).removeprefix('='))
+        if isinstance(value, str):
+            point.set('val', given_text(value, self.owner.sheet.name))
+            self.owner.rule.given[self.index] = True
         else:
             point.set('val', number_text(float(to_number(value))))
+            self.owner.rule.given[self.index] = False
         self._changed()
 
     @member
@@ -307,11 +407,11 @@ class FormatColor(ExcelObject):
         self.element.set(color.kind, str(color.value))
         if color.tint:
             self.element.set('tint', styles.excel_double(color.tint / styles.TINT_SCALE))
-        changed(self.owner.sheet)
+        self.owner.touched()
 
     @member
     def Color(self) -> object:
-        return float(styles.bgr(self.owner.sheet.book.stylesheet.colors.rrggbb(self._color(), 'FFFFFF')))
+        return VBAInt(styles.bgr(self.owner.sheet.book.stylesheet.colors.rrggbb(self._color(), 'FFFFFF')), 'Long')
 
     @setter('Color')
     def set_color(self, value: object) -> None:

@@ -32,6 +32,7 @@ from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._conditional_extension import RuleState
     from pyopenvba.apps.excel._model import Worksheet
 
 NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
@@ -61,6 +62,18 @@ class Rule:
     loaded: bool = False
     plain_load: bool | None = None
     child_order: int | None = None
+    #: The rule's x14:cfRule in the worksheet's extension, as a file kept it (_conditional_extension).
+    extension: XmlElement | None = field(default=None, repr=False)
+    #: True for a rule the extension holds alone, with no cfRule in a conditionalFormatting element.
+    extension_only: bool = False
+    #: The id pairing the rule's cfRule with its x14:cfRule; '' until it has one.
+    identifier: str = ''
+    #: Where the file kept the x14:cfRule: its x14:conditionalFormatting's place and range, and its own place.
+    extension_place: tuple[int, str, int] | None = None
+    #: A data bar's or an icon set's settings, once read or made (_data_bars, _icon_sets).
+    state: RuleState | None = field(default=None, repr=False)
+    #: A colour scale's points VBA gave a value, by index: True for text, False for a number (_colour_scales).
+    given: dict[int, bool] = field(default_factory=lambda: {}, repr=False)
 
 
 def formula_anchor(areas: list[Area]) -> Area:
@@ -129,6 +142,11 @@ def rule_groups(rules: list[Rule]) -> list[list[Rule]]:
         else:
             key = ('raw', id(rule.container), population, rule.imported,
                    rule.color_slot if rule.child_order is not None else None)
+            if rule.container is None and not rule.imported:
+                # A rule made on a range a plain loaded group covers joins that group at its end, as Excel adds
+                # it there (tests/fixtures/data_bars_icons/data_bars_icons_resaved.xlsx).
+                key = next((held for held in lookup if (held[0] == 'canonical' and held[1] == population)
+                            or (held[0] == 'captured' and held[2] == population)), key)
         group = lookup.get(key)
         if group is None:
             new_group: list[Rule] = []
@@ -141,8 +159,9 @@ def rule_groups(rules: list[Rule]) -> list[list[Rule]]:
         captured_children = all(rule.child_order is not None for rule in group)
         if captured_children or canonical_container(group[0]):
             try:
-                ordered = sorted(group, key=lambda rule: rule.child_order if rule.child_order is not None
-                                 else int(rule.root.get('priority', '0')))
+                # The file's rules in their places, then any made since in priority order.
+                ordered = sorted(group, key=lambda rule: (0, rule.child_order) if rule.child_order is not None
+                                 else (1, int(rule.root.get('priority', '0'))))
             except ValueError:
                 ordered = list(group)
             group[:] = ordered
@@ -158,6 +177,17 @@ def rule_groups(rules: list[Rule]) -> list[list[Rule]]:
 
 
 def read_rules(xml: str, *, imported: bool = True, plain_load: bool | None = None) -> list[Rule]:
+    return read_sheet_rules(xml, imported=imported, plain_load=plain_load)[0]
+
+
+def read_sheet_rules(xml: str, *, imported: bool = True, plain_load: bool | None = None,
+                     sheet_index: int = 0) -> tuple[list[Rule], bool]:
+    """A worksheet's rules, with those of its Excel 2010 extension; and False where that extension holds rules
+    this model does not read, which then stay out (_conditional_extension). Each rule has the id Excel gives it,
+    its x14:cfRule's or one made of ``sheet_index``, the sheet's place, and the rule's priority."""
+    from pyopenvba.apps.excel._conditional_extension import loaded_identifier
+    from pyopenvba.apps.excel._conditional_extension import read as read_extension
+
     root = xml_tree(xml)
     rules: list[Rule] = []
     for group in root.findall(NS + 'conditionalFormatting'):
@@ -169,16 +199,33 @@ def read_rules(xml: str, *, imported: bool = True, plain_load: bool | None = Non
         if areas:
             rules.extend(Rule(list(areas), entry, group, imported=imported if plain_load is None else plain_load,
                               loaded=True, plain_load=plain_load) for entry in group.findall(NS + 'cfRule'))
-    return rules
+    for rule in rules:
+        try:
+            rule.identifier = loaded_identifier(sheet_index, _priority(rule))
+        except (ValueError, OverflowError):
+            rule.identifier = ''
+    understood = read_extension(root, rules, imported=imported if plain_load is None else plain_load,
+                                plain_load=plain_load)
+    return rules, understood
 
 
-def with_rules(xml: str, rules: list[Rule]) -> str:
-    """Replace standard rules while retaining container and extension metadata."""
+def with_rules(xml: str, rules: list[Rule], *, extension: bool = True) -> str:
+    """Replace standard rules while retaining container and extension metadata; with extension, the worksheet's
+    Excel 2010 extension of conditional formats too (_conditional_extension), else that stays as it is."""
+    from pyopenvba.apps.excel._conditional_extension import RULES_URI, grouped, markup
+    from pyopenvba.apps.excel._conditional_extension import parts as rule_parts
+
     groups: list[XmlElement] = []
     plain_containers: dict[XmlElement, bool] = {}
+    extension_rules: list[tuple[Rule, XmlElement]] = []
     for entries in rule_groups(rules):
         first = entries[0]
         serialized_areas = projected_areas(first)
+        placed = [(rule, *rule_parts(rule)) for rule in entries]
+        extension_rules.extend((rule, part) for rule, _, part in placed if part is not None)
+        main = [part for _, part, _ in placed if part is not None]
+        if not main:
+            continue
         container = first.container
         if container is None:
             group = XmlElement(NS + 'conditionalFormatting')
@@ -195,8 +242,7 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
         group.set('sqref', ' '.join(area.address(absolute=False) for area in serialized_areas))
         # cfRule precedes extLst in CT_ConditionalFormatting.
         before = next((i for i, entry in enumerate(group) if entry.tag == NS + 'extLst'), len(group))
-        for rule in entries:
-            copied = deepcopy(rule.root)
+        for copied in main:
             # In the schema's order, as Excel writes a rule however it was made.
             ordered = sorted(copied.attrib.items(), key=lambda item: _RULE_ORDER.get(item[0], len(_RULE_ORDER)))
             copied.attrib.clear()
@@ -214,6 +260,12 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
     root_start = 0
     spans: list[tuple[int, int]] = []
     insertion: int | None = None
+    #: The worksheet's own extLst and its ext of x14 rules, each [start, stop], and how many exts the extLst holds.
+    ext_list: list[int] = []
+    rules_ext: list[int] = []
+    exts = 0
+    rules_start: int | None = None
+    root_close = 0
 
     def tag_end(start: int) -> int:
         quote = 0
@@ -228,8 +280,12 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
                 return index + 1
         raise ValueError('Unterminated Office XML tag')
 
-    def start(name: str, _attrs: dict[str, str]) -> None:
-        nonlocal depth, active, insertion, root_start
+    def element_stop(begun: int) -> int:
+        first_end = tag_end(begun)
+        return first_end if data[begun:first_end].rstrip().endswith(b'/>') else tag_end(parser.CurrentByteIndex)
+
+    def start(name: str, attrs: dict[str, str]) -> None:
+        nonlocal depth, active, insertion, root_start, exts, rules_start
         depth += 1
         if depth == 1:
             root_start = parser.CurrentByteIndex
@@ -238,16 +294,27 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
                 active = parser.CurrentByteIndex
             elif name.startswith(NS[1:]) and name[len(NS) - 1:] in _AFTER and insertion is None:
                 insertion = parser.CurrentByteIndex
+            if name == NS[1:] + 'extLst':
+                ext_list[:] = [parser.CurrentByteIndex]
+        if depth == 3 and len(ext_list) == 1 and name == NS[1:] + 'ext':
+            exts += 1
+            if attrs.get('uri') == RULES_URI:
+                rules_start = parser.CurrentByteIndex
 
-    def end(_name: str) -> None:
-        nonlocal depth, active, insertion
+    def end(name: str) -> None:
+        nonlocal depth, active, insertion, rules_start, root_close
         if depth == 2 and active is not None:
-            first_end = tag_end(active)
-            stop = first_end if data[active:first_end].rstrip().endswith(b'/>') else tag_end(parser.CurrentByteIndex)
-            spans.append((active, stop))
+            spans.append((active, element_stop(active)))
             active = None
-        if depth == 1 and insertion is None:
-            insertion = parser.CurrentByteIndex
+        if depth == 3 and rules_start is not None:
+            rules_ext[:] = [rules_start, element_stop(rules_start)]
+            rules_start = None
+        if depth == 2 and len(ext_list) == 1 and name == NS[1:] + 'extLst':
+            ext_list.append(element_stop(ext_list[0]))
+        if depth == 1:
+            root_close = parser.CurrentByteIndex
+            if insertion is None:
+                insertion = parser.CurrentByteIndex
         depth -= 1
 
     parser.StartElementHandler, parser.EndElementHandler = start, end
@@ -256,15 +323,39 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
     root_end = tag_end(root_start)
     declared = {prefix.decode(): uri.decode() for prefix, uri in
                 re.findall(rb'\sxmlns(?::([\w.-]+))?\s*=\s*"([^"]*)"', data[root_start:root_end])}
-    markup = b''.join(_group_markup(group, declared) for group in groups)
+    groups_markup = b''.join(_group_markup(group, declared) for group in groups)
+    order = {id(rule): index for index, rule in enumerate(rules)}
+    extension_rules.sort(key=lambda placed: order[id(placed[0])])
+    extended = markup(grouped(extension_rules)).encode('utf-8') if extension else b''
     if data[root_start:root_end].endswith(b'/>'):
-        if not markup:
+        tail = b'<extLst>' + extended + b'</extLst>' if extended else b''
+        if not groups_markup and not tail:
             return xml
         tag = data[root_start + 1:root_end].split(None, 1)[0].rstrip(b'/>')
-        return (data[:root_end - 2] + b'>' + markup + b'</' + tag + b'>' + data[root_end:]).decode('utf-8')
+        return (data[:root_end - 2] + b'>' + groups_markup + tail + b'</' + tag + b'>' + data[root_end:]).decode('utf-8')
     edits = [(first, last, b'') for first, last in spans]
-    edits.append((insertion, insertion, markup))
-    for first, last, replacement in sorted(edits, reverse=True):
+    tail = b''
+    if extension and rules_ext:
+        if not extended and exts == 1 and len(ext_list) == 2:
+            # The extLst held nothing else.
+            edits.append((ext_list[0], ext_list[1], b''))
+        else:
+            edits.append((rules_ext[0], rules_ext[1], extended))
+    elif extended and len(ext_list) == 2 and not data[ext_list[0]:ext_list[1]].rstrip().endswith(b'/>'):
+        # A new ext of x14 rules goes first in an extLst, where Excel writes it.
+        opening = tag_end(ext_list[0])
+        edits.append((opening, opening, extended))
+    elif extended and len(ext_list) == 2:
+        edits.append((ext_list[0], ext_list[1], b'<extLst>' + extended + b'</extLst>'))
+    elif extended:
+        tail = b'<extLst>' + extended + b'</extLst>'
+    if tail and insertion == root_close:
+        edits.append((insertion, insertion, groups_markup + tail))
+    else:
+        edits.append((insertion, insertion, groups_markup))
+        if tail:
+            edits.append((root_close, root_close, tail))
+    for first, last, replacement in sorted(edits, key=lambda edit: (edit[0], edit[1]), reverse=True):
         data = data[:first] + replacement + data[last:]
     return data.decode('utf-8')
 
@@ -275,6 +366,8 @@ def _group_markup(group: XmlElement, declared: dict[str, str]) -> bytes:
     for prefix, uri in declared.items():
         group.attrib.setdefault('xmlns:' + prefix if prefix else 'xmlns', uri)
     text = xml_bytes(group).split(b'?>', 1)[1].lstrip().replace(b' />', b'/>')
+    # A cfRule's link to its x14:cfRule names its uri before declaring x14 (tests/fixtures/data_bars_icons/).
+    text = re.sub(rb'<ext (xmlns:x14="[^"]*") (uri="[^"]*")', rb'<ext \2 \1', text)
     head = text.index(b'>')
     opening = text[:head]
     for prefix, uri in declared.items():
@@ -493,11 +586,12 @@ class FormatConditions(VBACollection, ExcelObject):
         root = _made(self.target, Type, Operator, Formula1, Formula2, String, TextOperator, DateOperator)
         return self._append(root)
 
-    def _append(self, root: XmlElement) -> object:
+    def _append(self, root: XmlElement, state: RuleState | None = None) -> object:
         from pyopenvba.apps.excel._conditional_border_context import register
 
         root.set('priority', str(max((_priority(rule) for rule in self.sheet.conditional_formats), default=0) + 1))
-        rule = Rule([Area(area.top, area.left, area.bottom, area.right) for area in self.target.areas], root)
+        rule = Rule([Area(area.top, area.left, area.bottom, area.right) for area in self.target.areas], root,
+                    state=state)
         register(self.sheet, rule)
         self.sheet.conditional_formats.append(rule)
         changed(self.sheet)
@@ -528,6 +622,24 @@ class FormatConditions(VBACollection, ExcelObject):
         return self._append(made(int(to_integer(ColorScaleType, 'Long'))))
 
     @method
+    def AddDatabar(self) -> object:
+        from pyopenvba.apps.excel._conditional_extension import foreign
+        from pyopenvba.apps.excel._data_bars import made
+
+        guard(self.sheet)
+        foreign(self.sheet)
+        return self._append(*made())
+
+    @method
+    def AddIconSetCondition(self) -> object:
+        from pyopenvba.apps.excel._conditional_extension import foreign
+        from pyopenvba.apps.excel._icon_sets import made
+
+        guard(self.sheet)
+        foreign(self.sheet)
+        return self._append(*made())
+
+    @method
     def Delete(self) -> object:
         guard(self.sheet)
         remove(self.sheet, self.target.areas)
@@ -547,6 +659,10 @@ class RuleObject(ExcelObject):
     def Parent(self) -> object:
         return self.AppliesTo()
 
+
+    def touched(self) -> None:
+        """Note a change to the rule, for its sheet's file to keep."""
+        changed(self.sheet)
 
     @member
     def AppliesTo(self) -> object:
@@ -641,6 +757,51 @@ class RuleObject(ExcelObject):
         self.rule.root[:] = list(prepared)
         changed(self.sheet)
         return EMPTY
+
+
+class PointRule(RuleObject):
+    """A colour scale, a data bar or an icon set: a rule drawn from its points rather than a format for what it
+    matches. StopIfTrue reads False and is error 450 to set; Formula is error 1004 until one is set, then a
+    formula the cfRule holds, and setting it empty or past reading is error 1004; ScopeType is error 5
+    (tests/fixtures/data_bars_icons/)."""
+
+    vba_type_name = ''
+
+    @member
+    def StopIfTrue(self) -> object:
+        return False
+
+    @setter('StopIfTrue')
+    def set_stop(self, value: object) -> None:
+        raise error(450)
+
+    @member
+    def Formula(self) -> object:
+        found = self.rule.root.find(NS + 'formula')
+        if found is None:
+            raise error(1004)
+        return '=' + decode(found.text or '')
+
+    @setter('Formula')
+    def set_formula(self, value: object) -> None:
+        from pyopenvba.formula._parse import FormulaError, parse
+
+        guard(self.sheet)
+        text = to_text(value).removeprefix('=')
+        try:
+            parse('=' + text)
+        except FormulaError:
+            raise error(1004) from None
+        found = self.rule.root.find(NS + 'formula')
+        if found is None:
+            found = XmlElement(NS + 'formula')
+            self.rule.root.insert(0, found)
+        found.text = encode_text(text)
+        self.touched()
+
+    @member
+    def ScopeType(self) -> object:
+        raise error(5)
 
 
 class _ConditionalRule(RuleObject):
@@ -1000,8 +1161,11 @@ class UniqueValues(_StatisticalRule):
 
 def _wrapper(sheet: Worksheet, rule: Rule) -> RuleObject:
     from pyopenvba.apps.excel._colour_scales import ColorScale
+    from pyopenvba.apps.excel._data_bars import Databar
+    from pyopenvba.apps.excel._icon_sets import IconSetCondition
 
     kind = rule.root.get('type', '')
     factory: type[RuleObject] = {'top10': Top10, 'aboveAverage': AboveAverage, 'uniqueValues': UniqueValues,
-                                 'duplicateValues': UniqueValues, 'colorScale': ColorScale}.get(kind, FormatCondition)
+                                 'duplicateValues': UniqueValues, 'colorScale': ColorScale, 'dataBar': Databar,
+                                 'iconSet': IconSetCondition}.get(kind, FormatCondition)
     return factory(sheet, rule)

@@ -100,15 +100,10 @@ def _numbers(cases: list[list[str]], *, bold: bool) -> str:
 @pytest.mark.parametrize('normal', list(NORMALS))
 @pytest.mark.parametrize('kind', ['numbers', 'bold_numbers'])
 def test_numbers_in_their_formats(normal: str, kind: str) -> None:
+    """Each number fitted, and what its cell then shows: a fill counting for nothing, each _x as wide as x."""
     measured = PROBES[f'{kind}_{normal}']['result'].split('\t')
-    cases = [(case, found) for case, found in zip(RECORD[kind], measured) if '*' not in case[1]]
-    got = _run(_module(NORMALS[normal], _numbers([case for case, _ in cases], bold=kind == 'bold_numbers')))
-    assert str(got).split('\t') == [found for _, found in cases]
-
-
-def test_a_number_format_with_a_fill() -> None:
-    with pytest.raises(VBAUnsupportedError, match='fill'):
-        _run(_module('Aptos Narrow', _numbers([['=1234.5', '_($* #,##0.00_)']], bold=False)))
+    got = _run(_module(NORMALS[normal], _numbers(RECORD[kind], bold=kind == 'bold_numbers')))
+    assert str(got).split('\t') == measured
 
 
 def _cell(name: str, setup: str) -> str:

@@ -33,6 +33,9 @@ fills the cell with ``#`` and makes TEXT an error.
 - ``@`` shows text; a code with no text section shows text as it is, and
   a Boolean as TRUE or FALSE, through the text section when there is one.
 - ``_x`` leaves a space the width of ``x``, which in text is a space.
+- ``*x`` repeats ``x`` across whatever width the cell has to spare, which
+  TEXT leaves out; :func:`displayed` says where it goes, for a cell to
+  fill (apps/excel/_column_fit.py).
 """
 
 from __future__ import annotations
@@ -44,6 +47,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, localcontext
 from fractions import Fraction
+from functools import lru_cache
 
 
 class UndisplayableError(Exception):
@@ -145,16 +149,20 @@ _CONDITION = re.compile(r"\[(<=|>=|<>|<|>|=)\s*(-?\d+(?:\.\d*)?)\]")
 _CURRENCY = re.compile(r"\[\$([^\]-]*)(?:-[^\]]*)?\]")
 _ELAPSED = re.compile(r"\[(h+|m+|s+)\]", re.IGNORECASE)
 _DATE_LETTERS = frozenset("ymdhsYMDHS")
-_PAD = {"0": "0", "?": " ", "#": ""}
+#: What a ? shows for a digit it has not, while a section is laid out: a space as wide as a digit, which
+#: :func:`displayed` makes a space and counts among the pads.
+_DIGIT_SPACE = "\ufdd0"
+_PAD = {"0": "0", "?": _DIGIT_SPACE, "#": ""}
 
 
 @dataclass(slots=True)
 class _Item:
     """One element of a section: its kind -- digit, point, comma, percent, slash, exponent, general, text,
-    date, elapsed, ampm or literal -- and the characters it stands for."""
+    date, elapsed, ampm or literal -- and the characters it stands for; for the space an _x leaves, x."""
 
     kind: str
     text: str = ""
+    pad: str = ""
 
 
 @dataclass(slots=True)
@@ -188,8 +196,9 @@ def _section(pieces: list[tuple[str, str]]) -> _Section:
             items.append(_Item("literal", text[1]))
         elif kind == "pair":
             if text[0] == "_":
-                items.append(_Item("literal", " "))
+                items.append(_Item("literal", " ", pad=text[1]))
             else:
+                items.append(_Item("fill", text[1]))
                 fill = True
         elif kind == "exponent":
             items.append(_Item("exponent", text))
@@ -240,14 +249,16 @@ def _letters(run: str) -> Iterator[_Item]:
             index += 1
 
 
-def _sections(code: str) -> list[_Section]:
+@lru_cache(maxsize=256)
+def _sections(code: str) -> tuple[_Section, ...]:
+    """A code's sections, read once for every value a sheet shows through it; nothing changes them after."""
     pieces: list[list[tuple[str, str]]] = [[]]
     for kind, text in tokens(code):
         if kind == "char" and text == ";":
             pieces.append([])
         else:
             pieces[-1].append((kind, text))
-    return [_section(piece) for piece in pieces]
+    return tuple(_section(piece) for piece in pieces)
 
 
 def _meets(condition: tuple[str, float], value: float) -> bool:
@@ -273,20 +284,79 @@ def shown(value: object, code: str, *, epoch_1904: bool = False) -> tuple[str, b
     A ``*`` fill repeats its character across whatever width the cell has
     to spare, which TEXT leaves out; the text returned leaves it out too.
     """
-    sections = _sections(code or "General")
+    found = displayed(value, code, epoch_1904=epoch_1904)
+    return found.text, bool(found.fill)
+
+
+#: What stands, while a section is laid out, where its fill repeats and on either side of what General shows.
+_FILL, _GENERAL = "\uffff", "\ufffe"
+
+
+@dataclass(frozen=True, slots=True)
+class Display:
+    """What a format shows of a value, as a cell lays it out: the text with its fill left out and each ``_x`` a
+    space, and what a cell needs to fit it to its width."""
+
+    text: str
+    #: The characters whose width the spaces a format leaves stand for, which is how AutoFit measures them: ``_)``
+    #: leaves a space as wide as a closing bracket, and a ``?`` with no digit to show one as wide as a 0.
+    pads: str = ""
+    #: The character a ``*`` fill repeats, and where in the text it does; "" where the section has no fill.
+    fill: str = ""
+    fill_at: int = 0
+    #: Where in the text a General part shows a number, and that number; None where the section has no General.
+    general: tuple[int, int] | None = None
+    general_value: float = 0.0
+
+
+def displayed(value: object, code: str, *, epoch_1904: bool = False) -> Display:
+    """What ``code`` shows for ``value`` -- a number, a string or a Boolean -- laid out as a cell lays it out.
+
+    Raises UndisplayableError where the format cannot show the value.
+    """
+    sections = list(_sections(code or "General"))
     text_section = sections[3] if len(sections) >= 4 else sections[-1] if sections[-1].has("text") else None
     if isinstance(value, (bool, str)):
         text = ("TRUE" if value else "FALSE") if isinstance(value, bool) else value
         if text_section is None:
-            return text, False
-        return "".join(text if item.kind == "text" else _literal(item) for item in text_section.items), \
-            text_section.has_fill
+            return Display(text)
+        # The text itself may hold anything, so the fill is found by place rather than by mark.
+        parts: list[str] = []
+        fill, fill_at = "", 0
+        for item in text_section.items:
+            if item.kind == "fill":
+                if not fill:
+                    fill, fill_at = item.text, sum(map(len, parts))
+            else:
+                parts.append(text if item.kind == "text" else _literal(item))
+        return Display("".join(parts), _pads(text_section), fill, fill_at)
     number = float(value)  # type: ignore[arg-type]
     numeric = [section for section in sections[:3] if section is not text_section]
     if not numeric:
-        return general_text(number), False
+        text = general_text(number)
+        return Display(text, general=(0, len(text)), general_value=number)
     section, magnitude, signed = _choose(numeric, number)
-    return _numeric(section, magnitude, signed, epoch_1904=epoch_1904), section.has_fill
+    laid = _numeric(section, magnitude, signed, epoch_1904=epoch_1904)
+    out: list[str] = []
+    fill_at: int | None = None
+    edges: list[int] = []
+    for char in laid:
+        if char == _FILL:
+            # A second fill in a section repeats nothing.
+            if fill_at is None:
+                fill_at = len(out)
+        elif char == _GENERAL:
+            edges.append(len(out))
+        else:
+            out.append(" " if char == _DIGIT_SPACE else char)
+    fill = next((item.text for item in section.items if item.kind == "fill"), "")
+    general = (edges[0], edges[1]) if len(edges) >= 2 else None
+    return Display("".join(out), _pads(section) + "0" * laid.count(_DIGIT_SPACE), fill, fill_at or 0, general,
+                   (magnitude if signed else abs(magnitude)) if general is not None else 0.0)
+
+
+def _pads(section: _Section) -> str:
+    return "".join(item.pad for item in section.items)
 
 
 def _choose(sections: list[_Section], value: float) -> tuple[_Section, float, bool]:
@@ -310,15 +380,18 @@ def _choose(sections: list[_Section], value: float) -> tuple[_Section, float, bo
 
 
 def _literal(item: _Item) -> str:
-    """What an item shows when it is not filled with a value."""
+    """What an item shows when it is not filled with a value; a fill marks where it repeats."""
+    if item.kind == "fill":
+        return _FILL
     return item.text if item.kind in ("literal", "percent", "slash", "comma", "point", "date", "ampm") else ""
 
 
 def _numeric(section: _Section, value: float, signed: bool, *, epoch_1904: bool = False) -> str:
+    """What a number section shows, a fill and the edges of what General shows marked (see :func:`displayed`)."""
     if section.has("date", "elapsed", "ampm"):
         return _date(section.items, value, epoch_1904=epoch_1904)
     if section.has("general"):
-        shown = general_text(value if signed else abs(value))
+        shown = _GENERAL + general_text(value if signed else abs(value)) + _GENERAL
         return "".join(shown if item.kind == "general" else _literal(item) for item in section.items)
     if not section.has("digit"):
         return "".join(_literal(item) for item in section.items)
@@ -365,13 +438,13 @@ def _whole(items: list[_Item], places: list[int], digits: str, grouped: bool) ->
         shown[index] = piece or _PAD[items[index].text]
     if grouped and places:
         joined = "".join(shown[index] for index in places)
-        body = joined.lstrip(" ")
+        body = joined.lstrip(_DIGIT_SPACE)
         groups: list[str] = []
         while body:
             groups.append(body[-3:])
             body = body[:-3]
         shown = dict.fromkeys(places, "")
-        shown[places[0]] = joined[: len(joined) - len(joined.lstrip(" "))] + ",".join(reversed(groups))
+        shown[places[0]] = joined[: len(joined) - len(joined.lstrip(_DIGIT_SPACE))] + ",".join(reversed(groups))
     return shown
 
 
@@ -481,7 +554,8 @@ def _fraction(items: list[_Item], value: float) -> tuple[str, bool]:
     whole_places = [index for index in range(top) if items[index].kind == "digit"]
     between = list(range(whole_places[-1] + 1, top)) if whole_places else []
     end = slash + 1
-    while end < len(items) and (items[end].kind == "digit" or items[end].text.isdigit()):
+    while end < len(items) and (items[end].kind == "digit"
+                                or (items[end].kind != "fill" and items[end].text.isdigit())):
         end += 1
     below = list(range(slash + 1, end))
     fixed = "".join(items[index].text for index in below) if below and items[below[0]].kind == "literal" else ""
@@ -498,18 +572,17 @@ def _fraction(items: list[_Item], value: float) -> tuple[str, bool]:
         raise UndisplayableError("a numerator too long to show")
     filled: dict[int, str] = {}
     if whole_places and not numerator:
-        # A fraction of nothing: the whole number, then blanks where the fraction would be.
+        # A fraction of nothing: the whole number, then blanks where the fraction would be, a ?'s a digit wide.
         filled.update(_whole(items, whole_places, str(whole), grouped=False))
-        for index in [*between, *numerator_places, slash]:
-            filled[index] = " " * max(len(_literal(items[index])), 1)
-        for index in below:
-            filled[index] = " "
+        for index in [*between, *numerator_places, slash, *below]:
+            filled[index] = _DIGIT_SPACE if items[index].kind == "digit" and items[index].text == "?" \
+                else " " * max(len(_literal(items[index])), 1)
     else:
         filled.update(_whole(items, whole_places, str(whole) if whole else "", grouped=False))
         head = items[numerator_places[0]].text
         width = len(numerator_places)
         filled.update(dict.fromkeys(numerator_places, ""))
-        filled[numerator_places[0]] = str(numerator).rjust(width, " " if head == "?" else "0") \
+        filled[numerator_places[0]] = str(numerator).rjust(width, _DIGIT_SPACE if head == "?" else "0") \
             if head in "?0" else str(numerator)
         if fixed:
             # A denominator written out shows as written, its zeros included.
@@ -517,7 +590,8 @@ def _fraction(items: list[_Item], value: float) -> tuple[str, bool]:
         else:
             foot = items[below[0]].text
             filled.update(dict.fromkeys(below, ""))
-            filled[below[0]] = str(denominator).ljust(len(below)) if foot == "?" else str(denominator)
+            filled[below[0]] = str(denominator).ljust(len(below), _DIGIT_SPACE) if foot == "?" \
+                else str(denominator)
     text = "".join(filled.get(index, _literal(item)) for index, item in enumerate(items))
     # A mixed fraction keeps the minus of a number that rounds to nothing, -0.01 showing -0; an improper one does not.
     return text, not whole_places and not numerator

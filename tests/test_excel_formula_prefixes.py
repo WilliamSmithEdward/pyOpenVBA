@@ -93,9 +93,8 @@ def test_the_model_reads_each_formula_excel_saved(opened: ExcelApplication, reco
     assert opened.evaluate(f'Range("{record["cell"]}").Formula') == record["formula"]
 
 
-_NARROW = "a General number is cut to the column's width in pixels, which Range.Text does not measure yet"
 #: Formulas whose cell does not show what Excel's shows, and why.
-TEXT_GAPS: dict[str, str] = {"=NORM.DIST(1,0,1,TRUE)": _NARROW, "=STDEV.S(A1:A4)": _NARROW}
+TEXT_GAPS: dict[str, str] = {}
 
 
 @pytest.mark.parametrize("record", _cases(FORMULAS, TEXT_GAPS))

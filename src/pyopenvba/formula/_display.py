@@ -355,6 +355,15 @@ def displayed(value: object, code: str, *, epoch_1904: bool = False) -> Display:
                    (magnitude if signed else abs(magnitude)) if general is not None else 0.0)
 
 
+def keeps_text(code: str) -> bool:
+    """Whether a cell with this format is a Text cell, which keeps a formula or a string written to it as the text
+    written: the format has an ``@``, and no section shows digits or a date, so ``"x"@`` and ``General;;;@`` are
+    and ``0;@`` and ``m/d/yyyy;;;@`` are not (tests/fixtures/text_cells.json)."""
+    sections = _sections(code or "General")
+    return any(section.has("text") for section in sections) and not any(
+        section.has("digit", "date", "elapsed", "ampm") for section in sections)
+
+
 def _pads(section: _Section) -> str:
     return "".join(item.pad for item in section.items)
 

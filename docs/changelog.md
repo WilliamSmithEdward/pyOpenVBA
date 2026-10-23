@@ -163,6 +163,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A cell whose format has an `@` and no section showing digits or a date is
+  a Text cell, as Excel makes it: `"x"@`, `@" kg"`, `@*-`, `;;;@` and
+  `General;;;@` keep a formula, or a string that would read as a number or
+  a date, as the text written, where only `@` did. `0;@`,
+  `General;0;0;@`, `m/d/yyyy;;;@` and the Comma style do not. A Currency
+  written to one shows as text and the cell keeps its format; only `@`
+  itself gives way to the Currency's. 50 formats under 11 writes agree.
+  Excel refuses `@;@`, `[>5]@` and `mm/dd @` as formats and rewrites `;@`
+  as `;;;@` and `0;0;@` as `0;0;0;@`, which the model does not yet.
+
 - `Range.Rows` and `Range.Columns` answer a range, as Excel's do, not a list
   of rows or columns: every Range member works on them, so
   `UsedRange.Columns.ColumnWidth`, `.Rows.Hidden` and `.Columns.Font` act on

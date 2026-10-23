@@ -1414,7 +1414,22 @@ def _whole(target: Range, refused: str = "that needs whole rows or whole columns
     return area, rows
 
 
+def _lines_apart(target: Range) -> str:
+    """"rows" or "columns" for the whole rows, or columns, EntireRow or EntireColumn makes of cells in several areas;
+    "" for any other range. Rows of several areas an address or Union names take no Hidden: Excel refuses both
+    reading and writing it with error 1004 (tests/fixtures/excel_everyday_3.json, hidden_several_areas)."""
+    if len(target.areas) < 2 or target.whole not in ("rows", "columns"):
+        return ""
+    return target.whole
+
+
 def read_hidden(target: Range) -> object:
+    kind = _lines_apart(target)
+    if kind:
+        # The first area's, as Excel reads it.
+        from pyopenvba.apps.excel._model import Range
+
+        return read_hidden(Range(target.sheet, [target.areas[0]], whole=kind))
     area, rows = _whole(target)
     dims = _dims(target)
     if rows:
@@ -1429,7 +1444,16 @@ def write_hidden(target: Range, value: object) -> None:
     (zeroHeight), with the rows above listed as shown: measured for every
     row and for rows 3 down. Hiding every column makes the standard width
     0, and showing every column again then does nothing, as in Excel.
+    The whole rows or columns of several areas, as EntireRow makes of
+    cells apart, are each hidden or shown.
     """
+    kind = _lines_apart(target)
+    if kind:
+        from pyopenvba.apps.excel._model import Range
+
+        for one in target.areas:
+            write_hidden(Range(target.sheet, [one], whole=kind), value)
+        return
     area, rows = _whole(target)
     hidden = _flag(value)
     dims = _dims(target)

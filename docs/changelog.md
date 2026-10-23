@@ -38,6 +38,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
   dictionaries, paths, colours, borders, validation, tables, charts and
   AutoFit.
 
+- A third sweep of 65 everyday macros agrees with Excel in 61: newer
+  worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
+  object, AutoFilter, hyperlinks, notes, protection, conditional formats,
+  outlines, page setup, number formats and VBA's Format, Split and arrays.
+  The other four report themselves unsupported: sorting on a cell's colour,
+  a table's own AutoFilter object, colour scales, and data bars with icon
+  sets.
+
+- A worksheet function a macro calls takes a range of another open
+  workbook as that workbook's cells, whichever workbook is active:
+  `WorksheetFunction.Sum(w.Worksheets(1).Range("A1:B2"))`, VLookup, CountIf,
+  Subtotal over its hidden rows, a row Index takes from it, and the same
+  through `Application.Sum`. Two workbooks' sheets of one name stay apart.
+
 - AutoFit, `Range.Text` in narrow columns and the widening a format gives
   a column work at every font size from 8pt to 72pt, in Aptos Narrow and
   Calibri, where they took 11pt alone. A text is as wide as GDI makes it at
@@ -220,6 +234,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Application.StatusBar` reads back a String, as Excel's does: `FALSE`
+  while Excel has the status bar, `TRUE` after it is set to True, and a
+  number as its text.
+
+- `Hidden` on the rows or columns `EntireRow` or `EntireColumn` makes of
+  cells in several areas hides or shows each of them, and reads the first
+  area's, so `Range("A3,A5").EntireRow.Hidden = True` hides rows 3 and 5.
+  Rows of several areas that an address or `Union` names stay error 1004
+  to read or write, as in Excel.
 
 - A value past 32,767 characters is cut to that, as Excel cuts what a macro
   writes to a cell, with no error.

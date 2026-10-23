@@ -1,0 +1,333 @@
+{
+  "excel_version_build": "16.0|20430",
+  "measured_at": "2026-10-23T03:38:51.214836+00:00",
+  "instrumentation": "none",
+  "classes": {},
+  "probes": [
+    {
+      "name": "wf_sumifs_countifs",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\ns = WorksheetFunction.SumIfs(ws.Range(\"C2:C6\"), ws.Range(\"B2:B6\"), \"West\", ws.Range(\"C2:C6\"), \">12\") & \"|\" & WorksheetFunction.CountIfs(ws.Range(\"B2:B6\"), \"*t\", ws.Range(\"C2:C6\"), \"<=15\") & \"|\" & WorksheetFunction.AverageIfs(ws.Range(\"C2:C6\"), ws.Range(\"B2:B6\"), \"<>East\")\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "40|3|26.6666666666667"
+    },
+    {
+      "name": "wf_xlookup",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\ns = WorksheetFunction.XLookup(\"cy\", ws.Range(\"A2:A6\"), ws.Range(\"C2:C6\")) & \"|\" & WorksheetFunction.XLookup(\"zz\", ws.Range(\"A2:A6\"), ws.Range(\"C2:C6\"), \"none\") & \"|\" & WorksheetFunction.XLookup(20, ws.Range(\"C2:C6\"), ws.Range(\"A2:A6\"), , -1) & \"|\" & WorksheetFunction.XLookup(\"West\", ws.Range(\"B2:B6\"), ws.Range(\"A2:A6\"), , 0, -1)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "5|none|ed|ed"
+    },
+    {
+      "name": "wf_textjoin_concat",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\ns = WorksheetFunction.TextJoin(\",\", True, ws.Range(\"A2:A4\"), \"\", \"z\") & \"|\" & WorksheetFunction.Concat(ws.Range(\"B2:B3\")) & \"|\" & WorksheetFunction.TextJoin(\"-\", False, \"a\", \"\", \"b\")\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "ann,bob,cy,z|EastWest|a--b"
+    },
+    {
+      "name": "wf_unique_sort_filter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nv = WorksheetFunction.Unique(ws.Range(\"B2:B6\"))\ns = UBound(v, 1) & \"|\" & v(3, 1) & \"|\"\nv = WorksheetFunction.Sort(ws.Range(\"C2:C6\"), , -1)\ns = s & v(1, 1) & \",\" & v(5, 1) & \"|\"\nv = ws.Evaluate(\"FILTER(A2:A6,C2:C6>12)\")\ns = s & UBound(v, 1) & \",\" & v(1, 1)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3|North|40,5|3,bob"
+    },
+    {
+      "name": "wf_sequence",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nv = WorksheetFunction.Sequence(3, 2, 10, 5)\ns = UBound(v, 1) & \"x\" & UBound(v, 2) & \"|\" & v(1, 2) & \"|\" & v(3, 2) & \"|\" & TypeName(v(1, 1))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3x2|15|35|Double"
+    },
+    {
+      "name": "wf_iferror_ifs",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\ns = WorksheetFunction.IfError(ws.Evaluate(\"1/0\"), \"bad\") & \"|\" & ws.Evaluate(\"IFS(2>3,\"\"a\"\",2<3,\"\"b\"\")\") & \"|\" & WorksheetFunction.IfNa(ws.Evaluate(\"NA()\"), 0)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "bad|b|0"
+    },
+    {
+      "name": "wf_dates_workdays",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\ns = WorksheetFunction.EoMonth(DateSerial(2024, 1, 31), 1) & \"|\" & WorksheetFunction.NetworkDays(DateSerial(2024, 3, 1), DateSerial(2024, 3, 31)) & \"|\" & Format(WorksheetFunction.WorkDay(DateSerial(2024, 12, 23), 3), \"yyyy-mm-dd\") & \"|\" & WorksheetFunction.WeekNum(DateSerial(2024, 1, 7), 2) & \"|\" & WorksheetFunction.IsoWeekNum(DateSerial(2021, 1, 3)) & \"|\" & WorksheetFunction.Days(DateSerial(2024, 3, 1), DateSerial(2024, 2, 1))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "45351|21|2024-12-26|1|53|29"
+    },
+    {
+      "name": "wf_ranking_stats",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\ns = WorksheetFunction.Large(ws.Range(\"C2:C6\"), 2) & \"|\" & WorksheetFunction.Small(ws.Range(\"C2:C6\"), 1) & \"|\" & WorksheetFunction.Rank_Eq(25, ws.Range(\"C2:C6\")) & \"|\" & WorksheetFunction.Percentile_Inc(ws.Range(\"C2:C6\"), 0.5) & \"|\" & WorksheetFunction.Quartile_Inc(ws.Range(\"C2:C6\"), 1) & \"|\" & Round(WorksheetFunction.StDev_S(ws.Range(\"C2:C6\")), 6) & \"|\" & WorksheetFunction.Median(ws.Range(\"C2:C6\"))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "25|5|2|15|10|13.874437|15"
+    },
+    {
+      "name": "wf_text_functions",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\ns = WorksheetFunction.Proper(\"hello wORLD\") & \"|\" & WorksheetFunction.Substitute(\"a-b-c\", \"-\", \"+\", 2) & \"|\" & WorksheetFunction.Rept(\"ab\", 3) & \"|\" & WorksheetFunction.Trim(\"  a   b  \") & \"|\" & WorksheetFunction.Find(\"b\", \"abcb\", 3) & \"|\" & WorksheetFunction.Search(\"B\", \"abcb\") & \"|\" & Len(WorksheetFunction.Clean(\"a\" & Chr(7) & \"b\"))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Hello World|a-b+c|ababab|a b|4|2|2"
+    },
+    {
+      "name": "wf_financial",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\ns = Round(WorksheetFunction.Pmt(0.05 / 12, 360, 200000), 4) & \"|\" & Round(WorksheetFunction.Fv(0.04, 10, -1000), 4) & \"|\" & Round(WorksheetFunction.Npv(0.1, 100, 200, 300), 4) & \"|\" & Round(WorksheetFunction.Irr(Array(-1000, 300, 400, 500)), 6) & \"|\" & Round(WorksheetFunction.Rate(36, -300, 10000), 8)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "-1073.6432|12006.1071|481.5928|0.088963|0.00422067"
+    },
+    {
+      "name": "wf_rounding_more",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\ns = WorksheetFunction.Ceiling_Math(-4.5) & \"|\" & WorksheetFunction.Floor_Math(4.5, 2) & \"|\" & WorksheetFunction.Even(3.1) & \"|\" & WorksheetFunction.Odd(-2) & \"|\" & WorksheetFunction.Ceiling(7, 3) & \"|\" & ws.Evaluate(\"TRUNC(-3.99)\")\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "-4|4|4|-3|9|-3"
+    },
+    {
+      "name": "wf_hlookup_lookup",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C2\").Value = Array(1, 2, 3)\nws.Range(\"A2:C2\").Value = Array(\"x\", \"y\", \"z\")\ns = WorksheetFunction.HLookup(2, ws.Range(\"A1:C2\"), 2, False) & \"|\" & WorksheetFunction.Lookup(2.5, ws.Range(\"A1:C1\"), ws.Range(\"A2:C2\"))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "y|y"
+    },
+    {
+      "name": "wf_counting_blanks",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Value = 1: ws.Range(\"A3\").Formula = \"=\"\"\"\"\": ws.Range(\"A4\").Value = \"x\"\ns = WorksheetFunction.CountBlank(ws.Range(\"A1:A5\")) & \"|\" & WorksheetFunction.CountA(ws.Range(\"A1:A5\")) & \"|\" & WorksheetFunction.Count(ws.Range(\"A1:A5\"))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3|3|1"
+    },
+    {
+      "name": "evaluate_arrays",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\ns = ws.Evaluate(\"SUM(IF(C2:C6>12,C2:C6))\") & \"|\"\nv = ws.Evaluate(\"ROW(1:3)\")\ns = s & UBound(v, 1) & \",\" & v(3, 1) & \"|\" & ws.Evaluate(\"SUMPRODUCT(--(B2:B6=\"\"East\"\"))\")\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "80|3,3|2"
+    },
+    {
+      "name": "listrows_add",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C6\"), , xlYes)\no.ListRows.Add.Range.Value = Array(\"fay\", \"South\", 7)\ns = o.DataBodyRange.Address & \"|\" & ws.Range(\"A7\").Value & \"|\" & o.ListRows.Count\no.ListRows(1).Delete\ns = s & \"|\" & o.DataBodyRange.Address & \"|\" & ws.Range(\"A2\").Value\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$2:$C$7|fay|6|$A$2:$C$6|bob"
+    },
+    {
+      "name": "listobject_sort",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C6\"), , xlYes)\no.Sort.SortFields.Clear\no.Sort.SortFields.Add Key:=o.ListColumns(\"Amount\").Range, SortOn:=xlSortOnValues, Order:=xlDescending\no.Sort.Header = xlYes\no.Sort.Apply\ns = ws.Range(\"A2\").Value & ws.Range(\"A3\").Value & ws.Range(\"A6\").Value\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "deebobcy"
+    },
+    {
+      "name": "listcolumn_formula",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C6\"), , xlYes)\nSet c = o.ListColumns.Add.Range\no.HeaderRowRange.Cells(1, 4).Value = \"Double\"\no.ListColumns(4).DataBodyRange.Formula = \"=[@Amount]*2\"\ns = ws.Range(\"D3\").Value & \"|\" & ws.Range(\"D3\").Formula & \"|\" & o.ListColumns.Count\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "50|=[@Amount]*2|4"
+    },
+    {
+      "name": "listobject_filter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C6\"), , xlYes)\no.Range.AutoFilter Field:=3, Criteria1:=\">12\"\ns = o.Range.SpecialCells(xlCellTypeVisible).Rows.Count & \"|\" & ws.Rows(2).Hidden & \"|\" & o.AutoFilter.Filters(3).Criteria1\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|True|>12"
+    },
+    {
+      "name": "listobject_resize_total",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B6\"), , xlYes)\no.Resize ws.Range(\"A1:C6\")\no.ShowTotals = True\ns = o.Range.Address & \"|\" & o.ListColumns.Count & \"|\" & o.TotalsRowRange.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1:$C$7|3|$A$7:$C$7"
+    },
+    {
+      "name": "shape_rectangle_text",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nSet o = ws.Shapes.AddShape(msoShapeRectangle, 10, 20, 100, 50)\no.Name = \"Box1\"\no.TextFrame.Characters.Text = \"Hello\"\ns = ws.Shapes.Count & \"|\" & ws.Shapes(\"Box1\").TextFrame.Characters.Text & \"|\" & o.Left & \",\" & o.Top & \",\" & o.Width & \",\" & o.Height & \"|\" & o.Type\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|Hello|10,20,100,50|1"
+    },
+    {
+      "name": "shape_textbox_delete",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nSet o = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 0, 0, 80, 30)\no.TextFrame2.TextRange.Text = \"note\"\ns = o.TextFrame2.TextRange.Text & \"|\" & ws.Shapes.Count & \"|\"\no.Delete\ns = s & ws.Shapes.Count\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "note|1|0"
+    },
+    {
+      "name": "shape_top_left_cell",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nSet o = ws.Shapes.AddShape(msoShapeOval, 100, 40, 50, 50)\ns = o.TopLeftCell.Address & \"|\" & o.BottomRightCell.Address & \"|\" & o.AutoShapeType\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$C$3|$D$7|9"
+    },
+    {
+      "name": "chart_type_title",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:B4\").Value = 3\nSet o = ws.ChartObjects.Add(10, 10, 300, 200)\no.Chart.SetSourceData ws.Range(\"A1:B4\")\no.Chart.ChartType = xlLine\no.Chart.HasTitle = True\no.Chart.ChartTitle.Text = \"Trend\"\ns = o.Chart.ChartType & \"|\" & o.Chart.ChartTitle.Text & \"|\" & (o.Name Like \"Chart*\")\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "4|Trend|True"
+    },
+    {
+      "name": "chart_new_series",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:A3\").Value = WorksheetFunction.Transpose(Array(1, 2, 3))\nSet o = ws.ChartObjects.Add(0, 0, 200, 150)\nWith o.Chart.SeriesCollection.NewSeries\n.Values = ws.Range(\"A1:A3\")\n.Name = \"First\"\nEnd With\ns = o.Chart.SeriesCollection.Count & \"|\" & o.Chart.SeriesCollection(1).Name\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|First"
+    },
+    {
+      "name": "pivot_create_sum",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nSet o = ThisWorkbook.PivotCaches.Create(xlDatabase, ws.Range(\"A1:C6\")).CreatePivotTable(ws.Range(\"F1\"), \"SweepPivot\")\no.PivotFields(\"Region\").Orientation = xlRowField\no.AddDataField o.PivotFields(\"Amount\"), \"Total\", xlSum\ns = o.GetPivotData(\"Total\", \"Region\", \"West\") & \"|\" & o.TableRange1.Address & \"|\" & o.RowFields.Count\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "40|$F$1:$G$5|1"
+    },
+    {
+      "name": "workbooks_add_close",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nn = Workbooks.Count\nSet w = Workbooks.Add\ns = (Workbooks.Count = n + 1) & \"|\" & w.Worksheets.Count & \"|\" & (w.Name Like \"Book*\")\nw.Close SaveChanges:=False\ns = s & \"|\" & (Workbooks.Count = n)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|1|True|True"
+    },
+    {
+      "name": "sheet_copy_new_book",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Value = \"moved\"\nn = Workbooks.Count\nws.Copy\nSet w = ActiveWorkbook\ns = (Workbooks.Count = n + 1) & \"|\" & w.Worksheets.Count & \"|\" & w.Worksheets(1).Name & \"|\" & w.Worksheets(1).Range(\"A1\").Value\nw.Close SaveChanges:=False\nws.Activate\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|1|Sweep|moved"
+    },
+    {
+      "name": "copy_between_books",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nSet w = Workbooks.Add\nw.Worksheets(1).Range(\"A1:B2\").Value = 4\nw.Worksheets(1).Range(\"A1:B2\").Copy ws.Range(\"C3\")\ns = ws.Range(\"D4\").Value & \"|\" & WorksheetFunction.Sum(ws.Range(\"C3:D4\"))\nw.Close SaveChanges:=False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "4|16"
+    },
+    {
+      "name": "functions_of_another_book",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Value = 100\nSet w = Workbooks.Add\nw.Worksheets(1).Name = \"Sweep\"\nw.Worksheets(1).Range(\"A1:B2\").Value = 4\nw.Worksheets(1).Range(\"C1\").Value = \"x\"\nws.Parent.Activate\nSet r = w.Worksheets(1).Range(\"A1:B2\")\ns = WorksheetFunction.Sum(r) & \"|\" & Application.Sum(r) & \"|\" & WorksheetFunction.CountA(w.Worksheets(1).Range(\"A1:C2\")) & \"|\" & WorksheetFunction.Max(r, 9) & \"|\" & WorksheetFunction.VLookup(4, r, 2, False) & \"|\" & WorksheetFunction.Sum(w.Worksheets(1).Range(\"A1\"), ws.Range(\"A1\")) & \"|\" & WorksheetFunction.Sum(w.Worksheets(1).Columns(1)) & \"|\" & WorksheetFunction.CountIf(w.Worksheets(1).Range(\"A1:C2\"), 4)\nw.Worksheets(1).Rows(2).Hidden = True\ns = s & \"|\" & WorksheetFunction.Subtotal(109, r)\nv = WorksheetFunction.Index(w.Worksheets(1).Range(\"A1:C2\"), 1, 0)\ns = s & \"|\" & UBound(v, 2) & v(1, 3)\nw.Close SaveChanges:=False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "16|16|5|9|4|104|8|4|8|3x"
+    },
+    {
+      "name": "manual_calculation",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Value = 1: ws.Range(\"B1\").Formula = \"=A1*10\"\nApplication.Calculation = xlCalculationManual\nws.Range(\"A1\").Value = 2\ns = ws.Range(\"B1\").Value & \"|\"\nws.Calculate\ns = s & ws.Range(\"B1\").Value & \"|\" & Application.Calculation\nApplication.Calculation = xlCalculationAutomatic\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "10|20|-4135"
+    },
+    {
+      "name": "statusbar_and_screen",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nApplication.StatusBar = \"Working\"\ns = Application.StatusBar & \"|\"\nApplication.StatusBar = False\ns = s & Application.StatusBar & \"|\" & TypeName(Application.ScreenUpdating)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "Working|FALSE|Boolean"
+    },
+    {
+      "name": "statusbar_types",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nApplication.StatusBar = False\ns = TypeName(Application.StatusBar) & \"|\" & Application.StatusBar & \"|\"\nApplication.StatusBar = 12\ns = s & TypeName(Application.StatusBar) & \"|\" & Application.StatusBar & \"|\"\nApplication.StatusBar = True\ns = s & TypeName(Application.StatusBar) & \"|\" & Application.StatusBar\nApplication.StatusBar = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "String|FALSE|String|12|String|TRUE"
+    },
+    {
+      "name": "sort_object_two_keys",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nws.Sort.SortFields.Clear\nws.Sort.SortFields.Add Key:=ws.Range(\"B2:B6\"), Order:=xlAscending\nws.Sort.SortFields.Add Key:=ws.Range(\"C2:C6\"), Order:=xlDescending\nWith ws.Sort\n.SetRange ws.Range(\"A1:C6\")\n.Header = xlYes\n.Apply\nEnd With\nFor i = 2 To 6: s = s & ws.Cells(i, 1).Value & \",\": Next\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "ann,cy,dee,bob,ed,"
+    },
+    {
+      "name": "sort_by_cell_color",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nws.Range(\"A4\").Interior.Color = RGB(255, 0, 0): ws.Range(\"A6\").Interior.Color = RGB(255, 0, 0)\nws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A6\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C6\")\n.Header = xlYes\n.Apply\nEnd With\nFor i = 2 To 6: s = s & ws.Cells(i, 1).Value & \",\": Next\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "cy,ed,ann,bob,dee,"
+    },
+    {
+      "name": "autofilter_top_items",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nws.Range(\"A1:C6\").AutoFilter Field:=3, Criteria1:=\"2\", Operator:=xlTop10Items\ns = ws.Range(\"A1:C6\").SpecialCells(xlCellTypeVisible).Rows.Count & \"|\" & ws.Rows(5).Hidden & ws.Rows(3).Hidden & ws.Rows(2).Hidden\nws.AutoFilterMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|FalseFalseTrue"
+    },
+    {
+      "name": "autofilter_value_list",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nws.Range(\"A1:C6\").AutoFilter Field:=2, Criteria1:=Array(\"East\", \"North\"), Operator:=xlFilterValues\ns = ws.Rows(3).Hidden & ws.Rows(5).Hidden & \"|\" & ws.AutoFilter.Filters(2).Count & \"|\" & ws.AutoFilter.Range.Address\nws.AutoFilterMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "TrueFalse|2|$A$1:$C$6"
+    },
+    {
+      "name": "autofilter_dates",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Value = \"When\"\nFor i = 2 To 6: ws.Cells(i, 1).Value = DateSerial(2024, i, 1): Next\nws.Range(\"A1:A6\").AutoFilter Field:=1, Criteria1:=\">=\" & CLng(DateSerial(2024, 4, 1))\ns = ws.Range(\"A1:A6\").SpecialCells(xlCellTypeVisible).Count & \"|\" & ws.Rows(3).Hidden\nws.AutoFilterMode = False\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "4|True"
+    },
+    {
+      "name": "replace_whole_case",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:A3\").Value = WorksheetFunction.Transpose(Array(\"a\", \"A\", \"ab\"))\nws.Range(\"A1:A3\").Replace What:=\"a\", Replacement:=\"z\", LookAt:=xlWhole, MatchCase:=True\ns = ws.Range(\"A1\").Value & ws.Range(\"A2\").Value & ws.Range(\"A3\").Value\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "zAab"
+    },
+    {
+      "name": "hyperlinks_add",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Hyperlinks.Add Anchor:=ws.Range(\"A1\"), Address:=\"https://example.com/x\", TextToDisplay:=\"site\"\nws.Hyperlinks.Add Anchor:=ws.Range(\"A2\"), Address:=\"\", SubAddress:=\"Sweep!C5\", TextToDisplay:=\"jump\"\ns = ws.Hyperlinks.Count & \"|\" & ws.Range(\"A1\").Hyperlinks(1).Address & \"|\" & ws.Range(\"A1\").Value & \"|\" & ws.Hyperlinks(2).SubAddress & \"|\" & ws.Range(\"A2\").Text\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "2|https://example.com/x|site|Sweep!C5|jump"
+    },
+    {
+      "name": "notes_add_clear",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"B2\").AddComment \"first note\"\ns = ws.Range(\"B2\").Comment.Text & \"|\" & ws.Comments.Count & \"|\"\nws.Range(\"B2\").Comment.Text Text:=\"changed\"\ns = s & ws.Range(\"B2\").Comment.Text & \"|\"\nws.Range(\"B2\").ClearComments\ns = s & ws.Comments.Count\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "first note|1|changed|0"
+    },
+    {
+      "name": "protect_with_password",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Locked = False\nws.Protect Password:=\"pw\", AllowFormattingCells:=True\ns = ws.ProtectContents & \"|\" & ws.Protection.AllowFormattingCells & \"|\"\nws.Range(\"A1\").Value = 5\nOn Error Resume Next\nws.Range(\"B1\").Value = 5\ns = s & Err.Number & \"|\"\nErr.Clear\nws.Unprotect \"wrong\"\ns = s & Err.Number & \"|\"\nErr.Clear\nOn Error GoTo 0\nws.Unprotect \"pw\"\ns = s & ws.ProtectContents & \"|\" & ws.Range(\"A1\").Value\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|True|1004|1004|False|5"
+    },
+    {
+      "name": "name_refers_r1c1",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nThisWorkbook.Names.Add Name:=\"SweepCell\", RefersTo:=\"=Sweep!$B$3\"\ns = ThisWorkbook.Names(\"SweepCell\").RefersToR1C1 & \"|\" & ThisWorkbook.Names(\"SweepCell\").Visible\nThisWorkbook.Names(\"SweepCell\").Delete\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "=Sweep!R3C2|True"
+    },
+    {
+      "name": "merge_across_rows",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C2\").Merge Across:=True\ns = ws.Range(\"B2\").MergeArea.Address & \"|\" & ws.Range(\"A1\").MergeArea.Address & \"|\" & ws.Range(\"A1:C2\").MergeCells\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$2:$C$2|$A$1:$C$1|"
+    },
+    {
+      "name": "center_across_selection",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Value = \"title\": ws.Range(\"A1:C1\").HorizontalAlignment = xlCenterAcrossSelection\ns = ws.Range(\"A1\").HorizontalAlignment & \"|\" & ws.Range(\"B1\").HorizontalAlignment & \"|\" & ws.Range(\"A1\").Text\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "7|7|title"
+    },
+    {
+      "name": "validation_whole_number",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Validation.Add Type:=xlValidateWholeNumber, AlertStyle:=xlValidAlertStop, Operator:=xlBetween, Formula1:=\"1\", Formula2:=\"10\"\nws.Range(\"A1\").Validation.ErrorMessage = \"1 to 10\"\nws.Range(\"A1\").Value = 11\ns = ws.Range(\"A1\").Validation.Value & \"|\" & ws.Range(\"A1\").Validation.Formula2 & \"|\" & ws.Range(\"A1\").Validation.ErrorMessage & \"|\" & ws.Range(\"A1\").Validation.Operator\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "False|10|1 to 10|1"
+    },
+    {
+      "name": "cf_color_scale",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:A5\").Value = 1\nws.Range(\"A1:A5\").FormatConditions.AddColorScale ColorScaleType:=3\ns = ws.Range(\"A1:A5\").FormatConditions.Count & \"|\" & ws.Range(\"A1:A5\").FormatConditions(1).Type\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|3"
+    },
+    {
+      "name": "cf_databar_iconset",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:A5\").FormatConditions.AddDatabar\nws.Range(\"B1:B5\").FormatConditions.AddIconSetCondition\ns = ws.Range(\"A1:A5\").FormatConditions(1).Type & \"|\" & ws.Range(\"B1:B5\").FormatConditions(1).Type\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "4|6"
+    },
+    {
+      "name": "group_show_levels",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Rows(\"2:4\").Group\nws.Outline.ShowLevels RowLevels:=1\ns = ws.Rows(3).Hidden & \"|\" & ws.Rows(3).OutlineLevel & \"|\"\nws.Outline.ShowLevels RowLevels:=2\ns = s & ws.Rows(3).Hidden\nws.Rows(\"2:4\").Ungroup\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|2|False"
+    },
+    {
+      "name": "page_setup_titles",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nWith ws.PageSetup\n.Orientation = xlLandscape\n.Zoom = False\n.FitToPagesWide = 1\n.FitToPagesTall = False\n.PrintTitleRows = \"$1:$2\"\nEnd With\ns = ws.PageSetup.Orientation & \"|\" & ws.PageSetup.FitToPagesWide & \"|\" & ws.PageSetup.PrintTitleRows & \"|\" & ws.Names(\"Print_Titles\").RefersTo\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "2|1|$1:$2|=Sweep!$1:$2"
+    },
+    {
+      "name": "number_format_local_dates",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Value = DateSerial(2024, 3, 9)\nws.Range(\"A1\").NumberFormatLocal = \"dd/mm/yyyy\"\ns = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"A1\").Text\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "dd/mm/yyyy|09/03/2024"
+    },
+    {
+      "name": "conditional_number_format",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Columns(1).ColumnWidth = 15\nws.Range(\"A1\").Value = 15300: ws.Range(\"A2\").Value = 120\nws.Range(\"A1:A2\").NumberFormat = \"[>=1000]#,##0,\"\"K\"\";0\"\ns = ws.Range(\"A1\").Text & \"|\" & ws.Range(\"A2\").Text\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "15K|120"
+    },
+    {
+      "name": "fraction_scientific",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Columns(1).ColumnWidth = 15\nws.Range(\"A1\").Value = 2.75: ws.Range(\"A1\").NumberFormat = \"# ?/?\"\nws.Range(\"A2\").Value = 123456: ws.Range(\"A2\").NumberFormat = \"0.00E+00\"\nws.Range(\"A3\").Value = 0.000123: ws.Range(\"A3\").NumberFormat = \"##0.0E+0\"\ns = ws.Range(\"A1\").Text & \"|\" & ws.Range(\"A2\").Text & \"|\" & ws.Range(\"A3\").Text\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "2 3/4|1.23E+05|123.0E-6"
+    },
+    {
+      "name": "mixed_array_types",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:D1\").Value = Array(CCur(1.5), DateSerial(2024, 1, 2), True, \"t\")\ns = TypeName(ws.Range(\"A1\").Value) & TypeName(ws.Range(\"B1\").Value) & TypeName(ws.Range(\"C1\").Value) & TypeName(ws.Range(\"D1\").Value) & \"|\" & TypeName(ws.Range(\"A1\").Value2) & \"|\" & ws.Range(\"A1\").NumberFormat\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "CurrencyDateBooleanString|Double|$#,##0.00_);($#,##0.00)"
+    },
+    {
+      "name": "spill_range_read",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Formula2 = \"=SEQUENCE(3)\"\ns = ws.Range(\"A1\").SpillingToRange.Address & \"|\" & ws.Range(\"A3\").Value & \"|\" & ws.Range(\"A2\").HasSpill & \"|\" & ws.Range(\"A1\").HasSpill\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1:$A$3|3|True|True"
+    },
+    {
+      "name": "cell_error_values",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1\").Formula = \"=NA()\": ws.Range(\"A2\").Formula = \"=1/0\"\nv = ws.Range(\"A1\").Value\ns = IsError(v) & \"|\" & CStr(v) & \"|\" & CStr(ws.Range(\"A2\").Value) & \"|\" & ws.Range(\"A2\").Text & \"|\" & TypeName(ws.Range(\"A2\").Value)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "True|Error 2042|Error 2007|#DIV/0!|Error"
+    },
+    {
+      "name": "format_number_specs",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\ns = Format(1234.5, \"#,##0.00\") & \"|\" & Format(0.5, \"Percent\") & \"|\" & Format(-1, \"0;(0)\") & \"|\" & Format(\"abc\", \">\") & \"|\" & Format(DateSerial(2024, 7, 4) + TimeSerial(9, 8, 7), \"yyyy-mm-dd hh:nn:ss\") & \"|\" & Format(1234.5, \"Standard\") & \"|\" & Format(0, \"Yes/No\") & \"|\" & Format(12, \"000.0\")\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1,234.50|50.00%|(1)|ABC|2024-07-04 09:08:07|1,234.50|No|012.0"
+    },
+    {
+      "name": "split_limit_filter",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\na = Split(\"a,b,,c\", \",\", 2)\ns = UBound(a) & \"|\" & a(1) & \"|\"\na = Split(\"xAyaz\", \"a\", , vbTextCompare)\ns = s & UBound(a) & \"|\" & Join(Filter(Array(\"apple\", \"berry\", \"grape\"), \"ap\"), \",\") & \"|\" & Join(Filter(Array(\"apple\", \"berry\", \"grape\"), \"ap\", False), \",\")\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1|b,,c|2|apple,grape|berry"
+    },
+    {
+      "name": "multi_dim_array_range",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nReDim a(1 To 2, 1 To 3)\nFor i = 1 To 2: For j = 1 To 3: a(i, j) = i * 10 + j: Next: Next\nws.Range(\"A1\").Resize(2, 3).Value = a\ns = UBound(a, 2) & \"|\" & ws.Range(\"C2\").Value & \"|\"\nv = ws.Range(\"A1:C2\").Value\ns = s & LBound(v, 1) & UBound(v, 2) & \"|\" & v(2, 1)\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3|23|13|21"
+    },
+    {
+      "name": "transpose_two_dims",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nReDim a(1 To 2, 1 To 3)\na(1, 3) = \"x\"\nv = WorksheetFunction.Transpose(a)\ns = UBound(v, 1) & \"x\" & UBound(v, 2) & \"|\" & v(3, 1) & \"|\" & IsEmpty(v(1, 1))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "3x2|x|True"
+    },
+    {
+      "name": "err_vbobjecterror",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nOn Error Resume Next\nErr.Raise vbObjectError + 513, \"Sweep\", \"mine\"\ns = Err.Number & \"|\" & (Err.Number - vbObjectError) & \"|\" & Err.Description\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "-2147220991|513|mine"
+    },
+    {
+      "name": "worksheetfunction_error_text",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nOn Error Resume Next\nv = WorksheetFunction.VLookup(1, ws.Range(\"A1:B2\"), 2, False)\ns = Err.Number & \"|\" & Err.Description\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "1004|Unable to get the VLookup property of the WorksheetFunction class"
+    },
+    {
+      "name": "hidden_rows_visible_count",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nws.Range(\"A3,A5\").EntireRow.Hidden = True\ns = ws.Range(\"A1:A6\").SpecialCells(xlCellTypeVisible).Count & \"|\" & WorksheetFunction.Subtotal(109, ws.Range(\"C2:C6\")) & \"|\" & WorksheetFunction.Sum(ws.Range(\"C2:C6\"))\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "4|30|95"
+    },
+    {
+      "name": "hidden_several_areas",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A3,A5\").EntireRow.Hidden = True\ns = ws.Rows(3).Hidden & ws.Rows(4).Hidden & ws.Rows(5).Hidden & \"|\" & TypeName(ws.Range(\"A3,A5\").EntireRow.Hidden) & \":\" & ws.Range(\"A3,A5\").EntireRow.Hidden & \"|\" & TypeName(ws.Range(\"A3:A5\").EntireRow.Hidden) & \"|\"\nws.Rows(5).Hidden = False\ns = s & ws.Range(\"A3,A5\").EntireRow.Hidden & ws.Range(\"A5,A3\").EntireRow.Hidden & \"|\"\nws.Range(\"B1,D1\").EntireColumn.Hidden = True\ns = s & ws.Columns(2).Hidden & ws.Columns(3).Hidden & ws.Columns(4).Hidden & \"|\"\nOn Error Resume Next\nws.Range(\"A3,A5\").Hidden = False\ns = s & Err.Number & \"|\"\nErr.Clear\nws.Range(\"A3:B3\").Hidden = False\ns = s & Err.Number & \"|\"\nErr.Clear\nws.Rows(\"3:3,5:5\").Hidden = False\ns = s & Err.Number & \"|\" & ws.Rows(3).Hidden & ws.Rows(5).Hidden\nErr.Clear\nws.Range(\"7:7,9:9\").Hidden = True\ns = s & \"|\" & Err.Number & \":\" & ws.Rows(7).Hidden & ws.Rows(9).Hidden\nErr.Clear\nv = ws.Range(\"7:7,9:9\").Hidden\ns = s & \"|\" & Err.Number\nErr.Clear\nUnion(ws.Rows(11), ws.Rows(13)).Hidden = True\ns = s & \"|\" & Err.Number & \":\" & ws.Rows(11).Hidden & ws.Rows(13).Hidden\nErr.Clear\nv = Union(ws.Rows(11), ws.Rows(13)).Hidden\ns = s & \"|\" & Err.Number & \":\" & v\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "TrueFalseTrue|Boolean:True|Boolean|TrueFalse|TrueFalseTrue|1004|1004|13|TrueFalse|1004:FalseFalse|1004|1004:FalseFalse|1004:"
+    },
+    {
+      "name": "used_range_after_delete",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nws.Rows(\"4:6\").Delete\ns = ws.UsedRange.Address & \"|\" & ws.Range(\"A1\").CurrentRegion.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$A$1:$C$3|$A$1:$C$3"
+    },
+    {
+      "name": "find_by_format_values",
+      "macro": "Function Probe() As String\nDim ws As Worksheet, r As Range, c As Range, s As String, i As Long, j As Long, n As Long, v As Variant\nDim o As Object, w As Workbook, t As String, a As Variant\nSet ws = Worksheets.Add\nws.Name = \"Sweep\"\nws.Range(\"A1:C1\").Value = Array(\"Name\", \"Region\", \"Amount\")\nws.Range(\"A2:C2\").Value = Array(\"ann\", \"East\", 10)\nws.Range(\"A3:C3\").Value = Array(\"bob\", \"West\", 25)\nws.Range(\"A4:C4\").Value = Array(\"cy\", \"East\", 5)\nws.Range(\"A5:C5\").Value = Array(\"dee\", \"North\", 40)\nws.Range(\"A6:C6\").Value = Array(\"ed\", \"West\", 15)\nSet r = ws.Range(\"C:C\").Find(What:=25)\ns = r.Address & \"|\"\nSet r = ws.Range(\"A:C\").Find(What:=\"e\", LookAt:=xlPart, SearchOrder:=xlByColumns)\ns = s & r.Address & \"|\"\nSet r = ws.Range(\"A:C\").Find(What:=\"E\", MatchCase:=True)\ns = s & r.Address\nApplication.DisplayAlerts = False\nws.Delete\nApplication.DisplayAlerts = True\nProbe = s\nEnd Function\n",
+      "result": "$C$3|$A$5|$B$2"
+    }
+  ]
+}

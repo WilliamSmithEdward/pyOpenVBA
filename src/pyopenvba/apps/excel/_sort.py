@@ -487,36 +487,42 @@ def condition_attributes(book: Workbook, field: SortField) -> dict[str, str]:
 def _color_dxf(book: Workbook, field: SortField) -> XmlElement:
     """The dxf a file keeps a colour field's colour in (tests/fixtures/sort_colour/): a solid fill of it, or no
     fill; or the workbook's font in it, or in the font's own colour for the automatic one."""
-    from xml.etree.ElementTree import SubElement
-
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._styles import Color
 
     dxf = XmlElement(_MAIN + 'dxf')
     rgb = None if field.color is None else str(Color.from_bgr(field.color).value)
     if field.sort_on == ON_CELL_COLOR:
-        pattern = SubElement(SubElement(dxf, _MAIN + 'fill'), _MAIN + 'patternFill',
-                             {'patternType': 'none' if rgb is None else 'solid'})
-        SubElement(pattern, _MAIN + 'fgColor', {'indexed': '64'} if rgb is None else {'rgb': rgb})
-        SubElement(pattern, _MAIN + 'bgColor', {'indexed': '65'})
+        pattern = _child(_child(dxf, 'fill'), 'patternFill', {'patternType': 'none' if rgb is None else 'solid'})
+        _child(pattern, 'fgColor', {'indexed': '64'} if rgb is None else {'rgb': rgb})
+        _child(pattern, 'bgColor', {'indexed': '65'})
         return dxf
     font = book.stylesheet.default.font
-    element = SubElement(dxf, _MAIN + 'font')
+    element = _child(dxf, 'font')
     for tag, value in (('b', '0'), ('i', '0'), ('strike', '0'), ('condense', '0'), ('extend', '0'), ('outline', '0'),
                        ('shadow', '0'), ('u', 'none'), ('vertAlign', 'baseline'), ('sz', f'{font.size:g}')):
-        SubElement(element, _MAIN + tag, {'val': value})
+        _child(element, tag, {'val': value})
     if rgb is not None:
-        SubElement(element, _MAIN + 'color', {'rgb': rgb})
+        _child(element, 'color', {'rgb': rgb})
     elif font.color is not None and font.color.kind == 'theme' and not font.color.tint:
-        SubElement(element, _MAIN + 'color', {'theme': str(font.color.value)})
+        _child(element, 'color', {'theme': str(font.color.value)})
     else:
         raise VBAUnsupportedError("saving a sort on the automatic font colour of a workbook whose font has no "
                                   "theme colour is not implemented")
-    SubElement(element, _MAIN + 'name', {'val': font.name})
+    _child(element, 'name', {'val': font.name})
     for tag, value in (('family', font.family), ('scheme', font.scheme)):
         if value:
-            SubElement(element, _MAIN + tag, {'val': value})
+            _child(element, tag, {'val': value})
     return dxf
+
+
+def _child(parent: XmlElement, tag: str, attributes: dict[str, str] | None = None) -> XmlElement:
+    """A new element of the stylesheet's namespace, put last in ``parent``."""
+    from pyopenvba.apps.excel._charts_file import XmlElement
+
+    made = XmlElement(_MAIN + tag, attributes or {})
+    parent.append(made)
+    return made
 
 
 def condition_color(book: Workbook, sort_by: str, dxf_id: str) -> int | None:

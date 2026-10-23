@@ -2292,11 +2292,23 @@ not establish complete calculation scheduling, iteration, or event conformance.
 - **Nothing outside the model.** File I/O, the file system verbs, the
   registry, `Shell`, `SendKeys`, `CreateObject` and `Declare` into a DLL
   all report themselves unsupported rather than reaching the real
-  machine. The one exception is `Scripting.Dictionary`, which
-  `CreateObject` and `New` make in memory, matching keys as the real one
-  does: numbers by value whatever their type, Empty and "" as one key,
-  objects by identity, text with or without case (47 probes in
-  `tests/fixtures/vba_semantics`).
+  machine. Three objects are the exception, which `CreateObject` and
+  `New` make in memory:
+  - `Scripting.Dictionary` matches keys as the real one does: numbers by
+    value whatever their type, Empty and "" as one key, objects by
+    identity, text with or without case (47 probes in
+    `tests/fixtures/vba_semantics`).
+  - `VBScript.RegExp` runs Test, Replace and Execute in VBScript's
+    dialect on Python's `re`. `\d`, `\w`, `\s` and `\b` are ASCII's,
+    while IgnoreCase folds every letter. `^` and `$` treat a carriage
+    return as a line's end, and `{` is a quantifier only as one. The
+    replacement codes are `$1` to `$99`, `$&`, `` $` ``, `$'` and `$$`.
+    A bad pattern is error 5017 to 5021. 56 cases and the collections'
+    edges are in `tests/fixtures/scripting_objects.json`.
+  - `Scripting.FileSystemObject` has its path functions alone:
+    GetFileName, GetBaseName, GetExtensionName, GetParentFolderName,
+    GetDriveName and BuildPath, over 37 measured paths. What reads or
+    writes the disk reports itself unsupported.
 - **`.xlsb` cells.** The binary sheet part is not read; its VBA project
   is readable through `ExcelFile` as before.  The same goes for the
   legacy `.doc`, `.ppt` and `.xls`, whose text and shapes live in

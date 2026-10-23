@@ -951,7 +951,7 @@ class SheetDimensions:
 
     # -- rows and columns moving
 
-    def shift_rows(self, start: int, count: int, delete: bool) -> None:
+    def shift_rows(self, start: int, count: int, delete: bool, *, below: bool = False) -> None:
         moved: dict[int, RowRecord] = {}
         for row, record in self.rows.items():
             if delete:
@@ -962,12 +962,13 @@ class SheetDimensions:
                 target = row + count if row >= start else row
             if target <= MAX_ROWS:
                 moved[target] = record
-        if not delete and start > 1:
-            # A new row takes the height and the format of the row above it, but is shown.
-            above = self.rows.get(start - 1)
-            if above is not None and (above.height is not None or above.style is not None):
+        if not delete:
+            # A new row takes the height and the format of the row above it, or with ``below`` of the row it pushed
+            # down, but is shown.
+            source = moved.get(start + count) if below else self.rows.get(start - 1) if start > 1 else None
+            if source is not None and (source.height is not None or source.style is not None):
                 for row in range(start, min(start + count, MAX_ROWS + 1)):
-                    moved[row] = RowRecord(height=above.height, style=above.style, xf=above.xf)
+                    moved[row] = RowRecord(height=source.height, style=source.style, xf=source.xf)
         self.rows = moved
         self.moved = True
         touched: set[int] = set()
@@ -980,7 +981,7 @@ class SheetDimensions:
         self._touched = touched
         self._grown_valid = False
 
-    def shift_columns(self, start: int, count: int, delete: bool) -> None:
+    def shift_columns(self, start: int, count: int, delete: bool, *, below: bool = False) -> None:
         moved: dict[int, ColumnRecord] = {}
         for column, record in self.columns.items():
             if delete:
@@ -991,13 +992,15 @@ class SheetDimensions:
                 target = column + count if column >= start else column
             if target <= MAX_COLUMNS:
                 moved[target] = record
-        if not delete and start > 1:
-            # A new column takes the width and the format of the one to its left.
-            left = self.columns.get(start - 1)
-            width = left.width if left is not None and left.custom and left.width else None
-            if left is not None and (width is not None or left.style is not None):
+        if not delete:
+            # A new column takes the width and the format of the one to its left, or with ``below`` of the one it
+            # pushed right.
+            source = moved.get(start + count) if below else self.columns.get(start - 1) if start > 1 else None
+            width = source.width if source is not None and source.custom and source.width else None
+            if source is not None and (width is not None or source.style is not None):
                 for column in range(start, min(start + count, MAX_COLUMNS + 1)):
-                    moved[column] = ColumnRecord(width=width, custom=width is not None, style=left.style, xf=left.xf)
+                    moved[column] = ColumnRecord(width=width, custom=width is not None, style=source.style,
+                                                 xf=source.xf)
         last = self.columns.get(MAX_COLUMNS)
         if delete and last is not None and last.style is not None:
             # The last column's format is the sheet's own: the columns a

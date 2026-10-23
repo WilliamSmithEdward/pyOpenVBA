@@ -114,7 +114,9 @@ def name_scope(book: Workbook, entry: NameEntry) -> str:
     return scope
 
 
-def edit(target: Range, *, delete: bool) -> None:
+def edit(target: Range, *, delete: bool, below: bool = False) -> None:
+    """Whole rows or columns deleted or inserted; inserted ones take the formats of the line before them, or with
+    ``below`` the line after them."""
     sheet, area = target.sheet, target.first
     if sheet.advanced_filter is not None:
         raise VBAUnsupportedError('Structural edits on an advanced-filtered sheet are not implemented')
@@ -182,14 +184,14 @@ def edit(target: Range, *, delete: bool) -> None:
                                                   delete=delete))
     _windows.edited(sheet, rows=rows, start=start, count=count, delete=delete)
     if rows:
-        sheet.dims.shift_rows(start, count, delete)
+        sheet.dims.shift_rows(start, count, delete, below=below)
     else:
-        sheet.dims.shift_columns(start, count, delete)
+        sheet.dims.shift_columns(start, count, delete, below=below)
     from pyopenvba.apps.excel._notes import lines_moved
 
     lines_moved(sheet, start, count, delete=delete, rows=rows)
-    if not delete and start > 1:
-        _inherit_formats(sheet, rows=rows, start=start, count=count)
+    if not delete:
+        _inherit_formats(sheet, rows=rows, start=start, count=count, below=below)
     from pyopenvba.apps.excel._autofilter import filter_edited
 
     filter_edited(sheet, rows=rows, start=start, count=count, delete=delete)
@@ -198,8 +200,9 @@ def edit(target: Range, *, delete: bool) -> None:
 
 
 def _inherit_formats(sheet: Worksheet, *, rows: bool, start: int, count: int,
-                     band: tuple[int, int] | None = None) -> None:
-    """New rows take the formats of the cells in the row above; new columns those of the column to the left.
+                     band: tuple[int, int] | None = None, below: bool = False) -> None:
+    """New rows take the formats of the cells in the row above; new columns those of the column to the left; or,
+    ``below``, of the row below or the column to the right, the one the insert pushed along.
 
     The row's or column's own format came along with its height or width;
     a cell here is made only where it would show something else. Cells
@@ -208,8 +211,11 @@ def _inherit_formats(sheet: Worksheet, *, rows: bool, start: int, count: int,
     from pyopenvba.apps.excel._model import Cell
 
     limit = MAX_ROWS if rows else MAX_COLUMNS
+    source = start + count if below else start - 1
+    if not 1 <= source <= limit:
+        return
     for (row, column), cell in list(sheet.cells_.items()):
-        if (row if rows else column) != start - 1:
+        if (row if rows else column) != source:
             continue
         if band is not None and not band[0] <= (column if rows else row) <= band[1]:
             continue
@@ -222,11 +228,12 @@ def _inherit_formats(sheet: Worksheet, *, rows: bool, start: int, count: int,
 # --- cell shifts ---------------------------------------------------------------------------------------
 
 
-def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, through: Table | None = None) -> None:
+def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, through: Table | None = None,
+                below: bool = False) -> None:
     """``area`` deleted or inserted, the cells in its band of columns moving up or down -- ``vertical`` -- or in
     its band of rows across, and every reference to them following as the module docstring has it. ``through``
     is a table the shift may run through, a row or a column of it going in or out, whose block the caller keeps
-    up to date."""
+    up to date. Inserted cells take the formats of those before them, or with ``below`` those after them."""
     sheet = target.sheet
     if sheet.advanced_filter is not None:
         raise VBAUnsupportedError('Cell shifts on an advanced-filtered sheet are not implemented')
@@ -298,9 +305,10 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
         from pyopenvba.apps.excel._notes import cells_moved
 
         cells_moved(sheet, notes)
-    if not delete and start > 1:
-        # Measured: inserted cells take the formats of the cells above them, or to their left.
-        _inherit_formats(sheet, rows=vertical, start=start, count=count, band=band)
+    if not delete:
+        # Measured: inserted cells take the formats of the cells above them, or to their left, or with
+        # xlFormatFromRightOrBelow those below or to their right.
+        _inherit_formats(sheet, rows=vertical, start=start, count=count, band=band, below=below)
     follow()
     _spills.restore(sheet, caches)
     sheet.shape_changed()

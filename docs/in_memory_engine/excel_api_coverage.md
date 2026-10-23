@@ -229,7 +229,10 @@ See the [shared/CSE tests](../../tests/test_excel_worksheet_rename_arrays.py) an
 
 `Range.AdvancedFilter` supports a single local rectangular list, in-place
 filtering or extraction, criteria joined by column AND and row OR, repeated
-criteria headers and projected or reordered output columns. **61 independently
+criteria headers and projected or reordered output columns. Extracting to a
+single blank cell copies every column, the Extract name spanning its header
+row, and a blank row of extract headers is error 1004, as two everyday macros
+measured (`tests/fixtures/excel_everyday_2.json`). **61 independently
 measured native controls** cover the admitted subset; **70 raw controls** retain
 nine explicitly deferred diagnostics without treating them as passing behavior.
 Ten native macro-free workbooks cover imports and forced rewrites. Ten

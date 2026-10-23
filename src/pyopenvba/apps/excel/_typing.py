@@ -121,12 +121,24 @@ class Typed:
     prefix: bool = False
 
 
+#: The most characters a cell holds; Excel cuts what a macro writes past that without a word
+#: (tests/fixtures/excel_everyday_2.json, long_text_cell).
+LONGEST_TEXT = 32767
+
+
 def typed(value: object, current: str = "General", *, raw: bool = False, epoch_1904: bool = False) -> Typed:
-    """A value written to a cell whose format is ``current``, as the cell keeps it.
+    """A value written to a cell whose format is ``current``, as the cell keeps it, text cut to 32,767 characters.
 
     ``raw`` is Value2's write, which puts a Date or a Currency in as the
     Double under it and so brings no format with it.
     """
+    found = _typed_write(value, current, raw=raw, epoch_1904=epoch_1904)
+    if isinstance(found.value, str) and len(found.value) > LONGEST_TEXT:
+        return Typed(found.value[:LONGEST_TEXT], found.number_format, found.prefix)
+    return found
+
+
+def _typed_write(value: object, current: str, *, raw: bool, epoch_1904: bool) -> Typed:
     if epoch_1904 and not raw and isinstance(value, VBADate):
         value = VBADate(value.serial - (1462 if value.serial >= 1 else 0))
     if raw and isinstance(value, VBADate):

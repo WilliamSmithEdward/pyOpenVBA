@@ -162,12 +162,13 @@ def point_formulas(rule: Rule) -> list[str]:
 
 
 def names_a_sheet(text: str) -> bool:
-    """Whether a point's formula names a sheet, which Excel 2007 could not read."""
+    """Whether a point's formula names a sheet, which Excel 2007 could not read; #REF! alone names none."""
     try:
         tokens = tokenize(text)
     except FormulaError:
         return False
-    return any(token.kind in ('ref', 'name', 'error') and '!' in token.text for token in tokens)
+    return any((token.kind in ('ref', 'name') and '!' in token.text)
+               or (token.kind == 'error' and not token.text.startswith('#')) for token in tokens)
 
 
 # --- reading ------------------------------------------------------------------------------------------------
@@ -263,11 +264,12 @@ def grouped(placed: list[tuple[Rule, XmlElement]]) -> list[tuple[str, list[XmlEl
     in its place, a rule made since or moved joining the group of its range at its end, and a group for each
     other range after them (tests/fixtures/data_bars_icons/data_bars_icons_resaved.xlsx)."""
     from pyopenvba.apps.excel._conditional import projected_areas
+    from pyopenvba.apps.excel._conditional import sqref as spelled
 
     held: dict[int, tuple[str, list[tuple[int, XmlElement]]]] = {}
     later: list[tuple[Rule, str, XmlElement]] = []
     for rule, entry in placed:
-        sqref = ' '.join(area.address(absolute=False) for area in projected_areas(rule))
+        sqref = spelled(projected_areas(rule))
         place = rule.extension_place
         if place is not None and place[1] == sqref:
             held.setdefault(place[0], (sqref, []))[1].append((place[2], entry))

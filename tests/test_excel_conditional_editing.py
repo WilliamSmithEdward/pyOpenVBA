@@ -27,27 +27,45 @@ def state(book: Workbook) -> object:
 
 
 RULE = 'Range("A1:A5").FormatConditions.Add Type:=xlExpression,Formula1:="=A1>0"'
+#: A rule reading the cell above each of its own, which an insert at its first row leaves different for one cell.
+SPLIT = 'Range("A2:A5").FormatConditions.Add Type:=xlExpression,Formula1:="=A1>0"'
+INSPECT = '''Function Inspect() As String
+If Cells.FormatConditions.Count = 0 Then Inspect = "none": Exit Function
+Inspect = Cells.FormatConditions(1).AppliesTo.Address & "|" & Cells.FormatConditions(1).Formula1
+End Function'''
 
 
-@pytest.mark.parametrize('action', [
-    'Rows(3).Insert', 'Rows(1).Delete', 'Columns(1).Insert', 'Columns(1).Delete',
-    'Range("A3").Insert xlShiftDown', 'Range("A3").Delete xlShiftUp',
+@pytest.mark.parametrize(('action', 'expected'), [
+    ('Rows(3).Insert', '$A$1:$A$6|=A1>0'), ('Rows(1).Delete', '$A$1:$A$4|=A1>0'),
+    ('Columns(1).Insert', '$B$1:$B$5|=B1>0'), ('Columns(1).Delete', 'none'),
+    ('Range("A3").Insert xlShiftDown', '$A$1:$A$6|=A1>0'), ('Range("A3").Delete xlShiftUp', '$A$1:$A$4|=A1>0'),
 ])
-def test_structural_rule_movement_is_atomic(action: str) -> None:
-    app, book = prepare(RULE, action)
+def test_structural_edits_move_the_rule(action: str, expected: str, tmp_path: Path) -> None:
+    app, _ = prepare(RULE, action)
+    app.add_module(INSPECT, name='Inspection')
+    app.run('Action')
+    assert app.run('Inspect') == expected
+    assert ExcelApplication.open(app.save(tmp_path / 'moved.xlsm')).run('Inspect') == expected
+
+
+@pytest.mark.parametrize(('rules', 'action'), [
+    (SPLIT, 'Rows(2).Insert'), (SPLIT, 'Range("A2").Insert xlShiftDown'),
+    ('Range("A1:A5").FormatConditions.AddTop10\nRange("B1:B5").FormatConditions.AddTop10', 'Rows(3).Delete'),
+])
+def test_unmeasured_rule_movement_is_atomic(rules: str, action: str) -> None:
+    app, book = prepare(rules, action)
     before = state(book)
     with pytest.raises(VBAUnsupportedError, match='conditional formatting'):
         app.run('Action')
     assert state(book) == before
 
 
-def test_structural_reference_on_another_sheet_is_guarded() -> None:
+def test_structural_reference_on_another_sheet_follows_its_cells() -> None:
     setup = 'ActiveSheet.Name="Data"\nWorksheets.Add.Name="Report"\nRange("A1").FormatConditions.Add Type:=xlExpression,Formula1:="=Data!A3>0"'
-    app, book = prepare(setup, 'Worksheets("Data").Rows(2).Insert')
-    before = state(book)
-    with pytest.raises(VBAUnsupportedError, match='conditional formatting formulas'):
-        app.run('Action')
-    assert state(book) == before
+    app, _ = prepare(setup, 'Worksheets("Data").Rows(2).Insert')
+    app.add_module(INSPECT, name='Inspection')
+    app.run('Action')
+    assert app.run('Inspect') == '$A$1|=Data!A4>0'
 
 
 @pytest.mark.parametrize('action', ['Rows(9).Insert', 'Range("D3").Delete xlShiftUp'])

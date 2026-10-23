@@ -16,7 +16,6 @@ rule, and a delete that takes the filter's header cells removes it.
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -32,23 +31,6 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._tables import Table
 
 _CORNER = re.compile(r"^(\$?)([A-Za-z]+)?(\$?)([0-9]+)?$")
-
-
-def _conditional_admitted(sheet: Worksheet, region: Area, rewrite_rule: Callable[[str, str], str]) -> None:
-    """Reject before mutation when a rule's cells or stored references, its points' among them, must move."""
-    from pyopenvba.apps.excel._conditional_extension import point_formulas
-
-    for owner in sheet.book.sheets_:
-        for rule in owner.conditional_formats:
-            if rule.deleted:
-                continue
-            if owner is sheet and any(not (area.bottom < region.top or region.bottom < area.top
-                                           or area.right < region.left or region.right < area.left)
-                                      for area in rule.areas):
-                raise VBAUnsupportedError('Structural edits moving conditional formatting ranges are not implemented')
-            for text in point_formulas(rule):
-                if rewrite_rule(text, owner.name) != text:
-                    raise VBAUnsupportedError('Structural edits rewriting conditional formatting formulas are not implemented')
 
 
 def interval(low: int, high: int, start: int, count: int, delete: bool, limit: int) -> tuple[int, int] | None:
@@ -127,10 +109,9 @@ def edit(target: Range, *, delete: bool, below: bool = False) -> None:
     from pyopenvba.apps.excel._outline import guard_axis_edit
 
     guard_axis_edit(sheet, rows, start)
-    edge = max(1, start - (not delete))
-    affected = Area(edge, 1, MAX_ROWS, MAX_COLUMNS) if rows else Area(1, edge, MAX_ROWS, MAX_COLUMNS)
-    _conditional_admitted(sheet, affected, lambda text, owner: rewrite(
-        text, owner, sheet.name, rows=rows, start=start, count=count, delete=delete))
+    from pyopenvba.apps.excel._conditional_edits import LineEdit, planned
+
+    conditional = planned(sheet, LineEdit(rows, start, count, delete), below=below)
     _arrays.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _data_tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
     _tables.edit_admitted(sheet, rows=rows, start=start, count=count, delete=delete)
@@ -178,6 +159,7 @@ def edit(target: Range, *, delete: bool, below: bool = False) -> None:
                                               delete=delete), rows=rows)
     _validation.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
+    conditional()
     _hyperlinks.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
     _windows.edited(sheet, rows=rows, start=start, count=count, delete=delete)
@@ -241,9 +223,9 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     band, start, count = shift.band, shift.start, shift.count
     limit = MAX_ROWS if vertical else MAX_COLUMNS
     region = Area(start, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], start, band[1], MAX_COLUMNS)
-    edge = max(1, start - (not delete))
-    affected = Area(edge, band[0], MAX_ROWS, band[1]) if vertical else Area(band[0], edge, band[1], MAX_COLUMNS)
-    _conditional_admitted(sheet, affected, lambda text, owner: rewrite_shift(text, owner, sheet.name, shift))
+    from pyopenvba.apps.excel._conditional_edits import planned
+
+    conditional = planned(sheet, shift, below=below)
     _arrays.shift_admitted(sheet, area, region, delete=delete)
     _data_tables.shift_admitted(sheet, area, region, delete=delete)
     _tables.refuse(sheet, region, "Shifting", allowing=through)
@@ -298,6 +280,7 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     _arrays.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _data_tables.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     _validation.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
+    conditional()
     _hyperlinks.moved(sheet, lambda text: rewrite_shift(text, sheet.name, sheet.name, shift))
     if notes:
         from pyopenvba.apps.excel._notes import cells_moved

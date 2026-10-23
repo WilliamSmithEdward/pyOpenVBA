@@ -11,22 +11,18 @@ and the conditionalFormatting each sheet was saved with.
 from __future__ import annotations
 
 import json
-import posixpath
 import re
-import zipfile
 from pathlib import Path
 from typing import Any
 
 import pytest
+from _conditional_files import formatting
 
 from pyopenvba.apps.excel import ExcelApplication
 
 FIXTURES = Path(__file__).parent / "fixtures" / "colour_scales"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "colour_scales.json").read_text(encoding="utf-8"))
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
-#: A lowest or highest criterion's Value is the one Excel worked out when it last drew the rule, 0 in a file just
-#: opened whose rule it has not drawn: these gradients' rules lie outside the cells the dump reads.
-UNDRAWN = {"gradient_two", "gradient_three"}
 
 
 def _run(layout: dict[str, Any]) -> object:
@@ -57,37 +53,16 @@ def excel_file_read() -> dict[str, str]:
     return dict(one.split("^", 1) for one in str(app.run("Read")).split("|") if one)
 
 
-@pytest.mark.parametrize("layout", [
-    pytest.param(one, marks=pytest.mark.xfail(strict=True, reason="a criterion's Value before Excel draws the rule"))
-    if one["name"] in UNDRAWN else one for one in LAYOUTS], ids=lambda layout: layout["name"])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_model_reads_excels_file_as_excel_does(excel_file_read: dict[str, str], layout: dict[str, Any]) -> None:
+    """A lowest or highest criterion reads 0 until the scale colours a cell: the gradients' rules lie outside the
+    cells the dump reads."""
     assert excel_file_read[layout["name"]] == layout["reopened"]
-
-
-def _formatting(path: Path) -> dict[str, str]:
-    """Each sheet's conditionalFormatting elements, and any extLst, as a file keeps them, each dxfId the dxf it
-    names: Excel numbers its dxfs in its own order, at save."""
-    with zipfile.ZipFile(path) as package:
-        workbook = package.read("xl/workbook.xml").decode("utf-8")
-        targets: dict[str, str] = {}
-        for element in re.findall(r"<Relationship\b[^>]*>", package.read("xl/_rels/workbook.xml.rels").decode()):
-            attributes = dict(re.findall(r'(\w+)="([^"]*)"', element))
-            targets[attributes["Id"]] = attributes["Target"]
-        listed = re.search(r"<dxfs\b.*?</dxfs>", package.read("xl/styles.xml").decode("utf-8"), re.DOTALL)
-        dxfs = re.findall(r"<dxf>.*?</dxf>", listed.group()) if listed else []
-        found: dict[str, str] = {}
-        for name, rid in re.findall(r'<sheet\b[^>]*?name="([^"]+)"[^>]*?r:id="([^"]+)"', workbook):
-            part = posixpath.normpath(posixpath.join("xl", targets[rid].lstrip("/").removeprefix("xl/")))
-            text = package.read(part).decode("utf-8")
-            kept = ("".join(re.findall(r"<conditionalFormatting\b.*?</conditionalFormatting>", text, re.DOTALL))
-                    + "".join(re.findall(r"<extLst>.*?</extLst>", text, re.DOTALL)))
-            found[name] = re.sub(r'dxfId="(\d+)"', lambda named: f'dxf="{dxfs[int(named.group(1))]}"', kept)
-    return found
 
 
 @pytest.fixture(scope="module")
 def excel_file() -> dict[str, str]:
-    return _formatting(FIXTURES / "colour_scales.xlsx")
+    return formatting(FIXTURES / "colour_scales.xlsx")
 
 
 def saved_layouts(path: Path) -> None:
@@ -111,7 +86,7 @@ def saved_layouts(path: Path) -> None:
 def model_file(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
     path = tmp_path_factory.mktemp("colour_scales") / "scales.xlsx"
     saved_layouts(path)
-    return _formatting(path)
+    return formatting(path)
 
 
 def test_the_record_holds_what_excels_file_holds(excel_file: dict[str, str]) -> None:

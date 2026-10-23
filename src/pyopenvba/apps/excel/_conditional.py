@@ -14,7 +14,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_area
+from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_parser, xml_tree
 from pyopenvba.apps.excel._conditional_predicates import (
     PREDICATE_TYPES,
@@ -74,6 +74,21 @@ class Rule:
     state: RuleState | None = field(default=None, repr=False)
     #: A colour scale's points VBA gave a value, by index: True for text, False for a number (_colour_scales).
     given: dict[int, bool] = field(default_factory=lambda: {}, repr=False)
+    #: Whether a colour scale has coloured a cell since it was made or read, which its lowest and highest points
+    #: need before they read other than 0 (_colour_scales).
+    drawn: bool = False
+
+
+def sqref(areas: list[Area]) -> str:
+    """A range as a file's sqref spells it: each area by its corner cells, so a whole column is B1:B1048576 and a
+    whole row A2:XFD2 (tests/fixtures/conditional_edits/, full_column_rows)."""
+    def cells(area: Area) -> str:
+        first = f'{column_letter(area.left)}{area.top}'
+        if (area.top, area.left) == (area.bottom, area.right):
+            return first
+        return f'{first}:{column_letter(area.right)}{area.bottom}'
+
+    return ' '.join(cells(area) for area in areas)
 
 
 def formula_anchor(areas: list[Area]) -> Area:
@@ -92,10 +107,16 @@ def canonical_load(rule: Rule) -> bool:
     return rule.imported if rule.plain_load is None else rule.plain_load
 
 
+#: Rules drawn from their whole range, whose areas a file's order keeps (tests/fixtures/conditional_edits/, order_*).
+RANGE_RULES = frozenset(('top10', 'aboveAverage', 'uniqueValues', 'duplicateValues', 'colorScale', 'dataBar',
+                         'iconSet'))
+
+
 def projected_areas(rule: Rule) -> list[Area]:
-    """Plain-loaded generic rules expose row order; statistical populations retain input order."""
-    if rule.imported and rule.root.get('type') not in ('top10', 'aboveAverage', 'uniqueValues', 'duplicateValues'):
-        return sorted(rule.areas, key=lambda area: (area.top, area.left, area.bottom, area.right))
+    """Plain-loaded rules a formula decides expose row order, by each area's top row, then its bottom, then its left
+    column (tests/fixtures/conditional_edits/, order_wide_first); rules drawn from their range retain input order."""
+    if rule.imported and rule.root.get('type') not in RANGE_RULES:
+        return sorted(rule.areas, key=lambda area: (area.top, area.bottom, area.left, area.right))
     return list(rule.areas)
 
 
@@ -239,7 +260,7 @@ def with_rules(xml: str, rules: list[Rule], *, extension: bool = True) -> str:
                 group = deepcopy(container)
                 for entry in group.findall(NS + 'cfRule'):
                     group.remove(entry)
-        group.set('sqref', ' '.join(area.address(absolute=False) for area in serialized_areas))
+        group.set('sqref', sqref(serialized_areas))
         # cfRule precedes extLst in CT_ConditionalFormatting.
         before = next((i for i, entry in enumerate(group) if entry.tag == NS + 'extLst'), len(group))
         for copied in main:

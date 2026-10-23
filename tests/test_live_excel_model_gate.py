@@ -1759,6 +1759,53 @@ def test_excel_reads_the_data_bars_and_icon_sets_this_wrote(tmp_path: Path) -> N
         assert read[1][one["name"]] == re.sub(r"^S\d+;", "", one["answers"]), one["name"]
 
 
+def test_excel_reads_the_conditional_edits_this_made(tmp_path: Path) -> None:
+    """Every edit tests/fixtures/conditional_edits measured that the model makes, made by the model in one workbook,
+    saved and opened in Excel, which reads each sheet as it read its own file; and Excel's file edited by the model
+    as Excel edited it, which Excel reads as it had the edits before saving, once it has drawn the sheets as the
+    dump that went before the edits drew them."""
+    from test_excel_conditional_edits import FIXTURES, RECORD, RESAVED, edited_layouts
+
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    harness = pytest.importorskip("pyvbaharness")
+    made = edited_layouts(tmp_path)
+    changed = tmp_path / "conditional_edits_resaved.xlsx"
+    app = ExcelApplication.open(FIXTURES / "conditional_edits.xlsx", with_vba=False)
+    app.add_module(RECORD["helper"] + "Public Function Read(name As String) As String\n"
+                   "Read = Dump(ActiveWorkbook.Worksheets(name))\nEnd Function\n", name="Reader")
+    for one in RECORD["layouts"]:
+        try:
+            app.run("Read", one["name"])
+        except VBAUnsupportedError:
+            pass
+    steps = "".join(f'Private Sub Change{index}()\nDim ws As Object\nSet ws = ActiveWorkbook.Worksheets("{one["name"]}")\n'
+                    f"On Error Resume Next\nws.Activate\n{one['edit']}\nEnd Sub\n" for index, one in enumerate(RESAVED))
+    app.add_module(steps, name="Changer")
+    for index in range(len(RESAVED)):
+        app.run(f"Change{index}")
+    app.save(changed)
+    reader = (RECORD["helper"] + "Public Function Report() As String\nDim ws As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\n"
+              "Report = out\nEnd Function\n")
+    def report(path: Path, *, drawn: bool) -> dict[str, str]:
+        with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+            excel.open_document(path)
+            if drawn:
+                assert excel.run_vba(reader, "Report", timeout=600.0).ok
+            result = excel.run_vba(reader, "Report", timeout=600.0)
+            assert result.ok, result.message
+        return dict(one.split("^", 1) for one in str(result.value).split("|") if one)
+
+    for path, layouts in made:
+        read = report(path, drawn=False)
+        for layout in layouts:
+            assert read[layout["name"]] == layout["reopened"], layout["name"]
+    read = report(changed, drawn=True)
+    for one in RESAVED:
+        assert read[one["name"]] == one["answers"], one["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

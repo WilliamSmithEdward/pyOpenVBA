@@ -13,13 +13,12 @@ Excel had opened it and saved again.
 from __future__ import annotations
 
 import json
-import posixpath
 import re
-import zipfile
 from pathlib import Path
 from typing import Any
 
 import pytest
+from _conditional_files import all_guids, formatting, guids
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -80,46 +79,9 @@ def test_the_model_reads_excels_file_as_excel_does(excel_file_read: ExcelApplica
     assert excel_file_read.run("Read", layout["name"]) == layout["reopened"]
 
 
-def _formatting(path: Path) -> dict[str, str]:
-    """Each sheet's conditionalFormatting elements and its own extLst as a file keeps them: each dxfId the dxf it
-    names, since Excel numbers its dxfs in its own order at save, and each GUID by the order it first appears, but
-    those ``kept`` names as they are."""
-    with zipfile.ZipFile(path) as package:
-        workbook = package.read("xl/workbook.xml").decode("utf-8")
-        targets: dict[str, str] = {}
-        for element in re.findall(r"<Relationship\b[^>]*>", package.read("xl/_rels/workbook.xml.rels").decode()):
-            attributes = dict(re.findall(r'(\w+)="([^"]*)"', element))
-            targets[attributes["Id"]] = attributes["Target"]
-        listed = re.search(r"<dxfs\b.*?</dxfs>", package.read("xl/styles.xml").decode("utf-8"), re.DOTALL)
-        dxfs = re.findall(r"<dxf>.*?</dxf>", listed.group()) if listed else []
-        found: dict[str, str] = {}
-        for name, rid in re.findall(r'<sheet\b[^>]*?name="([^"]+)"[^>]*?r:id="([^"]+)"', workbook):
-            part = posixpath.normpath(posixpath.join("xl", targets[rid].lstrip("/").removeprefix("xl/")))
-            text = package.read(part).decode("utf-8")
-            groups = re.findall(r"<conditionalFormatting\b.*?</conditionalFormatting>", text, re.DOTALL)
-            rest = re.sub(r"<conditionalFormatting\b.*?</conditionalFormatting>", "", text, flags=re.DOTALL)
-            kept = "".join(groups) + "".join(re.findall(r"<extLst>.*?</extLst>", rest, re.DOTALL))
-            found[name] = re.sub(r'dxfId="(\d+)"', lambda named: f'dxf="{dxfs[int(named.group(1))]}"', kept)
-    return found
-
-
-def _guids(text: str, kept: frozenset[str] = frozenset()) -> str:
-    """``text`` with each GUID not in ``kept`` named by the order it first appears; the ids Excel makes for rules it
-    read without one stay as they are, being Excel's own and not random."""
-    seen: dict[str, str] = {}
-
-    def name(found: re.Match[str]) -> str:
-        guid = found.group()
-        if guid in kept or guid.startswith("{00000000-000E-0000-"):
-            return guid
-        return seen.setdefault(guid, f"{{GUID-{len(seen) + 1}}}")
-
-    return re.sub(r"\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}", name, text)
-
-
 @pytest.fixture(scope="module")
 def excel_file() -> dict[str, str]:
-    return _formatting(FIXTURES / "data_bars_icons.xlsx")
+    return formatting(FIXTURES / "data_bars_icons.xlsx")
 
 
 def saved_layouts(path: Path) -> None:
@@ -144,7 +106,7 @@ def saved_layouts(path: Path) -> None:
 def model_file(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
     path = tmp_path_factory.mktemp("data_bars_icons") / "bars.xlsx"
     saved_layouts(path)
-    return _formatting(path)
+    return formatting(path)
 
 
 def test_the_record_holds_what_excels_file_holds(excel_file: dict[str, str]) -> None:
@@ -155,7 +117,7 @@ def test_the_record_holds_what_excels_file_holds(excel_file: dict[str, str]) -> 
 @pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_file_keeps_the_rules_as_excels_does(model_file: dict[str, str], excel_file: dict[str, str],
                                                  layout: dict[str, Any]) -> None:
-    assert _guids(model_file[layout["name"]]) == _guids(excel_file[layout["name"]])
+    assert guids(model_file[layout["name"]]) == guids(excel_file[layout["name"]])
 
 
 @pytest.fixture(scope="module")
@@ -175,12 +137,11 @@ def resaved(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], d
     answers = dict(one.split("^", 1) for one in str(app.run("Change")).split("|") if one)
     path = tmp_path_factory.mktemp("resaved") / "resaved.xlsx"
     app.save(path)
-    return answers, _formatting(path)
+    return answers, formatting(path)
 
 
 #: Every GUID Excel's first file holds, which a save of it keeps.
-KEPT = frozenset(re.findall(r"\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}",
-                            json.dumps([one["file"] for one in LAYOUTS])))
+KEPT = all_guids(json.dumps([one["file"] for one in LAYOUTS]))
 
 
 @pytest.mark.parametrize("change", RESAVED, ids=lambda change: change["name"])
@@ -191,10 +152,10 @@ def test_a_changed_file_answers_as_excels_does(resaved: tuple[dict[str, str], di
 
 @pytest.fixture(scope="module")
 def excel_resaved() -> dict[str, str]:
-    return _formatting(FIXTURES / "data_bars_icons_resaved.xlsx")
+    return formatting(FIXTURES / "data_bars_icons_resaved.xlsx")
 
 
 @pytest.mark.parametrize("change", RESAVED, ids=lambda change: change["name"])
 def test_a_changed_file_keeps_the_rules_as_excels_does(resaved: tuple[dict[str, str], dict[str, str]],
                                                        excel_resaved: dict[str, str], change: dict[str, Any]) -> None:
-    assert _guids(resaved[1][change["name"]], KEPT) == _guids(excel_resaved[change["name"]], KEPT)
+    assert guids(resaved[1][change["name"]], KEPT) == guids(excel_resaved[change["name"]], KEPT)

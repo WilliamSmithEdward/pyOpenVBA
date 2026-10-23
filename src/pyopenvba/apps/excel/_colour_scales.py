@@ -163,6 +163,7 @@ def scale_patch(sheet: Worksheet, rule: Rule, row: int, column: int) -> XmlEleme
     population = numbers(sheet, rule)
     if not isinstance(value, float) or not population or not drawn(sheet, rule):
         return None
+    rule.drawn = True
     points, elements = _scale(rule)
     colours = [_channels(sheet, element) for element in elements]
     low, high = _point(sheet, rule, points[0], population), _point(sheet, rule, points[-1], population)
@@ -348,15 +349,16 @@ class ColorScaleCriterion(ExcelObject):
 
     @member
     def Value(self) -> object:
-        """A lowest or highest point's is that number of the range as it stands; any other's is a number, or a
-        formula's text after "=": what VBA gave it, else what the file spells (a formula's always text)."""
+        """A lowest or highest point's is that number of the range as it stands once the scale has coloured a cell,
+        0 before; any other's is a number, or a formula's text after "=": what VBA gave it, else what the file
+        spells (a formula's always text)."""
         from pyopenvba.apps.excel._conditional_stats import numbers
 
         point = self._point()
         kind = point.get('type', '')
         if kind in ('min', 'max'):
             population = numbers(self.owner.sheet, self.owner.rule)
-            if not population or not drawn(self.owner.sheet, self.owner.rule):
+            if not population or not self.owner.rule.drawn or not drawn(self.owner.sheet, self.owner.rule):
                 return 0.0
             return population[0] if kind == 'min' else population[-1]
         text = point.get('val', '0')

@@ -368,15 +368,26 @@ def advanced_filter(target: Range, action: object, criteria_argument: object, co
         raise _unsupported('requiring more than four million row/criterion comparisons')
     unique = unique_argument is not MISSING and to_bool(unique_argument)
     projection: list[int] = list(range(source.left, source.right + 1))
+    extract = output.first if output is not None else None
     if output is not None:
-        projection = []
-        for column in range(output.first.left, output.first.right + 1):
-            value = _value(sheet, output.first.top, column)
-            if isinstance(value, str):
-                work.text(value)
-            if not isinstance(value, str) or value.casefold() not in headers:
-                raise _unsupported('with unmatched extract headers (native name side effects)')
-            projection.append(headers[value.casefold()])
+        given = [_value(sheet, output.first.top, column) for column in range(output.first.left, output.first.right + 1)]
+        blank = [value is EMPTY or value == '' for value in given]
+        if len(given) == 1 and output.first.rows == 1 and blank[0]:
+            # A single blank cell takes every column under its headers, and Excel's Extract name spans that header
+            # row (tests/fixtures/excel_everyday_2.json, advanced_filter_blank_target).
+            first = output.first
+            extract = Area(first.top, first.left, first.top, first.left + len(projection) - 1, first.sheet)
+        elif all(blank):
+            # A row of blank headers names no column (advanced_filter_blank_row).
+            raise error(1004)
+        else:
+            projection = []
+            for value in given:
+                if isinstance(value, str):
+                    work.text(value)
+                if not isinstance(value, str) or value.casefold() not in headers:
+                    raise _unsupported('with unmatched extract headers (native name side effects)')
+                projection.append(headers[value.casefold()])
     rows: list[int] = []
     seen: set[tuple[tuple[object, ...], ...]] = set()
     for row in range(source.top + 1, source.bottom + 1):
@@ -393,12 +404,13 @@ def advanced_filter(target: Range, action: object, criteria_argument: object, co
         if (len(rows) + 1) * len(projection) > 1_000_000:
             raise _unsupported('extracting more than one million cells')
         first = output.first
-        last = max((row for row, column in sheet.cells_ if first.left <= column <= first.right
+        right = max(first.right, first.left + len(projection) - 1)
+        last = max((row for row, column in sheet.cells_ if first.left <= column <= right
                     and row >= first.top), default=first.top)
         last = max(last, first.top + len(rows))
         if last > MAX_ROWS:
             raise error(1004)
-        footprint = Area(first.top, first.left, last, first.right)
+        footprint = Area(first.top, first.left, last, right)
         if meets(source, footprint) or (criteria_range is not None and meets(criteria_range.first, footprint)):
             raise _unsupported('with overlapping source, criteria and extract cells')
         _admit(sheet, footprint)
@@ -410,8 +422,8 @@ def advanced_filter(target: Range, action: object, criteria_argument: object, co
     name_updates = [_prepare_name(sheet, '_FilterDatabase', source, visible=False)]
     if criteria_range is not None:
         name_updates.append(_prepare_name(sheet, 'Criteria', criteria_range.first))
-    if output is not None:
-        name_updates.append(_prepare_name(sheet, 'Extract', output.first))
+    if extract is not None:
+        name_updates.append(_prepare_name(sheet, 'Extract', extract))
     for update in name_updates:
         update()
     if output is not None:

@@ -1,4 +1,5 @@
-"""Scripting.Dictionary, which CreateObject makes without starting the Scripting Runtime.
+"""Scripting.Dictionary and FileSystemObject's path functions, which CreateObject makes without starting the
+Scripting Runtime.
 
 Measured in live Excel (tests/fixtures/vba_semantics/probes.txt). Keys
 are matched as the real dictionary matches them: numbers by value
@@ -13,6 +14,13 @@ adds nothing. An item keeps the type it was given. Keys and Items are
 zero-based Variant arrays in the order the keys went in, and For Each
 walks the keys. Adding a key twice is error 457, removing or renaming
 one it has not got 32811, renaming one onto another 457.
+
+FileSystemObject takes a path apart and puts one together as the real one
+does (tests/fixtures/scripting_objects.json): a backslash or a slash parts
+folders, a drive is a letter and a colon or a server and share, a trailing
+separator is left off, and the extension is what follows the last point of
+the file name, spaces and all. Everything that reads or writes the disk
+reports itself unsupported, as VBA's own file statements do.
 """
 
 from __future__ import annotations
@@ -150,3 +158,111 @@ class Dictionary(VBAObject):
 
     def vba_iterate(self) -> Iterator[object]:
         yield from [key for key, _ in self._entries.values()]
+
+
+def in_memory(name: str, *, program: bool) -> VBAObject | None:
+    """The object CreateObject makes for a program's name, or New for a class's, where pyOpenVBA makes it in
+    memory; None for any other."""
+    from pyopenvba.interpreter._regexp import RegExp
+
+    key = name.lower()
+    if program:
+        made = {"scripting.dictionary": Dictionary, "scripting.filesystemobject": FileSystemObject,
+                "vbscript.regexp": RegExp}.get(key)
+    else:
+        made = {"scripting.dictionary": Dictionary, "dictionary": Dictionary,
+                "scripting.filesystemobject": FileSystemObject, "filesystemobject": FileSystemObject,
+                "vbscript_regexp_55.regexp": RegExp, "regexp": RegExp}.get(key)
+    return None if made is None else made()
+
+
+_SEPARATORS = "\\/"
+
+
+def drive_of(path: str) -> str:
+    """The drive a path starts with: C: or \\\\server\\share; "" for none."""
+    if len(path) >= 2 and path[1] == ":" and path[0].isalpha():
+        return path[:2]
+    if len(path) >= 2 and path[0] in _SEPARATORS and path[1] in _SEPARATORS:
+        parts = path[2:].replace("/", "\\").split("\\")
+        if len(parts) >= 2 and parts[0] and parts[1]:
+            return path[:2 + len(parts[0]) + 1 + len(parts[1])]
+    return ""
+
+
+def _split(path: str) -> tuple[str, str, str]:
+    """A path's drive, the folders after it, and the name at its end, trailing separators left off."""
+    drive = drive_of(path)
+    rest = path[len(drive):].rstrip(_SEPARATORS)
+    cut = max(rest.rfind("\\"), rest.rfind("/"))
+    return drive, rest[:cut + 1] if cut >= 0 else "", rest[cut + 1:]
+
+
+class FileSystemObject(VBAObject):
+    """Scripting.FileSystemObject, its path functions alone."""
+
+    vba_type_name = "FileSystemObject"
+    vba_library = "scripting"
+
+    @method
+    def GetFileName(self, Path: object = MISSING) -> object:
+        return _split(_path(Path))[2]
+
+    @method
+    def GetBaseName(self, Path: object = MISSING) -> object:
+        name = _split(_path(Path))[2]
+        return name[:name.rfind(".")] if "." in name else name
+
+    @method
+    def GetExtensionName(self, Path: object = MISSING) -> object:
+        name = _split(_path(Path))[2]
+        return name[name.rfind(".") + 1:] if "." in name else ""
+
+    @method
+    def GetParentFolderName(self, Path: object = MISSING) -> object:
+        drive, folders, name = _split(_path(Path))
+        if not name:
+            return ""
+        parent = folders.rstrip(_SEPARATORS)
+        if parent:
+            return drive + parent
+        # A file at a drive's root has the root for its parent, C:\ with its backslash; one at a share's root has
+        # the share, and one at the root of no drive none.
+        if folders and drive[1:2] == ":":
+            return drive + folders[0]
+        return drive
+
+    @method
+    def GetDriveName(self, Path: object = MISSING) -> object:
+        return drive_of(_path(Path))
+
+    @method
+    def BuildPath(self, Path: object = MISSING, Name: object = MISSING) -> object:
+        folder, name = _path(Path), _path(Name)
+        if not folder or not name:
+            return folder + name
+        if folder.endswith(":"):
+            return folder + name
+        ends, starts = folder[-1] in _SEPARATORS, name[0] in _SEPARATORS
+        if ends and starts:
+            return folder + name[1:]
+        return folder + name if ends or starts else folder + "\\" + name
+
+    def vba_no_member(self, name: str) -> Exception:
+        from pyopenvba.interpreter._inventory import member_exists
+
+        if member_exists(self.vba_type_name, name, self.vba_library):
+            return VBAUnsupportedError(f"FileSystemObject.{name} reaches the real file system, which pyOpenVBA "
+                                       "does not do")
+        return super().vba_no_member(name)
+
+
+def _path(value: object) -> str:
+    from pyopenvba.interpreter._values import to_text
+
+    if value is MISSING:
+        raise error(449)
+    if value is NULL:
+        # As RegExp's text arguments are (tests/fixtures/scripting_objects.json).
+        raise error(13, "Type mismatch")
+    return to_text(value)

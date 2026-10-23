@@ -3410,9 +3410,9 @@ class Range(ExcelObject):
 
         check_insert(self)
         area = self.first
-        if CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) != 0:
-            raise VBAUnsupportedError("Insert taking formats from the right or below (xlFormatFromRightOrBelow) "
-                                      "is not implemented")
+        # xlFormatFromRightOrBelow: the new lines take the formats, height or width of the line after them, not
+        # before (tests/fixtures/excel_everyday_2.json, insert_from_below_*).
+        below = CopyOrigin is not MISSING and int(to_integer(CopyOrigin, "Long")) == 1
         filtered = filtering(self.sheet)
         if area.whole_rows or area.whole_columns:
             from pyopenvba.apps.excel._editing import edit
@@ -3422,10 +3422,10 @@ class Range(ExcelObject):
                 count = sum(bottom - top + 1 for top, bottom in runs)
                 area = Area(area.top, 1, area.top + count - 1, MAX_COLUMNS, area.sheet)
                 inserted = Range(self.sheet, [area], whole="rows")
-                edit(inserted, delete=False)
+                edit(inserted, delete=False, below=below)
                 _events.after_edit(inserted, calculate_first=False)
                 return EMPTY
-            edit(self, delete=False)
+            edit(self, delete=False, below=below)
             _events.after_edit(self, calculate_first=False)
             return EMPTY
         if filtered:
@@ -3437,7 +3437,7 @@ class Range(ExcelObject):
         self._shifting_cells()
         # With no Shift a range taller than it is wide pushes cells right, any other range down.
         down = area.rows <= area.columns if Shift is MISSING else int(to_integer(Shift, "Long")) == -4121  # xlDown
-        shift_cells(self, area, delete=False, vertical=down)
+        shift_cells(self, area, delete=False, vertical=down, below=below)
         _events.after_edit(self, calculate_first=False)
         return EMPTY
 

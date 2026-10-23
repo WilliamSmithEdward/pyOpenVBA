@@ -7,6 +7,37 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `CreateObject("VBScript.RegExp")` and `New RegExp` work in memory. Test,
+  Replace and Execute run VBScript's dialect, with MatchCollection, Match
+  and SubMatches. `\d`, `\w`, `\s` and `\b` are ASCII's, and IgnoreCase
+  folds every letter. `^` and `$` treat a carriage return as a line's end,
+  and `{` is text unless it makes a quantifier. Replacements take `$1` to
+  `$99`, `$&`, `` $` ``, `$'` and `$$`; a group that took no part gives
+  nothing. A bad pattern is error 5017 to 5021 where it is used. 56 live
+  cases and the collections' edges agree.
+
+- `CreateObject("Scripting.FileSystemObject")` takes paths apart and puts
+  them together as the real one does: GetFileName, GetBaseName,
+  GetExtensionName, GetParentFolderName, GetDriveName and BuildPath, over
+  37 live paths with slashes, drives, shares, roots and trailing spaces.
+  Its members that read or write the disk report themselves unsupported,
+  as VBA's own file statements do.
+
+- `Range.Insert CopyOrigin:=xlFormatFromRightOrBelow`: the new rows,
+  columns or cells take the formats, row height or column width of the
+  line after them, which they pushed along, the top row included.
+
+- `AdvancedFilter` copying to a single blank cell copies every column
+  under its headers, and the sheet's Extract name spans that header row;
+  a blank row of extract headers is error 1004.
+
+- A second sweep of 77 everyday macros, run in Excel and the model side by
+  side, now agrees in full. It covers copies and pastes, cuts, inserts,
+  sheet copies and moves, names, finds, filters, lookups, worksheet
+  functions, VBA's conversions, strings and dates, regular expressions,
+  dictionaries, paths, colours, borders, validation, tables, charts and
+  AutoFit.
+
 - AutoFit, `Range.Text` in narrow columns and the widening a format gives
   a column work at every font size from 8pt to 72pt, in Aptos Narrow and
   Calibri, where they took 11pt alone. A text is as wide as GDI makes it at
@@ -189,6 +220,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A value past 32,767 characters is cut to that, as Excel cuts what a macro
+  writes to a cell, with no error.
 
 - A cell whose format has an `@` and no section showing digits or a date is
   a Text cell, as Excel makes it: `"x"@`, `@" kg"`, `@*-`, `;;;@` and

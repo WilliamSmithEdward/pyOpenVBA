@@ -24,12 +24,23 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
 - On a filtered sheet (scripts/measure_autofilter_edits.py) the visible
   rows sort among themselves into the rows they fill; the hidden ones
   stay, and a range with no visible row does not change.
+- A sort field on a cell's colour or its font's (scripts/measure_sort_colour.py)
+  puts the rows of that colour on top, or at the bottom with xlDescending,
+  the rest keeping their order. A cell shows the colour with a solid fill
+  of it, a conditional format's or a theme colour's included; a patterned
+  fill, white, and no fill at all do not, but a field whose SortOnValue
+  was never set sorts on no fill. A font shows it only in that colour
+  set outright: the automatic colour, and a field left at it, match
+  nothing. SortOnValue is an Interior or a Font holding the colour, error
+  1004 on a field of values, and the file keeps the colour as a dxf.
+- With no range or no field, Apply sorts nothing and raises no error.
+  The file keeps the rows a sort sorts, under the header given xlYes.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cmp_to_key
 from typing import TYPE_CHECKING
 
@@ -44,12 +55,15 @@ from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Cell, Workbook, Worksheet
 
 ASCENDING, DESCENDING = 1, 2
 GUESS, YES, NO = 0, 1, 2
 TOP_TO_BOTTOM, LEFT_TO_RIGHT = 1, 2
 TEXT_AS_NUMBERS = 1
+#: XlSortOn: what a sort field orders by.
+ON_VALUES, ON_CELL_COLOR, ON_FONT_COLOR, ON_ICON = 0, 1, 2, 3
 #: Printable ASCII other than letters, hyphens and apostrophes, lowest first, as Excel's sort orders them.
 _SYMBOLS = " !\"#$%&()*,./:;?@[\\]^_`{|}~+<=>0123456789"
 #: Characters word sort passes over but for breaking ties, apostrophe before hyphen.
@@ -59,11 +73,14 @@ _NUMBER, _TEXT, _LOGICAL, _ERROR, _BLANK = range(5)
 
 @dataclass(frozen=True)
 class Key:
-    """One sort key: the row or column of the range it reads, and how."""
+    """One sort key: the row or column of the range it reads, and how. A key ``on`` a colour orders the rows that
+    show ``color``, a VBA colour, before the rest; None is no fill, or the automatic font colour."""
 
     index: int
     descending: bool = False
     numbers: bool = False
+    on: int = ON_VALUES
+    color: int | None = None
 
 
 def text_key(text: str, match_case: bool) -> tuple[tuple[int, ...], tuple[int, ...], tuple[tuple[int, int], ...]]:
@@ -113,6 +130,35 @@ def _compare(first: tuple[int, object], second: tuple[int, object], descending: 
         return 0
     less = left < right  # type: ignore[operator]
     return (-1 if less else 1) * (-1 if descending else 1)
+
+
+def shows_color(sheet: Worksheet, row: int, column: int, key: Key) -> bool:
+    """Whether a cell shows the colour a colour key sorts on, as its conditional formats show it."""
+    from pyopenvba.apps.excel._conditional_eval import display_style
+    from pyopenvba.apps.excel._conditional_stats import conditional_read
+    from pyopenvba.apps.excel._styles import Color
+
+    if sheet.conditional_formats:
+        with conditional_read():
+            style = display_style(sheet, row, column)
+    else:
+        style = sheet.style_at(row, column)
+    wanted = None if key.color is None else str(Color.from_bgr(key.color).value)[-6:]
+    if key.on == ON_CELL_COLOR:
+        fill = style.fill
+        if fill.gradient:
+            raise VBAUnsupportedError("sorting on the colour of a gradient fill is not implemented")
+        if wanted is None:
+            return fill.pattern == "none"
+        shown = sheet.book.stylesheet.colors.rrggbb(fill.foreground, "FFFFFF")
+        return fill.pattern == "solid" and shown.upper() == wanted
+    color = style.font.color
+    if color is None or color.kind == "auto" or color == sheet.book.stylesheet.default.font.color:
+        # The automatic colour matches nothing, a field left at it included.
+        return False
+    if color.kind != "rgb":
+        raise VBAUnsupportedError("sorting on a font colour from the theme or the palette is not implemented")
+    return wanted is not None and str(color.value)[-6:].upper() == wanted
 
 
 @dataclass
@@ -179,6 +225,11 @@ def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: boo
     for line in lines:
         row_keys: list[tuple[int, object]] = []
         for key in keys:
+            if key.on != ON_VALUES:
+                # The colour's rows first: 0 before 1, and after it when descending.
+                cell = (area.top + key.index, line) if across else (line, area.left + key.index)
+                row_keys.append((_NUMBER, 0.0 if shows_color(sheet, *cell, key) else 1.0))
+                continue
             raw = value(line, key)
             if charge_value is not None:
                 charge_value(raw)
@@ -355,7 +406,8 @@ class SortState:
 def settings_signature(state: SortState) -> tuple[object, ...]:
     area = (id(state.area.sheet), tuple(state.area.areas)) if state.area is not None else None
     return (area, state.header, state.match_case, state.orientation, state.method,
-            tuple((id(field.key.sheet), tuple(field.key.areas), field.order, field.option) for field in state.fields))
+            tuple((id(field.key.sheet), tuple(field.key.areas), field.order, field.option, field.sort_on, field.color)
+                  for field in state.fields))
 
 
 def changed(sheet: Worksheet) -> bool:
@@ -385,14 +437,15 @@ def with_sort_state(sheet: Worksheet, xml: str) -> str:
         from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes
 
         ns = '{' + namespace + '}'
-        root = XmlElement(ns + 'sortState', {'xmlns': namespace, 'ref': state.area.first.address(absolute=False)})
+        block = state.area.first
+        if state.header == YES and block.rows > 1:
+            # The file keeps the rows sorted, under the header (tests/fixtures/sort_colour/).
+            block = Area(block.top + 1, block.left, block.bottom, block.right, block.sheet)
+        root = XmlElement(ns + 'sortState', {'xmlns': namespace, 'ref': block.address(absolute=False)})
         if state.match_case:
             root.set('caseSensitive', '1')
         for field in state.fields:
-            attrs = {'ref': field.key.first.address(absolute=False)}
-            if field.order == DESCENDING:
-                attrs['descending'] = '1'
-            root.append(XmlElement(ns + 'sortCondition', attrs))
+            root.append(XmlElement(ns + 'sortCondition', condition_attributes(sheet.book, field)))
         markup = xml_bytes(root).split(b'?>', 1)[1].lstrip()
     part = opc_part(xml.encode('utf8'), namespace, 'worksheet')
     matches = [(start, end) for tag, _attrs, start, end in part.children if tag == namespace + '}sortState']
@@ -409,6 +462,91 @@ def with_sort_state(sheet: Worksheet, xml: str) -> str:
     at = next((start for tag, _attrs, start, _end in part.children
                if tag.removeprefix(namespace + '}') in before), part.closing_start)
     return part.insert(at, markup).decode('utf8') if markup else xml
+
+
+_MAIN = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
+#: What a sortCondition's sortBy names: the SortOn of its field.
+SORTED_BY = {'value': ON_VALUES, 'cellColor': ON_CELL_COLOR, 'fontColor': ON_FONT_COLOR}
+_SORT_BY = {ON_CELL_COLOR: 'cellColor', ON_FONT_COLOR: 'fontColor'}
+
+
+def condition_attributes(book: Workbook, field: SortField) -> dict[str, str]:
+    """A field's sortCondition, its attributes in the schema's order as Excel writes them: a colour field names
+    the dxf holding its colour."""
+    attributes: dict[str, str] = {}
+    if field.order == DESCENDING:
+        attributes['descending'] = '1'
+    if field.sort_on != ON_VALUES:
+        attributes['sortBy'] = _SORT_BY[field.sort_on]
+    attributes['ref'] = field.key.first.address(absolute=False)
+    if field.sort_on != ON_VALUES:
+        attributes['dxfId'] = str(book.stylesheet.ensure_dxf(_color_dxf(book, field)))
+    return attributes
+
+
+def _color_dxf(book: Workbook, field: SortField) -> XmlElement:
+    """The dxf a file keeps a colour field's colour in (tests/fixtures/sort_colour/): a solid fill of it, or no
+    fill; or the workbook's font in it, or in the font's own colour for the automatic one."""
+    from pyopenvba.apps.excel._charts_file import XmlElement
+    from pyopenvba.apps.excel._styles import Color
+
+    dxf = XmlElement(_MAIN + 'dxf')
+    rgb = None if field.color is None else str(Color.from_bgr(field.color).value)
+    if field.sort_on == ON_CELL_COLOR:
+        pattern = _child(_child(dxf, 'fill'), 'patternFill', {'patternType': 'none' if rgb is None else 'solid'})
+        _child(pattern, 'fgColor', {'indexed': '64'} if rgb is None else {'rgb': rgb})
+        _child(pattern, 'bgColor', {'indexed': '65'})
+        return dxf
+    font = book.stylesheet.default.font
+    element = _child(dxf, 'font')
+    for tag, value in (('b', '0'), ('i', '0'), ('strike', '0'), ('condense', '0'), ('extend', '0'), ('outline', '0'),
+                       ('shadow', '0'), ('u', 'none'), ('vertAlign', 'baseline'), ('sz', f'{font.size:g}')):
+        _child(element, tag, {'val': value})
+    if rgb is not None:
+        _child(element, 'color', {'rgb': rgb})
+    elif font.color is not None and font.color.kind == 'theme' and not font.color.tint:
+        _child(element, 'color', {'theme': str(font.color.value)})
+    else:
+        raise VBAUnsupportedError("saving a sort on the automatic font colour of a workbook whose font has no "
+                                  "theme colour is not implemented")
+    _child(element, 'name', {'val': font.name})
+    for tag, value in (('family', font.family), ('scheme', font.scheme)):
+        if value:
+            _child(element, tag, {'val': value})
+    return dxf
+
+
+def _child(parent: XmlElement, tag: str, attributes: dict[str, str] | None = None) -> XmlElement:
+    """A new element of the stylesheet's namespace, put last in ``parent``."""
+    from pyopenvba.apps.excel._charts_file import XmlElement
+
+    made = XmlElement(_MAIN + tag, attributes or {})
+    parent.append(made)
+    return made
+
+
+def condition_color(book: Workbook, sort_by: str, dxf_id: str) -> int | None:
+    """The colour a colour condition's dxf holds, None for no fill or for the font's automatic colour."""
+    from pyopenvba.apps.excel._styles import bgr
+
+    try:
+        dxf = book.stylesheet.dxf(int(dxf_id))
+    except (ValueError, IndexError):
+        raise VBAUnsupportedError('A colour sort condition naming no dxf is not implemented') from None
+    if sort_by == 'cellColor':
+        pattern = dxf.find(f'{_MAIN}fill/{_MAIN}patternFill')
+        if pattern is not None and pattern.get('patternType') == 'none':
+            return None
+        color = None if pattern is None else pattern.find(_MAIN + 'fgColor')
+        if pattern is None or pattern.get('patternType') != 'solid' or color is None or not color.get('rgb'):
+            raise VBAUnsupportedError('A colour sort condition with an unmeasured fill is not implemented')
+        return bgr(str(color.get('rgb'))[-6:])
+    color = dxf.find(f'{_MAIN}font/{_MAIN}color')
+    if color is None or color.get('theme') is not None:
+        return None
+    if not color.get('rgb'):
+        raise VBAUnsupportedError('A font colour sort condition with an unmeasured colour is not implemented')
+    return bgr(str(color.get('rgb'))[-6:])
 
 
 def preflight_save(book: Workbook) -> None:
@@ -459,17 +597,22 @@ def _loaded_state(sheet: Worksheet) -> SortState:
         state.header = GUESS
         state.match_case = group.get('caseSensitive') in ('1', 'true')
         for condition in group.children:
+            sort_by = condition.get('sortBy', 'value')
             if (condition.name != ns + 'sortCondition' or condition.children or condition.has_text or condition.has_opaque
-                    or any(key not in ('ref', 'descending', 'sortBy') and key != 'xmlns'
+                    or any(key not in ('ref', 'descending', 'sortBy', 'dxfId') and key != 'xmlns'
                            and not key.startswith('xmlns:') for key in condition.attributes)
                     or condition.get('descending', '0') not in ('0', '1', 'false', 'true')
-                    or condition.get('sortBy', 'value') != 'value'):
+                    or sort_by not in SORTED_BY
+                    or (sort_by == 'value') == ('dxfId' in condition.attributes)):
                 raise VBAUnsupportedError('Custom worksheet sort conditions are not implemented')
             key = parse_area(condition.get('ref', ''))
             if key.sheet:
                 raise VBAUnsupportedError('Qualified worksheet sort keys are not implemented')
-            state.fields.append(SortField(Range(sheet, [key]),
-                                          DESCENDING if condition.get('descending') in ('1', 'true') else ASCENDING, 0))
+            order = DESCENDING if condition.get('descending') in ('1', 'true') else ASCENDING
+            field = SortField(Range(sheet, [key]), order, 0, SORTED_BY[sort_by])
+            if sort_by != 'value':
+                field.color = condition_color(sheet.book, sort_by, str(condition.get('dxfId')))
+            state.fields.append(field)
     except ValueError:
         raise VBAUnsupportedError('Invalid worksheet sort references are not implemented') from None
     state.original = settings_signature(state)
@@ -553,14 +696,15 @@ class SortObject(ExcelObject):
     def Apply(self) -> object:
         state = self.state
         if state.area is None or not state.fields:
-            raise error(1004, "The sort has no range or no key")
+            # With no range or no field Excel sorts nothing, and says nothing (tests/fixtures/sort_colour/).
+            return EMPTY
         target = state.area
         if len(target.areas) != 1:
             raise VBAUnsupportedError("sorting several areas is not implemented")
         area = target.first
         across = state.orientation == LEFT_TO_RIGHT
-        keys = [_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long"))
-                for field in state.fields]
+        keys = [replace(_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
+                        on=field.sort_on, color=field.color) for field in state.fields]
         sort_area(target.sheet, area, keys, header=state.header == YES, match_case=state.match_case, across=across)
         from pyopenvba.apps.excel._events import recalculated
 
@@ -588,12 +732,11 @@ class SortFields(VBACollection, ExcelObject):
             CustomOrder: object = MISSING, DataOption: object = MISSING) -> object:
         if not isinstance(Key, Range):
             raise error(1004, "A sort field needs a range for its key")
-        if SortOn is not MISSING and int(to_integer(SortOn, "Long")) != 0:
-            raise VBAUnsupportedError("sorting on cell colour, font colour or icons is not implemented")
+        on = ON_VALUES if SortOn is MISSING else sort_on(SortOn)
         if CustomOrder is not MISSING:
             raise VBAUnsupportedError("sorting by a custom order is not implemented")
         field = SortField(Key, ASCENDING if Order is MISSING else int(to_integer(Order, "Long")),
-                          0 if DataOption is MISSING else int(to_integer(DataOption, "Long")))
+                          0 if DataOption is MISSING else int(to_integer(DataOption, "Long")), on)
         self.owner.state.fields.append(field)
         return field
 
@@ -608,10 +751,13 @@ class SortFields(VBACollection, ExcelObject):
 class SortField(ExcelObject):
     vba_type_name = "SortField"
 
-    def __init__(self, key: Range, order: int, option: int) -> None:
+    def __init__(self, key: Range, order: int, option: int, sort_on: int = ON_VALUES) -> None:
         self.key = key
         self.order = order
         self.option = option
+        self.sort_on = sort_on
+        #: The VBA colour a colour field sorts on; None, as it starts, is no fill or the automatic font colour.
+        self.color: int | None = None
 
     def vba_no_member(self, name: str) -> Exception:
         return error(438) if name.casefold() == 'name' else super().vba_no_member(name)
@@ -619,6 +765,25 @@ class SortField(ExcelObject):
     @member
     def Key(self) -> object:
         return SortRange(self, self.key)
+
+    @member
+    def SortOn(self) -> object:
+        return VBAInt(self.sort_on, "Long")
+
+    @setter("SortOn")
+    def _set_sort_on(self, value: object) -> None:
+        self.sort_on = sort_on(value)
+        self.color = None
+
+    @member
+    def SortOnValue(self) -> object:
+        """What a colour field sorts on, as an Interior or a Font holding the colour; a field of values has none,
+        error 1004 (tests/fixtures/sort_colour/)."""
+        if self.sort_on == ON_CELL_COLOR:
+            return SortInterior(self)
+        if self.sort_on == ON_FONT_COLOR:
+            return SortFont(self)
+        raise error(1004, "A sort on values has no SortOnValue")
 
     @member
     def Order(self) -> object:
@@ -635,3 +800,39 @@ class SortField(ExcelObject):
     @setter("DataOption")
     def _set_data_option(self, value: object) -> None:
         self.option = int(to_integer(value, "Long"))
+
+
+def sort_on(value: object) -> int:
+    """The SortOn a macro gives: values, a cell's colour or its font's. Icons are not modelled."""
+    found = int(to_integer(value, "Long"))
+    if found not in (ON_VALUES, ON_CELL_COLOR, ON_FONT_COLOR):
+        raise VBAUnsupportedError("sorting on a conditional format's icons is not implemented" if found == ON_ICON
+                                  else f"sorting with SortOn {found} is not implemented")
+    return found
+
+
+class SortInterior(ExcelObject):
+    """A cell-colour field's SortOnValue: the colour the field sorts on, which reads as white, for no fill, until a
+    macro sets it."""
+
+    vba_type_name = "Interior"
+    #: What Color reads before a colour is set.
+    unset = 0xFFFFFF
+
+    def __init__(self, field: SortField) -> None:
+        self.field = field
+
+    @member
+    def Color(self) -> object:
+        return float(self.unset if self.field.color is None else self.field.color)
+
+    @setter("Color")
+    def _set_color(self, value: object) -> None:
+        self.field.color = int(to_integer(value, "Long"))
+
+
+class SortFont(SortInterior):
+    """A font-colour field's SortOnValue, which reads as black, for the automatic colour, until set."""
+
+    vba_type_name = "Font"
+    unset = 0

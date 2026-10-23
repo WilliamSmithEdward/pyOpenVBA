@@ -1671,6 +1671,34 @@ def test_excel_reads_the_table_filters_this_wrote(tmp_path: Path) -> None:
             assert named(read[layout["name"][:31]]) == named(layout["reopened"]), layout["name"]
 
 
+def test_excel_reads_the_colour_sorts_this_wrote(tmp_path: Path) -> None:
+    """Every colour sort tests/fixtures/sort_colour measured, made by the model, saved and opened in Excel, which
+    reads each sheet, and sorts it again, as it did its own file."""
+    import json
+
+    from test_excel_sort_colour import RANGE_SORT, saved_layouts
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "sort_colour" / "sort_colour.json")
+                        .read_text(encoding="utf-8"))
+    path = tmp_path / "colour_sorts.xlsx"
+    saved_layouts(path)
+    reader = (record["helper"] + "Public Function Report() As String\nDim ws As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\n"
+              "out = out & \"#\"\nOn Error Resume Next\nFor Each ws In ActiveWorkbook.Worksheets\nErr.Clear\n"
+              "ws.Sort.Apply\nout = out & ws.Name & \"^\" & IIf(Err.Number <> 0, \"S\" & Err.Number & \";\", \"\") & "
+              "Dump(ws) & \"|\"\nNext\nReport = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    read, again = (dict(one.split("^", 1) for one in part.split("|") if one) for part in str(result.value).split("#"))
+    for layout in record["layouts"]:
+        if layout["name"] != RANGE_SORT:
+            assert read[layout["name"]] == layout["reopened"], layout["name"]
+            assert again[layout["name"]] == layout["applied_again"], layout["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

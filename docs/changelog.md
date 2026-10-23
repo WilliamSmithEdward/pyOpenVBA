@@ -63,12 +63,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `AutoFilter.Range` in Excel once its file is opened again; the model
   reads the block the file gives.
 
-- A third sweep of 65 everyday macros agrees with Excel in 62: newer
+- Sorting on a cell's colour or its font's: `SortFields.Add` with
+  `SortOn:=xlSortOnCellColor` or `xlSortOnFontColor`, and its
+  `SortOnValue.Color`, on a sheet's Sort object and a table's. The rows
+  showing the colour go on top, or at the bottom with xlDescending, the
+  rest keeping their order, before or after value fields. A solid fill
+  shows a colour, a conditional format's and a theme colour's included; a
+  patterned fill, white and no fill do not, but a field whose colour was
+  never set sorts on no fill. A font shows only a colour set outright, so
+  the automatic colour matches nothing. `SortOnValue` is an Interior or a
+  Font, error 1004 on a field of values. The file keeps each colour as a
+  dxf, as Excel does, and reads it back. 26 live layouts, Excel's file
+  read back and sorted again, and the model's own file opened in Excel
+  agree. Sorting on icons reports itself unsupported, and Excel's making a
+  `Range.Sort` the sheet's sort settings is a known gap.
+
+- A third sweep of 65 everyday macros agrees with Excel in 63: newer
   worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
   object, AutoFilter, hyperlinks, notes, protection, conditional formats,
   outlines, page setup, number formats and VBA's Format, Split and arrays.
-  The other three report themselves unsupported: sorting on a cell's
-  colour, colour scales, and data bars with icon sets.
+  The other two report themselves unsupported: colour scales, and data
+  bars with icon sets.
 
 - A worksheet function a macro calls takes a range of another open
   workbook as that workbook's cells, whichever workbook is active:
@@ -258,6 +273,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Sort.Apply` with no range or no field sorts nothing and raises no
+  error, as Excel does. The model raised error 1004.
+
+- A sheet's saved sort settings keep the rows sorted, under the header
+  when the Sort object was given xlYes, as Excel saves them. The model
+  kept the header row in, so a sort read back from the file sorted it in
+  with the data. Each sort condition's attributes come in Excel's order.
+
+- A new dxf, a conditional format's or a sort's, is written into
+  styles.xml as Excel writes it, `<dxf>` in the stylesheet's own
+  namespace. The model wrote it under a prefix of its own, `ns0:dxf`.
 
 - A sheet whose own AutoFilter has criteria is saved with
   `filterMode="1"` on its sheetPr, as Excel saves it. The model wrote it

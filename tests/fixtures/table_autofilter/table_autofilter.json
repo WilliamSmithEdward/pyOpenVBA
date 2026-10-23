@@ -1,0 +1,1844 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    Dim i As Long, out As String\n    If IsArray(v) Then\n        out = \"Array(\"\n        For i = LBound(v) To UBound(v)\n            out = out & Show(v(i)) & \",\"\n        Next\n        Show = out & \")\"\n    ElseIf IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Filters(ws As Object) As String\n    Dim out As String, i As Long, f As Object, part As String\n    On Error Resume Next\n    out = \"mode=\" & ws.AutoFilterMode & \" filtering=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        out = out & \" range=\" & ws.AutoFilter.Range.Address & \" count=\" & ws.AutoFilter.Filters.Count\n        For i = 1 To ws.AutoFilter.Filters.Count\n            Set f = ws.AutoFilter.Filters(i)\n            part = \" f\" & i & \":\" & f.On\n            If f.On Then\n                Err.Clear\n                part = part & \" op=\" & f.Operator\n                If Err.Number <> 0 Then part = part & \" op=E\" & Err.Number\n                Err.Clear\n                part = part & \" c1=\" & Show(f.Criteria1)\n                If Err.Number <> 0 Then part = part & \" c1=E\" & Err.Number\n                Err.Clear\n                part = part & \" c2=\" & Show(f.Criteria2)\n                If Err.Number <> 0 Then part = part & \" c2=E\" & Err.Number\n            End If\n            out = out & part\n        Next\n    End If\n    Err.Clear\n    Dim n As Object\n    Set n = Nothing\n    Set n = ws.Names(\"_FilterDatabase\")\n    If Not n Is Nothing Then out = out & \" db=\" & n.RefersTo & \":\" & n.Visible\n    Filters = out\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long\n    For r = 1 To 14\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    Dump = \"hidden=\" & out & \" \" & Filters(ws)\nEnd Function\n",
+ "dump": "Private Function TableDump(ws As Object) As String\n    Dim out As String, r As Long, o As Object, a As Object, f As Object, i As Long, part As String, n As Object\n    For r = 1 To 15\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    out = \"hidden=\" & out & \" \" & Filters(ws) & \" sheet=\" & TypeName(ws.AutoFilter)\n    On Error Resume Next\n    If Not ws.AutoFilter Is Nothing Then out = out & \":\" & ws.AutoFilter.Range.Address\n    For Each o In ws.ListObjects\n        out = out & \" [\" & o.Name & \" \" & o.Range.Address & \" show=\" & o.ShowAutoFilter\n        Set a = Nothing\n        Set a = o.AutoFilter\n        If a Is Nothing Then\n            out = out & \" af=Nothing\"\n        Else\n            Err.Clear\n            out = out & \" range=\" & a.Range.Address & \" fm=\" & a.FilterMode & \" count=\" & a.Filters.Count\n            If Err.Number <> 0 Then out = out & \" E\" & Err.Number\n            For i = 1 To a.Filters.Count\n                Set f = a.Filters(i)\n                part = \" f\" & i & \":\" & f.On\n                If f.On Then\n                    Err.Clear\n                    part = part & \" op=\" & f.Operator\n                    If Err.Number <> 0 Then part = part & \" op=E\" & Err.Number\n                    Err.Clear\n                    part = part & \" c1=\" & Show(f.Criteria1)\n                    If Err.Number <> 0 Then part = part & \" c1=E\" & Err.Number\n                    Err.Clear\n                    part = part & \" c2=\" & Show(f.Criteria2)\n                    If Err.Number <> 0 Then part = part & \" c2=E\" & Err.Number\n                End If\n                out = out & part\n            Next\n        End If\n        out = out & \"]\"\n    Next\n    TableDump = out\nEnd Function\n",
+ "table": "ws.Range(\"A1:D1\").Value = Array(\"Name\", \"Qty\", \"Day\", \"Note\")\nws.Range(\"A2:D2\").Value = Array(\"apple\", 1, #1/1/2020#, \"x\")\nws.Range(\"A3:D3\").Value = Array(\"Apple\", 2, #1/15/2020#, \"y\")\nws.Range(\"A4:D4\").Value = Array(\"banana\", 2.5, #2/1/2020#, \"x\")\nws.Range(\"A5:D5\").Value = Array(\"cherry\", 10, #3/1/2020#, \"\")\nws.Range(\"A6\").Value = \"apple pie\"\nws.Range(\"B6\").Value = -1\nws.Range(\"C6\").Value = #1/1/2021#\nws.Range(\"A7\").Value = \"b*\"\nws.Range(\"B7\").Value = 1\nws.Range(\"B7\").NumberFormat = \"0.00\"\nws.Range(\"C7\").Value = #12/31/2019#\nws.Range(\"A8\").Value = \"~\"\nws.Range(\"B8\").Value = 100\nws.Range(\"A9\").Value = \"'123\"\nws.Range(\"B9\").Value = \"'5\"\nws.Range(\"C9\").Value = \"text\"\nws.Range(\"A10\").Value = \"Banana\"\nws.Range(\"B10\").Value = True\nws.Range(\"C10\").Value = #1/15/2020 6:00:00 AM#\nws.Range(\"A11\").Value = \"date\"\nws.Range(\"B11\").Formula = \"=1/0\"\nws.Range(\"A12\").Value = \"cherry\"\nws.Range(\"B12\").Value = 2\nws.Range(\"C12\").Value = #1/15/2020#\nws.Range(\"D12\").Value = \"y\"\nws.Range(\"A13\").Value = 12\nws.Range(\"B13\").Value = 0.5\n",
+ "names": [
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"39\" hidden=\"1\">beside_sheet_filter!$F$1:$F$9</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"66\" hidden=\"1\">both_select_outside!$F$1:$F$9</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"65\" hidden=\"1\">both_select_sheet!$F$1:$F$9</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"68\" hidden=\"1\">both_select_sheet_mode_off!$F$1:$F$9</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"67\" hidden=\"1\">both_select_sheet_show_all!$F$1:$F$9</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"75\" hidden=\"1\">made_over_arrows!$A$1:$D$13</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"74\" hidden=\"1\">made_over_filter!$A$1:$D$13</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"40\" hidden=\"1\">sheet_filter_after!$F$1:$F$9</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"42\" hidden=\"1\">sheet_mode_off_both!$F$1:$F$9</definedName>",
+  "<definedName name=\"_xlnm._FilterDatabase\" localSheetId=\"41\" hidden=\"1\">sheet_show_all_both!$F$1:$F$9</definedName>"
+ ],
+ "layouts": [
+  {
+   "name": "table",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\n",
+   "answers": "Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table1 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table1 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{05107809-38A5-4297-93D5-1319C8A0037C}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{05107809-38A5-4297-93D5-1319C8A0037C}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "equals",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table2 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table2 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"2\" xr:uid=\"{1DFA7916-2C57-47ED-A21F-C40F85E330E0}\" name=\"Table2\" displayName=\"Table2\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{1DFA7916-2C57-47ED-A21F-C40F85E330E0}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "not_equal",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"<>apple\")\n",
+   "answers": "Boolean:True;hidden=2,3, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table3 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:<>apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=2,3, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table3 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:<>apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"3\" xr:uid=\"{92ABB823-9F87-4601-9B2A-B60CF2B25399}\" name=\"Table3\" displayName=\"Table3\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{92ABB823-9F87-4601-9B2A-B60CF2B25399}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"notEqual\" val=\"apple\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "wildcard",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"a*\")\n",
+   "answers": "Boolean:True;hidden=4,5,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table4 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=a* c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table4 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=a* c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"4\" xr:uid=\"{0AA1D3B6-BA32-4DDD-A7CC-9F96943E18E3}\" name=\"Table4\" displayName=\"Table4\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{0AA1D3B6-BA32-4DDD-A7CC-9F96943E18E3}\"><filterColumn colId=\"0\"><customFilters><customFilter val=\"a*\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "number_greater",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\">2\")\n",
+   "answers": "Boolean:True;hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table5 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "reopened": "hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table5 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"5\" xr:uid=\"{6972E67E-A830-4F9C-93CD-6BBE3E2D3D9A}\" name=\"Table5\" displayName=\"Table5\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{6972E67E-A830-4F9C-93CD-6BBE3E2D3D9A}\"><filterColumn colId=\"1\"><customFilters><customFilter operator=\"greaterThan\" val=\"2\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "between_and",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\">=1\", Operator:=xlAnd, Criteria2:=\"<=10\")\n",
+   "answers": "Boolean:True;hidden=6,8,9,10,11,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table6 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=1 c1=String:>=1 c2=String:<=10 f3:False f4:False]",
+   "reopened": "hidden=6,8,9,10,11,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table6 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=1 c1=String:>=1 c2=String:<=10 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     6,
+     8,
+     9,
+     10,
+     11,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"6\" xr:uid=\"{F2BACEC8-A5F3-447E-9FD1-9C849A2847B0}\" name=\"Table6\" displayName=\"Table6\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{F2BACEC8-A5F3-447E-9FD1-9C849A2847B0}\"><filterColumn colId=\"1\"><customFilters and=\"1\"><customFilter operator=\"greaterThanOrEqual\" val=\"1\"/><customFilter operator=\"lessThanOrEqual\" val=\"10\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "either_or",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\", Operator:=xlOr, Criteria2:=\"cherry\")\n",
+   "answers": "Boolean:True;hidden=4,6,7,8,9,10,11,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table7 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=2 c1=String:=apple c2=String:=cherry f2:False f3:False f4:False]",
+   "reopened": "hidden=4,6,7,8,9,10,11,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table7 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=2 c1=String:=apple c2=String:=cherry f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"7\" xr:uid=\"{2CEBAC96-F464-49E6-BBBF-E8E2821026D6}\" name=\"Table7\" displayName=\"Table7\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{2CEBAC96-F464-49E6-BBBF-E8E2821026D6}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/><filter val=\"cherry\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "or_blank",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=4, Criteria1:=\"=\", Operator:=xlOr, Criteria2:=\"x\")\n",
+   "answers": "Boolean:True;hidden=3,12, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table8 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:False f3:False f4:True op=2 c1=String:= c2=String:=x]",
+   "reopened": "hidden=3,12, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table8 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:False f3:False f4:True op=2 c1=String:= c2=String:=x]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     3,
+     12
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"8\" xr:uid=\"{70266F6B-205E-40D5-B0A5-45D66D2D0A13}\" name=\"Table8\" displayName=\"Table8\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{70266F6B-205E-40D5-B0A5-45D66D2D0A13}\"><filterColumn colId=\"3\"><filters blank=\"1\"><filter val=\"x\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "values_list",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=Array(\"apple\", \"cherry\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:1;hidden=4,6,7,8,9,10,11,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table9 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=2 c1=String:=apple c2=String:=cherry f2:False f3:False f4:False]",
+   "reopened": "hidden=4,6,7,8,9,10,11,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table9 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=2 c1=String:=apple c2=String:=cherry f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"9\" xr:uid=\"{89A910AB-4546-4D44-9014-5862F298DC48}\" name=\"Table9\" displayName=\"Table9\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{89A910AB-4546-4D44-9014-5862F298DC48}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/><filter val=\"cherry\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "values_three",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=Array(\"apple\", \"cherry\", \"banana\"), Operator:=xlFilterValues)\n",
+   "answers": "Double:1;hidden=6,7,8,9,11,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table10 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=7 c1=Array(String:=apple,String:=banana,String:=cherry,) c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=6,7,8,9,11,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table10 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=7 c1=Array(String:=apple,String:=banana,String:=cherry,) c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     6,
+     7,
+     8,
+     9,
+     11,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"10\" xr:uid=\"{EDA26DD4-4652-4553-95AD-E34DAC216F42}\" name=\"Table10\" displayName=\"Table10\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{EDA26DD4-4652-4553-95AD-E34DAC216F42}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/><filter val=\"banana\"/><filter val=\"cherry\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "top_items",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\"3\", Operator:=xlTop10Items)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table11 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table11 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"11\" xr:uid=\"{B8DB61EB-DCD9-400F-A86D-F0DD3F4F9D7B}\" name=\"Table11\" displayName=\"Table11\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{B8DB61EB-DCD9-400F-A86D-F0DD3F4F9D7B}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "above_average",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=2, Criteria1:=xlFilterAboveAverage, Operator:=xlFilterDynamic)\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table12 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table12 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"12\" xr:uid=\"{BA222C19-4F47-471A-9311-5A20809EAF95}\" name=\"Table12\" displayName=\"Table12\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{BA222C19-4F47-471A-9311-5A20809EAF95}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "date_after",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=3, Criteria1:=\">1/15/2020\")\n",
+   "answers": "Boolean:True;hidden=2,3,7,8,9,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table13 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:False f3:True op=0 c1=String:>43845 c2=E1004 f4:False]",
+   "reopened": "hidden=2,3,7,8,9,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table13 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:False f3:True op=0 c1=String:>43845 c2=E1004 f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     7,
+     8,
+     9,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"13\" xr:uid=\"{72EE19DC-EDB8-4628-AE5B-D573A937DBB7}\" name=\"Table13\" displayName=\"Table13\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{72EE19DC-EDB8-4628-AE5B-D573A937DBB7}\"><filterColumn colId=\"2\"><customFilters><customFilter operator=\"greaterThan\" val=\"43845\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "blanks",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=4, Criteria1:=\"=\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,12, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table14 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:False f3:False f4:True op=0 c1=String:= c2=E1004]",
+   "reopened": "hidden=2,3,4,12, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table14 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:False f3:False f4:True op=0 c1=String:= c2=E1004]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     4,
+     12
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"14\" xr:uid=\"{324447F5-1C12-44CC-A3AE-C55499918A7C}\" name=\"Table14\" displayName=\"Table14\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{324447F5-1C12-44CC-A3AE-C55499918A7C}\"><filterColumn colId=\"3\"><filters blank=\"1\"/></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "two_fields",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"cherry\")\nv = o.Range.AutoFilter(Field:=4, Criteria1:=\"y\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table15 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=cherry c2=E1004 f2:False f3:False f4:True op=0 c1=String:=y c2=E1004]",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table15 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=cherry c2=E1004 f2:False f3:False f4:True op=0 c1=String:=y c2=E1004]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"15\" xr:uid=\"{EFB8CFB5-7B48-474B-8B33-4F9771283C7C}\" name=\"Table15\" displayName=\"Table15\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{EFB8CFB5-7B48-474B-8B33-4F9771283C7C}\"><filterColumn colId=\"0\"><filters><filter val=\"cherry\"/></filters></filterColumn><filterColumn colId=\"3\"><filters><filter val=\"y\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "clear_field",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = o.Range.AutoFilter(Field:=1)\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table16 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table16 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"16\" xr:uid=\"{FFA1E7CB-CA79-4EC8-9555-0BE43F2F4F6A}\" name=\"Table16\" displayName=\"Table16\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{FFA1E7CB-CA79-4EC8-9555-0BE43F2F4F6A}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "cell_in_table",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = ws.Range(\"B3\").AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table17 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table17 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"17\" xr:uid=\"{01BC706C-61C0-4BBB-B1A4-F82FBFED3971}\" name=\"Table17\" displayName=\"Table17\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{01BC706C-61C0-4BBB-B1A4-F82FBFED3971}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "part_of_table",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = ws.Range(\"B1:C5\").AutoFilter(Field:=2, Criteria1:=\">2\")\n",
+   "answers": "Boolean:True;hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table18 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "reopened": "hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table18 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"18\" xr:uid=\"{5A9CBE28-E4F0-4682-92FE-CA752BC3574D}\" name=\"Table18\" displayName=\"Table18\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{5A9CBE28-E4F0-4682-92FE-CA752BC3574D}\"><filterColumn colId=\"1\"><customFilters><customFilter operator=\"greaterThan\" val=\"2\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "data_body",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.DataBodyRange.AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table19 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table19 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"19\" xr:uid=\"{B1D422B5-A921-4AB5-8C0A-650912D20CE0}\" name=\"Table19\" displayName=\"Table19\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{B1D422B5-A921-4AB5-8C0A-650912D20CE0}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "column_range",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.ListColumns(2).Range.AutoFilter(Field:=1, Criteria1:=\">2\")\n",
+   "answers": "Boolean:True;hidden=2,3,4,5,6,7,8,9,10,11,12, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table20 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:>2 c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11,12, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table20 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:>2 c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"20\" xr:uid=\"{DBE179CD-6B3A-4AD7-834F-754B9938A100}\" name=\"Table20\" displayName=\"Table20\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{DBE179CD-6B3A-4AD7-834F-754B9938A100}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"2\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "whole_columns",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = ws.Range(\"A:D\").AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table21 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table21 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"21\" xr:uid=\"{43B925AF-F16D-4AC2-80D7-31ED1FF19A7D}\" name=\"Table21\" displayName=\"Table21\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{43B925AF-F16D-4AC2-80D7-31ED1FF19A7D}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "overlapping",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = ws.Range(\"C1:F5\").AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table22 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table22 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"22\" xr:uid=\"{62F83D67-4F9F-4678-BD71-3CCCFA6FEEFD}\" name=\"Table22\" displayName=\"Table22\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{62F83D67-4F9F-4678-BD71-3CCCFA6FEEFD}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "field_outside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=5, Criteria1:=\"x\")\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table23 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table23 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"23\" xr:uid=\"{725C8618-A1AA-4651-9C69-6E69A14F82F6}\" name=\"Table23\" displayName=\"Table23\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{725C8618-A1AA-4651-9C69-6E69A14F82F6}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "hidden_dropdown",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\", VisibleDropDown:=False)\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table24 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table24 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"24\" xr:uid=\"{0A66038A-C406-4DED-A6B8-CAC06A661DB2}\" name=\"Table24\" displayName=\"Table24\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{0A66038A-C406-4DED-A6B8-CAC06A661DB2}\"><filterColumn colId=\"0\" hiddenButton=\"1\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "toggle",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=Nothing [Table25 $A$1:$D$13 show=False af=Nothing]",
+   "reopened": "hidden= mode=False filtering=False sheet=Nothing [Table25 $A$1:$D$13 show=False af=Nothing]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"25\" xr:uid=\"{B59A5200-DDD3-4493-96D1-96319A0C9199}\" name=\"Table25\" displayName=\"Table25\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": ""
+     }
+    ]
+   }
+  },
+  {
+   "name": "toggle_twice",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter\nv = o.Range.AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table26 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table26 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"26\" xr:uid=\"{71383E4B-59D7-4BDE-8390-40DC42689F81}\" name=\"Table26\" displayName=\"Table26\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{71383E4B-59D7-4BDE-8390-40DC42689F81}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "toggle_filtered",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = o.Range.AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=Nothing [Table27 $A$1:$D$13 show=False af=Nothing]",
+   "reopened": "hidden= mode=False filtering=False sheet=Nothing [Table27 $A$1:$D$13 show=False af=Nothing]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"27\" xr:uid=\"{E772E2C8-CC40-4AD4-AC57-068CDA800BA5}\" name=\"Table27\" displayName=\"Table27\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": ""
+     }
+    ]
+   }
+  },
+  {
+   "name": "cell_toggle",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = ws.Range(\"B3\").AutoFilter\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=Nothing [Table28 $A$1:$D$13 show=False af=Nothing]",
+   "reopened": "hidden= mode=False filtering=False sheet=Nothing [Table28 $A$1:$D$13 show=False af=Nothing]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"28\" xr:uid=\"{EDC8D10F-8690-4EBD-BAD8-9272CE9CCB24}\" name=\"Table28\" displayName=\"Table28\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": ""
+     }
+    ]
+   }
+  },
+  {
+   "name": "show_all_object",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.AutoFilter.ShowAllData\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table29 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table29 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"29\" xr:uid=\"{41F14055-1262-478B-9CF1-E8B45EEC3A38}\" name=\"Table29\" displayName=\"Table29\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{41F14055-1262-478B-9CF1-E8B45EEC3A38}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "show_all_unfiltered",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\no.AutoFilter.ShowAllData\n",
+   "answers": "Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table30 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table30 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"30\" xr:uid=\"{8F362975-CF1D-49A4-8322-9BEEA2C075BB}\" name=\"Table30\" displayName=\"Table30\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{8F362975-CF1D-49A4-8322-9BEEA2C075BB}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "show_all_sheet",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.ShowAllData\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table31 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table31 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"31\" xr:uid=\"{4594F0A6-EAA7-4FD6-8E6B-D49604A95DA4}\" name=\"Table31\" displayName=\"Table31\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{4594F0A6-EAA7-4FD6-8E6B-D49604A95DA4}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "show_all_sheet_unfiltered",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.ShowAllData\n",
+   "answers": "S1004;Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table32 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table32 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"32\" xr:uid=\"{86B5F9A4-54A8-4F1E-85A2-F8C9AE1B362F}\" name=\"Table32\" displayName=\"Table32\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{86B5F9A4-54A8-4F1E-85A2-F8C9AE1B362F}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "show_off",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.ShowAutoFilter = False\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=Nothing [Table33 $A$1:$D$13 show=False af=Nothing]",
+   "reopened": "hidden= mode=False filtering=False sheet=Nothing [Table33 $A$1:$D$13 show=False af=Nothing]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"33\" xr:uid=\"{1184494B-27A8-43A8-AC89-2ABF034BAF28}\" name=\"Table33\" displayName=\"Table33\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": ""
+     }
+    ]
+   }
+  },
+  {
+   "name": "show_off_on",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.ShowAutoFilter = False\no.ShowAutoFilter = True\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table34 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table34 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"34\" xr:uid=\"{E392B055-9ABD-4432-82F2-93D8E2163EAB}\" name=\"Table34\" displayName=\"Table34\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{E392B055-9ABD-4432-82F2-93D8E2163EAB}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "show_off_then_filter",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\no.ShowAutoFilter = False\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table35 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table35 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"35\" xr:uid=\"{EC0F1659-F681-4F0F-8CB7-037AD032B8DD}\" name=\"Table35\" displayName=\"Table35\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{EC0F1659-F681-4F0F-8CB7-037AD032B8DD}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "mode_off",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.AutoFilterMode = False\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table36 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table36 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"36\" xr:uid=\"{C1D1857B-BF71-497C-8E8B-A17886079DF0}\" name=\"Table36\" displayName=\"Table36\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{C1D1857B-BF71-497C-8E8B-A17886079DF0}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "apply_filter",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"A2\").Value = \"cherry\"\no.AutoFilter.ApplyFilter\n",
+   "answers": "Boolean:True;hidden=2,4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table37 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=2,4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table37 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"37\" xr:uid=\"{CCBD20E4-33DC-4604-823F-6FBD1DE8010D}\" name=\"Table37\" displayName=\"Table37\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{CCBD20E4-33DC-4604-823F-6FBD1DE8010D}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "edit_after",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"A4\").Value = \"apple\"\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table38 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table38 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"38\" xr:uid=\"{4EBAEF91-7D51-45B1-8C99-D8A258986A31}\" name=\"Table38\" displayName=\"Table38\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{4EBAEF91-7D51-45B1-8C99-D8A258986A31}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "parent",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = TypeName(o.AutoFilter.Parent)\n",
+   "answers": "String:ListObject;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table39 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table39 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"39\" xr:uid=\"{655EE56D-816E-49B5-94B8-90B55E0E2E5C}\" name=\"Table39\" displayName=\"Table39\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{655EE56D-816E-49B5-94B8-90B55E0E2E5C}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "beside_sheet_filter",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==beside_sheet_filter!$F$1:$F$9:False sheet=AutoFilter:$A$1:$D$13 [Table40 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==beside_sheet_filter!$F$1:$F$9:False sheet=AutoFilter:$A$1:$D$13 [Table40 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "<sheetPr filterMode=\"1\"/>",
+    "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{43EC0073-363C-4573-AD02-809F90AF42F9}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"40\" xr:uid=\"{0ACA9FA3-CE34-4949-87FC-7F76862EC334}\" name=\"Table40\" displayName=\"Table40\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{0ACA9FA3-CE34-4949-87FC-7F76862EC334}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "sheet_filter_after",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\n",
+   "answers": "Boolean:True;hidden=3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==sheet_filter_after!$F$1:$F$9:False sheet=AutoFilter:$A$1:$D$13 [Table41 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=3,4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$A$1:$D$13 count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False db==sheet_filter_after!$F$1:$F$9:False sheet=AutoFilter:$A$1:$D$13 [Table41 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "<sheetPr filterMode=\"1\"/>",
+    "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{000EB6C1-9C7E-46DB-BDF8-116C733136FF}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>",
+    "hidden": [
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"41\" xr:uid=\"{B9055EA9-1EC6-4E15-894D-FDDDD0E1F443}\" name=\"Table41\" displayName=\"Table41\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{B9055EA9-1EC6-4E15-894D-FDDDD0E1F443}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "sheet_show_all_both",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.ShowAllData\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=False range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==sheet_show_all_both!$F$1:$F$9:False sheet=AutoFilter:$A$1:$D$13 [Table42 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=True filtering=True range=$A$1:$D$13 count=4 f1:False f2:False f3:False f4:False db==sheet_show_all_both!$F$1:$F$9:False sheet=AutoFilter:$A$1:$D$13 [Table42 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "<sheetPr filterMode=\"1\"/>",
+    "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{BC252619-6F39-4AD6-9954-04550664FFF6}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"42\" xr:uid=\"{190FE91E-C754-418E-907E-147903039A26}\" name=\"Table42\" displayName=\"Table42\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{190FE91E-C754-418E-907E-147903039A26}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "sheet_mode_off_both",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.AutoFilterMode = False\n",
+   "answers": "Boolean:True;hidden= mode=True filtering=False op=E91 c1=E91 c2=E91 db==sheet_mode_off_both!$F$1:$F$9:False sheet=Nothing [Table43 $A$1:$D$13 show=False af=Nothing]",
+   "reopened": "hidden= mode=True filtering=True op=E91 c1=E91 c2=E91 db==sheet_mode_off_both!$F$1:$F$9:False sheet=Nothing [Table43 $A$1:$D$13 show=False af=Nothing]",
+   "file": {
+    "sheetPr": "<sheetPr filterMode=\"1\"/>",
+    "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{A44A6C98-76EA-4DA9-BC6D-72BECFEA6DF0}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"43\" xr:uid=\"{B5F3E561-A38E-46B9-AB8C-F1C4D77E7C88}\" name=\"Table43\" displayName=\"Table43\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": ""
+     }
+    ]
+   }
+  },
+  {
+   "name": "two_tables",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nSet p = ws.ListObjects.Add(xlSrcRange, ws.Range(\"F1:F9\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = p.Range.AutoFilter(Field:=1, Criteria1:=\">3\")\n",
+   "answers": "Boolean:True;hidden=3,5,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table44 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False] [Table45 $F$1:$F$9 show=True range=$F$1:$F$9 fm=True count=1 f1:True op=0 c1=String:>3 c2=E1004]",
+   "reopened": "hidden=3,5,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table44 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False] [Table45 $F$1:$F$9 show=True range=$F$1:$F$9 fm=True count=1 f1:True op=0 c1=String:>3 c2=E1004]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     3,
+     5,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"45\" xr:uid=\"{4A3CFDC7-54F6-48DF-8043-FD28A90F0C10}\" name=\"Table45\" displayName=\"Table45\" ref=\"F1:F9\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{4A3CFDC7-54F6-48DF-8043-FD28A90F0C10}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>"
+     },
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"44\" xr:uid=\"{50F7EB6C-D1F7-4C81-BE7D-0BE87BDEE333}\" name=\"Table44\" displayName=\"Table44\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{50F7EB6C-D1F7-4C81-BE7D-0BE87BDEE333}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "subtotal",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"H1\").Formula = \"=SUBTOTAL(9,B2:B13)\"\nws.Range(\"H2\").Formula = \"=SUBTOTAL(109,B2:B13)\"\nws.Range(\"H3\").Formula = \"=SUBTOTAL(3,A2:A13)\"\nv = ws.Range(\"H1\").Value & \"/\" & ws.Range(\"H2\").Value & \"/\" & ws.Range(\"H3\").Value\n",
+   "answers": "String:3/3/2;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table46 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table46 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"46\" xr:uid=\"{44F77FDB-6CBA-4610-8505-2E85ED1AD352}\" name=\"Table46\" displayName=\"Table46\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{44F77FDB-6CBA-4610-8505-2E85ED1AD352}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "subtotal_hand_hidden",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Rows(4).Hidden = True\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\"<>1\")\nws.Range(\"H1\").Formula = \"=SUBTOTAL(3,A2:A13)\"\nv = ws.Range(\"H1\").Value\n",
+   "answers": "Double:10;hidden=2,7, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table47 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:<>1 c2=E1004 f3:False f4:False]",
+   "reopened": "hidden=2,7, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table47 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:<>1 c2=E1004 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     7
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"47\" xr:uid=\"{B85F79B0-7689-4374-A34A-3E4B8D710541}\" name=\"Table47\" displayName=\"Table47\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{B85F79B0-7689-4374-A34A-3E4B8D710541}\"><filterColumn colId=\"1\"><customFilters><customFilter operator=\"notEqual\" val=\"1\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "edit_outside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"F1:F13\").Value = 7\nv = WorksheetFunction.Sum(ws.Range(\"F1:F13\"))\n",
+   "answers": "Double:21;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table48 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table48 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"48\" xr:uid=\"{3DFE7027-97E4-4AAD-8EC0-5BF4290D16EB}\" name=\"Table48\" displayName=\"Table48\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{3DFE7027-97E4-4AAD-8EC0-5BF4290D16EB}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "edit_inside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.ListColumns(4).DataBodyRange.Value = \"z\"\nv = WorksheetFunction.CountIf(ws.Range(\"D2:D13\"), \"z\")\n",
+   "answers": "Double:2;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table49 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table49 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"49\" xr:uid=\"{24E3FD7E-0132-4D2A-820E-07C70D332BAF}\" name=\"Table49\" displayName=\"Table49\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{24E3FD7E-0132-4D2A-820E-07C70D332BAF}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "visible_cells",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = o.Range.SpecialCells(xlCellTypeVisible).Address\n",
+   "answers": "String:$A$1:$D$3;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table50 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table50 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"50\" xr:uid=\"{4F06F1DA-A1C7-4C03-9BDD-934A0EC274C8}\" name=\"Table50\" displayName=\"Table50\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{4F06F1DA-A1C7-4C03-9BDD-934A0EC274C8}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "totals",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\no.ShowTotals = True\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\">2\")\n",
+   "answers": "Boolean:True;hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$14 [Table51 $A$1:$D$14 show=True range=$A$1:$D$14 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "reopened": "hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table51 $A$1:$D$14 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"51\" xr:uid=\"{1495F14F-A89D-4DD9-8FD3-6400C95CC342}\" name=\"Table51\" displayName=\"Table51\" ref=\"A1:D14\" totalsRowCount=\"1\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{1495F14F-A89D-4DD9-8FD3-6400C95CC342}\"><filterColumn colId=\"1\"><customFilters><customFilter operator=\"greaterThan\" val=\"2\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "totals_sum",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\no.ShowTotals = True\no.ListColumns(2).TotalsCalculation = xlTotalsCalculationSum\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\">2\")\nv = ws.Range(\"B14\").Value\n",
+   "answers": "Double:112.5;hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$14 [Table52 $A$1:$D$14 show=True range=$A$1:$D$14 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "reopened": "hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table52 $A$1:$D$14 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"52\" xr:uid=\"{0254792E-0DA2-4C44-8E69-ACFEE3285898}\" name=\"Table52\" displayName=\"Table52\" ref=\"A1:D14\" totalsRowCount=\"1\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{0254792E-0DA2-4C44-8E69-ACFEE3285898}\"><filterColumn colId=\"1\"><customFilters><customFilter operator=\"greaterThan\" val=\"2\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "no_headers",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\no.ShowHeaders = False\nv = TypeName(o.AutoFilter)\n",
+   "answers": "String:Nothing;hidden= mode=False filtering=False sheet=Nothing [Table53 $A$2:$D$13 show=False af=Nothing]",
+   "reopened": "hidden= mode=False filtering=False sheet=Nothing [Table53 $A$2:$D$13 show=False af=Nothing]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"53\" xr:uid=\"{814E4CD8-C626-4652-98EA-C99FA220BE10}\" name=\"Table53\" displayName=\"Table53\" ref=\"A2:D13\" headerRowCount=\"0\" totalsRowShown=\"0\">",
+      "autoFilter": ""
+     }
+    ]
+   }
+  },
+  {
+   "name": "no_headers_filter",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\no.ShowHeaders = False\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table54 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table54 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"54\" xr:uid=\"{6880FECA-4618-472E-BA0C-4CAB2FB9F7BC}\" name=\"Table54\" displayName=\"Table54\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{6880FECA-4618-472E-BA0C-4CAB2FB9F7BC}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "resize_filtered",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.Resize ws.Range(\"A1:D10\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10, mode=False filtering=True sheet=AutoFilter:$A$1:$D$10 [Table55 $A$1:$D$10 show=True range=$A$1:$D$10 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table55 $A$1:$D$10 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"55\" xr:uid=\"{D1E571F9-5687-4249-932C-F36ED1B5C287}\" name=\"Table55\" displayName=\"Table55\" ref=\"A1:D10\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D10\" xr:uid=\"{D1E571F9-5687-4249-932C-F36ED1B5C287}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "resize_unfiltered",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\no.Resize ws.Range(\"A1:D10\")\n",
+   "answers": "Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$10 [Table56 $A$1:$D$10 show=True range=$A$1:$D$10 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table56 $A$1:$D$10 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"56\" xr:uid=\"{94E6EA60-6234-4CDF-B805-13F39949FE57}\" name=\"Table56\" displayName=\"Table56\" ref=\"A1:D10\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D10\" xr:uid=\"{94E6EA60-6234-4CDF-B805-13F39949FE57}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "resize_gap",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"A11:D11\").ClearContents\no.Resize ws.Range(\"A1:D10\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10, mode=False filtering=True sheet=AutoFilter:$A$1:$D$10 [Table57 $A$1:$D$10 show=True range=$A$1:$D$10 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table57 $A$1:$D$10 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"57\" xr:uid=\"{50648BE0-0FD3-40EF-8FC2-196B56BF3815}\" name=\"Table57\" displayName=\"Table57\" ref=\"A1:D10\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D10\" xr:uid=\"{50648BE0-0FD3-40EF-8FC2-196B56BF3815}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "resize_one_column",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"B11:D13\").ClearContents\no.Resize ws.Range(\"A1:D10\")\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10, mode=False filtering=True sheet=AutoFilter:$A$1:$D$10 [Table58 $A$1:$D$10 show=True range=$A$1:$D$10 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table58 $A$1:$D$10 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"58\" xr:uid=\"{4E222AAA-D88F-4520-BC17-94219CA98AB5}\" name=\"Table58\" displayName=\"Table58\" ref=\"A1:D10\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D10\" xr:uid=\"{4E222AAA-D88F-4520-BC17-94219CA98AB5}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "row_added",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.ListRows.Add\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$14 [Table59 $A$1:$D$14 show=True range=$A$1:$D$14 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$14 [Table59 $A$1:$D$14 show=True range=$A$1:$D$14 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"59\" xr:uid=\"{3169B90F-E640-41B5-B0AF-F09FAB336B96}\" name=\"Table59\" displayName=\"Table59\" ref=\"A1:D14\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D14\" xr:uid=\"{3169B90F-E640-41B5-B0AF-F09FAB336B96}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "column_added",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\">2\")\no.ListColumns.Add 1\n",
+   "answers": "Boolean:True;hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$E$13 [Table60 $A$1:$E$13 show=True range=$A$1:$E$13 fm=True count=5 f1:False f2:False f3:True op=0 c1=String:>2 c2=E1004 f4:False f5:False]",
+   "reopened": "hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$E$13 [Table60 $A$1:$E$13 show=True range=$A$1:$E$13 fm=True count=5 f1:False f2:False f3:True op=0 c1=String:>2 c2=E1004 f4:False f5:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     3,
+     6,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"60\" xr:uid=\"{4BE0DC32-F860-4168-A736-FFD9C3C1656C}\" name=\"Table60\" displayName=\"Table60\" ref=\"A1:E13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:E13\" xr:uid=\"{4BE0DC32-F860-4168-A736-FFD9C3C1656C}\"><filterColumn colId=\"2\"><customFilters><customFilter operator=\"greaterThan\" val=\"2\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "table_deleted",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.Delete\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=True sheet=Nothing",
+   "reopened": "hidden= mode=False filtering=False sheet=Nothing",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": []
+   }
+  },
+  {
+   "name": "deleted_show_all",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.Delete\nws.ShowAllData\n",
+   "answers": "S1004;Boolean:True;hidden= mode=False filtering=True sheet=Nothing",
+   "reopened": "hidden= mode=False filtering=False sheet=Nothing",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": []
+   }
+  },
+  {
+   "name": "deleted_refilter",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.Delete\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\no.AutoFilter.ShowAllData\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table64 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table64 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"64\" xr:uid=\"{1C79DEF8-CECC-4A97-90E3-82BBEFB3B019}\" name=\"Table64\" displayName=\"Table64\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{1C79DEF8-CECC-4A97-90E3-82BBEFB3B019}\"/>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "select_outside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"H20\").Select\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table65 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table65 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"65\" xr:uid=\"{40A2E689-DB39-49D4-AB30-43EDA3B44118}\" name=\"Table65\" displayName=\"Table65\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{40A2E689-DB39-49D4-AB30-43EDA3B44118}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "select_outside_show_all",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"H20\").Select\nws.ShowAllData\n",
+   "answers": "S1004;Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table66 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table66 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"66\" xr:uid=\"{C2DAEE32-D0A8-49CF-8DDE-15052D4D9006}\" name=\"Table66\" displayName=\"Table66\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{C2DAEE32-D0A8-49CF-8DDE-15052D4D9006}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "select_outside_mode_off",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"H20\").Select\nws.AutoFilterMode = False\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table67 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table67 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"67\" xr:uid=\"{87BDCDEC-742C-4988-9FD4-07AB3531356F}\" name=\"Table67\" displayName=\"Table67\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{87BDCDEC-742C-4988-9FD4-07AB3531356F}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "both_select_sheet",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"F2\").Select\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=0 c1=String:>3 c2=E1004 db==both_select_sheet!$F$1:$F$9:False sheet=AutoFilter:$F$1:$F$9 [Table68 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=0 c1=String:>3 c2=E1004 db==both_select_sheet!$F$1:$F$9:False sheet=AutoFilter:$F$1:$F$9 [Table68 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "<sheetPr filterMode=\"1\"/>",
+    "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{810135B2-34A7-402E-AECF-447226B4A41F}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"68\" xr:uid=\"{0F209B12-475C-4926-B99C-A962BD8D24A9}\" name=\"Table68\" displayName=\"Table68\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{0F209B12-475C-4926-B99C-A962BD8D24A9}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "both_select_outside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"H20\").Select\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=0 c1=String:>3 c2=E1004 db==both_select_outside!$F$1:$F$9:False sheet=AutoFilter:$F$1:$F$9 [Table69 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=0 c1=String:>3 c2=E1004 db==both_select_outside!$F$1:$F$9:False sheet=AutoFilter:$F$1:$F$9 [Table69 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "<sheetPr filterMode=\"1\"/>",
+    "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{4B6DC4AF-32AB-4F59-94DE-253AEAE302DB}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"69\" xr:uid=\"{D866D2CF-32AD-4CEC-B855-B22F1C911C9D}\" name=\"Table69\" displayName=\"Table69\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{D866D2CF-32AD-4CEC-B855-B22F1C911C9D}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "both_select_sheet_show_all",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"F2\").Select\nws.ShowAllData\n",
+   "answers": "Boolean:True;hidden=10,11,12,13, mode=True filtering=False range=$F$1:$F$9 count=1 f1:False db==both_select_sheet_show_all!$F$1:$F$9:False sheet=AutoFilter:$F$1:$F$9 [Table70 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=10,11,12,13, mode=True filtering=False range=$F$1:$F$9 count=1 f1:False db==both_select_sheet_show_all!$F$1:$F$9:False sheet=AutoFilter:$F$1:$F$9 [Table70 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{417C8621-8BAB-43DA-9CC9-BD9E72B45851}\"/>",
+    "hidden": [
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"70\" xr:uid=\"{8C6ED400-D1B1-4D72-9503-E6B55B25E59D}\" name=\"Table70\" displayName=\"Table70\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{8C6ED400-D1B1-4D72-9503-E6B55B25E59D}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "both_select_sheet_mode_off",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nws.Range(\"F1:F9\").AutoFilter Field:=1, Criteria1:=\">3\"\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"F2\").Select\nws.AutoFilterMode = False\n",
+   "answers": "Boolean:True;hidden=10,11,12,13, mode=False filtering=False db==both_select_sheet_mode_off!$F$1:$F$9:False sheet=Nothing [Table71 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=10,11,12,13, mode=False filtering=False db==both_select_sheet_mode_off!$F$1:$F$9:False sheet=Nothing [Table71 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"71\" xr:uid=\"{EE4305AE-64E5-4334-B4FD-179F4B1437D6}\" name=\"Table71\" displayName=\"Table71\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{EE4305AE-64E5-4334-B4FD-179F4B1437D6}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "two_tables_select_second",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nSet p = ws.ListObjects.Add(xlSrcRange, ws.Range(\"F1:F9\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = p.Range.AutoFilter(Field:=1, Criteria1:=\">3\")\nws.Range(\"F2\").Select\n",
+   "answers": "Boolean:True;hidden=3,5,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$F$1:$F$9 [Table72 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False] [Table73 $F$1:$F$9 show=True range=$F$1:$F$9 fm=True count=1 f1:True op=0 c1=String:>3 c2=E1004]",
+   "reopened": "hidden=3,5,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$F$1:$F$9 [Table72 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False] [Table73 $F$1:$F$9 show=True range=$F$1:$F$9 fm=True count=1 f1:True op=0 c1=String:>3 c2=E1004]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     3,
+     5,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"73\" xr:uid=\"{DE634094-667D-4552-A82E-78F824F68D86}\" name=\"Table73\" displayName=\"Table73\" ref=\"F1:F9\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{DE634094-667D-4552-A82E-78F824F68D86}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>"
+     },
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"72\" xr:uid=\"{0E1EAD9D-D17F-4241-8954-899B90B0B0CA}\" name=\"Table72\" displayName=\"Table72\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{0E1EAD9D-D17F-4241-8954-899B90B0B0CA}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "two_tables_show_all",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Range(\"F1\").Value = \"N\"\nws.Range(\"F2:F9\").Value = Application.Transpose(Array(5, 3, 9, 1, 7, 3, 12, 0.5))\nSet p = ws.ListObjects.Add(xlSrcRange, ws.Range(\"F1:F9\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nv = p.Range.AutoFilter(Field:=1, Criteria1:=\">3\")\nws.Range(\"H20\").Select\nws.ShowAllData\n",
+   "answers": "S1004;Boolean:True;hidden=3,5,7,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table74 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False] [Table75 $F$1:$F$9 show=True range=$F$1:$F$9 fm=True count=1 f1:True op=0 c1=String:>3 c2=E1004]",
+   "reopened": "hidden=3,5,7,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table74 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False] [Table75 $F$1:$F$9 show=True range=$F$1:$F$9 fm=True count=1 f1:True op=0 c1=String:>3 c2=E1004]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     3,
+     5,
+     7,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"75\" xr:uid=\"{6BCF2328-76E3-440E-9BEC-7276EE209533}\" name=\"Table75\" displayName=\"Table75\" ref=\"F1:F9\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"F1:F9\" xr:uid=\"{6BCF2328-76E3-440E-9BEC-7276EE209533}\"><filterColumn colId=\"0\"><customFilters><customFilter operator=\"greaterThan\" val=\"3\"/></customFilters></filterColumn></autoFilter>"
+     },
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"74\" xr:uid=\"{9D699351-9AE3-4684-98AA-83C4E699FCE3}\" name=\"Table74\" displayName=\"Table74\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{9D699351-9AE3-4684-98AA-83C4E699FCE3}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "edit_selected_outside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nv = o.Range.AutoFilter(Field:=1, Criteria1:=\"apple\")\nws.Range(\"H20\").Select\nws.Range(\"F1:F13\").Value = 7\nv = WorksheetFunction.Sum(ws.Range(\"F1:F13\"))\n",
+   "answers": "Double:91;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table76 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=Nothing [Table76 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"76\" xr:uid=\"{3C056322-41B8-46A4-8AD6-26739DD13491}\" name=\"Table76\" displayName=\"Table76\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{3C056322-41B8-46A4-8AD6-26739DD13491}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "subtotal_selected_outside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Rows(4).Hidden = True\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\"<>1\")\nws.Rows(5).Hidden = True\nws.Range(\"H20\").Select\nws.Range(\"H1\").Formula = \"=SUBTOTAL(3,A2:A13)\"\nv = ws.Range(\"H1\").Value\n",
+   "answers": "Double:9;hidden=2,5,7, mode=False filtering=False sheet=Nothing [Table77 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:<>1 c2=E1004 f3:False f4:False]",
+   "reopened": "hidden=2,5,7, mode=False filtering=False sheet=Nothing [Table77 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:<>1 c2=E1004 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     5,
+     7
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"77\" xr:uid=\"{3EBCFDD5-AA4D-4D8F-8806-EC801DB13157}\" name=\"Table77\" displayName=\"Table77\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{3EBCFDD5-AA4D-4D8F-8806-EC801DB13157}\"><filterColumn colId=\"1\"><customFilters><customFilter operator=\"notEqual\" val=\"1\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "subtotal_selected_inside",
+   "setup": "Set o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\nws.Rows(4).Hidden = True\nv = o.Range.AutoFilter(Field:=2, Criteria1:=\"<>1\")\nws.Rows(5).Hidden = True\nws.Range(\"H1\").Formula = \"=SUBTOTAL(3,A2:A13)\"\nv = ws.Range(\"H1\").Value\n",
+   "answers": "Double:9;hidden=2,5,7, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table78 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:<>1 c2=E1004 f3:False f4:False]",
+   "reopened": "hidden=2,5,7, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table78 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:<>1 c2=E1004 f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     2,
+     5,
+     7
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"78\" xr:uid=\"{617457CA-A7D1-43CD-B332-6D7AFF8AE333}\" name=\"Table78\" displayName=\"Table78\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{617457CA-A7D1-43CD-B332-6D7AFF8AE333}\"><filterColumn colId=\"1\"><customFilters><customFilter operator=\"notEqual\" val=\"1\"/></customFilters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "made_over_filter",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter(Field:=1, Criteria1:=\"apple\")\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\n",
+   "answers": "Boolean:True;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True db==made_over_filter!$A$1:$D$13:False sheet=AutoFilter:$A$1:$D$13 [Table79 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "reopened": "hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False db==made_over_filter!$A$1:$D$13:False sheet=AutoFilter:$A$1:$D$13 [Table79 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13
+    ],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"79\" xr:uid=\"{E0782E8D-4176-4888-A149-5D1B8CBECE96}\" name=\"Table79\" displayName=\"Table79\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{3C4C101E-D760-435C-A6B5-0F3F10EF24DA}\"><filterColumn colId=\"0\"><filters><filter val=\"apple\"/></filters></filterColumn></autoFilter>"
+     }
+    ]
+   }
+  },
+  {
+   "name": "made_over_arrows",
+   "setup": "v = ws.Range(\"A1:D13\").AutoFilter\nSet o = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:D13\"), , xlYes)\n",
+   "answers": "Boolean:True;hidden= mode=False filtering=False db==made_over_arrows!$A$1:$D$13:False sheet=AutoFilter:$A$1:$D$13 [Table80 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "reopened": "hidden= mode=False filtering=False db==made_over_arrows!$A$1:$D$13:False sheet=AutoFilter:$A$1:$D$13 [Table80 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]",
+   "file": {
+    "sheetPr": "",
+    "autoFilter": "",
+    "hidden": [],
+    "tables": [
+     {
+      "table": "<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"80\" xr:uid=\"{AA80BD4F-F418-401B-B4CC-08FA00AC0E66}\" name=\"Table80\" displayName=\"Table80\" ref=\"A1:D13\" totalsRowShown=\"0\">",
+      "autoFilter": "<autoFilter ref=\"A1:D13\" xr:uid=\"{5C99BD5B-7448-449F-9E1F-C58752A5B09F}\"/>"
+     }
+    ]
+   }
+  }
+ ],
+ "after_reopening": [
+  {
+   "name": "edit_after",
+   "step": "ws.Range(\"F1:F13\").Value = 7\nv = WorksheetFunction.Sum(ws.Range(\"F1:F13\"))\n",
+   "activated": false,
+   "answers": "Double:91;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table38 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]"
+  },
+  {
+   "name": "number_greater",
+   "step": "ws.Range(\"H1\").Formula = \"=SUBTOTAL(3,A2:A13)\"\nv = ws.Range(\"H1\").Value\n",
+   "activated": false,
+   "answers": "Double:3;hidden=2,3,6,7,9,10,11,12,13, mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table5 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:False f2:True op=0 c1=String:>2 c2=E1004 f3:False f4:False]"
+  },
+  {
+   "name": "equals",
+   "step": "o.AutoFilter.ApplyFilter\n",
+   "activated": true,
+   "answers": "Empty;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table2 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]"
+  },
+  {
+   "name": "totals",
+   "step": "v = o.Range.AutoFilter(Field:=2, Criteria1:=\">3\")\n",
+   "activated": true,
+   "answers": "Boolean:True;hidden=2,3,4,6,7,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$14 [Table51 $A$1:$D$14 show=True range=$A$1:$D$14 fm=True count=4 f1:False f2:True op=0 c1=String:>3 c2=E1004 f3:False f4:False]"
+  },
+  {
+   "name": "date_after",
+   "step": "o.ShowTotals = True\n",
+   "activated": true,
+   "answers": "Empty;hidden=2,3,7,8,9,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$14 [Table13 $A$1:$D$14 show=True range=$A$1:$D$14 fm=True count=4 f1:False f2:False f3:True op=0 c1=String:>43845 c2=E1004 f4:False]"
+  },
+  {
+   "name": "cell_in_table",
+   "step": "ws.ShowAllData\n",
+   "activated": true,
+   "answers": "Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table17 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]"
+  },
+  {
+   "name": "two_tables",
+   "step": "o.AutoFilter.ShowAllData\n",
+   "activated": true,
+   "answers": "Empty;hidden= mode=False filtering=False sheet=AutoFilter:$A$1:$D$13 [Table44 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False] [Table45 $F$1:$F$9 show=True range=$F$1:$F$9 fm=True count=1 f1:True op=0 c1=String:>3 c2=E1004]"
+  },
+  {
+   "name": "data_body",
+   "step": "ws.Range(\"F1:F13\").Value = 7\nv = WorksheetFunction.Sum(ws.Range(\"F1:F13\"))\n",
+   "activated": true,
+   "answers": "Double:21;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table19 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]"
+  },
+  {
+   "name": "hidden_dropdown",
+   "step": "ws.Range(\"H1\").Formula = \"=SUBTOTAL(3,A2:A13)\"\nv = ws.Range(\"H1\").Value\n",
+   "activated": true,
+   "answers": "Double:2;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table24 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]"
+  },
+  {
+   "name": "select_outside",
+   "step": "ws.Range(\"B3\").Select\n",
+   "activated": true,
+   "answers": "Empty;hidden=4,5,6,7,8,9,10,11,12,13, mode=False filtering=True sheet=AutoFilter:$A$1:$D$13 [Table65 $A$1:$D$13 show=True range=$A$1:$D$13 fm=True count=4 f1:True op=0 c1=String:=apple c2=E1004 f2:False f3:False f4:False]"
+  },
+  {
+   "name": "sheet_show_all_both",
+   "step": "ws.Range(\"H20\").Select\n",
+   "activated": true,
+   "answers": "Empty;hidden= mode=True filtering=True range=$F$1:$F$9 count=1 f1:True op=0 c1=String:>3 c2=E1004 db==sheet_show_all_both!$F$1:$F$9:False sheet=AutoFilter:$F$1:$F$9 [Table42 $A$1:$D$13 show=True range=$A$1:$D$13 fm=False count=4 f1:False f2:False f3:False f4:False]"
+  }
+ ]
+}

@@ -38,13 +38,37 @@ All notable changes to pyOpenVBA are documented here. This project follows
   dictionaries, paths, colours, borders, validation, tables, charts and
   AutoFit.
 
-- A third sweep of 65 everyday macros agrees with Excel in 61: newer
+- A table's own AutoFilter. `Range.AutoFilter` on a range inside a table
+  filters the table, the field counted from the table's first column
+  whatever the range, and a range reaching past the table is error 1004.
+  `ListObject.AutoFilter` is the table's filter, Nothing while
+  `ShowAutoFilter` is False, with its Range, FilterMode, Filters,
+  ApplyFilter and ShowAllData; `ShowAutoFilter = False` takes its criteria
+  away and shows its rows. The criteria are saved in the table's part and
+  read back from it, the totals row is never hidden, and a table made over
+  the sheet's filtered range takes that filter over.
+
+  `Worksheet.AutoFilter`, `ShowAllData` and `AutoFilterMode = False` reach
+  the filter at the active cell, a table's where it is in one.
+  `FilterMode` follows that filter as Excel fixes it, when the sheet is
+  activated, its selection moves or a filter changes, so deleting a
+  filtered table leaves it True. Edits hold back from hidden rows by it,
+  and SUBTOTAL passes over every hidden row once any filter has criteria.
+  76 live layouts, Excel's file read back sheet by sheet, 11 steps taken
+  on that file opened again, and the model's own file opened in Excel
+  agree. Filtering a table with no header row, rows put in or taken out
+  inside a filtered table, deleting a column it is filtered by, and
+  resizing a filtered table wider or longer report themselves unsupported.
+  A table resized smaller over data it leaves below reads a longer
+  `AutoFilter.Range` in Excel once its file is opened again; the model
+  reads the block the file gives.
+
+- A third sweep of 65 everyday macros agrees with Excel in 62: newer
   worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
   object, AutoFilter, hyperlinks, notes, protection, conditional formats,
   outlines, page setup, number formats and VBA's Format, Split and arrays.
-  The other four report themselves unsupported: sorting on a cell's colour,
-  a table's own AutoFilter object, colour scales, and data bars with icon
-  sets.
+  The other three report themselves unsupported: sorting on a cell's
+  colour, colour scales, and data bars with icon sets.
 
 - A worksheet function a macro calls takes a range of another open
   workbook as that workbook's cells, whichever workbook is active:
@@ -234,6 +258,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A sheet whose own AutoFilter has criteria is saved with
+  `filterMode="1"` on its sheetPr, as Excel saves it. The model wrote it
+  for an AdvancedFilter alone.
 
 - `Application.StatusBar` reads back a String, as Excel's does: `FALSE`
   while Excel has the status bar, `TRUE` after it is set to True, and a

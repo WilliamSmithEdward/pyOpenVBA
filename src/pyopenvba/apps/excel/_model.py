@@ -1133,7 +1133,10 @@ class Workbook(ExcelObject):
         return self.sheets_[min(self.active_sheet_index, len(self.sheets_) - 1)]
 
     def activate_sheet(self, sheet: Worksheet) -> None:
+        from pyopenvba.apps.excel._table_filters import refocus
+
         self.active_sheet_index = self.sheets_.index(sheet)
+        refocus(sheet)
 
     def add_sheet(self, name: str = "", *, at: int | None = None) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
@@ -1295,6 +1298,9 @@ class Worksheet(ExcelObject):
         self.sort_state: SortState | None = None
         #: The sheet's AutoFilter: its range and the criteria on its columns.
         self.auto_filter: SheetFilter | None = None
+        #: FilterMode as a table's filter at the active cell left it, None while the sheet's own answers for it
+        #: (see _table_filters).
+        self.table_filter_mode: bool | None = None
         #: An AdvancedFilter has no dropdowns but retains its filtered list.
         self.advanced_filter: Area | None = None
         self.advanced_filter_changed = False
@@ -1694,7 +1700,9 @@ class Worksheet(ExcelObject):
 
     @member
     def FilterMode(self) -> object:
-        return self.advanced_filter is not None or (self.auto_filter is not None and bool(self.auto_filter.fields))
+        from pyopenvba.apps.excel._table_filters import filter_mode
+
+        return filter_mode(self)
 
     @member
     def Outline(self) -> object:
@@ -3166,6 +3174,9 @@ class Range(ExcelObject):
             self.sheet, [Area(self.first.top, self.first.left, self.first.top, self.first.left, self.first.sheet)]
         )
         self.sheet.view.changed = True
+        from pyopenvba.apps.excel._table_filters import refocus
+
+        refocus(self.sheet)
         if shown != [(one.top, one.left, one.bottom, one.right) for one in self.areas]:
             _events.selected(self.sheet, self)
 

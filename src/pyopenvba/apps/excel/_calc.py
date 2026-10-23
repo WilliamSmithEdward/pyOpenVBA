@@ -1129,14 +1129,17 @@ class Calculator:
         Measured (scripts/measure_subtotal.py): 101 to 111 pass over every
         hidden row, 1 to 11 only the rows a filter hid -- and while the
         sheet is in filter mode Excel takes every hidden row for one,
-        whatever hid it, inside the filter's range or not.
+        whatever hid it, inside the filter's range or not. A table's filter
+        with criteria counts as the sheet's would, whatever FilterMode says
+        (tests/fixtures/table_autofilter/).
         """
+        from pyopenvba.apps.excel._table_filters import criteria_anywhere
+
         target = self._worksheet(sheet)
         dims = target.dims
         if dims.zero_height:
             raise VBAUnsupportedError("SUBTOTAL over a sheet whose rows are hidden by default is not implemented")
-        found = target.auto_filter
-        if not every and (found is None or not found.fields):
+        if not every and not criteria_anywhere(target):
             return set()
         return {row for row, record in dims.rows.items() if record.hidden}
 

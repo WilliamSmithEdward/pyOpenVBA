@@ -43,6 +43,10 @@ wrote it.
 What is not modelled reports itself: colour, icon and date filters, the
 other dynamic filters, AutoFilter.Sort, a hidden drop-down, and text
 beyond ASCII where it is compared.
+
+A table has a filter of its own, which a range inside it reaches; the
+sheet's members reach whichever filter the active cell is in. Both are
+_table_filters's.
 """
 
 from __future__ import annotations
@@ -66,6 +70,7 @@ from pyopenvba.interpreter._values import (EMPTY, MISSING, NOTHING, VBAArray, VB
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._editing import CellShift
     from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._tables import Table
 
 AND, OR, TOP_ITEMS, BOTTOM_ITEMS, TOP_PERCENT, BOTTOM_PERCENT, VALUES = 1, 2, 3, 4, 5, 6, 7
 DYNAMIC = 11
@@ -675,13 +680,20 @@ def _drop(sheet: Worksheet) -> None:
 def range_autofilter(target: Range, field_argument: object, criteria1: object, operator: object, criteria2: object,
                      visible_dropdown: object, sub_field: object) -> object:
     """Range.AutoFilter."""
+    from pyopenvba.apps.excel._table_filters import meets_table, refocus, table_of
+
     sheet = target.sheet
     if sheet.advanced_filter is not None:
         raise VBAUnsupportedError('AutoFilter combined with an active AdvancedFilter is not implemented')
     if sub_field is not MISSING:
         raise VBAUnsupportedError("AutoFilter's SubField is not implemented")
     hidden_button = visible_dropdown is not MISSING and not to_bool(visible_dropdown)
+    table = table_of(target)
+    if table is not None:
+        return _filter_table(table, field_argument, criteria1, operator, criteria2, hidden_button=hidden_button)
     existing = sheet.auto_filter
+    if existing is None and meets_table(sheet, _filter_area(target)):
+        raise VBAUnsupportedError("a sheet's AutoFilter over a range that takes a table in is not implemented")
     filtered = existing is not None and bool(existing.fields)
     if field_argument is MISSING:
         if hidden_button:
@@ -692,6 +704,7 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
         else:
             _new_filter(sheet, _filter_area(target))
         _changed(sheet)
+        refocus(sheet)
         if existing is not None and filtered:
             from pyopenvba.apps.excel import _events
 
@@ -700,6 +713,8 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
     asked = _filter_area(target) if existing is None else existing.area
     # Filtering takes in the rows of data grown on below the range.
     area = grown(sheet, asked)
+    if meets_table(sheet, area):
+        raise VBAUnsupportedError("a sheet's AutoFilter grown over a table is not implemented")
     index = int(to_integer(field_argument, "Long"))
     if not 1 <= index <= area.columns:
         raise error(1004, "AutoFilter's field is outside the range")
@@ -720,6 +735,7 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
         existing.fields[index] = made
     existing.apply(sheet)
     _changed(sheet)
+    refocus(sheet)
     from pyopenvba.apps.excel import _events
 
     _events.visibility_changed(sheet.book)
@@ -728,8 +744,58 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
     return True
 
 
+def _filter_table(table: Table, field_argument: object, criteria1: object, operator: object, criteria2: object, *,
+                  hidden_button: bool) -> object:
+    """Range.AutoFilter on a range of a table: the table's own filter, its field counted from the table's first
+    column (see _table_filters)."""
+    from pyopenvba.apps.excel import _events
+    from pyopenvba.apps.excel._table_filters import changed, filtered_block, refocus, table_filter, turn_off
+
+    sheet = table.sheet
+    if not table.headers:
+        raise VBAUnsupportedError("filtering a table with no header row, which shows the header row again, is not "
+                                  "implemented")
+    if field_argument is MISSING:
+        if hidden_button:
+            raise VBAUnsupportedError("hiding every drop-down of a filter is not implemented")
+        if table.auto_filter:
+            turn_off(table)
+        else:
+            table.auto_filter = True
+            changed(table)
+        refocus(sheet)
+        return True
+    area = filtered_block(table)
+    index = int(to_integer(field_argument, "Long"))
+    if not 1 <= index <= area.columns:
+        raise error(1004, "AutoFilter's field is outside the table")
+    made = _field(sheet, area, index, criteria1, operator, criteria2)
+    if made is None and hidden_button:
+        raise VBAUnsupportedError("hiding a drop-down without criteria is not implemented")
+    # A filter turns on a table's filter it had turned off.
+    table.auto_filter = True
+    found = table_filter(table)
+    assert found is not None
+    if made is None:
+        found.fields.pop(index, None)
+    else:
+        if hidden_button:
+            made.attributes = ' hiddenButton="1"'
+        found.fields[index] = made
+    found.apply(sheet)
+    changed(table)
+    refocus(sheet)
+    _events.visibility_changed(sheet.book)
+    if operator is not MISSING and int(to_integer(operator, "Long")) == VALUES:
+        return float(index)
+    return True
+
+
 def show_all_data(sheet: Worksheet) -> None:
-    """Worksheet.ShowAllData and AutoFilter.ShowAllData."""
+    """Worksheet.ShowAllData: the AdvancedFilter's rows shown, or the criteria of the filter at the active cell
+    taken away -- a table's where it is in a table -- error 1004 where it has none."""
+    from pyopenvba.apps.excel._table_filters import clear, context_table, has_criteria
+
     if sheet.advanced_filter is not None:
         area = sheet.advanced_filter
         for row in range(area.top + 1, area.bottom + 1):
@@ -742,30 +808,55 @@ def show_all_data(sheet: Worksheet) -> None:
 
         _events.visibility_changed(sheet.book)
         return
+    table = context_table(sheet)
+    if table is not None:
+        if not has_criteria(table):
+            raise error(1004, "ShowAllData method of Worksheet class failed")
+        clear(table)
+        return
+    show_all_own(sheet)
+
+
+def show_all_own(sheet: Worksheet) -> None:
+    """ShowAllData on the sheet's own filter: its criteria taken away and its rows shown; error 1004 with none."""
+    from pyopenvba.apps.excel._table_filters import refocus
+
     found = sheet.auto_filter
     if found is None or not found.fields:
         raise error(1004, "ShowAllData method of Worksheet class failed")
     found.fields.clear()
     found.show_all(sheet)
     _changed(sheet)
+    refocus(sheet)
     from pyopenvba.apps.excel import _events
 
     _events.visibility_changed(sheet.book)
 
 
 def set_mode(sheet: Worksheet, value: object) -> None:
-    """Worksheet.AutoFilterMode = False turns the filter off; True cannot turn one on."""
+    """Worksheet.AutoFilterMode = False turns off the filter at the active cell, a table's where it is in a table,
+    but only on a sheet with a filter of its own; True cannot turn one on."""
+    from pyopenvba.apps.excel._table_filters import context_table, refocus, turn_off
+
     if to_bool(value):
         raise VBAUnsupportedError("setting AutoFilterMode to True is not implemented")
-    if sheet.auto_filter is not None:
-        filtered = bool(sheet.auto_filter.fields)
-        sheet.auto_filter.show_all(sheet)
-        sheet.auto_filter = None
-        _changed(sheet)
-        if filtered:
-            from pyopenvba.apps.excel import _events
+    if sheet.auto_filter is None:
+        return
+    table = context_table(sheet)
+    if table is not None:
+        if table.auto_filter:
+            turn_off(table)
+        refocus(sheet)
+        return
+    filtered = bool(sheet.auto_filter.fields)
+    sheet.auto_filter.show_all(sheet)
+    sheet.auto_filter = None
+    _changed(sheet)
+    refocus(sheet)
+    if filtered:
+        from pyopenvba.apps.excel import _events
 
-            _events.visibility_changed(sheet.book)
+        _events.visibility_changed(sheet.book)
 
 
 # --- reading the file ----------------------------------------------------------------------------------------
@@ -898,20 +989,44 @@ def _read_top(xml: str, attributes: str) -> FieldFilter:
 
 
 class AutoFilter(ExcelObject):
+    """The sheet's own filter, or a table's where ``table`` is one (see _table_filters)."""
+
     vba_type_name = "AutoFilter"
 
-    def __init__(self, sheet: Worksheet) -> None:
+    def __init__(self, sheet: Worksheet, table: Table | None = None) -> None:
         self.sheet = sheet
+        self.table = table
+
+    def current(self) -> SheetFilter | None:
+        """The filter as it is now, None where it has gone."""
+        if self.table is None:
+            return self.sheet.auto_filter
+        from pyopenvba.apps.excel._table_filters import table_filter
+
+        return table_filter(self.table) if self.table in self.sheet.tables else None
 
     def state(self) -> SheetFilter:
-        found = self.sheet.auto_filter
+        found = self.current()
         if found is None:
             raise error(1004, "The sheet has no AutoFilter")
         return found
 
     @member
+    def Parent(self) -> object:
+        if self.table is None:
+            return self.sheet
+        from pyopenvba.apps.excel._tables import view
+
+        return view(self.table)
+
+    @member
     def Range(self) -> object:
-        return Range(self.sheet, [grown(self.sheet, self.state().area)])
+        found = self.state()
+        if self.table is not None:
+            from pyopenvba.apps.excel._table_filters import filter_range
+
+            return Range(self.sheet, [filter_range(self.table)])
+        return Range(self.sheet, [grown(self.sheet, found.area)])
 
     @member
     def Filters(self, Index: object = MISSING) -> object:
@@ -924,12 +1039,19 @@ class AutoFilter(ExcelObject):
 
     @method
     def ApplyFilter(self) -> object:
+        from pyopenvba.apps.excel._table_filters import changed, refocus
+
         found = self.state()
-        area = grown(self.sheet, found.area)
-        if area != found.area:
-            found.area = area
-            _changed(self.sheet)
-        found.apply(self.sheet)
+        if self.table is not None:
+            found.apply(self.sheet)
+            changed(self.table)
+        else:
+            area = grown(self.sheet, found.area)
+            if area != found.area:
+                found.area = area
+                _changed(self.sheet)
+            found.apply(self.sheet)
+        refocus(self.sheet)
         from pyopenvba.apps.excel import _events
 
         _events.visibility_changed(self.sheet.book)
@@ -937,7 +1059,14 @@ class AutoFilter(ExcelObject):
 
     @method
     def ShowAllData(self) -> object:
-        show_all_data(self.sheet)
+        self.state()
+        if self.table is not None:
+            from pyopenvba.apps.excel._table_filters import clear
+
+            # A table's clears with no error when nothing is set (tests/fixtures/table_autofilter/).
+            clear(self.table)
+        else:
+            show_all_own(self.sheet)
         return EMPTY
 
 
@@ -948,18 +1077,18 @@ class Filters(VBACollection, ExcelObject):
         self.owner = owner
 
     def vba_items(self) -> list[object]:
-        return [Filter(self.owner.sheet, index) for index in range(1, self.owner.state().area.columns + 1)]
+        return [Filter(self.owner, index) for index in range(1, self.owner.state().area.columns + 1)]
 
 
 class Filter(ExcelObject):
     vba_type_name = "Filter"
 
-    def __init__(self, sheet: Worksheet, index: int) -> None:
-        self.sheet = sheet
+    def __init__(self, owner: AutoFilter, index: int) -> None:
+        self.owner = owner
         self.index = index
 
     def _field(self) -> FieldFilter | None:
-        found = self.sheet.auto_filter
+        found = self.owner.current()
         found_field = None if found is None else found.fields.get(self.index)
         if found_field is not None and found_field.operator < 0:
             raise VBAUnsupportedError("reading a colour, icon or date filter is not implemented")
@@ -967,7 +1096,7 @@ class Filter(ExcelObject):
 
     @member
     def On(self) -> object:
-        found = self.sheet.auto_filter
+        found = self.owner.current()
         return found is not None and self.index in found.fields
 
     @member
@@ -996,5 +1125,11 @@ class Filter(ExcelObject):
 
 
 def sheet_autofilter(sheet: Worksheet) -> object:
-    """Worksheet.AutoFilter: the sheet's AutoFilter object, or Nothing."""
+    """Worksheet.AutoFilter: the filter at the active cell -- a table's where it is in a table, else the sheet's
+    own -- or Nothing."""
+    from pyopenvba.apps.excel._table_filters import context_table, table_filter
+
+    table = context_table(sheet)
+    if table is not None:
+        return NOTHING if table_filter(table) is None else AutoFilter(sheet, table)
     return NOTHING if sheet.auto_filter is None else AutoFilter(sheet)

@@ -20,7 +20,6 @@ PROBES: list[dict[str, Any]] = json.loads(
 #: What each probe the model cannot answer yet needs.
 GAPS = {
     'sort_by_cell_color': 'sorting on cell colour',
-    'listobject_filter': "a table's own AutoFilter object",
     'cf_color_scale': 'colour scales',
     'cf_databar_iconset': 'data bars and icon sets',
 }

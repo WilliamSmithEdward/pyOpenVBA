@@ -1,0 +1,215 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    If IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        If v Is Nothing Then Show = \"Nothing\" Else Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long, f As Object, i As Long\n    For r = 2 To 9\n        out = out & ws.Cells(r, 1).Value & \":\" & ws.Cells(r, 1).Interior.Color & \":\" & ws.Cells(r, 1).Font.Color & \",\"\n    Next\n    On Error Resume Next\n    For i = 1 To ws.Sort.SortFields.Count\n        Set f = ws.Sort.SortFields(i)\n        out = out & \" f\" & i & \":\" & f.Key.Address & \":\" & f.SortOn & \":\" & f.Order & \":\" & TypeName(f.SortOnValue)\n        Err.Clear\n        out = out & \":\" & f.SortOnValue.Color\n        If Err.Number <> 0 Then out = out & \":E\" & Err.Number\n    Next\n    Dump = out\nEnd Function\n",
+ "list": "ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Note\", \"N\")\nFor i = 2 To 9\n    ws.Cells(i, 1).Value = \"r\" & i\n    ws.Cells(i, 3).Value = Choose(i - 1, 5, 3, 8, 1, 7, 2, 6, 4)\nNext\nws.Range(\"A3,A6\").Interior.Color = RGB(255, 0, 0)\nws.Range(\"A5\").Interior.Color = RGB(0, 0, 255)\nws.Range(\"A8\").Interior.Color = RGB(255, 255, 0)\nws.Range(\"A4,A7\").Font.Color = RGB(255, 0, 0)\nws.Range(\"A9\").Font.Color = RGB(0, 0, 255)\n",
+ "dxfs": "<dxfs count=\"26\"><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><font><b val=\"0\"/><i val=\"0\"/><strike val=\"0\"/><condense val=\"0\"/><extend val=\"0\"/><outline val=\"0\"/><shadow val=\"0\"/><u val=\"none\"/><vertAlign val=\"baseline\"/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font></dxf><dxf><fill><patternFill patternType=\"none\"><fgColor indexed=\"64\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"none\"><fgColor indexed=\"64\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><font><b val=\"0\"/><i val=\"0\"/><strike val=\"0\"/><condense val=\"0\"/><extend val=\"0\"/><outline val=\"0\"/><shadow val=\"0\"/><u val=\"none\"/><vertAlign val=\"baseline\"/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font></dxf><dxf><fill><patternFill patternType=\"none\"><fgColor indexed=\"64\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF156082\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><font><b val=\"0\"/><i val=\"0\"/><strike val=\"0\"/><condense val=\"0\"/><extend val=\"0\"/><outline val=\"0\"/><shadow val=\"0\"/><u val=\"none\"/><vertAlign val=\"baseline\"/><sz val=\"11\"/><color rgb=\"FF000000\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFFFF\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><font><b val=\"0\"/><i val=\"0\"/><strike val=\"0\"/><condense val=\"0\"/><extend val=\"0\"/><outline val=\"0\"/><shadow val=\"0\"/><u val=\"none\"/><vertAlign val=\"baseline\"/><sz val=\"11\"/><color rgb=\"FF0000FF\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font></dxf><dxf><font><b val=\"0\"/><i val=\"0\"/><strike val=\"0\"/><condense val=\"0\"/><extend val=\"0\"/><outline val=\"0\"/><shadow val=\"0\"/><u val=\"none\"/><vertAlign val=\"baseline\"/><sz val=\"11\"/><color rgb=\"FFFF0000\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf><dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf></dxfs>",
+ "layouts": [
+  {
+   "name": "cell_on_top",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255",
+   "reopened": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255",
+   "applied_again": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"25\"/></sortState>"
+  },
+  {
+   "name": "cell_on_bottom",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlDescending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,r3:255:0,r6:255:0, f1:$A$2:$A$9:1:2:Interior:255",
+   "reopened": "r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,r3:255:0,r6:255:0, f1:$A$2:$A$9:1:2:Interior:255",
+   "applied_again": "r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,r3:255:0,r6:255:0, f1:$A$2:$A$9:1:2:Interior:255",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"24\"/></sortState>"
+  },
+  {
+   "name": "two_colours",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(0, 0, 255)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r3:255:0,r6:255:0,r5:16711680:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255 f2:$A$2:$A$9:1:1:Interior:16711680",
+   "reopened": "r3:255:0,r6:255:0,r5:16711680:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255 f2:$A$2:$A$9:1:1:Interior:16711680",
+   "applied_again": "r3:255:0,r6:255:0,r5:16711680:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255 f2:$A$2:$A$9:1:1:Interior:16711680",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"23\"/><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"22\"/></sortState>"
+  },
+  {
+   "name": "two_colours_bottom",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlDescending).SortOnValue.Color = RGB(255, 255, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r9:16777215:16711680,r8:65535:0, f1:$A$2:$A$9:1:1:Interior:255 f2:$A$2:$A$9:1:2:Interior:65535",
+   "reopened": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r9:16777215:16711680,r8:65535:0, f1:$A$2:$A$9:1:1:Interior:255 f2:$A$2:$A$9:1:2:Interior:65535",
+   "applied_again": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r9:16777215:16711680,r8:65535:0, f1:$A$2:$A$9:1:1:Interior:255 f2:$A$2:$A$9:1:2:Interior:65535",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"21\"/><sortCondition descending=\"1\" sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"20\"/></sortState>"
+  },
+  {
+   "name": "colour_then_values",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nSet v = ws.Sort.SortFields.Add(Key:=ws.Range(\"C2:C9\"), SortOn:=xlSortOnValues, Order:=xlAscending)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Object;r3:255:0,r6:255:0,r5:16711680:0,r7:16777215:255,r9:16777215:16711680,r2:16777215:0,r8:65535:0,r4:16777215:255, f1:$A$2:$A$9:1:1:Interior:255:E1004",
+   "reopened": "r3:255:0,r6:255:0,r5:16711680:0,r7:16777215:255,r9:16777215:16711680,r2:16777215:0,r8:65535:0,r4:16777215:255, f1:$A$2:$A$9:1:1:Interior:255:E1004",
+   "applied_again": "r3:255:0,r6:255:0,r5:16711680:0,r7:16777215:255,r9:16777215:16711680,r2:16777215:0,r8:65535:0,r4:16777215:255, f1:$A$2:$A$9:1:1:Interior:255:E1004",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"19\"/><sortCondition ref=\"C2:C9\"/></sortState>"
+  },
+  {
+   "name": "values_then_colour",
+   "setup": "ws.Sort.SortFields.Clear\nSet v = ws.Sort.SortFields.Add(Key:=ws.Range(\"C2:C9\"), SortOn:=xlSortOnValues, Order:=xlAscending)\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Object;r5:16711680:0,r7:16777215:255,r3:255:0,r9:16777215:16711680,r2:16777215:0,r8:65535:0,r6:255:0,r4:16777215:255,:E1004 f2:$A$2:$A$9:1:1:Interior:255",
+   "reopened": "r5:16711680:0,r7:16777215:255,r3:255:0,r9:16777215:16711680,r2:16777215:0,r8:65535:0,r6:255:0,r4:16777215:255,:E1004 f2:$A$2:$A$9:1:1:Interior:255",
+   "applied_again": "r5:16711680:0,r7:16777215:255,r3:255:0,r9:16777215:16711680,r2:16777215:0,r8:65535:0,r6:255:0,r4:16777215:255,:E1004 f2:$A$2:$A$9:1:1:Interior:255",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"C2:C9\"/><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"18\"/></sortState>"
+  },
+  {
+   "name": "font_on_top",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnFontColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r4:16777215:255,r7:16777215:255,r2:16777215:0,r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:1:Font:255",
+   "reopened": "r4:16777215:255,r7:16777215:255,r2:16777215:0,r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:1:Font:255",
+   "applied_again": "r4:16777215:255,r7:16777215:255,r2:16777215:0,r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:1:Font:255",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"fontColor\" ref=\"A2:A9\" dxfId=\"17\"/></sortState>"
+  },
+  {
+   "name": "font_on_bottom",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnFontColor, Order:=xlDescending).SortOnValue.Color = RGB(0, 0, 255)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:2:Font:16711680",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:2:Font:16711680",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:2:Font:16711680",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" sortBy=\"fontColor\" ref=\"A2:A9\" dxfId=\"16\"/></sortState>"
+  },
+  {
+   "name": "no_match",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(0, 255, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:65280",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:65280",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:65280",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"15\"/></sortState>"
+  },
+  {
+   "name": "white",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 255, 255)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:16777215",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:16777215",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:16777215",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"14\"/></sortState>"
+  },
+  {
+   "name": "white_font",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnFontColor, Order:=xlAscending).SortOnValue.Color = RGB(0, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:1:Font:0",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:1:Font:0",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:1:Font:0",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"fontColor\" ref=\"A2:A9\" dxfId=\"13\"/></sortState>"
+  },
+  {
+   "name": "no_header",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A1:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlNo\n.Apply\nEnd With\n",
+   "answers": "Empty;r6:255:0,Name:16777215:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$1:$A$9:1:1:Interior:255",
+   "reopened": "r6:255:0,Name:16777215:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$1:$A$9:1:1:Interior:255",
+   "applied_again": "r6:255:0,Name:16777215:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$1:$A$9:1:1:Interior:255",
+   "sort_state": "<sortState ref=\"A1:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A1:A9\" dxfId=\"12\"/></sortState>"
+  },
+  {
+   "name": "conditional",
+   "setup": "ws.Range(\"C2:C9\").FormatConditions.Add(xlCellValue, xlGreater, \"5\").Interior.Color = RGB(255, 0, 0)\nws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"C2:C9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r4:16777215:255,r6:255:0,r8:65535:0,r2:16777215:0,r3:255:0,r5:16711680:0,r7:16777215:255,r9:16777215:16711680, f1:$C$2:$C$9:1:1:Interior:255",
+   "reopened": "r4:16777215:255,r6:255:0,r8:65535:0,r2:16777215:0,r3:255:0,r5:16711680:0,r7:16777215:255,r9:16777215:16711680, f1:$C$2:$C$9:1:1:Interior:255",
+   "applied_again": "r4:16777215:255,r6:255:0,r8:65535:0,r2:16777215:0,r3:255:0,r5:16711680:0,r7:16777215:255,r9:16777215:16711680, f1:$C$2:$C$9:1:1:Interior:255",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"C2:C9\" dxfId=\"10\"/></sortState>"
+  },
+  {
+   "name": "theme",
+   "setup": "ws.Range(\"A4\").Interior.ThemeColor = xlThemeColorAccent1\nws.Range(\"A4\").Interior.TintAndShade = 0\nws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = ws.Range(\"A4\").Interior.Color\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r4:8544277:255,r2:16777215:0,r3:255:0,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:8544277",
+   "reopened": "r4:8544277:255,r2:16777215:0,r3:255:0,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:8544277",
+   "applied_again": "r4:8544277:255,r2:16777215:0,r3:255:0,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:8544277",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"9\"/></sortState>"
+  },
+  {
+   "name": "pattern",
+   "setup": "ws.Range(\"A7\").Interior.Pattern = xlGray50\nws.Range(\"A7\").Interior.Color = RGB(255, 0, 0)\nws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Empty;r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:255:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255",
+   "reopened": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:255:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255",
+   "applied_again": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:255:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"8\"/></sortState>"
+  },
+  {
+   "name": "before_set",
+   "setup": "Set v = ws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending)\nSet v = ws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnFontColor, Order:=xlAscending)\nSet v = ws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnValues, Order:=xlAscending)\n",
+   "answers": "Object;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:16777215 f2:$A$2:$A$9:2:1:Font:0:E1004",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "sort_state": ""
+  },
+  {
+   "name": "no_fill_on_top",
+   "setup": "ws.Sort.SortFields.Clear\nSet v = ws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Object;r2:16777215:0,r4:16777215:255,r7:16777215:255,r9:16777215:16711680,r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0, f1:$A$2:$A$9:1:1:Interior:16777215",
+   "reopened": "r2:16777215:0,r4:16777215:255,r7:16777215:255,r9:16777215:16711680,r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0, f1:$A$2:$A$9:1:1:Interior:16777215",
+   "applied_again": "r2:16777215:0,r4:16777215:255,r7:16777215:255,r9:16777215:16711680,r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0, f1:$A$2:$A$9:1:1:Interior:16777215",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"5\"/></sortState>"
+  },
+  {
+   "name": "no_fill_on_bottom",
+   "setup": "ws.Sort.SortFields.Clear\nSet v = ws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlDescending)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Object;r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r9:16777215:16711680, f1:$A$2:$A$9:1:2:Interior:16777215",
+   "reopened": "r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r9:16777215:16711680, f1:$A$2:$A$9:1:2:Interior:16777215",
+   "applied_again": "r3:255:0,r5:16711680:0,r6:255:0,r8:65535:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r9:16777215:16711680, f1:$A$2:$A$9:1:2:Interior:16777215",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"4\"/></sortState>"
+  },
+  {
+   "name": "automatic_font_on_bottom",
+   "setup": "ws.Sort.SortFields.Clear\nSet v = ws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnFontColor, Order:=xlDescending)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\n",
+   "answers": "Object;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:2:Font:0",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:2:Font:0",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:2:2:Font:0",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" sortBy=\"fontColor\" ref=\"A2:A9\" dxfId=\"3\"/></sortState>"
+  },
+  {
+   "name": "table",
+   "setup": "With ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C9\"), , xlYes)\n.Sort.SortFields.Clear\n.Sort.SortFields.Add(Key:=.ListColumns(1).DataBodyRange, SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\n.Sort.Header = xlYes\n.Sort.Apply\nv = TypeName(.Sort.SortFields(1).SortOnValue) & \":\" & .Sort.SortFields(1).SortOnValue.Color\nEnd With\n",
+   "answers": "String:Interior:255;r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "reopened": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "applied_again": "r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r5:16711680:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"2\"/></sortState>"
+  },
+  {
+   "name": "values_value",
+   "setup": "Set v = ws.Sort.SortFields.Add(Key:=ws.Range(\"C2:C9\"), SortOn:=xlSortOnValues, Order:=xlAscending)\nv = TypeName(ws.Sort.SortFields(1).SortOnValue)\n",
+   "answers": "S1004;Object;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,:E1004",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "sort_state": ""
+  },
+  {
+   "name": "colour_after_values",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\nws.Sort.SortFields(1).SortOnValue.Color = RGB(0, 0, 255)\nws.Sort.Apply\n",
+   "answers": "Empty;r5:16711680:0,r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:16711680",
+   "reopened": "r5:16711680:0,r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:16711680",
+   "applied_again": "r5:16711680:0,r3:255:0,r6:255:0,r2:16777215:0,r4:16777215:255,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:16711680",
+   "sort_state": "<sortState ref=\"A2:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"cellColor\" ref=\"A2:A9\" dxfId=\"1\"/></sortState>"
+  },
+  {
+   "name": "range_sort_after",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nWith ws.Sort\n.SetRange ws.Range(\"A1:C9\")\n.Header = xlYes\n.Apply\nEnd With\nws.Range(\"A1:C9\").Sort Key1:=ws.Range(\"C1\"), Order1:=xlDescending, Header:=xlYes\n",
+   "answers": "Empty;r4:16777215:255,r6:255:0,r8:65535:0,r2:16777215:0,r9:16777215:16711680,r3:255:0,r7:16777215:255,r5:16711680:0,:E1004",
+   "reopened": "r4:16777215:255,r6:255:0,r8:65535:0,r2:16777215:0,r9:16777215:16711680,r3:255:0,r7:16777215:255,r5:16711680:0,:E1004",
+   "applied_again": "r4:16777215:255,r6:255:0,r8:65535:0,r2:16777215:0,r9:16777215:16711680,r3:255:0,r7:16777215:255,r5:16711680:0,:E1004",
+   "sort_state": "<sortState ref=\"A3:C9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" ref=\"C1\"/></sortState>"
+  },
+  {
+   "name": "apply_empty",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.Apply\n",
+   "answers": "Empty;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "sort_state": ""
+  },
+  {
+   "name": "apply_no_fields",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SetRange ws.Range(\"A1:C9\")\nws.Sort.Apply\n",
+   "answers": "Empty;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "sort_state": ""
+  },
+  {
+   "name": "apply_no_range",
+   "setup": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"A2:A9\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 0, 0)\nws.Sort.Apply\n",
+   "answers": "Empty;r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680, f1:$A$2:$A$9:1:1:Interior:255",
+   "reopened": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "applied_again": "r2:16777215:0,r3:255:0,r4:16777215:255,r5:16711680:0,r6:255:0,r7:16777215:255,r8:65535:0,r9:16777215:16711680,",
+   "sort_state": ""
+  }
+ ]
+}

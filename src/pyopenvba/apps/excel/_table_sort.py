@@ -14,6 +14,8 @@ from pyopenvba.apps.excel._sort import (
     ASCENDING,
     DESCENDING,
     NO,
+    ON_VALUES,
+    SORTED_BY,
     YES,
     Key,
     SortField,
@@ -22,8 +24,11 @@ from pyopenvba.apps.excel._sort import (
     SortRange,
     SortState,
     apply_sort,
+    condition_attributes,
+    condition_color,
     plan_sort_area,
     settings_signature,
+    sort_on,
 )
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import FormulaError
@@ -92,9 +97,16 @@ def state_for(table: Table) -> _TableState:
                     raise unsupported('with a qualified stored key reference')
                 if len(state.fields) >= MAX_FIELDS:
                     raise unsupported('beyond the supported key count')
-                state.fields.append(_TableField(table, Range(table.sheet, [area]),
-                                                DESCENDING if condition.get('descending') in ('1', 'true') else ASCENDING,
-                                                0, state))
+                sort_by = condition.get('sortBy', 'value')
+                on = SORTED_BY.get(sort_by)
+                if on is None or (on == ON_VALUES) == (condition.get('dxfId') is not None):
+                    raise unsupported('with custom sort conditions')
+                field = _TableField(table, Range(table.sheet, [area]),
+                                    DESCENDING if condition.get('descending') in ('1', 'true') else ASCENDING, 0, state,
+                                    on)
+                if on != ON_VALUES:
+                    field.color = condition_color(table.sheet.book, sort_by, str(condition.get('dxfId')))
+                state.fields.append(field)
             state.bound_header = bool(state.fields)
     state.original = settings_signature(state)
     table.sort_state = state
@@ -204,8 +216,9 @@ def _metadata(table: Table) -> None:
         for condition in group:
             if (condition.tag != NS + 'sortCondition' or len(condition)
                     or (condition.text or '').strip() or (condition.tail or '').strip()
-                    or any(key not in ('ref', 'descending', 'sortBy') for key in condition.attrib)
-                    or condition.get('sortBy', 'value') != 'value'
+                    or any(key not in ('ref', 'descending', 'sortBy', 'dxfId') for key in condition.attrib)
+                    or condition.get('sortBy', 'value') not in ('value', 'cellColor', 'fontColor')
+                    or (condition.get('sortBy', 'value') == 'value') == (condition.get('dxfId') is not None)
                     or condition.get('descending', '0') not in ('0', '1', 'false', 'true')):
                 raise unsupported('with custom sort conditions')
     for group in root.findall(NS + 'autoFilter'):
@@ -235,10 +248,7 @@ def _state_root(table: Table, state: _TableState, reference: str) -> XmlElement:
                 or key.first.bottom < table.area.top or key.first.top > table.area.bottom
                 or field.order not in (ASCENDING, DESCENDING) or field.option not in (0, 1)):
             raise unsupported('persisting unmeasured field settings')
-        attrs = {'ref': key.first.address(absolute=False)}
-        if field.order == DESCENDING:
-            attrs['descending'] = '1'
-        root.append(XmlElement(NS + 'sortCondition', attrs))
+        root.append(XmlElement(NS + 'sortCondition', condition_attributes(table.sheet.book, field)))
     return root
 
 
@@ -267,8 +277,9 @@ def write_state(table: Table, xml: str, *, planned: XmlElement | None = None) ->
 class _TableField(SortField):
     vba_type_name = "SortField"
 
-    def __init__(self, table: Table, key: Range, order: int, option: int, state: _TableState) -> None:
-        super().__init__(key, order, option)
+    def __init__(self, table: Table, key: Range, order: int, option: int, state: _TableState,
+                 on: int = ON_VALUES) -> None:
+        super().__init__(key, order, option, on)
         self.table = table
         self.sheet = table.sheet
         self.state = state
@@ -306,8 +317,7 @@ class _TableFields(SortFields):
             CustomOrder: object = MISSING, DataOption: object = MISSING) -> object:
         if not isinstance(Key, Range):
             raise error(1004)
-        if SortOn is not MISSING and int(to_integer(SortOn, 'Long')) != 0:
-            raise unsupported('on colors, icons or rich values')
+        on = ON_VALUES if SortOn is MISSING else sort_on(SortOn)
         if CustomOrder is not MISSING:
             raise unsupported('with custom ordering')
         order = ASCENDING if Order is MISSING else int(to_integer(Order, 'Long'))
@@ -317,7 +327,7 @@ class _TableFields(SortFields):
         if len(self.owner.state.fields) >= MAX_FIELDS:
             raise unsupported('beyond the supported key count')
         state = state_for(self.table_owner.table)
-        field = _TableField(self.table_owner.table, Key, order, option, state)
+        field = _TableField(self.table_owner.table, Key, order, option, state, on)
         state.header = int(self.table_owner.Header())
         state.bound_header = True
         state.fields.append(field)
@@ -426,7 +436,7 @@ class TableSortObject(SortObject):
                 raise error(1004)
             if field.option not in (0, 1):
                 raise unsupported('with unmeasured data options')
-            keys.append(Key(index, field.order == DESCENDING, field.option == 1))
+            keys.append(Key(index, field.order == DESCENDING, field.option == 1, field.sort_on, field.color))
         remaining = MAX_TEXT
 
         def charge(value: object) -> None:

@@ -707,6 +707,23 @@ def _children(xml: str, section: str) -> list[str]:
     return re.findall(rf"<{tag}\b[^>]*?/>|<{tag}\b[^>]*?>.*?</{tag}>", match.group(1), re.DOTALL)
 
 
+_MAIN_NAMESPACE = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+
+
+def _dxf_text(entry: XmlElement, *, inherited: bool) -> str:
+    """A new dxf as Excel writes one: ``<dxf><fill>...</fill></dxf>``, in the stylesheet's own namespace with no
+    declaration of it where the dxfs around it has that namespace, and ``/>`` closing an empty element."""
+    from pyopenvba.apps.excel._charts_file import xml_bytes
+
+    scoped = deepcopy(entry)
+    if scoped.tag.startswith("{" + _MAIN_NAMESPACE + "}"):
+        scoped.set("xmlns", _MAIN_NAMESPACE)
+    written = xml_bytes(scoped).decode("utf-8").split("?>", 1)[-1].lstrip().replace(" />", "/>")
+    if inherited:
+        written = written.replace(f' xmlns="{_MAIN_NAMESPACE}"', "", 1)
+    return written
+
+
 def _dxf_append_position(text: str) -> int:
     """Position after the last direct dxf, never inside an unknown extension."""
     from pyopenvba.apps.excel._charts_file import xml_parser
@@ -958,14 +975,13 @@ class Stylesheet:
     def _write_dxfs(self, text: str) -> str:
         if self._dxf_base_count == len(self._dxfs):
             return text
-        from pyopenvba.apps.excel._charts_file import xml_bytes
-
-        entries = [xml_bytes(entry).decode('utf-8').split('?>', 1)[-1].lstrip()
-                   for entry in self._dxfs[self._dxf_base_count:]]
-        additions = ''.join(entries)
         pattern = (r'<(?P<tag>(?:[\w.-]+:)?dxfs)\b'
                    r'''(?P<attrs>(?:[^'">]|"[^"]*"|'[^']*')*?)(?:\s*/>|>(?P<body>.*?)</(?P=tag)>)''')
         match = re.search(pattern, text, re.DOTALL)
+        # Under an unprefixed dxfs, as Excel writes the stylesheet, a dxf is in its default namespace.
+        entries = [_dxf_text(entry, inherited=match is None or ':' not in match['tag'])
+                   for entry in self._dxfs[self._dxf_base_count:]]
+        additions = ''.join(entries)
         if match is None:
             return _with_section(text, 'dxfs', entries)
         attrs = match['attrs']

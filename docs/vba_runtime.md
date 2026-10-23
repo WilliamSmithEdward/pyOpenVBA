@@ -570,6 +570,14 @@ target starts from the first array element.
   and the second not. The Sort object keeps a header only for xlYes.
 * xlSortTextAsNumbers sorts text that would type as a number -- `(3)`,
   `5%`, `$5`, `1,000` -- as that number, among the numbers.
+* A field on a cell's colour or its font's (`tests/fixtures/sort_colour/`,
+  26 layouts) puts the rows showing its `SortOnValue.Color` on top, or at
+  the bottom with xlDescending, the rest in their order. A solid fill
+  shows a colour, a conditional format's and a theme colour's included; a
+  patterned fill, white and no fill do not, but a field whose colour was
+  never set sorts on no fill. A font shows only a colour set outright: the
+  automatic colour matches nothing. The file keeps the colour as a dxf.
+  With no range or no field, Apply sorts nothing and says nothing.
 
 **Protection.** `Worksheet.Protect`, `Unprotect` and the Protection
 object follow Excel (`tests/fixtures/protection.json`, 168 cases), and a

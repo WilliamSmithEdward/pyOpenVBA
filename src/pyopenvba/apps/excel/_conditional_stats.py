@@ -177,12 +177,10 @@ def _pattern_count(value: str, population: Population) -> int:
     return count
 
 
-def matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
-    """Native top/bottom, average/deviation and duplicate/unique predicates."""
+def _held(sheet: Worksheet, rule: Rule) -> Population:
+    """A rule's population, worked out once in a display read."""
     bank = _READ.get()
-    if bank is None:
-        with conditional_read():
-            return matches(sheet, rule, row, column)
+    assert bank is not None
     key = id(sheet), id(rule)
     population = bank.get(key)
     if population is None:
@@ -197,6 +195,23 @@ def matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
         bank[key] = population
     if _signature(rule) != population.signature:
         raise VBAUnsupportedError('Changing conditional rules during a statistical display read is not implemented')
+    return population
+
+
+def numbers(sheet: Worksheet, rule: Rule) -> tuple[float, ...]:
+    """The numbers in a rule's cells, lowest first: a colour scale's population."""
+    if _READ.get() is None:
+        with conditional_read():
+            return numbers(sheet, rule)
+    return _held(sheet, rule).numbers
+
+
+def matches(sheet: Worksheet, rule: Rule, row: int, column: int) -> bool:
+    """Native top/bottom, average/deviation and duplicate/unique predicates."""
+    if _READ.get() is None:
+        with conditional_read():
+            return matches(sheet, rule, row, column)
+    population = _held(sheet, rule)
     value = scalar(sheet.book.calculator.value_of(sheet.name, row, column))
     if _signature(rule) != population.signature:
         raise VBAUnsupportedError('Changing conditional rules during a statistical display read is not implemented')

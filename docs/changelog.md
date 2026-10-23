@@ -78,12 +78,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   agree. Sorting on icons reports itself unsupported, and Excel's making a
   `Range.Sort` the sheet's sort settings is a known gap.
 
-- A third sweep of 65 everyday macros agrees with Excel in 63: newer
+- Colour scales: `FormatConditions.AddColorScale` with two or three
+  colours, the ColorScale, its ColorScaleCriteria and each criterion's
+  Type, Value and FormatColor. A cell's DisplayFormat shows the colour
+  Excel blends for it: numbers alone, the first colour at or below the
+  lowest point and the last at or above the highest, and between them a
+  blend Excel works in doubles, the cell's place as a fraction of the whole
+  span and then of its segment, each channel cut toward zero. The lowest
+  and highest values, numbers, percents, percentiles and formulas serve as
+  points, and colours may be RGB or a theme colour with its tint. A scale
+  is a fill at its priority. The file keeps it as Excel writes it. 29 live
+  layouts, all 246 colours measured, Excel's file read back, and the
+  model's own file opened in Excel agree.
+
+- A third sweep of 65 everyday macros agrees with Excel in 64: newer
   worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
   object, AutoFilter, hyperlinks, notes, protection, conditional formats,
   outlines, page setup, number formats and VBA's Format, Split and arrays.
-  The other two report themselves unsupported: colour scales, and data
-  bars with icon sets.
+  The other one reports itself unsupported: data bars with icon sets.
 
 - A worksheet function a macro calls takes a range of another open
   workbook as that workbook's cells, whichever workbook is active:
@@ -273,6 +285,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- Conditional formats are written as Excel writes them: a new rule's
+  `conditionalFormatting` under no prefix of the model's own (it was
+  `ns0:conditionalFormatting`), a changed rule's without the worksheet's
+  namespaces declared on it again, and each `cfRule`'s attributes in the
+  schema's order.
 
 - `Sort.Apply` with no range or no field sorts nothing and raises no
   error, as Excel does. The model raised error 1004.

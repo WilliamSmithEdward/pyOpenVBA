@@ -8,6 +8,7 @@ This module describes rules; it does not claim to render DisplayFormat.
 # ruff: noqa: N803 -- Excel's public named arguments use these exact names.
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -36,6 +37,10 @@ if TYPE_CHECKING:
 NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 OPERATORS = ('between', 'notBetween', 'equal', 'notEqual', 'greaterThan', 'lessThan',
              'greaterThanOrEqual', 'lessThanOrEqual')
+#: CT_CfRule's attributes in the schema's order, which Excel writes them in.
+_RULE_ORDER = {name: index for index, name in enumerate((
+    'type', 'dxfId', 'priority', 'stopIfTrue', 'aboveAverage', 'percent', 'bottom', 'operator', 'text',
+    'timePeriod', 'rank', 'stdDev', 'equalAverage'))}
 _AFTER = frozenset(('dataValidations', 'hyperlinks', 'printOptions', 'pageMargins', 'pageSetup',
                     'headerFooter', 'rowBreaks', 'colBreaks', 'customProperties', 'cellWatches',
                     'ignoredErrors', 'smartTags', 'drawing', 'legacyDrawing', 'legacyDrawingHF',
@@ -192,6 +197,10 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
         before = next((i for i, entry in enumerate(group) if entry.tag == NS + 'extLst'), len(group))
         for rule in entries:
             copied = deepcopy(rule.root)
+            # In the schema's order, as Excel writes a rule however it was made.
+            ordered = sorted(copied.attrib.items(), key=lambda item: _RULE_ORDER.get(item[0], len(_RULE_ORDER)))
+            copied.attrib.clear()
+            copied.attrib.update(ordered)
             if copied.get('type') in TEXT_TYPES and copied.get('text') is not None:
                 if any('\x00' in decode(entry.text or '') for entry in copied.findall(NS + 'formula')):
                     raise VBAUnsupportedError('Saving conditional formulas containing NUL is not supported by native Excel')
@@ -244,8 +253,10 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
     parser.StartElementHandler, parser.EndElementHandler = start, end
     parser.Parse(data, True)
     assert insertion is not None
-    markup = b''.join(xml_bytes(group).split(b'?>', 1)[1].lstrip() for group in groups)
     root_end = tag_end(root_start)
+    declared = {prefix.decode(): uri.decode() for prefix, uri in
+                re.findall(rb'\sxmlns(?::([\w.-]+))?\s*=\s*"([^"]*)"', data[root_start:root_end])}
+    markup = b''.join(_group_markup(group, declared) for group in groups)
     if data[root_start:root_end].endswith(b'/>'):
         if not markup:
             return xml
@@ -256,6 +267,20 @@ def with_rules(xml: str, rules: list[Rule]) -> str:
     for first, last, replacement in sorted(edits, reverse=True):
         data = data[:first] + replacement + data[last:]
     return data.decode('utf-8')
+
+
+def _group_markup(group: XmlElement, declared: dict[str, str]) -> bytes:
+    """A conditionalFormatting element as Excel writes it: in the worksheet's own prefixes, declaring none of the
+    namespaces the worksheet declares, and with ``/>`` closing an empty element (tests/fixtures/colour_scales/)."""
+    for prefix, uri in declared.items():
+        group.attrib.setdefault('xmlns:' + prefix if prefix else 'xmlns', uri)
+    text = xml_bytes(group).split(b'?>', 1)[1].lstrip().replace(b' />', b'/>')
+    head = text.index(b'>')
+    opening = text[:head]
+    for prefix, uri in declared.items():
+        name = ('xmlns:' + prefix if prefix else 'xmlns').encode()
+        opening = opening.replace(b' ' + name + b'="' + uri.encode() + b'"', b'', 1)
+    return opening + text[head:]
 
 
 def _priority(rule: Rule) -> int:
@@ -494,13 +519,25 @@ class FormatConditions(VBACollection, ExcelObject):
         return self._append(_made(self.target, 8, MISSING, MISSING, MISSING))
 
     @method
+    def AddColorScale(self, ColorScaleType: object = MISSING) -> object:
+        from pyopenvba.apps.excel._colour_scales import made
+
+        guard(self.sheet)
+        if ColorScaleType is MISSING:
+            raise error(450)
+        return self._append(made(int(to_integer(ColorScaleType, 'Long'))))
+
+    @method
     def Delete(self) -> object:
         guard(self.sheet)
         remove(self.sheet, self.target.areas)
         return EMPTY
 
 
-class _ConditionalRule(ExcelObject):
+class RuleObject(ExcelObject):
+    """What every kind of rule answers: its range, priority and life; a rule with a differential style adds that
+    (see _ConditionalRule)."""
+
     vba_type_name = ''
 
     def __init__(self, sheet: Worksheet, rule: Rule) -> None:
@@ -604,6 +641,10 @@ class _ConditionalRule(ExcelObject):
         self.rule.root[:] = list(prepared)
         changed(self.sheet)
         return EMPTY
+
+
+class _ConditionalRule(RuleObject):
+    """A rule that formats the cells it matches with a differential style."""
 
     def _dxf(self) -> XmlElement:
         if self.rule.dxf is None:
@@ -957,8 +998,10 @@ class UniqueValues(_StatisticalRule):
         changed(self.sheet)
 
 
-def _wrapper(sheet: Worksheet, rule: Rule) -> _ConditionalRule:
+def _wrapper(sheet: Worksheet, rule: Rule) -> RuleObject:
+    from pyopenvba.apps.excel._colour_scales import ColorScale
+
     kind = rule.root.get('type', '')
-    factory = {'top10': Top10, 'aboveAverage': AboveAverage, 'uniqueValues': UniqueValues,
-               'duplicateValues': UniqueValues}.get(kind, FormatCondition)
+    factory: type[RuleObject] = {'top10': Top10, 'aboveAverage': AboveAverage, 'uniqueValues': UniqueValues,
+                                 'duplicateValues': UniqueValues, 'colorScale': ColorScale}.get(kind, FormatCondition)
     return factory(sheet, rule)

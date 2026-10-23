@@ -1105,8 +1105,24 @@ leaves the rest out. The model keeps the same tables
 * A save that follows no change to a format leaves the stylesheet as the
   file had it, as it leaves a sheet no macro wrote to.
 
-Conditional formats are not implemented yet; the operation checklist,
-`docs/excel_checklist.csv`, records each member's status.
+**Colour scales.** `FormatConditions.AddColorScale` makes a scale of two
+or three colours with Excel's defaults, and a cell's DisplayFormat shows
+the colour Excel blends for it (`tests/fixtures/colour_scales/`, 29
+layouts and all 246 colours measured):
+
+* Only numbers are coloured; text, blanks, errors and logicals keep their
+  fill, and a percentile counts numbers alone. Below the lowest point a
+  cell takes the first colour, above the highest the last, and when the
+  lowest and the highest are one value, the last.
+* Excel blends in doubles: the cell's place as a fraction of the whole
+  span, then of its segment, each channel stepping from the segment's
+  first colour by that fraction of the way and cut toward zero.
+* A scale is a fill at its priority. A lowest or highest criterion's
+  Value reads that value of the range as it stands, and setting it is
+  error 1004; StopIfTrue reads False and cannot be set.
+
+The operation checklist, `docs/excel_checklist.csv`, records every
+conditional format member's status.
 
 **Typing.** A string written through `Value`, `Value2`, `Formula` or an
 array is typed the way Excel types what someone enters in a cell, and a

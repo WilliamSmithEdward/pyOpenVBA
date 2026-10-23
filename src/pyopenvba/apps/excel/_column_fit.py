@@ -1,21 +1,26 @@
 """Column AutoFit: how wide Excel makes a column for the text its cells show, on a 96-DPI display.
 
 Measured in live Excel (scripts/measure_column_autofit.py,
-tests/fixtures/column_autofit.json):
+tests/fixtures/column_autofit.json at 11pt; scripts/measure_autofit_sizes.py,
+tests/fixtures/autofit_sizes.json from 6 to 72pt):
 
 - A text is as wide as its characters, each as wide as GDI makes it in
-  the cell's font (see _font_widths), whole pixels that add up along the
-  text for ASCII and Latin-1. Italic reaches 5.91 pixels further in Aptos
-  Narrow and 3.95 in Calibri: any value from 5.90 to 5.93, and from 3.94
-  to 3.96, fits all 240 italic texts measured in each.
+  the cell's font at its size (see _font_widths), whole pixels that add
+  up along the text for ASCII and Latin-1.
+- Italic reaches 57m/29 + 1/50 pixels further, m being a fifth of the
+  font's ascent, whole: 5.92 in Aptos Narrow 11 and 3.95 in Calibri 11.
+  The line is fitted, not derived: it falls inside every one of the 134
+  ranges of reaches the italic texts measured allow, at every size and in
+  both fonts.
 - A number in General is measured a digit wide for each digit, decimal
   point and exponent sign, its leading minus and its E as wide as they
   are; in any other format, as text, booleans and errors are, character
   by character, a ``*`` fill as nothing, the space an ``_x`` leaves as wide
   as ``x`` and the one a ``?`` leaves for a digit as wide as a 0.
 - A text ``t`` pixels wide makes the column ceil(t) + 7 pixels, or
-  floor(t * 29 / 28 + 5) where that is wider, and at most 1790 pixels,
-  255 characters.
+  floor(t * 29 / 28 + 5) where that is wider; then 2 pixels more for
+  every 4 the font's digits are wider than 5 (none to 12pt, 2 from 13pt,
+  22 at 72pt), and at most 1790 pixels, 255 characters.
 - Every cell of the column counts, those in hidden and filtered rows
   among them; a merged cell does not, nor one that shows nothing, and a
   column with no other keeps its width. A hidden column is shown. A file
@@ -24,9 +29,10 @@ tests/fixtures/column_autofit.json):
 - A number format or style a macro sets widens a column the same way
   wherever that makes it wider (see widen).
 
-Text that wraps, is indented or turned, a font or size other than Aptos
-Narrow or Calibri at 11pt and characters past Latin-1 are not measured,
-and AutoFit over them reports itself unsupported.
+Text that wraps, is indented or turned, a font other than Aptos Narrow and
+Calibri, a size below 8pt, which Excel draws in another font, or past 72pt,
+and characters past Latin-1 are not measured, and AutoFit over them reports
+itself unsupported.
 
 What a cell shows in a column too narrow for it, Range.Text, is here too
 (see narrowed): it rests on the same widths.
@@ -43,26 +49,48 @@ from pyopenvba.interpreter._values import EMPTY
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Worksheet
+    from pyopenvba.apps.excel._styles import Font
     from pyopenvba.formula._display import Display
 
-#: How much further italic text reaches, in pixels, by font.
-_ITALIC_REACH = {"aptos narrow": Fraction(591, 100), "calibri": Fraction(79, 20)}
 #: The widest column AutoFit makes, in pixels: 255 characters.
 WIDEST = 1790
 #: Alignments that wrap or repeat a cell's text, which AutoFit was not measured over.
 _UNMEASURED_ALIGNMENTS = ("justify", "distributed", "fill", "centerContinuous")
+#: How far italic reaches past a text for AutoFit, for each of its steps and beside them (see the module's notes).
+_ITALIC_STEP, _ITALIC_BASE = Fraction(57, 29), Fraction(1, 50)
 
 
-def column_pixels(text: Fraction) -> int:
-    """The width AutoFit makes a column for a text this many pixels wide."""
-    return min(WIDEST, max(math.ceil(text) + 7, math.floor(text * Fraction(29, 28) + 5)))
+def column_pixels(text: Fraction, pad: int = 0) -> int:
+    """The width AutoFit makes a column for a text this many pixels wide, in a font that adds ``pad``."""
+    return min(WIDEST, max(math.ceil(text) + 7, math.floor(text * Fraction(29, 28) + 5)) + pad)
+
+
+def _table(font: Font) -> dict[str, int] | None:
+    """The widths a cell's font is measured by; None where it was not measured."""
+    from pyopenvba.apps.excel._font_widths import widths
+
+    return None if font.vert_align else widths(font.name, font.bold, font.italic, float(font.size))
+
+
+def _pad(table: dict[str, int]) -> int:
+    """The pixels a big font adds to what a cell keeps beside its text: 2 for every 4 its digits are wider than
+    5, none to 12pt (tests/fixtures/autofit_sizes.json)."""
+    return 2 * max(0, (table["0"] - 5) // 4)
+
+
+def _steps(font: Font) -> int:
+    """How many steps italic reaches past a text: a fifth of the font's ascent, whole; none upright."""
+    from pyopenvba.apps.excel._font_widths import ascent
+
+    if not font.italic:
+        return 0
+    found = ascent(font.name, font.bold, True, float(font.size))
+    assert found is not None
+    return found // 5
 
 
 # --- what a cell shows in a column too narrow for it --------------------------------------------------------------
 
-#: How much further italic text reaches where a cell shows it, by font, in pixels: half what AutoFit allows, rounded
-#: up (tests/fixtures/narrow_text.json).
-_ITALIC_SHOWN = {"aptos narrow": 3, "calibri": 2}
 #: The pixels an indent level takes from what a cell has to show its text in.
 _INDENT = 9
 #: Scientific notation needs this many characters: 1E+05.
@@ -73,18 +101,19 @@ _LONGEST = 255
 
 def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
     """What Range.Text shows of a cell: its value through its number format, in a column perhaps too narrow for it
-    (tests/fixtures/narrow_text.json).
+    (tests/fixtures/narrow_text.json, and tests/fixtures/autofit_sizes.json at other sizes).
 
-    A value its format cannot show, a date before 1900 say, fills the column with #. A number shown by General loses decimals, then goes to scientific notation, then shows 0 where it rounds to
-    that, as the column narrows, the format's other text kept; any other number, a date, a logical or an error
-    fills the column with # once it no longer fits, as does a General number nothing else fits. Text shows whole,
-    unless a section with a ``*`` fill lays it out, and then fills with # as a number would. A fill repeats its
-    character as often as it fits, to 255 characters in all, each ``_x`` and ``?`` counted a space wide. What a
-    cell has to show its text in is its column's width but 5 pixels, an indent level's 9 and italic's reach; a
-    merged cell's is its columns'; a cell that shrinks its text shows it all, and its fill not at all."""
+    A value its format cannot show, a date before 1900 say, fills the column with #. A number shown by General
+    loses decimals, then goes to scientific notation, then shows 0 where it rounds to that, as the column narrows,
+    the format's other text kept; any other number, a date, a logical or an error fills the column with # once it
+    no longer fits, as does a General number nothing else fits. Text shows whole, unless a section with a ``*``
+    fill lays it out, and then fills with # as a number would. A fill repeats its character as often as it fits,
+    to 255 characters in all, each ``_x`` and ``?`` counted a space wide. What a cell has to show its text in is
+    its column's width but 5 pixels and the pad a big font adds, an indent level's 9 and, for italic, a pixel for
+    each of its steps; a merged cell's is its columns'; a cell that shrinks its text shows it all, and its fill
+    not at all."""
     from pyopenvba.apps.excel import _merges
     from pyopenvba.apps.excel._dimensions import characters_read
-    from pyopenvba.apps.excel._font_widths import widths
     from pyopenvba.formula._values import ExcelError
     from pyopenvba.interpreter._values import to_text
 
@@ -116,16 +145,16 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
     else:
         pixels = dims.column_shown_pixels(column)
     fill = shown.fill if shown is not None else ""
-    table = widths(font.name, font.bold, font.italic) if float(font.size) == 11.0 and not font.vert_align else None
+    table = _table(font)
     if table is None or alignment.text_rotation or any(char not in table for char in text + fill):
         # Not measured, but wide enough for any font's characters an em and a quarter wide.
         em = round(float(font.size) * 4 / 3)
         if not fill and len(text) * em * 5 / 4 + 5 + _INDENT * alignment.indent + em <= pixels:
             return text
         raise VBAUnsupportedError(f"Range.Text of a value in {font.name} {font.size:g}, which may not fit its column "
-                                  f"or fills it, is not implemented: Excel measures Aptos Narrow and Calibri at 11pt")
-    reach = _ITALIC_SHOWN[font.name.lower()] if font.italic else 0
-    room = pixels - 5 - reach
+                                  f"or fills it, is not implemented: Excel measures Aptos Narrow and Calibri from "
+                                  f"8 to 72pt")
+    room = pixels - 5 - _pad(table) - _steps(font)
     space = room - _INDENT * alignment.indent
     hashes = "#" * max(0, room // table["#"])
     if shown is None:
@@ -172,10 +201,15 @@ def _glyphs(table: dict[str, int], text: str) -> int:
 
 
 def _shown_width(table: dict[str, int], text: str) -> int:
-    """How wide a number in General is where a cell shows it: as wide as its characters, but at least its sign and
-    a digit's width for every other character (tests/fixtures/narrow_text.json)."""
+    """How wide a number in General is where a cell shows it: as wide as its characters, but one with a decimal
+    point at least its sign and a digit's width for every other character. So -2E-100 fits where its characters
+    do, two pixels before -1.5E-100's digits' widths would (tests/fixtures/narrow_text.json), and 1E+20 in Calibri,
+    whose E and + are narrower than its digits from 8pt up but at 11pt, fits by them (autofit_sizes.json)."""
+    glyphs = sum(table[char] for char in text)
+    if "." not in text:
+        return glyphs
     signed = text.startswith("-")
-    return max(sum(table[char] for char in text), (table["-"] if signed else 0) + table["0"] * (len(text) - signed))
+    return max(glyphs, (table["-"] if signed else 0) + table["0"] * (len(text) - signed))
 
 
 def _significant(text: str) -> int:
@@ -187,23 +221,22 @@ def _significant(text: str) -> int:
 def _general_within(value: float, full: str, space: int, table: dict[str, int]) -> str | None:
     """The General number that fits ``space`` pixels: of the most decimals of it that keep a digit that is not 0,
     and the most digits of it in scientific notation, the one showing more digits, the decimals where they show as
-    many; else 0 where it rounds to 0 and a scientific one would not have room; None where nothing does."""
-    fixed = scientific = None
+    many; but 0 where no decimals fit, it rounds to 0 and there is no room for five digits, however narrow a
+    scientific one's characters (tests/fixtures/autofit_sizes.json, 1E-04); None where nothing fits."""
+    fixed = None
     if "E" not in full:
         decimals = len(full.partition(".")[2])
         fixed = next((shown for places in range(decimals, -1, -1) for shown in [_fixed(value, places)]
                       if _significant(shown) and _shown_width(table, shown) <= space), None)
+    zero = _fixed(value, 0)
+    room = (space - (table["-"] if value < 0 else 0)) // table["0"]
+    if fixed is None and zero.lstrip("-") == "0" and 1 <= room < _SHORTEST_SCIENTIFIC:
+        return zero
     scientific = next((shown for places in range(9, -1, -1) for shown in [_scientific(value, places)]
                        if _shown_width(table, shown) <= space), None)
     if fixed is not None and (scientific is None or _significant(fixed) >= _significant(scientific)):
         return fixed
-    if scientific is not None:
-        return scientific
-    zero = _fixed(value, 0)
-    room = (space - (table["-"] if value < 0 else 0)) // table["0"]
-    if zero.lstrip("-") == "0" and 1 <= room < _SHORTEST_SCIENTIFIC:
-        return zero
-    return None
+    return scientific
 
 
 def _fixed(value: float, places: int) -> str:
@@ -257,9 +290,9 @@ def fit(sheet: Worksheet, area: Area) -> None:
             continue
         if sheet.merged_areas and _merges.at(sheet, row, column) is not None:
             continue
-        width = _width(sheet, row, column, cell)
-        if width is not None:
-            widest[column] = max(widest.get(column, 0), column_pixels(width))
+        pixels = _fitted(sheet, row, column, cell)
+        if pixels is not None:
+            widest[column] = max(widest.get(column, 0), pixels)
     for column, pixels in widest.items():
         sheet.dims.fit_column(column, pixels)
     if widest:
@@ -301,12 +334,10 @@ def _measured(table: dict[str, int], shown: Display) -> int:
     return total
 
 
-def _width(sheet: Worksheet, row: int, column: int, cell: Cell, *, formatted: bool = False) -> Fraction | None:
-    """How wide AutoFit measures the text a cell shows, in pixels; None for a cell that shows nothing. ``formatted``
-    measures only what a format set on the cell widens its column for: a number General does not show, wrapped
-    or not, as numbers do not wrap."""
-    from pyopenvba.apps.excel._font_widths import widths
-
+def _fitted(sheet: Worksheet, row: int, column: int, cell: Cell, *, formatted: bool = False) -> int | None:
+    """How wide AutoFit makes a column for the text a cell shows, in pixels; None for a cell that shows nothing.
+    ``formatted`` measures only what a format set on the cell widens its column for: a number General does not
+    show, wrapped or not, as numbers do not wrap."""
     found = _shows(sheet, row, column, cell)
     if found is None:
         return None
@@ -318,28 +349,30 @@ def _width(sheet: Worksheet, row: int, column: int, cell: Cell, *, formatted: bo
     wraps = alignment.wrap and not formatted
     if wraps or alignment.indent or alignment.text_rotation or alignment.horizontal in _UNMEASURED_ALIGNMENTS:
         raise VBAUnsupportedError("AutoFit of a column whose text wraps, is indented or is turned is not implemented")
-    table = widths(font.name, font.bold, font.italic) if float(font.size) == 11.0 and not font.vert_align else None
+    table = _table(font)
     if table is None:
         raise VBAUnsupportedError(f"AutoFit of text in {font.name} {font.size:g} is not implemented: AutoFit measures "
-                                  f"Aptos Narrow and Calibri at 11pt")
+                                  f"Aptos Narrow and Calibri from 8 to 72pt")
     if "\n" in shown.text or "\r" in shown.text:
         raise VBAUnsupportedError("AutoFit of text holding a line break is not implemented")
     if any(char not in table for char in shown.text + shown.pads):
         raise VBAUnsupportedError("AutoFit of text holding characters past Latin-1 is not implemented: GDI's widths "
                                   "for them depend on the characters beside them")
-    reach = _ITALIC_REACH[font.name.lower()] if font.italic else Fraction(0)
-    return Fraction(_measured(table, shown)) + reach
+    steps = _steps(font)
+    reach = _ITALIC_STEP * steps + _ITALIC_BASE if steps else Fraction(0)
+    return column_pixels(Fraction(_measured(table, shown)) + reach, _pad(table))
 
 
 def widen(sheet: Worksheet, areas: list[Area]) -> None:
     """A macro gave the cells of ``areas`` a number format or a style: where AutoFit would make a column wider for
     a number one of them now shows, Excel widens the column to that, even where the number shows whole already;
-    not a column sized by hand or hidden, nor for a merged cell, and never narrower. A number General shows, text,
-    logicals and errors widen nothing (tests/fixtures/narrow_text.json, widening). A file keeps the width as
-    AutoFit's, bestFit="1" beside it.
+    not a column sized by hand or hidden, nor for a merged cell, and never narrower. Text, logicals and errors
+    widen nothing (tests/fixtures/narrow_text.json, widening; tests/fixtures/autofit_sizes.json at other sizes).
 
-    A number AutoFit does not measure -- in a font or size other than Aptos Narrow and Calibri at 11pt, indented
-    or turned, or holding characters past Latin-1 -- leaves its column as it is, where Excel may widen it."""
+    A number General shows widens its column too, when General is set on it or its font changes, but to a width of
+    its own that the model does not work out yet (tests/fixtures/autofit_sizes.json, general_widening), so it is
+    left as it is. So is a number AutoFit does not measure: in a font other than Aptos Narrow and Calibri or a size
+    past 8 to 72pt, indented or turned, or holding characters past Latin-1."""
     from pyopenvba.apps.excel import _merges
 
     if not sheet.dims.normal_known():
@@ -355,11 +388,11 @@ def widen(sheet: Worksheet, areas: list[Area]) -> None:
         if sheet.merged_areas and _merges.at(sheet, row, column) is not None:
             continue
         try:
-            width = _width(sheet, row, column, cell, formatted=True)
+            pixels = _fitted(sheet, row, column, cell, formatted=True)
         except VBAUnsupportedError:
             continue
-        if width is not None:
-            widest[column] = max(widest.get(column, 0), column_pixels(width))
+        if pixels is not None:
+            widest[column] = max(widest.get(column, 0), pixels)
     for column, pixels in widest.items():
         if pixels > dims.column_shown_pixels(column):
             dims.fit_column(column, pixels)

@@ -914,6 +914,10 @@ class StyleFont(RangeFont):
     def _read(self, get: Callable[[S.Font], object]) -> object:
         return get(self.font)
 
+    def _resized(self) -> None:
+        # What a style's new size does to the columns of the cells that follow it was not measured.
+        pass
+
     def _write(self, change: Callable[[S.Font], S.Font]) -> None:
         if self.owner.cell_style.builtin == 0:
             from pyopenvba.apps.excel._dimensions import known_normal

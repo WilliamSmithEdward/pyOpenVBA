@@ -27,15 +27,11 @@ PROBES: dict[str, dict[str, Any]] = {probe['name']: probe for probe in RECORD['p
 #: What the model shows otherwise than Excel did: (Excel's text, the model's first character there) by why, and how
 #: many cells of one probe may show it.
 GAPS = {
-    # Excel shows -1.5E-100 as -2E-100 two pixels before its digits fit as every other number's do, the exponent's
-    # sign as wide as it is; -1.5E-100 itself, and every scientific number with a two-digit exponent, needs the
-    # digits' width.
-    ('-2E-100', '#'): ('a negative number with a three-digit negative exponent fits two pixels early', 2),
     # -1234.5678 through *-General shows 0 where a digit fits and its sign does not, which no rounding of it is.
     ('0', '#'): ('a negative number General shows beside a fill shows 0 in the five pixels a digit alone fits', 5),
 }
 #: The probes that set something else on a cell, whose Text the model reports unsupported rather than guess.
-UNSUPPORTED = {'hidden_column': 'hidden column', 'big_font': 'Aptos Narrow 14'}
+UNSUPPORTED = {'hidden_column': 'hidden column'}
 #: The probes of what widens a column, and the saved file after it does.
 WIDENING = 'widening'
 

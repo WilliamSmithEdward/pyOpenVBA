@@ -94,7 +94,7 @@ def test_refresh_retains_cache_field_data_roots_and_unrelated_snapshot(tmp_path:
     assert [origin.get('ref') for origin in origins if origin is not None] == ['J1:K3', 'A1:B4']
 
 
-@pytest.mark.parametrize('failure', ['later-merge', 'unknown-cache', 'unknown-report', 'schema', 'bad-axis', 'invalid-location', 'hierarchy', 'field-compact'])
+@pytest.mark.parametrize('failure', ['later-merge', 'unknown-cache', 'unknown-report', 'schema', 'bad-axis', 'invalid-location', 'hierarchy', 'merged-labels'])
 def test_later_report_or_metadata_failure_publishes_nothing(failure: str) -> None:
     app = prepared()
     sheet = app.workbook.sheets_[0]
@@ -119,10 +119,9 @@ def test_later_report_or_metadata_failure_publishes_nothing(failure: str) -> Non
         group = XmlElement(NS + 'pageFields', {'count': '1'})
         group.append(XmlElement(NS + 'pageField', {'fld': '0', 'hier': '0'}))
         first.root.append(group)
-    elif failure == 'field-compact':
-        field = first.root.find(f'{NS}pivotFields/{NS}pivotField')
-        assert field is not None
-        field.set('compact', '0')
+    elif failure == 'merged-labels':
+        # Merged and centred labels are a layout the model does not lay out.
+        first.root.set('mergeItem', '1')
     else:
         fields = XmlElement(NS + 'rowFields', {'count': '1'})
         fields.append(XmlElement(NS + 'field', {'x': '999999'}))

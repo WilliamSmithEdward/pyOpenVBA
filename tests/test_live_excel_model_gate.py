@@ -2272,6 +2272,29 @@ def test_excel_reads_the_pivot_date_filters_this_wrote(tmp_path: Path) -> None:
         assert read[layout["name"]] == expected[layout["name"]], layout["name"]
 
 
+def test_excel_reads_the_pivot_layouts_this_wrote(tmp_path: Path) -> None:
+    """Every layout tests/fixtures/pivot_layouts measured that the model lays out, made by the model with the macro
+    Excel ran, a pivot table in compact, outline or tabular form with its subtotals, blank lines and repeated
+    labels on each sheet, and saved: Excel opens the file and reads each table's cells, their indents, ranges and
+    layout as it read its own file opened again."""
+    from test_excel_pivot_layouts import HELPER, LAYOUTS, built
+
+    harness = pytest.importorskip("pyvbaharness")
+    built(tmp_path).run("Build")
+    reader = HELPER + (
+        "Public Function Read(path As String) As String\nDim wb As Object, ws As Object, out As String\n"
+        "Set wb = Workbooks.Open(path)\nFor Each ws In wb.Worksheets\n"
+        "If ws.PivotTables.Count > 0 Then out = out & ws.Name & \"^\" & Dump(ws.PivotTables(1)) & \"|\"\n"
+        "Next\nwb.Close False\nRead = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (str(tmp_path / "pivot_layouts.xlsx"),), timeout=300.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+    for layout in LAYOUTS:
+        assert read[layout["name"]] == layout["reopened"], layout["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

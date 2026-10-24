@@ -30,6 +30,34 @@ def page_range(table: PivotTable) -> Range:
                                      area.top - 2, area.left + 3 * columns - 2, table.sheet.name)])
 
 
+def data_label_range(table: PivotTable) -> Range:
+    """DataLabelRange: the corner cell over a lone data field where the table has column fields, the data fields'
+    captions where the Values field is on the columns, and the Values field's column where it is on the rows;
+    error 1004 otherwise (tests/fixtures/pivot_layouts/)."""
+    from pyopenvba.apps.excel._pivot_forms import label_columns
+
+    root = table.entry.root
+    rows = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}rowFields/{NS}field')]
+    columns = [int(entry.get('x', '0')) for entry in root.findall(f'{NS}colFields/{NS}field')]
+    location = root.find(NS + 'location')
+    if location is None or not root.findall(f'{NS}dataFields/{NS}dataField'):
+        raise error(1004)
+    area = parse_area(location.get('ref', 'A1'))
+    dr, dc = int(location.get('firstDataRow', '0')), int(location.get('firstDataCol', '0'))
+    real_columns = any(index != VALUES for index in columns)
+    if VALUES in rows:
+        column = area.left + label_columns(root, rows)[0][rows.index(VALUES)]
+        found = Area(area.top + dr - 1, column, area.bottom, column, table.sheet.name)
+    elif VALUES in columns:
+        row = area.top + 1 + columns.index(VALUES) if real_columns else area.top + dr - 1
+        found = Area(row, area.left + dc, row, area.right, table.sheet.name)
+    elif real_columns:
+        found = Area(area.top, area.left, area.top, area.left, table.sheet.name)
+    else:
+        raise error(1004)
+    return Range(table.sheet, [found])
+
+
 def _length(lines: tuple[PivotLine, ...]) -> int:
     return next((index for index, line in enumerate(lines) if line.kind == 'grand'), len(lines))
 
@@ -93,11 +121,9 @@ def field_range(field: PivotField, label: bool) -> Range:
         raise VBAUnsupportedError('This PivotTable field-range layout is not readable')
     row_count, column_count = _length(report.row_lines), _length(report.column_lines)
     if not field.data and field.index in rows:
-        column = left
-        definitions = root.findall(f'{NS}pivotFields/{NS}pivotField')
-        for index in rows[:rows.index(field.index)]:
-            compact = root.get('compactData', '1') if index == VALUES else definitions[index].get('compact', root.get('compact', '1'))
-            column += int(compact in ('0', 'false'))
+        from pyopenvba.apps.excel._pivot_forms import label_columns
+
+        column = left + label_columns(root, list(rows))[0][rows.index(field.index)]
         return block(top + dr - 1 if label else top + dr, column,
                      top + dr - 1 if label else top + dr + row_count - 1, column)
     if not field.data:

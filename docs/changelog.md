@@ -7,6 +7,38 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables lay out as Excel lays them out in compact, outline and
+  tabular form. `PivotTable.RowAxisLayout` puts every field in one form,
+  and a field's `LayoutForm` and `LayoutCompactRow` lay out that field
+  alone, each in its own column or sharing its parent's, indented, its
+  items on lines of their own or on their first child's line.
+  `PivotField.Subtotals` reads and sets the twelve flags: Automatic, or
+  any of Sum, Count, Average, Max, Min, Product, Count Numbers, StdDev,
+  StdDevp, Var and Varp, each a subtotal line of its own, labelled with
+  the function, and an innermost field's functions adding a line for each
+  item ahead of the grand total. `LayoutSubtotalLocation` puts a lone
+  subtotal on the item's own line or below, `LayoutBlankLine` leaves an
+  empty line after each item, `RepeatLabels` and
+  `PivotTable.RepeatAllLabels` repeat the labels down the lines, and
+  `SubtotalName` and `LayoutPageBreak` read and write. The table's
+  `CompactLayoutRowHeader`, `CompactLayoutColumnHeader`, `GrandTotalName`,
+  `DisplayFieldCaptions`, `CompactRowIndent`, `LayoutRowDefault`,
+  `RowGrand` and `ColumnGrand` read and set, `DataLabelRange` reads, and
+  a data field's `Function` sets its function and the name it gives. The
+  members raise Excel's errors. Every pivot cell now takes the format
+  Excel gives it: a field's button on its caption, a label aligned left
+  and indented by its depth where a field is compact, its field's number
+  format, and every value cell its data field's format, an empty one too,
+  each made in Excel's order. A table the model makes carries Excel's own
+  attributes and extensions, and a refresh, a rename or a save takes a
+  table in any of these layouts from a file. StdDev, StdDevp, Var and Varp
+  work their values out in two passes, as Excel does, where the model's
+  running mean could land a unit in the last place away. `MergeLabels`
+  reads, and merging the labels reports itself unsupported. 122 layouts
+  agree with Excel before a save and once the file is opened again, the
+  saved tables and every cell's format agree with Excel's file, and Excel
+  reads the model's file as its own.
+
 - Pivot tables filter dates. `PivotFilters.Add` takes Excel's date filters
   on a date field: a specific date, before, after, between and their
   opposites, Value1 a Date, a serial or text CDate reads; and a period

@@ -1,0 +1,243 @@
+{
+ "build": "Public Function Build() As String\nDim wb As Object, f As Object, r As Long\nApplication.DisplayAlerts = False\n{layouts}\nBuild = \"ok\"\nEnd Function\n",
+ "layout": "Set wb = Workbooks.Add(xlWBATWorksheet)\nwb.Worksheets(1).Name = \"one\"\nwb.Worksheets.Add(After:=wb.Worksheets(1)).Name = \"two\"\nwb.Worksheets(\"one\").Activate\nFor r = 1 To 6\n    wb.Worksheets(\"one\").Cells(r, 1).Value = 9\n    wb.Worksheets(\"one\").Cells(r, 2).Value = 9\n    wb.Worksheets(\"one\").Cells(r, 3).Value = 9\n    wb.Worksheets(\"two\").Cells(r, 1).Value = 9\nNext\n{steps}{saves}wb.SaveAs \"{folder}\\{name}.xlsx\", 51\nwb.Close False\n",
+ "layouts": [
+  {
+   "name": "deleted",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions(1).Delete\n",
+   "saves": []
+  },
+  {
+   "name": "recoloured_then_deleted",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1\").FormatConditions(1).Interior.Color = RGB(0, 0, 255)\nwb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions(1).Delete\n",
+   "saves": []
+  },
+  {
+   "name": "collection",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Delete\n",
+   "saves": []
+  },
+  {
+   "name": "every_cell",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Cells.FormatConditions.Delete\n",
+   "saves": []
+  },
+  {
+   "name": "clear_formats",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1:A3\").ClearFormats\n",
+   "saves": []
+  },
+  {
+   "name": "cleared",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1:A3\").Clear\n",
+   "saves": []
+  },
+  {
+   "name": "pasted_over",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"D1:D3\").Copy wb.Worksheets(\"one\").Range(\"A1:A3\")\n",
+   "saves": []
+  },
+  {
+   "name": "rows_deleted",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Rows(\"1:3\").Delete\n",
+   "saves": []
+  },
+  {
+   "name": "sheet_deleted",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nSet f = wb.Worksheets(\"two\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 0, 255)\nwb.Worksheets(\"two\").Delete\n",
+   "saves": []
+  },
+  {
+   "name": "deleted_then_added",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions(1).Delete\nSet f = wb.Worksheets(\"one\").Range(\"C1:C3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 0, 255)\n",
+   "saves": []
+  },
+  {
+   "name": "saved_twice",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions(1).Delete\n",
+   "saves": [
+    "saved_twice_first"
+   ]
+  },
+  {
+   "name": "reopened",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions(1).Delete\nwb.SaveAs \"{folder}\\reopened_first.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\reopened_first.xlsx\")\n",
+   "saves": []
+  },
+  {
+   "name": "read_then_deleted",
+   "steps": "Set f = wb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = wb.Worksheets(\"one\").Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nwb.SaveAs \"{folder}\\read_then_deleted_first.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\read_then_deleted_first.xlsx\")\nwb.Worksheets(\"one\").Range(\"A1:A3\").FormatConditions(1).Delete\n",
+   "saves": []
+  }
+ ],
+ "files": {
+  "clear_formats": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "cleared": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "collection": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "deleted": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "deleted_then_added": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=1:B1:B3@2",
+     "cfRule.dxfId=0:C1:C3@3"
+    ]
+   }
+  },
+  "every_cell": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {}
+  },
+  "pasted_over": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "read_then_deleted": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "read_then_deleted_first": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=1:A1:A3@1",
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "recoloured_then_deleted": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=1:B1:B3@2"
+    ]
+   }
+  },
+  "reopened": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "reopened_first": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "rows_deleted": {
+   "dxfs": [],
+   "names": {}
+  },
+  "saved_twice": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "saved_twice_first": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "sheet_deleted": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=1:A1:A3@1",
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  }
+ }
+}

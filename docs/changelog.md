@@ -366,6 +366,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   cache, records and table parts. The model wrote them under prefixes of
   its own, `ns0:` and `ns1:`.
 
+- `FormatCondition.Delete` on a rule a range's FormatConditions reached
+  takes that range's cells out of the rule, as Excel does, rather than
+  deleting the whole rule: `Range("A1").FormatConditions(1).Delete` on a
+  rule over A1:A3 leaves it over A2:A3. The rule keeps its priority and
+  its dxf, its first formula moving to the first cell left, and goes only
+  when the range holds all of it. 22 live layouts agree, through a cell,
+  a block, a hole, one area of two and a second rule, on cell rules,
+  expressions, a top 10, a colour scale and a data bar, and Excel reads
+  the model's saves of them as it reads its own.
+
+- A save keeps the dxf of a rule a macro took away by a Delete,
+  ClearFormats, Clear or a paste, where the rule's was, as Excel's saves
+  do until the workbook is opened again. A rule that goes with its rows
+  or its sheet takes its dxf with it, as does a format a new one replaces.
+  The model left out every dxf nothing named. 16 files Excel saved agree,
+  a rule made in the session or read from a file, saved once or twice and
+  opened again, and Excel reads the model's saves of them as its own.
+
 - Excel's editor adds a module to a project this saved, however many
   sheets it has. A storage's entries form a red-black tree, and the writer
   left every entry it placed red. Windows refuses to add to a tree with

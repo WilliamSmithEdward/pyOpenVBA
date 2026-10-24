@@ -1185,6 +1185,16 @@ and saved again):
   distances, rules alike beside one made anew, several ranges made anew
   at once.
 
+`FormatCondition.Delete` on a rule a range's FormatConditions reached
+takes that range's cells out of the rule, as the collection's `Delete`
+takes them out of every rule there
+(`tests/fixtures/conditional_partial_delete/`, 22 layouts). The rule
+keeps its priority and its dxf, its first formula moving to the first
+cell left, and goes only when the range holds all of it: through
+`Range("A1")`, a rule over A1:A3 is left over A2:A3, and one over A1:C3
+cut at B2 over `A1:C1,A3:C3,A2,C2`. A rule deleted whole leaves its dxf
+behind, as the dxfs below have it.
+
 **Reading a file.** Excel joins conditional formats as it reads a
 workbook without a VBA project, an .xlsx or an .xlsm holding no code
 (`tests/fixtures/conditional_joins/`, 84 layouts in three formats):
@@ -1224,16 +1234,21 @@ numbering rules' formats as other programs might):
 A rule's format is a dxf, as are a sort's and a filter's colour, a
 table's and a table style's formats and a pivot table's, each named by
 its place in the stylesheet's list. A save writes that list as Excel does
-(`tests/fixtures/dxf_table/`, 13 files Excel saved unchanged and two it
-edited):
+(`tests/fixtures/dxf_table/`, 13 files Excel saved unchanged and three it
+edited; `tests/fixtures/dxf_lifetime/`, 16 more):
 
 * Excel keeps the dxfs as a stack. Each one made goes first, and a save
-  writes them from the first down, leaving out those nothing names, every
-  part naming each where the save wrote it.
+  writes them from the first down, every part naming each where the save
+  wrote it.
 * A format a macro gives a rule is a new dxf, first, though an earlier
-  rule's says the same, and the one the rule had goes.
+  rule's says the same, and the one the rule had goes. So does the dxf of
+  a rule that goes with its rows or its sheet.
+* A rule a macro takes away by a Delete, ClearFormats, Clear or a paste
+  leaves its dxf where it was. Every save writes that dxf though nothing
+  names it, until the workbook is opened again.
 * Opening a file, each name of a dxf takes one of its own, so two rules
-  naming one dxf are saved with two. Excel reads the names in this order:
+  naming one dxf are saved with two, and a dxf nothing names is left out.
+  Excel reads the names in this order:
   the table styles; then each sheet, the one active in the file first and
   the rest in order, with its filter's and sort's colours, its tables and
   its pivot tables; then every sheet's conditional formats in that order,

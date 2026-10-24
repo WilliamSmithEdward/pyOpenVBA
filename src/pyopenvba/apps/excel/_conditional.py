@@ -439,19 +439,25 @@ def without(area: Area, cut: Area) -> list[Area]:
     return pieces
 
 
-def remove(sheet: Worksheet, areas: list[Area]) -> bool:
-    """Subtract cells from every rule; caller owns its operation's protection."""
+def subtracted(areas: list[Area], cuts: list[Area]) -> list[Area]:
+    """``areas`` less every cell of ``cuts``: each area's first piece where the area was, the others after."""
+    remaining = list(areas)
+    for cut in cuts:
+        kept: list[Area] = []
+        extra: list[Area] = []
+        for area in remaining:
+            pieces = without(area, cut)
+            kept.extend(pieces[:1])
+            extra.extend(pieces[1:])
+        remaining = kept + extra
+    return remaining
+
+
+def remove(sheet: Worksheet, areas: list[Area], rules: list[Rule] | None = None) -> bool:
+    """Subtract cells from every rule, or from ``rules``; caller owns its operation's protection."""
     planned: list[tuple[Rule, list[Area], list[str]]] = []
-    for rule in list(sheet.conditional_formats):
-        remaining = list(rule.areas)
-        for cut in areas:
-            kept: list[Area] = []
-            extra: list[Area] = []
-            for area in remaining:
-                pieces = without(area, cut)
-                kept.extend(pieces[:1])
-                extra.extend(pieces[1:])
-            remaining = kept + extra
+    for rule in list(sheet.conditional_formats) if rules is None else rules:
+        remaining = subtracted(rule.areas, areas)
         if remaining != rule.areas:
             formulas = [child.text or '' for child in rule.root.findall(NS + 'formula')]
             if remaining:
@@ -481,11 +487,21 @@ def remove(sheet: Worksheet, areas: list[Area]) -> bool:
             for child, text in zip(rule.root.findall(NS + 'formula'), formulas, strict=True):
                 child.text = text
         if not remaining:
+            keep_dxf(sheet, rule)
             rule.deleted = True
             sheet.conditional_formats.remove(rule)
     if planned:
         changed(sheet)
     return bool(planned)
+
+
+def keep_dxf(sheet: Worksheet, rule: Rule) -> None:
+    """Note the dxf of a rule a macro takes away, by a Delete, a Clear or a paste, which Excel's saves keep where
+    the rule's was though nothing names it, until the workbook is opened again; a rule that goes with its rows or
+    its sheet, or a format a new one replaces, takes its dxf with it (tests/fixtures/dxf_lifetime/)."""
+    identifier = rule.root.get('dxfId', '')
+    if identifier.isdecimal():
+        sheet.kept_dxfs.append((_priority(rule), int(identifier)))
 
 
 def _formula(value: object, target: Range) -> str:
@@ -585,7 +601,7 @@ class FormatConditions(VBACollection, ExcelObject):
     def vba_items(self) -> list[object]:
         rules = [rule for rule in self.sheet.conditional_formats if not rule.deleted
                  and any(meets(one, area) for one in rule.areas for area in self.target.areas)]
-        return [_wrapper(self.sheet, rule) for rule in sorted(rules, key=_priority)]
+        return [_wrapper(self.sheet, rule, self.target.areas) for rule in sorted(rules, key=_priority)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         position = int(to_integer(index, 'Long'))
@@ -672,6 +688,8 @@ class RuleObject(ExcelObject):
     (see _ConditionalRule)."""
 
     vba_type_name = ''
+    #: The range a range's FormatConditions reached the rule through, which Delete takes out of it.
+    through: list[Area] | None = None
 
     def __init__(self, sheet: Worksheet, rule: Rule) -> None:
         self.sheet, self.rule = sheet, rule
@@ -743,9 +761,16 @@ class RuleObject(ExcelObject):
         guard(self.sheet)
         if self.rule not in self.sheet.conditional_formats:
             raise error(1004)
+        if self.through is not None and subtracted(self.rule.areas, self.through):
+            # Reached through a range holding part of the rule, Delete takes that part out of it, as the
+            # collection's Delete does, the rule keeping its priority and its dxf
+            # (tests/fixtures/conditional_partial_delete/).
+            remove(self.sheet, self.through, [self.rule])
+            return EMPTY
         from pyopenvba.apps.excel._conditional_border_context import delete_member
 
         delete_member(self.sheet, self.rule)
+        keep_dxf(self.sheet, self.rule)
         self.sheet.conditional_formats.remove(self.rule)
         self.rule.deleted = True
         changed(self.sheet)
@@ -1185,7 +1210,7 @@ class UniqueValues(_StatisticalRule):
         changed(self.sheet)
 
 
-def _wrapper(sheet: Worksheet, rule: Rule) -> RuleObject:
+def _wrapper(sheet: Worksheet, rule: Rule, through: list[Area] | None = None) -> RuleObject:
     from pyopenvba.apps.excel._colour_scales import ColorScale
     from pyopenvba.apps.excel._data_bars import Databar
     from pyopenvba.apps.excel._icon_sets import IconSetCondition
@@ -1194,4 +1219,6 @@ def _wrapper(sheet: Worksheet, rule: Rule) -> RuleObject:
     factory: type[RuleObject] = {'top10': Top10, 'aboveAverage': AboveAverage, 'uniqueValues': UniqueValues,
                                  'duplicateValues': UniqueValues, 'colorScale': ColorScale, 'dataBar': Databar,
                                  'iconSet': IconSetCondition}.get(kind, FormatCondition)
-    return factory(sheet, rule)
+    wrapper = factory(sheet, rule)
+    wrapper.through = None if through is None else list(through)
+    return wrapper

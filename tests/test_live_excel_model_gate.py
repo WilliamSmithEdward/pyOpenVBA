@@ -1955,6 +1955,58 @@ def test_excel_reads_the_prefixed_workbooks_this_saved(tmp_path: Path) -> None:
             assert str(result.value) == answer, path.name
 
 
+def test_excel_reads_the_rules_a_delete_cut(tmp_path: Path) -> None:
+    """Each layout tests/fixtures/conditional_partial_delete measured, made by the model with the macro Excel ran,
+    a rule deleted through part of its range, all of it or more, and saved: Excel opens each and lists the rules
+    as it lists them in its own save of the layout."""
+    from test_excel_conditional_partial_delete import FIXTURES, LAYOUTS, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    body = "".join(RECORD["layout"].replace("{name}", layout["name"]).replace("{rules}", layout["rules"])
+                   .replace("{delete}", layout["delete"]) for layout in LAYOUTS)
+    app = ExcelApplication()
+    app.add_module(RECORD["build"].replace("{layouts}", body).replace("{folder}", str(tmp_path)), name="Builder")
+    app.run("Build")
+    reader = RECORD["build"].split("Public Function Build")[0] + (
+        "Public Function Read(path As String) As String\nDim wb As Object\nSet wb = Workbooks.Open(path)\n"
+        "Read = Listed(wb.Worksheets(1))\nwb.Close False\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        for layout in LAYOUTS:
+            model = excel.run_vba(reader, "Read", (str(tmp_path / f"{layout['name']}.xlsx"),), timeout=120.0)
+            own = excel.run_vba(reader, "Read", (str(FIXTURES / f"{layout['name']}.xlsx"),), timeout=120.0)
+            assert model.ok and own.ok, (layout["name"], model.message, own.message)
+            assert str(model.value) == str(own.value), layout["name"]
+
+
+def test_excel_reads_the_dxfs_a_delete_left(tmp_path: Path) -> None:
+    """Each layout tests/fixtures/dxf_lifetime measured, made by the model with the macro Excel ran, a rule taken
+    away and its dxf kept or let go, and saved: Excel opens each and lists every sheet's rules and their fills as it
+    lists them in its own save of the layout."""
+    from test_excel_dxf_lifetime import FILES, FIXTURES, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    saves = {layout["name"]: "".join(f'wb.SaveAs "{{folder}}\\{save}.xlsx", 51\n' for save in layout["saves"])
+             for layout in RECORD["layouts"]}
+    body = "".join(RECORD["layout"].replace("{steps}", layout["steps"]).replace("{name}", layout["name"])
+                   .replace("{saves}", saves[layout["name"]]) for layout in RECORD["layouts"])
+    app = ExcelApplication()
+    app.add_module(RECORD["build"].replace("{layouts}", body).replace("{folder}", str(tmp_path)), name="Builder")
+    assert app.run("Build") == "ok"
+    reader = ('Public Function Read(path As String) As String\nDim wb As Object, ws As Object, f As Object, '
+              'out As String\nSet wb = Workbooks.Open(path)\nFor Each ws In wb.Worksheets\nout = out & ws.Name & ":"\n'
+              'For Each f In ws.Cells.FormatConditions\nout = out & f.AppliesTo.Address(False, False) & "@" & '
+              'f.Priority & "=" & f.Interior.Color & ","\nNext\nout = out & ";"\nNext\nwb.Close False\nRead = out\n'
+              'End Function\n')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        for name in FILES:
+            model = excel.run_vba(reader, "Read", (str(tmp_path / f"{name}.xlsx"),), timeout=120.0)
+            own = excel.run_vba(reader, "Read", (str(FIXTURES / f"{name}.xlsx"),), timeout=120.0)
+            assert model.ok and own.ok, (name, model.message, own.message)
+            assert str(model.value) == str(own.value), name
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

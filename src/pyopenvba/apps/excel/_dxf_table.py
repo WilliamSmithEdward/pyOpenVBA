@@ -2,15 +2,18 @@
 
 Excel keeps a workbook's dxfs as a stack (scripts/measure_dxf_table.py,
 tests/fixtures/dxf_table/). Each one made goes first, and a save writes
-them from the first down, leaving out those nothing names any more, every
-part naming each where the save wrote it. A format a macro gives a rule is
-a new dxf, first, even where an earlier rule's says the same; the one the
-rule had goes. Opening a file, each name of a dxf takes a dxf of its own,
-so two names of one come out as two, in the order Excel reads the parts:
-the stylesheet's table styles; then each sheet, the active one first and
-the rest in order, with its filter's and sort's colours, then its tables
-and its pivot tables; then every sheet's conditional formats in that order,
-by priority.
+them from the first down, every part naming each where the save wrote it.
+A format a macro gives a rule is a new dxf, first, even where an earlier
+rule's says the same; the one the rule had goes, as does a rule's that
+goes with its rows or its sheet. A rule a Delete, a Clear or a paste takes
+away leaves its dxf where it was, which every save writes though nothing
+names it (tests/fixtures/dxf_lifetime/). Opening a file, each name of a
+dxf takes a dxf of its own, so two names of one come out as two, and one
+nothing names is left out, in the order Excel reads the parts: the
+stylesheet's table styles; then each sheet, the active one first and the
+rest in order, with its filter's and sort's colours, then its tables and
+its pivot tables; then every sheet's conditional formats in that order, by
+priority.
 """
 
 from __future__ import annotations
@@ -44,6 +47,8 @@ class _Name:
     priority: int = 0
     content: str = ""
     rule: str = ""
+    #: The dxf of a rule a macro took away, which stands where the rule's name did and names nothing.
+    kept: bool = False
 
 
 #: A rule a worksheet's Excel 2010 extension keeps, and the dxf it holds of its own.
@@ -121,8 +126,9 @@ def number_dxfs(book: Workbook, package: OpcFile) -> None:
     for sheet in order:
         if sheet.part_name in texts:
             text = texts[sheet.part_name]
-            walk += sorted([*_names(sheet.part_name, text, rules=True), *_extension_rules(sheet.part_name, text)],
-                           key=lambda name: name.priority)
+            gone = [_Name(sheet.part_name, 0, 0, index, priority, kept=True) for priority, index in sheet.kept_dxfs]
+            walk += sorted([*_names(sheet.part_name, text, rules=True), *_extension_rules(sheet.part_name, text),
+                            *gone], key=lambda name: name.priority)
     count, base, fresh = stylesheet.dxf_count, stylesheet.dxf_base_count, stylesheet.dxf_fresh
 
     def rank(at: int) -> tuple[int, ...]:
@@ -141,9 +147,13 @@ def number_dxfs(book: Workbook, package: OpcFile) -> None:
     stylesheet.write_dxf_table([walk[at].content or walk[at].index for at in kept],
                                [place.get(at, name.index) for at, name in enumerate(walk) if not name.part])
     stylesheet.extension_places = {walk[at].rule: place[at] for at in kept if walk[at].content}
+    for sheet in order:
+        # A rule taken away keeps its dxf where the save wrote it.
+        sheet.kept_dxfs = [(name.priority, place[at]) for at, name in enumerate(walk)
+                           if name.kept and name.part == sheet.part_name and at in place]
     renamed: dict[str, list[tuple[_Name, int]]] = {}
     for at, name in enumerate(walk):
-        if name.part and not name.content:
+        if name.part and not name.content and not name.kept:
             renamed.setdefault(name.part, []).append((name, place.get(at, name.index)))
     for part, text in texts.items():
         named = sorted(renamed.get(part, []), key=lambda item: item[0].start)

@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- AutoFilter on dates by year, month, day, hour, minute or second, as the
+  macro recorder writes it: `Operator:=xlFilterValues` with Criteria2 as
+  pairs of a level and a date, `Array(1, "3/1/2025")` for March 2025. A
+  year needs a date to name it, `"2025"` alone being error 1004 with the
+  filter turned on. An array Criteria1 adds its values beside the dates;
+  a single one is passed over. A cell passes holding a date in a date
+  format inside a group. The filter reads back as its values alone do,
+  Operator 0 and no criteria where there are none. The file keeps it as
+  Excel does, in the column filter's Excel 2017 extension, the dates with
+  the latest year first and within one the earliest moment; a file's
+  classic filters element of dates reads back as xlFilterValues and is
+  saved as it was. The model refused them. 26 live layouts agree, before
+  a save and once the file is opened again, with three files written the
+  classic way, and Excel reads the model's files as its own.
+
 - AutoFilter on a colour: xlFilterCellColor, xlFilterFontColor,
   xlFilterNoFill and xlFilterAutomaticFontColor, on a sheet's filter and
   a table's. A row shows where its cell has a solid fill of the colour, a

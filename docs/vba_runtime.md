@@ -578,6 +578,13 @@ target starts from the first array element.
   never set sorts on no fill. A font shows only a colour set outright: the
   automatic colour matches nothing. The file keeps the colour as a dxf.
   With no range or no field, Apply sorts nothing and says nothing.
+* A field on icons (`tests/fixtures/icon_sorts/`, 8 layouts) puts the
+  rows showing the icon `SetIcon` gave it on top, or at the bottom with
+  xlDescending, the icon a conditional format's icon set shows a cell as
+  a filter on it finds it; an icon of another set and a field given none
+  move nothing. SortOnValue is the Icon, Nothing until set, and the file
+  keeps the icon's set and its place from 0. A table's sort on icons
+  reports itself unsupported.
 
 **Protection.** `Worksheet.Protect`, `Unprotect` and the Protection
 object follow Excel (`tests/fixtures/protection.json`, 168 cases), and a

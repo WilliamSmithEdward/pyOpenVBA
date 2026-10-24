@@ -24,7 +24,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / "fixtures" / "sort_colour"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "sort_colour.json").read_text(encoding="utf-8"))
@@ -55,11 +54,6 @@ def _run(layout: dict[str, Any]) -> object:
 @pytest.mark.parametrize("layout", _gaps(LAYOUTS), ids=lambda layout: layout["name"])
 def test_a_colour_sort_orders_rows_as_excel_does(layout: dict[str, Any]) -> None:
     assert _run(layout) == layout["answers"]
-
-
-def test_icons_report_themselves() -> None:
-    with pytest.raises(VBAUnsupportedError, match="icons"):
-        _run({"name": "icons", "setup": 'ws.Sort.SortFields.Add Key:=ws.Range("A2:A9"), SortOn:=xlSortOnIcon\n'})
 
 
 @pytest.fixture(scope="module")

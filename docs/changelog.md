@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- The Sort object sorts on a conditional format's icons: a field with
+  SortOn:=xlSortOnIcon puts the rows showing the icon its `SetIcon` gave
+  it on top, or at the bottom with xlDescending, the rest in their order,
+  as a colour field does. An icon of another set and a field given none
+  move nothing. SortOnValue reads the Icon, Nothing until set, and the
+  file keeps the icon's set and its place, which a file's sort reads
+  back. The model refused SortOn:=xlSortOnIcon; a table's sort on icons
+  still reports itself unsupported. 8 layouts agree with Excel, before a
+  save and once the file is opened again, and Excel reads the model's
+  file as its own.
+
 - AutoFilter on a conditional format's icons: xlFilterIcon with an Icon
   as Criteria1 keeps the cells an icon set shows that icon, and
   xlFilterNoIcon those it shows none. The model works out the icon each

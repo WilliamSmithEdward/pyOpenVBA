@@ -10,7 +10,7 @@ import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._charts_file import xml_bytes, xml_tree
-from pyopenvba.apps.excel._conditional import NS, FormatConditions, read_rules, with_rules
+from pyopenvba.apps.excel._conditional import NS, RANGE_RULES, FormatConditions, read_rules, with_rules
 from pyopenvba.apps.excel._io import workbook_format
 from pyopenvba.apps.excel._model import Range, Workbook
 from pyopenvba.interpreter._objects import VBAObject
@@ -52,8 +52,8 @@ def test_native_format_loading_projects_only_macro_free_areas_without_dirtying(
             assert isinstance(wrapper, VBAObject)
             applies = wrapper.vba_get('AppliesTo')
             assert isinstance(applies, Range)
-            generic = rule.root.get('type') not in ('top10', 'aboveAverage', 'uniqueValues', 'duplicateValues')
-            expected = (sorted(rule.areas, key=lambda area: (area.top, area.left, area.bottom, area.right))
+            generic = rule.root.get('type') not in RANGE_RULES
+            expected = (sorted(rule.areas, key=lambda area: (area.top, area.bottom, area.left, area.right))
                         if file_format == 51 and generic else rule.areas)
             assert [(area.top, area.left, area.bottom, area.right) for area in applies.areas] == [
                 (area.top, area.left, area.bottom, area.right) for area in expected]

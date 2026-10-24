@@ -167,11 +167,16 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             sheet.validations = read_rules(sheet_xml)
             from pyopenvba.apps.excel._conditional import read_sheet_rules
 
+            plain_load = workbook_format(book) == 51 or not package.has('xl/vbaProject.bin')
             sheet.conditional_formats, understood = read_sheet_rules(
-                sheet_xml, imported=workbook_format(book) == 51,
-                plain_load=workbook_format(book) == 51 or not package.has('xl/vbaProject.bin'),
+                sheet_xml, imported=workbook_format(book) == 51, plain_load=plain_load,
                 sheet_index=book.sheets_.index(sheet))
             sheet.conditional_foreign = not understood
+            if plain_load and understood:
+                from pyopenvba.apps.excel._conditional_joins import join
+
+                # Excel joins rules alike as it reads a workbook without a VBA project, and saves them joined.
+                sheet.conditional_changed = join(sheet)
             from pyopenvba.apps.excel._conditional_border_context import initialize
 
             initialize(sheet)
@@ -1299,8 +1304,11 @@ def save_workbook(book: Workbook, target: Path) -> None:
                                                                         or sheet.outline_state.changed_columns)
         page_changes = sheet.page_setup_state is not None and bool(sheet.page_setup_state.changes)
         sort_changes = sort_changed(sheet)
+        # Excel writes the rules of a workbook it read without a VBA project in its own order, joined where it
+        # joined them (_conditional_joins), so a sheet keeps its bytes only where they are those.
+        conditional_changes = not sheet.dirty and _plain_conditional(sheet)
         if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes
-                                       or outline_changes or sort_changes):
+                                       or outline_changes or sort_changes or conditional_changes):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
@@ -1319,6 +1327,12 @@ def save_workbook(book: Workbook, target: Path) -> None:
             patched = with_setup(sheet, patched)
         if sort_changes:
             patched = with_sort_state(sheet, patched)
+        if conditional_changes:
+            from pyopenvba.apps.excel._conditional import with_rules as with_conditional_rules
+
+            patched = with_conditional_rules(patched, sheet.conditional_formats,
+                                             extension=not sheet.conditional_foreign)
+            sheet.conditional_changed = False
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
             if outline_changes and sheet.outline_state is not None:
@@ -1726,6 +1740,14 @@ def _rename_sheets_in_workbook(book: Workbook, package: OpcFile, existing: list[
         if wanted != old:
             text = text.replace(f'name="{_escape(old)}"', f'name="{_escape(wanted)}"', 1)
     package.write("xl/workbook.xml", text.encode("utf-8"))
+
+
+def _plain_conditional(sheet: Worksheet) -> bool:
+    """Whether a sheet holds conditional formats read from a workbook without a VBA project, which Excel writes
+    again in its own order (tests/fixtures/conditional_joins/conditional_joins_resaved.xlsx)."""
+    from pyopenvba.apps.excel._conditional import canonical_load
+
+    return sheet.conditional_changed or any(rule.loaded and canonical_load(rule) for rule in sheet.conditional_formats)
 
 
 def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector: Collector | None = None) -> str:

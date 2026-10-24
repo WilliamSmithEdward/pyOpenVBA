@@ -22,6 +22,9 @@ if TYPE_CHECKING:
 
 NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 ORDER = ('font', 'numFmt', 'fill', 'alignment', 'border', 'protection', 'extLst')
+#: CT_Font's children in the schema's order, which Excel writes a dxf's font in (tests/fixtures/conditional_joins/).
+FONT_ORDER = ('b', 'i', 'strike', 'condense', 'extend', 'outline', 'shadow', 'u', 'vertAlign', 'sz', 'color', 'name',
+              'family', 'charset', 'scheme')
 SIDES = {7: 'left', 8: 'top', 9: 'bottom', 10: 'right'}
 LEGACY_SIDES = {1: 7, 2: 10, 3: 8, 4: 9, -4131: 7, -4152: 10, -4160: 8, -4107: 9}
 
@@ -30,7 +33,7 @@ def child(root: XmlElement, name: str) -> XmlElement:
     found = root.find(NS + name)
     if found is None:
         found = XmlElement(NS + name)
-        order = {'dxf': ORDER, 'patternFill': ('fgColor', 'bgColor'),
+        order = {'dxf': ORDER, 'patternFill': ('fgColor', 'bgColor'), 'font': FONT_ORDER,
                  'border': ('left', 'right', 'top', 'bottom', 'diagonal', 'vertical', 'horizontal')}.get(
                      root.tag.rsplit('}', 1)[-1], ())
         rank = order.index(name) if name in order else len(order)
@@ -60,7 +63,6 @@ def api_number_format(root: XmlElement, stylesheet: styles.Stylesheet) -> object
 def set_number_format(root: XmlElement, value: object, stylesheet: styles.Stylesheet) -> None:
     code = to_text(value)
     entry = child(root, 'numFmt')
-    entry.set('formatCode', encode_attribute(code))
     # Native Excel writes known formats with their built-in ID (0.00 is 2),
     # while the rule's getter still reads its inline formatCode independently.
     identifier = next((identifier for identifier, known in stylesheet.number_formats.items() if known == code), None)
@@ -75,7 +77,12 @@ def set_number_format(root: XmlElement, value: object, stylesheet: styles.Styles
         identifier = next((number for number, known in inline if known == code), None)
         if identifier is None:
             identifier = max(163, *stylesheet.number_formats, *(number for number, _ in inline)) + 1
+    # The id before the code, as Excel writes them (tests/fixtures/conditional_joins/); anything else stays after.
+    others = {key: value for key, value in entry.attrib.items() if key not in ('numFmtId', 'formatCode')}
+    entry.attrib.clear()
     entry.set('numFmtId', str(identifier))
+    entry.set('formatCode', encode_attribute(code))
+    entry.attrib.update(others)
 
 
 def read_color(entry: XmlElement | None) -> styles.Color | None:
@@ -130,7 +137,12 @@ class ConditionalFont(_Patch):
     def set_flag(self, name: str, value: object) -> None:
         selected = False if value is NULL else to_bool(value)
         font = child(self.root, 'font')
-        child(font, name).set('val', '1' if selected else '0')
+        # Excel writes a flag that is on bare, <b/>, and one that is off with its value.
+        flag = child(font, name)
+        if selected:
+            flag.attrib.pop('val', None)
+        else:
+            flag.set('val', '0')
         if name in ('b', 'i'):
             other = 'i' if name == 'b' else 'b'
             if font.find(NS + other) is None:
@@ -364,6 +376,10 @@ class ConditionalBorder(_Patch):
             side = self.side(True)
             assert side is not None
             side.set('style', result.style or 'none')
+            if result.style and side.find(NS + 'color') is None:
+                # A line given no colour of its own is drawn in the automatic one, which Excel writes
+                # (tests/fixtures/conditional_joins/, j_border).
+                write_color(side, 'color', styles.Color('auto', 1))
         self.changed()
 
     @member

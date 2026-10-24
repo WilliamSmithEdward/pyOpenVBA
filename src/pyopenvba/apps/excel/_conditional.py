@@ -714,7 +714,11 @@ class RuleObject(ExcelObject):
     @setter('StopIfTrue')
     def set_stop(self, value: object) -> None:
         guard(self.sheet)
-        self.rule.root.set('stopIfTrue', str(int(to_bool(value))))
+        # Excel writes stopIfTrue="1" alone, leaving a rule that goes on unmarked (tests/fixtures/conditional_joins/).
+        if to_bool(value):
+            self.rule.root.set('stopIfTrue', '1')
+        else:
+            self.rule.root.attrib.pop('stopIfTrue', None)
         changed(self.sheet)
 
     @method

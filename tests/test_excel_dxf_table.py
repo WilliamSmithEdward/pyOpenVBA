@@ -31,9 +31,6 @@ EDITS = {
                                'RGB(255, 192, 203)'),
     "order_deleted": ("order", 'ActiveWorkbook.Worksheets("gamma").Range("A1").FormatConditions(1).Delete'),
 }
-#: Where the model's save after an edit holds its dxfs otherwise than Excel's.
-GAPS = {"order_deleted": "Excel takes the cell out of a rule deleted through a range holding part of it, the rest "
-                         "keeping its format in a new dxf, first; the model deletes the whole rule"}
 #: Each workbook's rules, its tables' first columns and its sort's colour, as the measurement's readers show them.
 READER = '''Public Function Read(tables As Boolean, sorted As String) As String
 Dim ws As Object, t As Object, f As Object, out As String
@@ -134,11 +131,10 @@ def test_a_file_saved_unchanged_writes_its_dxfs_as_excel_does(case: dict[str, An
     assert holdings(app.save(tmp_path / "second.xlsx")) == first
 
 
-@pytest.mark.parametrize("name", [
-    pytest.param(name, marks=[pytest.mark.xfail(strict=True, reason=GAPS[name])] if name in GAPS else [])
-    for name in EDITS])
+@pytest.mark.parametrize("name", EDITS)
 def test_an_edit_writes_its_dxfs_as_excel_does(name: str, tmp_path: Path) -> None:
-    """A rule made, or one given a new format, takes a new dxf ahead of the file's, and the dxf it had goes."""
+    """A rule made, or one given a new format, takes a new dxf ahead of the file's, and the dxf it had goes; a rule
+    a Delete cuts keeps its dxf where it was."""
     assert holdings(edit(opened(name), name).save(tmp_path / f"{name}.xlsx")) == excel_saved(name)
 
 

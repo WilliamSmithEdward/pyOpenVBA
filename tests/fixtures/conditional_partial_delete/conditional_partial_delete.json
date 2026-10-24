@@ -1,0 +1,360 @@
+{
+ "build": "Private Function Listed(ws As Object) As String\n    Dim f As Object, out As String, formula As String, colour As String\n    For Each f In ws.Cells.FormatConditions\n        formula = \"\"\n        colour = \"\"\n        On Error Resume Next\n        formula = f.Formula1\n        colour = CStr(f.Interior.Color)\n        On Error GoTo 0\n        out = out & TypeName(f) & \" \" & f.AppliesTo.Address(False, False) & \"@\" & f.Priority & \"=\" & formula & _\n            \"/\" & colour & \";\"\n    Next\n    Listed = out\nEnd Function\n\nPublic Function Build() As String\nDim wb As Object, ws As Object, f As Object, g As Object, out As String, r As Long, c As Long\nApplication.DisplayAlerts = False\n{layouts}\nBuild = out\nEnd Function\n",
+ "layout": "Set wb = Workbooks.Add(xlWBATWorksheet)\nSet ws = wb.Worksheets(1)\nFor r = 1 To 10\n    For c = 1 To 4\n        ws.Cells(r, c).Value = r * 10 + c\n    Next\nNext\n{rules}out = out & \"{name}^\" & Listed(ws) & \"~\"\nOn Error Resume Next\n{delete}\nIf Err.Number <> 0 Then out = out & \"E\" & Err.Number & \"~\"\nOn Error GoTo 0\nout = out & Listed(ws) & \"|\"\nwb.SaveAs \"{folder}\\{name}.xlsx\", 51\nwb.Close False\n",
+ "layouts": [
+  {
+   "name": "first_cell",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "FormatCondition A2:A3@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "middle_cell",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A2\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "FormatCondition A1,A3@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1 A3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "last_cell",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A3\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "FormatCondition A1:A2@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1:A2\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "two_cells",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1:A2\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "FormatCondition A3@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "all_of_it",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1:A3\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "",
+   "file": {
+    "rules": [],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "more_than_it",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1:B5\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "",
+   "file": {
+    "rules": [],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "whole_sheet",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Cells.FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "",
+   "file": {
+    "rules": [],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "other_area",
+   "rules": "Set f = ws.Range(\"A1:A3,C1:C3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"C1:C3\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3,C1:C3@1==5/255;",
+   "after": "FormatCondition A1:A3@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1:A3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "part_of_area",
+   "rules": "Set f = ws.Range(\"A1:A3,C1:C3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"C1\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3,C1:C3@1==5/255;",
+   "after": "FormatCondition A1:A3,C2:C3@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1:A3 C2:C3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "hole",
+   "rules": "Set f = ws.Range(\"A1:C3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"B2\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:C3@1==5/255;",
+   "after": "FormatCondition A1:C1,A3:C3,A2,C2@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1:C1 A3:C3 A2 C2\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "corner",
+   "rules": "Set f = ws.Range(\"A1:C3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:C3@1==5/255;",
+   "after": "FormatCondition A2:C3,B1:C1@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:C3 B1:C1\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "second_rule",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = ws.Range(\"A1:A5\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 0, 255)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(2).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;FormatCondition A1:A5@2==5/16711680;",
+   "after": "FormatCondition A1:A3@1==5/255;FormatCondition A2:A5@2==5/16711680;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1:A3\"><cfRule type=\"cellIs\" dxfId=\"1\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>",
+     "<conditionalFormatting sqref=\"A2:A5\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"2\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "first_of_two",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = ws.Range(\"A1:A5\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 0, 255)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;FormatCondition A1:A5@2==5/16711680;",
+   "after": "FormatCondition A2:A3@1==5/255;FormatCondition A1:A5@2==5/16711680;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A3\"><cfRule type=\"cellIs\" dxfId=\"1\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>",
+     "<conditionalFormatting sqref=\"A1:A5\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"2\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "priorities",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = ws.Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nSet f = ws.Range(\"C1:C3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 0, 255)\n",
+   "delete": "ws.Range(\"B1\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==5/255;FormatCondition B1:B3@2==5/65280;FormatCondition C1:C3@3==5/16711680;",
+   "after": "FormatCondition A1:A3@1==5/255;FormatCondition B2:B3@2==5/65280;FormatCondition C1:C3@3==5/16711680;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1:A3\"><cfRule type=\"cellIs\" dxfId=\"2\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>",
+     "<conditionalFormatting sqref=\"B2:B3\"><cfRule type=\"cellIs\" dxfId=\"1\" priority=\"2\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>",
+     "<conditionalFormatting sqref=\"C1:C3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "expression",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlExpression, , \"=A1>5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(1).Delete",
+   "before": "FormatCondition A1:A3@1==A1>5/255;",
+   "after": "FormatCondition A2:A3@1==A2>5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A3\"><cfRule type=\"expression\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\"><formula>A2&gt;5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "top10",
+   "rules": "Set f = ws.Range(\"A1:A10\").FormatConditions.AddTop10\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(1).Delete",
+   "before": "Top10 A1:A10@1=/255;",
+   "after": "Top10 A2:A10@1=/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A10\"><cfRule type=\"top10\" dxfId=\"0\" priority=\"1\" rank=\"10\"/></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "colour_scale",
+   "rules": "Set f = ws.Range(\"A1:A10\").FormatConditions.AddColorScale(3)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(1).Delete",
+   "before": "ColorScale A1:A10@1=/;",
+   "after": "ColorScale A2:A10@1=/;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A10\"><cfRule type=\"colorScale\" priority=\"1\"><colorScale><cfvo type=\"min\"/><cfvo type=\"percentile\" val=\"50\"/><cfvo type=\"max\"/><color rgb=\"FFF8696B\"/><color rgb=\"FFFFEB84\"/><color rgb=\"FF63BE7B\"/></colorScale></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": []
+   }
+  },
+  {
+   "name": "data_bar",
+   "rules": "Set f = ws.Range(\"A1:A10\").FormatConditions.AddDatabar\n",
+   "delete": "ws.Range(\"A1\").FormatConditions(1).Delete",
+   "before": "Databar A1:A10@1=/;",
+   "after": "Databar A2:A10@1=/;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A10\"><cfRule type=\"dataBar\" priority=\"1\"><dataBar><cfvo type=\"min\"/><cfvo type=\"max\"/><color rgb=\"FF638EC6\"/></dataBar><extLst><ext uri=\"{B025F937-C7B1-47D3-B67F-A62EFF666E3E}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:id>{CA8EF183-3221-4907-9BB0-CBDB367F6F22}</x14:id></ext></extLst></cfRule></conditionalFormatting>"
+    ],
+    "extension": [
+     "<x14:conditionalFormatting xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:cfRule type=\"dataBar\" id=\"{CA8EF183-3221-4907-9BB0-CBDB367F6F22}\"><x14:dataBar minLength=\"0\" maxLength=\"100\" negativeBarColorSameAsPositive=\"1\" axisPosition=\"none\"><x14:cfvo type=\"min\"/><x14:cfvo type=\"max\"/></x14:dataBar></x14:cfRule><xm:sqref>A2:A10</xm:sqref></x14:conditionalFormatting>"
+    ],
+    "dxfs": []
+   }
+  },
+  {
+   "name": "kept",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "Set g = ws.Range(\"A1\").FormatConditions(1)\nws.Range(\"D9\").Value = 1\ng.Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "FormatCondition A2:A3@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "kept_whole",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "Set g = ws.Range(\"A1:A3\").FormatConditions(1)\ng.Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "",
+   "file": {
+    "rules": [],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "collection",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\n",
+   "delete": "ws.Range(\"A1\").FormatConditions.Delete",
+   "before": "FormatCondition A1:A3@1==5/255;",
+   "after": "FormatCondition A2:A3@1==5/255;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A2:A3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  },
+  {
+   "name": "collection_priorities",
+   "rules": "Set f = ws.Range(\"A1:A3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = ws.Range(\"B1:B3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 255, 0)\nSet f = ws.Range(\"C1:C3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(0, 0, 255)\n",
+   "delete": "ws.Range(\"B1\").FormatConditions.Delete",
+   "before": "FormatCondition A1:A3@1==5/255;FormatCondition B1:B3@2==5/65280;FormatCondition C1:C3@3==5/16711680;",
+   "after": "FormatCondition A1:A3@1==5/255;FormatCondition B2:B3@2==5/65280;FormatCondition C1:C3@3==5/16711680;",
+   "file": {
+    "rules": [
+     "<conditionalFormatting sqref=\"A1:A3\"><cfRule type=\"cellIs\" dxfId=\"2\" priority=\"1\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>",
+     "<conditionalFormatting sqref=\"B2:B3\"><cfRule type=\"cellIs\" dxfId=\"1\" priority=\"2\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>",
+     "<conditionalFormatting sqref=\"C1:C3\"><cfRule type=\"cellIs\" dxfId=\"0\" priority=\"3\" stopIfTrue=\"1\" operator=\"greaterThan\"><formula>5</formula></cfRule></conditionalFormatting>"
+    ],
+    "extension": [],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ]
+   }
+  }
+ ]
+}

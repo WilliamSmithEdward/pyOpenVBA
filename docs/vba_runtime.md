@@ -1185,6 +1185,16 @@ and saved again):
   distances, rules alike beside one made anew, several ranges made anew
   at once.
 
+`FormatCondition.Delete` on a rule a range's FormatConditions reached
+takes that range's cells out of the rule, as the collection's `Delete`
+takes them out of every rule there
+(`tests/fixtures/conditional_partial_delete/`, 22 layouts). The rule
+keeps its priority and its dxf, its first formula moving to the first
+cell left, and goes only when the range holds all of it: through
+`Range("A1")`, a rule over A1:A3 is left over A2:A3, and one over A1:C3
+cut at B2 over `A1:C1,A3:C3,A2,C2`. A rule deleted whole leaves its dxf
+behind in Excel's save, which the model leaves out.
+
 **Reading a file.** Excel joins conditional formats as it reads a
 workbook without a VBA project, an .xlsx or an .xlsm holding no code
 (`tests/fixtures/conditional_joins/`, 84 layouts in three formats):

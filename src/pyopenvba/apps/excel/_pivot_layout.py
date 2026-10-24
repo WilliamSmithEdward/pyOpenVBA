@@ -37,6 +37,7 @@ from pyopenvba.apps.excel._pivot_forms import (
     on,
     set_flag,
 )
+from pyopenvba.apps.excel._pivot_options import shown_text, values_row_shown as shows_values_row
 from pyopenvba.apps.excel._pivot_sorts import value_sorts
 from pyopenvba.apps.excel._pivots import NS, decode_text
 from pyopenvba.apps.excel._styles import Alignment, Style, applying
@@ -44,7 +45,7 @@ from pyopenvba.apps.excel._typing import Typed
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
 from pyopenvba.formula._calc import collate
 from pyopenvba.formula._display import format_value
-from pyopenvba.formula._values import number_text
+from pyopenvba.formula._values import ExcelError, number_text
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error, to_number
 
 if TYPE_CHECKING:
@@ -342,7 +343,7 @@ class RenderPlan:
 def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | None = None,
                 *, cache: PivotCache | None = None, normalized: CacheLayout | None = None,
                 cell_limit: int | None = None) -> RenderPlan:
-    from pyopenvba.apps.excel._pivot_aggregate import aggregate, hide_values_row, records
+    from pyopenvba.apps.excel._pivot_aggregate import aggregate, records
 
     table = table.entry
     cache = cache if cache is not None else table.cache
@@ -383,15 +384,29 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     selected = value_filtered(selected, ids, records_, found, (rows, columns), reports)
     sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_)
     layouts = {index: layout_of(root, index) for index in (*rows, *columns)}
-    row_lines = _lines(rows, ids, display, len(reports), rows=True, grand=root.get('colGrandTotals', '1') != '0',
-                       selected=selected, sorts=sorts, layouts=layouts)
-    col_lines = _lines(columns, ids, display, len(reports), rows=False, grand=root.get('rowGrandTotals', '1') != '0',
-                       selected=selected, sorts=sorts, layouts=layouts)
+    # While ManualUpdate is on, the table shows its captions alone, an axis no items, the Values field its data
+    # fields' places (tests/fixtures/pivot_options/ manual_pending, manual_two_data).
+    skeleton = table.manual
+    if skeleton:
+        row_lines = ([Line(data=measure) for measure in range(len(reports))] if VALUES in rows
+                     else [] if rows else [Line()])
+        col_lines = ([Line(data=measure) for measure in range(len(reports))] if VALUES in columns
+                     else [Line()])
+    else:
+        row_lines = _lines(rows, ids, display, len(reports), rows=True,
+                           grand=root.get('colGrandTotals', '1') != '0', selected=selected, sorts=sorts,
+                           layouts=layouts)
+        col_lines = _lines(columns, ids, display, len(reports), rows=False,
+                           grand=root.get('rowGrandTotals', '1') != '0', selected=selected, sorts=sorts,
+                           layouts=layouts)
     location = root.find(NS + 'location')
     assert location is not None
     old = parse_area(location.get('ref', 'A1'))
     label_of, depth_of = label_columns(root, rows)
-    dr = len(columns) + 1 if any(index != VALUES for index in columns) else 1
+    # The Values row shows over the data fields' captions where the Values field is alone on the columns and the
+    # table shows it (tests/fixtures/pivot_options/ values_row).
+    values_row = columns == [VALUES] and shows_values_row(root)
+    dr = len(columns) + 1 if any(index != VALUES for index in columns) or values_row else 1
     dc = label_of[-1] + 1 if rows else int(bool(reports) and bool(columns) and VALUES not in columns)
     if not rows and len(reports) == 1 and any(index != VALUES for index in columns):
         dc = 1
@@ -434,6 +449,16 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             value = value.value
         if value is not EMPTY:
             cells[area.top + row, area.left + column] = value
+
+    if empty and not pages:
+        # An empty table draws its placeholder again, as a new one does (tests/fixtures/pivot_options/
+        # clear_table).
+        from pyopenvba.apps.excel._pivot_create import placeholder_border
+
+        for row in range(area.top, area.bottom + 1):
+            for column in range(area.left, area.right + 1):
+                labels[row, column] = replace(base, border=placeholder_border(area, row, column),
+                                              applied=base.applied | {'border'})
 
     def button(row: int, column: int, value: object) -> None:
         """A field's caption, which shows its button."""
@@ -538,6 +563,8 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                 button(0, 0, report_names[0])
             else:
                 put(dr, 0, report_names[0])
+    elif values_row and captions_shown:
+        button(0, dc, data_caption)
     previous: tuple[int, ...] = ()
     for offset, line in enumerate(col_lines):
         if columns:
@@ -606,7 +633,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         code = codes.get(int(identifier), 'General') if identifier.isdecimal() and identifier != '0' else 'General'
         return applying(base, 'number_format', number_format=code)
 
-    if reports:
+    if reports and not skeleton:
         # Every cell of the values takes its data field's format, an empty one too (tests/fixtures/pivot_layouts/).
         for offset, line in enumerate(row_lines):
             for column, column_line in enumerate(col_lines):
@@ -636,6 +663,24 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                     function = function_of(line) or function_of(col_lines[column]) or report.get('subtotal', 'sum')
                     value = aggregate([record[int(report.get('fld', '0'))] for record in selected], function)
                     put(dr + offset, dc + column, value)
+        # A value cell no record reaches shows the table's null string, or 0 where it displays none, and one that
+        # works out an error its error string where it displays that (tests/fixtures/pivot_options/ null_letter,
+        # null_display_off, error_string).
+        missing = decode_text(root.get('missingCaption', ''))
+        filler = (shown_text(missing) if missing else EMPTY) if on(root, 'showMissing', True) else 0.0
+        failed = shown_text(decode_text(root.get('errorCaption', ''))) if on(root, 'showError', False) else None
+        for offset, line in enumerate(row_lines):
+            if line.header:
+                continue
+            for column in range(len(col_lines)):
+                key = area.top + dr + offset, area.left + dc + column
+                if key not in cells and filler is not EMPTY:
+                    cells[key] = filler
+                elif failed is not None and isinstance(cells.get(key), ExcelError):
+                    if failed == '':
+                        del cells[key]
+                    else:
+                        cells[key] = failed
     pivot_fields = root.find(NS + 'pivotFields')
     planned_fields = deepcopy(pivot_fields)
     assert pivot_fields is not None and planned_fields is not None
@@ -657,6 +702,10 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         else:
             put(-page_rows - 1 + row_offset, 3 * column_offset + 1, showing)
     previous_areas = [old, extent]
+    # A table moved elsewhere leaves its old place empty (tests/fixtures/pivot_options/ location).
+    current = table.root.find(NS + 'location')
+    if current is not None and current.get('ref', 'A1') != location.get('ref', 'A1'):
+        previous_areas.append(parse_area(current.get('ref', 'A1')))
     if table.root.findall(f'{NS}pageFields/{NS}pageField'):
         from pyopenvba.apps.excel._pivot_ranges import page_range
 
@@ -690,7 +739,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             for index in axis:
                 group.append(node('field', {'x': str(index)}))
             children.append(group)
-        if not empty:
+        if not empty and not skeleton:
             children.append(_line_xml('rowItems' if name == 'rowFields' else 'colItems', row_lines if name == 'rowFields' else col_lines))
     if pages:
         group = node('pageFields', {'count': str(len(pages))})
@@ -705,7 +754,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         children.append(group)
     for index, child in enumerate(children):
         root.insert(1 + index, child)
-    location.attrib.update(ref=area.address(absolute=False), firstHeaderRow=str(0 if empty and pages else int(VALUES not in columns or len(columns) > 1)),
+    location.attrib.update(ref=area.address(absolute=False), firstHeaderRow=str(0 if empty and pages else int(VALUES not in columns or len(columns) > 1 or values_row)),
                            firstDataRow=str(dr), firstDataCol=str(dc))
     if pages:
         location.attrib.update(rowPageCount=str(page_rows), colPageCount=str(page_columns))
@@ -713,7 +762,6 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         location.attrib.pop('rowPageCount', None)
         location.attrib.pop('colPageCount', None)
     set_flag(root, 'dataOnRows', VALUES in rows, False, TABLE_ORDER)
-    hide_values_row(root)
     styles = [*buttons.items(), *labels.items(), *values_formats.items()]
     return RenderPlan(table, root, fields, cache_records, extent, previous_areas, cells, styles)
 

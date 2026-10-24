@@ -282,14 +282,9 @@ def _set_repeat(field: XmlElement, repeat: bool) -> None:
 
 
 def _set_table_default(root: XmlElement, repeat: bool) -> None:
-    from pyopenvba.apps.excel._pivot_aggregate import hide_values_row
+    from pyopenvba.apps.excel._pivot_options import table_options
 
-    hide_values_row(root)
-    extensions = root.find(NS + 'extLst')
-    assert extensions is not None
-    extension = next(entry for entry in extensions if entry.get('uri') == TABLE_EXTENSION)
-    options = extension.find(X14 + 'pivotTableDefinition')
-    assert options is not None
+    options = table_options(root)
     if repeat:
         options.set('fillDownLabelsDefault', '1')
     else:

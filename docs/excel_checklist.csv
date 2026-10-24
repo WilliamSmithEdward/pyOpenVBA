@@ -1206,13 +1206,13 @@ PivotField,Calculation,property,As XlPivotFieldCalculation,,MISSING,,
 PivotField,Caption,property,As String,no setter,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotField,ChildField,"property, read-only",As PivotField,,MISSING,,
 PivotField,ChildItems,"property, read-only",As Variant,,MISSING,,
-PivotField,ClearAllFilters,method,ClearAllFilters(),,MISSING,,
+PivotField,ClearAllFilters,method,ClearAllFilters(),,PARTIAL,tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"Shows every item of the field again and drops its page field's choice, over a row field and a page field; a field outside the layout clears with no new layout. Label, value and date filters are not implemented."
 PivotField,ClearLabelFilters,method,ClearLabelFilters(),,MISSING,,
 PivotField,ClearManualFilter,method,ClearManualFilter(),,MISSING,,
 PivotField,ClearValueFilters,method,ClearValueFilters(),,MISSING,,
 PivotField,Creator,"property, read-only",As XlCreator,,MISSING,,
 PivotField,CubeField,"property, read-only",As CubeField,,MISSING,,
-PivotField,CurrentPage,property,As Variant,,MISSING,,
+PivotField,CurrentPage,property,As Variant,,PARTIAL,tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"Reads back the chosen item as a PivotItem, or one named (All); sets an item by its name or (All), turning off the choice of several and keeping hidden items. Error 1004 off a page field, for a name no item has, for a number and for a hidden item. Not measured: items that are numbers or dates."
 PivotField,CurrentPageList,property,As Variant,,MISSING,,
 PivotField,CurrentPageName,property,As String,,MISSING,,
 PivotField,DatabaseSort,property,As Boolean,,MISSING,,
@@ -1230,12 +1230,12 @@ PivotField,DragToRow,property,As Boolean,,MISSING,,
 PivotField,DrilledDown,property,As Boolean,,MISSING,,
 PivotField,DrillTo,method,DrillTo(Field As String),,MISSING,,
 PivotField,EnableItemSelection,property,As Boolean,,MISSING,,
-PivotField,EnableMultiplePageItems,property,As Boolean,,MISSING,,
+PivotField,EnableMultiplePageItems,property,As Boolean,,PARTIAL,tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"Read and set on any field, a row field included; a page field allowing several shows every item it does not hide, its cell the one item left, (All) or (Multiple Items). Excel cannot open its own file of a page field choosing an item and allowing several; the model saves it choosing the item."
 PivotField,Formula,property,As String,,MISSING,,
 PivotField,Function,property,As XlConsolidationFunction,no setter,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json; tests/test_excel_pivot_functions.py; tests/fixtures/pivots/functions.json; tests/fixtures/pivots/native-functions.xlsx; scripts/measure_pivot_functions.py,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations. Native imported getters cover all eleven aggregates, with Count Numbers returning 11 rather than its -4113 input constant; three save/reopen cycles preserve metadata. Setter remains unsupported."
 PivotField,GroupLevel,"property, read-only",As Variant,,MISSING,,
 PivotField,Hidden,property,As Boolean,,MISSING,,
-PivotField,HiddenItems,"property, read-only",As Variant,,MISSING,,
+PivotField,HiddenItems,"property, read-only",As Variant,,PARTIAL,tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"A page field's items but its chosen one, or all of them; else the items it hides."
 PivotField,HiddenItemsList,property,As Variant,,MISSING,,
 PivotField,IncludeNewItemsInFilter,property,As Boolean,,MISSING,,
 PivotField,IsCalculated,"property, read-only",As Boolean,,MISSING,,
@@ -1272,7 +1272,7 @@ PivotField,Subtotals,property,As Variant,,MISSING,,
 PivotField,TotalLevels,"property, read-only",As Variant,,MISSING,,
 PivotField,UseMemberPropertyAsCaption,property,As Boolean,,MISSING,,
 PivotField,Value,property,As String,,MISSING,,
-PivotField,VisibleItems,"property, read-only",As Variant,,MISSING,,
+PivotField,VisibleItems,"property, read-only",As Variant,,PARTIAL,tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"A page field's chosen item, or one named (All); else the items it shows, an item a refresh found gone counted among them."
 PivotField,VisibleItemsList,property,As Variant,,MISSING,,
 PivotFields,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotFields,Application,"property, read-only",As Application,,MISSING,,
@@ -1303,7 +1303,7 @@ PivotItem,SourceName,"property, read-only",As Variant,,PARTIAL,tests/test_excel_
 PivotItem,SourceNameStandard,"property, read-only",As String,,MISSING,,
 PivotItem,StandardFormula,property,As String,,MISSING,,
 PivotItem,Value,property,As String,no setter,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
-PivotItem,Visible,property,As Boolean,no setter,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
+PivotItem,Visible,property,As Boolean,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json; tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations. Hides and shows an item of a row, column or page field, the last one showing refused with error 1004, as 65 live layouts show; a page field choosing one item reads whether the item is the chosen one, and hiding it moves the choice on. A field outside the layout filters nothing and Excel's lookup quirk there is followed."
 PivotItems,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotItems,Add,method,Add(Name As String),,MISSING,,
 PivotItems,Application,"property, read-only",As Application,,MISSING,,
@@ -1332,7 +1332,7 @@ PivotTable,CalculatedMembersInFilters,property,As Boolean,,MISSING,,
 PivotTable,ChangeConnection,method,ChangeConnection(conn As WorkbookConnection),,MISSING,,
 PivotTable,ChangeList,"property, read-only",As PivotTableChangeList,,MISSING,,
 PivotTable,ChangePivotCache,method,ChangePivotCache(PivotCache As Variant),,MISSING,,
-PivotTable,ClearAllFilters,method,ClearAllFilters(),,MISSING,,
+PivotTable,ClearAllFilters,method,ClearAllFilters(),,PARTIAL,tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"Shows every field's items again and drops every page field's choice, keeping a page field's choice of several allowed. Label, value and date filters are not implemented."
 PivotTable,ClearTable,method,ClearTable(),,MISSING,,
 PivotTable,ColumnFields,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotTable,ColumnGrand,property,As Boolean,no setter,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
@@ -1968,7 +1968,7 @@ SortField,ModifyKey,method,ModifyKey(Key As Range),,MISSING,,
 SortField,Order,property,As XlSortOrder,,UNASSESSED,,
 SortField,Parent,"property, read-only",As Object,,MISSING,,
 SortField,Priority,property,As Long,,MISSING,,
-SortField,SetIcon,method,SetIcon(Icon As Icon),,PARTIAL,tests/fixtures/icon_sorts/icon_sorts.json,"The icon of one of Excel's sets a field on icons puts first; a custom set's reports itself unsupported."
+SortField,SetIcon,method,SetIcon(Icon As Icon),,PARTIAL,tests/fixtures/icon_sorts/icon_sorts.json,The icon of one of Excel's sets a field on icons puts first; a custom set's reports itself unsupported.
 SortField,SortOn,property,As XlSortOn,,PARTIAL,tests/fixtures/sort_colour/sort_colour.json; tests/fixtures/icon_sorts/icon_sorts.json,"Values, a cell's colour or its font's, or a conditional format's icons, read and set; a table's sort on icons reports itself unsupported."
 SortField,SortOnValue,"property, read-only",As Object,,PARTIAL,tests/fixtures/sort_colour/sort_colour.json; tests/fixtures/icon_sorts/icon_sorts.json,"An Interior or a Font holding the colour a colour field sorts on, Color read and set: white for no fill and black for the automatic font colour until set; an icon field's Icon, Nothing until set. Error 1004 on a field of values; its other members report themselves unsupported."
 SortField,SubField,property,As Variant,,MISSING,,

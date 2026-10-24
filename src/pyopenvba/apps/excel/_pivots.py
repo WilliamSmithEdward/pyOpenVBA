@@ -18,7 +18,7 @@ from pyopenvba.apps.excel._xstring import decode as decode_text
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
 
 if TYPE_CHECKING:
     from pyopenvba.interpreter._objects import MemberSpec
@@ -339,6 +339,13 @@ class PivotTable(ExcelObject):
 
         return add_data_field(self, Field, Caption, Function)
 
+    @method
+    def ClearAllFilters(self) -> object:
+        from pyopenvba.apps.excel._pivot_filters import clear_table
+
+        clear_table(self)
+        return EMPTY
+
     def report(self) -> PivotReport | None:
         from pyopenvba.apps.excel._pivot_reports import read_report
 
@@ -610,14 +617,66 @@ class PivotField(ExcelObject):
 
     @member
     def PivotItems(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_filters import first_for_names, list_on_reading
+
+        list_on_reading(self)
+        collection = PivotItems(self, list(self.listed_items()), first_for_names=first_for_names(self))
+        return collection if Index is MISSING else collection.Item(Index)
+
+    @member
+    def VisibleItems(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_filters import items_showing, list_on_reading
+
+        list_on_reading(self)
+        collection = PivotItems(self, items_showing(self, True))
+        return collection if Index is MISSING else collection.Item(Index)
+
+    @member
+    def HiddenItems(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_filters import items_showing, list_on_reading
+
+        list_on_reading(self)
+        collection = PivotItems(self, items_showing(self, False))
+        return collection if Index is MISSING else collection.Item(Index)
+
+    @member
+    def CurrentPage(self) -> object:
+        from pyopenvba.apps.excel._pivot_filters import current_page
+
+        return current_page(self)
+
+    @setter('CurrentPage')
+    def set_current_page(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_filters import set_current_page
+
+        set_current_page(self, value)
+
+    @member
+    def EnableMultiplePageItems(self) -> object:
+        from pyopenvba.apps.excel._pivot_filters import multiple_allowed
+
+        return multiple_allowed(self)
+
+    @setter('EnableMultiplePageItems')
+    def set_enable_multiple_page_items(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_filters import set_multiple_allowed
+
+        set_multiple_allowed(self, value)
+
+    @method
+    def ClearAllFilters(self) -> object:
+        from pyopenvba.apps.excel._pivot_filters import clear_field
+
+        clear_field(self)
+        return EMPTY
+
+    def listed_items(self) -> list[PivotItem]:
+        """The field's items in the order the table lists them, or sorted for a field it has never listed."""
         if self.data:
-            collection = PivotItems(self, [])
-            return collection if Index is MISSING else collection.Item(Index)
+            return []
         if self.index == -2:
-            items = [PivotItem(self, XmlElement(NS + 's', {'v': entry.get('name', '')}), position, True)
-                     for position, entry in enumerate(self.table.root.findall(f'{NS}dataFields/{NS}dataField'), 1)]
-            collection = PivotItems(self, items)
-            return collection if Index is MISSING else collection.Item(Index)
+            return [PivotItem(self, XmlElement(NS + 's', {'v': entry.get('name', '')}), position)
+                    for position, entry in enumerate(self.table.root.findall(f'{NS}dataFields/{NS}dataField'), 1)]
         fields = self.table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
         shared = fields[self.index].find(NS + 'sharedItems')
         entries = list(shared) if shared is not None else []
@@ -640,7 +699,7 @@ class PivotField(ExcelObject):
                         if key not in seen:
                             seen.add(key)
                             entries.append(value)
-        items: list[object] = []
+        items: list[PivotItem] = []
         ordered = self.root.findall(f'{NS}items/{NS}item')
         if ordered:
             for item in ordered:
@@ -648,25 +707,40 @@ class PivotField(ExcelObject):
                     continue
                 index = int(item.get('x', '0'))
                 if index < len(entries):
-                    items.append(PivotItem(self, entries[index], len(items) + 1, item.get('h') != '1'))
+                    items.append(PivotItem(self, entries[index], len(items) + 1, index))
         else:
-            items = [PivotItem(self, item, index, True) for index, item in enumerate(entries, 1)]
-        collection = PivotItems(self, items)
-        return collection if Index is MISSING else collection.Item(Index)
+            from pyopenvba.apps.excel._pivot_filters import sorted_places
+
+            items = [PivotItem(self, entries[place], position, place)
+                     for position, place in enumerate(sorted_places(entries), 1)]
+        return items
 
 
 class PivotItems(_Collection):
     vba_type_name = 'PivotItems'
 
+    def __init__(self, parent: ExcelObject, items: list[object], *, first_for_names: bool = False) -> None:
+        super().__init__(parent, items)
+        self.first_for_names = first_for_names
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        found = super().vba_lookup(index, items)
+        return items[0] if self.first_for_names and isinstance(index, str) else found
+
 
 class PivotItem(ExcelObject):
+    """An item of a pivot field: its value in the cache, or None for the (All) a page field showing every item
+    returns as its CurrentPage, its place in the field's list from 1, and the value's place in the cache."""
+
     vba_type_name = 'PivotItem'
 
-    def __init__(self, field: PivotField, root: XmlElement, position: int, visible: bool) -> None:
-        self.field, self.root, self.position, self.visible = field, root, position, visible
+    def __init__(self, field: PivotField, root: XmlElement | None, position: int, x: int = -1) -> None:
+        self.field, self.root, self.position, self.x = field, root, position, x
 
     @member
     def Name(self) -> object:
+        if self.root is None:
+            return '(All)'
         if self.root.tag == NS + 'm':
             return '(blank)'
         value = self.root.get('v', '')
@@ -696,7 +770,15 @@ class PivotItem(ExcelObject):
 
     @member
     def Visible(self) -> object:
-        return self.visible
+        from pyopenvba.apps.excel._pivot_filters import visible
+
+        return visible(self)
+
+    @setter('Visible')
+    def set_visible(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_filters import set_visible
+
+        set_visible(self, value)
 
     @member
     def Parent(self) -> object:

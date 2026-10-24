@@ -7,6 +7,33 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables filter by their items. `PivotItem.Visible = False` hides an
+  item of a row, column or page field, and every record holding it counts
+  nowhere, subtotals and the grand total included; the last item showing
+  cannot be hidden, error 1004. `PivotField.CurrentPage` chooses the item a
+  page field shows, or "(All)", and reads back a PivotItem;
+  `EnableMultiplePageItems` lets a page field show several items, the
+  hidden ones left out, its cell reading the one item left, "(All)" or
+  "(Multiple Items)". `ClearAllFilters` on the table or a field shows every
+  item again, and `VisibleItems` and `HiddenItems` list them. Each follows
+  Excel's rules: Visible on a page field choosing one item says whether the
+  item is the chosen one; hiding the chosen item moves the choice to the
+  next item showing; CurrentPage turns off the choice of several and keeps
+  the hidden items, and cannot choose a hidden one; a field outside the
+  layout filters nothing, and Excel's PivotItems hands back its first item
+  for any name it finds there until the field hides one; a field hiding
+  items comes to the page area allowing several. A refresh keeps each
+  field's items in their order, hidden ones by their values, marks an item
+  the source lost and keeps its value in the cache unused, and adds a new
+  one at the end, hidden where the field hides any. The file keeps all of
+  it as Excel's does, and a file's filters read back. Excel saves a page
+  field that chooses an item and allows several, and then cannot open its
+  own file; the model saves such a field as choosing the one item. The
+  model had no CurrentPage, EnableMultiplePageItems, ClearAllFilters,
+  VisibleItems or HiddenItems, and Visible could not be set. 65 layouts
+  agree with Excel, before a save and once the file is opened again, and
+  Excel reads the model's file as its own.
+
 - The Sort object sorts on a conditional format's icons: a field with
   SortOn:=xlSortOnIcon puts the rows showing the icon its `SetIcon` gave
   it on top, or at the bottom with xlDescending, the rest in their order,
@@ -418,6 +445,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A pivot cache made from source text naming a sheet, such as the
+  `"data!R1C1:R13C3"` a recorded macro gives `PivotCaches.Create`, reads
+  that sheet whichever sheet is active. The model read the active sheet
+  and refused CreatePivotTable from any other. A sheet also renames while
+  such a cache is in the workbook; the model refused every rename once
+  the cache had a report, reading the R1C1 text as an A1 formula.
 
 - `Set` with a value that is not an object is error 424, Object required,
   into an object variable, and error 13, Type mismatch, into a Variant,

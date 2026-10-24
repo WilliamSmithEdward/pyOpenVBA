@@ -11,6 +11,18 @@ from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import Range
 from pyopenvba.apps.excel._pivot_create import node, part_root
+from pyopenvba.apps.excel._pivot_filters import (
+    MULTIPLE,
+    carried,
+    choices,
+    choose,
+    field_attributes,
+    flag,
+    item_node,
+    listed,
+    page_caption,
+    passing,
+)
 from pyopenvba.apps.excel._pivots import NS, decode_text
 from pyopenvba.apps.excel._typing import Typed
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
@@ -86,7 +98,7 @@ class Line:
 
 
 def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], data_count: int,
-           *, rows: bool, grand: bool) -> list[Line]:
+           *, rows: bool, grand: bool, selected: list[int] | None = None) -> list[Line]:
     if not axis:
         return [Line()]
     output: list[Line] = []
@@ -116,7 +128,7 @@ def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], da
                     for subtotal in measures:
                         output.append(Line(assigned, constraints, subtotal, 'default'))
 
-    visit(0, list(range(len(ids))), (), ())
+    visit(0, selected if selected is not None else list(range(len(ids))), (), ())
     if grand and any(field != VALUES for field in axis):
         for measure in range(data_count) if VALUES in axis else [0]:
             output.append(Line(data=measure, kind='grand'))
@@ -244,8 +256,18 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     if len(reports) > 1 and VALUES not in rows and VALUES not in columns:
         columns.append(VALUES)
     fields, cache_records, ids, positions = normalized if normalized is not None else cache_layout(cache, records_)
-    row_lines = _lines(rows, ids, positions, len(reports), rows=True, grand=root.get('colGrandTotals', '1') != '0')
-    col_lines = _lines(columns, ids, positions, len(reports), rows=False, grand=root.get('rowGrandTotals', '1') != '0')
+    # Each field's items as the table lists them, carried over to the cache this plan renders from, and the
+    # records the hidden items and the page fields' chosen items leave.
+    on_axes = {index for index in (*rows, *columns, *pages) if index != VALUES}
+    lists = carried(root, table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), list(fields), on_axes)
+    display = [[place for place, _, _ in listing] if listing is not None else positions[index]
+               for index, listing in enumerate(lists)]
+    chosen_pages = choices(root, lists)
+    selected = passing(ids, lists, on_axes, chosen_pages)
+    row_lines = _lines(rows, ids, display, len(reports), rows=True, grand=root.get('colGrandTotals', '1') != '0',
+                       selected=selected)
+    col_lines = _lines(columns, ids, display, len(reports), rows=False, grand=root.get('rowGrandTotals', '1') != '0',
+                       selected=selected)
     location = root.find(NS + 'location')
     assert location is not None
     old = parse_area(location.get('ref', 'A1'))
@@ -295,7 +317,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         if key not in captions:
             shared = fields[field].find(NS + 'sharedItems')
             assert shared is not None
-            captions[key] = shown(shared[positions[field][position]])
+            captions[key] = shown(shared[display[field][position]])
         return captions[key]
 
     def subtotal_caption(field: int, position: int) -> str:
@@ -349,7 +371,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     real_cols = [index for index in columns if index != VALUES]
     buckets: dict[tuple[tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]], list[list[XmlElement]]] = {}
     if reports:
-        for record, indices in zip(records_, ids):
+        for record, indices in ((records_[row], ids[row]) for row in selected):
             row_keys = [tuple((index, indices[index]) for index in real_rows[:depth]) for depth in range(len(real_rows) + 1)]
             col_keys = [tuple((index, indices[index]) for index in real_cols[:depth]) for depth in range(len(real_cols) + 1)]
             for row_key in row_keys:
@@ -366,33 +388,42 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                     report = reports[measure]
                     value = aggregate([record[int(report.get('fld', '0'))] for record in selected], report.get('subtotal', 'sum'))
                     put(dr + offset, dc + column, value)
+    pivot_fields = root.find(NS + 'pivotFields')
+    planned_fields = deepcopy(pivot_fields)
+    assert pivot_fields is not None and planned_fields is not None
     for offset, field in enumerate(reversed(pages)):
         if over_then_down:
             row_offset, column_offset = divmod(offset, page_columns)
         else:
             column_offset, row_offset = divmod(offset, page_rows)
         put(-page_rows - 1 + row_offset, 3 * column_offset, decode_text(fields[field].get('name', '')))
-        put(-page_rows - 1 + row_offset, 3 * column_offset + 1, '(All)')
+        showing = page_caption(lists[field] or [], chosen_pages.get(field), flag(pivot_fields[field], MULTIPLE))
+        if isinstance(showing, int):
+            values = fields[field].find(NS + 'sharedItems')
+            assert values is not None
+            put(-page_rows - 1 + row_offset, 3 * column_offset + 1, shown(values[showing]))
+        else:
+            put(-page_rows - 1 + row_offset, 3 * column_offset + 1, showing)
     previous_areas = [old, extent]
     if table.root.findall(f'{NS}pageFields/{NS}pageField'):
         from pyopenvba.apps.excel._pivot_ranges import page_range
 
         previous_areas.extend(page_range(table).areas)
-    pivot_fields = root.find(NS + 'pivotFields')
-    planned_fields = deepcopy(pivot_fields)
-    assert pivot_fields is not None and planned_fields is not None
     for index, (original, planned) in enumerate(zip(pivot_fields, planned_fields, strict=True)):
+        attributes = dict(planned.attrib)
+        attributes['dataField'] = str(int(any(int(entry.get('fld', '0')) == index for entry in reports)))
         original.attrib.clear()
-        original.attrib.update(planned.attrib)
-        original.set('dataField', str(int(any(int(entry.get('fld', '0')) == index for entry in reports))))
-        items = node('items', {'count': str(len(positions[index]) + 1)})
-        for value in positions[index]:
-            items.append(node('item', {'x': str(value)}))
-        items.append(node('item', {'t': 'default'}))
+        original.attrib.update(field_attributes(attributes))
         old_items = original.find(NS + 'items')
         if old_items is not None:
             original.remove(old_items)
-        original.insert(0, items)
+        listing = lists[index]
+        if listing is not None:
+            items = node('items', {'count': str(len(listing) + 1)})
+            for place, hide, gone in listing:
+                items.append(item_node(place, hide=hide, gone=gone))
+            items.append(node('item', {'t': 'default'}))
+            original.insert(0, items)
     for child in list(root):
         if child.tag in {NS + name for name in ('pivotFields', 'rowFields', 'rowItems', 'colFields', 'colItems', 'pageFields', 'dataFields')}:
             root.remove(child)
@@ -408,7 +439,9 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     if pages:
         group = node('pageFields', {'count': str(len(pages))})
         for index in reversed(pages):
-            group.append(node('pageField', {'fld': str(index), 'hier': '-1'}))
+            page = node('pageField', {'fld': str(index)})
+            choose(page, chosen_pages.get(index))
+            group.append(page)
         children.append(group)
     if reports:
         group = node('dataFields', {'count': str(len(reports))})
@@ -516,6 +549,9 @@ def orient(field: object, value: object) -> None:
         fields[field.index].attrib.pop('axis', None)
         if chosen:
             fields[field.index].set('axis', {1: 'axisRow', 2: 'axisCol', 3: 'axisPage'}[chosen])
+        # A field hiding items comes to the page area showing the rest (tests/fixtures/pivot_filters/ row_to_page).
+        if chosen == 3 and any(flag(item, 'h') for item in listed(fields[field.index])):
+            fields[field.index].set(MULTIPLE, '1')
     if chosen:
         name = {1: 'rowFields', 2: 'colFields', 3: 'pageFields'}[chosen]
         container = root.find(NS + name)

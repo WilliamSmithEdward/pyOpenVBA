@@ -246,4 +246,6 @@ def admit(book: Workbook, old: str, wanted: str, budget: Budget) -> None:
             if source.sheet.name.casefold() == old.casefold():
                 raise unsupported('with affected Pivot source ranges')
         elif source is not None:
-            reference(str(source), old, wanted, budget)
+            from pyopenvba.apps.excel._pivot_create import a1_text
+
+            reference(a1_text(str(source)), old, wanted, budget)

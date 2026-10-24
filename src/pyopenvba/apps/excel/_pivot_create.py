@@ -50,6 +50,13 @@ def node(name: str, attributes: dict[str, str] | None = None) -> XmlElement:
     return XmlElement(NS + name, attributes or {})
 
 
+def part_root(name: str, attributes: dict[str, str] | None = None, *, relationships: bool = False) -> XmlElement:
+    """A part's root, declaring SpreadsheetML's namespace its default as Excel writes it, and the relationships'
+    prefix where Excel declares it, a pivot cache's definition and records (tests/fixtures/dxf_table/order.xlsx)."""
+    declared = {'xmlns': MAIN, **({'xmlns:r': REL[1:-1]} if relationships else {})}
+    return node(name, {**declared, **(attributes or {})})
+
+
 def table_source(book: Workbook, text: str) -> Table | None:
     owner, bare = split_sheet(text)
     name = bare.split('[', 1)[0]
@@ -103,8 +110,9 @@ def create_cache(book: Workbook, kind: object, source: object, version: object) 
         raise error(5)
     if not isinstance(source, (str, Range)):
         raise error(5)
-    root = node('pivotCacheDefinition', {'createdVersion': str(chosen), 'refreshedVersion': str(chosen),
-                                      'minRefreshableVersion': str(min(chosen, 3)), 'recordCount': '0'})
+    root = part_root('pivotCacheDefinition', {'createdVersion': str(chosen), 'refreshedVersion': str(chosen),
+                                           'minRefreshableVersion': str(min(chosen, 3)), 'recordCount': '0'},
+                     relationships=True)
     origin = node('cacheSource', {'type': 'worksheet'})
     root.append(origin)
     raw = to_text(source) if isinstance(source, str) else ''
@@ -196,7 +204,7 @@ def _materialize(cache: PivotCache, charge_text: Callable[[object], None] | None
         field = node('cacheField', {'name': encoded(header), 'numFmtId': '0'})
         field.append(node('sharedItems'))
         fields.append(field)
-    records = node('pivotCacheRecords', {'count': str(area.rows - 1)})
+    records = part_root('pivotCacheRecords', {'count': str(area.rows - 1)}, relationships=True)
     kinds: list[set[str]] = [set() for _ in headers]
     numbers: list[list[float]] = [[] for _ in headers]
     cache.rich_records = False
@@ -363,7 +371,7 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
     if cache.index == 0:
         materialize(cache)
     current = str(cache.Version())
-    root = node('pivotTableDefinition', {'name': encoded(caption), 'cacheId': str(cache.cache_id),
+    root = part_root('pivotTableDefinition', {'name': encoded(caption), 'cacheId': str(cache.cache_id),
                                        'dataCaption': 'Values', 'createdVersion': current, 'updatedVersion': current,
                                        'minRefreshableVersion': str(min(int(current), 3)),
                                        'useAutoFormatting': '1', 'rowGrandTotals': '1', 'colGrandTotals': '1',

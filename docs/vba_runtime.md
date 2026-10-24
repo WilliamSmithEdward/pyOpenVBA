@@ -2184,6 +2184,17 @@ nothing is written from the template captured from a freshly
 Excel-authored file; Word and PowerPoint have no such template yet, so
 a document or a presentation is edited rather than created.
 
+A part may spell SpreadsheetML's namespace under a prefix,
+`<x:worksheet xmlns:x="...">`, where Excel writes `<worksheet
+xmlns="...">`. Excel reads such a workbook as the same workbook spelled
+its own way, and saves every part so but a pivot cache's records, which
+it keeps as the file had them (`tests/fixtures/prefixed_parts/`, seven
+copies of workbooks Excel saved). The model spells those parts again as
+it opens the file, so it reads and saves the workbook as the one it was
+made from. A part it cannot spell again without changing what the part
+says, one that also uses a default namespace or puts an attribute under
+the prefix, stays as it is and is not read.
+
 A formula written to a block at once is a shared formula in the file,
 as Excel stores it (`tests/fixtures/formula_storage/`, 15 workbooks
 Excel saved): the block's first cell carries the formula and the others

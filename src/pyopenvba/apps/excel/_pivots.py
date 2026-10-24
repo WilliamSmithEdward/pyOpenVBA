@@ -60,6 +60,36 @@ def related_parts(package: OpcFile, source: str, kind: str) -> list[tuple[str, s
     return found
 
 
+def _numbered(root: XmlElement, book: Workbook) -> XmlElement:
+    """A cache's or report's tree with each number format it names by id under the id Excel gave that format on
+    opening the file (tests/fixtures/number_format_resave/pivot_id.xlsx)."""
+    for element in root.iter():
+        identifier = element.get('numFmtId')
+        if identifier is not None and identifier.isdecimal():
+            element.set('numFmtId', str(book.stylesheet.opening_id(identifier)))
+    return root
+
+
+def named_formats(book: Workbook) -> set[int]:
+    """The number formats the workbook's pivot caches and reports name by id, which a save keeps."""
+    roots = [*(cache.root for cache in book.pivot_caches),
+             *(table.root for sheet in book.sheets_ for table in sheet.pivot_tables)]
+    return {int(identifier) for root in roots for element in root.iter()
+            if (identifier := element.get('numFmtId')) is not None and identifier.isdecimal()}
+
+
+def number_parts(book: Workbook, package: OpcFile) -> None:
+    """Give the parts of the file's caches and reports the ids Excel numbers their formats with as it opens the
+    file, for a save to write; a part the save writes afresh holds them already."""
+    parts = {*(cache.part for cache in book.pivot_caches),
+             *(table.part for sheet in book.sheets_ for table in sheet.pivot_tables)}
+    for part in sorted(part for part in parts if part and package.has(part)):
+        text = package.read(part).decode('utf-8')
+        numbered = book.stylesheet.numbered_part(text)
+        if numbered != text:
+            package.write(part, numbered.encode('utf-8'))
+
+
 def read(book: Workbook) -> None:
     """Read caches in workbook order, then each sheet's report relationships."""
     package = book.package
@@ -70,7 +100,7 @@ def read(book: Workbook) -> None:
         part = by_id.get(entry.get(REL + 'id', ''), '')
         if not part:
             continue
-        cache = PivotCache(book, part, xml_tree(package.read(part)), len(book.pivot_caches) + 1)
+        cache = PivotCache(book, part, _numbered(xml_tree(package.read(part)), book), len(book.pivot_caches) + 1)
         cache.cache_id = int(entry.get('cacheId', '0'))
         cache.rich_records = bool(related_parts(package, part, 'richPivotRecords'))
         if cache.rich_records:
@@ -93,7 +123,7 @@ def read(book: Workbook) -> None:
             caches = related_parts(package, part, 'pivotCacheDefinition')
             cache = by_part.get(caches[0][1]) if caches else None
             if cache is not None:
-                table = PivotTable(sheet, cache, xml_tree(package.read(part)))
+                table = PivotTable(sheet, cache, _numbered(xml_tree(package.read(part)), book))
                 table.part = part
                 sheet.pivot_tables.append(table)
 

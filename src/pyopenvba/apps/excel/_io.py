@@ -1356,7 +1356,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
     _resize_loaded_tables(book, package)
     _write_tables(book, package)
     from pyopenvba.apps.excel._pivot_create import write as write_pivots
+    from pyopenvba.apps.excel._pivots import number_parts
 
+    number_parts(book, package)
     write_pivots(book, package)
     _new_vml_parts(book, package)
     _write_shapes(book, package)

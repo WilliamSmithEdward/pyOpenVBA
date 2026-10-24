@@ -1,0 +1,973 @@
+{
+ "read": "Private Function Shown(f As Object) As String\n    On Error Resume Next\n    Shown = f.NumberFormat\n    If Err.Number <> 0 Then Shown = \"E\" & Err.Number\nEnd Function\n\nPublic Function Read() As String\nDim wb As Object, ws As Object, out As String, name As Variant, r As Long\nApplication.DisplayAlerts = False\nFor Each name In Array({names})\n    On Error Resume Next\n    Err.Clear\n    Set wb = Nothing\n    Set wb = Workbooks.Open(\"{folder}\\\" & name & \".xlsx\")\n    If wb Is Nothing Then\n        out = out & name & \"^E\" & Err.Number & \"|\"\n    Else\n        On Error GoTo 0\n        Set ws = wb.Worksheets(\"cells\")\n        out = out & name & \"^\"\n        For r = 1 To 4\n            out = out & ws.Cells(r, 1).NumberFormat & \"~\" & ws.Cells(r, 1).Text & \"~\"\n        Next\n        out = out & Shown(wb.Worksheets(\"pivot\").PivotTables(1).DataFields(1)) & \"~\" & _\n            Shown(ws.Range(\"B2\").FormatConditions(1)) & \"~\" & Shown(ws.Range(\"C2\").FormatConditions(1)) & \"|\"\n        wb.SaveAs \"{folder}\\\" & name & \"_resaved.xlsx\", 51\n        wb.Close False\n    End If\n    On Error GoTo 0\nNext\nRead = out\nEnd Function\n",
+ "cases": [
+  {
+   "name": "base",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "168",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "167",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166",
+     "A4": "167"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "out_of_order",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "168",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000000\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.0\"/>"
+    ],
+    "xfs": [
+     "0",
+     "168",
+     "167",
+     "166",
+     "165",
+     "0",
+     "0",
+     "164"
+    ],
+    "cells": {
+     "A1": "168",
+     "A2": "167",
+     "A3": "166",
+     "A4": "165"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:164"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "gaps",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"200\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"300\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"250\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"400\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "200",
+     "300",
+     "250",
+     "400",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "200",
+     "A2": "300",
+     "A3": "250",
+     "A4": "400"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "167",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166",
+     "A4": "167"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "unused",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"180\" formatCode=\"0.0E+0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "168",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "168",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"171\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "unused_xf",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>",
+     "<numFmt numFmtId=\"181\" formatCode=\"0.0_)\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "168",
+     "0",
+     "0",
+     "169",
+     "181"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "167",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166",
+     "A4": "167"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"171\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "duplicate",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.0~1.5~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>",
+     "<numFmt numFmtId=\"171\" formatCode=\"0.0\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "171",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "171"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166",
+     "A4": "164"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "builtin_id",
+   "answer": "0.0~1.5~0.0000~1.5000~0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>",
+     "<numFmt numFmtId=\"2\" formatCode=\"0.000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "2",
+     "168",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "2",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "169",
+     "167",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "169",
+     "A4": "167"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"171\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "low_id",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"100\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "100",
+     "167",
+     "168",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "100",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "167",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166",
+     "A4": "167"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "spelling",
+   "answer": "#,##0 k\\r~2 kr~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"#,##0 kr\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "168",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"#,##0\\ \\k\\r\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "167",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166",
+     "A4": "167"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "missing",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~General~1.5~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"169\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "190",
+     "0",
+     "0",
+     "169"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "190"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:169"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  },
+  {
+   "name": "pivot_id",
+   "answer": "0.0~1.5~0.0000~1.5000~#,##0.000~1.500~0.000%~150.000%~0.000000~0.00000~0.0000000",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"500\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "165",
+     "166",
+     "167",
+     "168",
+     "0",
+     "0",
+     "500"
+    ],
+    "cells": {
+     "A1": "165",
+     "A2": "166",
+     "A3": "167",
+     "A4": "168"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"164\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"170\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:500"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.0\"/>",
+     "<numFmt numFmtId=\"165\" formatCode=\"0.0000\"/>",
+     "<numFmt numFmtId=\"166\" formatCode=\"#,##0.000\"/>",
+     "<numFmt numFmtId=\"167\" formatCode=\"0.000%\"/>",
+     "<numFmt numFmtId=\"168\" formatCode=\"0.000000\"/>"
+    ],
+    "xfs": [
+     "0",
+     "164",
+     "165",
+     "166",
+     "167",
+     "0",
+     "0",
+     "168"
+    ],
+    "cells": {
+     "A1": "164",
+     "A2": "165",
+     "A3": "166",
+     "A4": "167"
+    },
+    "dxfs": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>",
+     "<numFmt numFmtId=\"170\" formatCode=\"0.00000\"/>"
+    ],
+    "extension": [
+     "<numFmt numFmtId=\"169\" formatCode=\"0.0000000\"/>"
+    ],
+    "pivot": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "dataField:168"
+     ],
+     "xl/pivotCache/pivotCacheDefinition1.xml": [
+      "cacheField:0",
+      "cacheField:0"
+     ],
+     "xl/pivotCache/pivotCacheRecords1.xml": []
+    }
+   }
+  }
+ ]
+}

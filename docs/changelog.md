@@ -425,6 +425,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   xl/workbook.xml with its name first, `<sheet name=".." sheetId=".."
   r:id=".."/>`, as Excel lists one. The model put the name last.
 
+- Saving a workbook opened from a file numbers its own number formats as
+  Excel does, though no macro changed a format. Opening the file, Excel
+  gives every format it lists the next id from 164, in the order it lists
+  them: one nothing uses takes an id too, one code listed twice takes one,
+  and a built-in id over another code or an id below 164 is a custom
+  format like the rest. A save writes them under those ids, spelled as
+  Excel spells them, and leaves out those nothing names; a pivot table's
+  formats follow. The model kept the file's ids and spelling where nothing
+  changed the stylesheet. 11 files Excel opened and saved unchanged agree,
+  and Excel reads the model's saves of them as it read the files.
+
+- A pivot table's NumberFormat reads the format its id names in a file
+  whose formats Excel numbers afresh. The model read the file's id against
+  Excel's numbering, the wrong format or none.
+
 - `Sort.Apply` with no range or no field sorts nothing and raises no
   error, as Excel does. The model raised error 1004.
 

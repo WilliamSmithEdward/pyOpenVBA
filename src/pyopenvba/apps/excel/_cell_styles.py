@@ -310,9 +310,11 @@ def give_link_style(target: Range) -> None:
 def prepare_save(book: Workbook) -> None:
     """Give the stylesheet what the save adds before the sheets are written, in Excel's order: the styles
     cells use, then the cells' new formats, each part where Excel's own table holds it."""
+    from pyopenvba.apps.excel._pivots import named_formats
+
     stylesheet = book.stylesheet
     formats = [(holder.style, holder.xf) for holder in _holders(book) if holder.style is not None]
-    stylesheet.prepare(formats, latent(stylesheet))
+    stylesheet.prepare(formats, latent(stylesheet), named_formats(book))
 
 
 def finish_save(book: Workbook, moved: dict[int, int]) -> None:

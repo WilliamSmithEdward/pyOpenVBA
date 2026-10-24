@@ -725,16 +725,15 @@ def _dxf_text(entry: XmlElement, *, inherited: bool) -> str:
     return written
 
 
-def _with_number(element: str, number: XmlElement) -> str:
-    """A dxf's numFmt element as the file wrote it, holding the id and code ``number`` holds."""
-    def attribute(text: str, name: str) -> str:
-        value = _escape(number.get(name, ""))
+def _with_number(element: str, identifier: str, code: str) -> str:
+    """A numFmt element as the file wrote it, holding the id and the code, as a file spells it, given."""
+    def attribute(text: str, name: str, value: str) -> str:
         pattern = re.compile(rf"""(\s{name}\s*=\s*)(?:"[^"]*"|'[^']*')""")
         if pattern.search(text) is None:
             return text[:-2].rstrip() + f' {name}="{value}"/>'
         return pattern.sub(lambda found: f'{found.group(1)}"{value}"', text, count=1)
 
-    return attribute(attribute(element, "numFmtId"), "formatCode")
+    return attribute(attribute(element, "numFmtId", identifier), "formatCode", _escape(code))
 
 
 def _dxf_append_position(text: str) -> int:
@@ -879,7 +878,14 @@ class Stylesheet:
         self.number_formats: dict[int, str] = dict(BUILTIN)
         #: The numFmt elements the file spells out, by the id Excel gives each on opening.
         self._format_xml: dict[int, str] = {}
-        #: The ids the file gives its custom formats, against the ones Excel numbers them with from 164.
+        #: Each format's id, the first one that spells it: a built-in one ahead of the file's own.
+        self._ids: dict[str, int] = {}
+        for identifier, code in BUILTIN.items():
+            self._ids.setdefault(code, identifier)
+        #: The ids the file gives its formats, against the ones Excel gives them on opening. A built-in format the
+        #: file spells as Excel does keeps its id; any other takes the id of its code, a built-in's or one listed
+        #: before it, or else the next from 164, in the order the file lists them, whether anything uses it or not
+        #: (tests/fixtures/number_format_resave/).
         self._renumbered: dict[int, int] = {}
         for element in _children(xml, "numFmts"):
             found = _attributes(element)
@@ -887,14 +893,16 @@ class Stylesheet:
                 identifier = int(found.get("numFmtId", "0"))
             except ValueError:
                 continue
-            if identifier >= 164:
-                self._renumbered[identifier] = identifier = 164 + len(self._renumbered)
-            self.number_formats[identifier] = from_file(_unescape(found.get("formatCode", "")))
-            self._format_xml[identifier] = element
-        #: Each format's id, the first one that spells it: a built-in one ahead of the file's own.
-        self._ids: dict[str, int] = {}
-        for identifier, code in self.number_formats.items():
-            self._ids.setdefault(code, identifier)
+            code = from_file(_unescape(found.get("formatCode", "")))
+            opening = identifier if BUILTIN.get(identifier) == code else self._ids.get(code)
+            if opening is None:
+                opening = max([163, *self.number_formats]) + 1
+            self._renumbered.setdefault(identifier, opening)
+            self.number_formats.setdefault(opening, code)
+            self._ids.setdefault(code, opening)
+            self._format_xml.setdefault(opening, element)
+        #: The formats the stylesheet as last saved lists, by id.
+        self._kept: list[int] = list(self._format_xml)
         #: The file's dxfs whose number format Excel numbers or spells otherwise than the file does, which a save
         #: writes as Excel does. Excel reads a rule's format by its code alone, whatever id the file gives it, and
         #: numbers the custom ones after the cells' own, in dxf order (tests/fixtures/conditional_number_formats/).
@@ -1037,9 +1045,9 @@ class Stylesheet:
             if index not in self._dxf_numbers:
                 continue
             number = next(one for one in self._dxfs[index] if one.tag.rsplit("}", 1)[-1] == "numFmt")
-            pieces += [body[at:found.start()], re.sub(r"<(?:[\w.-]+:)?numFmt\b[^>]*?/>",
-                                                      lambda element: _with_number(element.group(), number),
-                                                      found.group(), count=1)]
+            pieces += [body[at:found.start()], re.sub(
+                r"<(?:[\w.-]+:)?numFmt\b[^>]*?/>", lambda element: _with_number(
+                    element.group(), number.get("numFmtId", ""), number.get("formatCode", "")), found.group(), count=1)]
             at = found.end()
         pieces.append(body[at:])
         return text[:section.start("body")] + "".join(pieces) + text[section.end("body"):]
@@ -1047,15 +1055,26 @@ class Stylesheet:
     def _part(self, items: list[_T], index: int, fallback: _T) -> _T:
         return items[index] if 0 <= index < len(items) else fallback
 
-    def _number_id(self, text: str) -> int:
-        """A number format's id as the file gives it, as Excel numbers it on opening."""
+    def opening_id(self, text: str) -> int:
+        """A number format's id as the file gives it, as Excel numbers it on opening: a custom id the file lists
+        no format for is General, as Excel reads it (tests/fixtures/number_format_resave/missing.xlsx)."""
         identifier = int(text or 0)
-        return self._renumbered.get(identifier, identifier)
+        if identifier in self._renumbered:
+            return self._renumbered[identifier]
+        return 0 if identifier >= 164 else identifier
+
+    def numbered_part(self, text: str) -> str:
+        """A part that names the stylesheet's formats by id, as a pivot table's do, with each id the file gave it
+        as Excel numbers it on opening."""
+        if all(old == new for old, new in self._renumbered.items()):
+            return text
+        return re.sub(r'(\bnumFmtId=")(\d+)"', lambda found: f'{found.group(1)}{self.opening_id(found.group(2))}"',
+                      text)
 
     def _base(self, element: str) -> _BaseStyle:
         found = _attributes(element)
         return _BaseStyle(
-            number_format=self._number_id(found.get("numFmtId", "0")),
+            number_format=self.opening_id(found.get("numFmtId", "0")),
             font=int(found.get("fontId", "0") or 0),
             fill=int(found.get("fillId", "0") or 0),
             border=int(found.get("borderId", "0") or 0),
@@ -1066,7 +1085,7 @@ class Stylesheet:
     def _parts(self, element: str) -> tuple[int, int, int, int]:
         found = _attributes(element)
         font, fill, border = (int(found.get(key, "0") or 0) for key in ("fontId", "fillId", "borderId"))
-        return self._number_id(found.get("numFmtId", "0")), font, fill, border
+        return self.opening_id(found.get("numFmtId", "0")), font, fill, border
 
     def _cell_style(self, element: str, index: int) -> CellStyle:
         """A cellStyleXfs xf: the format it gives, and the parts it gives, those its apply flags do not turn off."""
@@ -1210,7 +1229,7 @@ class Stylesheet:
 
     # -- a save
 
-    def prepare(self, holders: Iterable[tuple[Style, int]], latent: Latent) -> None:
+    def prepare(self, holders: Iterable[tuple[Style, int]], latent: Latent, elsewhere: Iterable[int] = ()) -> None:
         """Work out what a save writes, before the sheets are written with the places it gives their xfs.
 
         The cell xfs are the default and every one a cell, row or column
@@ -1222,11 +1241,16 @@ class Stylesheet:
         made. A part they want that the table lacks goes where Excel's
         table holds it: a built-in style's in that style's place, else in
         the order the session made it. Each part a save writes keeps its
-        order, and every index moves up over what it leaves out.
+        order, and every index moves up over what it leaves out. Every
+        number format takes the id Excel gave it on opening, which the
+        formats a pivot table names by id, ``elsewhere``, keep in use.
         """
         if not self._touched:
-            # Nothing changed: the file's stylesheet stays as it is, every xf where it was.
-            self._written_at, self._sections, self._after = {index: index for index in range(len(self.styles))}, {}, None
+            # Nothing changed: the file's stylesheet stays as it is, every xf where it was, but for its number
+            # formats, which Excel numbers afresh as it opens a file and saves under those ids
+            # (tests/fixtures/number_format_resave/).
+            self._written_at, self._after = {index: index for index in range(len(self.styles))}, None
+            self._sections = self._renumbered_sections(elsewhere)
             return
         normal = self._normal()
         used = {0}
@@ -1248,7 +1272,8 @@ class Stylesheet:
                         *(parts[2] for parts in xf_parts.values())})
         borders = sorted({0, *(parts.border for parts in style_parts.values()),
                           *(parts[3] for parts in xf_parts.values())})
-        numbers = {*(parts.number_format for parts in style_parts.values()), *(parts[0] for parts in xf_parts.values())}
+        numbers = {*(parts.number_format for parts in style_parts.values()), *(parts[0] for parts in xf_parts.values()),
+                   *elsewhere}
         font_at, fill_at, border_at = ({index: place for place, index in enumerate(kept)}
                                        for kept in (fonts, fills, borders))
         style_at = {place: position for position, place in enumerate(places)}
@@ -1364,6 +1389,25 @@ class Stylesheet:
             item: _T = value  # type: ignore[assignment]
             items.append(item)
 
+    def _renumbered_sections(self, elsewhere: Iterable[int]) -> dict[str, list[str]]:
+        """What the save of a stylesheet nothing changed writes afresh, as Excel writes it: the numFmts, each
+        format an xf or ``elsewhere`` names under the id Excel gave it and spelled as Excel spells it, and the xfs,
+        each naming its format by that id. A section that comes out as the file had it is left alone."""
+        numbers = {*(parts.number_format for parts in self._style_parts.values()),
+                   *(parts[0] for parts in self._xf_parts), *elsewhere}
+        self._kept = self._formats_written(numbers)
+        sections: dict[str, list[str]] = {}
+        formats = [self._format_element(identifier) for identifier in self._kept]
+        if formats != _children(self.xml, "numFmts"):
+            sections["numFmts"] = formats
+        for section in ("cellStyleXfs", "cellXfs"):
+            listed = _children(self.xml, section)
+            numbered = [re.sub(r'\bnumFmtId="(\d+)"', lambda found: f'numFmtId="{self.opening_id(found.group(1))}"',
+                               one, count=1) for one in listed]
+            if numbered != listed:
+                sections[section] = numbered
+        return sections
+
     def _formats_written(self, numbers: set[int]) -> list[int]:
         """The number formats a save spells out, in Excel's order: the file's own it still uses, as the file
         listed them; then the built-in ones Excel spells, in its own table's order; then the custom ones by id,
@@ -1374,10 +1418,13 @@ class Stylesheet:
         return spelled + sorted(identifier for identifier in numbers if identifier >= 164 and identifier not in spelled)
 
     def _format_element(self, identifier: int) -> str:
+        """A format's numFmt as a save writes it: under its id and spelled as Excel spells it, in the file's own
+        element where the file listed the format (tests/fixtures/number_format_resave/spelling.xlsx)."""
+        code = to_file(self.number_formats[identifier])
         element = self._format_xml.get(identifier)
         if element is None:
-            return f'<numFmt numFmtId="{identifier}" formatCode="{_escape(to_file(self.number_formats[identifier]))}"/>'
-        return re.sub(r'\bnumFmtId="[^"]*"', f'numFmtId="{identifier}"', element, count=1)
+            return f'<numFmt numFmtId="{identifier}" formatCode="{_escape(code)}"/>'
+        return _with_number(element, str(identifier), code)
 
     def _part_element(self, section: str, index: int, render: Callable[[_T], str]) -> str:
         xml = self._part_xml[section]
@@ -1466,6 +1513,9 @@ class Stylesheet:
             self.xml = self.written()
             self._dxf_base_count = len(self._dxfs)
             self._dxf_numbers = set()
+            # The file now names its formats by the ids Excel gave them.
+            self._format_xml = {identifier: self._format_element(identifier) for identifier in self._kept}
+            self._renumbered = {identifier: identifier for identifier in self._kept}
             return moved
         self.xml = self.written()
         self._dxf_base_count = len(self._dxfs)
@@ -1475,7 +1525,8 @@ class Stylesheet:
             setattr(self, section, [items[index] for index in kept])
             self._part_xml[section] = list(self._sections[section])
         self._format_xml = {identifier: self._format_element(identifier) for identifier in after.formats}
-        self._renumbered = {}
+        self._kept = list(after.formats)
+        self._renumbered = {identifier: identifier for identifier in self._kept}
         self._style_parts = after.styles
         self._held = list(after.places)
         written_places = {place: position for position, place in enumerate(after.places)}

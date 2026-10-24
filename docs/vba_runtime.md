@@ -656,8 +656,19 @@ layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).
 * The file keeps plain criteria, xlOr pairs of them and lists as a list
   of values, and the rest as custom filters, with the threshold of a top
   filter and the mean of an average one; Excel reads each back as it
-  was. An icon filter, or a dynamic one on dates, read from a file is
-  kept as it was, but reading or applying it reports itself unsupported.
+  was. An icon filter read from a file is kept as it was, but reading or
+  applying it reports itself unsupported.
+* xlFilterDynamic filters on dates by the period its Criteria1 names
+  (`tests/fixtures/dynamic_filters/`, all 32, over dates around the day
+  Excel made them): today, yesterday or tomorrow, this, last or next
+  week from Sunday, month, quarter or year, the year to date, and a
+  quarter or a month of any year. A cell passes holding a date in a date
+  format in the period, a time on the day included. The filter reads back
+  as xlFilterDynamic and its Criteria1, and the file keeps a period
+  counted from today as its first serial and the one after its last,
+  `val` and `maxVal`. A filter read from a file applies to the period
+  counted from the model's today; what Excel does with a file opened on
+  another day is not measured.
 * xlFilterValues with Criteria2 filters by dates, as the macro recorder
   writes it (`tests/fixtures/date_filters/`, 26 layouts saved and opened
   again, and three files written the classic way): pairs of a level, 0

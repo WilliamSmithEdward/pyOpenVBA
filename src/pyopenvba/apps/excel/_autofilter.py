@@ -60,9 +60,17 @@ then the dates, the latest year first and within one the earliest
 moment; a file's filters element of dates reads back as xlFilterValues
 and is saved as it was.
 
-What is not modelled reports itself: icon filters, the dynamic filters on
-dates, AutoFilter.Sort, a hidden drop-down, and text beyond ASCII where it
-is compared.
+xlFilterDynamic with xlFilterToday to xlFilterYearToDate keeps the date
+cells in a period counted from today, a week running from Sunday, and
+xlFilterAllDatesInPeriodQuarter1 to ...December a quarter or a month of
+any year (scripts/measure_dynamic_filters.py). It reads back as
+xlFilterDynamic and its Criteria1; the file keeps a period's first serial
+and the one after its last. A filter read from a file applies to the
+period counted from the model's today; what Excel does with one opened on
+another day is not measured.
+
+What is not modelled reports itself: icon filters, AutoFilter.Sort, a
+hidden drop-down, and text beyond ASCII where it is compared.
 
 A table has a filter of its own, which a range inside it reaches; the
 sheet's members reach whichever filter the active cell is in. Both are
@@ -71,6 +79,7 @@ _table_filters's.
 
 from __future__ import annotations
 
+import datetime as _dt
 import math
 import re
 import uuid
@@ -439,8 +448,10 @@ def _ranked(kind: int, given: float, threshold: float) -> FieldFilter:
 
 def _dynamic(sheet: Worksheet, area: Area, index: int, criteria1: object) -> FieldFilter:
     which = int(to_integer(criteria1, "Long"))
+    if 1 <= which <= len(_PERIODS):
+        return _period(sheet, which)
     if which not in (ABOVE_AVERAGE, BELOW_AVERAGE):
-        raise VBAUnsupportedError("AutoFilter's dynamic filters other than above and below average are not implemented")
+        raise VBAUnsupportedError(f"AutoFilter's dynamic filter {which} is not implemented")
     numbers = _numbers(sheet, area, index)
     return _averaged(which, sum(numbers) / len(numbers))
 
@@ -511,20 +522,11 @@ def _date_filter(groups: list[tuple[int, ...]], listed: FieldFilter | None, xml:
     """A filter showing the date cells inside ``groups`` and the cells ``listed`` shows. It reads back as the
     values beside the dates do, Operator 0 and no criteria where there are none, and a filter the file kept the
     classic way as xlFilterValues."""
-    from pyopenvba.apps.excel._typing import is_date_format
-
     def test(seen: _Seen) -> bool:
         if listed is not None and listed.test(seen):
             return True
-        if seen.number is None or seen.sheet is None:
-            return False
-        cell = seen.sheet.cells_.get((seen.row, seen.column))
-        if cell is None or not is_date_format(cell.number_format):
-            return False
-        try:
-            moment = VBADate(seen.number + (1462 if seen.sheet.book.epoch_1904 else 0)).to_datetime()
-        except VBARuntimeError:
-            # A number past either end of the calendar names no date.
+        moment = _date_of(seen)
+        if moment is None:
             return False
         parts = (moment.year, moment.month, moment.day, moment.hour, moment.minute, moment.second)
         return any(parts[:len(group)] == group for group in groups)
@@ -533,6 +535,80 @@ def _date_filter(groups: list[tuple[int, ...]], listed: FieldFilter | None, xml:
         return FieldFilter(VALUES if classic else 0, MISSING, MISSING, test, 0, xml)
     return FieldFilter(VALUES if classic else listed.operator, listed.criteria1, listed.criteria2, test,
                        listed.count, xml)
+
+
+def _date_of(seen: _Seen) -> _dt.datetime | None:
+    """The moment a cell holds as a date filter sees it: a number in a date format; None for anything else."""
+    from pyopenvba.apps.excel._typing import is_date_format
+
+    if seen.number is None or seen.sheet is None:
+        return None
+    cell = seen.sheet.cells_.get((seen.row, seen.column))
+    if cell is None or not is_date_format(cell.number_format):
+        return None
+    try:
+        return VBADate(seen.number + (1462 if seen.sheet.book.epoch_1904 else 0)).to_datetime()
+    except VBARuntimeError:
+        # A number past either end of the calendar names no date.
+        return None
+
+
+#: The dynamic filters on dates, by their Criteria1 from 1, as the file names them: those counted from today, then
+#: each quarter and month of any year.
+_PERIODS = ("today", "yesterday", "tomorrow", "thisWeek", "lastWeek", "nextWeek", "thisMonth", "lastMonth",
+            "nextMonth", "thisQuarter", "lastQuarter", "nextQuarter", "thisYear", "lastYear", "nextYear",
+            "yearToDate", "Q1", "Q2", "Q3", "Q4", *(f"M{month}" for month in range(1, 13)))
+
+
+def _bounds(which: int, today: _dt.date) -> tuple[_dt.date, _dt.date] | None:
+    """The days a dynamic filter counted from today keeps, from the first to the one after the last, a week from
+    Sunday; None for a quarter or a month of any year (tests/fixtures/dynamic_filters/)."""
+    day = _dt.timedelta(days=1)
+
+    def months(year: int, month: int, add: int) -> _dt.date:
+        index = year * 12 + month - 1 + add
+        return _dt.date(index // 12, index % 12 + 1, 1)
+
+    week = today - day * ((today.weekday() + 1) % 7)
+    quarter = (today.month - 1) // 3 * 3 + 1
+    found = {1: (today, today + day), 2: (today - day, today), 3: (today + day, today + day * 2),
+             4: (week, week + day * 7), 5: (week - day * 7, week), 6: (week + day * 7, week + day * 14),
+             7: (months(today.year, today.month, 0), months(today.year, today.month, 1)),
+             8: (months(today.year, today.month, -1), months(today.year, today.month, 0)),
+             9: (months(today.year, today.month, 1), months(today.year, today.month, 2)),
+             10: (months(today.year, quarter, 0), months(today.year, quarter, 3)),
+             11: (months(today.year, quarter, -3), months(today.year, quarter, 0)),
+             12: (months(today.year, quarter, 3), months(today.year, quarter, 6)),
+             13: (_dt.date(today.year, 1, 1), _dt.date(today.year + 1, 1, 1)),
+             14: (_dt.date(today.year - 1, 1, 1), _dt.date(today.year, 1, 1)),
+             15: (_dt.date(today.year + 1, 1, 1), _dt.date(today.year + 2, 1, 1)),
+             16: (_dt.date(today.year, 1, 1), today + day)}
+    return found.get(which)
+
+
+def _period(sheet: Worksheet, which: int, xml: str = "") -> FieldFilter:
+    """A dynamic filter on dates: the date cells in a period counted from today, or in a quarter or a month of any
+    year. It reads back as xlFilterDynamic and its Criteria1, and the file keeps the period's first serial and the
+    one after its last (tests/fixtures/dynamic_filters/)."""
+    bounds = _bounds(which, sheet.book.calculator.now().date())
+
+    def test(seen: _Seen) -> bool:
+        moment = _date_of(seen)
+        if moment is None:
+            return False
+        if bounds is None:
+            return (moment.month - 1) // 3 + 1 == which - 16 if which <= 20 else moment.month == which - 20
+        return _dt.datetime.combine(bounds[0], _dt.time()) <= moment < _dt.datetime.combine(bounds[1], _dt.time())
+
+    if not xml:
+        kind = _PERIODS[which - 1]
+        if bounds is None:
+            xml = f'<dynamicFilter type="{kind}"/>'
+        else:
+            epoch = _dt.date(1899, 12, 30) if not sheet.book.epoch_1904 else _dt.date(1904, 1, 1)
+            xml = (f'<dynamicFilter type="{kind}" val="{(bounds[0] - epoch).days}" '
+                   f'maxVal="{(bounds[1] - epoch).days}"/>')
+    return FieldFilter(DYNAMIC, VBAInt(which, "Long"), MISSING, test, xml=xml)
 
 
 def _read_dates(sheet: Worksheet, xml: str, attributes: str, body: str, prefix: str, *,
@@ -1171,6 +1247,8 @@ def _read_column(xml: str, sheet: Worksheet) -> FieldFilter:
     dynamic = re.fullmatch(r'<dynamicFilter\b([^>]*?)/>', xml)
     if dynamic is not None:
         found = _xml_attributes(dynamic.group(1))
+        if found.get("type", "") in _PERIODS:
+            return _period(sheet, _PERIODS.index(found["type"]) + 1, xml)
         which = {"aboveAverage": ABOVE_AVERAGE, "belowAverage": BELOW_AVERAGE}.get(found.get("type", ""))
         if which is not None and "val" in found:
             read = _averaged(which, float(found["val"]))

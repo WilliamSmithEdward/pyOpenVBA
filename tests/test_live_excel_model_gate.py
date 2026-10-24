@@ -2062,6 +2062,32 @@ def test_excel_reads_the_date_filters_this_wrote(tmp_path: Path) -> None:
             assert shown[case["sheet"]] == case["dump"], case["name"]
 
 
+def test_excel_reads_the_dynamic_filters_this_wrote(tmp_path: Path) -> None:
+    """Every layout tests/fixtures/dynamic_filters measured, made by the model with the macro Excel ran, its clock
+    where Excel's stood, a dynamic filter on dates on each sheet, and saved: Excel opens the file and reads each
+    sheet's hidden rows and filter as it read its own file opened again."""
+    from test_excel_dynamic_filters import LAYOUTS, NOW, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    body = "".join(RECORD["layout"].replace("{name}", layout["name"]).replace("{criteria}", str(layout["criteria"]))
+                   for layout in LAYOUTS)
+    app = ExcelApplication()
+    app.freeze_clock(NOW)
+    app.add_module(RECORD["build"].replace("{layouts}", body).replace("{folder}", str(tmp_path)), name="Builder")
+    app.run("Build")
+    reader = RECORD["helper"] + (
+        "Public Function Read(path As String) As String\nDim wb As Object, ws As Object, out As String\n"
+        "Set wb = Workbooks.Open(path)\nFor Each ws In wb.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\n"
+        "Next\nwb.Close False\nRead = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (str(tmp_path / "dynamic_filters.xlsx"),), timeout=300.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+    for layout in LAYOUTS:
+        assert read[layout["name"]] == layout["reopened"], layout["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

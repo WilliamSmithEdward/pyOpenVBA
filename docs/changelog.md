@@ -337,6 +337,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Excel's editor adds a module to a project this saved, however many
+  sheets it has. A storage's entries form a red-black tree, and the writer
+  left every entry it placed red. Windows refuses to add to a tree with
+  runs of red entries, so once a macro had added about 65 sheets,
+  `VBComponents.Add` on the saved file failed with "Device I/O error".
+  Every tree the writer builds is now coloured as the format requires, and
+  a save mends a tree with a red entry under a red one, as earlier versions
+  wrote them. A tree Word or PowerPoint wrote is kept as it was. Excel
+  added modules at 66, 100 and 255 sheets, and Windows' own storage code
+  added, renamed and deleted streams at every count from 0 to 300.
+
 - Conditional formats are written as Excel writes them: a new rule's
   `conditionalFormatting` under no prefix of the model's own (it was
   `ns0:conditionalFormatting`), a changed rule's without the worksheet's

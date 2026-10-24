@@ -2041,3 +2041,30 @@ def test_excel_reads_the_links_this_saved(tmp_path: Path) -> None:
     theirs = saved_address("C:\\docs\\file.xlsx", "C:\\a\\b\\c\\d\\e\\f")
     for name in names:
         assert read[tmp_path / name].replace(ours, theirs) == read[folder / name], name
+
+
+@pytest.mark.parametrize("sheets", [66, 100, 255])
+def test_excel_adds_modules_to_a_project_of_many_sheets(tmp_path: Path, sheets: int) -> None:
+    """A macro gives the model's workbook many more sheets and the model saves it; Excel's editor then adds
+    modules to its project and runs one.  The writer used to leave the project's storage tree red, and from
+    about 65 added sheets Excel refused the first module: "Device I/O error", scode 0x800A0039."""
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(f"Sub Build()\nDim i As Long\nFor i = 1 To {sheets}\n"
+                   "Worksheets.Add After:=Worksheets(Worksheets.Count)\nNext i\nEnd Sub\n", name="Module1")
+    app.run("Build")
+    path = app.save(tmp_path / "sheets.xlsm")
+    probe = ("Public Function Report() As String\n"
+             'Report = ActiveWorkbook.Worksheets.Count & "|" & ActiveWorkbook.VBProject.VBComponents.Count\n'
+             "End Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        first = excel.run_vba(probe, "Report", timeout=120.0)
+        assert first.ok, first.message
+        for k in range(1, 4):
+            excel.add_module(f"Extra{k}", f"Public Function Extra{k}() As Long\nExtra{k} = {k}\nEnd Function\n")
+        again = excel.run_vba(probe, "Report", timeout=120.0)
+    assert again.ok, again.message
+    # ThisWorkbook, every sheet, Module1 and the harness's three modules; then Extra1 to Extra3.
+    assert (str(first.value), str(again.value)) == (f"{sheets + 1}|{sheets + 6}", f"{sheets + 1}|{sheets + 9}")

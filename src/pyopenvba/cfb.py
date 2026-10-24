@@ -49,6 +49,10 @@ _OBJTYPE_STORAGE: int = 1
 _OBJTYPE_STREAM: int = 2
 _OBJTYPE_ROOT: int = 5
 
+# Directory entry colours in a storage's red-black tree ([MS-CFB] 2.6.4)
+_RED: int = 0
+_BLACK: int = 1
+
 # Spec field order: sig(8), CLSID(16), minorVer(2), majorVer(2), byteOrder(2),
 # sectorShift(2), miniSectorShift(2), reserved(6), then nine DWORDs, then DIFAT(436)
 _HEADER_FMT = "<8s16sHHHHH6sIIIIIIIII436s"
@@ -74,8 +78,10 @@ class DirEntry:
     start_sector: int
     size: int
     is_mini: bool = False  # True when size < mini-stream cutoff
-    # Preserved verbatim for round-trip writes (CLSID, state, timestamps, color, etc.)
+    # Preserved verbatim for round-trip writes (CLSID, state, timestamps, etc.)
     raw: bytes = b""
+    # Red or black in the parent storage's tree; a rebuilt tree recolours its entries.
+    color: int = _BLACK
 
 
 class CFB:
@@ -364,7 +370,7 @@ class CFB:
             name_raw,
             name_len,
             obj_type,
-            _color,
+            color,
             left_id,
             right_id,
             child_id,
@@ -390,6 +396,7 @@ class CFB:
             start_sector=start_sector,
             size=size,
             raw=entry_raw,
+            color=color,
         )
 
     def _read_stream(self, entry: DirEntry) -> bytes:
@@ -812,7 +819,13 @@ class CFB:
         Build a balanced BST from ``indices`` sorted by ``([MS-CFB] 2.6.4)``
         ordering: ``(len(name), upper(name))``.  Returns the new root id, or
         ``_NOSTREAM`` if empty.  Side-effect: rewrites the participating
-        entries' left/right sibling pointers.
+        entries' left/right sibling pointers and colours.
+
+        The colours matter as much as the order.  Reading never notices them,
+        but Windows' compound-file code inserts into the tree it reads and
+        refuses with STG_E_DOCFILECORRUPT on runs of red entries: that is the
+        "Device I/O error" Excel's editor gave adding a module to a project
+        of 66 sheets this wrote, when every entry it placed was left red.
         """
         if not indices:
             return _NOSTREAM
@@ -820,16 +833,58 @@ class CFB:
             indices,
             key=lambda i: (len(self._directory[i].name), self._directory[i].name.upper()),
         )
-        return self._build_from_sorted(ordered)
+        # Halving the sorted run fills every level but the deepest, so black
+        # above it and red on it gives every path the same black count with
+        # no red node above another.
+        full_levels = (len(ordered) + 1).bit_length() - 1
+        return self._build_from_sorted(ordered, 0, full_levels)
 
-    def _build_from_sorted(self, ordered: list[int]) -> int:
+    def _build_from_sorted(self, ordered: list[int], depth: int, full_levels: int) -> int:
         if not ordered:
             return _NOSTREAM
         mid = len(ordered) // 2
         root = ordered[mid]
-        self._directory[root].left_sibling_id = self._build_from_sorted(ordered[:mid])
-        self._directory[root].right_sibling_id = self._build_from_sorted(ordered[mid + 1:])
+        entry = self._directory[root]
+        entry.color = _RED if depth >= full_levels else _BLACK
+        entry.left_sibling_id = self._build_from_sorted(ordered[:mid], depth + 1, full_levels)
+        entry.right_sibling_id = self._build_from_sorted(ordered[mid + 1:], depth + 1, full_levels)
         return root
+
+    def _red_under_red(self, root: int) -> bool:
+        """Whether the tree under ``root`` holds a red entry under a red one.
+
+        That is the fault Windows refuses to insert into, and the one this
+        writer used to leave.  Measured with ole32 on balanced trees of up
+        to 300 entries: all red, it refused at 226 sizes; all black, so
+        that paths hold different numbers of black entries, or red only at
+        the top, it refused none.  Word and PowerPoint write such all-black
+        trees into .doc and .ppt files, and those are left as they are.
+        """
+        seen: set[int] = set()
+        stack = [(root, False)]
+        while stack:
+            node, parent_red = stack.pop()
+            if node == _NOSTREAM or node >= len(self._directory) or node in seen:
+                continue
+            seen.add(node)
+            entry = self._directory[node]
+            red = entry.color != _BLACK
+            if red and parent_red:
+                return True
+            stack.append((entry.left_sibling_id, red))
+            stack.append((entry.right_sibling_id, red))
+        return False
+
+    def _mend_trees(self) -> None:
+        """Rebuild every storage's child tree that holds a red entry under a red one.
+
+        Office never writes one, so its files pass through as they are.  This
+        mends the trees earlier versions of this writer left red, the bundled
+        blank templates among them.
+        """
+        for entry in self._directory:
+            if entry.obj_type in (_OBJTYPE_STORAGE, _OBJTYPE_ROOT) and self._red_under_red(entry.child_id):
+                entry.child_id = self._rebuild_balanced_subtree(self._collect_subtree(entry.child_id))
 
     def _unlink_and_clear(self, parent_idx: int, target_idx: int) -> None:
         parent = self._directory[parent_idx]
@@ -858,7 +913,9 @@ class CFB:
 
         Output uses major version 3 (512-byte sectors, 64-byte mini-sectors,
         4096-byte mini-stream cutoff).  Preserves the original directory-tree
-        topology and per-entry metadata (CLSID, state, color, timestamps).
+        topology and per-entry metadata (CLSID, state, color, timestamps),
+        except that a storage whose tree holds a red entry under a red one
+        gets a rebuilt one: Windows refuses to add a stream to it.
 
         Layout, in sector order:
             [mini-stream data] [regular stream data] [directory] [mini-FAT] [FAT] [DIFAT]
@@ -873,6 +930,8 @@ class CFB:
         CUTOFF = 4096
         ENTRIES_PER_SECTOR = SECTOR // 4              # 128 FAT entries / sector
         DIR_ENTRIES_PER_SECTOR = SECTOR // _DIR_ENTRY_SIZE  # 4 dir entries / sector
+
+        self._mend_trees()
 
         # ---- 1. Snapshot every directory entry's stream data ----
         stream_bytes: list[bytes] = []
@@ -1078,8 +1137,9 @@ class CFB:
         idx: int,
     ) -> bytes:
         """
-        Re-emit a 128-byte directory entry, patching in updated start_sector and
-        size while preserving the original CLSID, color, state, and timestamps.
+        Re-emit a 128-byte directory entry, patching in updated start_sector,
+        size and colour while preserving the original CLSID, state, and
+        timestamps.
         """
         CUTOFF = 4096
 
@@ -1116,7 +1176,7 @@ class CFB:
             raise CFBError(f"Directory entry name too long: {entry.name!r}")
         name_bytes = name_utf16 + b"\x00" * (64 - len(name_utf16))
         struct.pack_into("<64sHBB", buf, 0,
-                         name_bytes, len(name_utf16), entry.obj_type, buf[67])
+                         name_bytes, len(name_utf16), entry.obj_type, entry.color)
         struct.pack_into("<III", buf, 68,
                          entry.left_sibling_id,
                          entry.right_sibling_id,
@@ -1135,7 +1195,7 @@ class CFB:
             b"\x00" * 64,             # name (patched in by caller)
             0,                        # name_len
             entry.obj_type,
-            0,                        # color (red)
+            entry.color,
             entry.left_sibling_id,
             entry.right_sibling_id,
             entry.child_id,

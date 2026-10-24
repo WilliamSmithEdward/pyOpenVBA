@@ -3,10 +3,12 @@ from __future__ import annotations
 
 import importlib
 import os
+import sys
 from pathlib import Path
 import zipfile
 
 import pytest
+from _cfb_trees import tree_problems, windows_adds_modules
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.excel import ExcelFile
@@ -77,6 +79,30 @@ def test_runtime_creates_project_in_macro_free_workbook(tmp_path: Path) -> None:
     assert ExcelApplication.open(path).run("RuntimeAnswer") == 42
     with ExcelFile(path) as host:
         assert {"ThisWorkbook", "Sheet1", "RuntimeCode"} <= set(host.vba_modules())
+
+
+def many_sheets(tmp_path: Path) -> Path:
+    """Save the workbook a macro gave 66 more sheets: the case Excel's editor refused to add a module to."""
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module("Sub Build()\nDim i As Long\nFor i = 1 To 66\n"
+                   "Worksheets.Add After:=Worksheets(Worksheets.Count)\nNext i\nEnd Sub", name="Module1")
+    app.run("Build")
+    return app.save(tmp_path / "sheets.xlsm")
+
+
+def test_project_of_many_sheets_keeps_its_storage_trees_valid(tmp_path: Path) -> None:
+    path = many_sheets(tmp_path)
+    with ExcelFile(path) as host:
+        assert len([name for name in host.module_names() if name.startswith("Sheet")]) == 67
+    assert tree_problems(project_bytes(path)) == []
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="ole32 is Windows'")
+def test_windows_adds_modules_to_a_project_of_many_sheets(tmp_path: Path) -> None:
+    target = tmp_path / "vbaProject.bin"
+    target.write_bytes(project_bytes(many_sheets(tmp_path)))
+    assert windows_adds_modules(target, ["PyVbaUserCode", "PyVbaHarnessRunner", "PyVbaHarnessCall"]) == ""
 
 
 def test_signed_project_is_preserved_until_source_changes(tmp_path: Path) -> None:

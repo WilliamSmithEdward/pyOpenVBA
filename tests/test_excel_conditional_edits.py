@@ -37,18 +37,13 @@ RESAVED: list[dict[str, Any]] = RECORD["resaved"]
 UNSUPPORTED = {"expr_rel_between", "expr_rel_delete", "shift_expr_part", "n_shift_expr_part", "r_two_groups",
                "rx_cut_bar_before", "rx_cut_top_before", "rx_two_cut_before", "x14_other_insert"}
 _WRAPPED = "Excel wraps a rule's relative references round the sheet's edges, where the model makes them #REF!"
-_JOINED = "Excel joins rules alike over ranges that make one block as it reads a file; the model keeps them apart"
 _NAMING = "Excel keeps a rule whose formula names another sheet in its 2010 extension; the model keeps a cfRule"
 #: Where the model answers otherwise than Excel, and why.
 GAPS = {"order_expr": _WRAPPED}
 #: Where the model's file keeps the rules otherwise than Excel's.
 FILE_GAPS = {**GAPS, "cell_other_insert": _NAMING, "cell_other_delete": _NAMING}
 #: Where the model reads Excel's file otherwise than Excel.
-READ_GAPS = {**GAPS, "cell_other_insert": _NAMING, "cell_other_delete": _NAMING,
-             **dict.fromkeys(("groups_meet", "n_groups_meet", "lx_two_cut", "same_side", "same_three", "same_overlap",
-                              "same_between", "same_relative", "same_reversed"), _JOINED)}
-#: Where an edit of Excel's file answers, or keeps the rules, otherwise than Excel.
-RESAVED_GAPS = {"lx_two_cut": _JOINED}
+READ_GAPS = {**GAPS, "cell_other_insert": _NAMING, "cell_other_delete": _NAMING}
 
 
 def _priorities(answers: str) -> list[int]:
@@ -223,7 +218,7 @@ def resaved(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, object]
 KEPT = all_guids(json.dumps([one["file"] for one in LAYOUTS]))
 
 
-@pytest.mark.parametrize("change", _marked(RESAVED, set(), RESAVED_GAPS), ids=lambda change: change["name"])
+@pytest.mark.parametrize("change", RESAVED, ids=lambda change: change["name"])
 def test_an_edited_file_answers_as_excels_does(resaved: tuple[dict[str, object], dict[str, str]],
                                                change: dict[str, Any]) -> None:
     assert resaved[0][change["name"]] == change["answers"]
@@ -234,7 +229,7 @@ def excel_resaved() -> dict[str, str]:
     return formatting(FIXTURES / "conditional_edits_resaved.xlsx")
 
 
-@pytest.mark.parametrize("change", _marked(RESAVED, set(), RESAVED_GAPS), ids=lambda change: change["name"])
+@pytest.mark.parametrize("change", RESAVED, ids=lambda change: change["name"])
 def test_an_edited_file_keeps_the_rules_as_excels_does(resaved: tuple[dict[str, object], dict[str, str]],
                                                        excel_resaved: dict[str, str], change: dict[str, Any]) -> None:
     assert guids(resaved[1][change["name"]], KEPT) == guids(excel_resaved[change["name"]], KEPT)

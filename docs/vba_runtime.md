@@ -1170,6 +1170,23 @@ and saved again):
   distances, rules alike beside one made anew, several ranges made anew
   at once.
 
+**Reading a file.** Excel joins conditional formats as it reads a
+workbook without a VBA project, an .xlsx or an .xlsm holding no code
+(`tests/fixtures/conditional_joins/`, 84 layouts in three formats):
+
+* An area of a cell-value, expression, text, blank, error or date rule
+  that makes one block with an area of an alike rule before it in
+  priority goes to that rule, and a rule left with no area goes. Rules
+  alike are of one kind with the same settings and formulas as each reads
+  them from its own corner, and the same fill, font and border; a number
+  format counts only where both have one.
+* An area moves only where no rule between the two in priority covers it.
+  Top 10, average, unique, duplicate, colour scale, data bar and icon set
+  rules never join, and a workbook holding a VBA project keeps its rules
+  as the file has them.
+* Saved again, such a workbook's rules are written in the order Excel
+  writes them, joined.
+
 The operation checklist, `docs/excel_checklist.csv`, records every
 conditional format member's status.
 

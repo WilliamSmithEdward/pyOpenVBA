@@ -129,6 +129,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   What Excel splits, joins or numbers in ways not measured reports itself
   unsupported.
 
+- Conditional formats read from a workbook without a VBA project are
+  joined as Excel joins them: an area of a cell-value, expression, text,
+  blank, error or date rule that makes one block with an area of an alike
+  rule before it in priority goes to that rule, unless a rule between them
+  covers it. Alike means the same kind, settings and formulas as each rule
+  reads them, and the same fill, font and border, a number format counting
+  only where both have one. Top 10, average, unique, duplicate, colour
+  scale, data bar and icon set rules never join, and a workbook holding a
+  VBA project keeps its rules as the file has them. Saved again, such a
+  workbook's rules are written in Excel's order, joined. 84 live layouts in
+  three file formats, Excel's files saved again, and the model's own file
+  opened in Excel agree.
+
 - A third sweep of 65 everyday macros agrees with Excel in full: newer
   worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
   object, AutoFilter, hyperlinks, notes, protection, conditional formats,
@@ -364,6 +377,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 - A colour scale's lowest and highest points read 0 until the scale has
   coloured a cell, as Excel's do, in a session and in a file just opened.
+
+- A conditional format's file follows Excel's spelling: StopIfTrue set to
+  False leaves `stopIfTrue` out, where the model wrote `stopIfTrue="0"`; a
+  font's flags come in the schema's order, one that is on written bare,
+  `<b/>`; a number format names its id before its code; and a border given
+  a line and no colour takes the automatic one, `<color auto="1"/>`.
 
 - `Sort.Apply` with no range or no field sorts nothing and raises no
   error, as Excel does. The model raised error 1004.

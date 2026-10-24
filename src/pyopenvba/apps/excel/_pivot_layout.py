@@ -379,7 +379,9 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     # Each field's items as the table lists them, carried over to the cache this plan renders from, and the
     # records the hidden items and the page fields' chosen items leave.
     on_axes = {index for index in (*rows, *columns, *pages) if index != VALUES}
-    lists = carried(root, table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), list(fields), on_axes)
+    # Each field's renamed items, by their places in the cache this plan renders from.
+    renamed: dict[int, dict[int, str]] = {}
+    lists = carried(root, table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), list(fields), on_axes, renamed)
     display = [[place for place, _, _ in listing] if listing is not None else positions[index]
                for index, listing in enumerate(lists)]
     chosen_pages = choices(root, lists)
@@ -454,7 +456,8 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     def put(row: int, column: int, value: object) -> None:
         if isinstance(value, Typed):
             value = value.value
-        if value is not EMPTY:
+        # An empty name or caption leaves its cell empty (tests/fixtures/pivot_names/ data_empty, item_reset).
+        if value is not EMPTY and value != '':
             cells[area.top + row, area.left + column] = value
 
     if empty and not pages:
@@ -485,14 +488,17 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     data_caption = decode_text(root.get('dataCaption', 'Values'))
 
     def caption(field: int, position: int) -> object:
-        """An item's label cell: its value, a date or a formatted number in its field's format."""
+        """An item's label cell: its caption where it was given one, else its value, a date or a formatted number in
+        its field's format (tests/fixtures/pivot_names/ item_caption)."""
         if field == VALUES:
             return report_names[position]
         key = field, position
         if key not in captions:
+            given = renamed.get(field, {}).get(display[field][position])
             shared = fields[field].find(NS + 'sharedItems')
             assert shared is not None
-            captions[key] = item_label(shared[display[field][position]], formats[field])
+            captions[key] = (decode_text(given) if given is not None
+                             else item_label(shared[display[field][position]], formats[field]))
         return captions[key]
 
     def field_name(index: int) -> str:
@@ -738,12 +744,15 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             row_offset, column_offset = divmod(offset, page_columns)
         else:
             column_offset, row_offset = divmod(offset, page_rows)
-        button(-page_rows - 1 + row_offset, 3 * column_offset, decode_text(fields[field].get('name', '')))
+        # A page field shows by its caption, and its choice by the item's (tests/fixtures/pivot_names/ field_page,
+        # item_page).
+        button(-page_rows - 1 + row_offset, 3 * column_offset, field_name(field))
         showing = page_caption(lists[field] or [], chosen_pages.get(field), flag(pivot_fields[field], MULTIPLE))
         if isinstance(showing, int):
             values = fields[field].find(NS + 'sharedItems')
             assert values is not None
-            label = item_label(values[showing], formats[field])
+            given = renamed.get(field, {}).get(showing)
+            label = decode_text(given) if given is not None else item_label(values[showing], formats[field])
             put(-page_rows - 1 + row_offset, 3 * column_offset + 1, label)
             if isinstance(label, Typed):
                 labels[area.top - page_rows - 1 + row_offset, area.left + 3 * column_offset + 1] = label_format(
@@ -774,7 +783,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             kinds = functions_of(original)
             items = node('items', {'count': str(len(listing) + len(kinds))})
             for place, hide, gone in listing:
-                items.append(item_node(place, hide=hide, gone=gone))
+                items.append(item_node(place, hide=hide, gone=gone, caption=renamed.get(index, {}).get(place)))
             for kind in kinds:
                 items.append(node('item', {'t': kind}))
             original.insert(0, items)
@@ -815,7 +824,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     return RenderPlan(table, root, fields, cache_records, extent, previous_areas, cells, styles)
 
 
-def _unformat(sheet: Worksheet, areas: list[Area]) -> None:
+def unformat(sheet: Worksheet, areas: list[Area]) -> None:
     """Take every cell in a table's old place back to the default format, as Excel does before it lays the table
     out again (tests/fixtures/pivot_layouts/ compact_again)."""
     default = sheet.book.stylesheet.default
@@ -836,7 +845,7 @@ def apply_render(plan: RenderPlan, *, cache: PivotCache | None = None) -> None:
     table, root = plan.table, plan.root
     cache = cache if cache is not None else table.cache
     Range(table.sheet, plan.previous_areas).clear_contents_checked()
-    _unformat(table.sheet, plan.previous_areas)
+    unformat(table.sheet, plan.previous_areas)
     # Preserve retained source-field and data-field nodes, not just their values.
     original_fields = table.root.find(NS + 'pivotFields')
     planned_fields = root.find(NS + 'pivotFields')

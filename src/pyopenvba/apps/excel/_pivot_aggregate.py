@@ -290,8 +290,12 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
             block = parse_area(other_location.get('ref', 'A1'))
             if area.top <= block.bottom and block.top <= area.bottom and area.left <= block.right and block.left <= area.right:
                 raise error(1004)
+    from pyopenvba.apps.excel._pivot_layout import unformat
+
     cleared = Range(table.sheet, [old, area])
     cleared.clear_contents_checked()
+    # The empty table's placeholder borders go with it, as Excel's do (tests/fixtures/pivot_names/ data_no_axes).
+    unformat(table.sheet, [old, area])
     for child in list(table.root):
         if child.tag in {NS + part for part in ('rowItems', 'colFields', 'colItems', 'dataFields')}:
             table.root.remove(child)

@@ -314,7 +314,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
             attributes(items, 'count')
             children(items, 'item')
             for item in items:
-                attributes(item, 'x t h m')
+                attributes(item, 'n x t h m')
                 if len(item) or item.get('t', 'data') not in ('data', 'default', *SUBTOTALS):
                     raise unsupported('with grouped or filtered items')
     for name, attr in (('rowFields', 'x'), ('colFields', 'x'), ('pageFields', 'fld')):

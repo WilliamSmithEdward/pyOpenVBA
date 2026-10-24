@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.apps.excel._pivot_create import encoded, node
-from pyopenvba.apps.excel._pivot_filters import field_attributes
 from pyopenvba.apps.excel._pivot_formulas import Piece, Refused, engine_node, fields, read, spelled, without, \
     worked_out
 from pyopenvba.apps.excel._pivots import NS, PivotField, decode_text
@@ -178,41 +177,6 @@ def _calculated_index(field: PivotField) -> int | None:
 def calculated_view(field: PivotField) -> bool:
     """Whether a field is a calculated one, not its data field."""
     return _calculated_index(field) is not None
-
-
-def rename(field: PivotField, value: object, *, caption: bool) -> None:
-    """Caption: the name a field shows by and formulas name it by, its cache's name kept. Name does the same on a
-    field on an axis; on a calculated field it is error 1004, and on a field in the data area alone it lists the
-    field's items, takes the name and then is error 1004, as in Excel (tests/fixtures/pivot_calculated_fields/
-    renamed_caption, renamed, caption_lookup, source_caption, source_name)."""
-    from pyopenvba.apps.excel._pivot_filters import ensure_items, rerender
-
-    if field.data or field.index < 0:
-        raise VBAUnsupportedError("Renaming a pivot table's data field or its Values field is not implemented")
-    table = field.table.entry
-    on_axis = field.root.get('axis') is not None
-    quirk = not caption and not on_axis and field.root.get('dataField') in ('1', 'true')
-    if not caption and calculated_view(field):
-        raise error(1004)
-    if not caption and not on_axis and not quirk:
-        raise VBAUnsupportedError('Naming a pivot field on no axis is not implemented')
-    text = to_text(value)
-    if any(string_order(one.casefold(), text.casefold()) == 0
-           for place, one in enumerate(captions(table)) if place != field.index):
-        raise error(1004)
-    if quirk:
-        ensure_items(table, field.root, field.index)
-    field.root.set('name', encoded(text))
-    ordered = field_attributes(dict(field.root.attrib))
-    field.root.attrib.clear()
-    field.root.attrib.update(ordered)
-    table.changed = True
-    table.sheet.book.saved = False
-    if on_axis:
-        # Outline and tabular forms show a field's name over its items.
-        rerender(table, deepcopy(table.root))
-    if quirk:
-        raise error(1004)
 
 
 def formula(field: PivotField) -> object:

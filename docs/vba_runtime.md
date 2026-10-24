@@ -1096,8 +1096,14 @@ leaves the rest out. The model keeps the same tables
   font, which Warning Text has, comes ahead of the fonts a macro made
   before it.
 * A custom number format takes its id when it is made, and a save leaves
-  a gap where one was made and then dropped. Opening a file numbers its
-  custom formats from 164 in the order it lists them.
+  a gap where one was made and then dropped. Opening a file numbers the
+  formats it lists from 164 in the order it lists them: one nothing uses
+  takes an id too, one code listed twice takes one, and a built-in id over
+  another code, or an id below 164, is a custom format like the rest; only
+  a built-in format the file spells as Excel does keeps its id. A save
+  writes them under those ids, spelled as Excel spells them, and leaves out
+  those nothing names, though no macro changed the stylesheet; a pivot
+  table's formats follow (`tests/fixtures/number_format_resave/`).
 * A cell xf changes in place when its style changes, and two that come
   to say the same stay apart. Opening a file, Excel works each xf's apply
   flags out afresh and takes an xf that then points at what an earlier

@@ -42,8 +42,6 @@ FOREIGN: dict[str, Any] = json.loads((FIXTURES / "foreign.json").read_text(encod
 REFUSALS: list[dict[str, Any]] = json.loads((FIXTURES / "refusals.json").read_text(encoding="utf-8"))["codes"]
 #: The character probes each workbook held, as the measurement made them: Excel holds about 250 custom formats.
 CHUNK = 120
-_CELLS = ("Excel numbers the cells' own custom formats from 164 as it opens a file and saves them so; the model "
-          "writes a stylesheet no macro changed as the file had it")
 
 
 def _vba(text: str) -> str:
@@ -157,9 +155,9 @@ def test_a_rule_made_after_opening_takes_the_next_id(reopened: tuple[dict[str, s
                                                                          RECORD["after_open"]["resaved"])
 
 
-@pytest.mark.xfail(strict=True, reason=_CELLS)
 def test_a_file_saved_again_renumbers_its_cells_formats_as_excel_does(
         reopened: tuple[Any, tuple[dict[str, str], list[str]]]) -> None:
+    """The cells' own custom formats, from 164 in the order the file lists them, though nothing changed them."""
     assert reopened[1][1] == RECORD["cells"]["resaved"]
 
 
@@ -303,7 +301,6 @@ def test_a_rule_another_program_wrote_is_saved_again_as_excel_saves_it(
     assert foreign[case["name"]][1][0] == case["resaved"]
 
 
-@pytest.mark.xfail(strict=True, reason=_CELLS)
 def test_the_cells_formats_of_a_copy_are_saved_again_as_excel_saves_them(
         foreign: dict[str, tuple[str, tuple[dict[str, str], list[str]]]]) -> None:
     assert [foreign[case["name"]][1][1] for case in FOREIGN["cases"]] == [

@@ -8,6 +8,7 @@ opened as it was or after an edit.
 from __future__ import annotations
 
 import json
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -117,7 +118,8 @@ def test_a_sheet_copy_and_a_paste_make_dxfs_as_excel_does(tmp_path: Path) -> Non
     """A rule a sheet copy or a paste makes takes a new dxf ahead of every one made before it, as a rule made by
     FormatConditions.Add does."""
     app = ExcelApplication()
-    app.add_module(RECORD["copy_build"].replace("{folder}", str(tmp_path)), name="Builder")
+    # The macro Excel ran names its files under a Windows folder; here they go under this system's.
+    app.add_module(RECORD["copy_build"].replace("{folder}\\", str(tmp_path) + os.sep), name="Builder")
     assert app.run("Build") == "ok"
     assert {name: holdings(tmp_path / f"{name}.xlsx") for name in RECORD["copies"]} == RECORD["copies"]
 

@@ -66,12 +66,15 @@ def place_of(item: XmlElement) -> int:
     return int(item.get('x', '-1'))
 
 
-def item_node(x: int, *, hide: bool = False, gone: bool = False, caption: str | None = None) -> XmlElement:
+def item_node(x: int, *, hide: bool = False, gone: bool = False, caption: str | None = None,
+              collapsed: bool = False) -> XmlElement:
     """An item as Excel writes one, its caption and flags ahead of ``x`` as the schema orders them
-    (tests/fixtures/pivot_names/ item_hidden)."""
+    (tests/fixtures/pivot_names/ item_hidden, tests/fixtures/pivot_show_detail/ collapse_item)."""
     attributes = {'n': caption} if caption is not None else {}
     if hide:
         attributes['h'] = '1'
+    if collapsed:
+        attributes['sd'] = '0'
     if gone:
         attributes['m'] = '1'
     attributes['x'] = str(x)
@@ -79,8 +82,9 @@ def item_node(x: int, *, hide: bool = False, gone: bool = False, caption: str | 
 
 
 def restate(item: XmlElement, *, hide: bool) -> None:
-    rest = {key: value for key, value in item.attrib.items() if key not in ('n', 'h', 'm', 'x')}
-    fresh = item_node(place_of(item), hide=hide, gone=flag(item, 'm'), caption=item.get('n'))
+    rest = {key: value for key, value in item.attrib.items() if key not in ('n', 'h', 'sd', 'm', 'x')}
+    fresh = item_node(place_of(item), hide=hide, gone=flag(item, 'm'), caption=item.get('n'),
+                      collapsed=item.get('sd') in ('0', 'false'))
     item.attrib.clear()
     item.attrib.update(fresh.attrib)
     item.attrib.update(rest)
@@ -156,9 +160,10 @@ def sorted_places(entries: list[XmlElement]) -> list[int]:
 
 
 def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
-            on_axes: set[int], captions: dict[int, dict[int, str]] | None = None) -> list[list[Listed] | None]:
+            on_axes: set[int], kept: dict[int, dict[int, dict[str, str]]] | None = None) -> list[list[Listed] | None]:
     """Each field's list of items, carried from the cache fields ``before`` to those ``after``, or None for a field
-    that lists none; ``captions`` gains each field's renamed items by their places after, as the file spells them.
+    that lists none; ``kept`` gains, by each field and the places after, the attributes an item keeps beside its
+    place and flags: its caption, n, and its ShowDetail, sd.
 
     A listed item keeps its place, its value found again by what it is, and
     is marked gone where the cache keeps the value unused; a value the list
@@ -169,7 +174,7 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
 
     lists: list[list[Listed] | None] = []
     for index, field in enumerate(root.findall(f'{NS}pivotFields/{NS}pivotField')):
-        named = captions.setdefault(index, {}) if captions is not None else {}
+        named = kept.setdefault(index, {}) if kept is not None else {}
         old = shared(before[index]) if index < len(before) else []
         new = shared(after[index]) if index < len(after) else []
         if field.find(NS + 'items') is None:
@@ -192,8 +197,9 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
             if place is not None and place not in taken:
                 taken.add(place)
                 found.append((place, flag(item, 'h'), unused(new[place])))
-                if item.get('n') is not None:
-                    named[place] = item.get('n', '')
+                extra = {name: item.get(name, '') for name in ('n', 'sd') if item.get(name) is not None}
+                if extra:
+                    named[place] = extra
         hide = any(hidden for _, hidden, _ in found)
         found += [(place, hide, False) for place, entry in enumerate(new) if place not in taken and not unused(entry)]
         # A field sorted by its items' names sorts new ones in among them (tests/fixtures/pivot_sorts/ refresh_labels).
@@ -201,7 +207,7 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
         if kind in ('ascending', 'descending') and field.find(NS + 'autoSortScope') is None and len(found) > len(taken):
             from pyopenvba.apps.excel._pivot_sorts import by_name
 
-            found = [found[place] for place in by_name([shown_entry(new[place], named.get(place))
+            found = [found[place] for place in by_name([shown_entry(new[place], named.get(place, {}).get('n'))
                                                         for place, _, _ in found], kind == 'descending')]
         lists.append(found)
     return lists

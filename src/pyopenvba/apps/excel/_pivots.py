@@ -1007,6 +1007,18 @@ class PivotField(ExcelObject):
         return EMPTY
 
     @member
+    def ShowDetail(self) -> object:
+        from pyopenvba.apps.excel._pivot_details import field_detail
+
+        return field_detail(self)
+
+    @setter('ShowDetail')
+    def set_show_detail(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_details import set_field_detail
+
+        set_field_detail(self, value)
+
+    @member
     def Orientation(self) -> object:
         if self.index == -2:
             for name, orientation in (('rowFields', 1), ('colFields', 2)):
@@ -1465,6 +1477,18 @@ class PivotItem(ExcelObject):
         from pyopenvba.apps.excel._pivot_sorts import set_position
 
         set_position(self, value)
+
+    @member
+    def ShowDetail(self) -> object:
+        from pyopenvba.apps.excel._pivot_details import item_detail
+
+        return item_detail(self)
+
+    @setter('ShowDetail')
+    def set_show_detail(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_details import set_item_detail
+
+        set_item_detail(self, value)
 
     @member
     def Visible(self) -> object:

@@ -209,7 +209,7 @@ def admit_cache(cache: PivotCache) -> None:
                        'longText')
             children(shared, 'n s b d e m')
             for item in shared:
-                attributes(item, 'v')
+                attributes(item, 'v u')
                 if len(item):
                     raise unsupported('with custom shared-item metadata')
     fields = cache.root.find(NS + 'cacheFields')
@@ -244,7 +244,8 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     children(fields, 'pivotField')
     for field in fields:
         distinct_children(field)
-        attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop')
+        attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop '
+                   'multipleItemSelectionAllowed')
         children(field, 'items')
         if field.get('compact', '1') != '1':
             raise unsupported('with noncompact field layouts')
@@ -254,7 +255,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
             attributes(items, 'count')
             children(items, 'item')
             for item in items:
-                attributes(item, 'x t')
+                attributes(item, 'x t h m')
                 if len(item) or item.get('t', 'data') not in ('data', 'default'):
                     raise unsupported('with grouped or filtered items')
     for name, attr in (('rowFields', 'x'), ('colFields', 'x'), ('pageFields', 'fld')):
@@ -262,7 +263,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
             attributes(group, 'count')
             children(group, 'pageField' if name == 'pageFields' else 'field')
             for entry in group:
-                attributes(entry, 'fld hier' if name == 'pageFields' else 'x')
+                attributes(entry, 'fld item hier' if name == 'pageFields' else 'x')
                 if name == 'pageFields' and entry.get('hier', '-1') != '-1':
                     raise unsupported('with hierarchical page fields')
                 index = integer(entry, attr, -3)
@@ -373,6 +374,7 @@ def refresh(cache: PivotCache) -> object:
     from pyopenvba.apps.excel._model import Range
     from pyopenvba.apps.excel._pivot_aggregate import records
     from pyopenvba.apps.excel._pivot_create import apply_materialized, plan_materialize
+    from pyopenvba.apps.excel._pivot_filters import retain_missing
     from pyopenvba.apps.excel._pivot_layout import apply_render, cache_layout, plan_render
 
     if cache.index == 0:
@@ -435,6 +437,7 @@ def refresh(cache: PivotCache) -> object:
     for old, new in zip(before, after, strict=True):
         new.attrib.update(old.attrib)
     normalized = cache_layout(staged, records(staged))
+    retain_missing(cache, normalized[0], reports)
     plans: list[RenderPlan] = []
     remaining_cells = MAX_STAGED_CELLS
     for table in reports:

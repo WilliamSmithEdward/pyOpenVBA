@@ -488,4 +488,6 @@ def test_repeated_values_captions_decode_once_per_plan(monkeypatch: pytest.Monke
     monkeypatch.setattr(_pivot_layout, 'decode_text', counted)
     plan = _pivot_layout.plan_render(table, definition, data=list(data), cache=staged, normalized=normalized)
     assert len(plan.cells) > 20
-    assert seen.count('caption-one') == seen.count('caption-two') == seen.count('K1') == 1
+    assert seen.count('caption-one') == seen.count('caption-two') == 1
+    # K1 is read once more to find the report's own item, A, which the refreshed values no longer spell.
+    assert seen.count('K1') == 2

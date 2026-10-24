@@ -65,20 +65,28 @@ def table_source(book: Workbook, text: str) -> Table | None:
                  and (not owner or owner.casefold() == sheet.name.casefold())), None)
 
 
+def a1_text(text: str) -> str:
+    """A source's text with an R1C1 reference, as a recorded macro gives one, spelled in A1."""
+    if re.search(r'(?:^|!)R(?:\d+|\[-?\d+\])C(?:\d+|\[-?\d+\])', text, re.I):
+        return to_a1('=' + text, 1, 1)[1:]
+    return text
+
+
 def source_range(book: Workbook, source: object, *, cache_source: bool = False) -> Range:
     if isinstance(source, Range):
         if source.sheet.book is not book:
             raise VBAUnsupportedError('Pivot caches from another workbook are not implemented')
         return source
-    text = to_text(source)
-    if re.search(r'(?:^|!)R(?:\d+|\[-?\d+\])C(?:\d+|\[-?\d+\])', text, re.I):
-        text = to_a1('=' + text, 1, 1)[1:]
+    text = a1_text(to_text(source))
     sheet = book.active_sheet
     if sheet is None:
         raise error(1004)
+    owner, bare = split_sheet(text)
+    context = next((one for one in book.sheets_ if owner and one.name.casefold() == owner.casefold()), None)
+    # A source naming its sheet is read there, whichever sheet is active.
+    if context is not None:
+        sheet = context
     if cache_source:
-        owner, bare = split_sheet(text)
-        context = next((one for one in book.sheets_ if one.name.casefold() == owner.casefold()), None)
         if context is not None:
             named = book.names_.find(bare, scope=context)
             if named is not None and '!' not in to_text(named.Name()):
@@ -442,6 +450,8 @@ def rich_errors(sheet: Worksheet) -> dict[tuple[int, int], RichError]:
 
 def write(book: Workbook, package: OpcFile) -> None:
     """Write new caches and new or explicitly edited report definitions."""
+    from pyopenvba.apps.excel._pivot_filters import savable
+
     for cache in book.pivot_caches:
         if not cache.changed:
             continue
@@ -515,7 +525,7 @@ def write(book: Workbook, package: OpcFile) -> None:
             if not table.changed:
                 continue
             if table.part:
-                package.write(table.part, xml_bytes(table.root))
+                package.write(table.part, xml_bytes(savable(table.root)))
                 table.changed = False
                 continue
             number = 1
@@ -529,7 +539,7 @@ def write(book: Workbook, package: OpcFile) -> None:
                              f'../pivotTables/pivotTable{number}.xml')
             add_relationship(package, f'xl/pivotTables/_rels/pivotTable{number}.xml.rels', LINK + 'pivotCacheDefinition',
                              '../pivotCache/' + posixpath.basename(table.cache.part))
-            package.write(table.part, xml_bytes(table.root))
+            package.write(table.part, xml_bytes(savable(table.root)))
             add_content_type(package, table.part, 'application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml')
             table.changed = False
             added = True

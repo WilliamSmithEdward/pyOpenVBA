@@ -49,9 +49,20 @@ font's as its colour. The file keeps the colour in a dxf of its own,
 made as the filter is, which a filter on the column again or ShowAllData
 lets go.
 
-What is not modelled reports itself: icon and date filters, the other
-dynamic filters, AutoFilter.Sort, a hidden drop-down, and text beyond
-ASCII where it is compared.
+xlFilterValues with Criteria2 filters by dates (scripts/measure_date_filters.py):
+pairs of a level, 0 for a year to 5 for a second, and a date that level
+of it names, with the values of an array Criteria1 beside them; a single
+Criteria1 is passed over, and a year with no date to name it is error
+1004, the filter turned on all the same. A cell passes in a date format,
+inside a group. The filter reads back as those values alone do. The file
+keeps it in an Excel 2017 extension of the column's filter, the values
+then the dates, the latest year first and within one the earliest
+moment; a file's filters element of dates reads back as xlFilterValues
+and is saved as it was.
+
+What is not modelled reports itself: icon filters, the dynamic filters on
+dates, AutoFilter.Sort, a hidden drop-down, and text beyond ASCII where it
+is compared.
 
 A table has a filter of its own, which a range inside it reaches; the
 sheet's members reach whichever filter the active cell is in. Both are
@@ -69,7 +80,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
 from pyopenvba.apps.excel._model import ExcelObject, NameEntry, Range
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._display import UndisplayableError, shown
 from pyopenvba.formula._values import ExcelError, number_text
 from pyopenvba.interpreter._objects import VBACollection, member, method
@@ -338,6 +349,8 @@ def _field(sheet: Worksheet, area: Area, index: int, criteria1: object, operator
     if criteria1 is MISSING and criteria2 is MISSING and kind in (0, AND, OR):
         return None
     if kind == VALUES:
+        if criteria2 is not MISSING:
+            return _dated(sheet, criteria1, criteria2)
         return _values(criteria1)
     if kind in (TOP_ITEMS, BOTTOM_ITEMS, TOP_PERCENT, BOTTOM_PERCENT):
         return _top(sheet, area, index, kind, criteria1)
@@ -440,6 +453,115 @@ def _averaged(which: int, mean: float) -> FieldFilter:
                            lambda seen: seen.number is not None and seen.number > mean, xml=xml)
     return FieldFilter(DYNAMIC, VBAInt(which, "Long"), MISSING,
                        lambda seen: seen.number is not None and seen.number < mean, xml=xml)
+
+
+#: The parts of a moment a date filter's levels name, from the year at 0 to the second at 5.
+_DATE_PARTS = ("year", "month", "day", "hour", "minute", "second")
+#: The Excel 2017 extension a filter column keeps its dates in, as Excel writes them, round its filters.
+_DATES_HEAD = ('<extLst><ext uri="{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}" '
+               'xmlns:xlrd2="http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2">'
+               '<xlrd2:filterColumn><xlrd2:filters>')
+_DATES_TAIL = "</xlrd2:filters></xlrd2:filterColumn></ext></extLst>"
+
+
+def _dated(sheet: Worksheet, criteria1: object, criteria2: object) -> FieldFilter:
+    """xlFilterValues with dates as Criteria2, in pairs of a level, 0 for a year to 5 for a second, and a date
+    that level of it names, with the values of an array Criteria1 beside them; a single Criteria1 is passed over
+    (tests/fixtures/date_filters/)."""
+    from pyopenvba.apps.excel._sort import text_key
+    from pyopenvba.interpreter._values import parse_date_text
+
+    if not isinstance(criteria2, VBAArray) or len(criteria2.elements()) % 2:
+        raise VBAUnsupportedError("AutoFilter with a Criteria2 that is not pairs of a level and a date is not "
+                                  "implemented")
+    given = criteria2.elements()
+    groups: list[tuple[int, ...]] = []
+    for level, text in zip(given[::2], given[1::2]):
+        depth = int(to_integer(level, "Long"))
+        if not 0 <= depth < len(_DATE_PARTS):
+            raise VBAUnsupportedError(f"AutoFilter on dates at level {depth} is not implemented")
+        # A year needs a date to name it: "2025" alone is error 1004.
+        parsed = parse_date_text(to_text(text))
+        if parsed is None:
+            raise error(1004, "AutoFilter method of Range class failed")
+        moment = parsed.to_datetime()
+        groups.append((moment.year, moment.month, moment.day, moment.hour, moment.minute, moment.second)[:depth + 1])
+    words: list[str] = []
+    listed: FieldFilter | None = None
+    if isinstance(criteria1, VBAArray):
+        words = sorted((to_text(item) for item in criteria1.elements()), key=lambda item: text_key(item, False))
+        if "" in words:
+            raise VBAUnsupportedError("AutoFilter by dates beside blank cells is not implemented")
+        listed = _values(criteria1)
+    body = "".join(f'<xlrd2:filter val="{_attribute(word)}"/>' for word in words) + "".join(
+        "<xlrd2:dateGroupItem" + "".join(f' {name}="{part}"' for name, part in zip(_DATE_PARTS, group))
+        + f' dateTimeGrouping="{_DATE_PARTS[len(group) - 1]}"/>' for group in sorted(groups, key=_date_order))
+    return _date_filter(groups, listed, _DATES_HEAD + body + _DATES_TAIL)
+
+
+def _date_order(group: tuple[int, ...]) -> tuple[int, ...]:
+    """Where Excel writes a date filter's item: the latest year first, and within one the earliest moment first, a
+    group before those inside it (tests/fixtures/date_filters/)."""
+    rest = [group[index] if index < len(group) else (0 if index < 3 else -1) for index in range(1, len(_DATE_PARTS))]
+    return (-group[0], *rest)
+
+
+def _date_filter(groups: list[tuple[int, ...]], listed: FieldFilter | None, xml: str, *,
+                 classic: bool = False) -> FieldFilter:
+    """A filter showing the date cells inside ``groups`` and the cells ``listed`` shows. It reads back as the
+    values beside the dates do, Operator 0 and no criteria where there are none, and a filter the file kept the
+    classic way as xlFilterValues."""
+    from pyopenvba.apps.excel._typing import is_date_format
+
+    def test(seen: _Seen) -> bool:
+        if listed is not None and listed.test(seen):
+            return True
+        if seen.number is None or seen.sheet is None:
+            return False
+        cell = seen.sheet.cells_.get((seen.row, seen.column))
+        if cell is None or not is_date_format(cell.number_format):
+            return False
+        try:
+            moment = VBADate(seen.number + (1462 if seen.sheet.book.epoch_1904 else 0)).to_datetime()
+        except VBARuntimeError:
+            # A number past either end of the calendar names no date.
+            return False
+        parts = (moment.year, moment.month, moment.day, moment.hour, moment.minute, moment.second)
+        return any(parts[:len(group)] == group for group in groups)
+
+    if listed is None:
+        return FieldFilter(VALUES if classic else 0, MISSING, MISSING, test, 0, xml)
+    return FieldFilter(VALUES if classic else listed.operator, listed.criteria1, listed.criteria2, test,
+                       listed.count, xml)
+
+
+def _read_dates(sheet: Worksheet, xml: str, attributes: str, body: str, prefix: str, *,
+                classic: bool) -> FieldFilter | None:
+    """A date filter from the file, the classic way or in the Excel 2017 extension; None for one not measured."""
+    if _xml_attributes(attributes):
+        return None
+    words: list[str] = []
+    groups: list[tuple[int, ...]] = []
+    for match in re.finditer(rf"<{prefix}(filter|dateGroupItem)\b([^>]*)/>|(\S)", body):
+        if match.group(3) is not None:
+            return None
+        found = _xml_attributes(match.group(2))
+        if match.group(1) == "filter":
+            words.append(found.get("val", ""))
+            continue
+        grouping = found.get("dateTimeGrouping", "")
+        if grouping not in _DATE_PARTS:
+            return None
+        try:
+            groups.append(tuple(int(found[name]) for name in _DATE_PARTS[:_DATE_PARTS.index(grouping) + 1]))
+        except (KeyError, ValueError):
+            return None
+    listed = None
+    if words:
+        listed = _read_values("", "", "".join(f'<filter val="{_attribute(word)}"/>' for word in words))
+        if listed.operator < 0:
+            return None
+    return _date_filter(groups, listed, xml, classic=classic)
 
 
 def _coloured(sheet: Worksheet, kind: int, criteria1: object) -> FieldFilter:
@@ -835,13 +957,20 @@ def range_autofilter(target: Range, field_argument: object, criteria1: object, o
     index = int(to_integer(field_argument, "Long"))
     if not 1 <= index <= area.columns:
         raise error(1004, "AutoFilter's field is outside the range")
+    fresh = False
+    if existing is None and criteria2 is not MISSING and operator is not MISSING \
+            and int(to_integer(operator, "Long")) == VALUES:
+        # Excel turns the filter on before it reads the dates, so one it cannot read leaves the filter on with
+        # nothing in it (tests/fixtures/date_filters/).
+        existing, fresh = _new_filter(sheet, asked), True
+        _changed(sheet)
     made = _field(sheet, area, index, criteria1, operator, criteria2)
     if made is None and hidden_button:
         raise VBAUnsupportedError("hiding a drop-down without criteria is not implemented")
     if existing is None:
         # A new filter's name keeps the range it was asked for; filtering again names the grown one.
         existing = _new_filter(sheet, asked)
-    else:
+    elif not fresh:
         _remember_database(sheet, area)
     existing.area = area
     if made is None:
@@ -1020,6 +1149,16 @@ def _read_column(xml: str, sheet: Worksheet) -> FieldFilter:
         if found_colour is not None:
             found_colour.xml = xml
             return found_colour
+    dates = re.fullmatch(r"<filters\b([^>]*?)>(.*?)</filters>", xml, re.DOTALL)
+    if dates is not None and "<dateGroupItem" in dates.group(2):
+        found_dates = _read_dates(sheet, xml, dates.group(1), dates.group(2), "", classic=True)
+        return found_dates if found_dates is not None else _opaque(xml)
+    extension = re.fullmatch(r'<extLst><ext\b[^>]*?\buri="\{1AD28BCE-077C-4C59-8B6E-1921CE8616D4\}"[^>]*>'
+                             r"<xlrd2:filterColumn><xlrd2:filters\b([^>]*?)>(.*?)</xlrd2:filters>"
+                             r"</xlrd2:filterColumn></ext></extLst>", xml, re.DOTALL)
+    if extension is not None:
+        found_dates = _read_dates(sheet, xml, extension.group(1), extension.group(2), "xlrd2:", classic=False)
+        return found_dates if found_dates is not None else _opaque(xml)
     values = re.fullmatch(r'<filters\b([^>]*?)(?:/>|>(.*?)</filters>)', xml, re.DOTALL)
     if values is not None:
         return _read_values(xml, values.group(1), values.group(2) or "")
@@ -1243,7 +1382,8 @@ class Filter(ExcelObject):
     @member
     def Criteria1(self) -> object:
         found = self._field()
-        if found is None:
+        # A filter on dates alone has none to read back (tests/fixtures/date_filters/).
+        if found is None or found.criteria1 is MISSING:
             raise error(1004, "The filter has no criteria")
         return found.criteria1
 

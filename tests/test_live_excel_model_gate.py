@@ -2032,6 +2032,36 @@ def test_excel_reads_the_colour_filters_this_wrote(tmp_path: Path) -> None:
         assert read[layout["name"]] == layout["reopened"], layout["name"]
 
 
+def test_excel_reads_the_date_filters_this_wrote(tmp_path: Path) -> None:
+    """Every layout tests/fixtures/date_filters measured, made by the model with the macro Excel ran, a filter by
+    dates on each sheet, and saved, and the model's save of each file holding a filter the classic way: Excel opens
+    them and reads each sheet's hidden rows and filters as it read its own files."""
+    from test_excel_date_filters import CLASSIC, FIXTURES, LAYOUTS, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    body = "".join(RECORD["layout"].replace("{name}", layout["name"]).replace("{table}", RECORD["table"])
+                   .replace("{steps}", layout["steps"]) for layout in LAYOUTS)
+    app = ExcelApplication()
+    app.add_module(RECORD["build"].replace("{layouts}", body).replace("{folder}", str(tmp_path)), name="Builder")
+    app.run("Build")
+    for case in CLASSIC:
+        ExcelApplication.open(FIXTURES / f"{case['name']}.xlsx", with_vba=False).save(tmp_path / f"{case['name']}.xlsx")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(RECORD["read"], "Read", (str(tmp_path / "date_filters.xlsx"),
+                                                        str(tmp_path / "date_filters_resaved.xlsx")), timeout=300.0)
+        assert result.ok, result.message
+        read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+        for layout in LAYOUTS:
+            assert read[layout["name"]] == layout["reopened"], layout["name"]
+        for case in CLASSIC:
+            result = excel.run_vba(RECORD["read"], "Read", (str(tmp_path / f"{case['name']}.xlsx"),
+                                                            str(tmp_path / f"{case['name']}_again.xlsx")), timeout=300.0)
+            assert result.ok, result.message
+            shown = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+            assert shown[case["sheet"]] == case["dump"], case["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

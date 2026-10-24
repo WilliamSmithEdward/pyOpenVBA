@@ -1,0 +1,298 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    Dim i As Long, out As String\n    If IsArray(v) Then\n        out = \"Array(\"\n        For i = LBound(v) To UBound(v)\n            out = out & Show(v(i)) & \",\"\n        Next\n        Show = out & \")\"\n    ElseIf IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Filters(ws As Object) As String\n    Dim out As String, i As Long, f As Object, part As String\n    On Error Resume Next\n    out = \"filtering=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        For i = 1 To ws.AutoFilter.Filters.Count\n            Set f = ws.AutoFilter.Filters(i)\n            part = \" f\" & i & \":\" & f.On\n            If f.On Then\n                Err.Clear\n                part = part & \" op=\" & f.Operator & \" n=\" & f.Count\n                If Err.Number <> 0 Then part = part & \" E\" & Err.Number\n                Err.Clear\n                part = part & \" c1=\" & Show(f.Criteria1)\n                If Err.Number <> 0 Then part = part & \"E\" & Err.Number\n                Err.Clear\n                part = part & \" c2=\" & Show(f.Criteria2)\n                If Err.Number <> 0 Then part = part & \"E\" & Err.Number\n            End If\n            out = out & part\n        Next\n    End If\n    Filters = out\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long\n    For r = 1 To 14\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    Dump = \"hidden=\" & out & \" \" & Filters(ws)\nEnd Function\n",
+ "table": "ws.Range(\"A1:B1\").Value = Array(\"When\", \"Word\")\nws.Range(\"A2\").Value = #3/15/2025#\nws.Range(\"A3\").Value = #3/15/2025 10:30:15 AM#\nws.Range(\"A4\").Value = #3/15/2025 10:45:00 AM#\nws.Range(\"A5\").Value = #3/16/2025#\nws.Range(\"A6\").Value = #4/1/2025#\nws.Range(\"A7\").Value = #3/15/2024#\nws.Range(\"A8\").Value = #12/31/2025 11:59:59 PM#\nws.Range(\"A9\").Value = \"'3/15/2025\"\nws.Range(\"A10\").Value = 45731\nws.Range(\"A10\").NumberFormat = \"General\"\nws.Range(\"A12\").Value = \"word\"\nws.Range(\"A13\").Value = #1/1/2026#\nFor r = 2 To 13\n    ws.Cells(r, 2).Value = \"w\" & r\nNext\n",
+ "layout": "If first Then\n    Set ws = wb.Worksheets(1)\n    first = False\nElse\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nEnd If\nws.Name = \"{name}\"\n{table}On Error Resume Next\n{steps}If Err.Number <> 0 Then out = out & \"{name}^E\" & Err.Number & \" \" & Err.Description & \"|\"\nOn Error GoTo 0\nout = out & \"{name}^\" & Dump(ws) & \"|\"\n",
+ "build": "Private Function Show(v As Variant) As String\n    Dim i As Long, out As String\n    If IsArray(v) Then\n        out = \"Array(\"\n        For i = LBound(v) To UBound(v)\n            out = out & Show(v(i)) & \",\"\n        Next\n        Show = out & \")\"\n    ElseIf IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Filters(ws As Object) As String\n    Dim out As String, i As Long, f As Object, part As String\n    On Error Resume Next\n    out = \"filtering=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        For i = 1 To ws.AutoFilter.Filters.Count\n            Set f = ws.AutoFilter.Filters(i)\n            part = \" f\" & i & \":\" & f.On\n            If f.On Then\n                Err.Clear\n                part = part & \" op=\" & f.Operator & \" n=\" & f.Count\n                If Err.Number <> 0 Then part = part & \" E\" & Err.Number\n                Err.Clear\n                part = part & \" c1=\" & Show(f.Criteria1)\n                If Err.Number <> 0 Then part = part & \"E\" & Err.Number\n                Err.Clear\n                part = part & \" c2=\" & Show(f.Criteria2)\n                If Err.Number <> 0 Then part = part & \"E\" & Err.Number\n            End If\n            out = out & part\n        Next\n    End If\n    Filters = out\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long\n    For r = 1 To 14\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    Dump = \"hidden=\" & out & \" \" & Filters(ws)\nEnd Function\n\nPublic Function Build() As String\nDim wb As Object, ws As Object, out As String, r As Long, first As Boolean\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\nfirst = True\n{layouts}\nwb.Worksheets(1).Activate\nwb.SaveAs \"{folder}\\date_filters.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\date_filters.xlsx\")\nout = out & \"~\"\nFor Each ws In wb.Worksheets\n    out = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\nwb.Close False\nBuild = out\nEnd Function\n",
+ "read": "Private Function Show(v As Variant) As String\n    Dim i As Long, out As String\n    If IsArray(v) Then\n        out = \"Array(\"\n        For i = LBound(v) To UBound(v)\n            out = out & Show(v(i)) & \",\"\n        Next\n        Show = out & \")\"\n    ElseIf IsNull(v) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    ElseIf IsObject(v) Then\n        Show = \"Object\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Filters(ws As Object) As String\n    Dim out As String, i As Long, f As Object, part As String\n    On Error Resume Next\n    out = \"filtering=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        For i = 1 To ws.AutoFilter.Filters.Count\n            Set f = ws.AutoFilter.Filters(i)\n            part = \" f\" & i & \":\" & f.On\n            If f.On Then\n                Err.Clear\n                part = part & \" op=\" & f.Operator & \" n=\" & f.Count\n                If Err.Number <> 0 Then part = part & \" E\" & Err.Number\n                Err.Clear\n                part = part & \" c1=\" & Show(f.Criteria1)\n                If Err.Number <> 0 Then part = part & \"E\" & Err.Number\n                Err.Clear\n                part = part & \" c2=\" & Show(f.Criteria2)\n                If Err.Number <> 0 Then part = part & \"E\" & Err.Number\n            End If\n            out = out & part\n        Next\n    End If\n    Filters = out\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long\n    For r = 1 To 14\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    Dump = \"hidden=\" & out & \" \" & Filters(ws)\nEnd Function\n\nPublic Function Read(path As String, saved As String) As String\nDim wb As Object, ws As Object, out As String\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Open(path)\nFor Each ws In wb.Worksheets\n    out = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\nwb.SaveAs saved, 51\nwb.Close False\nRead = out\nEnd Function\n",
+ "layouts": [
+  {
+   "name": "year",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(0, \"2025\")\n",
+   "error": "E1004 AutoFilter method of Range class failed",
+   "dump": "hidden= filtering=False f1:False f2:False",
+   "reopened": "hidden= filtering=False f1:False f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{F70E1080-E6ED-4F64-8470-FF4401CE9759}\"/>"
+   ]
+  },
+  {
+   "name": "year_as_date",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(0, \"6/30/2025\")\n",
+   "error": "",
+   "dump": "hidden=7,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=7,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{F28B273B-1C3C-43CE-BB75-6B391C1505DE}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "month",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(1, \"3/1/2025\")\n",
+   "error": "",
+   "dump": "hidden=6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{9C19D98C-9C47-4FC2-8864-738A1C3F4E7D}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" dateTimeGrouping=\"month\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "month_mid",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(1, \"3/20/2025\")\n",
+   "error": "",
+   "dump": "hidden=6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{01CEC74D-83A9-4AE7-ACB3-2AF696E6EC65}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" dateTimeGrouping=\"month\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "day",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(2, \"3/15/2025\")\n",
+   "error": "",
+   "dump": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{B0E969EE-A283-4994-8CF3-BDBB9D678E74}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "hour",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(3, \"3/15/2025 10:00:00\")\n",
+   "error": "",
+   "dump": "hidden=2,5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{478689C1-1375-482C-B0B3-38DF29AD9A55}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" hour=\"10\" dateTimeGrouping=\"hour\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "minute",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(4, \"3/15/2025 10:30:00\")\n",
+   "error": "",
+   "dump": "hidden=2,4,5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,4,5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{36394387-8FB6-41A7-8E4B-1F9B52F2011A}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" hour=\"10\" minute=\"30\" dateTimeGrouping=\"minute\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "second",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(5, \"3/15/2025 10:30:15\")\n",
+   "error": "",
+   "dump": "hidden=2,4,5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,4,5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{BC18F401-EA4C-435D-BD79-4D83C9612E81}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" hour=\"10\" minute=\"30\" second=\"15\" dateTimeGrouping=\"second\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "two_days",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(2, \"3/15/2025\", 2, \"4/1/2025\")\n",
+   "error": "",
+   "dump": "hidden=5,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=5,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{AB0A4A25-43F2-43DA-B694-FD2AD53C035A}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/><xlrd2:dateGroupItem year=\"2025\" month=\"4\" day=\"1\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "day_and_year",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(2, \"3/16/2025\", 0, \"1/1/2024\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,6,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,3,4,6,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{5681F34B-E169-46E2-B1BA-0A39EC522C7C}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"16\" dateTimeGrouping=\"day\"/><xlrd2:dateGroupItem year=\"2024\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "day_with_time",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(2, \"3/15/2025 10:30:00\")\n",
+   "error": "",
+   "dump": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{9B114A8E-F279-4A66-AB09-238D39A45241}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "day_and_hour",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(2, \"3/16/2025\", 3, \"3/15/2025 10:00:00\")\n",
+   "error": "",
+   "dump": "hidden=2,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{A3C97C68-BAF8-4DDC-BBEB-E94DDF1F7B64}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" hour=\"10\" dateTimeGrouping=\"hour\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"16\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "dates_and_words",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Criteria1:=\"word\", Operator:=xlFilterValues, Criteria2:=Array(2, \"3/15/2025\")\n",
+   "error": "",
+   "dump": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{942FF16B-6F5E-436D-8D38-714C52904667}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "dates_and_one_word",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Criteria1:=Array(\"word\"), Operator:=xlFilterValues, Criteria2:=Array(2, \"3/15/2025\")\n",
+   "error": "",
+   "dump": "hidden=5,6,7,8,9,10,11,13, filtering=True f1:True op=0 n=1 c1=String:=wordE1004 f2:False",
+   "reopened": "hidden=5,6,7,8,9,10,11,13, filtering=True f1:True op=0 n=1 c1=String:=wordE1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{EA454E70-91B8-4AEE-AD76-5DE4F109A9B9}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:filter val=\"word\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "dates_and_two_words",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Criteria1:=Array(\"word\", \"x\"), Operator:=xlFilterValues, Criteria2:=Array(1, \"1/1/2026\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,6,7,8,9,10,11, filtering=True f1:True op=2 n=2 c1=String:=word c2=String:=x f2:False",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11, filtering=True f1:True op=2 n=2 c1=String:=word c2=String:=x f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{092820E0-2507-408E-BBD1-F2EBE31A93E9}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:filter val=\"word\"/><xlrd2:filter val=\"x\"/><xlrd2:dateGroupItem year=\"2026\" month=\"1\" dateTimeGrouping=\"month\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "dates_and_three_words",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Criteria1:=Array(\"word\", \"x\", \"y\"), Operator:=xlFilterValues, Criteria2:=Array(1, \"1/1/2026\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,6,7,8,9,10,11, filtering=True f1:True op=7 n=3 c1=Array(String:=word,String:=x,String:=y,)E1004 f2:False",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11, filtering=True f1:True op=7 n=3 c1=Array(String:=word,String:=x,String:=y,)E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{15DCA975-81B4-47C1-8BC0-8E0B78381A25}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:filter val=\"word\"/><xlrd2:filter val=\"x\"/><xlrd2:filter val=\"y\"/><xlrd2:dateGroupItem year=\"2026\" month=\"1\" dateTimeGrouping=\"month\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "words_only",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Criteria1:=Array(\"word\", \"x\", \"y\"), Operator:=xlFilterValues\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,6,7,8,9,10,11,13, filtering=True f1:True op=7 n=3 c1=Array(String:=word,String:=x,String:=y,)E1004 f2:False",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11,13, filtering=True f1:True op=7 n=3 c1=Array(String:=word,String:=x,String:=y,)E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{5B8F8DE6-D87A-4F17-BDEA-F538D35E9747}\"><filterColumn colId=\"0\"><filters><filter val=\"word\"/><filter val=\"x\"/><filter val=\"y\"/></filters></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "dates_and_blank",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Criteria1:=\"=\", Operator:=xlFilterValues, Criteria2:=Array(0, \"1/1/2026\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,6,7,8,9,10,11,12, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11,12, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{F39A5D55-91AE-436E-B0EE-D84D6364E24C}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2026\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "recorder_style",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(0, \"1/1/2024\", 1, \"4/1/2025\", 2, \"12/31/2025\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,3,4,5,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{9144F5A0-0AB3-4920-A11A-70BBAC1CB6E6}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"4\" dateTimeGrouping=\"month\"/><xlrd2:dateGroupItem year=\"2025\" month=\"12\" day=\"31\" dateTimeGrouping=\"day\"/><xlrd2:dateGroupItem year=\"2024\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "refiltered",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(0, \"1/1/2025\")\nws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(0, \"1/1/2024\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,6,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,3,4,5,6,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{D8C6551C-323F-4222-AB10-B1628EAEADE5}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2024\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "order_years",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(0, \"1/1/2024\", 0, \"1/1/2026\", 0, \"1/1/1999\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,6,8,9,10,11,12, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,3,4,5,6,8,9,10,11,12, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{D13DB4FE-7C3D-4DF6-A58C-94FBA1514CB7}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2026\" dateTimeGrouping=\"year\"/><xlrd2:dateGroupItem year=\"2024\" dateTimeGrouping=\"year\"/><xlrd2:dateGroupItem year=\"1999\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "order_days",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(2, \"3/16/2025\", 2, \"3/15/2025\", 2, \"3/15/2024\")\n",
+   "error": "",
+   "dump": "hidden=6,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=6,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{FEDA17EE-A2A6-4294-92BE-CDC7AD6F5DC1}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"16\" dateTimeGrouping=\"day\"/><xlrd2:dateGroupItem year=\"2024\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "order_levels",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(5, \"3/15/2025 10:30:15\", 0, \"1/1/2023\", 4, \"3/15/2025 10:31:00\", 1, \"2/1/2025\", 2, \"1/1/2026\", 3, \"3/15/2025 09:00:00\")\n",
+   "error": "",
+   "dump": "hidden=2,4,5,6,7,8,9,10,11,12, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=2,4,5,6,7,8,9,10,11,12, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{4DE38825-AA60-4E0E-999E-E5F12E287B8D}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2026\" month=\"1\" day=\"1\" dateTimeGrouping=\"day\"/><xlrd2:dateGroupItem year=\"2025\" month=\"2\" dateTimeGrouping=\"month\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" hour=\"9\" dateTimeGrouping=\"hour\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" hour=\"10\" minute=\"30\" second=\"15\" dateTimeGrouping=\"second\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" hour=\"10\" minute=\"31\" dateTimeGrouping=\"minute\"/><xlrd2:dateGroupItem year=\"2023\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "order_overlap",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(1, \"3/1/2025\", 0, \"1/1/2025\")\n",
+   "error": "",
+   "dump": "hidden=7,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=7,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{049EF0FA-B665-49FE-B604-9C648F51DA04}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" dateTimeGrouping=\"year\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" dateTimeGrouping=\"month\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "order_duplicate",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Operator:=xlFilterValues, Criteria2:=Array(2, \"3/15/2025\", 2, \"3/15/2025\")\n",
+   "error": "",
+   "dump": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "reopened": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=0 n=0E1004E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{B641BA87-5309-44B4-9247-7B3E7160A25E}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/><xlrd2:dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "order_words",
+   "steps": "ws.Range(\"A1:B13\").AutoFilter Field:=1, Criteria1:=Array(\"x\", \"word\", \"W2\"), Operator:=xlFilterValues, Criteria2:=Array(0, \"1/1/2024\")\n",
+   "error": "",
+   "dump": "hidden=2,3,4,5,6,8,9,10,11,13, filtering=True f1:True op=7 n=3 c1=Array(String:=W2,String:=word,String:=x,)E1004 f2:False",
+   "reopened": "hidden=2,3,4,5,6,8,9,10,11,13, filtering=True f1:True op=7 n=3 c1=Array(String:=W2,String:=word,String:=x,)E1004 f2:False",
+   "file": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{C1B6200E-AE13-462E-9E18-3F55C5EFF17B}\"><filterColumn colId=\"0\"><extLst><ext uri=\"{1AD28BCE-077C-4C59-8B6E-1921CE8616D4}\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><xlrd2:filterColumn><xlrd2:filters><xlrd2:filter val=\"W2\"/><xlrd2:filter val=\"word\"/><xlrd2:filter val=\"x\"/><xlrd2:dateGroupItem year=\"2024\" dateTimeGrouping=\"year\"/></xlrd2:filters></xlrd2:filterColumn></ext></extLst></filterColumn></autoFilter>"
+   ]
+  }
+ ],
+ "classic": [
+  {
+   "name": "classic_day",
+   "sheet": "day",
+   "content": "<filters><dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></filters>",
+   "dump": "hidden=5,6,7,8,9,10,11,12,13, filtering=True f1:True op=7 n=0E1004E1004 f2:False",
+   "resaved": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{B0E969EE-A283-4994-8CF3-BDBB9D678E74}\"><filterColumn colId=\"0\"><filters><dateGroupItem year=\"2025\" month=\"3\" day=\"15\" dateTimeGrouping=\"day\"/></filters></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "classic_month_and_word",
+   "sheet": "dates_and_two_words",
+   "content": "<filters><filter val=\"word\"/><dateGroupItem year=\"2026\" month=\"1\" dateTimeGrouping=\"month\"/></filters>",
+   "dump": "hidden=2,3,4,5,6,7,8,9,10,11, filtering=True f1:True op=7 n=1 c1=String:=wordE1004 f2:False",
+   "resaved": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{092820E0-2507-408E-BBD1-F2EBE31A93E9}\"><filterColumn colId=\"0\"><filters><filter val=\"word\"/><dateGroupItem year=\"2026\" month=\"1\" dateTimeGrouping=\"month\"/></filters></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "classic_year",
+   "sheet": "year_as_date",
+   "content": "<filters><dateGroupItem year=\"2025\" dateTimeGrouping=\"year\"/></filters>",
+   "dump": "hidden=7,9,10,11,12,13, filtering=True f1:True op=7 n=0E1004E1004 f2:False",
+   "resaved": [
+    "<autoFilter ref=\"A1:B13\" xr:uid=\"{F28B273B-1C3C-43CE-BB75-6B391C1505DE}\"><filterColumn colId=\"0\"><filters><dateGroupItem year=\"2025\" dateTimeGrouping=\"year\"/></filters></filterColumn></autoFilter>"
+   ]
+  }
+ ]
+}

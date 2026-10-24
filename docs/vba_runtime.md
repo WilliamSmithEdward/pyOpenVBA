@@ -656,8 +656,22 @@ layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).
 * The file keeps plain criteria, xlOr pairs of them and lists as a list
   of values, and the rest as custom filters, with the threshold of a top
   filter and the mean of an average one; Excel reads each back as it
-  was. An icon or date-group filter read from a file is kept as it was,
-  but reading or applying it reports itself unsupported.
+  was. An icon filter, or a dynamic one on dates, read from a file is
+  kept as it was, but reading or applying it reports itself unsupported.
+* xlFilterValues with Criteria2 filters by dates, as the macro recorder
+  writes it (`tests/fixtures/date_filters/`, 26 layouts saved and opened
+  again, and three files written the classic way): pairs of a level, 0
+  for a year to 5 for a second, and a date that level of it names, so
+  `Array(1, "3/1/2025")` is March 2025. A year needs a date, `"2025"`
+  alone being error 1004 with the filter turned on all the same. An
+  array Criteria1 adds its values; a single one is passed over. A cell
+  passes holding a date in a date format inside a group, a number in
+  General not. The filter reads back as its values alone do, Operator 0
+  and no criteria where there are none. The file keeps it in the column
+  filter's Excel 2017 extension, the values, then the dates with the
+  latest year first and within one the earliest moment, a group before
+  those inside it. A file's `filters` element of dates reads back as
+  xlFilterValues and is saved again as it was.
 * A filter on a colour (`tests/fixtures/colour_filters/`, 15 layouts on
   the sheet and a table, saved and opened again) shows a row whose cell
   has a solid fill of it, a conditional format's or a theme colour's

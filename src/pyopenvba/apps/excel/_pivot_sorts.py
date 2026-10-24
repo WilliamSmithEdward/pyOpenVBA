@@ -54,6 +54,8 @@ ORDERS = {1: 'ascending', 2: 'descending'}
 MANUAL = -4135
 #: The #N/A Position gives an item that does not show.
 NOT_SHOWN = 2042
+#: How a value sort orders a group of records: by the total it comes to, as value_key compares totals.
+SortKey = Callable[[list[int]], tuple[int, float, str]]
 
 
 def sort_kind(field: XmlElement) -> str | None:
@@ -134,12 +136,12 @@ def value_key(value: object) -> tuple[int, float, str]:
 
 
 def value_sorts(fields: list[XmlElement], axes: set[int], reports: list[XmlElement],
-                records: list[list[XmlElement]]) -> dict[int, tuple[bool, Callable[[list[int]], tuple[int, float, str]]]]:
+                records: list[list[XmlElement]]) -> dict[int, tuple[bool, SortKey]]:
     """Each field on an axis sorted by a data field's values: whether descending, and the key a group of records
     sorts by."""
     from pyopenvba.apps.excel._pivot_aggregate import aggregate
 
-    found: dict[int, tuple[bool, Callable[[list[int]], tuple[int, float, str]]]] = {}
+    found: dict[int, tuple[bool, SortKey]] = {}
     for index in axes:
         field = fields[index]
         kind, data = sort_kind(field), sort_scope(field)

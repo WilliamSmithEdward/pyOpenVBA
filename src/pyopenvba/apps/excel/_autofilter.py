@@ -127,7 +127,7 @@ _FILE_OPERATORS = {"<>": "notEqual", ">": "greaterThan", ">=": "greaterThanOrEqu
 
 
 @dataclass(frozen=True)
-class _Seen:
+class Seen:
     """A cell as a criterion looks at it, and where it is, which a colour filter looks at."""
 
     shown: str
@@ -139,40 +139,40 @@ class _Seen:
     column: int = 0
 
 
-def _seen(sheet: Worksheet, row: int, column: int) -> _Seen:
+def _seen(sheet: Worksheet, row: int, column: int) -> Seen:
     from dataclasses import replace
 
     return replace(_value_seen(sheet, row, column), sheet=sheet, row=row, column=column)
 
 
-def _value_seen(sheet: Worksheet, row: int, column: int) -> _Seen:
+def _value_seen(sheet: Worksheet, row: int, column: int) -> Seen:
     cell = sheet.cells_.get((row, column))
     if cell is None:
-        return _Seen("", None, None, False)
+        return Seen("", None, None, False)
     value = sheet.book.calculator.value_of(sheet.name, row, column) if cell.formula else cell.value
     if isinstance(value, VBADate):
         value = value.serial
     if value is EMPTY:
-        return _Seen("", None, None, False)
+        return Seen("", None, None, False)
     if isinstance(value, ExcelError):
-        return _Seen(value.name, None, None, True)
+        return Seen(value.name, None, None, True)
     if isinstance(value, bool):
-        return _Seen("TRUE" if value else "FALSE", None, None, False)
+        return Seen("TRUE" if value else "FALSE", None, None, False)
     if isinstance(value, (int, float)):
         try:
             text, _ = shown(float(value), cell.number_format, epoch_1904=sheet.book.epoch_1904)
         except UndisplayableError:
             text = "#"
-        return _Seen(text, float(value), None, False)
+        return Seen(text, float(value), None, False)
     text = str(value)
-    return _Seen(text, None, text, False)
+    return Seen(text, None, text, False)
 
 
 # --- criteria -----------------------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
-class _Criterion:
+class Criterion:
     """One criterion as typed: its operator, what follows it, that read as a number, and how it reads back."""
 
     operator: str
@@ -185,7 +185,7 @@ class _Criterion:
         """An = with no wildcard in it, which the file keeps as a value in a list."""
         return self.operator == "=" and not _wild(self.operand)
 
-    def matches(self, seen: _Seen) -> bool:
+    def matches(self, seen: Seen) -> bool:
         if self.operator == "=":
             return seen.shown == "" if self.operand == "" else _like(seen, self.operand)
         if self.operator == "<>":
@@ -201,17 +201,17 @@ class _Criterion:
         return _compare(_collated(seen.text), self.operator, _collated(self.operand))
 
 
-def _criterion(value: object, *, epoch_1904: bool = False) -> _Criterion:
+def _criterion(value: object, *, epoch_1904: bool = False) -> Criterion:
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         text = number_text(float(value), formula=True)
     else:
         text = to_text(value)
     body = text.strip(" ")
     operator = next((one for one in _OPERATORS if body.startswith(one)), "")
-    return _made(operator or "=", body[len(operator):].strip(" "), epoch_1904=epoch_1904)
+    return made_criterion(operator or "=", body[len(operator):].strip(" "), epoch_1904=epoch_1904)
 
 
-def _made(operator: str, operand: str, *, epoch_1904: bool = False) -> _Criterion:
+def made_criterion(operator: str, operand: str, *, epoch_1904: bool = False) -> Criterion:
     """A criterion from its operator and operand, reading the operand as a number where it is one.
 
     A number reads back spelled afresh, a date or time as its serial on
@@ -229,7 +229,7 @@ def _made(operator: str, operand: str, *, epoch_1904: bool = False) -> _Criterio
         if isinstance(typed.value, float):
             number = typed.value
             stored = number_text(number, formula=True)
-    return _Criterion(operator, operand, number, operator + stored)
+    return Criterion(operator, operand, number, operator + stored)
 
 
 def _compare(left: object, operator: str, right: object) -> bool:
@@ -268,7 +268,7 @@ def _escaped(value: str) -> str:
     return re.sub(r"([*?])", r"~\1", value)
 
 
-def _like(seen: _Seen, pattern: str) -> bool:
+def _like(seen: Seen, pattern: str) -> bool:
     """Whether what a cell shows matches a criterion's text: any case, * and ? wild, ~ before one to mean it.
 
     A pattern with a wildcard in it matches text only, never a number however it shows.
@@ -285,11 +285,11 @@ def _like(seen: _Seen, pattern: str) -> bool:
 # --- the file's spelling -------------------------------------------------------------------------------
 
 
-def _attribute(value: str) -> str:
+def xml_attribute(value: str) -> str:
     return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
-def _file_number(value: float) -> str:
+def file_number(value: float) -> str:
     """A number as the file writes it: as short as reads back exactly."""
     text = repr(value)
     return text[:-2] if text.endswith(".0") else text
@@ -299,19 +299,19 @@ def _values_xml(values: list[str], blank: bool) -> str:
     flag = ' blank="1"' if blank else ""
     if not values:
         return f"<filters{flag}/>"
-    return f"<filters{flag}>" + "".join(f'<filter val="{_attribute(value)}"/>' for value in values) + "</filters>"
+    return f"<filters{flag}>" + "".join(f'<filter val="{xml_attribute(value)}"/>' for value in values) + "</filters>"
 
 
-def _custom_xml(criterion: _Criterion) -> str:
+def _custom_xml(criterion: Criterion) -> str:
     if criterion.operator == "=":
-        return f'<customFilter val="{_attribute(criterion.operand)}"/>'
+        return f'<customFilter val="{xml_attribute(criterion.operand)}"/>'
     if criterion.operator == "<>" and criterion.operand == "":
         return '<customFilter operator="notEqual" val=" "/>'
-    value = _file_number(criterion.number) if criterion.number is not None else criterion.operand
-    return f'<customFilter operator="{_FILE_OPERATORS[criterion.operator]}" val="{_attribute(value)}"/>'
+    value = file_number(criterion.number) if criterion.number is not None else criterion.operand
+    return f'<customFilter operator="{_FILE_OPERATORS[criterion.operator]}" val="{xml_attribute(value)}"/>'
 
 
-def _criteria_xml(criteria: list[_Criterion], *, joined: int) -> str:
+def _criteria_xml(criteria: list[Criterion], *, joined: int) -> str:
     """The filterColumn content for one criterion, or two joined: plain ones as a list, the rest custom."""
     if joined != AND and all(one.plain for one in criteria):
         values = [_literal(one.operand) for one in criteria if one.operand != ""]
@@ -331,7 +331,7 @@ class FieldFilter:
     operator: int
     criteria1: object
     criteria2: object
-    test: Callable[[_Seen], bool]
+    test: Callable[[Seen], bool]
     count: int = 1
     xml: str = ""
     attributes: str = ""
@@ -345,11 +345,11 @@ class FieldFilter:
         return re.sub(r'\bdxfId="\d+"', f'dxfId="{self.dxf}"', self.xml, count=1)
 
 
-def _one(criterion: _Criterion) -> FieldFilter:
+def _one(criterion: Criterion) -> FieldFilter:
     return FieldFilter(0, criterion.stored, MISSING, criterion.matches, xml=_criteria_xml([criterion], joined=0))
 
 
-def _two(first: _Criterion, second: _Criterion, joined: int) -> FieldFilter:
+def _two(first: Criterion, second: Criterion, joined: int) -> FieldFilter:
     xml = _criteria_xml([first, second], joined=joined)
     if joined == OR:
         return FieldFilter(OR, first.stored, second.stored, lambda seen: first.matches(seen) or second.matches(seen),
@@ -447,7 +447,7 @@ def _top(sheet: Worksheet, area: Area, index: int, kind: int, criteria1: object)
 def _ranked(kind: int, given: float, threshold: float) -> FieldFilter:
     top = kind in (TOP_ITEMS, TOP_PERCENT)
     flags = ("" if top else ' top="0"') + (' percent="1"' if kind in (TOP_PERCENT, BOTTOM_PERCENT) else "")
-    xml = f'<top10{flags} val="{_file_number(given)}" filterVal="{_file_number(threshold)}"/>'
+    xml = f'<top10{flags} val="{file_number(given)}" filterVal="{file_number(threshold)}"/>'
     stored = (">=" if top else "<=") + number_text(threshold, formula=True)
     if top:
         return FieldFilter(kind, stored, MISSING, lambda seen: seen.number is not None and seen.number >= threshold,
@@ -467,7 +467,7 @@ def _dynamic(sheet: Worksheet, area: Area, index: int, criteria1: object) -> Fie
 
 def _averaged(which: int, mean: float) -> FieldFilter:
     kind = "aboveAverage" if which == ABOVE_AVERAGE else "belowAverage"
-    xml = f'<dynamicFilter type="{kind}" val="{_file_number(mean)}"/>'
+    xml = f'<dynamicFilter type="{kind}" val="{file_number(mean)}"/>'
     if which == ABOVE_AVERAGE:
         return FieldFilter(DYNAMIC, VBAInt(which, "Long"), MISSING,
                            lambda seen: seen.number is not None and seen.number > mean, xml=xml)
@@ -513,7 +513,7 @@ def _dated(sheet: Worksheet, criteria1: object, criteria2: object) -> FieldFilte
         if "" in words:
             raise VBAUnsupportedError("AutoFilter by dates beside blank cells is not implemented")
         listed = _values(criteria1)
-    body = "".join(f'<xlrd2:filter val="{_attribute(word)}"/>' for word in words) + "".join(
+    body = "".join(f'<xlrd2:filter val="{xml_attribute(word)}"/>' for word in words) + "".join(
         "<xlrd2:dateGroupItem" + "".join(f' {name}="{part}"' for name, part in zip(_DATE_PARTS, group))
         + f' dateTimeGrouping="{_DATE_PARTS[len(group) - 1]}"/>' for group in sorted(groups, key=_date_order))
     return _date_filter(groups, listed, _DATES_HEAD + body + _DATES_TAIL)
@@ -531,7 +531,7 @@ def _date_filter(groups: list[tuple[int, ...]], listed: FieldFilter | None, xml:
     """A filter showing the date cells inside ``groups`` and the cells ``listed`` shows. It reads back as the
     values beside the dates do, Operator 0 and no criteria where there are none, and a filter the file kept the
     classic way as xlFilterValues."""
-    def test(seen: _Seen) -> bool:
+    def test(seen: Seen) -> bool:
         if listed is not None and listed.test(seen):
             return True
         moment = _date_of(seen)
@@ -546,7 +546,7 @@ def _date_filter(groups: list[tuple[int, ...]], listed: FieldFilter | None, xml:
                        listed.count, xml)
 
 
-def _date_of(seen: _Seen) -> _dt.datetime | None:
+def _date_of(seen: Seen) -> _dt.datetime | None:
     """The moment a cell holds as a date filter sees it: a number in a date format; None for anything else."""
     from pyopenvba.apps.excel._typing import is_date_format
 
@@ -601,7 +601,7 @@ def _period(sheet: Worksheet, which: int, xml: str = "") -> FieldFilter:
     one after its last (tests/fixtures/dynamic_filters/)."""
     bounds = _bounds(which, sheet.book.calculator.now().date())
 
-    def test(seen: _Seen) -> bool:
+    def test(seen: Seen) -> bool:
         moment = _date_of(seen)
         if moment is None:
             return False
@@ -643,7 +643,7 @@ def _read_dates(sheet: Worksheet, xml: str, attributes: str, body: str, prefix: 
             return None
     listed = None
     if words:
-        listed = _read_values("", "", "".join(f'<filter val="{_attribute(word)}"/>' for word in words))
+        listed = _read_values("", "", "".join(f'<filter val="{xml_attribute(word)}"/>' for word in words))
         if listed.operator < 0:
             return None
     return _date_filter(groups, listed, xml, classic=classic)
@@ -674,7 +674,7 @@ def _icon_filter(sheet: Worksheet, kind: int, set_id: int, place: int, xml: str 
 
     wanted = (set_id, place) if kind == ICON else None
 
-    def test(seen: _Seen) -> bool:
+    def test(seen: Seen) -> bool:
         assert seen.sheet is not None, "an icon filter looks at a cell where it is"
         return shown_icon(seen.sheet, seen.row, seen.column) == wanted
 
@@ -724,7 +724,7 @@ def _colour_filter(kind: int, colour: int | None, dxf: int) -> FieldFilter:
     font = kind in _FONTS
     key = Key(0, on=ON_FONT_COLOR if font else ON_CELL_COLOR, color=colour)
 
-    def test(seen: _Seen) -> bool:
+    def test(seen: Seen) -> bool:
         assert seen.sheet is not None, "a colour filter looks at a cell where it is"
         if kind == AUTOMATIC_FONT:
             return shows_automatic_font(seen.sheet, seen.row, seen.column)
@@ -791,7 +791,7 @@ def _read_colour(sheet: Worksheet, attributes: str) -> FieldFilter | None:
 def _opaque(xml: str) -> FieldFilter:
     """A column filter read from a file that the model does not follow: kept as it is, and not applied."""
 
-    def refuse(seen: _Seen) -> bool:
+    def refuse(seen: Seen) -> bool:
         raise VBAUnsupportedError("applying a filter of this kind from a file is not implemented")
 
     return FieldFilter(-1, MISSING, MISSING, refuse, xml=xml)
@@ -1342,9 +1342,9 @@ def _read_values(xml: str, attributes: str, body: str) -> FieldFilter:
     if len(items) >= 3:
         read = _listed(values, blank)
     elif len(items) == 2:
-        read = _two(_made("=", _escaped(items[0])), _made("=", _escaped(items[1])), OR)
+        read = _two(made_criterion("=", _escaped(items[0])), made_criterion("=", _escaped(items[1])), OR)
     elif items:
-        read = _one(_made("=", _escaped(items[0])))
+        read = _one(made_criterion("=", _escaped(items[0])))
     else:
         return _opaque(xml)
     read.xml = xml
@@ -1353,13 +1353,13 @@ def _read_values(xml: str, attributes: str, body: str) -> FieldFilter:
 
 def _read_custom(xml: str, attributes: str, body: str) -> FieldFilter:
     joined = AND if _xml_attributes(attributes).get("and") in ("1", "true") else OR
-    criteria: list[_Criterion] = []
+    criteria: list[Criterion] = []
     for one in re.findall(r"<customFilter\b([^>]*)/>", body):
         found = _xml_attributes(one)
         operator = next((symbol for symbol, name in _FILE_OPERATORS.items() if name == found.get("operator")), "=")
         value = found.get("val", "")
         if operator == "<>" and value == " ":
-            criteria.append(_made(operator, ""))
+            criteria.append(made_criterion(operator, ""))
             continue
         if operator != "=":
             try:
@@ -1369,9 +1369,9 @@ def _read_custom(xml: str, attributes: str, body: str) -> FieldFilter:
             else:
                 # The file keeps the number in full; it reads back in fifteen digits.
                 spelled = number_text(number, formula=True)
-                criteria.append(_Criterion(operator, spelled, number, operator + spelled))
+                criteria.append(Criterion(operator, spelled, number, operator + spelled))
                 continue
-        criteria.append(_made(operator, value))
+        criteria.append(made_criterion(operator, value))
     if len(criteria) == 1:
         read = _one(criteria[0])
     elif len(criteria) == 2:

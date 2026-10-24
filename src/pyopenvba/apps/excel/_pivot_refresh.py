@@ -220,6 +220,7 @@ def admit_cache(cache: PivotCache) -> None:
 
 
 def admit_report(table: PivotTable, field_count: int, record_count: int) -> None:
+    from pyopenvba.apps.excel._pivot_criteria import readable
     from pyopenvba.apps.excel._pivot_sorts import sort_scope
 
     root = table.root
@@ -229,7 +230,10 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
                'rowGrandTotals colGrandTotals outline outlineData compact compactData dataOnRows pageWrap pageOverThenDown '
                'applyNumberFormats applyBorderFormats applyFontFormats applyPatternFormats applyAlignmentFormats '
                'applyWidthHeightFormats itemPrintTitles indent multipleFieldFilters', provenance=True)
-    children(root, 'location pivotFields rowFields rowItems colFields colItems pageFields dataFields pivotTableStyleInfo extLst')
+    children(root, 'location pivotFields rowFields rowItems colFields colItems pageFields dataFields pivotTableStyleInfo filters '
+             'extLst')
+    if not readable(root):
+        raise unsupported('with unknown filters')
     distinct_children(root)
     extensions(root, cache=False)
     for name in ('rowGrandTotals', 'colGrandTotals', 'dataOnRows'):
@@ -247,7 +251,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     for field in fields:
         distinct_children(field)
         attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop '
-                   'multipleItemSelectionAllowed sortType')
+                   'multipleItemSelectionAllowed sortType measureFilter')
         children(field, 'items autoSortScope')
         if field.get('compact', '1') != '1':
             raise unsupported('with noncompact field layouts')

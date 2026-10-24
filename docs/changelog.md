@@ -7,6 +7,32 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables filter their items by caption and by value.
+  `PivotField.PivotFilters.Add` puts a label filter on a field, an item's
+  caption tested as a worksheet AutoFilter tests a cell, any case alike
+  and `*` and `?` wild; a value filter on a data field's totals, compared
+  among the items inside the same outer items, which then total only what
+  is left; or a top 10 filter keeping the items with the highest or
+  lowest totals by count, ties at the last place kept, or until their
+  running total reaches a percent of the whole or a sum. A field holds one
+  label filter and one value filter beside its hidden items; label
+  filters and hidden items leave their records out first, then value
+  filters, outer fields first. `PivotFilters` lists a field's filters,
+  label first, and `PivotFilter` reads each back, its type, values, data
+  field and Active, and Deletes it; `ClearLabelFilters`,
+  `ClearValueFilters`, `ClearManualFilter` and `ClearAllFilters` take
+  them away, and `PivotTable.AllowMultipleFilters` reads and sets the
+  table's setting. `PivotFields("Sum of Amount")` finds a data field by
+  its caption. Add raises Excel's errors for a page field, the Values
+  field, an unknown type, a value filter given no data field or text, a
+  between given one value and a top count below 1. A refresh filters new
+  items and new totals. The file keeps each filter as Excel's does, the
+  autoFilter that spells its test, and a file's filters read back; a new
+  table is written with Excel's multipleFieldFilters. Date filters report
+  themselves unsupported. The model had no PivotFilters. 73 layouts agree
+  with Excel, before a save and once the file is opened again, and Excel
+  reads the model's file as its own.
+
 - Pivot tables sort their items. `PivotField.AutoSort` sorts a field by
   its items' names, keeping them in that order, or by a data field's
   values, which orders the items as the table lays them out, inside each

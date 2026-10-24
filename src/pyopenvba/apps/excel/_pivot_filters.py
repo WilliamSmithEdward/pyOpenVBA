@@ -188,6 +188,12 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
                 found.append((place, flag(item, 'h'), unused(new[place])))
         hide = any(hidden for _, hidden, _ in found)
         found += [(place, hide, False) for place, entry in enumerate(new) if place not in taken and not unused(entry)]
+        # A field sorted by its items' names sorts new ones in among them (tests/fixtures/pivot_sorts/ refresh_labels).
+        kind = field.get('sortType')
+        if kind in ('ascending', 'descending') and field.find(NS + 'autoSortScope') is None and len(found) > len(taken):
+            from pyopenvba.apps.excel._pivot_sorts import by_name
+
+            found = [found[place] for place in by_name([new[place] for place, _, _ in found], kind == 'descending')]
         lists.append(found)
     return lists
 
@@ -291,18 +297,18 @@ def _view(field: PivotField) -> tuple[PivotTable, XmlElement]:
     return field.table.entry, field.root
 
 
-def _render(table: PivotTable, root: XmlElement) -> None:
+def rerender(table: PivotTable, root: XmlElement) -> None:
     from pyopenvba.apps.excel._pivot_layout import render
 
     render(table, root, list(table.root.findall(f'{NS}dataFields/{NS}dataField')))
 
 
-def _changed(table: PivotTable) -> None:
+def mark_changed(table: PivotTable) -> None:
     table.changed = True
     table.sheet.book.saved = False
 
 
-def _ensure_items(table: PivotTable, field: XmlElement, index: int) -> bool:
+def ensure_items(table: PivotTable, field: XmlElement, index: int) -> bool:
     """List a field's items, sorted, where it lists none yet, as Excel does as a macro first reads them; whether
     the field lists them now. A field whose values its cache keeps in each record lists none."""
     if field.find(NS + 'items') is not None:
@@ -326,7 +332,7 @@ def list_on_reading(field: PivotField) -> None:
     """List the items of a field on no axis as a macro first reads its PivotItems, as Excel does
     (tests/fixtures/pivot_filters/ count_only)."""
     if not field.data and field.index >= 0 and field.root.find(NS + 'items') is None:
-        _ensure_items(field.table.entry, field.root, field.index)
+        ensure_items(field.table.entry, field.root, field.index)
 
 
 def first_for_names(field: PivotField) -> bool:
@@ -334,6 +340,17 @@ def first_for_names(field: PivotField) -> bool:
     (tests/fixtures/pivot_filters/ lookup_twice, lookup_after_hide)."""
     return (not field.data and field.index >= 0 and orientation(field.root) == 0
             and not any(flag(item, 'h') for item in listed(field.root)))
+
+
+def showing_places(field: PivotField) -> list[int]:
+    """The places in the cache of a field's items that show, in the field's order: a page field choosing one item
+    shows that item alone."""
+    pivot = field.root
+    items = listed(pivot)
+    if orientation(pivot) == PAGE and not flag(pivot, MULTIPLE):
+        position = chosen(page_of(field.table.entry.root, field.index))
+        return [place_of(items[position])] if position is not None and 0 <= position < len(items) else []
+    return [place_of(entry) for entry in items if not flag(entry, 'h')]
 
 
 def visible(item: PivotItem) -> bool:
@@ -356,7 +373,7 @@ def set_visible(item: PivotItem, value: object) -> None:
     laid_out = orientation(live) != 0
     root = deepcopy(table.root) if laid_out else table.root
     field = root.findall(f'{NS}pivotFields/{NS}pivotField')[index]
-    if not _ensure_items(table, field, index):
+    if not ensure_items(table, field, index):
         raise VBAUnsupportedError('Hiding an item of a field its cache keeps no list of values for is not implemented')
     items = listed(field)
     target = next((entry for entry in items if place_of(entry) == item.x), None)
@@ -375,9 +392,9 @@ def set_visible(item: PivotItem, value: object) -> None:
     else:
         restate(target, hide=False)
     if laid_out:
-        _render(table, root)
+        rerender(table, root)
     else:
-        _changed(table)
+        mark_changed(table)
 
 
 def all_item(field: PivotField) -> PivotItem:
@@ -424,7 +441,7 @@ def set_current_page(field: PivotField, value: object) -> None:
             raise error(1004)
         choose(page, position)
     allow_multiple(pivot, False)
-    _render(table, root)
+    rerender(table, root)
 
 
 def multiple_allowed(field: PivotField) -> bool:
@@ -439,10 +456,10 @@ def set_multiple_allowed(field: PivotField, value: object) -> None:
     if orientation(live) == PAGE:
         root = deepcopy(table.root)
         allow_multiple(root.findall(f'{NS}pivotFields/{NS}pivotField')[field.index], allowed)
-        _render(table, root)
+        rerender(table, root)
     else:
         allow_multiple(live, allowed)
-        _changed(table)
+        mark_changed(table)
 
 
 def _clear(root: XmlElement, index: int | None) -> bool:
@@ -466,18 +483,18 @@ def clear_table(table: PivotTable) -> None:
     table = table.entry
     root = deepcopy(table.root)
     if _clear(root, None):
-        _render(table, root)
+        rerender(table, root)
 
 
 def clear_field(field: PivotField) -> None:
     table, live = _view(field)
     if orientation(live) == 0:
         if _clear(table.root, field.index):
-            _changed(table)
+            mark_changed(table)
         return
     root = deepcopy(table.root)
     if _clear(root, field.index):
-        _render(table, root)
+        rerender(table, root)
 
 
 def items_showing(field: PivotField, showing: bool) -> list[object]:

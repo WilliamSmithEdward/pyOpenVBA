@@ -1194,10 +1194,10 @@ PivotField,AutoShowCount,"property, read-only",As Long,,MISSING,,
 PivotField,AutoShowField,"property, read-only",As String,,MISSING,,
 PivotField,AutoShowRange,"property, read-only",As Long,,MISSING,,
 PivotField,AutoShowType,"property, read-only",As Long,,MISSING,,
-PivotField,AutoSort,method,"AutoSort(Order As Long, Field As String, [PivotLine As Variant], [CustomSubtotal As Variant])",,MISSING,,
+PivotField,AutoSort,method,"AutoSort(Order As Long, Field As String, [PivotLine As Variant], [CustomSubtotal As Variant])",,PARTIAL,tests/test_excel_pivot_sorts.py; tests/fixtures/pivot_sorts/pivot_sorts.json; scripts/measure_pivot_sorts.py; tests/test_live_excel_model_gate.py,"Sorts by the field's own name or a data field's caption, in any case, up, down or back to xlManual, inside each outer item, ties in the field's order; another order or field moves nothing. PivotLine and CustomSubtotal report themselves unsupported, as does a data field's."
 PivotField,AutoSortCustomSubtotal,"property, read-only",As Long,,MISSING,,
-PivotField,AutoSortField,"property, read-only",As String,,MISSING,,
-PivotField,AutoSortOrder,"property, read-only",As Long,,MISSING,,
+PivotField,AutoSortField,"property, read-only",As String,,PARTIAL,tests/test_excel_pivot_sorts.py; tests/fixtures/pivot_sorts/pivot_sorts.json; scripts/measure_pivot_sorts.py; tests/test_live_excel_model_gate.py,"The data field a value sort names, else the field's own name; a macro's xlManual by a data field reads it until the file is opened again. Error 1004 on the Values field."
+PivotField,AutoSortOrder,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_sorts.py; tests/fixtures/pivot_sorts/pivot_sorts.json; scripts/measure_pivot_sorts.py; tests/test_live_excel_model_gate.py,"xlAscending, xlDescending or xlManual; error 1004 on the Values field."
 PivotField,AutoSortPivotLine,"property, read-only",As PivotLine,,MISSING,,
 PivotField,BaseField,property,As Variant,,MISSING,,
 PivotField,BaseItem,property,As Variant,,MISSING,,
@@ -1296,7 +1296,7 @@ PivotItem,Name,property,As String,no setter,PARTIAL,tests/test_excel_pivot_impor
 PivotItem,Parent,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotItem,ParentItem,"property, read-only",As PivotItem,,MISSING,,
 PivotItem,ParentShowDetail,"property, read-only",As Boolean,,MISSING,,
-PivotItem,Position,property,As Long,no setter,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
+PivotItem,Position,property,As Long,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json; tests/test_excel_pivot_sorts.py; tests/fixtures/pivot_sorts/pivot_sorts.json; scripts/measure_pivot_sorts.py; tests/test_live_excel_model_gate.py,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations. Reads the item's place among those showing, #N/A for one that does not show or of a field on no axis; set, moves the item straight after the one showing before its new place, a hidden item showing again, error 1004 past the ends. Moving an item of a page field or of a field on no axis reports itself unsupported."
 PivotItem,RecordCount,"property, read-only",As Long,,MISSING,,
 PivotItem,ShowDetail,property,As Boolean,,MISSING,,
 PivotItem,SourceName,"property, read-only",As Variant,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."

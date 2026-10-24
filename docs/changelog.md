@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- AutoFilter on a colour: xlFilterCellColor, xlFilterFontColor,
+  xlFilterNoFill and xlFilterAutomaticFontColor, on a sheet's filter and
+  a table's. A row shows where its cell has a solid fill of the colour, a
+  conditional format's or a theme colour's included, as a colour sort
+  finds it; a patterned fill, white and no fill are not yellow. A font
+  filter wants the colour set outright, so black is not the automatic
+  font, which xlFilterAutomaticFontColor shows. Each filter reads back its
+  operator and one criterion, Criteria1 an Interior holding the colour,
+  white with no pattern for no fill, or a font's colour as a number. The
+  file keeps the colour in a dxf of its own, made as the filter is, which
+  ShowAllData or a new filter on the column lets go; a file's colour
+  filters read back and apply. The model refused them. 15 live layouts
+  agree, before a save and once the file is opened again, the file's
+  filters and dxfs as Excel saved them, and Excel reads the model's file
+  as its own.
+
 - `CreateObject("VBScript.RegExp")` and `New RegExp` work in memory. Test,
   Replace and Execute run VBScript's dialect, with MatchCollection, Match
   and SubMatches. `\d`, `\w`, `\s` and `\b` are ASCII's, and IgnoreCase
@@ -349,6 +365,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Set` with a value that is not an object is error 424, Object required,
+  into an object variable, and error 13, Type mismatch, into a Variant,
+  as VBA has them. The model raised error 438 for both. Four probes in
+  live Excel agree.
 
 - A workbook whose parts spell SpreadsheetML's namespace under a prefix,
   `<x:worksheet xmlns:x="...">` where Excel writes `<worksheet

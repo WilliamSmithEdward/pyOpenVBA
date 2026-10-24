@@ -1,6 +1,7 @@
 {
-  "excel_version_build": "16.0|20430",
-  "measured_at": "2026-10-12T19:28:32.616395+00:00",
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-10-24T06:23:10.939351+00:00",
+  "instrumentation": "none",
   "classes": {
     "CItem": "Public Name As String\nPublic Child As CItem\nPrivate Sub Class_Initialize()\nLogText = LogText & \"+\"\nEnd Sub\nPrivate Sub Class_Terminate()\nLogText = LogText & \"-\" & Name & \";\"\nEnd Sub\n"
   },
@@ -134,6 +135,26 @@
       "name": "for_each_goto_out",
       "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim v As Variant\nFor Each v In Array(1, 2)\nIf v = 2 Then GoTo done\nNext\ndone:\nProbe = TypeName(v) & \"|\" & v\nEnd Function\n",
       "result": "Integer|2"
+    },
+    {
+      "name": "set_value_into_object",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim o As Object, v As Variant\nv = 7\nSet o = v\nProbe = \"set\"\nEnd Function\n",
+      "error": 424
+    },
+    {
+      "name": "set_value_into_class",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim p As CItem, v As Variant\nv = 7\nSet p = v\nProbe = \"set\"\nEnd Function\n",
+      "error": 424
+    },
+    {
+      "name": "set_value_into_variant",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim w As Variant, v As Variant\nv = 7\nSet w = v\nProbe = \"set\"\nEnd Function\n",
+      "error": 13
+    },
+    {
+      "name": "set_property_value_into_object",
+      "macro": "\nPublic LogText As String\nPrivate Function Make(ByVal n As String) As CItem\nDim it As New CItem\nit.Name = n\nSet Make = it\nEnd Function\nPrivate Sub UseLocal()\nDim it As New CItem\nit.Name = \"local\"\nLogText = LogText & \"use;\"\nEnd Sub\nPrivate Sub HoldNothing()\nDim it As CItem\nLogText = LogText & \"hold;\"\nEnd Sub\n\nFunction Probe() As String\nDim o As Object\nSet o = ActiveSheet.Name\nProbe = \"set\"\nEnd Function\n",
+      "error": 424
     }
   ]
 }

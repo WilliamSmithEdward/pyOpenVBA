@@ -656,8 +656,22 @@ layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).
 * The file keeps plain criteria, xlOr pairs of them and lists as a list
   of values, and the rest as custom filters, with the threshold of a top
   filter and the mean of an average one; Excel reads each back as it
-  was. A colour, icon or date-group filter read from a file is kept as it
-  was, but reading or applying it reports itself unsupported.
+  was. An icon or date-group filter read from a file is kept as it was,
+  but reading or applying it reports itself unsupported.
+* A filter on a colour (`tests/fixtures/colour_filters/`, 15 layouts on
+  the sheet and a table, saved and opened again) shows a row whose cell
+  has a solid fill of it, a conditional format's or a theme colour's
+  included, as a colour sort finds it: a patterned fill, white and no
+  fill are not yellow. xlFilterNoFill shows the cells with no fill at
+  all, xlFilterFontColor a font set outright in the colour, black not
+  the automatic one, and xlFilterAutomaticFontColor the automatic font.
+  The filter reads back its operator, one criterion, and as Criteria1 an
+  Interior holding the colour, solid, or white with no pattern for no
+  fill; a font filter's Criteria1 is the colour as a number, 0 for the
+  automatic one. The file keeps the colour in a dxf of its own, made as
+  the filter is, a solid fill of it on white, the font's too marked
+  `cellColor="0"`; filtering the column again or ShowAllData lets the old
+  one go.
 * `AutoFilter.Range` runs on down to the foot of the data around the
   filter, as CurrentRegion grows, so a row written just below it joins
   it. Filtering again and ApplyFilter take that row in; the file and the

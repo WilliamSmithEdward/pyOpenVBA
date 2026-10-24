@@ -1686,7 +1686,12 @@ class Interpreter:
             self._check_let_into_object(statement.target.name, frame)
         value = self.evaluate(statement.value, frame, want_object=statement.kind == "set")
         if statement.kind == "set" and not is_object(value) and value is not NOTHING:
-            raise error(ERR_MEMBER_NOT_FOUND, "Set needs an object on the right")
+            # A value Set into a Variant is a type mismatch, and into an object variable wants an object
+            # (tests/fixtures/vba_object_lifetime.json).
+            if isinstance(statement.target, A.Name) and self._loop_declaration(statement.target, frame) in (
+                    "Variant", ""):
+                raise error(ERR_TYPE_MISMATCH, "Set needs an object on the right")
+            raise error(424, "Object required")
         if statement.kind == "let" and isinstance(value, VBAObject):
             # A property takes some objects themselves by Let; anything else hands over its default member.
             if not (value.vba_let_as_object and isinstance(statement.target, A.Member)):

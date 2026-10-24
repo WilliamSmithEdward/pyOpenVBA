@@ -65,6 +65,10 @@ CASES = {
     "for_each_object_after_exit": 'Dim c As New Collection, o As Object\nc.Add New Collection\nFor Each o In c\nExit For\nNext\nProbe = (o Is Nothing)',
     "for_each_empty_collection": 'Dim c As New Collection, v As Variant\nv = 5\nFor Each v In c\nNext\nProbe = TypeName(v) & "|" & v',
     "for_each_goto_out": 'Dim v As Variant\nFor Each v In Array(1, 2)\nIf v = 2 Then GoTo done\nNext\ndone:\nProbe = TypeName(v) & "|" & v',
+    "set_value_into_object": 'Dim o As Object, v As Variant\nv = 7\nSet o = v\nProbe = "set"',
+    "set_value_into_class": 'Dim p As CItem, v As Variant\nv = 7\nSet p = v\nProbe = "set"',
+    "set_value_into_variant": 'Dim w As Variant, v As Variant\nv = 7\nSet w = v\nProbe = "set"',
+    "set_property_value_into_object": 'Dim o As Object\nSet o = ActiveSheet.Name\nProbe = "set"',
 }
 
 

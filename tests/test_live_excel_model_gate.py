@@ -2007,6 +2007,31 @@ def test_excel_reads_the_dxfs_a_delete_left(tmp_path: Path) -> None:
             assert str(model.value) == str(own.value), name
 
 
+def test_excel_reads_the_colour_filters_this_wrote(tmp_path: Path) -> None:
+    """Every layout tests/fixtures/colour_filters measured, made by the model with the macro Excel ran, a filter
+    by a cell's colour or its font's on each sheet, and saved: Excel opens the file and reads each sheet's hidden
+    rows and filters as it read its own file opened again."""
+    from test_excel_colour_filters import LAYOUTS, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    body = "".join(RECORD["layout"].replace("{name}", layout["name"]).replace("{table}", RECORD["table"])
+                   .replace("{steps}", layout["steps"]) for layout in LAYOUTS)
+    app = ExcelApplication()
+    app.add_module(RECORD["build"].replace("{layouts}", body).replace("{folder}", str(tmp_path)), name="Builder")
+    app.run("Build")
+    reader = RECORD["helper"] + (
+        "Public Function Read(path As String) As String\nDim wb As Object, ws As Object, out As String\n"
+        "Set wb = Workbooks.Open(path)\nFor Each ws In wb.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\n"
+        "Next\nwb.Close False\nRead = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (str(tmp_path / "colour_filters.xlsx"),), timeout=300.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+    for layout in LAYOUTS:
+        assert read[layout["name"]] == layout["reopened"], layout["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

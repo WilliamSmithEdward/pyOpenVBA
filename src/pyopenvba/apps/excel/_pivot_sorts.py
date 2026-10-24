@@ -47,7 +47,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, VBAErrorValue, error, 
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivot_calculated import Measures
-    from pyopenvba.apps.excel._pivots import PivotField, PivotItem
+    from pyopenvba.apps.excel._pivots import PivotField, PivotItem, PivotTable
 
 #: The Values field, -2, as the unsigned number a sort's scope names it by.
 DATA_FIELD = '4294967294'
@@ -119,12 +119,25 @@ def relist(field: XmlElement, data_items: list[XmlElement]) -> None:
 
 
 def sort_by_name(table_cache_fields: list[XmlElement], field: XmlElement, index: int, descending: bool) -> None:
+    """Sort a field's items by their names: their captions where they were given one (tests/fixtures/pivot_names/
+    item_sorted)."""
+    from pyopenvba.apps.excel._pivot_filters import shown_entry
+
     entries = shared(table_cache_fields[index]) if index < len(table_cache_fields) else []
     items = listed(field)
-    values = [entries[place_of(item)] for item in items if 0 <= place_of(item) < len(entries)]
+    values = [shown_entry(entries[place_of(item)], item.get('n')) for item in items
+              if 0 <= place_of(item) < len(entries)]
     if len(values) != len(items):
         raise VBAUnsupportedError('Sorting a pivot field whose items name no cached value is not implemented')
     relist(field, [items[place] for place in by_name(values, descending)])
+
+
+def resort_by_name(table: PivotTable, field: XmlElement, index: int) -> None:
+    """Sort again a field its items' names sort, once an item takes a new caption (tests/fixtures/pivot_names/
+    item_then_sorted)."""
+    kind = sort_kind(field)
+    if kind is not None and field.find(NS + 'autoSortScope') is None:
+        sort_by_name(table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), field, index, kind == 'descending')
 
 
 def value_key(value: object) -> tuple[int, float, str]:

@@ -7,6 +7,25 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Names in a pivot table take new values as Excel takes them. A data
+  field's `Caption` or `Name` renames it, error 1004 where a field shows
+  by the name or another data field has it, in any case; a name with a
+  space more, an item's name and an empty name are all names, as in
+  Excel. The Values field's names the table's Values caption. A field's
+  `Caption` names it as its table and formulas show it, error 5 where
+  another field or a data field has the name, an empty one taking the
+  field back to its source's name, and `Name` does the same on a field
+  on an axis. On a field on no axis `Name` lists the field's items, takes
+  the name and then raises error 1004, as Excel does. An item's `Name`,
+  `Caption` and `Value` give it a caption, which it shows, sorts by, is
+  chosen by as a page field's item and is found by from then on, its
+  `SourceName` still its value; another item's name is error 1004. A
+  table built with a data field alone now clears the empty table's
+  placeholder borders, which the file kept. 42 layouts agree with Excel
+  before a save and once the file is opened again, the saved tables and
+  every cell's format agree with Excel's file, and Excel reads the
+  model's file as its own.
+
 - Pivot tables take calculated fields. `PivotTable.CalculatedFields.Add`
   adds a field whose formula names the table's fields by their captions,
   and the field goes into the data area as any other. Each cell works the

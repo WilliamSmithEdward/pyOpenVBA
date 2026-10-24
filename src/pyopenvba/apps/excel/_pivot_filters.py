@@ -66,9 +66,12 @@ def place_of(item: XmlElement) -> int:
     return int(item.get('x', '-1'))
 
 
-def item_node(x: int, *, hide: bool = False, gone: bool = False) -> XmlElement:
-    """An item as Excel writes one, its flags ahead of ``x`` as the schema orders them."""
-    attributes = {'h': '1'} if hide else {}
+def item_node(x: int, *, hide: bool = False, gone: bool = False, caption: str | None = None) -> XmlElement:
+    """An item as Excel writes one, its caption and flags ahead of ``x`` as the schema orders them
+    (tests/fixtures/pivot_names/ item_hidden)."""
+    attributes = {'n': caption} if caption is not None else {}
+    if hide:
+        attributes['h'] = '1'
     if gone:
         attributes['m'] = '1'
     attributes['x'] = str(x)
@@ -76,8 +79,8 @@ def item_node(x: int, *, hide: bool = False, gone: bool = False) -> XmlElement:
 
 
 def restate(item: XmlElement, *, hide: bool) -> None:
-    rest = {key: value for key, value in item.attrib.items() if key not in ('h', 'm', 'x')}
-    fresh = item_node(place_of(item), hide=hide, gone=flag(item, 'm'))
+    rest = {key: value for key, value in item.attrib.items() if key not in ('n', 'h', 'm', 'x')}
+    fresh = item_node(place_of(item), hide=hide, gone=flag(item, 'm'), caption=item.get('n'))
     item.attrib.clear()
     item.attrib.update(fresh.attrib)
     item.attrib.update(rest)
@@ -153,9 +156,9 @@ def sorted_places(entries: list[XmlElement]) -> list[int]:
 
 
 def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
-            on_axes: set[int]) -> list[list[Listed] | None]:
+            on_axes: set[int], captions: dict[int, dict[int, str]] | None = None) -> list[list[Listed] | None]:
     """Each field's list of items, carried from the cache fields ``before`` to those ``after``, or None for a field
-    that lists none.
+    that lists none; ``captions`` gains each field's renamed items by their places after, as the file spells them.
 
     A listed item keeps its place, its value found again by what it is, and
     is marked gone where the cache keeps the value unused; a value the list
@@ -166,6 +169,7 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
 
     lists: list[list[Listed] | None] = []
     for index, field in enumerate(root.findall(f'{NS}pivotFields/{NS}pivotField')):
+        named = captions.setdefault(index, {}) if captions is not None else {}
         old = shared(before[index]) if index < len(before) else []
         new = shared(after[index]) if index < len(after) else []
         if field.find(NS + 'items') is None:
@@ -188,6 +192,8 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
             if place is not None and place not in taken:
                 taken.add(place)
                 found.append((place, flag(item, 'h'), unused(new[place])))
+                if item.get('n') is not None:
+                    named[place] = item.get('n', '')
         hide = any(hidden for _, hidden, _ in found)
         found += [(place, hide, False) for place, entry in enumerate(new) if place not in taken and not unused(entry)]
         # A field sorted by its items' names sorts new ones in among them (tests/fixtures/pivot_sorts/ refresh_labels).
@@ -195,9 +201,16 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
         if kind in ('ascending', 'descending') and field.find(NS + 'autoSortScope') is None and len(found) > len(taken):
             from pyopenvba.apps.excel._pivot_sorts import by_name
 
-            found = [found[place] for place in by_name([new[place] for place, _, _ in found], kind == 'descending')]
+            found = [found[place] for place in by_name([shown_entry(new[place], named.get(place))
+                                                        for place, _, _ in found], kind == 'descending')]
         lists.append(found)
     return lists
+
+
+def shown_entry(entry: XmlElement, caption: str | None) -> XmlElement:
+    """An item's value as a sort by name reads it: its caption, as text, where it was given one (tests/fixtures/
+    pivot_names/ item_sorted)."""
+    return entry if caption is None else node('s', {'v': caption})
 
 
 def retain_missing(cache: PivotCache, fields: XmlElement, reports: list[PivotTable]) -> None:

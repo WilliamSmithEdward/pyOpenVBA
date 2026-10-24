@@ -947,9 +947,7 @@ class PivotField(ExcelObject):
 
     @setter('Name')
     def set_name(self, value: object) -> None:
-        from pyopenvba.apps.excel._pivot_calculated import rename
-
-        rename(self, value, caption=False)
+        self._rename(value, caption=False)
 
     @member
     def Caption(self) -> object:
@@ -957,9 +955,17 @@ class PivotField(ExcelObject):
 
     @setter('Caption')
     def set_caption(self, value: object) -> None:
-        from pyopenvba.apps.excel._pivot_calculated import rename
+        self._rename(value, caption=True)
 
-        rename(self, value, caption=True)
+    def _rename(self, value: object, *, caption: bool) -> None:
+        from pyopenvba.apps.excel._pivot_names import rename_data, rename_field, rename_values
+
+        if self.index == -2:
+            rename_values(self, value)
+        elif self.data:
+            rename_data(self, value)
+        else:
+            rename_field(self, value, caption=caption)
 
     @member
     def Formula(self) -> object:
@@ -1391,6 +1397,32 @@ class PivotItem(ExcelObject):
 
     @member
     def Name(self) -> object:
+        """The item's caption where it was given one, else its value's name (tests/fixtures/pivot_names/)."""
+        if self.x >= 0 and self.field.index >= 0 and not self.field.data:
+            from pyopenvba.apps.excel._pivot_names import caption_of
+
+            given = caption_of(self.field, self.x)
+            if given is not None:
+                return given
+        return self.SourceName()
+
+    @setter('Name')
+    def set_name(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_names import rename_item
+
+        rename_item(self, value)
+
+    @setter('Caption')
+    def set_caption(self, value: object) -> None:
+        self.set_name(value)
+
+    @setter('Value')
+    def set_value(self, value: object) -> None:
+        self.set_name(value)
+
+    @member
+    def SourceName(self) -> object:
+        """The item's value as its field shows it, whatever caption it was given."""
         if self.root is None:
             return '(All)'
         if self.root.tag == NS + 'm':
@@ -1419,10 +1451,6 @@ class PivotItem(ExcelObject):
 
     @member
     def Value(self) -> object:
-        return self.Name()
-
-    @member
-    def SourceName(self) -> object:
         return self.Name()
 
     @member

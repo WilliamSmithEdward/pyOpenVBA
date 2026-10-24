@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import Range
+from pyopenvba.apps.excel._pivot_calculations import calculated, calculation_of
 from pyopenvba.apps.excel._pivot_create import node, part_root
 from pyopenvba.apps.excel._pivot_criteria import label_hidden, value_filtered
 from pyopenvba.apps.excel._pivot_criteria import rules as filter_rules
@@ -654,15 +655,31 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                 for col_key in col_keys:
                     if col_key in col_lookup:
                         buckets.setdefault((row_key, col_key), []).append(record)
-        for (row_key, col_key), selected in buckets.items():
+        for (row_key, col_key), bucket in buckets.items():
             for offset in row_lookup[row_key]:
                 line = row_lines[offset]
                 for column in col_lookup[col_key]:
                     measure = line.data if VALUES in rows else col_lines[column].data
                     report = reports[measure]
                     function = function_of(line) or function_of(col_lines[column]) or report.get('subtotal', 'sum')
-                    value = aggregate([record[int(report.get('fld', '0'))] for record in selected], function)
+                    value = aggregate([record[int(report.get('fld', '0'))] for record in bucket], function)
                     put(dr + offset, dc + column, value)
+        # The cells a calculation works out, which show no null string where it leaves them empty (tests/fixtures/
+        # pivot_calculations/ null_string).
+        worked_out: set[tuple[int, int]] = set()
+        if any(calculation_of(report) != 'normal' for report in reports):
+            if rows_over or columns_over:
+                raise VBAUnsupportedError("Show Values As beside an inner field's subtotals by another function")
+            shown = calculated(reports, real_rows, real_cols, row_lines, col_lines, display,
+                               [(records_[row], ids[row]) for row in selected], function_of,
+                               measure_of=lambda line, column_line: line.data if VALUES in rows else column_line.data)
+            for (offset, column), value in shown.items():
+                key = area.top + dr + offset, area.left + dc + column
+                worked_out.add(key)
+                if value is EMPTY:
+                    cells.pop(key, None)
+                else:
+                    cells[key] = value
         # A value cell no record reaches shows the table's null string, or 0 where it displays none, and one that
         # works out an error its error string where it displays that (tests/fixtures/pivot_options/ null_letter,
         # null_display_off, error_string).
@@ -674,7 +691,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                 continue
             for column in range(len(col_lines)):
                 key = area.top + dr + offset, area.left + dc + column
-                if key not in cells and filler is not EMPTY:
+                if key not in cells and filler is not EMPTY and key not in worked_out:
                     cells[key] = filler
                 elif failed is not None and isinstance(cells.get(key), ExcelError):
                     if failed == '':

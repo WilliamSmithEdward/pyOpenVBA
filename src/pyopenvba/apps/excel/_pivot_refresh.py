@@ -6,6 +6,14 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement, XmlParseError, xml_tree
+from pyopenvba.apps.excel._pivot_calculations import (
+    BASE_FIELD,
+    BASE_ITEM,
+    DATA_EXTENSION,
+    SHOW_AS,
+    SHOW_DATA_AS,
+    calculation_of,
+)
 from pyopenvba.apps.excel._pivot_forms import FIELD_EXTENSION, SUBTOTALS
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -122,6 +130,23 @@ def field_extensions(field: XmlElement) -> None:
             if options.tag != X14 + 'pivotField' or len(options):
                 raise unsupported('with unknown field extension content')
             attributes(options, 'fillDownLabels')
+
+
+def data_extensions(data: XmlElement) -> None:
+    """A data field's own extensions: Excel 2010's, which keeps the calculations Excel 2010 added."""
+    children(data, 'extLst')
+    for group in data.findall(NS + 'extLst'):
+        attributes(group, '')
+        for extension in group:
+            attributes(extension, 'uri')
+            if extension.tag != NS + 'ext' or extension.get('uri') != DATA_EXTENSION or len(extension) != 1:
+                raise unsupported('with unknown data field extensions')
+            options = extension[0]
+            if options.tag != X14 + 'dataField' or len(options):
+                raise unsupported('with unknown data field extension content')
+            attributes(options, 'pivotShowAs')
+            if options.get('pivotShowAs', 'normal') not in SHOW_AS | {'normal'}:
+                raise unsupported('with custom data calculations')
 
 
 def integer(root: XmlElement, name: str, default: int = 0) -> int:
@@ -269,7 +294,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     for field in fields:
         distinct_children(field)
         attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop subtotalCaption '
-                   'insertBlankRow insertPageBreak multipleItemSelectionAllowed sortType measureFilter numFmtId '
+                   'insertBlankRow insertPageBreak multipleItemSelectionAllowed sortType measureFilter numFmtId rankBy '
                    + ' '.join(entry[0] for entry in SUBTOTALS.values()))
         children(field, 'items autoSortScope extLst')
         field_extensions(field)
@@ -297,12 +322,18 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
                 if len(entry):
                     raise unsupported('with custom axis metadata')
     for data in root.findall(f'{NS}dataFields/{NS}dataField'):
-        attributes(data, 'name fld subtotal baseField baseItem numFmtId')
+        attributes(data, 'name fld subtotal showDataAs baseField baseItem numFmtId')
         if not 0 <= integer(data, 'fld', -1) < field_count or data.get('subtotal', 'sum') not in (
                 'sum', 'average', 'count', 'countNums', 'min', 'max', 'product', 'stdDev', 'stdDevp', 'var', 'varp'):
             raise unsupported('with custom data calculations')
-        if len(data):
-            raise unsupported('with custom data metadata')
+        data_extensions(data)
+        if data.get('showDataAs', 'normal') not in SHOW_DATA_AS:
+            raise unsupported('with custom data calculations')
+        name = calculation_of(data)
+        if name in BASE_FIELD and not 0 <= integer(data, 'baseField') < field_count:
+            raise unsupported('with an invalid base field')
+        if name in BASE_ITEM and integer(data, 'baseItem', -1) < 0:
+            raise unsupported('with an invalid base item')
     for name, allowed, sub in (
             ('location', 'ref firstHeaderRow firstDataRow firstDataCol rowPageCount colPageCount', ''),
             ('rowItems', 'count', 'i'), ('colItems', 'count', 'i'),

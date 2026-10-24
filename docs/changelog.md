@@ -376,6 +376,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   expressions, a top 10, a colour scale and a data bar, and Excel reads
   the model's saves of them as it reads its own.
 
+- A save keeps the dxf of a rule a macro took away by a Delete,
+  ClearFormats, Clear or a paste, where the rule's was, as Excel's saves
+  do until the workbook is opened again. A rule that goes with its rows
+  or its sheet takes its dxf with it, as does a format a new one replaces.
+  The model left out every dxf nothing named. 16 files Excel saved agree,
+  a rule made in the session or read from a file, saved once or twice and
+  opened again, and Excel reads the model's saves of them as its own.
+
 - Excel's editor adds a module to a project this saved, however many
   sheets it has. A storage's entries form a red-black tree, and the writer
   left every entry it placed red. Windows refuses to add to a tree with

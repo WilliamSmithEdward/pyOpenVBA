@@ -1284,6 +1284,9 @@ class Worksheet(ExcelObject):
         #: True once a rule is added, changed or removed, so a save writes the rules again.
         self.validations_changed = False
         self.conditional_formats: list[ConditionalRule] = []
+        #: The priority and dxf of each rule a macro took away, whose dxf Excel's saves keep where the rule's was
+        #: though nothing names it, until the workbook is opened again (_conditional.keep_dxf, _dxf_table).
+        self.kept_dxfs: list[tuple[int, int]] = []
         self.conditional_changed = False
         self.conditional_color_slots: dict[int, ConditionalRule] = {}
         self.conditional_color_groups: dict[int, tuple[list[ConditionalRule], dict[ConditionalRule, int]]] | None = None

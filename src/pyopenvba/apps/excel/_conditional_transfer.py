@@ -12,7 +12,8 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
-from pyopenvba.apps.excel._conditional import NS, Rule, changed, formula_anchor, guard, meets, projected_areas, without
+from pyopenvba.apps.excel._conditional import (NS, Rule, changed, formula_anchor, guard, keep_dxf, meets,
+                                               projected_areas, without)
 from pyopenvba.apps.excel._conditional_predicates import PREDICATE_TYPES, regenerate
 from pyopenvba.apps.excel._xstring import decode, escape
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -143,6 +144,7 @@ class ConditionalPlan:
             rule.root.attrib.update(root.attrib)
             rule.root[:] = list(root)
             if not areas:
+                keep_dxf(self.sheet, rule)
                 rule.deleted = True
                 self.sheet.conditional_formats.remove(rule)
         for rule in self.incoming_rules:

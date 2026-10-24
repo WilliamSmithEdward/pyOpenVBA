@@ -487,11 +487,21 @@ def remove(sheet: Worksheet, areas: list[Area], rules: list[Rule] | None = None)
             for child, text in zip(rule.root.findall(NS + 'formula'), formulas, strict=True):
                 child.text = text
         if not remaining:
+            keep_dxf(sheet, rule)
             rule.deleted = True
             sheet.conditional_formats.remove(rule)
     if planned:
         changed(sheet)
     return bool(planned)
+
+
+def keep_dxf(sheet: Worksheet, rule: Rule) -> None:
+    """Note the dxf of a rule a macro takes away, by a Delete, a Clear or a paste, which Excel's saves keep where
+    the rule's was though nothing names it, until the workbook is opened again; a rule that goes with its rows or
+    its sheet, or a format a new one replaces, takes its dxf with it (tests/fixtures/dxf_lifetime/)."""
+    identifier = rule.root.get('dxfId', '')
+    if identifier.isdecimal():
+        sheet.kept_dxfs.append((_priority(rule), int(identifier)))
 
 
 def _formula(value: object, target: Range) -> str:
@@ -760,6 +770,7 @@ class RuleObject(ExcelObject):
         from pyopenvba.apps.excel._conditional_border_context import delete_member
 
         delete_member(self.sheet, self.rule)
+        keep_dxf(self.sheet, self.rule)
         self.sheet.conditional_formats.remove(self.rule)
         self.rule.deleted = True
         changed(self.sheet)

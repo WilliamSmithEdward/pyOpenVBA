@@ -22,9 +22,6 @@ from pyopenvba.apps.excel import ExcelApplication
 FIXTURES = Path(__file__).parent / "fixtures" / "conditional_partial_delete"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "conditional_partial_delete.json").read_text(encoding="utf-8"))
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
-#: Where the model's save holds the dxfs otherwise than Excel's.
-GAPS = {name: "Excel's save keeps the dxf of a rule deleted since the workbook was made or opened; the model leaves "
-              "out a dxf nothing names" for name in ("all_of_it", "more_than_it", "whole_sheet", "kept_whole")}
 #: A rule's id in the worksheet's Excel 2010 extension, which Excel makes anew for each rule.
 _ID = re.compile(r"\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}")
 
@@ -79,10 +76,8 @@ def test_the_save_holds_the_rules_excel_saved(made: tuple[dict[str, str], Path],
         assert masked(held[slot]) == masked(layout["file"][slot]), slot  # type: ignore[arg-type]
 
 
-@pytest.mark.parametrize("layout", [
-    pytest.param(layout, id=layout["name"],
-                 marks=[pytest.mark.xfail(strict=True, reason=GAPS[layout["name"]])] if layout["name"] in GAPS else [])
-    for layout in LAYOUTS])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_save_holds_the_dxfs_excel_saved(made: tuple[dict[str, str], Path], layout: dict[str, Any]) -> None:
-    """A rule cut keeps its dxf where it was."""
+    """A rule cut keeps its dxf where it was, and a rule deleted whole leaves its dxf behind
+    (tests/fixtures/dxf_lifetime/)."""
     assert holdings(made[1] / f"{layout['name']}.xlsx")["dxfs"] == layout["file"]["dxfs"]

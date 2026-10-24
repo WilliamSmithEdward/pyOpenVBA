@@ -8,6 +8,7 @@ from pyopenvba.apps.excel import _styles as styles
 from pyopenvba.apps.excel._conditional import NS, Rule, formula_anchor
 from pyopenvba.apps.excel._differential import read_color
 from pyopenvba.apps.excel._engine_book import scalar
+from pyopenvba.apps.excel._number_format import from_file
 from pyopenvba.apps.excel._xstring import decode
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.cells import CellError
@@ -148,7 +149,7 @@ def _overlay(style: styles.Style, root: XmlElement) -> styles.Style:
         style = replace(style, border=current_border)
     number = root.find(NS + 'numFmt')
     if number is not None:
-        style = replace(style, number_format=decode(number.get('formatCode', 'General')))
+        style = replace(style, number_format=from_file(decode(number.get('formatCode', 'General'))))
     for tag in ('alignment', 'protection'):
         if root.find(NS + tag) is not None:
             raise VBAUnsupportedError(f'Conditional {tag} evaluation is not implemented')
@@ -245,7 +246,7 @@ def conditional_number_format(sheet: Worksheet, row: int, column: int) -> str:
         if not _matches(sheet, rule, row, column):
             continue
         if number is not None:
-            return decode(number.get('formatCode', 'General'))
+            return from_file(decode(number.get('formatCode', 'General')))
         if stopping:
             return base
     return base

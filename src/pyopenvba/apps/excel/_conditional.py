@@ -866,9 +866,9 @@ class _ConditionalRule(RuleObject):
 
     @member
     def NumberFormat(self) -> object:
-        from pyopenvba.apps.excel._differential import api_number_format
+        from pyopenvba.apps.excel._differential import number_format
 
-        return api_number_format(self._dxf(), self.sheet.book.stylesheet)
+        return number_format(self._dxf())
 
     @setter('NumberFormat')
     def set_number_format(self, value: object) -> None:

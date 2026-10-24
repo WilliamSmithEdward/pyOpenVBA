@@ -1830,6 +1830,37 @@ def test_excel_joins_the_rules_this_wrote(tmp_path: Path) -> None:
             assert read[layout["name"]] == layout["reopened"][file], (path.name, layout["name"])
 
 
+def test_excel_reads_the_rule_number_formats_this_wrote(tmp_path: Path) -> None:
+    """Every layout tests/fixtures/conditional_number_formats measured, made by the model and saved as an .xlsx,
+    and each copy whose rules' formats another program might have numbered and spelled, saved again by the model:
+    Excel opens each and reads every rule's NumberFormat, and what its cells show, as it read its own."""
+    from test_excel_conditional_number_formats import FIXTURES, FOREIGN, FOREIGN_READER, LAYOUTS, RECORD, made_layouts
+
+    harness = pytest.importorskip("pyvbaharness")
+    made = tmp_path / "made.xlsx"
+    made_layouts(made)
+    again = {case["name"]: ExcelApplication.open(FIXTURES / "foreign" / f"{case['name']}.xlsx", with_vba=False)
+             .save(tmp_path / f"{case['name']}.xlsx") for case in FOREIGN["cases"]}
+    reader = (RECORD["reader"] + "Public Function Report() As String\nDim ws As Object, out As String\n"
+              "For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & \"^\" & Shown(ws) & \"|\"\nNext\n"
+              "Report = out\nEnd Function\n")
+    shown: dict[str, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(made)
+        result = excel.run_vba(reader, "Report", timeout=600.0)
+        assert result.ok, result.message
+        for name, path in again.items():
+            excel.open_document(path)
+            copy = excel.run_vba(FOREIGN_READER, "Read", timeout=120.0)
+            assert copy.ok, copy.message
+            shown[name] = str(copy.value)
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if one)
+    for layout in LAYOUTS:
+        assert read[layout["name"]] == layout["reopened"], layout["name"]
+    for case in FOREIGN["cases"]:
+        assert shown[case["name"]] == case["answer"], case["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

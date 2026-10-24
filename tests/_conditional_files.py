@@ -31,6 +31,21 @@ def formatting(path: Path) -> dict[str, str]:
     return found
 
 
+def number_formats(path: Path) -> tuple[dict[str, str], list[str]]:
+    """Each sheet's first rule's numFmt element as a file keeps it, by the sheet's name, and the numFmt elements of
+    the stylesheet's own numFmts, the cells' formats."""
+    with zipfile.ZipFile(path) as package:
+        styles = package.read("xl/styles.xml").decode("utf-8")
+    listed = re.search(r"<numFmts\b.*?</numFmts>", styles, re.DOTALL)
+    cells = re.findall(r"<numFmt [^>]*/>", listed.group()) if listed else []
+    found: dict[str, str] = {}
+    for name, kept in formatting(path).items():
+        rule = re.search(r'<cfRule\b[^>]*?dxf="(<dxf>.*?</dxf>)"', kept, re.DOTALL)
+        number = re.search(r"<numFmt [^>]*/>", rule.group(1)) if rule else None
+        found[name] = number.group() if number else ""
+    return found, cells
+
+
 def guids(text: str, kept: frozenset[str] = frozenset()) -> str:
     """``text`` with each GUID not in ``kept`` named by the order it first appears; the ids Excel makes for rules it
     read without one stay as they are, being Excel's own and not random."""

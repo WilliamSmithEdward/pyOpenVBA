@@ -142,6 +142,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   three file formats, Excel's files saved again, and the model's own file
   opened in Excel agree.
 
+- A conditional format's number format is numbered and spelled as Excel
+  writes it. A built-in format takes its place in the list Excel's Custom
+  category shows, `0%` 13 where a cell's is 9, and a custom one the next
+  id of the table the cells' formats use, so a rule and a cell holding one
+  code share its id. The file spells the code with every literal escaped,
+  `#,##0\ "kr"`. Excel reads a rule's format by its code alone, whatever
+  id the file gives it: opening a file numbers its rules' custom formats
+  after the cells' own, in the order the file lists its dxfs, one code
+  under one id, and a file saved again holds those ids and Excel's
+  spelling. 88 live layouts, every printable character in four kinds of
+  section, Excel's file opened and saved again, and 11 files numbering and
+  spelling rules' formats as other programs might agree.
+
 - A third sweep of 65 everyday macros agrees with Excel in full: newer
   worksheet functions, tables, shapes, charts, pivots, workbooks, the Sort
   object, AutoFilter, hyperlinks, notes, protection, conditional formats,
@@ -383,6 +396,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   font's flags come in the schema's order, one that is on written bare,
   `<b/>`; a number format names its id before its code; and a border given
   a line and no colour takes the automatic one, `<color auto="1"/>`.
+
+- NumberFormat, a cell's and a conditional format's, refuses with error
+  1004 the codes Excel refuses. A section may not mix a number's, a date's
+  and text's characters, `0 m` and `@0`; a text section comes last and a
+  fourth section is text; a bracket must be closed and Excel's; a fill, a
+  skip or an escape needs a character after it; and `E` outside an
+  exponent and `N` are refused anywhere. An accented letter is read as the
+  letter under its accent, so `dÝm` reads `dyym` and `0é` is refused. The
+  model took them all. 664 printable characters in four kinds of section
+  and 330 whole codes agree, for a cell and a rule alike.
+
+- NumberFormat reads back three codes as Excel rewrites them: `[Red]` as
+  `[Red]General`, `[>0]0` as `[>0]0;General` and `;@` as `;;;@`.
+
+- A sheet added to a workbook opened from a file is listed in
+  xl/workbook.xml with its name first, `<sheet name=".." sheetId=".."
+  r:id=".."/>`, as Excel lists one. The model put the name last.
 
 - `Sort.Apply` with no range or no field sorts nothing and raises no
   error, as Excel does. The model raised error 1004.

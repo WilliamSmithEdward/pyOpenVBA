@@ -12,7 +12,8 @@ from pyopenvba.apps.excel import _styles as styles
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes
 from pyopenvba.apps.excel._formats import LINES, PATTERNS, UNDERLINES, uniform, with_line_style, with_weight
 from pyopenvba.apps.excel._model import ExcelObject
-from pyopenvba.apps.excel._xstring import decode, encode_attribute
+from pyopenvba.apps.excel._number_format import from_file, normalized
+from pyopenvba.apps.excel._xstring import decode
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, setter
 from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, error, to_bool, to_integer, to_text
@@ -43,46 +44,23 @@ def child(root: XmlElement, name: str) -> XmlElement:
     return found
 
 
-def number_format(root: XmlElement, stylesheet: styles.Stylesheet) -> object:
+def number_format(root: XmlElement) -> object:
+    """A rule's number format as FormatCondition.NumberFormat reads it: the file's code, as Excel reads one."""
     entry = root.find(NS + 'numFmt')
-    return EMPTY if entry is None else decode(entry.get('formatCode', ''))
-
-
-def api_number_format(root: XmlElement, stylesheet: styles.Stylesheet) -> object:
-    """The measured getter spelling, without changing the stored differential code."""
-    from pyopenvba.formula._display import tokens
-
-    code = number_format(root, stylesheet)
-    if code is EMPTY:
-        return EMPTY
-    assert isinstance(code, str)
-    return ''.join(text[1:] if kind == 'escaped' and text[1:] in (' ', '-') else text
-                   for kind, text in tokens(code))
+    return EMPTY if entry is None else from_file(decode(entry.get('formatCode', '')))
 
 
 def set_number_format(root: XmlElement, value: object, stylesheet: styles.Stylesheet) -> None:
-    code = to_text(value)
-    entry = child(root, 'numFmt')
-    # Native Excel writes known formats with their built-in ID (0.00 is 2),
-    # while the rule's getter still reads its inline formatCode independently.
-    identifier = next((identifier for identifier, known in stylesheet.number_formats.items() if known == code), None)
-    if identifier is None:
-        inline: list[tuple[int, str]] = []
-        for index in range(stylesheet.dxf_count):
-            held = stylesheet.dxf(index).find(NS + 'numFmt')
-            if held is not None:
-                raw = held.get('numFmtId', '')
-                if raw.isdecimal():
-                    inline.append((int(raw), decode(held.get('formatCode', ''))))
-        identifier = next((number for number, known in inline if known == code), None)
-        if identifier is None:
-            identifier = max(163, *stylesheet.number_formats, *(number for number, _ in inline)) + 1
-    # The id before the code, as Excel writes them (tests/fixtures/conditional_joins/); anything else stays after.
-    others = {key: value for key, value in entry.attrib.items() if key not in ('numFmtId', 'formatCode')}
-    entry.attrib.clear()
-    entry.set('numFmtId', str(identifier))
-    entry.set('formatCode', encode_attribute(code))
-    entry.attrib.update(others)
+    """Give a rule a number format: the code as NumberFormat keeps it, numbered and spelled as Excel writes a rule's
+    (tests/fixtures/conditional_number_formats/)."""
+    stylesheet.spell_rule_format(child(root, 'numFmt'), normalized(to_text(value)))
+
+
+def renumber(root: XmlElement, stylesheet: styles.Stylesheet) -> None:
+    """Number a rule's format as ``stylesheet``'s workbook does, for a rule a sheet copy brings from another."""
+    entry = root.find(NS + 'numFmt')
+    if entry is not None:
+        stylesheet.spell_rule_format(entry, from_file(decode(entry.get('formatCode', ''))))
 
 
 def read_color(entry: XmlElement | None) -> styles.Color | None:

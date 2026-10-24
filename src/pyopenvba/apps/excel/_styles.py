@@ -32,7 +32,8 @@ from typing import TYPE_CHECKING, Final, TypeVar
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import unescape as _unescape
-from pyopenvba.apps.excel._number_format import BUILTIN, SPELLED_OUT, from_file, to_file
+from pyopenvba.apps.excel._number_format import BUILTIN, LISTED, SPELLED_OUT, from_file, to_file
+from pyopenvba.apps.excel._xstring import decode, encode_attribute
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -724,6 +725,18 @@ def _dxf_text(entry: XmlElement, *, inherited: bool) -> str:
     return written
 
 
+def _with_number(element: str, number: XmlElement) -> str:
+    """A dxf's numFmt element as the file wrote it, holding the id and code ``number`` holds."""
+    def attribute(text: str, name: str) -> str:
+        value = _escape(number.get(name, ""))
+        pattern = re.compile(rf"""(\s{name}\s*=\s*)(?:"[^"]*"|'[^']*')""")
+        if pattern.search(text) is None:
+            return text[:-2].rstrip() + f' {name}="{value}"/>'
+        return pattern.sub(lambda found: f'{found.group(1)}"{value}"', text, count=1)
+
+    return attribute(attribute(element, "numFmtId"), "formatCode")
+
+
 def _dxf_append_position(text: str) -> int:
     """Position after the last direct dxf, never inside an unknown extension."""
     from pyopenvba.apps.excel._charts_file import xml_parser
@@ -882,6 +895,17 @@ class Stylesheet:
         self._ids: dict[str, int] = {}
         for identifier, code in self.number_formats.items():
             self._ids.setdefault(code, identifier)
+        #: The file's dxfs whose number format Excel numbers or spells otherwise than the file does, which a save
+        #: writes as Excel does. Excel reads a rule's format by its code alone, whatever id the file gives it, and
+        #: numbers the custom ones after the cells' own, in dxf order (tests/fixtures/conditional_number_formats/).
+        self._dxf_numbers: set[int] = set()
+        for index, entry in enumerate(self._dxfs):
+            number = next((one for one in entry if one.tag.rsplit("}", 1)[-1] == "numFmt"), None)
+            if number is not None and "formatCode" in number.attrib:
+                before = list(number.attrib.items())
+                self.spell_rule_format(number, from_file(decode(number.get("formatCode", ""))))
+                if list(number.attrib.items()) != before:
+                    self._dxf_numbers.add(index)
         fonts, fills, borders = (_children(xml, section) for section in ("fonts", "fills", "borders"))
         self.fonts = [parse_font(one) for one in fonts] or [Font()]
         self.fills = [parse_fill(one) for one in fills] or [Fill()]
@@ -973,6 +997,7 @@ class Stylesheet:
         return len(self._dxfs) - 1
 
     def _write_dxfs(self, text: str) -> str:
+        text = self._renumbered_dxfs(text)
         if self._dxf_base_count == len(self._dxfs):
             return text
         pattern = (r'<(?P<tag>(?:[\w.-]+:)?dxfs)\b'
@@ -995,6 +1020,29 @@ class Stylesheet:
         position = max(0, _dxf_append_position(text) - match.start('body')) if match['body'] is not None else 0
         replacement = f'<{match["tag"]}{attrs}>' + body[:position] + additions + body[position:] + f'</{match["tag"]}>'
         return text[:match.start()] + replacement + text[match.end():]
+
+    def _renumbered_dxfs(self, text: str) -> str:
+        """The file's dxfs with each number format Excel numbers or spells otherwise as Excel writes it, and every
+        other byte as the file had it."""
+        if not self._dxf_numbers:
+            return text
+        section = re.search(r"<(?P<tag>(?:[\w.-]+:)?dxfs)\b[^>]*>(?P<body>.*?)</(?P=tag)>", text, re.DOTALL)
+        if section is None:
+            return text
+        body = section["body"]
+        pieces: list[str] = []
+        at = 0
+        entries = re.finditer(r"<(?P<tag>(?:[\w.-]+:)?dxf)\b[^>]*?(?:/>|>.*?</(?P=tag)>)", body, re.DOTALL)
+        for index, found in enumerate(entries):
+            if index not in self._dxf_numbers:
+                continue
+            number = next(one for one in self._dxfs[index] if one.tag.rsplit("}", 1)[-1] == "numFmt")
+            pieces += [body[at:found.start()], re.sub(r"<(?:[\w.-]+:)?numFmt\b[^>]*?/>",
+                                                      lambda element: _with_number(element.group(), number),
+                                                      found.group(), count=1)]
+            at = found.end()
+        pieces.append(body[at:])
+        return text[:section.start("body")] + "".join(pieces) + text[section.end("body"):]
 
     def _part(self, items: list[_T], index: int, fallback: _T) -> _T:
         return items[index] if 0 <= index < len(items) else fallback
@@ -1373,6 +1421,20 @@ class Stylesheet:
             self._ids[code] = identifier
         return identifier
 
+    def spell_rule_format(self, entry: XmlElement, code: str) -> None:
+        """Give a conditional format's numFmt ``code``, as NumberFormat spells it, the way Excel writes it: a
+        built-in format under its place in Excel's list of them, any other under the id the cells' formats share,
+        the next one when it is new, and the code spelled as a file spells it. The id comes first, and any other
+        attribute stays after the two (tests/fixtures/conditional_number_formats/)."""
+        identifier = LISTED.get(code)
+        if identifier is None:
+            identifier = self._code_id(code)
+        others = {key: value for key, value in entry.attrib.items() if key not in ("numFmtId", "formatCode")}
+        entry.attrib.clear()
+        entry.set("numFmtId", str(identifier))
+        entry.set("formatCode", encode_attribute(to_file(code)))
+        entry.attrib.update(others)
+
     def index_as_read(self, style: Style, xf: int) -> int:
         """The place in cellXfs a save writes a format's xf at: the table's one it points at while that says the
         same, else an equal one."""
@@ -1403,9 +1465,11 @@ class Stylesheet:
         if after is None:
             self.xml = self.written()
             self._dxf_base_count = len(self._dxfs)
+            self._dxf_numbers = set()
             return moved
         self.xml = self.written()
         self._dxf_base_count = len(self._dxfs)
+        self._dxf_numbers = set()
         for section, kept in (("fonts", after.fonts), ("fills", after.fills), ("borders", after.borders)):
             items: list[object] = getattr(self, section)
             setattr(self, section, [items[index] for index in kept])

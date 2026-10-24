@@ -7,6 +7,29 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables filter dates. `PivotFilters.Add` takes Excel's date filters
+  on a date field: a specific date, before, after, between and their
+  opposites, Value1 a Date, a serial or text CDate reads; and a period
+  counted from today, yesterday to next year and year to date, keeping
+  the days it covered on the day it was added, or a quarter or month of
+  any year. A date filter compares each moment as it is, a time of day
+  included, unless `Add2`'s WholeDayFilter has it compare days; it takes
+  the place of a field's label filter, and both are error 1004 on the
+  wrong kind of field. `PivotFilter` reads a date filter back, its Value1
+  and Value2 as Dates or a period's days as text, and `WholeDayFilter`.
+  Date fields work on any axis: an item reads, and its label cell shows,
+  the date in its field's format, or m/d/yyyy where the source's cells
+  differ, and a refresh drops a date the source lost, as Excel does,
+  where it keeps text and numbers. Every field now takes the number
+  format its source's cells share, and so its items' names and label
+  cells, and each data field shows its values in it, as Excel does;
+  `PivotField.NumberFormat` is error 1004 on a field of text and the
+  Values field. The cache spells its dates to the second and its maxDate
+  as the midnight after the last day, as Excel does. The model refused
+  date filters and a date item's name. 79 layouts agree with Excel,
+  before a save and once the file is opened again, and Excel reads the
+  model's file as its own.
+
 - Pivot tables filter their items by caption and by value.
   `PivotField.PivotFilters.Add` puts a label filter on a field, an item's
   caption tested as a worksheet AutoFilter tests a cell, any case alike

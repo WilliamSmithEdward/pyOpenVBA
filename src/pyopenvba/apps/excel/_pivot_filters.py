@@ -214,7 +214,9 @@ def retain_missing(cache: PivotCache, fields: XmlElement, reports: list[PivotTab
             continue
         known = {item_key(entry) for entry in values}
         for place, entry in enumerate(shared(before[index])):
-            if place in wanted[index] and item_key(entry) not in known:
+            # A date the source lost goes, where text and a number stay (tests/fixtures/pivot_date_filters/
+            # refreshed, refreshed_numbers).
+            if place in wanted[index] and item_key(entry) not in known and entry.tag != NS + 'd':
                 kept = deepcopy(entry)
                 kept.set('u', '1')
                 values.append(kept)

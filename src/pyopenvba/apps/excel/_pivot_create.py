@@ -206,10 +206,14 @@ def _materialize(cache: PivotCache, charge_text: Callable[[object], None] | None
         used.add(name.casefold())
         headers.append(name)
     fields = node('cacheFields', {'count': str(len(headers))})
-    for header in headers:
-        # New pivot fields start as General; source cell formats still decide
-        # the typed cache records below, including Date and Currency handling.
-        field = node('cacheField', {'name': encoded(header), 'numFmtId': '0'})
+    for offset, header in enumerate(headers):
+        # A field takes the format its source's cells all share, else General (tests/fixtures/pivot_date_filters/
+        # money, mixed_format); the cells' formats also decide the typed records below.
+        codes = {selected.sheet.style_at(row, area.left + offset).number_format
+                 for row in range(area.top + 1, area.bottom + 1)}
+        shared_code = next(iter(codes)) if len(codes) == 1 else 'General'
+        identifier = cache.book.stylesheet.format_id(shared_code) if shared_code != 'General' else 0
+        field = node('cacheField', {'name': encoded(header), 'numFmtId': str(identifier)})
         field.append(node('sharedItems'))
         fields.append(field)
     records = part_root('pivotCacheRecords', {'count': str(area.rows - 1)}, relationships=True)
@@ -330,7 +334,8 @@ def record_value(value: object, code: str = 'General') -> XmlElement:
                 clock = dt.datetime(1899, 12, 30) + dt.timedelta(days=days, milliseconds=round(fraction * 86400000))
             except (ValueError, OverflowError, VBARuntimeError):
                 raise error(440) from None
-            return node('d', {'v': clock.isoformat(timespec='milliseconds')})
+            # Excel spells a cached moment to the second (tests/fixtures/pivot_date_filters/).
+            return node('d', {'v': clock.isoformat(timespec='milliseconds' if clock.microsecond else 'seconds')})
         return node('n', {'v': repr(float(value))})
     return node('s', {'v': encoded(to_text(value))})
 
@@ -390,8 +395,11 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
     fields = cache.root.find(NS + 'cacheFields')
     assert fields is not None
     pivots = node('pivotFields', {'count': str(len(fields))})
-    for _ in fields:
-        pivots.append(node('pivotField', {'showAll': '0'}))
+    for field in fields:
+        # Each pivot field shows its items in its cache field's format (tests/fixtures/pivot_date_filters/).
+        identifier = field.get('numFmtId', '0')
+        pivots.append(node('pivotField', {'numFmtId': identifier, 'showAll': '0'} if identifier != '0'
+                           else {'showAll': '0'}))
     root.append(pivots)
     root.append(node('pivotTableStyleInfo', {'name': 'PivotStyleLight16', 'showRowHeaders': '1',
                                          'showColHeaders': '1', 'showRowStripes': '0', 'showColStripes': '0', 'showLastColumn': '1'}))

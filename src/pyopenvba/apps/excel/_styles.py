@@ -1543,6 +1543,11 @@ class Stylesheet:
             elements.insert(position, (place, _cell_style_element(entry, style_at[place])))
         return elements
 
+    def format_id(self, code: str) -> int:
+        """The id a format goes by in this workbook, as NumberFormat spells it: a built-in one's own, a custom one's,
+        the next from 164 where it is new, which a pivot cache field names its source's format by."""
+        return self._code_id(code)
+
     def _code_id(self, code: str) -> int:
         """A format's id, a custom one taking the next when first made (tests/fixtures/cell_styles/order.xlsx)."""
         identifier = self._ids.get(code)

@@ -30,7 +30,9 @@ from pyopenvba.apps.excel._pivots import NS, decode_text
 from pyopenvba.apps.excel._typing import Typed
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
 from pyopenvba.formula._calc import collate
-from pyopenvba.interpreter._values import EMPTY, MISSING, error, to_number
+from pyopenvba.formula._display import format_value
+from pyopenvba.formula._values import number_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error, to_number
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
@@ -66,6 +68,46 @@ def shown(entry: XmlElement) -> object:
         return '(blank)'
     if isinstance(value, bool):
         return 'TRUE' if value else 'FALSE'
+    return value
+
+
+#: The format a date item shows in where its field has none (tests/fixtures/pivot_date_filters/ mixed_format).
+DATE_FORMAT = 'm/d/yyyy'
+
+
+def field_format(codes: dict[int, str], pivot_field: XmlElement | None, cache_field: XmlElement | None) -> str:
+    """The format a field shows its items in: its own, else its cache field's, else General."""
+    for element in (pivot_field, cache_field):
+        identifier = element.get('numFmtId', '0') if element is not None else '0'
+        if identifier.isdecimal() and identifier != '0':
+            return codes.get(int(identifier), 'General')
+    return 'General'
+
+
+def item_caption(entry: XmlElement, code: str) -> str:
+    """An item's name: a number or a date shown in its field's format, a date in m/d/yyyy where the field has none,
+    a number in General as VBA spells it (tests/fixtures/pivot_date_filters/)."""
+    return label_text(item_label(entry, code))
+
+
+def label_text(label: object) -> str:
+    """The text a label cell shows."""
+    if isinstance(label, Typed):
+        value = label.value.serial if isinstance(label.value, VBADate) else label.value
+        return format_value(value, label.number_format or 'General')
+    if isinstance(label, float):
+        return number_text(label)
+    return str(label)
+
+
+def item_label(entry: XmlElement, code: str) -> object:
+    """What an item's label cell holds: a date as a Date in its field's format, or m/d/yyyy; a number in the field's
+    format where it has one; anything else as the value it is (tests/fixtures/pivot_date_filters/ datecell)."""
+    value = shown(entry)
+    if isinstance(value, float) and entry.tag == NS + 'd':
+        return Typed(VBADate(value), code if code != 'General' else DATE_FORMAT)
+    if isinstance(value, float) and code != 'General':
+        return Typed(value, code)
     return value
 
 
@@ -227,7 +269,10 @@ def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[Xm
                                  containsInteger=str(int(all(value.is_integer() for value in numeric))))
         dates = [dt.datetime.fromisoformat(entry.get('v', '')) for entry in shared if entry.tag == NS + 'd']
         if dates:
-            shared.attrib.update(minDate=min(dates).isoformat(), maxDate=max(dates).isoformat())
+            # Excel's maxDate is the midnight after the latest day (tests/fixtures/pivot_date_filters/,
+            # tests/fixtures/pivots/native-advanced-date-groups.xlsx).
+            after = dt.datetime.combine(max(dates).date(), dt.time()) + dt.timedelta(days=1)
+            shared.attrib.update(minDate=min(dates).isoformat(), maxDate=after.isoformat())
         positions.append(order(list(shared)))
     return fields, encoded, ids, positions
 
@@ -334,22 +379,34 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
 
     captions: dict[tuple[int, int], object] = {}
     subtotals: dict[tuple[int, int], str] = {}
+    codes = table.sheet.book.stylesheet.number_formats
+    pivot_list = root.findall(f'{NS}pivotFields/{NS}pivotField')
+    formats = [field_format(codes, pivot_list[index] if index < len(pivot_list) else None, field)
+               for index, field in enumerate(fields)]
 
     def caption(field: int, position: int) -> object:
+        """An item's label cell: its value, a date or a formatted number in its field's format."""
         if field == VALUES:
             return report_names[position]
         key = field, position
         if key not in captions:
             shared = fields[field].find(NS + 'sharedItems')
             assert shared is not None
-            captions[key] = shown(shared[display[field][position]])
+            captions[key] = item_label(shared[display[field][position]], formats[field])
         return captions[key]
 
     def subtotal_caption(field: int, position: int) -> str:
         key = field, position
         if key not in subtotals:
-            subtotals[key] = str(caption(field, position)) + ' Total'
+            subtotals[key] = label_text(caption(field, position)) + ' Total'
         return subtotals[key]
+
+    def measured(measure: int, value: object) -> object:
+        """A value cell, in its data field's format where it has one."""
+        identifier = reports[measure].get('numFmtId', '0') if measure < len(reports) else '0'
+        if value is EMPTY or not identifier.isdecimal() or identifier == '0':
+            return value
+        return Typed(value, codes.get(int(identifier), 'General'))
 
     if rows:
         put(dr - 1, 0, 'Values' if rows == [VALUES] else 'Row Labels')
@@ -412,7 +469,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                     measure = line.data if VALUES in rows else col_lines[column].data
                     report = reports[measure]
                     value = aggregate([record[int(report.get('fld', '0'))] for record in selected], report.get('subtotal', 'sum'))
-                    put(dr + offset, dc + column, value)
+                    put(dr + offset, dc + column, measured(measure, value))
     pivot_fields = root.find(NS + 'pivotFields')
     planned_fields = deepcopy(pivot_fields)
     assert pivot_fields is not None and planned_fields is not None
@@ -426,7 +483,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         if isinstance(showing, int):
             values = fields[field].find(NS + 'sharedItems')
             assert values is not None
-            put(-page_rows - 1 + row_offset, 3 * column_offset + 1, shown(values[showing]))
+            put(-page_rows - 1 + row_offset, 3 * column_offset + 1, item_label(values[showing], formats[field]))
         else:
             put(-page_rows - 1 + row_offset, 3 * column_offset + 1, showing)
     previous_areas = [old, extent]
@@ -512,7 +569,7 @@ def apply_render(plan: RenderPlan, *, cache: PivotCache | None = None) -> None:
     cache.changed = True
     output = Range(table.sheet, [plan.extent])
     for (row, column), value in plan.cells.items():
-        output.store_typed(row, column, Typed(value))
+        output.store_typed(row, column, value if isinstance(value, Typed) else Typed(value))
     table.changed = True
     table.report_loaded = False
     table.report_metadata = None

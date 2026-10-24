@@ -251,7 +251,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     for field in fields:
         distinct_children(field)
         attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop '
-                   'multipleItemSelectionAllowed sortType measureFilter')
+                   'multipleItemSelectionAllowed sortType measureFilter numFmtId')
         children(field, 'items autoSortScope')
         if field.get('compact', '1') != '1':
             raise unsupported('with noncompact field layouts')

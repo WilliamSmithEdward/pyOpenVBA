@@ -457,7 +457,7 @@ def _ranked(kind: int, given: float, threshold: float) -> FieldFilter:
 
 def _dynamic(sheet: Worksheet, area: Area, index: int, criteria1: object) -> FieldFilter:
     which = int(to_integer(criteria1, "Long"))
-    if 1 <= which <= len(_PERIODS):
+    if 1 <= which <= len(PERIODS):
         return _period(sheet, which)
     if which not in (ABOVE_AVERAGE, BELOW_AVERAGE):
         raise VBAUnsupportedError(f"AutoFilter's dynamic filter {which} is not implemented")
@@ -564,12 +564,12 @@ def _date_of(seen: Seen) -> _dt.datetime | None:
 
 #: The dynamic filters on dates, by their Criteria1 from 1, as the file names them: those counted from today, then
 #: each quarter and month of any year.
-_PERIODS = ("today", "yesterday", "tomorrow", "thisWeek", "lastWeek", "nextWeek", "thisMonth", "lastMonth",
+PERIODS = ("today", "yesterday", "tomorrow", "thisWeek", "lastWeek", "nextWeek", "thisMonth", "lastMonth",
             "nextMonth", "thisQuarter", "lastQuarter", "nextQuarter", "thisYear", "lastYear", "nextYear",
             "yearToDate", "Q1", "Q2", "Q3", "Q4", *(f"M{month}" for month in range(1, 13)))
 
 
-def _bounds(which: int, today: _dt.date) -> tuple[_dt.date, _dt.date] | None:
+def period_bounds(which: int, today: _dt.date) -> tuple[_dt.date, _dt.date] | None:
     """The days a dynamic filter counted from today keeps, from the first to the one after the last, a week from
     Sunday; None for a quarter or a month of any year (tests/fixtures/dynamic_filters/)."""
     day = _dt.timedelta(days=1)
@@ -599,7 +599,7 @@ def _period(sheet: Worksheet, which: int, xml: str = "") -> FieldFilter:
     """A dynamic filter on dates: the date cells in a period counted from today, or in a quarter or a month of any
     year. It reads back as xlFilterDynamic and its Criteria1, and the file keeps the period's first serial and the
     one after its last (tests/fixtures/dynamic_filters/)."""
-    bounds = _bounds(which, sheet.book.calculator.now().date())
+    bounds = period_bounds(which, sheet.book.calculator.now().date())
 
     def test(seen: Seen) -> bool:
         moment = _date_of(seen)
@@ -610,7 +610,7 @@ def _period(sheet: Worksheet, which: int, xml: str = "") -> FieldFilter:
         return _dt.datetime.combine(bounds[0], _dt.time()) <= moment < _dt.datetime.combine(bounds[1], _dt.time())
 
     if not xml:
-        kind = _PERIODS[which - 1]
+        kind = PERIODS[which - 1]
         if bounds is None:
             xml = f'<dynamicFilter type="{kind}"/>'
         else:
@@ -1316,8 +1316,8 @@ def _read_column(xml: str, sheet: Worksheet) -> FieldFilter:
     dynamic = re.fullmatch(r'<dynamicFilter\b([^>]*?)/>', xml)
     if dynamic is not None:
         found = _xml_attributes(dynamic.group(1))
-        if found.get("type", "") in _PERIODS:
-            return _period(sheet, _PERIODS.index(found["type"]) + 1, xml)
+        if found.get("type", "") in PERIODS:
+            return _period(sheet, PERIODS.index(found["type"]) + 1, xml)
         which = {"aboveAverage": ABOVE_AVERAGE, "belowAverage": BELOW_AVERAGE}.get(found.get("type", ""))
         if which is not None and "val" in found:
             read = _averaged(which, float(found["val"]))

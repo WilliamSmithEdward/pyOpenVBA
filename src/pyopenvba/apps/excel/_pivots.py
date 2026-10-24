@@ -287,6 +287,8 @@ class PivotTable(ExcelObject):
         # each result cell afresh rather than caching its value here.
         self.report_metadata: PivotReport | None = None
         self.report_loaded = False
+        #: The field a macro's AutoSort xlManual named, by the field it sorted, which no file keeps.
+        self.sort_names: dict[int, str] = {}
 
     @method
     def RefreshTable(self) -> object:
@@ -670,6 +672,26 @@ class PivotField(ExcelObject):
         clear_field(self)
         return EMPTY
 
+    @method
+    def AutoSort(self, Order: object, Field: object, PivotLine: object = MISSING,
+                 CustomSubtotal: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_sorts import auto_sort
+
+        auto_sort(self, Order, Field, PivotLine, CustomSubtotal)
+        return EMPTY
+
+    @member
+    def AutoSortOrder(self) -> object:
+        from pyopenvba.apps.excel._pivot_sorts import sort_order
+
+        return VBAInt(sort_order(self), 'Long')
+
+    @member
+    def AutoSortField(self) -> object:
+        from pyopenvba.apps.excel._pivot_sorts import sort_field
+
+        return sort_field(self)
+
     def listed_items(self) -> list[PivotItem]:
         """The field's items in the order the table lists them, or sorted for a field it has never listed."""
         if self.data:
@@ -766,7 +788,16 @@ class PivotItem(ExcelObject):
 
     @member
     def Position(self) -> object:
-        return VBAInt(self.position, 'Long')
+        from pyopenvba.apps.excel._pivot_sorts import position
+
+        found = position(self)
+        return VBAInt(found, 'Long') if isinstance(found, int) else found
+
+    @setter('Position')
+    def set_position(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_sorts import set_position
+
+        set_position(self, value)
 
     @member
     def Visible(self) -> object:

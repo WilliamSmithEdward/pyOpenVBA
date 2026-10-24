@@ -7,6 +7,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables sort their items. `PivotField.AutoSort` sorts a field by
+  its items' names, keeping them in that order, or by a data field's
+  values, which orders the items as the table lays them out, inside each
+  outer item, totals over the records that show; equal values keep the
+  field's order, a descending sort is the ascending one turned round, and
+  xlManual keeps the order as it stands. `AutoSortOrder` and
+  `AutoSortField` read the sort back, and `PivotItem.Position` moves an
+  item among those showing, a hidden one showing again, and reads its
+  place, #N/A for an item that does not show. A refresh sorts new items
+  in among a field sorted by names and sorts by the new values. An order
+  or a field AutoSort does not know moves nothing, as in Excel. The file
+  keeps each sort as Excel's does, and a file's sorts read back; the
+  model also writes a pivot table's row and column lines as Excel does,
+  each repeating the items it shares with the line before it. The model
+  had none of these members and Position could not be set. 45 layouts
+  agree with Excel, before a save and once the file is opened again, and
+  Excel reads the model's file as its own.
+
 - Pivot tables filter by their items. `PivotItem.Visible = False` hides an
   item of a row, column or page field, and every record holding it counts
   nowhere, subtotals and the grand total included; the last item showing

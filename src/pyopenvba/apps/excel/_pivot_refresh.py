@@ -220,6 +220,8 @@ def admit_cache(cache: PivotCache) -> None:
 
 
 def admit_report(table: PivotTable, field_count: int, record_count: int) -> None:
+    from pyopenvba.apps.excel._pivot_sorts import sort_scope
+
     root = table.root
     if root.tag != NS + 'pivotTableDefinition':
         raise unsupported('with an unknown report definition')
@@ -245,13 +247,16 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     for field in fields:
         distinct_children(field)
         attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop '
-                   'multipleItemSelectionAllowed')
-        children(field, 'items')
+                   'multipleItemSelectionAllowed sortType')
+        children(field, 'items autoSortScope')
         if field.get('compact', '1') != '1':
             raise unsupported('with noncompact field layouts')
         if field.get('defaultSubtotal', '1') != '1':
             raise unsupported('with custom subtotals')
-        for items in field:
+        if field.get('sortType', 'manual') not in ('manual', 'ascending', 'descending') or (
+                field.find(NS + 'autoSortScope') is not None and sort_scope(field) is None):
+            raise unsupported('with unknown sorts')
+        for items in field.findall(NS + 'items'):
             attributes(items, 'count')
             children(items, 'item')
             for item in items:

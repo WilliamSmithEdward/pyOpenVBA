@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
@@ -23,6 +23,7 @@ from pyopenvba.apps.excel._pivot_filters import (
     page_caption,
     passing,
 )
+from pyopenvba.apps.excel._pivot_sorts import value_sorts
 from pyopenvba.apps.excel._pivots import NS, decode_text
 from pyopenvba.apps.excel._typing import Typed
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
@@ -98,7 +99,8 @@ class Line:
 
 
 def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], data_count: int,
-           *, rows: bool, grand: bool, selected: list[int] | None = None) -> list[Line]:
+           *, rows: bool, grand: bool, selected: list[int] | None = None,
+           sorts: dict[int, tuple[bool, Callable[[list[int]], tuple[int, float, str]]]] | None = None) -> list[Line]:
     if not axis:
         return [Line()]
     output: list[Line] = []
@@ -112,6 +114,13 @@ def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], da
             for row in selected:
                 grouped.setdefault(ids[row][field], []).append(row)
         choices = list(range(data_count)) if field == VALUES else sorted(grouped, key=ranks[field].__getitem__)
+        if sorts and field in sorts:
+            # Sorted by a data field's values: equal ones keep the list's order, and descending turns it round.
+            descending, key = sorts[field]
+            values = {choice: key(grouped[choice]) for choice in choices}
+            choices.sort(key=values.__getitem__)
+            if descending:
+                choices.reverse()
         for choice in choices:
             inner = selected if field == VALUES else grouped[choice]
             assigned = items + ((choice if field == VALUES else ranks[field][choice]),)
@@ -136,17 +145,27 @@ def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], da
 
 
 def _line_xml(name: str, lines: list[Line]) -> XmlElement:
+    """An axis's lines as Excel writes them: each repeating by ``r`` the items it shares with the line before it,
+    a kind of data, a first value and an item at 0 left out (tests/fixtures/pivot_sorts/)."""
     container = node(name, {'count': str(len(lines))})
+    previous: tuple[int, ...] = ()
     for line in lines:
-        attributes = {'i': str(line.data)}
-        if line.kind != 'data':
-            attributes['t'] = line.kind
+        repeated = 0
+        while (repeated < min(len(previous), len(line.items) - 1)
+               and previous[repeated] == line.items[repeated]):
+            repeated += 1
+        attributes = {'t': line.kind} if line.kind != 'data' else {}
+        if repeated:
+            attributes['r'] = str(repeated)
+        if line.data:
+            attributes['i'] = str(line.data)
         item = node('i', attributes)
-        for value in line.items:
-            item.append(node('x', {'v': str(value)}))
+        for value in line.items[repeated:]:
+            item.append(node('x', {'v': str(value)} if value else None))
         if not line.items and line.kind == 'grand':
             item.append(node('x'))
         container.append(item)
+        previous = line.items
     return container
 
 
@@ -264,10 +283,11 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                for index, listing in enumerate(lists)]
     chosen_pages = choices(root, lists)
     selected = passing(ids, lists, on_axes, chosen_pages)
+    sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_)
     row_lines = _lines(rows, ids, display, len(reports), rows=True, grand=root.get('colGrandTotals', '1') != '0',
-                       selected=selected)
+                       selected=selected, sorts=sorts)
     col_lines = _lines(columns, ids, display, len(reports), rows=False, grand=root.get('rowGrandTotals', '1') != '0',
-                       selected=selected)
+                       selected=selected, sorts=sorts)
     location = root.find(NS + 'location')
     assert location is not None
     old = parse_area(location.get('ref', 'A1'))

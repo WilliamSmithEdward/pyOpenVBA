@@ -302,7 +302,6 @@ def give_link_style(target: Range) -> None:
         own = S.Style(number_format=stylesheet.number_formats[0], font=font, fill=S.parse_fill(_NO_FILL),
                       border=S.parse_border(_NO_BORDER))
         place = stylesheet.add_cell_style(S.CellStyle(own, frozenset({"font"}), name="Hyperlink", builtin=8))
-        stylesheet.touch()
     found, entry = place, stylesheet.cell_styles[place]
     restyle(target, lambda style: given(stylesheet, style, found, entry))
 
@@ -406,7 +405,6 @@ class Styles(VBACollection, ExcelObject):
             raise error(1004, "Add method of Styles class failed")
         entry = S.CellStyle(replace(own, applied=frozenset(), quote_prefix=False), includes, name=name)
         stylesheet.add_cell_style(entry)
-        stylesheet.touch()
         return StyleObject(self.book, entry)
 
     @method
@@ -420,7 +418,6 @@ class Styles(VBACollection, ExcelObject):
             raise error(1004, "Merge method of Styles class failed")
         _guard(self.book)
         stylesheet, theirs_sheet = self.book.stylesheet, source.stylesheet
-        stylesheet.touch()
         if (theirs_sheet.colors.theme, theirs_sheet.theme_fonts) != (stylesheet.colors.theme, stylesheet.theme_fonts):
             raise VBAUnsupportedError("merging the styles of a workbook with another theme is not implemented")
         for name in _listed(source):
@@ -598,7 +595,6 @@ def _delete(owner: StyleObject) -> None:
     if place == normal:
         raise error(1004, "Delete method of Style class failed")
     entry.deleted = True
-    stylesheet.touch()
     own = stylesheet.cell_styles[normal].format
 
     def to_normal(style: S.Style) -> S.Style | None:

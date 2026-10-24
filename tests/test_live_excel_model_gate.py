@@ -1881,6 +1881,26 @@ def test_excel_reads_the_formats_this_renumbered(tmp_path: Path) -> None:
         assert read[case["name"]] == case["answer"], case["name"]
 
 
+def test_excel_reads_the_stylesheets_this_saved_unchanged(tmp_path: Path) -> None:
+    """Each workbook tests/fixtures/unchanged_save measured, opened by the model and saved with nothing changed,
+    what nothing uses left out and xfs alike joined: Excel opens each and reads every cell's, row's and column's
+    format and the styles as it read the file the model opened."""
+    from test_excel_unchanged_save import CASES, FIXTURES, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    for case in CASES:
+        ExcelApplication.open(FIXTURES / f"{case['name']}.xlsx", with_vba=False).save(tmp_path / f"{case['name']}.xlsx")
+    reader = RECORD["read"].replace("{names}", ", ".join(f'"{case["name"]}"' for case in CASES)).replace(
+        "{folder}", str(tmp_path))
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", timeout=600.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+    for case in CASES:
+        assert read[case["name"]] == case["answer"], case["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

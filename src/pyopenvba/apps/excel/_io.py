@@ -2172,10 +2172,16 @@ _STYLE_ATTRIBUTE = re.compile(r'(<(?:c|row)\b[^>]*?\bs="|<col\b[^>]*?\bstyle=")(
 
 
 def _restyled_sheet(xml: str, moved: dict[int, int]) -> str:
-    """A sheet no macro changed, its formats pointing where the save put the file's xfs."""
-    return _STYLE_ATTRIBUTE.sub(lambda match: match.group(1) + str(moved.get(int(match.group(2)),
-                                                                             int(match.group(2)))) + match.group(3),
-                                xml)
+    """A sheet no macro changed, its formats pointing where the save put the file's xfs; a cell that comes to the
+    first, the default one, without the attribute, as Excel writes it
+    (tests/fixtures/number_format_resave/missing.xlsx)."""
+    def restyled(match: re.Match[str]) -> str:
+        index = moved.get(int(match.group(2)), int(match.group(2)))
+        if index == 0 and match.group(1).startswith("<c"):
+            return match.group(1)[:-len('s="')].rstrip()
+        return match.group(1) + str(index) + match.group(3)
+
+    return _STYLE_ATTRIBUTE.sub(restyled, xml)
 
 
 def _style_for(cell: Cell, stylesheet: Stylesheet) -> str:

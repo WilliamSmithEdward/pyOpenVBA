@@ -61,6 +61,7 @@ def test_dxf_only_save_and_repeated_append_are_stable() -> None:
     assert styles.ensure_dxf(styles.dxf(0)) == 0
     second = xml_tree('<dxf xmlns="' + NS[1:-1] + '"><font><strike/></font></dxf>')
     assert styles.ensure_dxf(second) == 1
+    styles.prepare([], Latent())
     styles.saved()
     assert Stylesheet(styles.written()).dxf_count == 2
     assert not styles.dirty

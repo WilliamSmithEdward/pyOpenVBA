@@ -1,0 +1,1509 @@
+{
+ "read": "Private Function Look(c As Object) As String\n    On Error Resume Next\n    Look = c.Address(False, False) & \"=\" & c.Font.Bold & \"/\" & c.Font.Italic & \"/\" & c.Font.Underline & \"/\" & _\n        c.Font.Size & \"/\" & c.Interior.Color & \"/\" & c.Borders(xlEdgeBottom).LineStyle & \"/\" & c.NumberFormat & _\n        \"/\" & c.Style.Name\n    If Err.Number <> 0 Then Look = c.Address(False, False) & \"=E\" & Err.Number\nEnd Function\n\nPublic Function Read() As String\nDim wb As Object, ws As Object, out As String, name As Variant, c As Object, s As Object\nApplication.DisplayAlerts = False\nFor Each name In Array({names})\n    On Error Resume Next\n    Err.Clear\n    Set wb = Nothing\n    Set wb = Workbooks.Open(\"{folder}\\\" & name & \".xlsx\")\n    If wb Is Nothing Then\n        out = out & name & \"^E\" & Err.Number & \"|\"\n    Else\n        On Error GoTo 0\n        Set ws = wb.Worksheets(\"cells\")\n        out = out & name & \"^\"\n        For Each c In ws.Range(\"A1:A6,B1,A8,D1,A10\")\n            out = out & Look(c) & \";\"\n        Next\n        For Each s In wb.Styles\n            If Not s.BuiltIn Then out = out & \"style:\" & s.Name & \";\"\n        Next\n        out = out & \"styles:\" & wb.Styles.Count & \"|\"\n        wb.SaveAs \"{folder}\\\" & name & \"_resaved.xlsx\", 51\n        wb.Close False\n    End If\n    On Error GoTo 0\nNext\nRead = out\nEnd Function\n",
+ "cases": [
+  {
+   "name": "base",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "unused_middle",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "3",
+     "A3": "4",
+     "A4": "5",
+     "A5": "6",
+     "A6": "7",
+     "D8": "10"
+    },
+    "rows": {
+     "8": "8"
+    },
+    "cols": [
+     "4:4:9"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "unused_end",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "unused_parts",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"20\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFC0CB\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>",
+     "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "unused_xf_parts",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"20\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFC0CB\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>",
+     "<border><left/><right/><top style=\"thin\"><color indexed=\"64\"/></top><bottom/><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"6\" fillId=\"6\" borderId=\"2\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\" applyBorder=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "alike",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=True/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "B1": "10",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "B1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "alike_flags",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=True/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "B1": "10",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "B1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "duplicate_font",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=True/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"6\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "B1": "10",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"6\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "B1": "10",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "unused_builtin_style",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF9C5700\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFEB9C\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"6\" fillId=\"6\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>",
+     "<cellStyle name=\"Neutral\" xfId=\"3\" builtinId=\"28\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "row_only",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/True/-4142/11/255/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7",
+     "10": "10"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7",
+     "10": "10"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  },
+  {
+   "name": "unused_dxf",
+   "answer": "A1=True/False/-4142/11/16777215/-4142/General/Normal;A2=False/False/-4142/11/255/-4142/General/Normal;A3=False/False/-4142/11/16777215/1/General/Normal;A4=False/False/-4142/11/16777215/-4142/0.000/Normal;A5=False/True/-4142/11/16711680/-4142/General/Normal;A6=False/False/-4142/11/13561798/-4142/General/Good;B1=False/False/-4142/11/16777215/-4142/General/Normal;A8=False/False/2/11/16777215/-4142/General/Normal;D1=False/False/-4142/11/65280/-4142/General/Normal;A10=False/False/-4142/11/16777215/-4142/General/Normal;style:Mine;styles:48",
+   "file": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>",
+     "<dxf><font><color rgb=\"FF9C0006\"/></font></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   },
+   "resaved": {
+    "numFmts": [
+     "<numFmt numFmtId=\"164\" formatCode=\"0.000\"/>"
+    ],
+    "fonts": [
+     "<font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"11\"/><color rgb=\"FF006100\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><i/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><u/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>",
+     "<font><sz val=\"14\"/><color theme=\"1\"/><name val=\"Aptos Narrow\"/><family val=\"2\"/><scheme val=\"minor\"/></font>"
+    ],
+    "fills": [
+     "<fill><patternFill patternType=\"none\"/></fill>",
+     "<fill><patternFill patternType=\"gray125\"/></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFC6EFCE\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF0000\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0000FF\"/><bgColor indexed=\"64\"/></patternFill></fill>",
+     "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF00FF00\"/><bgColor indexed=\"64\"/></patternFill></fill>"
+    ],
+    "borders": [
+     "<border><left/><right/><top/><bottom/><diagonal/></border>",
+     "<border><left/><right/><top/><bottom style=\"thin\"><color indexed=\"64\"/></bottom><diagonal/></border>"
+    ],
+    "cellStyleXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" applyNumberFormat=\"0\" applyBorder=\"0\" applyAlignment=\"0\" applyProtection=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"5\" fillId=\"0\" borderId=\"0\"/>"
+    ],
+    "cellXfs": [
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>",
+     "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"3\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/>",
+     "<xf numFmtId=\"164\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"3\" fillId=\"4\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"0\" xfId=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/>",
+     "<xf numFmtId=\"0\" fontId=\"4\" fillId=\"5\" borderId=\"0\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\"/>"
+    ],
+    "cellStyles": [
+     "<cellStyle name=\"Good\" xfId=\"1\" builtinId=\"26\"/>",
+     "<cellStyle name=\"Mine\" xfId=\"2\"/>",
+     "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+    ],
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFFF00\"/></patternFill></fill></dxf>"
+    ],
+    "cells": {
+     "A1": "1",
+     "A2": "2",
+     "A3": "3",
+     "A4": "4",
+     "A5": "5",
+     "A6": "6",
+     "D8": "9"
+    },
+    "rows": {
+     "8": "7"
+    },
+    "cols": [
+     "4:4:8"
+    ]
+   }
+  }
+ ]
+}

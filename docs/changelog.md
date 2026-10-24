@@ -440,6 +440,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
   whose formats Excel numbers afresh. The model read the file's id against
   Excel's numbering, the wrong format or none.
 
+- Saving a workbook opened from a file writes its stylesheet as Excel
+  does though no macro changed a format: what is in use and nothing else.
+  An xf no cell, row or column uses is left out, with the fonts, fills,
+  borders and number formats only it named; an xf alike to an earlier one
+  is joined to it, whatever its apply flags; a built-in style nothing uses
+  is left out; and every cell, row and column points where its xf went. A
+  font no xf names stays, as Excel keeps the fonts a form control's label
+  and a note's text are in. The model kept such a stylesheet as the file
+  had it. 12 files Excel saved unchanged agree, and Excel reads the
+  model's saves of them as it read the files.
+
+- A pivot table field's button stays on its cells through a save. Its xf,
+  alike to the default one in every other part, kept `pivotButton` only
+  while no macro changed a format; a save that wrote the stylesheet joined
+  it to the default xf and dropped the button.
+
 - `Sort.Apply` with no range or no field sorts nothing and raises no
   error, as Excel does. The model raised error 1004.
 

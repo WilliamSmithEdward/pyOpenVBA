@@ -148,8 +148,11 @@ def unused(entry: XmlElement) -> bool:
 
 
 def shared(cache_field: XmlElement) -> list[XmlElement]:
-    found = cache_field.find(NS + 'sharedItems')
-    return list(found) if found is not None else []
+    """A cache field's items: its groups where it is grouped, else its shared items (tests/fixtures/
+    pivot_grouping/)."""
+    from pyopenvba.apps.excel._pivot_groups import item_entries
+
+    return item_entries(cache_field)
 
 
 def sorted_places(entries: list[XmlElement]) -> list[int]:
@@ -160,7 +163,8 @@ def sorted_places(entries: list[XmlElement]) -> list[int]:
 
 
 def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
-            on_axes: set[int], kept: dict[int, dict[int, dict[str, str]]] | None = None) -> list[list[Listed] | None]:
+            on_axes: set[int], kept: dict[int, dict[int, dict[str, str]]] | None = None,
+            natural: list[list[int]] | None = None) -> list[list[Listed] | None]:
     """Each field's list of items, carried from the cache fields ``before`` to those ``after``, or None for a field
     that lists none; ``kept`` gains, by each field and the places after, the attributes an item keeps beside its
     place and flags: its caption, n, and its ShowDetail, sd.
@@ -168,8 +172,10 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
     A listed item keeps its place, its value found again by what it is, and
     is marked gone where the cache keeps the value unused; a value the list
     lacks follows at the end, in the cache's order, hidden where the list
-    hides any item. A field newly on an axis lists its values sorted.
+    hides any item. A field newly on an axis lists its values sorted, a
+    grouped field its groups in ``natural``'s order.
     """
+    from pyopenvba.apps.excel._pivot_groups import field_group
     from pyopenvba.apps.excel._pivot_layout import item_key
 
     lists: list[list[Listed] | None] = []
@@ -178,7 +184,10 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
         old = shared(before[index]) if index < len(before) else []
         new = shared(after[index]) if index < len(after) else []
         if field.find(NS + 'items') is None:
-            lists.append([(place, False, False) for place in sorted_places(new)] if index in on_axes else None)
+            group = field_group(after[index]) if index < len(after) else None
+            fresh = (natural[index] if natural is not None and group is not None
+                     and group.find(NS + 'groupItems') is not None else sorted_places(new))
+            lists.append([(place, False, False) for place in fresh] if index in on_axes else None)
             continue
         # A value spelled the same is the same value; any other is found by what it is, its text read only then.
         spelled = {(entry.tag, entry.get('v')): spot for spot, entry in reversed(list(enumerate(new)))}
@@ -229,12 +238,18 @@ def retain_missing(cache: PivotCache, fields: XmlElement, reports: list[PivotTab
     for table in reports:
         for index, pivot in enumerate(table.root.findall(f'{NS}pivotFields/{NS}pivotField')[:len(wanted)]):
             wanted[index].update(place_of(item) for item in listed(pivot))
+    from pyopenvba.apps.excel._pivot_groups import field_group
+
     for index, field in enumerate(list(fields)[:len(before)]):
         values = field.find(NS + 'sharedItems')
-        if not wanted[index] or values is None:
+        group = field_group(before[index])
+        # A grouped field lists its groups, which a refresh works out again (tests/fixtures/pivot_grouping/
+        # refresh_numbers_auto).
+        if not wanted[index] or values is None or (group is not None and group.find(NS + 'groupItems') is not None):
             continue
         known = {item_key(entry) for entry in values}
-        for place, entry in enumerate(shared(before[index])):
+        old_values = before[index].find(NS + 'sharedItems')
+        for place, entry in enumerate(list(old_values) if old_values is not None else []):
             # A date the source lost goes, where text and a number stay (tests/fixtures/pivot_date_filters/
             # refreshed, refreshed_numbers).
             if place in wanted[index] and item_key(entry) not in known and entry.tag != NS + 'd':
@@ -343,9 +358,10 @@ def ensure_items(table: PivotTable, field: XmlElement, index: int) -> bool:
     if not entries:
         return False
     from pyopenvba.apps.excel._pivot_forms import functions_of
+    from pyopenvba.apps.excel._pivot_groups import natural_places
 
     items = node('items')
-    for place in sorted_places(entries):
+    for place in natural_places(cache_fields, index):
         items.append(item_node(place))
     for kind in functions_of(field):
         items.append(node('item', {'t': kind}))

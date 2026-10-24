@@ -7,6 +7,34 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables group their fields as Excel does. `Range.Group` on one
+  item's cell groups a field of numbers into ranges by `By` from `Start`
+  to `End`, the field's least and greatest where those are True or left
+  out, with Excel's default step where `By` is left out: the largest
+  power of ten no more than a third of the span. The ranges carry
+  Excel's labels, `10-19` for whole numbers and `22.5-35` otherwise,
+  with `<Start` ahead of them and `>` the last range's end after them. A
+  field of dates groups into a field for each period `Periods` chooses,
+  seconds to years, months where it chooses none, `Months (Date)` and
+  the like, which take the date's place on the axis, the coarsest
+  outermost; days by a `By` above one are ranges of days. The cells of
+  two items or more gather them into `Group1`, the lowest number free,
+  in a field of groups, `Region2`, which comes outside the field; groups
+  can be grouped again, and a group takes the items it gathers from the
+  groups they were in. `Range.Ungroup` takes each grouping back, the
+  last group taking its field of groups with it. A refresh works an
+  automatic `Start` or `End` out again and gives a new item a place of
+  its own. `PivotItem.LabelRange` and `DataRange` give an item's cells,
+  and `ParentField`, `ChildField`, `GroupLevel`, `TotalLevels`,
+  `ParentItems`, `ParentItem` and `ChildItems` say how groups relate.
+  Text, a page field's cell, a data or total cell, a `By` of 0, a
+  `Start` past `End` and a `Periods` choosing nothing are error 1004, as
+  in Excel. Workbooks Excel grouped read, lay out, refresh and save as
+  Excel's do. 134 layouts agree with Excel before a save and once the
+  file is opened again, the saved tables and caches' groupings and every
+  cell's format agree with Excel's file, and Excel reads the model's
+  file as its own.
+
 - Pivot items collapse and expand as Excel's do. `PivotItem.ShowDetail`
   False collapses an item of a field on the rows or columns: it shows its
   total alone, with no line inside it and no subtotal line, in compact,
@@ -647,6 +675,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A pivot cache over a field of numbers with a blank cell is one Excel
+  opens. The model declared such a field not semi-mixed, and Excel
+  refused the whole workbook.
+
+- A pivot cache's latest date is the latest moment where it has a time,
+  as in Excel. The model wrote the midnight after its day.
 
 - A pivot data field that sums its values leaves `subtotal="sum"` out of
   the file, the schema's default, as Excel's files do. The model wrote it.

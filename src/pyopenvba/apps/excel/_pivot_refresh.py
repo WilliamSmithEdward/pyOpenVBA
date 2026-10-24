@@ -16,6 +16,7 @@ from pyopenvba.apps.excel._pivot_calculations import (
     calculation_of,
 )
 from pyopenvba.apps.excel._pivot_forms import FIELD_EXTENSION, SUBTOTALS
+from pyopenvba.apps.excel._pivot_groups import carry_groups, extend_groups, is_database, is_group_field, remap_groups
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, error
@@ -222,6 +223,28 @@ def admit_records(cache: PivotCache, part: str, budget: TextBudget) -> XmlElemen
     return records
 
 
+def admit_group(field: XmlElement) -> None:
+    """A field's grouping, of the parts the model reads: its par and base, its ranges or periods, its groups."""
+    for group in field.findall(NS + 'fieldGroup'):
+        attributes(group, 'par base')
+        children(group, 'rangePr discretePr groupItems')
+        distinct_children(group)
+        for part in group:
+            if part.tag == NS + 'rangePr':
+                attributes(part, 'autoStart autoEnd groupBy startNum endNum startDate endDate groupInterval')
+                children(part, '')
+            elif part.tag == NS + 'discretePr':
+                attributes(part, 'count')
+                children(part, 'x')
+            else:
+                attributes(part, 'count')
+                children(part, 'n s b d e m')
+            for item in part:
+                attributes(item, 'v')
+                if len(item):
+                    raise unsupported('with custom grouping metadata')
+
+
 def admit_cache(cache: PivotCache) -> None:
     if cache.root.tag != NS + 'pivotCacheDefinition':
         raise unsupported('with an unknown cache definition')
@@ -247,10 +270,18 @@ def admit_cache(cache: PivotCache) -> None:
             attributes(field, 'name numFmtId formula databaseField')
             children(field, '')
             continue
+        if is_group_field(field):
+            # A field of a date's periods or of groups keeps its grouping and no values (tests/fixtures/
+            # pivot_grouping/).
+            attributes(field, 'name numFmtId databaseField')
+            children(field, 'fieldGroup')
+            admit_group(field)
+            continue
         attributes(field, 'name numFmtId')
-        children(field, 'sharedItems')
+        children(field, 'sharedItems fieldGroup')
         distinct_children(field)
-        for shared in field:
+        admit_group(field)
+        for shared in field.findall(NS + 'sharedItems'):
             attributes(shared, 'count containsString containsNumber containsDate containsBlank containsNonDate '
                        'containsMixedTypes containsSemiMixedTypes containsInteger minValue maxValue minDate maxDate '
                        'longText')
@@ -496,18 +527,27 @@ def refresh(cache: PivotCache) -> object:
         staged.records.attrib.update({name: value for name, value in previous_records.attrib.items() if name != 'count'})
     if staged.rich_records:
         raise unsupported('for rich source values')
-    # The calculated fields follow the source's again, their formulas as they were.
+    # The calculated and grouped fields follow the source's again, their formulas and groupings as they were.
     container = staged.root.find(NS + 'cacheFields')
     assert container is not None
-    container.extend(deepcopy(field) for field in before if is_calculated(field))
+    container.extend(deepcopy(field) for field in before if not is_database(field))
     container.set('count', str(len(container)))
     after = staged.root.findall(f'{NS}cacheFields/{NS}cacheField')
     if len(before) != len(after) or any(old.get('name') != new.get('name') for old, new in zip(before, after, strict=True)):
         raise unsupported('with a changed source schema')
     for old, new in zip(before, after, strict=True):
         new.attrib.update(old.attrib)
-    normalized = cache_layout(staged, records(staged))
+    carry_groups(before, after)
+    values = records(staged)
+    normalized = cache_layout(staged, values)
+    if remap_groups(before, list(normalized[0])):
+        # A field of groups finds its base's items again by their values once the layout listed them.
+        listed = staged.root.find(NS + 'cacheFields')
+        assert listed is not None
+        staged.root[list(staged.root).index(listed)] = deepcopy(normalized[0])
+        normalized = cache_layout(staged, values)
     retain_missing(cache, normalized[0], reports)
+    extend_groups(before, list(normalized[0]))
     plans: list[RenderPlan] = []
     remaining_cells = MAX_STAGED_CELLS
     for table in reports:

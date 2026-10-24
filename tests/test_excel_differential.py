@@ -136,17 +136,22 @@ def test_fill_changes_background_without_inventing_pattern_or_font(patch: Any) -
     assert interior.PatternColor() is NULL
 
 
-def test_inline_number_format_ignores_workbook_format_id_and_preserves_unknown(patch: Any) -> None:
+def test_a_rules_number_format_is_its_code_whatever_its_id_and_keeps_unknown_attributes(patch: Any) -> None:
+    """Excel reads a rule's format by its code, and numbers a built-in one by its place in its own list of them
+    (tests/fixtures/conditional_number_formats/)."""
     root, _, sheet, _ = patch
     entry = XmlElement(NS + 'numFmt', {'numFmtId': '14', 'formatCode': '0.00%', 'custom': 'kept'})
     root.append(entry)
-    assert number_format(root, sheet.book.stylesheet) == '0.00%'
+    assert number_format(root) == '0.00%'
     set_number_format(root, '"_x0041_"0.00', sheet.book.stylesheet)
-    assert entry.get('numFmtId') == '164' and entry.get('custom') == 'kept'
-    assert number_format(xml_tree(xml_bytes(root)), sheet.book.stylesheet) == '"_x0041_"0.00'
-    assert number_format(XmlElement(NS + 'dxf'), sheet.book.stylesheet) is EMPTY
+    assert list(entry.attrib) == ['numFmtId', 'formatCode', 'custom']
+    assert (entry.get('numFmtId'), entry.get('custom')) == ('164', 'kept')
+    assert number_format(xml_tree(xml_bytes(root))) == '"_x0041_"0.00'
+    assert number_format(XmlElement(NS + 'dxf')) is EMPTY
     set_number_format(root, '0.00', sheet.book.stylesheet)
     assert entry.get('numFmtId') == '2'
+    set_number_format(root, '0%', sheet.book.stylesheet)
+    assert entry.get('numFmtId') == '13'
 
 
 def test_gradient_patch_stays_untouched_when_pattern_edit_is_unsupported(patch: Any) -> None:
@@ -161,7 +166,9 @@ def test_gradient_patch_stays_untouched_when_pattern_edit_is_unsupported(patch: 
     assert xml_bytes(root) == before and changes == []
 
 
-def test_custom_number_formats_share_ids_by_code_without_global_registration(patch: Any) -> None:
+def test_a_rules_custom_formats_share_one_table_with_the_cells_formats(patch: Any) -> None:
+    """A custom format takes the next id whether a rule or a cell makes it first, and one code keeps one id
+    (tests/fixtures/conditional_number_formats/)."""
     root, _, sheet, _ = patch
     styles = sheet.book.stylesheet
     identifiers: list[str] = []
@@ -172,11 +179,11 @@ def test_custom_number_formats_share_ids_by_code_without_global_registration(pat
         identifiers.append(entry.get('numFmtId', ''))
         styles.ensure_dxf(root)
     assert identifiers == ['164', '165', '164']
-    assert not any(identifier >= 164 for identifier in styles.number_formats)
-    styles.number_formats[200] = '0.00000" global"'
+    assert styles.number_formats[165] == '0.000" items"'
+    sheet.set_number_format(1, 1, '0.000000" third"')
     set_number_format(root, '0.000000" third"', styles)
     entry = root.find(NS + 'numFmt')
-    assert entry is not None and entry.get('numFmtId') == '201'
+    assert entry is not None and entry.get('numFmtId') == '166'
 
 
 @pytest.mark.parametrize('ui_only,allows', [(False, False), (True, False), (False, True)])

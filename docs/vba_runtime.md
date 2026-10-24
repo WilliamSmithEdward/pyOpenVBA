@@ -1187,6 +1187,25 @@ workbook without a VBA project, an .xlsx or an .xlsm holding no code
 * Saved again, such a workbook's rules are written in the order Excel
   writes them, joined.
 
+**A rule's number format.** `FormatCondition.NumberFormat` keeps a code as
+a cell's `NumberFormat` does, and refuses what a cell's refuses. The file
+numbers and spells it as Excel does
+(`tests/fixtures/conditional_number_formats/`, 88 layouts, every
+printable character in four kinds of section, and 11 files spelling and
+numbering rules' formats as other programs might):
+
+* A built-in format takes its place in the list Excel's Custom category
+  shows, `0%` 13 and `#,##0_);(#,##0)` 5, where a cell's xf gives them 9
+  and 37. A custom one takes the next id of the table the cells' formats
+  use, so a rule and a cell holding one code share its id.
+* The code is spelled as a cell's is in the file's numFmts: every literal
+  escaped and the currency sign quoted, `"$"#,##0_);\("$"#,##0\)`.
+* Excel reads a rule's format by its code alone: a built-in id over
+  another code, or a cell's custom id over another, names nothing.
+  Opening a file numbers its rules' custom formats after the cells' own,
+  in the order the file lists its dxfs, one code under one id, and a file
+  saved again holds those ids and Excel's spelling of each code.
+
 The operation checklist, `docs/excel_checklist.csv`, records every
 conditional format member's status.
 
@@ -1227,7 +1246,14 @@ saved (`tests/fixtures/typing/`) and 911 dates and times in
   `Value` raise error 6, for a block as for one cell, while `Value2` and
   `Text` still read it. The Python API's `rows()` gives the Double there.
 * `NumberFormat` keeps a code as Excel rewrites it, and the file spells
-  it as Excel's file does (`tests/fixtures/format_codes/`). `Formula`
+  it as Excel's file does (`tests/fixtures/format_codes/`). It refuses
+  with error 1004 what Excel refuses: a section mixing a number's, a
+  date's and text's characters (`0 m`, `@0`), a text section before
+  another or a fourth section that is not text, a bracket left open or
+  not Excel's, a fill, skip or escape with nothing after it, and an `E`
+  outside an exponent or an `N` anywhere; an accented letter is the
+  letter under its accent (`tests/fixtures/conditional_number_formats/`,
+  664 characters and 330 whole codes). `Formula`
   spells a stored number as Excel does, and `Text` under General shows
   what Excel's eleven characters show (`tests/fixtures/number_spelling.json`).
 

@@ -1606,7 +1606,8 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
             rid = add_relationship(package, "xl/_rels/workbook.xml.rels",
                                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
                                    f"worksheets/sheet{number}.xml")
-            attrs = {"sheetId": str(next_id), "r:id": rid}
+            # The name first, as Excel writes a sheet.
+            attrs = {"name": sheet.name, "sheetId": str(next_id), "r:id": rid}
             next_id += 1
         attrs["name"] = sheet.name
         tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' for key, value in attrs.items()) + "/>")

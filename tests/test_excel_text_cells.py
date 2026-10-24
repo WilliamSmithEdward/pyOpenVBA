@@ -19,11 +19,9 @@ from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads((Path(__file__).parent / 'fixtures/text_cells.json').read_text(encoding='utf-8'))
 PROBES: dict[str, dict[str, Any]] = {probe['name']: probe for probe in RECORD['probes']}
-_REFUSED = 'Excel refuses an @ in two sections, after a condition or beside a date as error 1004; the model takes it'
-_REWRITTEN = 'Excel rewrites ;@ as ;;;@ and 0;0;@ as 0;0;0;@ but keeps 0;@ and General;General;@; the model keeps all'
-#: Formats whose NumberFormat Excel spells or refuses otherwise than the model, by why.
-GAPS = {'@;@': _REFUSED, '[>5]@': _REFUSED, 'mm/dd @': _REFUSED, '@*-;@': _REFUSED,
-        ';@': _REWRITTEN, ';@" kg"': _REWRITTEN, '0;0;@': _REWRITTEN}
+_REWRITTEN = 'Excel rewrites 0;0;@ as 0;0;0;@ but keeps 0;@ and General;General;@; the model keeps all three'
+#: Formats whose NumberFormat Excel spells otherwise than the model, by why.
+GAPS = {'0;0;@': _REWRITTEN}
 
 
 def _formats(macro: str) -> list[str]:

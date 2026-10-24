@@ -14,7 +14,7 @@ from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._charts_file import xml_bytes, xml_tree
 from pyopenvba.apps.excel._conditional import NS, FormatCondition
 from pyopenvba.apps.excel._conditional_display import DisplayFormat
-from pyopenvba.apps.excel._differential import api_number_format, number_format
+from pyopenvba.apps.excel._differential import number_format
 from pyopenvba.apps.excel._model import Range
 from pyopenvba.interpreter._values import EMPTY, to_text
 
@@ -58,7 +58,7 @@ def test_native_import_getters_preserve_raw_rules_and_roundtrip(case: dict[str, 
         saved_id = saved_rule.root.get('dxfId')
         assert saved_id is not None
         saved_dxf = reopened.workbooks()[0].stylesheet.dxf(int(saved_id))
-        assert number_format(saved_dxf, reopened.workbooks()[0].stylesheet) == number_format(dxf, sheet.book.stylesheet)
+        assert number_format(saved_dxf) == number_format(dxf)
 
 
 @pytest.mark.parametrize('case', CASES, ids=lambda case: case['name'])
@@ -77,18 +77,17 @@ def test_runtime_getter_projection_preserves_creation_area_order(case: dict[str,
     assert actual.split(';formula=')[0] == case['before_save'].split(';formula=')[0]
 
 
-def test_number_format_projection_retains_absence_and_raw_escaped_code() -> None:
+def test_number_format_projection_retains_absence_and_the_files_spelling() -> None:
     app = ExcelApplication.open(ROOT / 'number-format-2.xlsx')
     sheet = app.workbooks()[0].sheets_[0]
     identifier = sheet.conditional_formats[0].root.get('dxfId')
     assert identifier is not None
     root = sheet.book.stylesheet.dxf(int(identifier))
-    assert number_format(root, sheet.book.stylesheet) == '0.00\\-\\ "source"'
-    assert api_number_format(root, sheet.book.stylesheet) == '0.00- "source"'
     entry = root.find(NS + 'numFmt')
-    assert entry is not None
+    assert entry is not None and entry.get('formatCode') == '0.00\\-\\ "source"'
+    assert number_format(root) == '0.00- "source"'
     root.remove(entry)
-    assert api_number_format(root, sheet.book.stylesheet) is EMPTY
+    assert number_format(root) is EMPTY
 
 
 @pytest.mark.parametrize('case', CASES, ids=lambda case: case['name'])

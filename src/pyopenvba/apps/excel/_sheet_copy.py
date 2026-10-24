@@ -142,12 +142,11 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     copy_document(source, copied)
     copied.cells_ = cells
     if external:
-        from pyopenvba.apps.excel._differential import number_format, set_number_format
+        from pyopenvba.apps.excel._differential import renumber
 
         for rule in conditional:
             if rule.root.get('dxfId') is not None and rule.dxf is not None:
-                if rule.dxf.find('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}numFmt') is not None:
-                    set_number_format(rule.dxf, number_format(rule.dxf, destination.stylesheet), destination.stylesheet)
+                renumber(rule.dxf, destination.stylesheet)
                 rule.root.set('dxfId', str(destination.stylesheet.ensure_dxf(rule.dxf)))
     copied.conditional_formats = conditional
     from pyopenvba.apps.excel._conditional import rule_groups

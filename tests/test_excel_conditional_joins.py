@@ -24,19 +24,6 @@ FIXTURES = Path(__file__).parent / "fixtures" / "conditional_joins"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "conditional_joins.json").read_text(encoding="utf-8"))
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
 FILES: dict[str, str] = RECORD["files"]
-_NUMBERS = ("Excel numbers a rule's number format by its own list of formats, renumbers custom ones as it saves and "
-            "escapes their literals; the model keeps the stylesheet's ids and the code as given")
-#: Where the model's own file keeps a rule's format otherwise than Excel's.
-SAVE_GAPS: dict[str, str] = dict.fromkeys(
-    ("j_number_percent", *(f"nf_{index}" for index in range(4, 24)), "nf_25", "nf_26"), _NUMBERS)
-#: Where a file the model saves again keeps a rule's format otherwise than Excel's.
-RESAVE_GAPS: dict[str, str] = dict.fromkeys(
-    ("j_number_both", "j_number_same", "nf_18", "nf_19", "nf_21", "nf_24", "nf_29"), _NUMBERS)
-
-
-def _marked(gaps: dict[str, str]) -> list[Any]:
-    return [pytest.param(one, marks=pytest.mark.xfail(strict=True, reason=gaps[one["name"]]))
-            if one["name"] in gaps else one for one in LAYOUTS]
 
 
 def _code(name: str, setup: str) -> str:
@@ -87,7 +74,7 @@ def resaved(tmp_path_factory: pytest.TempPathFactory) -> dict[str, dict[str, str
 
 
 @pytest.mark.parametrize("file", list(FILES))
-@pytest.mark.parametrize("layout", _marked(RESAVE_GAPS), ids=lambda layout: layout["name"])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_a_file_saved_again_keeps_the_rules_as_excel_does(resaved: dict[str, dict[str, str]], file: str,
                                                           layout: dict[str, Any]) -> None:
     """Saved again, a file read without a VBA project holds its rules joined and in Excel's order."""
@@ -131,7 +118,7 @@ def model_file(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
     return formatting(path)
 
 
-@pytest.mark.parametrize("layout", _marked(SAVE_GAPS), ids=lambda layout: layout["name"])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_model_saves_the_rules_as_excel_does(model_file: dict[str, str], excel_files: dict[str, dict[str, str]],
                                                  layout: dict[str, Any]) -> None:
     assert guids(model_file[layout["name"]]) == guids(excel_files["xlsx"][layout["name"]])

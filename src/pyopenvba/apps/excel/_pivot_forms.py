@@ -91,6 +91,8 @@ class FieldLayout:
     #: The subtotals' types, in the order their lines show: 'default' for Automatic, or the functions chosen.
     functions: tuple[str, ...] = ('default',)
     caption: str = ''
+    #: The items, by their places in the cache, that show their totals alone, ShowDetail False.
+    collapsed: frozenset[int] = frozenset()
 
     @property
     def mode(self) -> str:

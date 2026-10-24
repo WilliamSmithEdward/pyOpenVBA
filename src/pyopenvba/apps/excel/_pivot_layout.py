@@ -57,6 +57,9 @@ if TYPE_CHECKING:
 VALUES = -2
 #: The item a line stands at for a field it totals over every item of (tests/fixtures/pivot_layouts/ inner_sum_count).
 ALL_ITEMS = 1048832
+#: The item a line stands at for a field inside a collapsed item, which the line skips (tests/fixtures/
+#: pivot_show_detail/ values_rows).
+COLLAPSED = -1
 _MONTHS:tuple[Sequence[str], ...] = ('Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.lower().split(),
            'January February March April May June July August September October November December'.lower().split(),
            'Sun Mon Tue Wed Thu Fri Sat'.lower().split(),
@@ -204,6 +207,19 @@ def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], da
                 continue
             layout = layouts.get(field, FieldLayout(functions=()) if field == VALUES else FieldLayout())
             values_below = VALUES in axis[depth + 1:]
+            if field != VALUES and choice in layout.collapsed:
+                # A collapsed item shows its total alone: on a line of its own, or on one for each data field where
+                # the Values field is inside it, the fields between standing at no item (tests/fixtures/
+                # pivot_show_detail/ collapse_item, tabular_collapse, values_rows, columns_collapse).
+                if values_below:
+                    if rows and layout.mode != 'tabular':
+                        output.append(Line(assigned, constraints, measure, header=True))
+                    gap = axis[depth + 1:].index(VALUES)
+                    for each in range(data_count):
+                        output.append(Line(assigned + (COLLAPSED,) * gap + (each,), constraints, each))
+                else:
+                    output.append(Line(assigned, constraints, measure))
+                continue
             functions = layout.functions if any(index != VALUES for index in axis[depth + 1:]) else ()
             lone = next(iter(functions)) if len(functions) == 1 else ''
             own_line = rows and layout.mode != 'tabular'
@@ -246,6 +262,9 @@ def _line_xml(name: str, lines: list[Line]) -> XmlElement:
         repeated = 0
         while (repeated < min(len(previous), len(line.items) - 1)
                and previous[repeated] == line.items[repeated]):
+            repeated += 1
+        # A field a collapsed item skips counts as repeated (tests/fixtures/pivot_show_detail/ values_rows).
+        while repeated < len(line.items) - 1 and line.items[repeated] == COLLAPSED:
             repeated += 1
         attributes = {'t': line.kind} if line.kind != 'data' else {}
         if repeated:
@@ -379,9 +398,9 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     # Each field's items as the table lists them, carried over to the cache this plan renders from, and the
     # records the hidden items and the page fields' chosen items leave.
     on_axes = {index for index in (*rows, *columns, *pages) if index != VALUES}
-    # Each field's renamed items, by their places in the cache this plan renders from.
-    renamed: dict[int, dict[int, str]] = {}
-    lists = carried(root, table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), list(fields), on_axes, renamed)
+    # Each field's items' captions and ShowDetail, by their places in the cache this plan renders from.
+    kept: dict[int, dict[int, dict[str, str]]] = {}
+    lists = carried(root, table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), list(fields), on_axes, kept)
     display = [[place for place, _, _ in listing] if listing is not None else positions[index]
                for index, listing in enumerate(lists)]
     chosen_pages = choices(root, lists)
@@ -393,6 +412,10 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     selected = value_filtered(selected, ids, records_, found, (rows, columns), reports, measures)
     sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_, measures)
     layouts = {index: layout_of(root, index) for index in (*rows, *columns)}
+    for index in layouts:
+        if index != VALUES:
+            layouts[index] = replace(layouts[index], collapsed=frozenset(
+                place for place, extra in kept.get(index, {}).items() if extra.get('sd') in ('0', 'false')))
     # While ManualUpdate is on, the table shows its captions alone, an axis no items, the Values field its data
     # fields' places (tests/fixtures/pivot_options/ manual_pending, manual_two_data).
     skeleton = table.manual
@@ -494,7 +517,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             return report_names[position]
         key = field, position
         if key not in captions:
-            given = renamed.get(field, {}).get(display[field][position])
+            given = kept.get(field, {}).get(display[field][position], {}).get('n')
             shared = fields[field].find(NS + 'sharedItems')
             assert shared is not None
             captions[key] = (decode_text(given) if given is not None
@@ -590,6 +613,8 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                                                                  VALUES in columns[level + 1:]))
             else:
                 for level, item in enumerate(line.items):
+                    if item == COLLAPSED:
+                        continue
                     if level == len(columns) - 1 or previous[:level + 1] != line.items[:level + 1]:
                         label = caption(columns[level], item)
                         row = level + 1 if dr > 1 else 0
@@ -619,6 +644,8 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                                                    VALUES in rows[last + 1:]), code_of(rows[last]))
         else:
             for position, item in enumerate(line.items):
+                if item == COLLAPSED:
+                    continue
                 if previous[:position + 1] != line.items[:position + 1] or (repeated(position) and position < last):
                     label = caption(rows[position], item)
                     row_label(offset, position, label, code_of(rows[position], label))
@@ -751,7 +778,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         if isinstance(showing, int):
             values = fields[field].find(NS + 'sharedItems')
             assert values is not None
-            given = renamed.get(field, {}).get(showing)
+            given = kept.get(field, {}).get(showing, {}).get('n')
             label = decode_text(given) if given is not None else item_label(values[showing], formats[field])
             put(-page_rows - 1 + row_offset, 3 * column_offset + 1, label)
             if isinstance(label, Typed):
@@ -774,6 +801,10 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         original.attrib.clear()
         original.attrib.update(field_attributes(attributes))
         old_items = original.find(NS + 'items')
+        # A subtotal's entry keeps the ShowDetail a whole field's took (tests/fixtures/pivot_show_detail/
+        # collapse_field).
+        entries: list[XmlElement] = list(old_items) if old_items is not None else []
+        shown_kinds = {item.get('t'): item.get('sd') for item in entries if item.get('t') not in (None, 'data')}
         if old_items is not None:
             original.remove(old_items)
         listing = lists[index]
@@ -783,9 +814,12 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             kinds = functions_of(original)
             items = node('items', {'count': str(len(listing) + len(kinds))})
             for place, hide, gone in listing:
-                items.append(item_node(place, hide=hide, gone=gone, caption=renamed.get(index, {}).get(place)))
+                extra = kept.get(index, {}).get(place, {})
+                items.append(item_node(place, hide=hide, gone=gone, caption=extra.get('n'),
+                                       collapsed=extra.get('sd') in ('0', 'false')))
             for kind in kinds:
-                items.append(node('item', {'t': kind}))
+                items.append(node('item', {'t': kind, **({'sd': '0'} if shown_kinds.get(kind) in ('0', 'false')
+                                                         else {})}))
             original.insert(0, items)
     for child in list(root):
         if child.tag in {NS + name for name in ('pivotFields', 'rowFields', 'rowItems', 'colFields', 'colItems', 'pageFields', 'dataFields')}:

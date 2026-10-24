@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot items collapse and expand as Excel's do. `PivotItem.ShowDetail`
+  False collapses an item of a field on the rows or columns: it shows its
+  total alone, with no line inside it and no subtotal line, in compact,
+  outline and tabular form and wherever its subtotals go, and a line for
+  each data field where the Values field is inside it. A collapsed middle
+  item collapses under every outer item. `PivotField.ShowDetail` sets
+  every item's, its subtotals' entries too, and the file keeps each as
+  Excel does, `sd="0"`. An item of a field on no axis takes it, its field
+  then listing its items, and an innermost field's item takes it without
+  changing what shows. The innermost field on an axis, a data field, the
+  Values field and a page field's item are error 1004, reading a field's
+  `ShowDetail` is error 1004 and an item of the Values field reads #N/A,
+  as in Excel. 24 layouts agree with Excel before a save and once the
+  file is opened again, the saved tables and every cell's format agree
+  with Excel's file, and Excel reads the model's file as its own.
+
 - Names in a pivot table take new values as Excel takes them. A data
   field's `Caption` or `Name` renames it, error 1004 where a field shows
   by the name or another data field has it, in any case; a name with a

@@ -15,7 +15,7 @@ from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.apps.excel._xstring import decode as decode_text
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
@@ -174,6 +174,25 @@ class PivotTables(_Collection):
 
 class PivotFields(_Collection):
     vba_type_name = 'PivotFields'
+
+    def __init__(self, parent: ExcelObject, items: list[object], *, data_names: bool = False) -> None:
+        super().__init__(parent, items)
+        self.data_names = data_names
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        try:
+            return super().vba_lookup(index, items)
+        except VBARuntimeError:
+            # A table's PivotFields("Sum of Amount") finds the data field of that caption
+            # (tests/fixtures/pivotfilters/ data_by_name).
+            table = self.parent
+            if not self.data_names or not isinstance(index, str) or not isinstance(table, PivotTable):
+                raise
+            wanted = index.casefold()
+            for report in table.root.findall(f'{NS}dataFields/{NS}dataField'):
+                if string_order(decode_text(report.get('name', '')).casefold(), wanted) == 0:
+                    return PivotField(table, int(report.get('fld', '0')), report, True)
+            raise
 
 
 def refuse_1904_dates(cache: PivotCache) -> None:
@@ -348,6 +367,20 @@ class PivotTable(ExcelObject):
         clear_table(self)
         return EMPTY
 
+    @member
+    def AllowMultipleFilters(self) -> object:
+        return self.entry.root.get('multipleFieldFilters', '1') not in ('0', 'false')
+
+    @setter('AllowMultipleFilters')
+    def set_allow_multiple_filters(self, value: object) -> None:
+        table = self.entry
+        if to_bool(value):
+            table.root.attrib.pop('multipleFieldFilters', None)
+        else:
+            table.root.set('multipleFieldFilters', '0')
+        table.changed = True
+        table.sheet.book.saved = False
+
     def report(self) -> PivotReport | None:
         from pyopenvba.apps.excel._pivot_reports import read_report
 
@@ -479,7 +512,7 @@ class PivotTable(ExcelObject):
             if any(field.get('x') == '-2' for field in self.root.findall(f'{NS}{axis}/{NS}field')):
                 if orientation is None or orientation == kind:
                     items.append(self._data_pivot_field(axis))
-        fields = PivotFields(self, items)
+        fields = PivotFields(self, items, data_names=orientation is None)
         return fields if index is MISSING else fields.Item(index)
 
     def _data_pivot_field(self, axis: str | None) -> PivotField:
@@ -670,6 +703,34 @@ class PivotField(ExcelObject):
         from pyopenvba.apps.excel._pivot_filters import clear_field
 
         clear_field(self)
+        return EMPTY
+
+    @member
+    def PivotFilters(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_criteria import field_filters
+
+        filters = field_filters(self)
+        return filters if Index is MISSING else filters.Item(Index)
+
+    @method
+    def ClearLabelFilters(self) -> object:
+        from pyopenvba.apps.excel._pivot_criteria import clear_kind
+
+        clear_kind(self, labels=True, values=False)
+        return EMPTY
+
+    @method
+    def ClearValueFilters(self) -> object:
+        from pyopenvba.apps.excel._pivot_criteria import clear_kind
+
+        clear_kind(self, labels=False, values=True)
+        return EMPTY
+
+    @method
+    def ClearManualFilter(self) -> object:
+        from pyopenvba.apps.excel._pivot_filters import clear_field
+
+        clear_field(self, manual_only=True)
         return EMPTY
 
     @method

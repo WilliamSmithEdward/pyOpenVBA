@@ -53,12 +53,12 @@ def test_unicode_literal_case_and_character_width_match_legacy(text: str) -> Non
 ])
 def test_autofilter_type_gating_newlines_and_no_new_length_cap(
         shown: str, text: str | None, pattern: str, expected: bool) -> None:
-    seen = getattr(_autofilter, '_Seen')(shown, None, text, False)
+    seen = _autofilter.Seen(shown, None, text, False)
     assert getattr(_autofilter, '_like')(seen, pattern) is expected
 
 
 def test_autofilter_keeps_existing_non_ascii_letter_admission() -> None:
-    seen = getattr(_autofilter, '_Seen')('caf\u00e9', None, 'caf\u00e9', False)
+    seen = _autofilter.Seen('caf\u00e9', None, 'caf\u00e9', False)
     with pytest.raises(VBAUnsupportedError):
         getattr(_autofilter, '_like')(seen, '*')
 
@@ -84,8 +84,8 @@ def test_repeated_star_literal_masks_are_evaluated_once_per_input_character(monk
 
 
 def test_repeated_star_miss_finishes_in_isolated_process() -> None:
-    source = ("from pyopenvba.apps.excel._autofilter import _Seen, _like;"
-              "assert not _like(_Seen('a'*2048,None,'a'*2048,False),'*a'*60+'b')")
+    source = ("from pyopenvba.apps.excel._autofilter import Seen, _like;"
+              "assert not _like(Seen('a'*2048,None,'a'*2048,False),'*a'*60+'b')")
     environment = dict(os.environ, PYTHONPATH=str(Path(__file__).parents[1] / 'src'), PYTHONDONTWRITEBYTECODE='1')
     result = subprocess.run([sys.executable, '-B', '-c', source], env=environment,
                             capture_output=True, text=True, timeout=10, check=False)

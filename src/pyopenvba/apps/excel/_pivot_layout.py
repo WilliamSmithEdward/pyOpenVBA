@@ -11,6 +11,8 @@ from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import Range
 from pyopenvba.apps.excel._pivot_create import node, part_root
+from pyopenvba.apps.excel._pivot_criteria import label_hidden, value_filtered
+from pyopenvba.apps.excel._pivot_criteria import rules as filter_rules
 from pyopenvba.apps.excel._pivot_filters import (
     MULTIPLE,
     carried,
@@ -282,7 +284,10 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     display = [[place for place, _, _ in listing] if listing is not None else positions[index]
                for index, listing in enumerate(lists)]
     chosen_pages = choices(root, lists)
-    selected = passing(ids, lists, on_axes, chosen_pages)
+    # Hidden items and label filters leave their records out first, then value filters, outer fields first.
+    found = filter_rules(root)
+    selected = passing(ids, lists, on_axes, chosen_pages, label_hidden(found, list(fields), on_axes))
+    selected = value_filtered(selected, ids, records_, found, (rows, columns), reports)
     sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_)
     row_lines = _lines(rows, ids, display, len(reports), rows=True, grand=root.get('colGrandTotals', '1') != '0',
                        selected=selected, sorts=sorts)
@@ -555,6 +560,8 @@ def orient(field: object, value: object) -> None:
         if chosen == 0:
             raise error(1004)
         return
+    if chosen == 3 and any(rule.field == field.index for rule in filter_rules(table.root)):
+        raise VBAUnsupportedError('Moving a field with label or value filters to the page area is not implemented')
     root = deepcopy(table.root)
     for name, attribute in (('rowFields', 'x'), ('colFields', 'x'), ('pageFields', 'fld')):
         container = root.find(NS + name)

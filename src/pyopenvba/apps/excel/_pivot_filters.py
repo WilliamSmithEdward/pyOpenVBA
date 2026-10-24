@@ -241,12 +241,14 @@ def choices(root: XmlElement, lists: list[list[Listed] | None]) -> dict[int, int
 
 
 def passing(ids: list[list[int]], lists: list[list[Listed] | None], axes: set[int],
-            pages: dict[int, int | None]) -> list[int]:
-    """The records a table counts: none whose item a field on an axis hides, and each page field's own."""
+            pages: dict[int, int | None], labelled: dict[int, set[int]] | None = None) -> list[int]:
+    """The records a table counts: none whose item a field on an axis hides or a label filter leaves out, and each
+    page field's own."""
     hidden: dict[int, set[int]] = {}
     for index in axes:
         listing = lists[index]
         places: set[int] = {place for place, hide, _ in listing if hide} if listing is not None else set()
+        places |= (labelled or {}).get(index, set())
         if places:
             hidden[index] = places
     pinned: dict[int, int] = {}
@@ -462,9 +464,11 @@ def set_multiple_allowed(field: PivotField, value: object) -> None:
         mark_changed(table)
 
 
-def _clear(root: XmlElement, index: int | None) -> bool:
-    """Show every item of one field, or of every field, and drop their page fields' choices; whether any item was
-    hidden or chosen."""
+def _clear(root: XmlElement, index: int | None, *, manual_only: bool = False) -> bool:
+    """Show every item of one field, or of every field, drop their page fields' choices and, unless only the items
+    a macro hid by hand go, their label and value filters; whether anything went."""
+    from pyopenvba.apps.excel._pivot_criteria import clear
+
     cleared = False
     for place, field in enumerate(root.findall(f'{NS}pivotFields/{NS}pivotField')):
         if index is None or place == index:
@@ -476,6 +480,8 @@ def _clear(root: XmlElement, index: int | None) -> bool:
         if (index is None or int(page.get('fld', '-1')) == index) and chosen(page) is not None:
             choose(page, None)
             cleared = True
+    if not manual_only and clear(root, index, labels=True, values=True):
+        cleared = True
     return cleared
 
 
@@ -486,14 +492,14 @@ def clear_table(table: PivotTable) -> None:
         rerender(table, root)
 
 
-def clear_field(field: PivotField) -> None:
+def clear_field(field: PivotField, *, manual_only: bool = False) -> None:
     table, live = _view(field)
     if orientation(live) == 0:
-        if _clear(table.root, field.index):
+        if _clear(table.root, field.index, manual_only=manual_only):
             mark_changed(table)
         return
     root = deepcopy(table.root)
-    if _clear(root, field.index):
+    if _clear(root, field.index, manual_only=manual_only):
         rerender(table, root)
 
 

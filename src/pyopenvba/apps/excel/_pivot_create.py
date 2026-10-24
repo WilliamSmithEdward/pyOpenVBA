@@ -383,7 +383,8 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
                                        'dataCaption': 'Values', 'createdVersion': current, 'updatedVersion': current,
                                        'minRefreshableVersion': str(min(int(current), 3)),
                                        'useAutoFormatting': '1', 'rowGrandTotals': '1', 'colGrandTotals': '1',
-                                       'outline': '1', 'outlineData': '1', 'compact': '1', 'compactData': '1'})
+                                       'outline': '1', 'outlineData': '1', 'compact': '1', 'compactData': '1',
+                                       'multipleFieldFilters': '0'})
     root.append(node('location', {'ref': area.address(absolute=False), 'firstHeaderRow': str(int(not blocked)),
                                  'firstDataRow': str(int(not blocked)), 'firstDataCol': '0'}))
     fields = cache.root.find(NS + 'cacheFields')

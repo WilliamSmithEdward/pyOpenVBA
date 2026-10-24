@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+from copy import deepcopy
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -17,11 +18,10 @@ from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.apps.excel._xstring import decode as decode_text
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._values import number_text
-from pyopenvba.interpreter._objects import VBACollection, member, method, setter
+from pyopenvba.interpreter._objects import MemberSpec, VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBADate, VBAErrorValue, VBAInt, error, string_order, to_integer, to_text, to_bool, utf16_text
 
 if TYPE_CHECKING:
-    from pyopenvba.interpreter._objects import MemberSpec
     from pyopenvba.apps.excel._pivot_reports import PivotReport
     from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.powerquery._opc import OpcFile
@@ -308,6 +308,8 @@ class PivotTable(ExcelObject):
         self.report_loaded = False
         #: The field a macro's AutoSort xlManual named, by the field it sorted, which no file keeps.
         self.sort_names: dict[int, str] = {}
+        #: ManualUpdate, which no file keeps.
+        self.manual = False
 
     @method
     def RefreshTable(self) -> object:
@@ -615,6 +617,238 @@ class PivotTable(ExcelObject):
         from pyopenvba.apps.excel._pivot_ranges import data_label_range
 
         return data_label_range(self)
+
+    @member
+    def TableStyle2(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import table_style
+
+        return table_style(self)
+
+    @setter('TableStyle2')
+    def set_table_style2(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_table_style
+
+        set_table_style(self, value)
+
+    @member
+    def NullString(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import caption
+
+        return caption(self, 'missingCaption')
+
+    @setter('NullString')
+    def set_null_string(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_caption
+
+        set_caption(self, 'missingCaption', value)
+
+    @member
+    def DisplayNullString(self) -> object:
+        return self.entry.root.get('showMissing', '1') not in ('0', 'false')
+
+    @setter('DisplayNullString')
+    def set_display_null_string(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_display
+
+        set_display(self, 'showMissing', value, True)
+
+    @member
+    def ErrorString(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import caption
+
+        return caption(self, 'errorCaption')
+
+    @setter('ErrorString')
+    def set_error_string(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_caption
+
+        set_caption(self, 'errorCaption', value)
+
+    @member
+    def DisplayErrorString(self) -> object:
+        return self.entry.root.get('showError', '0') in ('1', 'true')
+
+    @setter('DisplayErrorString')
+    def set_display_error_string(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_display
+
+        set_display(self, 'showError', value, False)
+
+    @member
+    def ManualUpdate(self) -> object:
+        return self.entry.manual
+
+    @setter('ManualUpdate')
+    def set_manual_update(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_manual
+
+        set_manual(self, value)
+
+    @member
+    def Location(self) -> object:
+        # Excel reads no Location back, error 445 (tests/fixtures/pivot_options/ defaults).
+        raise error(445)
+
+    @setter('Location')
+    def set_location(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_location
+
+        set_location(self, value)
+
+    @member
+    def Tag(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import tag
+
+        return tag(self)
+
+    @setter('Tag')
+    def set_tag(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_tag
+
+        set_tag(self, value)
+
+    @member
+    def AlternativeText(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import alternative
+
+        return alternative(self, 'altText')
+
+    @setter('AlternativeText')
+    def set_alternative_text(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_alternative
+
+        set_alternative(self, 'altText', value)
+
+    @member
+    def Summary(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import alternative
+
+        return alternative(self, 'altTextSummary')
+
+    @setter('Summary')
+    def set_summary(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_alternative
+
+        set_alternative(self, 'altTextSummary', value)
+
+    @member
+    def PageFieldOrder(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import page_order
+
+        return VBAInt(page_order(self), 'Long')
+
+    @setter('PageFieldOrder')
+    def set_page_field_order(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_page_order
+
+        set_page_order(self, value)
+
+    @member
+    def PageFieldWrapCount(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import page_wrap
+
+        return VBAInt(page_wrap(self), 'Long')
+
+    @setter('PageFieldWrapCount')
+    def set_page_field_wrap_count(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_page_wrap
+
+        set_page_wrap(self, value)
+
+    @member
+    def SaveData(self) -> object:
+        return self.cache.root.get('saveData', '1') not in ('0', 'false')
+
+    @setter('SaveData')
+    def set_save_data(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_save_data
+
+        set_save_data(self, value)
+
+    @member
+    def ShowValuesRow(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import shows_values_row
+
+        return shows_values_row(self)
+
+    @setter('ShowValuesRow')
+    def set_show_values_row(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_shows_values_row
+
+        set_shows_values_row(self, value)
+
+    @member
+    def SubtotalHiddenPageItems(self) -> object:
+        return self.entry.root.get('subtotalHiddenItems', '0') in ('1', 'true')
+
+    @setter('SubtotalHiddenPageItems')
+    def set_subtotal_hidden_page_items(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_kept_on
+
+        set_kept_on(self, value, 'subtotalHiddenItems')
+
+    @member
+    def DisplayImmediateItems(self) -> object:
+        return self.entry.root.get('showItems', '1') not in ('0', 'false')
+
+    @setter('DisplayImmediateItems')
+    def set_display_immediate_items(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_kept_on
+
+        set_kept_on(self, value, 'showItems')
+
+    @member
+    def DisplayEmptyRow(self) -> object:
+        # A table not from a cube has no empty rows to show, error 1004 (tests/fixtures/pivot_options/ flags).
+        raise error(1004)
+
+    @setter('DisplayEmptyRow')
+    def set_display_empty_row(self, value: object) -> None:
+        raise error(1004)
+
+    @member
+    def DisplayEmptyColumn(self) -> object:
+        raise error(1004)
+
+    @setter('DisplayEmptyColumn')
+    def set_display_empty_column(self, value: object) -> None:
+        raise error(1004)
+
+    @method
+    def AddFields(self, RowFields: object = MISSING, ColumnFields: object = MISSING, PageFields: object = MISSING,
+                  AddToTable: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_options import add_fields
+
+        return add_fields(self, RowFields, ColumnFields, PageFields, AddToTable)
+
+    @method
+    def ClearTable(self) -> object:
+        from pyopenvba.apps.excel._pivot_options import clear_table
+
+        clear_table(self)
+        return EMPTY
+
+    @method
+    def Update(self) -> object:
+        from pyopenvba.apps.excel._pivot_filters import rerender
+
+        rerender(self.entry, deepcopy(self.entry.root))
+        return EMPTY
+
+    @member
+    def VisibleFields(self, Index: object = MISSING) -> object:
+        fields: list[object] = []
+        for index, field in enumerate(self.root.findall(f'{NS}pivotFields/{NS}pivotField')):
+            view = PivotField(self, index, field)
+            if int(view.Orientation()) in (1, 2, 3):
+                fields.append(view)
+        for axis in ('rowFields', 'colFields'):
+            if any(field.get('x') == '-2' for field in self.root.findall(f'{NS}{axis}/{NS}field')):
+                fields.append(self._data_pivot_field(axis))
+        fields.extend(PivotField(self, int(field.get('fld', '0')), field, True)
+                      for field in self.root.findall(f'{NS}dataFields/{NS}dataField'))
+        collection = PivotFields(self, fields)
+        return collection if Index is MISSING else collection.Item(Index)
 
     def _fields(self, index: object, orientation: int | None = None) -> object:
         items: list[object] = []
@@ -1111,3 +1345,52 @@ class PivotItem(ExcelObject):
     @member
     def Parent(self) -> object:
         return self.field
+
+
+#: Options a pivot table keeps as attributes and no cell shows: member -> (attribute, its default, whether the
+#: member reads its opposite) (tests/fixtures/pivot_options/ flags).
+TABLE_FLAGS: dict[str, tuple[str, bool, bool]] = {
+    'DisplayContextTooltips': ('showDataTips', True, False),
+    'EnableDataValueEditing': ('editData', False, False),
+    'EnableDrilldown': ('enableDrill', True, False),
+    'EnableFieldDialog': ('enableFieldProperties', True, False),
+    'EnableFieldList': ('disableFieldList', False, True),
+    'EnableWizard': ('enableWizard', True, False),
+    'FieldListSortAscending': ('fieldListSortAscending', False, False),
+    'HasAutoFormat': ('useAutoFormatting', False, False),
+    'InGridDropZones': ('gridDropZones', False, False),
+    'PreserveFormatting': ('preserveFormatting', True, False),
+    'PrintTitles': ('fieldPrintTitles', False, False),
+    'RepeatItemsOnEachPrintedPage': ('itemPrintTitles', False, False),
+    'ShowDrillIndicators': ('showDrill', True, False),
+    'SortUsingCustomLists': ('customListSort', True, False),
+}
+#: The parts of its style a table draws: member -> pivotTableStyleInfo's attribute.
+STYLE_FLAGS = {'ShowTableStyleRowHeaders': 'showRowHeaders', 'ShowTableStyleColumnHeaders': 'showColHeaders',
+               'ShowTableStyleRowStripes': 'showRowStripes', 'ShowTableStyleColumnStripes': 'showColStripes',
+               'ShowTableStyleLastColumn': 'showLastColumn'}
+
+
+def _option_member(name: str, style: bool) -> MemberSpec:
+    """One of the options above as a property of PivotTable."""
+
+    def get(table: PivotTable) -> object:
+        from pyopenvba.apps.excel._pivot_options import flag, style_flag
+
+        return style_flag(table, name) if style else flag(table, name)
+
+    def put(table: PivotTable, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_options import set_flag_member, set_style_flag
+
+        if style:
+            set_style_flag(table, name, value)
+        else:
+            set_flag_member(table, name, value)
+
+    return MemberSpec(name=name, kind='property', getter=get, setter=put)
+
+
+for _name in TABLE_FLAGS:
+    PivotTable.vba_add_member(_option_member(_name, False))
+for _name in STYLE_FLAGS:
+    PivotTable.vba_add_member(_option_member(_name, True))

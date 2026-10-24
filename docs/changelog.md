@@ -7,6 +7,28 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables take Excel's table options. `TableStyle2` takes a pivot or
+  table style by name in any case, and the five `ShowTableStyle` flags
+  read and set. `NullString` and `ErrorString` show in the value cells no
+  record reaches and in those that work out an error, read as a whole
+  number where they are one, as Excel reads them, and `DisplayNullString`
+  off shows 0. `PageFieldOrder` and `PageFieldWrapCount` lay the page
+  fields out, `ShowValuesRow` shows the Values row, and `Tag`,
+  `AlternativeText`, `Summary` and fourteen flags read and write.
+  `AddFields` puts fields on the rows, columns and page area,
+  `ClearTable` empties the table back to its placeholder, `Location` moves
+  it, `Update` lays it out again, and `VisibleFields` lists the fields it
+  shows. `ManualUpdate` holds the table's lines back as Excel does: on,
+  any change lays it out as its captions alone, and off lays it out in
+  full. `SaveData` off saves a new cache without its records until
+  another table is made from it. `RowGrand`, `ColumnGrand` and the
+  members raise Excel's errors, and options only a table from a cube has
+  are error 1004 or 5 as in Excel. Putting a table in no style, which
+  Excel draws with borders of the cells themselves, reports itself
+  unsupported. 61 layouts agree with Excel before a save and once the
+  file is opened again, the saved tables and every cell's format agree
+  with Excel's file, and Excel reads the model's file as its own.
+
 - Pivot tables lay out as Excel lays them out in compact, outline and
   tabular form. `PivotTable.RowAxisLayout` puts every field in one form,
   and a field's `LayoutForm` and `LayoutCompactRow` lay out that field

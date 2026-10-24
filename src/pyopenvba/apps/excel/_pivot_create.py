@@ -39,6 +39,7 @@ from pyopenvba.powerquery._sheets import add_content_type, add_relationship
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._dynamic_file import RichError
     from pyopenvba.apps.excel._model import Workbook, Worksheet
+    from pyopenvba.apps.excel._styles import Border
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.powerquery._opc import OpcFile
 
@@ -340,6 +341,16 @@ def record_value(value: object, code: str = 'General') -> XmlElement:
     return node('s', {'v': encoded(to_text(value))})
 
 
+def placeholder_border(area: Area, row: int, column: int) -> Border:
+    """The border an empty table's placeholder draws on one of its cells: a grey frame round a grid."""
+    from pyopenvba.apps.excel._styles import NO_SIDE, Border, Color, Side
+
+    edge = Side('thin', Color('rgb', 'FF999999'))
+    grid = Side('thin', Color('indexed', 65))
+    return Border(left=edge if column == area.left else grid, right=edge if column == area.right else NO_SIDE,
+                  top=edge if row == area.top else grid, bottom=edge if row == area.bottom else NO_SIDE)
+
+
 def create_table(cache: PivotCache, destination: object, name: object, read: object, version: object) -> PivotTable:
     if read is not MISSING and not to_bool(read):
         raise error(1004)
@@ -353,6 +364,8 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
         raise error(1004) from None
     if target.sheet.book is not cache.book or not target.areas:
         raise error(1004)
+    # A table made from a cache turns its SaveData back on (a probe in Excel).
+    cache.root.attrib.pop('saveData', None)
     if name is MISSING:
         number = 1
         used = {str(table.Name()).casefold() for sheet in cache.book.sheets_ for table in sheet.pivot_tables}
@@ -406,9 +419,12 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
     root.append(pivots)
     root.append(node('pivotTableStyleInfo', {'name': 'PivotStyleLight16', 'showRowHeaders': '1',
                                          'showColHeaders': '1', 'showRowStripes': '0', 'showColStripes': '0', 'showLastColumn': '1'}))
-    from pyopenvba.apps.excel._pivot_aggregate import default_layout
+    from pyopenvba.apps.excel._pivot_aggregate import default_layout, hide_values_row
 
     default_layout(root)
+    # A new table hides the Values row, which the layout honours from then on (tests/fixtures/pivot_options/
+    # values_row).
+    hide_values_row(root)
     table = PivotTable(target.sheet, cache, root)
     table.changed = True
     cleared = Range(target.sheet, [area])
@@ -420,18 +436,11 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
         cache.index = len(cache.book.pivot_caches)
     target.sheet.pivot_tables.insert(0, table)
     # Even blank report cells carry formatting and count toward UsedRange.
-    from pyopenvba.apps.excel._styles import NO_SIDE, Border, Color, Side
-
-    edge = Side('thin', Color('rgb', 'FF999999'))
-    grid = Side('thin', Color('indexed', 65))
     for row in range(area.top, area.bottom + 1):
         for column in range(area.left, area.right + 1):
             old_style = target.sheet.style_at(row, column)
-            border = Border(left=edge if column == area.left else grid,
-                            right=edge if column == area.right else NO_SIDE,
-                            top=edge if row == area.top else grid,
-                            bottom=edge if row == area.bottom else NO_SIDE)
-            style = replace(old_style, border=border, applied=old_style.applied | {'border'})
+            style = replace(old_style, border=placeholder_border(area, row, column),
+                            applied=old_style.applied | {'border'})
             target.sheet.restyle(row, column, style)
     target.sheet.touched()
     from pyopenvba.apps.excel import _events
@@ -504,6 +513,14 @@ def write(book: Workbook, package: OpcFile) -> None:
             assert match is not None
             text = text[:match.start()] + '<pivotCaches>' + entry + '</pivotCaches>' + text[match.start():]
         package.write('xl/workbook.xml', text.encode('utf-8'))
+        if cache.root.get('saveData', '1') in ('0', 'false'):
+            # SaveData off: the cache goes without its records, as Excel saves it (a probe in Excel).
+            package.write(cache.part, xml_bytes(cache.root))
+            add_content_type(package, cache.part,
+                             'application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml')
+            cache.records_part = ''
+            cache.changed = False
+            continue
         records_id = add_relationship(package, f'xl/pivotCache/_rels/pivotCacheDefinition{number}.xml.rels',
                                       LINK + records_kind, f'{records_kind}{number}.xml')
         if cache.rich_records:

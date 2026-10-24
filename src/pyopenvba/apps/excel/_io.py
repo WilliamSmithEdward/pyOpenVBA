@@ -1263,7 +1263,9 @@ def _split_reference(reference: str) -> tuple[int, int]:
 def save_workbook(book: Workbook, target: Path) -> None:
     """Write the workbook out, patching only the cells the model changed."""
     from pyopenvba.apps.excel._controls import refresh
+    from pyopenvba.apps.excel._pivot_options import settle_manual
 
+    settle_manual(book)
     _calculated(book)
     from pyopenvba.apps.excel._sort import preflight_save
 

@@ -94,7 +94,8 @@ def children(root: XmlElement, allowed: str) -> None:
 
 def extensions(root: XmlElement, *, cache: bool) -> None:
     known = ({'{725AE2AE-9491-48be-B2B4-4EB974FC3084}': (X14 + 'pivotCacheDefinition', '')} if cache else {
-        '{962EF5D1-5CA2-4c93-8EF4-DBF5C05439D2}': (X14 + 'pivotTableDefinition', 'fillDownLabelsDefault hideValuesRow'),
+        '{962EF5D1-5CA2-4c93-8EF4-DBF5C05439D2}': (X14 + 'pivotTableDefinition',
+                                                   'fillDownLabelsDefault altText altTextSummary hideValuesRow'),
         '{747A6164-185A-40DC-8AA5-F01512510D54}': (X16 + 'pivotTableDefinition16', '')})
     for group in root.findall(NS + 'extLst'):
         attributes(group, '')
@@ -107,8 +108,6 @@ def extensions(root: XmlElement, *, cache: bool) -> None:
             if node.tag != found[0] or len(node):
                 raise unsupported('with unknown extension content')
             attributes(node, found[1])
-            if node.get('hideValuesRow', '1') != '1':
-                raise unsupported('with a custom Values header')
 
 
 def field_extensions(field: XmlElement) -> None:
@@ -245,7 +244,10 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
                'rowGrandTotals colGrandTotals outline outlineData compact compactData dataOnRows pageWrap pageOverThenDown '
                'applyNumberFormats applyBorderFormats applyFontFormats applyPatternFormats applyAlignmentFormats '
                'applyWidthHeightFormats itemPrintTitles indent multipleFieldFilters grandTotalCaption showHeaders '
-               'rowHeaderCaption colHeaderCaption mergeItem', provenance=True)
+               'rowHeaderCaption colHeaderCaption mergeItem missingCaption showMissing errorCaption showError tag '
+               'showDataTips editData enableDrill enableFieldProperties disableFieldList enableWizard '
+               'fieldListSortAscending gridDropZones preserveFormatting fieldPrintTitles customListSort showDrill '
+               'showItems asteriskTotals', provenance=True)
     children(root, 'location pivotFields rowFields rowItems colFields colItems pageFields dataFields pivotTableStyleInfo filters '
              'extLst')
     if not readable(root):

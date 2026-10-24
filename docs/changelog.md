@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- AutoFilter's dynamic filters on dates: xlFilterDynamic with xlFilterToday
+  through xlFilterYearToDate keeps the date cells in a period counted from
+  today, yesterday to next year, a week running from Sunday, and
+  xlFilterAllDatesInPeriodQuarter1 through ...December a quarter or a
+  month of any year. The filter reads back as xlFilterDynamic and its
+  Criteria1, and the file keeps a period counted from today as Excel
+  does, its first serial and the one after its last. The model refused
+  all but above and below average. All 32 agree with Excel over dates
+  around the day it made them, the model's clock stood at that moment,
+  before a save and once the file is opened again, and Excel reads the
+  model's file as its own.
+
 - AutoFilter on dates by year, month, day, hour, minute or second, as the
   macro recorder writes it: `Operator:=xlFilterValues` with Criteria2 as
   pairs of a level and a date, `Array(1, "3/1/2025")` for March 2025. A

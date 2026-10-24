@@ -187,6 +187,10 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
         raise error(5)
     new = node('dataField', {'name': encoded(name), 'fld': str(index), 'subtotal': kind,
                              'baseField': '0', 'baseItem': '0'})
+    # A data field shows its values in its source's format, whatever it works out (tests/fixtures/
+    # pivot_date_filters/ money_count).
+    if fields[index].get('numFmtId', '0') != '0':
+        new.set('numFmtId', fields[index].get('numFmtId', '0'))
     reports = [*previous, new]
     if axes:
         from pyopenvba.apps.excel._pivot_layout import render
@@ -255,7 +259,12 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
     for offset, (entry, result) in enumerate(zip(reports, results)):
         heading = decode_text(entry.get('name', ''))
         output.store_typed(area.top, area.left + offset, Typed(heading if heading else EMPTY))
-        output.put_as_value(area.bottom, area.left + offset, result)
+        identifier = entry.get('numFmtId')
+        if identifier is not None and identifier.isdecimal():
+            code = table.sheet.book.stylesheet.number_formats.get(int(identifier), 'General')
+            output.store_typed(area.bottom, area.left + offset, Typed(result, code))
+        else:
+            output.put_as_value(area.bottom, area.left + offset, result)
     table.changed = True
     table.report_loaded = False
     table.report_metadata = None

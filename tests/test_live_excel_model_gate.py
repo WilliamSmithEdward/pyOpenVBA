@@ -2228,6 +2228,50 @@ def test_excel_reads_the_pivotfilters_this_wrote(tmp_path: Path) -> None:
         assert read[layout["name"]] == layout["reopened"], layout["name"]
 
 
+def test_excel_reads_the_pivot_date_filters_this_wrote(tmp_path: Path) -> None:
+    """Every layout tests/fixtures/pivot_date_filters measured, made by the model with the macro Excel ran, a date
+    field with a date filter on each sheet, and saved: Excel opens the file and reads each table as it reads its
+    own. The periods count from the day the gate runs, so Excel makes the layouts afresh that day, and the model's
+    clock is on that day too."""
+    import datetime as dt
+
+    from test_excel_pivot_date_filters import HELPER, LAYOUTS, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    body = "".join(RECORD["layout"].replace("{name}", layout["name"]).replace("{row}", layout["row"])
+                   .replace("{column}", layout["column"]).replace("{page}", layout["page"])
+                   .replace("{source}", layout["own_source"]).replace("{step}", str(index))
+                   for index, layout in enumerate(LAYOUTS, 1))
+    theirs, mine = tmp_path / "excel", tmp_path / "model"
+    theirs.mkdir()
+    mine.mkdir()
+
+    def code(folder: Path) -> str:
+        return (RECORD["build"].replace("{steps}", RECORD["steps"]).replace("{source}", RECORD["source"])
+                .replace("{layouts}", body).replace("{folder}", str(folder)))
+
+    app = ExcelApplication()
+    app.freeze_clock(dt.datetime.combine(dt.date.today(), dt.time(9)))
+    app.add_module(code(mine), name="Builder")
+    app.run("Build")
+    reader = HELPER + (
+        "Public Function Read(path As String) As String\nDim wb As Object, ws As Object, out As String\n"
+        "Set wb = Workbooks.Open(path)\nFor Each ws In wb.Worksheets\n"
+        "If ws.PivotTables.Count > 0 Then out = out & ws.Name & \"^\" & Dump(ws.PivotTables(1)) & \"|\"\n"
+        "Next\nwb.Close False\nRead = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        fresh = excel.run_vba(code(theirs), "Build", timeout=600.0)
+        assert fresh.ok, fresh.message
+        result = excel.run_vba(reader, "Read", (str(mine / "pivot_date_filters.xlsx"),), timeout=300.0)
+        assert result.ok, result.message
+    reopened = str(fresh.value).split("@", 1)[1].split("~", 1)[1]
+    expected = dict(one.split("^", 1) for one in reopened.split("|") if "^" in one)
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+    for layout in LAYOUTS:
+        assert read[layout["name"]] == expected[layout["name"]], layout["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

@@ -634,6 +634,15 @@ class PivotField(ExcelObject):
 
     @member
     def NumberFormat(self) -> object:
+        # The Values field and a field of text have none, error 1004 (tests/fixtures/pivot_date_filters/).
+        if self.index == -2:
+            raise error(1004)
+        if not self.data:
+            fields = self.table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
+            shared = fields[self.index].find(NS + 'sharedItems') if self.index < len(fields) else None
+            kinds: set[str] = {entry.tag for entry in shared} if shared is not None else set()
+            if kinds and kinds <= {NS + 's', NS + 'm'}:
+                raise error(1004)
         identifier = int(self.root.get('numFmtId', '0'))
         return self.table.sheet.book.stylesheet.number_formats.get(identifier, 'General')
 
@@ -829,6 +838,15 @@ class PivotItem(ExcelObject):
         value = self.root.get('v', '')
         if self.root.tag == NS + 'b':
             return 'TRUE' if value == '1' else 'FALSE'
+        if self.root.tag in (NS + 'n', NS + 'd') and self.x >= 0:
+            # A number or a date shows in its field's format (tests/fixtures/pivot_date_filters/).
+            from pyopenvba.apps.excel._pivot_layout import field_format, item_caption
+
+            table = self.field.table
+            fields = table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
+            cache_field = fields[self.field.index] if 0 <= self.field.index < len(fields) else None
+            return item_caption(self.root, field_format(table.sheet.book.stylesheet.number_formats,
+                                                        self.field.root, cache_field))
         if self.root.tag == NS + 'n':
             return number_text(float(value))
         if self.root.tag == NS + 'd':

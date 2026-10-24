@@ -74,9 +74,12 @@ def xml_bytes(root: XmlElement) -> bytes:
             return prefix + ':' + local if prefix else local
 
         tag = name(entry.tag)
-        attrs = {name(key, attribute=True): value for key, value in entry.attrib.items()
-                 if key != 'xmlns' and not key.startswith('xmlns:')}
-        cloned = XmlElement(tag, {**declarations, **attrs})
+        # An element's own declarations keep their place among its attributes, as Excel writes
+        # <ext uri="..." xmlns:x15="...">; one made here for a namespace goes first.
+        attrs = {key if key == 'xmlns' or key.startswith('xmlns:') else name(key, attribute=True): value
+                 for key, value in entry.attrib.items()}
+        attrs.update((key, value) for key, value in declarations.items() if key in attrs)
+        cloned = XmlElement(tag, {**{key: value for key, value in declarations.items() if key not in attrs}, **attrs})
         cloned.text, cloned.tail = entry.text, entry.tail
         cloned.extend(copy(child, scope) for child in entry)
         return cloned

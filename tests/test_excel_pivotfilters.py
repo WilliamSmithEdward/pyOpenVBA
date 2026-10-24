@@ -122,12 +122,11 @@ def test_the_model_reads_excels_file_as_excel_does(excel_file_read: dict[str, st
 
 
 @pytest.mark.parametrize("statement", [
-    'pt.PivotFields("Region").PivotFilters.Add Type:=xlSpecificDate, Value1:=#1/1/2026#',
     'pt.PivotFields("Region").PivotFilters.Add Type:=xlCaptionEquals, Value1:="N", Name:="mine"',
     'pt.PivotFields("Region").PivotFilters.Add Type:=xlTopPercent, DataField:=pt.DataFields(1), Value1:=0',
     'pt.PivotFields("Product").Orientation = xlPageField'])
 def test_what_is_not_measured_reports_itself(statement: str) -> None:
-    """A date filter, Add's other arguments, a top percent of 0, and a filtered field moved to the page area."""
+    """Add's other arguments, a top percent of 0, and a filtered field moved to the page area."""
     app = ExcelApplication()
     app.add_workbook()
     app.add_module(HELPER + "Public Sub Probe()\n"

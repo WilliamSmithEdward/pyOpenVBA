@@ -656,8 +656,20 @@ layouts; `tests/fixtures/autofilter_file/`, 34 filters Excel saved).
 * The file keeps plain criteria, xlOr pairs of them and lists as a list
   of values, and the rest as custom filters, with the threshold of a top
   filter and the mean of an average one; Excel reads each back as it
-  was. An icon filter read from a file is kept as it was, but reading or
-  applying it reports itself unsupported.
+  was.
+* xlFilterIcon with an Icon as Criteria1 keeps the cells a conditional
+  format's icon set shows that icon, and xlFilterNoIcon those it shows
+  none (`tests/fixtures/icon_filters/`, 13 sets each filtered by every
+  icon and by none). A number shows the icon of the highest criterion it
+  reaches, at or above its value or above it where the criterion says
+  so, a percent of the way from the range's lowest number to its
+  highest, a percentile of them, a number or a formula's answer; the
+  order turned round turns the icons round, and a place given no icon
+  shows none, as a word, a blank and an error do. The filter matches an
+  icon's set and place, not one alike in another set. It reads back
+  xlFilterIcon and the Icon, or xlFilterNoIcon and Empty, and the file
+  keeps the set and the place from 0, or for no icon the column's set
+  alone.
 * xlFilterDynamic filters on dates by the period its Criteria1 names
   (`tests/fixtures/dynamic_filters/`, all 32, over dates around the day
   Excel made them): today, yesterday or tomorrow, this, last or next

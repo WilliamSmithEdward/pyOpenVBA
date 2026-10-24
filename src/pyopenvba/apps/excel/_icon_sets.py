@@ -22,7 +22,9 @@ Measured in live Excel (scripts/measure_data_bars_icons.py, tests/fixtures/data_
   then shows no text (_conditional_eval.value_hidden). PercentileValues reads True while every criterion is a
   percentile, and setting it makes every criterion a percentile, or a number, keeping its value.
 - StopIfTrue, Formula and ScopeType are as every point rule's (_conditional.PointRule). An icon set draws
-  nothing DisplayFormat shows.
+  nothing DisplayFormat shows; AutoFilter by icon finds the icon a cell shows (scripts/measure_icon_filters.py,
+  tests/fixtures/icon_filters/): a number shows the icon of the highest criterion it reaches, the criteria
+  standing among the range's numbers as a colour scale's points do, and a word, a blank or an error shows none.
 - A file keeps a set as a cfRule of type iconSet holding a cfvo for each criterion (gte="0" for one above
   its value) in an iconSet element naming the set (but the traffic lights, its default), with showValue="0"
   and reverse="1" as set. Stars, triangles, boxes, custom icons or a formula naming another sheet put the set
@@ -58,7 +60,7 @@ from pyopenvba.interpreter._objects import VBACollection, member, ref_setter, se
 from pyopenvba.interpreter._values import VBAInt, error, to_bool, to_integer, to_number
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Workbook
+    from pyopenvba.apps.excel._model import Workbook, Worksheet
 
 #: XlIconSet: each set's name in a file and its icons (XlIcon), the lowest criterion's first.
 SETS: dict[int, tuple[str, tuple[int, ...]]] = {
@@ -230,6 +232,63 @@ def parse(rule: Rule) -> Icons:
     return icons
 
 
+def state_of(sheet: Worksheet, rule: Rule) -> Icons:
+    """A rule's icon set settings, read from the file the first time they are wanted."""
+    foreign(sheet)
+    if rule.state is None:
+        rule.state = parse(rule)
+    return cast('Icons', rule.state)
+
+
+def covering(sheet: Worksheet, row: int, column: int) -> Rule | None:
+    """The icon set that shows a cell its icon: the first by priority whose range holds the cell."""
+    rules = sorted((rule for rule in sheet.conditional_formats if not rule.deleted
+                    and rule.root.get('type') == 'iconSet'), key=lambda rule: int(rule.root.get('priority', '0')))
+    return next((rule for rule in rules if any(area.top <= row <= area.bottom and area.left <= column <= area.right
+                                               for area in rule.areas)), None)
+
+
+def shown_icon(sheet: Worksheet, row: int, column: int) -> tuple[int, int] | None:
+    """The icon a cell shows, as the set and the place there a filter by it names; None for a cell showing none --
+    a word, a blank, an error, one no set covers, or a place given no icon (tests/fixtures/icon_filters/).
+
+    A cell shows the icon of the highest criterion it reaches, at or above its value or above it as the criterion
+    says, the criteria standing among the range's numbers as a colour scale's points stand.
+    """
+    from pyopenvba.apps.excel._colour_scales import point_value
+    from pyopenvba.apps.excel._conditional_stats import numbers
+    from pyopenvba.apps.excel._engine_book import scalar
+
+    rule = covering(sheet, row, column)
+    if rule is None:
+        return None
+    value = scalar(sheet.book.calculator.value_of(sheet.name, row, column))
+    population = numbers(sheet, rule)
+    if not isinstance(value, float) or not population:
+        return None
+    icons = state_of(sheet, rule)
+    band = 0
+    for place, criterion in enumerate(icons.criteria[1:], 1):
+        threshold = point_value(sheet, rule, criterion.kind, criterion.written(), population)
+        if value > threshold or (not criterion.greater and value == threshold):
+            band = place
+    if icons.custom:
+        icon = icons.icons()[band]
+        if icon == _NO_ICON:
+            return None
+        own = SETS[icons.set_id][1]
+        if icon in own:
+            return icons.set_id, own.index(icon) + 1
+        source, at = _SOURCES[icon]
+        return _BY_NAME[source], at + 1
+    return icons.set_id, (len(icons.criteria) - band if icons.reverse else band + 1)
+
+
+def set_named(name: str) -> int | None:
+    """The set a file names, by its XlIconSet number."""
+    return _BY_NAME.get(name)
+
+
 # --- VBA -----------------------------------------------------------------------------------------------------
 
 
@@ -238,10 +297,7 @@ class IconSetCondition(PointRule):
 
     def icons(self) -> Icons:
         """The set's settings, read from the file the first time they are wanted."""
-        foreign(self.sheet)
-        if self.rule.state is None:
-            self.rule.state = parse(self.rule)
-        return cast('Icons', self.rule.state)
+        return state_of(self.sheet, self.rule)
 
     def touched(self) -> None:
         self.icons().dirty = True

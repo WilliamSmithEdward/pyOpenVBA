@@ -69,8 +69,15 @@ and the one after its last. A filter read from a file applies to the
 period counted from the model's today; what Excel does with one opened on
 another day is not measured.
 
-What is not modelled reports itself: icon filters, AutoFilter.Sort, a
-hidden drop-down, and text beyond ASCII where it is compared.
+xlFilterIcon with an Icon as Criteria1 keeps the cells a conditional
+format's icon set shows that icon, its set and place there and not one
+alike in another set, and xlFilterNoIcon those it shows none
+(scripts/measure_icon_filters.py, _icon_sets.shown_icon). It reads back
+the Icon, or Empty, and the file keeps the set and the place from 0, or
+for no icon the column's set alone.
+
+What is not modelled reports itself: AutoFilter.Sort, a hidden drop-down,
+and text beyond ASCII where it is compared.
 
 A table has a filter of its own, which a range inside it reaches; the
 sheet's members reach whichever filter the active cell is in. Both are
@@ -103,7 +110,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._tables import Table
 
 AND, OR, TOP_ITEMS, BOTTOM_ITEMS, TOP_PERCENT, BOTTOM_PERCENT, VALUES = 1, 2, 3, 4, 5, 6, 7
-CELL_COLOR, FONT_COLOR, DYNAMIC, NO_FILL, AUTOMATIC_FONT = 8, 9, 11, 12, 13
+CELL_COLOR, FONT_COLOR, ICON, DYNAMIC, NO_FILL, AUTOMATIC_FONT, NO_ICON = 8, 9, 10, 11, 12, 13, 14
 ABOVE_AVERAGE, BELOW_AVERAGE = 33, 34
 WHITE, PATTERN_SOLID, PATTERN_NONE = 0xFFFFFF, 1, -4142
 _MAIN = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
@@ -367,6 +374,8 @@ def _field(sheet: Worksheet, area: Area, index: int, criteria1: object, operator
         return _dynamic(sheet, area, index, criteria1)
     if kind in COLOURS:
         return _coloured(sheet, kind, criteria1)
+    if kind in (ICON, NO_ICON):
+        return _iconned(sheet, area, index, kind, criteria1)
     if kind not in (0, AND, OR):
         raise VBAUnsupportedError(f"AutoFilter with Operator {kind} is not implemented")
     epoch_1904 = sheet.book.epoch_1904
@@ -640,6 +649,62 @@ def _read_dates(sheet: Worksheet, xml: str, attributes: str, body: str, prefix: 
     return _date_filter(groups, listed, xml, classic=classic)
 
 
+def _iconned(sheet: Worksheet, area: Area, index: int, kind: int, criteria1: object) -> FieldFilter:
+    """A filter on the icon a conditional format's icon set shows: the cells showing the Icon Criteria1 is, its set
+    and place in it and not an icon alike in another set, or with xlFilterNoIcon those showing none
+    (tests/fixtures/icon_filters/)."""
+    from pyopenvba.apps.excel._icon_sets import SETS, Icon, covering, state_of
+
+    if kind == ICON:
+        if not isinstance(criteria1, Icon) or criteria1.owner.identifier not in SETS:
+            raise VBAUnsupportedError("AutoFilter by an icon not of one of Excel's sets is not implemented")
+        return _icon_filter(sheet, kind, criteria1.owner.identifier, criteria1.index)
+    # A filter on no icon names the set of the column's icons.
+    column = area.left + index - 1
+    rule = next((found for found in (covering(sheet, row, column) for row in range(area.top + 1, area.bottom + 1))
+                 if found is not None), None)
+    if rule is None:
+        raise VBAUnsupportedError("AutoFilter on no icon over a column no icon set covers is not implemented")
+    return _icon_filter(sheet, kind, state_of(sheet, rule).set_id, 0)
+
+
+def _icon_filter(sheet: Worksheet, kind: int, set_id: int, place: int, xml: str = "") -> FieldFilter:
+    """The cells showing the icon at ``place`` in the set ``set_id``, or for xlFilterNoIcon those showing none."""
+    from pyopenvba.apps.excel._icon_sets import SETS, Icon, IconSet, shown_icon
+
+    wanted = (set_id, place) if kind == ICON else None
+
+    def test(seen: _Seen) -> bool:
+        assert seen.sheet is not None, "an icon filter looks at a cell where it is"
+        return shown_icon(seen.sheet, seen.row, seen.column) == wanted
+
+    name, icons = SETS[set_id]
+    if kind == ICON:
+        criteria: object = Icon(IconSet(sheet.book, set_id, len(icons)), place)
+        xml = xml or f'<iconFilter iconSet="{name}" iconId="{place - 1}"/>'
+    else:
+        # Criteria1 reads Empty on a filter on no icon.
+        criteria = EMPTY
+        xml = xml or f'<iconFilter iconSet="{name}"/>'
+    return FieldFilter(kind, criteria, MISSING, test, xml=xml)
+
+
+def _read_icon(sheet: Worksheet, attributes: str, xml: str) -> FieldFilter | None:
+    """An icon filter from the file: a set and the place of the icon in it, or a set alone for no icon."""
+    from pyopenvba.apps.excel._icon_sets import SETS, set_named
+
+    found = _xml_attributes(attributes)
+    set_id = set_named(found.get("iconSet", "3TrafficLights1"))
+    if set_id is None:
+        return None
+    place = found.get("iconId")
+    if place is None:
+        return _icon_filter(sheet, NO_ICON, set_id, 0, xml)
+    if not place.isdecimal() or int(place) >= len(SETS[set_id][1]):
+        return None
+    return _icon_filter(sheet, ICON, set_id, int(place) + 1, xml)
+
+
 def _coloured(sheet: Worksheet, kind: int, criteria1: object) -> FieldFilter:
     """A filter on a cell's colour or its font's, keeping its colour in a dxf of its own, made as the filter is
     (tests/fixtures/colour_filters/)."""
@@ -727,7 +792,7 @@ def _opaque(xml: str) -> FieldFilter:
     """A column filter read from a file that the model does not follow: kept as it is, and not applied."""
 
     def refuse(seen: _Seen) -> bool:
-        raise VBAUnsupportedError("applying a colour, icon or date filter is not implemented")
+        raise VBAUnsupportedError("applying a filter of this kind from a file is not implemented")
 
     return FieldFilter(-1, MISSING, MISSING, refuse, xml=xml)
 
@@ -1225,6 +1290,10 @@ def _read_column(xml: str, sheet: Worksheet) -> FieldFilter:
         if found_colour is not None:
             found_colour.xml = xml
             return found_colour
+    icon = re.fullmatch(r"<iconFilter\b([^>]*?)/>", xml)
+    if icon is not None:
+        found_icon = _read_icon(sheet, icon.group(1), xml)
+        return found_icon if found_icon is not None else _opaque(xml)
     dates = re.fullmatch(r"<filters\b([^>]*?)>(.*?)</filters>", xml, re.DOTALL)
     if dates is not None and "<dateGroupItem" in dates.group(2):
         found_dates = _read_dates(sheet, xml, dates.group(1), dates.group(2), "", classic=True)
@@ -1449,7 +1518,7 @@ class Filter(ExcelObject):
         found = self.owner.current()
         found_field = None if found is None else found.fields.get(self.index)
         if found_field is not None and found_field.operator < 0:
-            raise VBAUnsupportedError("reading a colour, icon or date filter is not implemented")
+            raise VBAUnsupportedError("reading a filter of this kind from a file is not implemented")
         return found_field
 
     @member

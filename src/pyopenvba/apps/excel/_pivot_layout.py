@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import Range
-from pyopenvba.apps.excel._pivot_create import node
+from pyopenvba.apps.excel._pivot_create import node, part_root
 from pyopenvba.apps.excel._pivots import NS, decode_text
 from pyopenvba.apps.excel._typing import Typed
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
@@ -152,7 +152,8 @@ def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[Xm
             field.append(shared)
         dictionaries.append({item_key(entry): index for index, entry in enumerate(shared)})
     ids: list[list[int]] = []
-    encoded = deepcopy(cache.records) if cache.records is not None else node('pivotCacheRecords')
+    encoded = (deepcopy(cache.records) if cache.records is not None
+               else part_root('pivotCacheRecords', relationships=True))
     encoded.set('count', str(len(records)))
     encoded[:] = [entry for entry in encoded if entry.tag != NS + 'r']
     for record in records:

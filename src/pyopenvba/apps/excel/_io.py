@@ -124,6 +124,10 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             "its VBA project is readable through ExcelFile"
         )
     package = OpcFile.parse(path.read_bytes())
+    from pyopenvba.apps.excel._prefixed_parts import respell
+
+    # A part spelling SpreadsheetML's namespace under a prefix is read, and saved, as Excel spells it.
+    respell(package)
     book = Workbook(application, path.name, str(path.parent))
     book.package = package
     book.links_folder = str(path.resolve().parent)

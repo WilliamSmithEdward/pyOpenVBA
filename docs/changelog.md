@@ -350,6 +350,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A workbook whose parts spell SpreadsheetML's namespace under a prefix,
+  `<x:worksheet xmlns:x="...">` where Excel writes `<worksheet
+  xmlns="...">`, opens with its sheets and saves. Excel reads such a
+  workbook as the same workbook spelled its own way, and saves every part
+  so but a pivot cache's records; the model now spells the parts again as
+  it opens the file. It found no sheets in such a workbook and could not
+  save it, and wrote a stylesheet so spelled, whenever it wrote the
+  stylesheet, with its fonts, fills and borders outside it. Seven copies
+  of workbooks Excel saved read and save as the workbooks they were made
+  from, and Excel reads the model's saves of them.
+
+- A pivot table the model makes is saved with SpreadsheetML's namespace
+  the default and the relationship id as `r:id`, as Excel writes its
+  cache, records and table parts. The model wrote them under prefixes of
+  its own, `ns0:` and `ns1:`.
+
 - Excel's editor adds a module to a project this saved, however many
   sheets it has. A storage's entries form a red-black tree, and the writer
   left every entry it placed red. Windows refuses to add to a tree with

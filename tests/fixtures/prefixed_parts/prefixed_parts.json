@@ -1,0 +1,163 @@
+{
+ "read": "Public Function Read(path As String, saved As String) As String\nDim wb As Object, ws As Object, c As Object, f As Object, out As String, t As Object\nApplication.DisplayAlerts = False\nOn Error Resume Next\nSet wb = Workbooks.Open(path)\nIf wb Is Nothing Then\n    Read = \"E\" & Err.Number\n    Exit Function\nEnd If\nFor Each ws In wb.Worksheets\n    out = out & ws.Name & \":\"\n    For Each c In ws.UsedRange.Cells\n        If Not IsEmpty(c.Value) Then out = out & c.Address(False, False) & \"=\" & CStr(c.Formula) & \"/\" & _\n            c.NumberFormat & \"/\" & c.Font.Bold & \"/\" & c.Interior.Color & \",\"\n    Next\n    For Each f In ws.Cells.FormatConditions\n        out = out & \"rule \" & f.AppliesTo.Address(False, False) & \"@\" & f.Priority & \"=\" & f.Interior.Color & \",\"\n    Next\n    For Each t In ws.ListObjects\n        out = out & \"table \" & t.Name & \" \" & t.Range.Address(False, False) & \",\"\n    Next\n    out = out & \";\"\nNext\nIf Len(saved) > 0 Then wb.SaveAs saved, 51\nwb.Close False\nRead = out\nEnd Function\n",
+ "cases": [
+  {
+   "name": "pivots",
+   "source": "dxf_table/order.xlsx",
+   "answer": "alpha:A1=9/General/False/16777215,D1=Head/General/False/16777215,E1=More/General/False/16777215,A2=9/General/False/16777215,D2=3/General/False/16776960,E2=3/General/False/16777215,A3=9/General/False/16777215,D3=3/General/False/16776960,E3=3/General/False/16777215,A4=9/General/False/16777215,D4=3/General/False/16776960,E4=3/General/False/16777215,A5=9/General/False/16777215,A6=9/General/False/16777215,rule A1:A3@1=255,table Table2 D1:E4,;beta:A1=Key/General/False/16777215,B1=Other/General/False/16777215,C1=9/General/False/16777215,E1=9/General/False/16777215,G1=Head/General/False/16777215,H1=More/General/False/16777215,A2=3/General/False/65535,B2=4/General/False/16777215,C2=9/General/False/16777215,E2=9/General/False/16777215,A3=2/General/False/16777215,B3=5/General/False/16777215,C3=9/General/False/16777215,E3=9/General/False/16777215,A4=4/General/False/16777215,B4=3/General/False/16711935,C4=9/General/False/16777215,E4=9/General/False/16777215,G4=3/General/False/8421376,H4=3/General/False/16777215,A5=5/General/False/16777215,B5=2/General/False/16777215,C5=9/General/False/16777215,E5=9/General/False/16777215,A6=6/General/False/16777215,B6=1/General/False/16777215,C6=9/General/False/16777215,E6=9/General/False/16777215,rule C1:C3@1=16711680,rule E1:E3@2=65280,table Table1 G1:H4,;gamma:A1=9/General/False/16777215,C1=Name/General/False/16777215,D1=Amount/General/False/16777215,A2=9/General/False/16777215,C2=x/General/False/16777215,D2=4/General/False/16777215,A3=9/General/False/16777215,C3=x/General/False/16777215,D3=4/General/False/16777215,A4=9/General/False/16777215,A5=9/General/False/16777215,A6=9/General/False/16777215,rule A1:A3@1=33023,;pivot:A3=Row Labels/General/False/16777215,B3=Total/General/False/16777215,A4=x/General/False/16777215,B4=8/General/False/25600,A5=Grand Total/General/False/16777215,B5=8/General/False/25600,;",
+   "alike": true,
+   "prefixed": {
+    "xl/pivotCache/pivotCacheDefinition1.xml": "x:pivotCacheDefinition",
+    "xl/pivotCache/pivotCacheRecords1.xml": "x:pivotCacheRecords",
+    "xl/pivotTables/pivotTable1.xml": "x:pivotTableDefinition",
+    "xl/sharedStrings.xml": "x:sst",
+    "xl/styles.xml": "x:styleSheet",
+    "xl/tables/table1.xml": "x:table",
+    "xl/tables/table2.xml": "x:table",
+    "xl/workbook.xml": "x:workbook",
+    "xl/worksheets/sheet1.xml": "x:worksheet",
+    "xl/worksheets/sheet2.xml": "x:worksheet",
+    "xl/worksheets/sheet3.xml": "x:worksheet",
+    "xl/worksheets/sheet4.xml": "x:worksheet"
+   },
+   "resaved": {
+    "xl/pivotCache/pivotCacheDefinition1.xml": "pivotCacheDefinition",
+    "xl/pivotCache/pivotCacheRecords1.xml": "x:pivotCacheRecords",
+    "xl/pivotTables/pivotTable1.xml": "pivotTableDefinition",
+    "xl/sharedStrings.xml": "sst",
+    "xl/styles.xml": "styleSheet",
+    "xl/tables/table1.xml": "table",
+    "xl/tables/table2.xml": "table",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet",
+    "xl/worksheets/sheet2.xml": "worksheet",
+    "xl/worksheets/sheet3.xml": "worksheet",
+    "xl/worksheets/sheet4.xml": "worksheet"
+   }
+  },
+  {
+   "name": "styles",
+   "source": "unchanged_save/base.xlsx",
+   "answer": "cells:A1=1/General/True/16777215,A2=1/General/False/255,B2=5/General/False/16777215,A3=1/General/False/16777215,B3=5/General/False/16777215,A4=1/0.000/False/16777215,A5=1/General/False/16711680,A6=1/General/False/13561798,rule B2:B3@1=65535,;",
+   "alike": true,
+   "prefixed": {
+    "xl/styles.xml": "x:styleSheet",
+    "xl/workbook.xml": "x:workbook",
+    "xl/worksheets/sheet1.xml": "x:worksheet"
+   },
+   "resaved": {
+    "xl/styles.xml": "styleSheet",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet"
+   }
+  },
+  {
+   "name": "formulas",
+   "source": "formula_storage/delete_row.xlsx",
+   "answer": "Sheet1:A1=1/General/False/16777215,B1==A1*2/General/False/16777215,C1==A1*3/General/False/16777215,G1==A1/General/False/16777215,H1==$A1+A$1/General/False/16777215,I1==$A1+B$1/General/False/16777215,A2=3/General/False/16777215,B2==A2*2/General/False/16777215,C2==A2*3/General/False/16777215,A3=4/General/False/16777215,;",
+   "alike": true,
+   "prefixed": {
+    "xl/calcChain.xml": "x:calcChain",
+    "xl/styles.xml": "x:styleSheet",
+    "xl/workbook.xml": "x:workbook",
+    "xl/worksheets/sheet1.xml": "x:worksheet"
+   },
+   "resaved": {
+    "xl/calcChain.xml": "calcChain",
+    "xl/styles.xml": "styleSheet",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet"
+   }
+  },
+  {
+   "name": "notes",
+   "source": "hyperlinks/rels.xlsx",
+   "answer": "Sheet1:B1=http://example.com/B1/General/False/16777215,B2=http://example.com/B2/General/False/16777215,;Sheet2:B1=http://example.com/B1/General/False/16777215,B2=http://example.com/B2/General/False/16777215,;Sheet3:B1=http://example.com/B1/General/False/16777215,B2=http://example.com/B2/General/False/16777215,;Sheet4:B1=Sheet1!A1/General/False/16777215,B2=http://example.com/B2/General/False/16777215,B3=Sheet1!A2/General/False/16777215,;",
+   "alike": true,
+   "prefixed": {
+    "xl/comments1.xml": "x:comments",
+    "xl/comments2.xml": "x:comments",
+    "xl/comments3.xml": "x:comments",
+    "xl/sharedStrings.xml": "x:sst",
+    "xl/styles.xml": "x:styleSheet",
+    "xl/workbook.xml": "x:workbook",
+    "xl/worksheets/sheet1.xml": "x:worksheet",
+    "xl/worksheets/sheet2.xml": "x:worksheet",
+    "xl/worksheets/sheet3.xml": "x:worksheet",
+    "xl/worksheets/sheet4.xml": "x:worksheet"
+   },
+   "resaved": {
+    "xl/comments1.xml": "comments",
+    "xl/comments2.xml": "comments",
+    "xl/comments3.xml": "comments",
+    "xl/sharedStrings.xml": "sst",
+    "xl/styles.xml": "styleSheet",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet",
+    "xl/worksheets/sheet2.xml": "worksheet",
+    "xl/worksheets/sheet3.xml": "worksheet",
+    "xl/worksheets/sheet4.xml": "worksheet"
+   }
+  },
+  {
+   "name": "query",
+   "source": "power_query/loaded_to_sheet.xlsx",
+   "answer": "Sheet1:A1=A/General/False/16777215,B1=B/General/False/16777215,A2=1/General/False/16777215,B2=x/General/False/16777215,A3=2/General/False/16777215,B3=y/General/False/16777215,table Loaded A1:B3,;",
+   "alike": true,
+   "prefixed": {
+    "xl/connections.xml": "x:connections",
+    "xl/queryTables/queryTable1.xml": "x:queryTable",
+    "xl/sharedStrings.xml": "x:sst",
+    "xl/styles.xml": "x:styleSheet",
+    "xl/tables/table1.xml": "x:table",
+    "xl/workbook.xml": "x:workbook",
+    "xl/worksheets/sheet1.xml": "x:worksheet"
+   },
+   "resaved": {
+    "xl/connections.xml": "connections",
+    "xl/queryTables/queryTable1.xml": "queryTable",
+    "xl/sharedStrings.xml": "sst",
+    "xl/styles.xml": "styleSheet",
+    "xl/tables/table1.xml": "table",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet"
+   }
+  },
+  {
+   "name": "arrays",
+   "source": "at_sign.xlsx",
+   "answer": "Data:A1=1/General/False/16777215,E1==SEQUENCE(3)/General/False/16777215,A2=2/General/False/16777215,E2=/General/False/16777215,A3=3/General/False/16777215,E3=/General/False/16777215,C10==@A1/General/False/16777215,G10==@A1/General/False/16777215,C14==A1:A3/General/False/16777215,G14==A1:A3/General/False/16777215,C18==@SUM(A1:A3)/General/False/16777215,G18==@SUM(A1:A3)/General/False/16777215,C22==SUM(@A1:A3)/General/False/16777215,G22==SUM(@A1:A3)/General/False/16777215,C26==@(A1:A3)/General/False/16777215,G26==@(A1:A3)/General/False/16777215,C30==@@A1:A3/General/False/16777215,G30==@@A1:A3/General/False/16777215,C34==@1/General/False/16777215,G34==@1/General/False/16777215,C38==@-@A1:A3/General/False/16777215,G38==@-A1:A3/General/False/16777215,C42==@A1+@A1:A3/General/False/16777215,G42==@A1+A1:A3/General/False/16777215,G43=/General/False/16777215,G44=/General/False/16777215,C46==@(@A1:A3*2)/General/False/16777215,G46==@(A1:A3*2)/General/False/16777215,C50==E1#/General/False/16777215,G50==E1#/General/False/16777215,C54==SUM(@E1#)/General/False/16777215,G54==SUM(@E1#)/General/False/16777215,C58==LET(x,A1:A3,@x)/General/False/16777215,G58==LET(x,A1:A3,@x)/General/False/16777215,C62==INDEX(A1:A3,0)/General/False/16777215,G62==INDEX(A1:A3,0)/General/False/16777215,C66==A1:A3%/General/False/16777215,G66==A1:A3%/General/False/16777215,C70==SEQUENCE(3)+A1:A3/General/False/16777215,G70==SEQUENCE(3)+@A1:A3/General/False/16777215,G71=/General/False/16777215,G72=/General/False/16777215,C74==@A1+1/General/False/16777215,G74==@A1+1/General/False/16777215,C78==@IF(@A1,A1:A3,0)/General/False/16777215,G78==IF(@A1,A1:A3,0)/General/False/16777215,G79=/General/False/16777215,G80=/General/False/16777215,C82==nosuch+1/General/False/16777215,G82==nosuch+1/General/False/16777215,C86==@@A1:A3%/General/False/16777215,G86==@A1:A3%/General/False/16777215,C90==@@A1:A3:A5/General/False/16777215,G90==@A1:A3:A5/General/False/16777215,;",
+   "alike": true,
+   "prefixed": {
+    "xl/calcChain.xml": "x:calcChain",
+    "xl/metadata.xml": "x:metadata",
+    "xl/styles.xml": "x:styleSheet",
+    "xl/workbook.xml": "x:workbook",
+    "xl/worksheets/sheet1.xml": "x:worksheet"
+   },
+   "resaved": {
+    "xl/calcChain.xml": "calcChain",
+    "xl/metadata.xml": "metadata",
+    "xl/styles.xml": "styleSheet",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet"
+   }
+  },
+  {
+   "name": "stylesheet",
+   "source": "unchanged_save/base.xlsx",
+   "answer": "cells:A1=1/General/True/16777215,A2=1/General/False/255,B2=5/General/False/16777215,A3=1/General/False/16777215,B3=5/General/False/16777215,A4=1/0.000/False/16777215,A5=1/General/False/16711680,A6=1/General/False/13561798,rule B2:B3@1=65535,;",
+   "alike": true,
+   "prefixed": {
+    "xl/styles.xml": "x:styleSheet",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet"
+   },
+   "resaved": {
+    "xl/styles.xml": "styleSheet",
+    "xl/workbook.xml": "workbook",
+    "xl/worksheets/sheet1.xml": "worksheet"
+   }
+  }
+ ]
+}

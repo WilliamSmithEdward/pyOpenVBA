@@ -1928,6 +1928,33 @@ def test_excel_reads_the_dxfs_this_wrote(tmp_path: Path) -> None:
         assert read[name] == answer, name
 
 
+def test_excel_reads_the_prefixed_workbooks_this_saved(tmp_path: Path) -> None:
+    """Each copy tests/fixtures/prefixed_parts measured, its parts spelling SpreadsheetML's namespace under a prefix,
+    opened by the model and saved as it was and after a cell is given a value and a bold font: Excel opens each and
+    reads every cell, rule and table as it read the copy, or as the model reads its own save of the edit."""
+    from test_excel_prefixed_parts import CASES, FOLDER, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    expected: dict[Path, str] = {}
+    for case in CASES:
+        app = ExcelApplication.open(FOLDER / f"{case['name']}.xlsx", with_vba=False)
+        expected[app.save(tmp_path / f"{case['name']}.xlsx")] = case["answer"]
+        app.add_module('Public Sub Edit()\nActiveSheet.Range("Z9").Value = "new"\n'
+                       'ActiveSheet.Range("Z9").Font.Bold = True\nEnd Sub\n', name="Editor")
+        app.run("Edit")
+        edited = app.save(tmp_path / f"edited_{case['name']}.xlsx")
+        reader = ExcelApplication()
+        reader.add_module(RECORD["read"], name="Reader")
+        expected[edited] = str(reader.run("Read", str(edited), ""))
+        assert "Z9=new/General/True/" in expected[edited], case["name"]
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        for path, answer in expected.items():
+            result = excel.run_vba(RECORD["read"], "Read", (str(path), ""), timeout=120.0)
+            assert result.ok, (path.name, result.message)
+            assert str(result.value) == answer, path.name
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

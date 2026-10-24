@@ -176,7 +176,13 @@ def set_function(field: PivotField, value: object) -> None:
     kind, label = FUNCTIONS[int(chosen)]
     sources = table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
     source = decode_text(sources[field.index].get('name', '')) if field.index < len(sources) else ''
-    field.root.set('subtotal', kind)
+    if kind == 'sum':
+        # The schema's default, which Excel leaves out (tests/fixtures/pivot_calculations/ normal).
+        field.root.attrib.pop('subtotal', None)
+    else:
+        from pyopenvba.apps.excel._pivot_calculations import set_data_attribute
+
+        set_data_attribute(field.root, 'subtotal', kind)
     others = [entry for entry in table.root.findall(f'{NS}dataFields/{NS}dataField') if entry is not field.root]
     used = {decode_text(entry.get('name', '')).casefold() for entry in [*sources, *others]}
     base = f'{label} of {source}'
@@ -236,7 +242,8 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
             raise error(1004)
     if len(name.encode('utf-16-le', 'surrogatepass')) // 2 > 255:
         raise error(5)
-    new = node('dataField', {'name': encoded(name), 'fld': str(index), 'subtotal': kind,
+    # A sum is the schema's default, which Excel leaves out (tests/fixtures/pivot_calculations/ normal).
+    new = node('dataField', {'name': encoded(name), 'fld': str(index), **({'subtotal': kind} if kind != 'sum' else {}),
                              'baseField': '0', 'baseItem': '0'})
     # A data field shows its values in its source's format, whatever it works out (tests/fixtures/
     # pivot_date_filters/ money_count).

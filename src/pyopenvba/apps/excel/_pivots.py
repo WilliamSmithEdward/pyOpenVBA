@@ -1002,6 +1002,48 @@ class PivotField(ExcelObject):
         identifier = int(self.root.get('numFmtId', '0'))
         return self.table.sheet.book.stylesheet.number_formats.get(identifier, 'General')
 
+    @setter('NumberFormat')
+    def set_number_format(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_calculations import set_number_format
+
+        set_number_format(self, value)
+
+    @member
+    def Calculation(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculations import calculation
+
+        return calculation(self)
+
+    @setter('Calculation')
+    def set_calculation(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_calculations import set_calculation
+
+        set_calculation(self, value)
+
+    @member
+    def BaseField(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculations import base_field
+
+        return base_field(self)
+
+    @setter('BaseField')
+    def set_base_field(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_calculations import set_base_field
+
+        set_base_field(self, value)
+
+    @member
+    def BaseItem(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculations import base_item
+
+        return base_item(self)
+
+    @setter('BaseItem')
+    def set_base_item(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_calculations import set_base_item
+
+        set_base_item(self, value)
+
     @member
     def LayoutForm(self) -> object:
         from pyopenvba.apps.excel._pivot_forms import layout_form

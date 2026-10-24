@@ -140,12 +140,16 @@ def value_sorts(fields: list[XmlElement], axes: set[int], reports: list[XmlEleme
     """Each field on an axis sorted by a data field's values: whether descending, and the key a group of records
     sorts by."""
     from pyopenvba.apps.excel._pivot_aggregate import aggregate
+    from pyopenvba.apps.excel._pivot_calculations import stepping
 
+    # A field a data field's values step along, against the item before or after, shows in its items' order
+    # (tests/fixtures/pivot_calculations/ previous_then_sort, sort_other_previous).
+    stepped = {stepping(report) for report in reports}
     found: dict[int, tuple[bool, SortKey]] = {}
     for index in axes:
         field = fields[index]
         kind, data = sort_kind(field), sort_scope(field)
-        if kind is None or data is None or not 0 <= data < len(reports):
+        if kind is None or data is None or not 0 <= data < len(reports) or index in stepped:
             continue
         source, function = int(reports[data].get('fld', '0')), reports[data].get('subtotal', 'sum')
 
@@ -161,6 +165,8 @@ def _equal(left: str, right: str) -> bool:
 
 
 def auto_sort(field: PivotField, order: object, name: object, line: object, subtotal: object) -> None:
+    from pyopenvba.apps.excel._pivot_calculations import unsort_stepped
+
     if line is not MISSING or subtotal is not MISSING:
         raise VBAUnsupportedError('Sorting a pivot field by a PivotLine or a custom subtotal is not implemented')
     if field.data or field.index < 0:
@@ -193,6 +199,7 @@ def auto_sort(field: PivotField, order: object, name: object, line: object, subt
         if data is None:
             sort_by_name(table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), pivot, field.index, chosen == 2)
         set_sort(pivot, ORDERS[chosen], data)
+        unsort_stepped(root)
         table.sort_names.pop(field.index, None)
     if laid_out:
         rerender(table, root)

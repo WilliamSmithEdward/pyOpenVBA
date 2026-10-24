@@ -7,6 +7,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot data fields show their values as Excel's calculations, Show
+  Values As. `PivotField.Calculation` takes all fifteen: a difference,
+  percent or percent difference from a base item or from the item before
+  or after, a running total plain or as a percent, a percent of the grand
+  total, the row, the column, the parent row or column or a parent field,
+  an index, and a rank either way. `BaseField` and `BaseItem` take a
+  field and an item by name. `(previous)` and `(next)` step over the
+  items a group lacks, and setting a base field takes the base item back
+  to the field's first, as in Excel. Each cell comes out as Excel's does,
+  empty, 0, #NULL! or #N/A, the index in Excel's own order of
+  operations, and subtotals by another function count as Excel counts
+  them. A percent shows 0.00% unless the field showed one already, and an
+  index and a rank show General. A data field's `NumberFormat` now sets.
+  A field a data field steps along by the item before or after shows in
+  its items' order, and Excel takes its value sort out of the file, which
+  the model does too. A calculation beside the innermost field's own
+  subtotals by another function reports itself unsupported. 117 layouts
+  agree with Excel before a save and once the file is opened again, the
+  saved tables and every cell's format agree with Excel's file, and
+  Excel reads the model's file as its own.
+
 - Pivot tables take Excel's table options. `TableStyle2` takes a pivot or
   table style by name in any case, and the five `ShowTableStyle` flags
   read and set. `NullString` and `ErrorString` show in the value cells no
@@ -566,6 +587,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A pivot data field that sums its values leaves `subtotal="sum"` out of
+  the file, the schema's default, as Excel's files do. The model wrote it.
 
 - A pivot cache made from source text naming a sheet, such as the
   `"data!R1C1:R13C3"` a recorded macro gives `PivotCaches.Create`, reads

@@ -44,11 +44,11 @@ def _cache_fields(cache: PivotCache) -> list[XmlElement]:
 
 
 def source_count(cache_fields: Sequence[XmlElement]) -> int:
-    """How many of a cache's fields come from its source: all but the calculated ones, which follow them."""
-    count = sum(1 for field in cache_fields if not is_calculated(field))
-    if any(is_calculated(field) for field in cache_fields[:count]):
-        raise VBAUnsupportedError('A pivot cache with a calculated field ahead of its source fields is not implemented')
-    return count
+    """How many of a cache's fields come from its source: all but the calculated and grouped ones, which follow
+    them (tests/fixtures/pivot_grouping/ calculated_dates)."""
+    from pyopenvba.apps.excel._pivot_groups import database_count
+
+    return database_count(list(cache_fields))
 
 
 def _tables(cache: PivotCache) -> list[PivotTable]:

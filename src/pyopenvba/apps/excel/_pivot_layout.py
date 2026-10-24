@@ -39,6 +39,7 @@ from pyopenvba.apps.excel._pivot_forms import (
     on,
     set_flag,
 )
+from pyopenvba.apps.excel._pivot_groups import automatic_dates, items_of, layout_groups, refresh_ranges
 from pyopenvba.apps.excel._pivot_options import shown_text, values_row_shown as shows_values_row
 from pyopenvba.apps.excel._pivot_sorts import value_sorts
 from pyopenvba.apps.excel._pivots import NS, decode_text
@@ -323,7 +324,8 @@ def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[Xm
         assert shared is not None
         types = {entry.tag[len(NS):] for entry in shared}
         # Shared-item summaries classify logicals and errors with strings.
-        # Declaring Boolean+text as mixed makes native Excel reject the cache.
+        # Declaring Boolean+text as mixed makes native Excel reject the cache, and so does a field of numbers with
+        # a blank not declared semi-mixed (tests/fixtures/pivot_grouping/ mixed_gappy).
         flags = {'s' if kind in ('e', 'b') else kind for kind in types}
         for attribute in ('minValue', 'maxValue', 'minDate', 'maxDate', 'containsInteger'):
             shared.attrib.pop(attribute, None)
@@ -331,20 +333,22 @@ def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[Xm
                              containsNumber=str(int('n' in types and 'd' not in types)),
                              containsDate=str(int('d' in types)), containsBlank=str(int('m' in types)),
                              containsMixedTypes=str(int(len(flags - {'m'}) > 1)),
-                             containsSemiMixedTypes=str(int(bool(flags & {'s', 'b'}))),
+                             containsSemiMixedTypes=str(int(bool(flags & {'s', 'm'}))),
                              containsNonDate=str(int(bool(types - {'d', 'm'}))))
         numeric = [float(entry.get('v', '0')) for entry in shared if entry.tag == NS + 'n']
         if numeric and 'd' not in types:
             shared.attrib.update(minValue=repr(min(numeric)), maxValue=repr(max(numeric)),
                                  containsInteger=str(int(all(value.is_integer() for value in numeric))))
-        dates = [dt.datetime.fromisoformat(entry.get('v', '')) for entry in shared if entry.tag == NS + 'd']
-        if dates:
-            # Excel's maxDate is the midnight after the latest day (tests/fixtures/pivot_date_filters/,
-            # tests/fixtures/pivots/native-advanced-date-groups.xlsx).
-            after = dt.datetime.combine(max(dates).date(), dt.time()) + dt.timedelta(days=1)
-            shared.attrib.update(minDate=min(dates).isoformat(), maxDate=after.isoformat())
+        found = automatic_dates(list(shared))
+        if found is not None:
+            # Excel's maxDate is the midnight after the latest day, or the latest moment where it has a time
+            # (tests/fixtures/pivot_date_filters/, tests/fixtures/pivot_grouping/ mixed_whole, mixed_timed).
+            shared.attrib.update(minDate=found[0].isoformat(), maxDate=found[1].isoformat())
         positions.append(order(list(shared)))
-    positions.extend([] for _ in fields[sources:])
+    # A grouping by ranges or periods follows its values where it takes its start or end from them, and every
+    # grouped field gives each record an item of its own (tests/fixtures/pivot_grouping/).
+    refresh_ranges(list(fields))
+    layout_groups(list(fields), sources, records, ids, positions)
     return fields, encoded, ids, positions
 
 
@@ -400,7 +404,8 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     on_axes = {index for index in (*rows, *columns, *pages) if index != VALUES}
     # Each field's items' captions and ShowDetail, by their places in the cache this plan renders from.
     kept: dict[int, dict[int, dict[str, str]]] = {}
-    lists = carried(root, table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), list(fields), on_axes, kept)
+    lists = carried(root, table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField'), list(fields), on_axes, kept,
+                    positions)
     display = [[place for place, _, _ in listing] if listing is not None else positions[index]
                for index, listing in enumerate(lists)]
     chosen_pages = choices(root, lists)
@@ -518,7 +523,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         key = field, position
         if key not in captions:
             given = kept.get(field, {}).get(display[field][position], {}).get('n')
-            shared = fields[field].find(NS + 'sharedItems')
+            shared = items_of(fields[field])
             assert shared is not None
             captions[key] = (decode_text(given) if given is not None
                              else item_label(shared[display[field][position]], formats[field]))
@@ -776,7 +781,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         button(-page_rows - 1 + row_offset, 3 * column_offset, field_name(field))
         showing = page_caption(lists[field] or [], chosen_pages.get(field), flag(pivot_fields[field], MULTIPLE))
         if isinstance(showing, int):
-            values = fields[field].find(NS + 'sharedItems')
+            values = items_of(fields[field])
             assert values is not None
             given = kept.get(field, {}).get(showing, {}).get('n')
             label = decode_text(given) if given is not None else item_label(values[showing], formats[field])

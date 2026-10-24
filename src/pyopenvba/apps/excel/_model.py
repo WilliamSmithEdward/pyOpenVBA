@@ -3099,6 +3099,11 @@ class Range(ExcelObject):
               periods: object = MISSING) -> object:
         from pyopenvba.apps.excel._outline import group
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_groups import group as group_items, table_at
+
+            if table_at(self) is not None:
+                return group_items(self, start, end, by, periods)
         if any(value is not MISSING for value in (start, end, by, periods)):
             raise VBAUnsupportedError('Group with pivot/date/number arguments is not implemented')
         return group(self, 'Group')
@@ -3107,6 +3112,11 @@ class Range(ExcelObject):
     def Ungroup(self) -> object:
         from pyopenvba.apps.excel._outline import group
 
+        if self.sheet.pivot_tables:
+            from pyopenvba.apps.excel._pivot_groups import table_at, ungroup
+
+            if table_at(self) is not None:
+                return ungroup(self)
         return group(self, 'Ungroup')
 
     @method

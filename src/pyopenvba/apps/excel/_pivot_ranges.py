@@ -10,8 +10,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._pivots import PivotField, PivotTable
-    from pyopenvba.apps.excel._pivot_reports import PivotLine
+    from pyopenvba.apps.excel._pivots import PivotField, PivotItem, PivotTable
+    from pyopenvba.apps.excel._pivot_reports import PivotLine, PivotReport
 
 VALUES = -2
 
@@ -159,3 +159,119 @@ def field_range(field: PivotField, label: bool) -> Range:
     if not areas:
         raise error(1004)
     return Range(table.sheet, areas)
+
+
+def _readable(table: PivotTable) -> PivotReport:
+    report = table.report()
+    if report is None or not report.readable:
+        raise VBAUnsupportedError('This PivotTable item-range layout is not readable')
+    return report
+
+
+def _place(report: PivotReport, field: int, x: int) -> int | None:
+    """Where in its field's list an item stands, by its place in the cache."""
+    return next((position for position, item in enumerate(report.fields[field].items)
+                 if item is not None and item.index == x), None)
+
+
+def _runs(indices: list[int]) -> list[tuple[int, int]]:
+    """Consecutive line numbers, as the first and last of each run."""
+    runs: list[tuple[int, int]] = []
+    for index in indices:
+        if runs and runs[-1][1] == index - 1:
+            runs[-1] = (runs[-1][0], index)
+        else:
+            runs.append((index, index))
+    return runs
+
+
+def item_range(item: PivotItem, label: bool) -> Range:
+    """PivotItem.LabelRange and DataRange (tests/fixtures/pivot_grouping/ ranges_*): every line an item stands at,
+    its own lines alone for a row field in compact form, whose column the fields inside it share, else each run
+    of the lines inside it, their subtotals left out; the label cells in its field's column or row, the value
+    cells across every line of the other axis but its grand total. A page field's item has no label cells and
+    every value cell but the grand totals' for its data; a hidden item, or one no line shows, error 1004."""
+    from pyopenvba.apps.excel._pivot_forms import label_columns, layout_of
+
+    field = item.field
+    field.check_alive()
+    table = field.table.entry
+    root = table.root
+    if field.data or field.index < 0 or item.x < 0:
+        raise error(1004)
+    report = _readable(table)
+    location = root.find(NS + 'location')
+    if location is None:
+        raise error(1004)
+    area = parse_area(location.get('ref', 'A1'))
+    top, left = area.top, area.left
+    dr, dc = int(location.get('firstDataRow', '0')), int(location.get('firstDataCol', '0'))
+    rows, columns = list(report.rows), list(report.columns)
+    row_count = _length(report.row_lines) if rows else 1
+    column_count = _length(report.column_lines)
+    position = _place(report, field.index, item.x)
+    areas: list[Area] = []
+    if field.index in rows and position is not None:
+        depth = rows.index(field.index)
+        own = depth < len(rows) - 1 and layout_of(root, field.index).mode == 'compact'
+        found = [index for index, line in enumerate(report.row_lines)
+                 if line.kind == 'data' and len(line.items) > depth and line.items[depth] == position
+                 and (not own or len(line.items) == depth + 1)]
+        column = left + label_columns(root, rows)[0][depth]
+        for first, last in _runs(found):
+            areas.append(Area(top + dr + first, column if label else left + dc, top + dr + last,
+                              column if label else left + dc + column_count - 1, table.sheet.name))
+    elif field.index in columns and position is not None:
+        depth = columns.index(field.index)
+        found = [index for index, line in enumerate(report.column_lines)
+                 if line.kind == 'data' and len(line.items) > depth and line.items[depth] == position]
+        for first, last in _runs(found):
+            areas.append(Area(top + 1 + depth if label else top + dr, left + dc + first,
+                              top + 1 + depth if label else top + dr + row_count - 1, left + dc + last,
+                              table.sheet.name))
+    elif not label and any(int(page.get('fld', '-1')) == field.index
+                           for page in root.findall(f'{NS}pageFields/{NS}pageField')):
+        areas.append(Area(top + dr, left + dc, top + dr + row_count - 1, left + dc + column_count - 1,
+                          table.sheet.name))
+    if not areas:
+        raise error(1004)
+    return Range(table.sheet, areas)
+
+
+def cell_item(table: PivotTable, row: int, column: int) -> tuple[int, int] | None:
+    """The field and the item, by its place in the cache, whose label a cell of a table's rows or columns shows,
+    the cells an item's LabelRange covers; None for any other cell, a total's or a data cell."""
+    from pyopenvba.apps.excel._pivot_forms import label_columns
+
+    report = _readable(table)
+    root = table.root
+    location = root.find(NS + 'location')
+    if location is None:
+        return None
+    area = parse_area(location.get('ref', 'A1'))
+    top, left = area.top, area.left
+    dr, dc = int(location.get('firstDataRow', '0')), int(location.get('firstDataCol', '0'))
+    rows, columns = list(report.rows), list(report.columns)
+    line_at = row - top - dr
+    if rows and 0 <= line_at < len(report.row_lines) and left <= column < left + dc:
+        line = report.row_lines[line_at]
+        places = label_columns(root, rows)[0]
+        depths = [depth for depth in range(min(len(rows), len(line.items))) if places[depth] == column - left]
+        if line.kind != 'data' or not depths:
+            return None
+        depth = max(depths)
+        chosen = rows[depth]
+    else:
+        line_at, depth = column - left - dc, row - top - 1
+        if not (columns and 0 <= line_at < len(report.column_lines) and 0 <= depth < len(columns) and row < top + dr):
+            return None
+        line = report.column_lines[line_at]
+        if line.kind != 'data' or depth >= len(line.items):
+            return None
+        chosen = columns[depth]
+    if chosen == VALUES:
+        return None
+    position = line.items[depth]
+    items = report.fields[chosen].items
+    entry = items[position] if 0 <= position < len(items) else None
+    return (chosen, entry.index) if entry is not None else None

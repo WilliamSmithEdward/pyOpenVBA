@@ -249,7 +249,7 @@ def _materialize(cache: PivotCache, charge_text: Callable[[object], None] | None
                               'containsDate': str(int('d' in types)), 'containsBlank': str(int('m' in types)),
                               'containsNonDate': str(int(bool(types - {'d', 'm'}))),
                               'containsMixedTypes': str(int(len(types - {'m'}) > 1)),
-                              'containsSemiMixedTypes': str(int(bool(types & {'s', 'b', 'e'})))})
+                              'containsSemiMixedTypes': str(int(bool(types & {'s', 'b', 'e', 'm'})))})
         # Numeric bounds are invalid for a field containing date records: Excel
         # refuses the workbook rather than ignoring the contradictory summary.
         if numbers[index] and 'd' not in types:

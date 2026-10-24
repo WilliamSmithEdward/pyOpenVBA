@@ -1233,6 +1233,37 @@ class PivotField(ExcelObject):
         return self._range(True)
 
     @member
+    def ParentField(self) -> object:
+        from pyopenvba.apps.excel._pivot_groups import parent_field
+
+        return parent_field(self)
+
+    @member
+    def ChildField(self) -> object:
+        from pyopenvba.apps.excel._pivot_groups import child_field
+
+        return child_field(self)
+
+    @member
+    def GroupLevel(self) -> object:
+        from pyopenvba.apps.excel._pivot_groups import group_level
+
+        return group_level(self)
+
+    @member
+    def TotalLevels(self) -> object:
+        from pyopenvba.apps.excel._pivot_groups import total_levels
+
+        return total_levels(self)
+
+    @member
+    def ParentItems(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_groups import parent_items
+
+        collection = parent_items(self)
+        return collection if Index is MISSING else collection.Item(Index)
+
+    @member
     def PivotItems(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._pivot_calculated import calculated_view
         from pyopenvba.apps.excel._pivot_filters import first_for_names, list_on_reading
@@ -1347,9 +1378,10 @@ class PivotField(ExcelObject):
         if self.index == -2:
             return [PivotItem(self, XmlElement(NS + 's', {'v': entry.get('name', '')}), position)
                     for position, entry in enumerate(self.table.root.findall(f'{NS}dataFields/{NS}dataField'), 1)]
+        from pyopenvba.apps.excel._pivot_groups import item_entries, natural_places
+
         fields = self.table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
-        shared = fields[self.index].find(NS + 'sharedItems')
-        entries = list(shared) if shared is not None else []
+        entries = item_entries(fields[self.index])
         if not entries:
             # Numeric fields can omit sharedItems and store values in each record.
             package = self.table.sheet.book.package
@@ -1381,8 +1413,9 @@ class PivotField(ExcelObject):
         else:
             from pyopenvba.apps.excel._pivot_filters import sorted_places
 
-            items = [PivotItem(self, entries[place], position, place)
-                     for position, place in enumerate(sorted_places(entries), 1)]
+            places = natural_places(fields, self.index) if len(entries) == len(item_entries(fields[self.index])) \
+                else sorted_places(entries)
+            items = [PivotItem(self, entries[place], position, place) for position, place in enumerate(places, 1)]
         return items
 
 
@@ -1439,6 +1472,13 @@ class PivotItem(ExcelObject):
             return '(All)'
         if self.root.tag == NS + 'm':
             return '(blank)'
+        if self.x >= 0 and self.field.index >= 0 and not self.field.data:
+            from pyopenvba.apps.excel._pivot_groups import item_name
+
+            fields = self.field.table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
+            named = item_name(fields, self.field.index, self.x) if self.field.index < len(fields) else None
+            if named is not None:
+                return named
         value = self.root.get('v', '')
         if self.root.tag == NS + 'b':
             return 'TRUE' if value == '1' else 'FALSE'
@@ -1489,6 +1529,30 @@ class PivotItem(ExcelObject):
         from pyopenvba.apps.excel._pivot_details import set_item_detail
 
         set_item_detail(self, value)
+
+    @member
+    def LabelRange(self) -> object:
+        from pyopenvba.apps.excel._pivot_ranges import item_range
+
+        return item_range(self, True)
+
+    @member
+    def DataRange(self) -> object:
+        from pyopenvba.apps.excel._pivot_ranges import item_range
+
+        return item_range(self, False)
+
+    @member
+    def ParentItem(self) -> object:
+        from pyopenvba.apps.excel._pivot_groups import parent_item
+
+        return parent_item(self)
+
+    @member
+    def ChildItems(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_groups import child_items
+
+        return child_items(self, Index)
 
     @member
     def Visible(self) -> object:

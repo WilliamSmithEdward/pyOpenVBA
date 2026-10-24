@@ -1,0 +1,176 @@
+{
+ "build": "Private Function Filters(ws As Object) As String\n    Dim out As String, f As Object, c As Object\n    On Error Resume Next\n    out = \"filtering=\" & ws.FilterMode\n    If ws.AutoFilterMode Then\n        Set f = ws.AutoFilter.Filters(1)\n        out = out & \" f1:\" & f.On\n        If f.On Then\n            Err.Clear\n            out = out & \" op=\" & f.Operator & \" n=\" & f.Count\n            If Err.Number <> 0 Then out = out & \" E\" & Err.Number\n            Err.Clear\n            Set c = Nothing\n            Set c = f.Criteria1\n            If Err.Number <> 0 Then\n                out = out & \" c1=E\" & Err.Number\n            ElseIf c Is Nothing Then\n                out = out & \" c1=Nothing\"\n            Else\n                out = out & \" c1=\" & TypeName(c) & \":\" & c.Index\n                If Err.Number <> 0 Then out = out & \"E\" & Err.Number\n            End If\n        End If\n    End If\n    Filters = out\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, r As Long\n    For r = 1 To 15\n        If ws.Rows(r).Hidden Then out = out & r & \",\"\n    Next\n    Dump = \"hidden=\" & out & \" \" & Filters(ws)\nEnd Function\n\nPrivate Function Fill(ws As Object) As Object\n    Dim r As Long\n    ws.Range(\"A1\").Value = \"N\"\n    For r = 2 To 11\n        ws.Cells(r, 1).Value = (r - 1) * 10\n    Next\n    ws.Range(\"A12\").Value = \"word\"\n    ws.Range(\"A14\").Formula = \"=1/0\"\n    ws.Range(\"A15\").Value = 55\n    Set Fill = ws.Range(\"A2:A15\").FormatConditions.AddIconSetCondition\nEnd Function\n\nPrivate Function Layout(wb As Object, name As String, setId As Long, count As Long, filterSet As Long, _\n        last As Long) As String\n    Dim ws As Object, f As Object, out As String, k As Long, shown As Long\n    If wb.Worksheets(1).Name = \"Sheet1\" Then\n        Set ws = wb.Worksheets(1)\n    Else\n        Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    End If\n    ws.Name = name\n    Set f = Fill(ws)\n    f.IconSet = wb.IconSets(setId)\n    Select Case name\n{cases}\n    End Select\n    shown = wb.IconSets(filterSet).Count\n    For k = 1 To shown\n        On Error Resume Next\n        Err.Clear\n        ws.Range(\"A1:A15\").AutoFilter Field:=1, Criteria1:=wb.IconSets(filterSet).Item(k), Operator:=xlFilterIcon\n        If Err.Number <> 0 Then out = out & \"icon\" & k & \"=E\" & Err.Number & \";\"\n        On Error GoTo 0\n        out = out & \"icon\" & k & \"=\" & Dump(ws) & \";\"\n    Next\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1:A15\").AutoFilter Field:=1, Operator:=xlFilterNoIcon\n    If Err.Number <> 0 Then out = out & \"none=E\" & Err.Number & \";\"\n    On Error GoTo 0\n    out = out & \"none=\" & Dump(ws) & \";\"\n    If last > 0 Then\n        ws.Range(\"A1:A15\").AutoFilter Field:=1, Criteria1:=wb.IconSets(filterSet).Item(last), Operator:=xlFilterIcon\n    End If\n    Layout = name & \"^\" & out & \"|\"\nEnd Function\n\nPublic Function Build() As String\nDim wb As Object, ws As Object, out As String\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\n{layouts}\nwb.Worksheets(1).Activate\nwb.SaveAs \"{folder}\\icon_filters.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\icon_filters.xlsx\")\nout = out & \"~\"\nFor Each ws In wb.Worksheets\n    out = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\nwb.Close False\nBuild = out\nEnd Function\n",
+ "layout": "out = out & Layout(wb, \"{name}\", {set}, {count}, {filter_set}, {last})\n",
+ "cases": "    Case \"numbers\"\n        f.IconCriteria(2).Type = xlConditionValueNumber\n        f.IconCriteria(2).Value = 30\n        f.IconCriteria(3).Type = xlConditionValueNumber\n        f.IconCriteria(3).Value = 70\n    Case \"above\"\n        f.IconCriteria(2).Type = xlConditionValueNumber\n        f.IconCriteria(2).Value = 30\n        f.IconCriteria(2).Operator = xlGreater\n        f.IconCriteria(3).Type = xlConditionValueNumber\n        f.IconCriteria(3).Value = 70\n        f.IconCriteria(3).Operator = xlGreater\n    Case \"percentiles\"\n        f.IconCriteria(2).Type = xlConditionValuePercentile\n        f.IconCriteria(2).Value = 50\n        f.IconCriteria(3).Type = xlConditionValuePercentile\n        f.IconCriteria(3).Value = 90\n    Case \"formula\"\n        f.IconCriteria(2).Type = xlConditionValueFormula\n        f.IconCriteria(2).Value = \"=AVERAGE($A$2:$A$11)\"\n    Case \"reversed\"\n        f.ReverseOrder = True\n    Case \"icons_only\"\n        f.ShowIconOnly = True\n    Case \"no_icon\"\n        f.IconCriteria(2).Icon = xlIconNoCellIcon\n",
+ "layouts": [
+  {
+   "name": "lights",
+   "set": 4,
+   "count": 3,
+   "steps": "",
+   "filter_set": 4,
+   "last": 3,
+   "dumps": "icon1=hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{AA5B70F5-38C4-41B4-8072-E5FC4E46EDE3}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3TrafficLights1\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "arrows",
+   "set": 1,
+   "count": 3,
+   "steps": "",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{09CCC1AD-8CFC-4B63-97C2-AF75CB2DE61C}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "five_arrows",
+   "set": 14,
+   "count": 5,
+   "steps": "",
+   "filter_set": 14,
+   "last": 5,
+   "dumps": "icon1=hidden=4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,8,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:3;icon4=hidden=2,3,4,5,6,7,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:4;icon5=hidden=2,3,4,5,6,7,8,9,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:5;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:5",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{ED278E8A-51BA-4BDA-A970-0CFFAC42493D}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"5Arrows\" iconId=\"4\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "numbers",
+   "set": 1,
+   "count": 3,
+   "steps": "f.IconCriteria(2).Type = xlConditionValueNumber\nf.IconCriteria(2).Value = 30\nf.IconCriteria(3).Type = xlConditionValueNumber\nf.IconCriteria(3).Value = 70\n",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,8,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{EEA96C0D-BA12-408D-9733-AA1D7FB25AEA}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "above",
+   "set": 1,
+   "count": 3,
+   "steps": "f.IconCriteria(2).Type = xlConditionValueNumber\nf.IconCriteria(2).Value = 30\nf.IconCriteria(2).Operator = xlGreater\nf.IconCriteria(3).Type = xlConditionValueNumber\nf.IconCriteria(3).Value = 70\nf.IconCriteria(3).Operator = xlGreater\n",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{A0E5E7B2-7874-4B44-A093-4CE94B7ADC3F}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "percentiles",
+   "set": 1,
+   "count": 3,
+   "steps": "f.IconCriteria(2).Type = xlConditionValuePercentile\nf.IconCriteria(2).Value = 50\nf.IconCriteria(3).Type = xlConditionValuePercentile\nf.IconCriteria(3).Value = 90\n",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,5,6,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,9,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{AB4F529F-737B-4ADA-AFFB-6ACCED205998}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "formula",
+   "set": 1,
+   "count": 3,
+   "steps": "f.IconCriteria(2).Type = xlConditionValueFormula\nf.IconCriteria(2).Value = \"=AVERAGE($A$2:$A$11)\"\n",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,5,6,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{2A0059D9-2E6A-4CB0-887D-AA1CA1495CAE}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "reversed",
+   "set": 1,
+   "count": 3,
+   "steps": "f.ReverseOrder = True\n",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{E92EAA69-E50E-4E0E-92E1-6329B117BFA0}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "icons_only",
+   "set": 1,
+   "count": 3,
+   "steps": "f.ShowIconOnly = True\n",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{CDE0EF30-9303-41C2-AEFF-3E4771419A8C}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "no_icon",
+   "set": 1,
+   "count": 3,
+   "steps": "f.IconCriteria(2).Icon = xlIconNoCellIcon\n",
+   "filter_set": 1,
+   "last": 3,
+   "dumps": "icon1=hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,9,10,11, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{78EDEDFC-50BB-4D21-8C83-10A834D7974B}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "saved_no_icon",
+   "set": 1,
+   "count": 3,
+   "steps": "",
+   "filter_set": 1,
+   "last": 0,
+   "dumps": "icon1=hidden=5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,9,10,11,12,13,14, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{9EAD0CF3-BDD9-4199-B448-072225E949A6}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3Arrows\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "other_set",
+   "set": 1,
+   "count": 3,
+   "steps": "",
+   "filter_set": 14,
+   "last": 3,
+   "dumps": "icon1=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;icon4=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:4;icon5=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:5;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{6230AE15-9179-4BBB-9DA2-D9E92C84D885}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"5Arrows\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  },
+  {
+   "name": "lights_on_arrows",
+   "set": 1,
+   "count": 3,
+   "steps": "",
+   "filter_set": 4,
+   "last": 3,
+   "dumps": "icon1=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:1;icon2=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:2;icon3=hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3;none=hidden=2,3,4,5,6,7,8,9,10,11,15, filtering=True f1:True op=14 n=1 c1=E424;",
+   "reopened": "hidden=2,3,4,5,6,7,8,9,10,11,12,13,14,15, filtering=True f1:True op=10 n=1 c1=Icon:3",
+   "file": [
+    "<autoFilter ref=\"A1:A15\" xr:uid=\"{D8771C51-3D14-40D3-A0B9-24AD7B0E0098}\"><filterColumn colId=\"0\"><iconFilter iconSet=\"3TrafficLights1\" iconId=\"2\"/></filterColumn></autoFilter>"
+   ]
+  }
+ ]
+}

@@ -205,6 +205,12 @@ def _channels(sheet: Worksheet, element: XmlElement) -> tuple[int, ...]:
     return tuple(int(shown[at:at + 2], 16) for at in (0, 2, 4))
 
 
+def point_value(sheet: Worksheet, rule: Rule, kind: str, text: str, population: tuple[float, ...]) -> float:
+    """Where a criterion of ``kind`` and value ``text`` stands among the range's numbers, as a colour scale's point
+    stands, an icon set's criteria among them."""
+    return _point(sheet, rule, XmlElement(NS + 'cfvo', {'type': kind, 'val': text}), population)
+
+
 def _point(sheet: Worksheet, rule: Rule, point: XmlElement, population: tuple[float, ...]) -> float:
     """Where a criterion stands among the range's numbers."""
     kind = point.get('type', '')

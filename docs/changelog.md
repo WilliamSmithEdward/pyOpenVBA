@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- AutoFilter on a conditional format's icons: xlFilterIcon with an Icon
+  as Criteria1 keeps the cells an icon set shows that icon, and
+  xlFilterNoIcon those it shows none. The model works out the icon each
+  cell shows as Excel does: a number shows the icon of the highest
+  criterion it reaches, at or above its value or above it where the
+  criterion says so, the criteria a percent of the way from the range's
+  lowest number to its highest, a percentile of them, a number or a
+  formula's answer; the order turned round turns the icons round, and a
+  place given no icon shows none, as a word, a blank and an error do. A
+  filter matches an icon's set and place, not one alike in another set.
+  It reads back xlFilterIcon and the Icon, or xlFilterNoIcon and Empty,
+  and saves and reads as Excel's does. The model refused both. 13 icon
+  sets filtered by every icon and by none agree, before a save and once
+  the file is opened again, and Excel reads the model's file as its own.
+
 - AutoFilter's dynamic filters on dates: xlFilterDynamic with xlFilterToday
   through xlFilterYearToDate keeps the date cells in a period counted from
   today, yesterday to next year, a week running from Sunday, and

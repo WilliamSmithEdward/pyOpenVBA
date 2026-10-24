@@ -384,11 +384,14 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
     if cache.index == 0:
         materialize(cache)
     current = str(cache.Version())
+    # The attributes Excel gives a table a macro makes, in its order (tests/fixtures/pivot_layouts/ compact).
     root = part_root('pivotTableDefinition', {'name': encoded(caption), 'cacheId': str(cache.cache_id),
-                                       'dataCaption': 'Values', 'createdVersion': current, 'updatedVersion': current,
-                                       'minRefreshableVersion': str(min(int(current), 3)),
-                                       'useAutoFormatting': '1', 'rowGrandTotals': '1', 'colGrandTotals': '1',
-                                       'outline': '1', 'outlineData': '1', 'compact': '1', 'compactData': '1',
+                                       'applyNumberFormats': '0', 'applyBorderFormats': '0', 'applyFontFormats': '0',
+                                       'applyPatternFormats': '0', 'applyAlignmentFormats': '0',
+                                       'applyWidthHeightFormats': '1', 'dataCaption': 'Values',
+                                       'updatedVersion': current, 'minRefreshableVersion': str(min(int(current), 3)),
+                                       'useAutoFormatting': '1', 'itemPrintTitles': '1', 'createdVersion': current,
+                                       'indent': '0', 'outline': '1', 'outlineData': '1',
                                        'multipleFieldFilters': '0'})
     root.append(node('location', {'ref': area.address(absolute=False), 'firstHeaderRow': str(int(not blocked)),
                                  'firstDataRow': str(int(not blocked)), 'firstDataCol': '0'}))
@@ -403,6 +406,9 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
     root.append(pivots)
     root.append(node('pivotTableStyleInfo', {'name': 'PivotStyleLight16', 'showRowHeaders': '1',
                                          'showColHeaders': '1', 'showRowStripes': '0', 'showColStripes': '0', 'showLastColumn': '1'}))
+    from pyopenvba.apps.excel._pivot_aggregate import default_layout
+
+    default_layout(root)
     table = PivotTable(target.sheet, cache, root)
     table.changed = True
     cleared = Range(target.sheet, [area])

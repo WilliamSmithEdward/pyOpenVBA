@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement, XmlParseError, xml_tree
+from pyopenvba.apps.excel._pivot_forms import FIELD_EXTENSION, SUBTOTALS
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, error
@@ -93,7 +94,7 @@ def children(root: XmlElement, allowed: str) -> None:
 
 def extensions(root: XmlElement, *, cache: bool) -> None:
     known = ({'{725AE2AE-9491-48be-B2B4-4EB974FC3084}': (X14 + 'pivotCacheDefinition', '')} if cache else {
-        '{962EF5D1-5CA2-4c93-8EF4-DBF5C05439D2}': (X14 + 'pivotTableDefinition', 'hideValuesRow'),
+        '{962EF5D1-5CA2-4c93-8EF4-DBF5C05439D2}': (X14 + 'pivotTableDefinition', 'fillDownLabelsDefault hideValuesRow'),
         '{747A6164-185A-40DC-8AA5-F01512510D54}': (X16 + 'pivotTableDefinition16', '')})
     for group in root.findall(NS + 'extLst'):
         attributes(group, '')
@@ -108,6 +109,20 @@ def extensions(root: XmlElement, *, cache: bool) -> None:
             attributes(node, found[1])
             if node.get('hideValuesRow', '1') != '1':
                 raise unsupported('with a custom Values header')
+
+
+def field_extensions(field: XmlElement) -> None:
+    """A pivot field's own extensions: Excel 2010's, which says whether the field repeats its labels."""
+    for group in field.findall(NS + 'extLst'):
+        attributes(group, '')
+        for extension in group:
+            attributes(extension, 'uri')
+            if extension.tag != NS + 'ext' or extension.get('uri') != FIELD_EXTENSION or len(extension) != 1:
+                raise unsupported('with unknown field extensions')
+            options = extension[0]
+            if options.tag != X14 + 'pivotField' or len(options):
+                raise unsupported('with unknown field extension content')
+            attributes(options, 'fillDownLabels')
 
 
 def integer(root: XmlElement, name: str, default: int = 0) -> int:
@@ -229,7 +244,8 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     attributes(root, 'name cacheId dataCaption createdVersion updatedVersion minRefreshableVersion useAutoFormatting '
                'rowGrandTotals colGrandTotals outline outlineData compact compactData dataOnRows pageWrap pageOverThenDown '
                'applyNumberFormats applyBorderFormats applyFontFormats applyPatternFormats applyAlignmentFormats '
-               'applyWidthHeightFormats itemPrintTitles indent multipleFieldFilters', provenance=True)
+               'applyWidthHeightFormats itemPrintTitles indent multipleFieldFilters grandTotalCaption showHeaders '
+               'rowHeaderCaption colHeaderCaption mergeItem', provenance=True)
     children(root, 'location pivotFields rowFields rowItems colFields colItems pageFields dataFields pivotTableStyleInfo filters '
              'extLst')
     if not readable(root):
@@ -241,8 +257,8 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
             raise unsupported('with malformed layout flags')
     if integer(root, 'pageWrap') < 0:
         raise unsupported('with invalid page wrapping')
-    if root.get('compact', '1') != '1' or root.get('compactData', '1') != '1':
-        raise unsupported('for noncompact reports')
+    if root.get('mergeItem', '0') not in ('0', 'false'):
+        raise unsupported('with merged labels')
     fields = root.find(NS + 'pivotFields')
     if fields is None or len(fields) != field_count:
         raise unsupported('with a mismatched report schema')
@@ -250,13 +266,11 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     children(fields, 'pivotField')
     for field in fields:
         distinct_children(field)
-        attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop '
-                   'multipleItemSelectionAllowed sortType measureFilter numFmtId')
-        children(field, 'items autoSortScope')
-        if field.get('compact', '1') != '1':
-            raise unsupported('with noncompact field layouts')
-        if field.get('defaultSubtotal', '1') != '1':
-            raise unsupported('with custom subtotals')
+        attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop subtotalCaption '
+                   'insertBlankRow insertPageBreak multipleItemSelectionAllowed sortType measureFilter numFmtId '
+                   + ' '.join(entry[0] for entry in SUBTOTALS.values()))
+        children(field, 'items autoSortScope extLst')
+        field_extensions(field)
         if field.get('sortType', 'manual') not in ('manual', 'ascending', 'descending') or (
                 field.find(NS + 'autoSortScope') is not None and sort_scope(field) is None):
             raise unsupported('with unknown sorts')
@@ -265,7 +279,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
             children(items, 'item')
             for item in items:
                 attributes(item, 'x t h m')
-                if len(item) or item.get('t', 'data') not in ('data', 'default'):
+                if len(item) or item.get('t', 'data') not in ('data', 'default', *SUBTOTALS):
                     raise unsupported('with grouped or filtered items')
     for name, attr in (('rowFields', 'x'), ('colFields', 'x'), ('pageFields', 'fld')):
         for group in root.findall(NS + name):

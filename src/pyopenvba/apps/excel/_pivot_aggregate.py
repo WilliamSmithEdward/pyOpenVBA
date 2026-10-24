@@ -26,6 +26,24 @@ FUNCTIONS = {-4157: ('sum', 'Sum'), -4112: ('count', 'Count'), -4113: ('countNum
              -4164: ('var', 'Var'), -4165: ('varp', 'Varp')}
 
 
+X14_MAIN = 'http://schemas.microsoft.com/office/spreadsheetml/2009/9/main'
+XM_MAIN = 'http://schemas.microsoft.com/office/excel/2006/main'
+#: Excel 2016's extension holding a table's default layout, which every table Excel makes carries, empty.
+DEFAULT_LAYOUT = '{747A6164-185A-40DC-8AA5-F01512510D54}'
+XPDL = 'http://schemas.microsoft.com/office/spreadsheetml/2016/pivotdefaultlayout'
+
+
+def default_layout(root: XmlElement) -> None:
+    """Give a new table Excel 2016's default-layout extension as Excel does (tests/fixtures/pivot_layouts/)."""
+    extensions = root.find(NS + 'extLst')
+    if extensions is None:
+        extensions = node('extLst')
+        root.append(extensions)
+    extension = node('ext', {'uri': DEFAULT_LAYOUT, 'xmlns:xpdl': XPDL})
+    extension.append(XmlElement(f'{{{XPDL}}}pivotTableDefinition16'))
+    extensions.append(extension)
+
+
 def hide_values_row(root: XmlElement) -> None:
     """Preserve the native header geometry when Excel reopens the report."""
     extensions = root.find(NS + 'extLst')
@@ -35,12 +53,13 @@ def hide_values_row(root: XmlElement) -> None:
     identifier = '{962EF5D1-5CA2-4c93-8EF4-DBF5C05439D2}'
     extension = next((entry for entry in extensions if entry.get('uri') == identifier), None)
     if extension is None:
-        extension = node('ext', {'uri': identifier})
-        extensions.append(extension)
-    tag = '{http://schemas.microsoft.com/office/spreadsheetml/2009/9/main}pivotTableDefinition'
+        # Spelled as Excel spells it, ahead of the default-layout extension (tests/fixtures/pivot_layouts/).
+        extension = node('ext', {'uri': identifier, 'xmlns:x14': X14_MAIN})
+        extensions.insert(0, extension)
+    tag = f'{{{X14_MAIN}}}pivotTableDefinition'
     options = extension.find(tag)
     if options is None:
-        options = XmlElement(tag)
+        options = XmlElement(tag, {'hideValuesRow': '1', 'xmlns:xm': XM_MAIN})
         extension.append(options)
     # Without this native default, Excel infers an extra Values-header row for
     # data-field ranges after reopening even though cached cells use two rows.
@@ -124,17 +143,49 @@ def aggregate(values: list[XmlElement], function: str) -> object:
         sample = function in ('stdDev', 'var')
         if len(numbers) < (2 if sample else 1):
             return ExcelError('#DIV/0!')
-        mean = squares = 0.0
-        for count, value in enumerate(numbers, 1):
-            delta = value - mean
-            mean += delta / count
-            squares += delta * (value - mean)
+        # Two passes in record order, the mean first: what native pivots give bit for bit, where a running mean is
+        # an ulp off (tests/fixtures/pivot_layouts/ all_functions) and the sum of squares fails the underflow probe
+        # (tests/fixtures/pivots/aggregation.json).
+        total = 0.0
+        for value in numbers:
+            total += value
+        mean = total / len(numbers)
+        squares = 0.0
+        for value in numbers:
+            squares += (value - mean) * (value - mean)
         result = squares / (len(numbers) - int(sample))
         if not math.isfinite(result):
             return ExcelError('#NUM!')
         if function in ('stdDev', 'stdDevp'):
             result = math.sqrt(max(0.0, result))
     return (0.0 if result == 0 else result) if math.isfinite(result) else ExcelError('#NUM!')
+
+
+def set_function(field: PivotField, value: object) -> None:
+    """PivotField.Function on a data field: the function it sums its values by, and a name the function gives it,
+    whatever it was called (tests/fixtures/pivot_layouts/ count_data_sum_subtotal, function_custom_name); error
+    1004 on another field or for a function Excel does not know (function_errors)."""
+    from pyopenvba.apps.excel._pivot_filters import rerender
+
+    if not field.data:
+        raise error(1004)
+    chosen = value if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else None
+    if chosen not in FUNCTIONS:
+        raise error(1004)
+    table = field.table.entry
+    kind, label = FUNCTIONS[int(chosen)]
+    sources = table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
+    source = decode_text(sources[field.index].get('name', '')) if field.index < len(sources) else ''
+    field.root.set('subtotal', kind)
+    others = [entry for entry in table.root.findall(f'{NS}dataFields/{NS}dataField') if entry is not field.root]
+    used = {decode_text(entry.get('name', '')).casefold() for entry in [*sources, *others]}
+    base = f'{label} of {source}'
+    name, suffix = base, 2
+    while name.casefold() in used:
+        name, suffix = base + str(suffix), suffix + 1
+    field.root.set('name', encoded(name))
+    rerender(table, deepcopy(table.root))
+    table.sheet.book.saved = False
 
 
 def add_data_field(table: PivotTable, source: object, caption: object, function: object,

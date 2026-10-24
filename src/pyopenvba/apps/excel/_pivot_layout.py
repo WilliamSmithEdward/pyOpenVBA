@@ -4,7 +4,7 @@ from __future__ import annotations
 import datetime as dt
 from collections.abc import Callable, Sequence
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, parse_area
@@ -25,8 +25,21 @@ from pyopenvba.apps.excel._pivot_filters import (
     page_caption,
     passing,
 )
+from pyopenvba.apps.excel._pivot_forms import (
+    SUBTOTALS,
+    TABLE_ORDER,
+    FieldLayout,
+    compact_captions,
+    compact_indent,
+    functions_of,
+    label_columns,
+    layout_of,
+    on,
+    set_flag,
+)
 from pyopenvba.apps.excel._pivot_sorts import value_sorts
 from pyopenvba.apps.excel._pivots import NS, decode_text
+from pyopenvba.apps.excel._styles import Alignment, Style, applying
 from pyopenvba.apps.excel._typing import Typed
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
 from pyopenvba.formula._calc import collate
@@ -35,10 +48,13 @@ from pyopenvba.formula._values import number_text
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBADate, error, to_number
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
 
 VALUES = -2
-_MONTHS: tuple[Sequence[str], ...] = ('Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.lower().split(),
+#: The item a line stands at for a field it totals over every item of (tests/fixtures/pivot_layouts/ inner_sum_count).
+ALL_ITEMS = 1048832
+_MONTHS:tuple[Sequence[str], ...] = ('Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.lower().split(),
            'January February March April May June July August September October November December'.lower().split(),
            'Sun Mon Tue Wed Thu Fri Sat'.lower().split(),
            'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.lower().split())
@@ -138,17 +154,27 @@ class Line:
     items: tuple[int, ...] = ()
     keys: tuple[tuple[int, int], ...] = ()
     data: int = 0
+    #: 'data', 'grand', 'blank', or a subtotal's type: 'default' or one of the functions Subtotals names.
     kind: str = 'data'
+    #: A line whose cells show no values: a group's own line where its subtotals show below it, or a blank line.
     header: bool = False
+    #: The function a group's own line shows its subtotal by, where that is one Subtotals names.
+    function: str = ''
 
 
 def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], data_count: int,
            *, rows: bool, grand: bool, selected: list[int] | None = None,
-           sorts: dict[int, tuple[bool, Callable[[list[int]], tuple[int, float, str]]]] | None = None) -> list[Line]:
+           sorts: dict[int, tuple[bool, Callable[[list[int]], tuple[int, float, str]]]] | None = None,
+           layouts: dict[int, FieldLayout] | None = None) -> list[Line]:
+    """An axis's lines in the order they show. A row field in compact or outline form has a line of its own for
+    each item, ahead of the lines inside it, which shows the item's subtotal where the field has one alone at the
+    top; every other subtotal, and every one of a field in tabular form or on the columns, shows below the lines
+    inside the item, one line for each function (tests/fixtures/pivot_layouts/)."""
     if not axis:
         return [Line()]
     output: list[Line] = []
     ranks = [{item: rank for rank, item in enumerate(field)} for field in positions]
+    layouts = layouts if layouts is not None else {}
 
     def visit(depth: int, selected: list[int], items: tuple[int, ...], keys: tuple[tuple[int, int], ...],
               data: int = 0) -> None:
@@ -172,16 +198,36 @@ def _lines(axis: list[int], ids: list[list[int]], positions: list[list[int]], da
             measure = choice if field == VALUES else data
             if depth + 1 == len(axis):
                 output.append(Line(assigned, constraints, measure))
-            else:
-                if rows and field != VALUES:
-                    output.append(Line(assigned, constraints, measure, header=VALUES in axis[depth + 1:]))
-                visit(depth + 1, inner, assigned, constraints, measure)
-                if not rows and field != VALUES and any(index != VALUES for index in axis[depth + 1:]):
-                    measures = range(data_count) if VALUES in axis[depth + 1:] else [measure]
-                    for subtotal in measures:
-                        output.append(Line(assigned, constraints, subtotal, 'default'))
+                continue
+            layout = layouts.get(field, FieldLayout(functions=()) if field == VALUES else FieldLayout())
+            values_below = VALUES in axis[depth + 1:]
+            functions = layout.functions if any(index != VALUES for index in axis[depth + 1:]) else ()
+            lone = next(iter(functions)) if len(functions) == 1 else ''
+            own_line = rows and layout.mode != 'tabular'
+            on_top = own_line and layout.top and bool(lone) and not values_below
+            if own_line:
+                output.append(Line(assigned, constraints, measure, header=not on_top,
+                                   function=lone if on_top and lone in SUBTOTALS else ''))
+            visit(depth + 1, inner, assigned, constraints, measure)
+            if not on_top:
+                for function in functions:
+                    for subtotal in range(data_count) if values_below else [measure]:
+                        output.append(Line(assigned, constraints, subtotal, function))
+            if rows and layout.blank:
+                output.append(Line(assigned, constraints, measure, 'blank', header=True))
 
     visit(0, selected if selected is not None else list(range(len(ids))), (), ())
+    inner = axis[-1]
+    functions = layouts.get(inner, FieldLayout()).functions if inner != VALUES else ()
+    if len(axis) > 1 and functions and functions != ('default',):
+        # The innermost field's own subtotals, each item's over every item outside it, show ahead of the grand
+        # total, the fields outside it standing at no item (tests/fixtures/pivot_layouts/ inner_sum_count,
+        # column_inner_sum_count).
+        found = {ids[row][inner] for row in (selected if selected is not None else range(len(ids)))}
+        outside = (ALL_ITEMS,) * (len(axis) - 1)
+        for choice in sorted(found, key=ranks[inner].__getitem__):
+            for function in functions:
+                output.append(Line(outside + (ranks[inner][choice],), ((inner, choice),), 0, function))
     if grand and any(field != VALUES for field in axis):
         for measure in range(data_count) if VALUES in axis else [0]:
             output.append(Line(data=measure, kind='grand'))
@@ -289,6 +335,8 @@ class RenderPlan:
     extent: Area
     previous_areas: list[Area]
     cells: dict[tuple[int, int], object]
+    #: Each formatted cell's format, in the order Excel makes them.
+    styles: list[tuple[tuple[int, int], Style]]
 
 
 def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | None = None,
@@ -334,15 +382,17 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     selected = passing(ids, lists, on_axes, chosen_pages, label_hidden(found, list(fields), on_axes))
     selected = value_filtered(selected, ids, records_, found, (rows, columns), reports)
     sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_)
+    layouts = {index: layout_of(root, index) for index in (*rows, *columns)}
     row_lines = _lines(rows, ids, display, len(reports), rows=True, grand=root.get('colGrandTotals', '1') != '0',
-                       selected=selected, sorts=sorts)
+                       selected=selected, sorts=sorts, layouts=layouts)
     col_lines = _lines(columns, ids, display, len(reports), rows=False, grand=root.get('rowGrandTotals', '1') != '0',
-                       selected=selected, sorts=sorts)
+                       selected=selected, sorts=sorts, layouts=layouts)
     location = root.find(NS + 'location')
     assert location is not None
     old = parse_area(location.get('ref', 'A1'))
+    label_of, depth_of = label_columns(root, rows)
     dr = len(columns) + 1 if any(index != VALUES for index in columns) else 1
-    dc = int(bool(rows) or (bool(reports) and bool(columns) and VALUES not in columns))
+    dc = label_of[-1] + 1 if rows else int(bool(reports) and bool(columns) and VALUES not in columns)
     if not rows and len(reports) == 1 and any(index != VALUES for index in columns):
         dc = 1
     if not rows and len(reports) > 1 and VALUES in columns:
@@ -372,17 +422,35 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             if extent.top <= block.bottom and block.top <= extent.bottom and extent.left <= block.right and block.left <= extent.right:
                 raise error(1004)
     cells: dict[tuple[int, int], object] = {}
+    # The cells' formats, kept apart by kind: Excel formats a table's buttons, then its labels, then its values,
+    # and so makes their formats in that order (tests/fixtures/pivot_layouts/ compact).
+    buttons: dict[tuple[int, int], Style] = {}
+    labels: dict[tuple[int, int], Style] = {}
+    values_formats: dict[tuple[int, int], Style] = {}
+    base = table.sheet.book.stylesheet.default
 
     def put(row: int, column: int, value: object) -> None:
+        if isinstance(value, Typed):
+            value = value.value
         if value is not EMPTY:
             cells[area.top + row, area.left + column] = value
 
+    def button(row: int, column: int, value: object) -> None:
+        """A field's caption, which shows its button."""
+        put(row, column, value)
+        buttons[area.top + row, area.left + column] = replace(base, pivot_button=True)
+
     captions: dict[tuple[int, int], object] = {}
-    subtotals: dict[tuple[int, int], str] = {}
     codes = table.sheet.book.stylesheet.number_formats
     pivot_list = root.findall(f'{NS}pivotFields/{NS}pivotField')
     formats = [field_format(codes, pivot_list[index] if index < len(pivot_list) else None, field)
                for index, field in enumerate(fields)]
+    # Every label is aligned left, indented by its depth in its column, where a row field is in compact form, the
+    # innermost too (tests/fixtures/pivot_layouts/ compact_off_outer, tabular_compact_on, outline_form_compact).
+    aligned = any(layouts[index].mode == 'compact' for index in rows)
+    step = compact_indent(root)
+    grand_name = decode_text(root.get('grandTotalCaption', 'Grand Total'))
+    data_caption = decode_text(root.get('dataCaption', 'Values'))
 
     def caption(field: int, position: int) -> object:
         """An item's label cell: its value, a date or a formatted number in its field's format."""
@@ -395,51 +463,126 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             captions[key] = item_label(shared[display[field][position]], formats[field])
         return captions[key]
 
-    def subtotal_caption(field: int, position: int) -> str:
-        key = field, position
-        if key not in subtotals:
-            subtotals[key] = label_text(caption(field, position)) + ' Total'
-        return subtotals[key]
+    def field_name(index: int) -> str:
+        if index == VALUES:
+            return data_caption
+        own = pivot_list[index].get('name') if index < len(pivot_list) else None
+        return decode_text(own if own is not None else fields[index].get('name', ''))
 
-    def measured(measure: int, value: object) -> object:
-        """A value cell, in its data field's format where it has one."""
-        identifier = reports[measure].get('numFmtId', '0') if measure < len(reports) else '0'
-        if value is EMPTY or not identifier.isdecimal() or identifier == '0':
-            return value
-        return Typed(value, codes.get(int(identifier), 'General'))
+    def subtotal_label(field: int, position: int, kind: str, measure: int, values_below: bool) -> str:
+        """A subtotal line's label: the field's SubtotalName for an Automatic subtotal, else the item's with Total,
+        the data field's name where the Values field is inside it, or the function's (tests/fixtures/
+        pivot_layouts/ sum_count, sum_count_values_rows, subtotal_name_bottom, subtotal_name_sum_count)."""
+        layout = layouts.get(field, FieldLayout())
+        if layout.caption and kind not in SUBTOTALS:
+            return layout.caption
+        text = label_text(caption(field, position))
+        if kind not in SUBTOTALS:
+            return f'{text} {report_names[measure]}' if values_below else f'{text} Total'
+        name = SUBTOTALS[kind][2]
+        if not values_below:
+            return f'{text} {name}'
+        source = int(reports[measure].get('fld', '0'))
+        return f'{text} {name} of {decode_text(fields[source].get("name", ""))}'
 
+    def label_format(code: str, depth: int | None) -> Style:
+        """A label cell's format: its field's number format, aligned left and indented by its depth where the
+        table aligns its labels (tests/fixtures/pivot_layouts/ indent, dates_compact)."""
+        style = base
+        if code != 'General':
+            style = applying(style, 'number_format', number_format=code)
+        if depth is not None:
+            style = applying(style, 'alignment', alignment=Alignment(horizontal='left', indent=depth * step))
+        return style
+
+    def code_of(field: int, label: object = None) -> str:
+        if isinstance(label, Typed):
+            return label.number_format or 'General'
+        return 'General' if field == VALUES else formats[field]
+
+    def row_label(offset: int, position: int, value: object, code: str) -> None:
+        column = label_of[position]
+        put(dr + offset, column, value)
+        labels[area.top + dr + offset, area.left + column] = label_format(
+            code, depth_of[position] if aligned else None)
+
+    def repeated(position: int) -> bool:
+        """Whether a row field shows its item's label on every line inside it: where it repeats its labels and
+        keeps the fields inside it in other columns (tests/fixtures/pivot_layouts/ repeat_compact)."""
+        layout = layouts.get(rows[position], FieldLayout())
+        return rows[position] != VALUES and layout.repeat and layout.mode != 'compact'
+
+    captions_shown = on(root, 'showHeaders', True)
+    compact_names = compact_captions(root, (*rows, *columns))
     if rows:
-        put(dr - 1, 0, 'Values' if rows == [VALUES] else 'Row Labels')
+        if captions_shown:
+            for column in sorted(set(label_of)):
+                first = rows[label_of.index(column)]
+                if column == 0 and compact_names and rows != [VALUES]:
+                    button(dr - 1, 0, decode_text(root.get('rowHeaderCaption', 'Row Labels')))
+                else:
+                    button(dr - 1, column, field_name(first))
         if not columns and VALUES not in rows and reports:
             put(dr - 1, dc, report_names[0])
     elif not columns:
         for index, name in enumerate(report_names):
             put(0, index, name)
     if any(index != VALUES for index in columns):
-        put(0, dc, 'Column Labels')
+        if captions_shown and compact_names:
+            button(0, dc, decode_text(root.get('colHeaderCaption', 'Column Labels')))
+        elif captions_shown:
+            for position, index in enumerate(columns):
+                button(0, dc + position, field_name(index))
         if len(reports) == 1:
-            put(0 if rows else dr, 0, report_names[0])
+            if rows:
+                button(0, 0, report_names[0])
+            else:
+                put(dr, 0, report_names[0])
     previous: tuple[int, ...] = ()
     for offset, line in enumerate(col_lines):
         if columns:
             if line.kind == 'grand':
-                label = report_totals[line.data] if VALUES in columns and reports else 'Grand Total'
+                label = report_totals[line.data] if VALUES in columns and reports else grand_name
                 put(1 if dr > 1 else 0, dc + offset, label)
-            elif line.kind == 'default':
-                label = subtotal_caption(columns[len(line.items) - 1], line.items[-1])
-                put(len(line.items), dc + offset, label)
+            elif line.kind != 'data':
+                level = len(line.items) - 1
+                put(len(line.items), dc + offset, subtotal_label(columns[level], line.items[-1], line.kind, line.data,
+                                                                 VALUES in columns[level + 1:]))
             else:
                 for level, item in enumerate(line.items):
                     if level == len(columns) - 1 or previous[:level + 1] != line.items[:level + 1]:
-                        put(level + 1 if dr > 1 else 0, dc + offset, caption(columns[level], item))
+                        label = caption(columns[level], item)
+                        row = level + 1 if dr > 1 else 0
+                        put(row, dc + offset, label)
+                        if code_of(columns[level], label) != 'General':
+                            labels[area.top + row, area.left + dc + offset] = label_format(
+                                code_of(columns[level], label), None)
                 previous = line.items
+    previous = ()
     for offset, line in enumerate(row_lines):
-        if rows:
-            if line.kind == 'grand':
-                label = report_totals[line.data] if VALUES in rows and reports else 'Grand Total'
-            else:
-                label = caption(rows[len(line.items) - 1], line.items[-1])
-            put(dr + offset, 0, label)
+        if not rows:
+            break
+        last = len(line.items) - 1
+        if line.kind == 'grand':
+            label = report_totals[line.data] if VALUES in rows and reports else grand_name
+            row_label(offset, 0, label, code_of(rows[0]))
+        elif line.kind == 'blank':
+            # A blank line's label cell keeps its field's format, empty (tests/fixtures/pivot_layouts/ blank).
+            labels[area.top + dr + offset, area.left + label_of[last]] = label_format(
+                code_of(rows[last]), depth_of[last] if aligned else None)
+        elif line.kind != 'data':
+            for outer in range(last):
+                if repeated(outer) and line.items[outer] != ALL_ITEMS:
+                    row_label(offset, outer, caption(rows[outer], line.items[outer]),
+                              code_of(rows[outer], caption(rows[outer], line.items[outer])))
+            row_label(offset, last, subtotal_label(rows[last], line.items[last], line.kind, line.data,
+                                                   VALUES in rows[last + 1:]), code_of(rows[last]))
+        else:
+            for position, item in enumerate(line.items):
+                if previous[:position + 1] != line.items[:position + 1] or (repeated(position) and position < last):
+                    label = caption(rows[position], item)
+                    row_label(offset, position, label, code_of(rows[position], label))
+        previous = line.items
     # Populate only observed intersections and their prefix totals. A sparse
     # diagonal must not scan every source row for every blank grid cell.
     row_lookup: dict[tuple[tuple[int, int], ...], list[int]] = {}
@@ -452,10 +595,32 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     real_rows = [index for index in rows if index != VALUES]
     real_cols = [index for index in columns if index != VALUES]
     buckets: dict[tuple[tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]], list[list[XmlElement]]] = {}
+
+    def function_of(line: Line) -> str:
+        """The function a line's subtotal takes its data field's values through, where not the field's own."""
+        kind = line.kind if line.kind in SUBTOTALS else line.function
+        return SUBTOTALS[kind][1] if kind in SUBTOTALS else ''
+
+    def value_format(measure: int) -> Style:
+        identifier = reports[measure].get('numFmtId', '0') if measure < len(reports) else '0'
+        code = codes.get(int(identifier), 'General') if identifier.isdecimal() and identifier != '0' else 'General'
+        return applying(base, 'number_format', number_format=code)
+
     if reports:
+        # Every cell of the values takes its data field's format, an empty one too (tests/fixtures/pivot_layouts/).
+        for offset, line in enumerate(row_lines):
+            for column, column_line in enumerate(col_lines):
+                values_formats[area.top + dr + offset, area.left + dc + column] = value_format(
+                    line.data if VALUES in rows else column_line.data)
+        rows_over = {line.keys for line in row_lines if line.items and line.items[0] == ALL_ITEMS}
+        columns_over = {line.keys for line in col_lines if line.items and line.items[0] == ALL_ITEMS}
         for record, indices in ((records_[row], ids[row]) for row in selected):
             row_keys = [tuple((index, indices[index]) for index in real_rows[:depth]) for depth in range(len(real_rows) + 1)]
+            if rows_over and ((real_rows[-1], indices[real_rows[-1]]),) in rows_over:
+                row_keys.append(((real_rows[-1], indices[real_rows[-1]]),))
             col_keys = [tuple((index, indices[index]) for index in real_cols[:depth]) for depth in range(len(real_cols) + 1)]
+            if columns_over and ((real_cols[-1], indices[real_cols[-1]]),) in columns_over:
+                col_keys.append(((real_cols[-1], indices[real_cols[-1]]),))
             for row_key in row_keys:
                 if row_key not in row_lookup:
                     continue
@@ -468,8 +633,9 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                 for column in col_lookup[col_key]:
                     measure = line.data if VALUES in rows else col_lines[column].data
                     report = reports[measure]
-                    value = aggregate([record[int(report.get('fld', '0'))] for record in selected], report.get('subtotal', 'sum'))
-                    put(dr + offset, dc + column, measured(measure, value))
+                    function = function_of(line) or function_of(col_lines[column]) or report.get('subtotal', 'sum')
+                    value = aggregate([record[int(report.get('fld', '0'))] for record in selected], function)
+                    put(dr + offset, dc + column, value)
     pivot_fields = root.find(NS + 'pivotFields')
     planned_fields = deepcopy(pivot_fields)
     assert pivot_fields is not None and planned_fields is not None
@@ -478,12 +644,16 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             row_offset, column_offset = divmod(offset, page_columns)
         else:
             column_offset, row_offset = divmod(offset, page_rows)
-        put(-page_rows - 1 + row_offset, 3 * column_offset, decode_text(fields[field].get('name', '')))
+        button(-page_rows - 1 + row_offset, 3 * column_offset, decode_text(fields[field].get('name', '')))
         showing = page_caption(lists[field] or [], chosen_pages.get(field), flag(pivot_fields[field], MULTIPLE))
         if isinstance(showing, int):
             values = fields[field].find(NS + 'sharedItems')
             assert values is not None
-            put(-page_rows - 1 + row_offset, 3 * column_offset + 1, item_label(values[showing], formats[field]))
+            label = item_label(values[showing], formats[field])
+            put(-page_rows - 1 + row_offset, 3 * column_offset + 1, label)
+            if isinstance(label, Typed):
+                labels[area.top - page_rows - 1 + row_offset, area.left + 3 * column_offset + 1] = label_format(
+                    code_of(field, label), None)
         else:
             put(-page_rows - 1 + row_offset, 3 * column_offset + 1, showing)
     previous_areas = [old, extent]
@@ -501,10 +671,14 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             original.remove(old_items)
         listing = lists[index]
         if listing is not None:
-            items = node('items', {'count': str(len(listing) + 1)})
+            # A field lists an entry for each of its subtotals' types after its items, none where it has no
+            # subtotals (tests/fixtures/pivot_layouts/ no_subtotals, all_functions).
+            kinds = functions_of(original)
+            items = node('items', {'count': str(len(listing) + len(kinds))})
             for place, hide, gone in listing:
                 items.append(item_node(place, hide=hide, gone=gone))
-            items.append(node('item', {'t': 'default'}))
+            for kind in kinds:
+                items.append(node('item', {'t': kind}))
             original.insert(0, items)
     for child in list(root):
         if child.tag in {NS + name for name in ('pivotFields', 'rowFields', 'rowItems', 'colFields', 'colItems', 'pageFields', 'dataFields')}:
@@ -538,9 +712,26 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     else:
         location.attrib.pop('rowPageCount', None)
         location.attrib.pop('colPageCount', None)
-    root.set('dataOnRows', str(int(VALUES in rows)))
+    set_flag(root, 'dataOnRows', VALUES in rows, False, TABLE_ORDER)
     hide_values_row(root)
-    return RenderPlan(table, root, fields, cache_records, extent, previous_areas, cells)
+    styles = [*buttons.items(), *labels.items(), *values_formats.items()]
+    return RenderPlan(table, root, fields, cache_records, extent, previous_areas, cells, styles)
+
+
+def _unformat(sheet: Worksheet, areas: list[Area]) -> None:
+    """Take every cell in a table's old place back to the default format, as Excel does before it lays the table
+    out again (tests/fixtures/pivot_layouts/ compact_again)."""
+    default = sheet.book.stylesheet.default
+    if sum(area.rows * area.columns for area in areas) < len(sheet.cells_):
+        keys = {(row, column) for area in areas for row in range(area.top, area.bottom + 1)
+                for column in range(area.left, area.right + 1) if (row, column) in sheet.cells_}
+    else:
+        keys = {key for key in sheet.cells_
+                if any(area.top <= key[0] <= area.bottom and area.left <= key[1] <= area.right for area in areas)}
+    for row, column in sorted(keys):
+        cell = sheet.cells_.get((row, column))
+        if cell is not None and cell.style is not None:
+            sheet.restyle(row, column, default)
 
 
 def apply_render(plan: RenderPlan, *, cache: PivotCache | None = None) -> None:
@@ -548,6 +739,7 @@ def apply_render(plan: RenderPlan, *, cache: PivotCache | None = None) -> None:
     table, root = plan.table, plan.root
     cache = cache if cache is not None else table.cache
     Range(table.sheet, plan.previous_areas).clear_contents_checked()
+    _unformat(table.sheet, plan.previous_areas)
     # Preserve retained source-field and data-field nodes, not just their values.
     original_fields = table.root.find(NS + 'pivotFields')
     planned_fields = root.find(NS + 'pivotFields')
@@ -570,6 +762,8 @@ def apply_render(plan: RenderPlan, *, cache: PivotCache | None = None) -> None:
     output = Range(table.sheet, [plan.extent])
     for (row, column), value in plan.cells.items():
         output.store_typed(row, column, value if isinstance(value, Typed) else Typed(value))
+    for (row, column), style in plan.styles:
+        table.sheet.restyle(row, column, style)
     table.changed = True
     table.report_loaded = False
     table.report_metadata = None

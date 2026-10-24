@@ -500,6 +500,122 @@ class PivotTable(ExcelObject):
     def ColumnGrand(self) -> object:
         return self.root.get('colGrandTotals', '1') not in ('0', 'false')
 
+    @setter('RowGrand')
+    def set_row_grand(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_table_flag
+
+        set_table_flag(self, 'rowGrandTotals', value)
+
+    @setter('ColumnGrand')
+    def set_column_grand(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_table_flag
+
+        set_table_flag(self, 'colGrandTotals', value)
+
+    @method
+    def RowAxisLayout(self, RowLayout: object) -> object:
+        from pyopenvba.apps.excel._pivot_forms import row_axis_layout
+
+        row_axis_layout(self, RowLayout)
+        return EMPTY
+
+    @method
+    def RepeatAllLabels(self, Repeat: object) -> object:
+        from pyopenvba.apps.excel._pivot_forms import repeat_all_labels
+
+        repeat_all_labels(self, Repeat)
+        return EMPTY
+
+    @member
+    def LayoutRowDefault(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import layout_row_default
+
+        return VBAInt(layout_row_default(self), 'Long')
+
+    @setter('LayoutRowDefault')
+    def set_layout_row_default(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_layout_row_default
+
+        set_layout_row_default(self, value)
+
+    @member
+    def CompactLayoutRowHeader(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import caption
+
+        return caption(self, 'rowHeaderCaption', 'Row Labels')
+
+    @setter('CompactLayoutRowHeader')
+    def set_compact_layout_row_header(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_caption
+
+        set_caption(self, 'rowHeaderCaption', value)
+
+    @member
+    def CompactLayoutColumnHeader(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import caption
+
+        return caption(self, 'colHeaderCaption', 'Column Labels')
+
+    @setter('CompactLayoutColumnHeader')
+    def set_compact_layout_column_header(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_caption
+
+        set_caption(self, 'colHeaderCaption', value)
+
+    @member
+    def GrandTotalName(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import caption
+
+        return caption(self, 'grandTotalCaption', 'Grand Total')
+
+    @setter('GrandTotalName')
+    def set_grand_total_name(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_caption
+
+        set_caption(self, 'grandTotalCaption', value)
+
+    @member
+    def DisplayFieldCaptions(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import display_field_captions
+
+        return display_field_captions(self)
+
+    @setter('DisplayFieldCaptions')
+    def set_display_field_captions(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_display_field_captions
+
+        set_display_field_captions(self, value)
+
+    @member
+    def CompactRowIndent(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import compact_indent
+
+        return VBAInt(compact_indent(self.entry.root), 'Long')
+
+    @setter('CompactRowIndent')
+    def set_compact_row_indent(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_compact_indent
+
+        set_compact_indent(self, value)
+
+    @member
+    def MergeLabels(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import merge_labels
+
+        return merge_labels(self)
+
+    @setter('MergeLabels')
+    def set_merge_labels(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_merge_labels
+
+        set_merge_labels(self, value)
+
+    @member
+    def DataLabelRange(self) -> object:
+        from pyopenvba.apps.excel._pivot_ranges import data_label_range
+
+        return data_label_range(self)
+
     def _fields(self, index: object, orientation: int | None = None) -> object:
         items: list[object] = []
         for i, field in enumerate(self.root.findall(f'{NS}pivotFields/{NS}pivotField')):
@@ -632,6 +748,12 @@ class PivotField(ExcelObject):
                      'var': -4164, 'varp': -4165}
         return VBAInt(functions[self.root.get('subtotal', 'sum')], 'Long')
 
+    @setter('Function')
+    def set_function(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_aggregate import set_function
+
+        set_function(self, value)
+
     @member
     def NumberFormat(self) -> object:
         # The Values field and a field of text have none, error 1004 (tests/fixtures/pivot_date_filters/).
@@ -645,6 +767,102 @@ class PivotField(ExcelObject):
                 raise error(1004)
         identifier = int(self.root.get('numFmtId', '0'))
         return self.table.sheet.book.stylesheet.number_formats.get(identifier, 'General')
+
+    @member
+    def LayoutForm(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import layout_form
+
+        return VBAInt(layout_form(self), 'Long')
+
+    @setter('LayoutForm')
+    def set_layout_form(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_layout_form
+
+        set_layout_form(self, value)
+
+    @member
+    def LayoutCompactRow(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import compact_row
+
+        return compact_row(self)
+
+    @setter('LayoutCompactRow')
+    def set_layout_compact_row(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_compact_row
+
+        set_compact_row(self, value)
+
+    @member
+    def LayoutSubtotalLocation(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import subtotal_location
+
+        return VBAInt(subtotal_location(self), 'Long')
+
+    @setter('LayoutSubtotalLocation')
+    def set_layout_subtotal_location(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_subtotal_location
+
+        set_subtotal_location(self, value)
+
+    @member
+    def LayoutBlankLine(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import flag_of
+
+        return flag_of(self, 'insertBlankRow')
+
+    @setter('LayoutBlankLine')
+    def set_layout_blank_line(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_blank_line
+
+        set_blank_line(self, value)
+
+    @member
+    def LayoutPageBreak(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import flag_of
+
+        return flag_of(self, 'insertPageBreak')
+
+    @setter('LayoutPageBreak')
+    def set_layout_page_break(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_page_break
+
+        set_page_break(self, value)
+
+    @member
+    def RepeatLabels(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import repeat_labels
+
+        return repeat_labels(self)
+
+    @setter('RepeatLabels')
+    def set_repeat_labels(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_repeat_labels
+
+        set_repeat_labels(self, value)
+
+    @member
+    def Subtotals(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_forms import subtotals
+
+        return subtotals(self, Index)
+
+    @setter('Subtotals')
+    def set_subtotals(self, Index: object, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_subtotals
+
+        set_subtotals(self, Index, value)
+
+    @member
+    def SubtotalName(self) -> object:
+        from pyopenvba.apps.excel._pivot_forms import subtotal_name
+
+        return subtotal_name(self)
+
+    @setter('SubtotalName')
+    def set_subtotal_name(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_forms import set_subtotal_name
+
+        set_subtotal_name(self, value)
 
     def _range(self, label: bool) -> object:
         from pyopenvba.apps.excel._pivot_ranges import field_range

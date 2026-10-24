@@ -46,7 +46,9 @@ FIELD_ORDER = ('name axis dataField subtotalCaption showDropDowns hiddenLevel un
                'allDrilled numFmtId outline subtotalTop dragToRow dragToCol multipleItemSelectionAllowed dragToPage '
                'dragToData dragOff showAll insertBlankRow serverField insertPageBreak autoShow topAutoShow '
                'hideNewItems measureFilter includeNewItemsInFilter itemPageCount sortType dataSourceSort '
-               'nonAutoSortDefault rankBy defaultSubtotal').split()
+               'nonAutoSortDefault rankBy defaultSubtotal sumSubtotal countASubtotal avgSubtotal maxSubtotal '
+               'minSubtotal productSubtotal countSubtotal stdDevSubtotal stdDevPSubtotal varSubtotal varPSubtotal '
+               'showPropCell showPropTip showPropAsCaption defaultAttributeDrillState').split()
 #: A listed item: its value's place in the cache, whether it is hidden and whether its value is gone from the source.
 Listed = tuple[int, bool, bool]
 
@@ -321,10 +323,13 @@ def ensure_items(table: PivotTable, field: XmlElement, index: int) -> bool:
     entries = shared(cache_fields[index]) if index < len(cache_fields) else []
     if not entries:
         return False
+    from pyopenvba.apps.excel._pivot_forms import functions_of
+
     items = node('items')
     for place in sorted_places(entries):
         items.append(item_node(place))
-    items.append(node('item', {'t': 'default'}))
+    for kind in functions_of(field):
+        items.append(node('item', {'t': kind}))
     items.set('count', str(len(items)))
     field.insert(0, items)
     # The save writes the list; reading the items is no change a macro made.

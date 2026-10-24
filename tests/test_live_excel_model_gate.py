@@ -1901,6 +1901,33 @@ def test_excel_reads_the_stylesheets_this_saved_unchanged(tmp_path: Path) -> Non
         assert read[case["name"]] == case["answer"], case["name"]
 
 
+def test_excel_reads_the_dxfs_this_wrote(tmp_path: Path) -> None:
+    """Each workbook tests/fixtures/dxf_table measured that Excel read, opened by the model and saved with nothing
+    changed, its dxfs in Excel's order and every name following them, and the model's save of a rule given a new
+    format: Excel opens each and reads every rule, the sort's, the filter's, the table styles', the tables' and the
+    pivot's colours as it read the file the model opened, or its own save of the edit."""
+    from test_excel_dxf_table import FIXTURES, READ, RECORD, edit, opened
+
+    harness = pytest.importorskip("pyvbaharness")
+    for case in READ:
+        ExcelApplication.open(FIXTURES / f"{case['name']}.xlsx", with_vba=False).save(tmp_path / f"{case['name']}.xlsx")
+    edit(opened("order_changed"), "order_changed").save(tmp_path / "edited.xlsx")
+    expected = {case["name"]: case["answer"] for case in READ}
+    expected["edited"] = expected["order_changed"]
+    ordered = [name for name in expected if name.startswith("order") or name == "edited"]
+    read: dict[str, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        for reader, names in ((RECORD["read"], [name for name in expected if name not in ordered]),
+                              (RECORD["order_read"], ordered)):
+            excel.new_document()
+            result = excel.run_vba(reader.replace("{names}", ", ".join(f'"{name}"' for name in names)).replace(
+                "{folder}", str(tmp_path)), "Read", timeout=600.0)
+            assert result.ok, result.message
+            read.update(dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one))
+    for name, answer in expected.items():
+        assert read[name] == answer, name
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

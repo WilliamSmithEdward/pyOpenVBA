@@ -1116,8 +1116,9 @@ leaves the rest out. The model keeps the same tables
   every cell, row and column of a sheet no macro wrote to points where
   its xf went (`tests/fixtures/unchanged_save/`). A font no xf names
   stays, as Excel keeps the fonts a form control's label and a note's
-  text are in; one nothing at all uses, and a dxf no rule names, which
-  Excel leaves out, the model keeps.
+  text are in; one nothing at all uses, which Excel leaves out, the model
+  keeps. A dxf nothing names is left out as well; the dxfs keep the order
+  Excel gives them, below under conditional formats.
 
 **Colour scales.** `FormatConditions.AddColorScale` makes a scale of two
 or three colours with Excel's defaults, and a cell's DisplayFormat shows
@@ -1219,6 +1220,26 @@ numbering rules' formats as other programs might):
   Opening a file numbers its rules' custom formats after the cells' own,
   in the order the file lists its dxfs, one code under one id, and a file
   saved again holds those ids and Excel's spelling of each code.
+
+A rule's format is a dxf, as are a sort's and a filter's colour, a
+table's and a table style's formats and a pivot table's, each named by
+its place in the stylesheet's list. A save writes that list as Excel does
+(`tests/fixtures/dxf_table/`, 13 files Excel saved unchanged and two it
+edited):
+
+* Excel keeps the dxfs as a stack. Each one made goes first, and a save
+  writes them from the first down, leaving out those nothing names, every
+  part naming each where the save wrote it.
+* A format a macro gives a rule is a new dxf, first, though an earlier
+  rule's says the same, and the one the rule had goes.
+* Opening a file, each name of a dxf takes one of its own, so two rules
+  naming one dxf are saved with two. Excel reads the names in this order:
+  the table styles; then each sheet, the one active in the file first and
+  the rest in order, with its filter's and sort's colours, its tables and
+  its pivot tables; then every sheet's conditional formats in that order,
+  by priority. A rule the worksheet's Excel 2010 extension keeps holds a
+  dxf of its own, which Excel writes among the rest at the rule's place,
+  its number format numbered with the others.
 
 The operation checklist, `docs/excel_checklist.csv`, records every
 conditional format member's status.

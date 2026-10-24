@@ -1364,6 +1364,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
     _write_shapes(book, package)
     _write_notes(book, package)
     _write_links(book, package, str(target.resolve().parent))
+    from pyopenvba.apps.excel._dxf_table import number_dxfs
+
+    number_dxfs(book, package)
     _write_styles(book, package)
     from pyopenvba.apps.excel._calculation_settings import write as write_calculation
     from pyopenvba.apps.excel._date_system import write as write_date_system

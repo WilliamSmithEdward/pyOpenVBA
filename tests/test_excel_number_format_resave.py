@@ -30,12 +30,6 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / "number_format_resave.json").rea
 CASES: list[dict[str, Any]] = RECORD["cases"]
 #: What a file holds of its formats, as number_format_resave.json keeps it.
 SLOTS = ("numFmts", "xfs", "cells", "dxfs", "extension", "pivot")
-_EXTENSION = ("Excel numbers the format of a rule kept in the worksheet's Excel 2010 extension with the others; the "
-              "model keeps that extension as the file had it")
-#: Where the model's save of a file keeps a slot otherwise than Excel's.
-GAPS: dict[tuple[str, str], str] = {
-    (name, "extension"): _EXTENSION for name in ("base", "out_of_order", "gaps", "duplicate", "low_id", "spelling",
-                                                  "missing", "pivot_id")}
 #: Each workbook's reader: every cell's format and what it shows, the pivot's data field's format and the rules'.
 READER = RECORD["read"].split("Public Function Read")[0] + "\n".join([
     "Public Function Read() As String", "Dim wb As Object, ws As Object, out As String, r As Long, f As Object",
@@ -127,10 +121,7 @@ def test_a_second_save_keeps_what_the_first_wrote(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(("case", "slot"), [
-    pytest.param(case, slot, id=f"{case['name']}-{slot}",
-                 marks=[pytest.mark.xfail(strict=True, reason=GAPS[case["name"], slot])]
-                 if (case["name"], slot) in GAPS else [])
-    for case in CASES for slot in SLOTS])
+    pytest.param(case, slot, id=f"{case['name']}-{slot}") for case in CASES for slot in SLOTS])
 def test_a_file_saved_unchanged_numbers_its_formats_as_excel_does(
         modelled: dict[str, tuple[Any, dict[str, Any]]], case: dict[str, Any], slot: str) -> None:
     """Each format under the id Excel gave it on opening: from 164 in the order the file lists them, one code one

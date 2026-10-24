@@ -451,6 +451,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   had it. 12 files Excel saved unchanged agree, and Excel reads the
   model's saves of them as it read the files.
 
+- A save writes the dxfs as Excel does. Excel keeps them as a stack: a
+  dxf made for a rule, a sort or a filter goes first, and a save writes
+  them from the first down and leaves out those nothing names. A format a
+  macro gives a rule is a new dxf, first, though another rule's says the
+  same, and the one it had goes. Opening a file, each name of a dxf takes
+  one of its own, so two rules naming one dxf are saved with two. Excel
+  reads the names in a fixed order: the table styles; each sheet, the
+  active one first, with its filter's and sort's colours, its tables and
+  its pivot tables; then every sheet's conditional formats by priority.
+  Every part names its dxfs where the save wrote them, and a rule kept in
+  the worksheet's Excel 2010 extension has its number format numbered
+  with the rest. The model kept the file's dxfs as they stood and put a
+  new one last. 13 files Excel saved unchanged and two it edited agree,
+  and Excel reads the model's saves as it read its own.
+
 - A pivot table field's button stays on its cells through a save. Its xf,
   alike to the default one in every other part, kept `pivotButton` only
   while no macro changed a format; a save that wrote the stylesheet joined

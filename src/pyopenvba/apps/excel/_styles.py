@@ -722,6 +722,10 @@ def _dxf_text(entry: XmlElement, *, inherited: bool) -> str:
     from pyopenvba.apps.excel._charts_file import xml_bytes
 
     scoped = deepcopy(entry)
+    if inherited:
+        # A dxf read from the file carries the stylesheet's declarations, which the stylesheet makes again.
+        for key in [key for key in scoped.attrib if key.startswith("xmlns:")]:
+            del scoped.attrib[key]
     if scoped.tag.startswith("{" + _MAIN_NAMESPACE + "}"):
         scoped.set("xmlns", _MAIN_NAMESPACE)
     written = xml_bytes(scoped).decode("utf-8").split("?>", 1)[-1].lstrip().replace(" />", "/>")
@@ -920,6 +924,18 @@ class Stylesheet:
                 self.spell_rule_format(number, from_file(decode(number.get("formatCode", ""))))
                 if list(number.attrib.items()) != before:
                     self._dxf_numbers.add(index)
+        #: Each of the file's dxfs as the file wrote it, its number format as Excel writes it again.
+        self._dxf_texts: list[str] = self._file_dxf_texts(xml)
+        #: Whether the file's dxfs still stand in the order the file lists them, as no save has written them yet;
+        #: Excel reads them into its own, the order each part names them in (_dxf_table).
+        self._dxf_fresh = True
+        #: The dxf table the save being made writes: the dxf each place takes, by its place now or, for a rule the
+        #: worksheet's extension keeps, as that rule holds it; and the places the stylesheet's table styles name, in
+        #: the order they name them.
+        self._dxf_sources: list[int | str] | None = None
+        self._dxf_style_names: list[int] = []
+        #: Where the last save put the dxf of each rule a worksheet's extension keeps, by the rule's id.
+        self.extension_places: dict[str, int] = {}
         fonts, fills, borders = (_children(xml, section) for section in ("fonts", "fills", "borders"))
         self.fonts = [parse_font(one) for one in fonts] or [Font()]
         self.fills = [parse_fill(one) for one in fills] or [Fill()]
@@ -1008,10 +1024,74 @@ class Stylesheet:
         for index, existing in enumerate(self._dxfs):
             if xml_bytes(existing) == candidate:
                 return index
+        return self.add_dxf(root)
+
+    def add_dxf(self, root: XmlElement) -> int:
+        """A new dxf, as Excel makes one for each format a macro gives a rule though another says the same
+        (tests/fixtures/dxf_table/made.xlsx); a save writes it ahead of every dxf made before it."""
         self._dxfs.append(deepcopy(root))
         return len(self._dxfs) - 1
 
+    @property
+    def dxf_base_count(self) -> int:
+        """How many dxfs the file the workbook was opened from or last saved to holds: those made since follow."""
+        return self._dxf_base_count
+
+    @property
+    def dxf_fresh(self) -> bool:
+        """Whether the file's dxfs stand in the order the file lists them, no save having written them yet."""
+        return self._dxf_fresh
+
+    def table_style_dxfs(self) -> list[int]:
+        """The dxfs the stylesheet's table styles name, in the order they name them."""
+        found = re.search(r"<(?P<tag>(?:[\w.-]+:)?tableStyles)\b[^>]*>(?P<body>.*?)</(?P=tag)>", self.xml, re.DOTALL)
+        return [] if found is None else [int(name) for name in re.findall(r'\bdxfId="(\d+)"', found["body"])]
+
+    def write_dxf_table(self, sources: list[int | str], style_names: list[int]) -> None:
+        """What the save being made writes of the dxfs: at each place the dxf ``sources`` gives, by its place now or
+        as markup, and the table styles naming ``style_names`` in the order they name dxfs."""
+        self._dxf_sources = list(sources)
+        self._dxf_style_names = list(style_names)
+
+    def _dxf_markup(self, source: int | str, *, inherited: bool) -> str:
+        """A dxf as a save writes it: one of the file's as the file wrote it, one made since as Excel writes one."""
+        if isinstance(source, str):
+            return source if inherited else _dxf_text(_parsed_dxf(source), inherited=False)
+        if source < len(self._dxf_texts):
+            return self._dxf_texts[source]
+        return _dxf_text(self._dxfs[source], inherited=inherited)
+
+    def rule_format_element(self, element: str) -> str:
+        """A rule's numFmt element, as a worksheet's extension keeps one, under the id and in the spelling Excel
+        gives its code (tests/fixtures/number_format_resave/)."""
+        found = re.search(r'\bformatCode="([^"]*)"', element)
+        if found is None:
+            return element
+        code = from_file(decode(_unescape(found.group(1))))
+        identifier = LISTED.get(code)
+        if identifier is None:
+            identifier = self._code_id(code)
+        return _with_number(element, str(identifier), encode_attribute(to_file(code)))
+
+    def _file_dxf_texts(self, xml: str) -> list[str]:
+        """The file's dxfs as it wrote them, each number format Excel numbers or spells otherwise as Excel writes it
+        again."""
+        section = re.search(r"<(?P<tag>(?:[\w.-]+:)?dxfs)\b[^>]*>(?P<body>.*?)</(?P=tag)>", xml, re.DOTALL)
+        if section is None:
+            return []
+        texts = [found.group() for found in re.finditer(
+            r"<(?P<tag>(?:[\w.-]+:)?dxf)\b[^>]*?(?:/>|>.*?</(?P=tag)>)", section["body"], re.DOTALL)]
+        if len(texts) != len(self._dxfs):
+            return []
+        for index in self._dxf_numbers:
+            number = next(one for one in self._dxfs[index] if one.tag.rsplit("}", 1)[-1] == "numFmt")
+            texts[index] = re.sub(r"<(?:[\w.-]+:)?numFmt\b[^>]*?/>", lambda element: _with_number(
+                element.group(), number.get("numFmtId", ""), number.get("formatCode", "")), texts[index], count=1)
+        return texts
+
     def _write_dxfs(self, text: str) -> str:
+        if self._dxf_sources is not None:
+            return self._written_dxf_table(text)
         text = self._renumbered_dxfs(text)
         if self._dxf_base_count == len(self._dxfs):
             return text
@@ -1035,6 +1115,34 @@ class Stylesheet:
         position = max(0, _dxf_append_position(text) - match.start('body')) if match['body'] is not None else 0
         replacement = f'<{match["tag"]}{attrs}>' + body[:position] + additions + body[position:] + f'</{match["tag"]}>'
         return text[:match.start()] + replacement + text[match.end():]
+
+    def _dxf_table_entries(self, text: str) -> tuple[re.Match[str] | None, list[str]]:
+        """The stylesheet's dxfs section in ``text``, and the dxfs the save being made writes in it."""
+        assert self._dxf_sources is not None
+        found = re.search(r'<(?P<tag>(?:[\w.-]+:)?dxfs)\b'
+                          r'''(?P<attrs>(?:[^'">]|"[^"]*"|'[^']*')*?)(?:\s*/>|>(?P<body>.*?)</(?P=tag)>)''', text,
+                          re.DOTALL)
+        # Under an unprefixed dxfs, as Excel writes the stylesheet, a dxf is in its default namespace.
+        inherited = found is None or ":" not in found["tag"]
+        return found, [self._dxf_markup(index, inherited=inherited) for index in self._dxf_sources]
+
+    def _written_dxf_table(self, text: str) -> str:
+        """The stylesheet with the dxfs the save writes, in its order, ``<dxfs count="0"/>`` once none is left, and
+        its table styles naming them where the save put them."""
+        found, entries = self._dxf_table_entries(text)
+        if found is None:
+            text = _with_section(text, "dxfs", entries) if entries else text
+        else:
+            attrs = re.sub(r'''\s+count\s*=\s*(?:"[^"]*"|'[^']*')''', "", found["attrs"]) + f' count="{len(entries)}"'
+            written = (f'<{found["tag"]}{attrs}>' + "".join(entries) + f'</{found["tag"]}>' if entries
+                       else f'<{found["tag"]}{attrs}/>')
+            text = text[:found.start()] + written + text[found.end():]
+        styles = re.search(r"<(?P<tag>(?:[\w.-]+:)?tableStyles)\b[^>]*>(?P<body>.*?)</(?P=tag)>", text, re.DOTALL)
+        if styles is not None and self._dxf_style_names:
+            names = iter(self._dxf_style_names)
+            body = re.sub(r'\bdxfId="(\d+)"', lambda name: f'dxfId="{next(names, int(name.group(1)))}"', styles["body"])
+            text = text[:styles.start("body")] + body + text[styles.end("body"):]
+        return text
 
     def _renumbered_dxfs(self, text: str) -> str:
         """The file's dxfs with each number format Excel numbers or spells otherwise as Excel writes it, and every
@@ -1487,6 +1595,13 @@ class Stylesheet:
         assert after is not None, "a save prepares the stylesheet before it is written"
         moved = dict(self._written_at)
         self.xml = self.written()
+        if self._dxf_sources is not None:
+            # The file now holds the dxfs in the order the save wrote them, which is the order they stand in.
+            self._dxf_texts = self._dxf_table_entries(self.xml)[1]
+            self._dxfs = [deepcopy(self._dxfs[source]) if isinstance(source, int) else _parsed_dxf(source)
+                          for source in self._dxf_sources]
+            self._dxf_fresh = False
+            self._dxf_sources, self._dxf_style_names = None, []
         self._dxf_base_count = len(self._dxfs)
         self._dxf_numbers = set()
         for section, kept in (("fonts", after.fonts), ("fills", after.fills), ("borders", after.borders)):
@@ -1566,6 +1681,13 @@ def _xf_element(style: Style, parts: tuple[int, int, int, int], xf_id: int, font
             head += f' {name}="1"'
     inner = alignment_xml(style.alignment) + protection_xml(style.protection) + style.extension
     return head + (f">{inner}</xf>" if inner else "/>")
+
+
+def _parsed_dxf(markup: str) -> XmlElement:
+    """A dxf from its markup, unprefixed in the stylesheet's own namespace."""
+    from pyopenvba.apps.excel._charts_file import xml_tree
+
+    return xml_tree(re.sub(r"^<dxf\b", f'<dxf xmlns="{_MAIN_NAMESPACE}"', markup, count=1))
 
 
 def _extension(element: str) -> str:

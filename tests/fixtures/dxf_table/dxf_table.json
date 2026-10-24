@@ -1,0 +1,1090 @@
+{
+ "build": "Private Function Rule(ws As Object, area As String, colour As Long) As String\n    Dim f As Object\n    On Error Resume Next\n    Set f = ws.Range(area).FormatConditions.Add(xlCellValue, xlGreater, \"5\")\n    f.Interior.Color = colour\n    Rule = IIf(Err.Number <> 0, \"E\" & Err.Number, \"ok\")\nEnd Function\n\nPublic Function Build() As String\nDim wb As Object, one As Object, two As Object, three As Object, out As String, r As Long, pv As Object, pt As Object\nDim t As Object, s As Object\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet one = wb.Worksheets(1)\none.Name = \"one\"\nSet two = wb.Worksheets.Add(After:=one)\ntwo.Name = \"two\"\nSet three = wb.Worksheets.Add(After:=two)\nthree.Name = \"three\"\none.Range(\"A1:B3\").Value = 9\ntwo.Range(\"A1:B3\").Value = 9\nout = out & \"r1:\" & Rule(two, \"A1:A3\", RGB(255, 0, 0)) & \";\"\nout = out & \"r2:\" & Rule(one, \"A1:A3\", RGB(0, 0, 255)) & \";\"\nout = out & \"r3:\" & Rule(two, \"B1:B3\", RGB(0, 255, 0)) & \";\"\nout = out & \"r4:\" & Rule(one, \"B1:B3\", RGB(0, 0, 255)) & \";\"\nOn Error Resume Next\nthree.Range(\"A1\").Value = \"Key\"\nthree.Range(\"B1\").Value = \"Other\"\nFor r = 2 To 6\n    three.Cells(r, 1).Value = r\n    three.Cells(r, 2).Value = 7 - r\nNext\nthree.Range(\"A3\").Interior.Color = RGB(255, 255, 0)\nthree.Range(\"B4\").Interior.Color = RGB(255, 0, 255)\nErr.Clear\nthree.Sort.SortFields.Clear\nthree.Sort.SortFields.Add(Key:=three.Range(\"A2:A6\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 255, 0)\nthree.Sort.SetRange three.Range(\"A1:B6\")\nthree.Sort.Header = xlYes\nthree.Sort.Apply\nout = out & \"sort:\" & IIf(Err.Number <> 0, \"E\" & Err.Number, \"ok\") & \";\"\nErr.Clear\nthree.Range(\"A1:B6\").AutoFilter Field:=2, Criteria1:=RGB(255, 0, 255), Operator:=xlFilterCellColor\nout = out & \"filter:\" & IIf(Err.Number <> 0, \"E\" & Err.Number, \"ok\") & \";\"\nErr.Clear\none.Range(\"D1\").Value = \"Head\"\none.Range(\"E1\").Value = \"More\"\none.Range(\"D2:E4\").Value = 3\nSet t = one.ListObjects.Add(xlSrcRange, one.Range(\"D1:E4\"), , xlYes)\nt.Name = \"Shaded\"\nt.ListColumns(1).DataBodyRange.Interior.Color = RGB(0, 255, 255)\nout = out & \"table:\" & IIf(Err.Number <> 0, \"E\" & Err.Number, \"ok\") & \";\"\nErr.Clear\nSet s = wb.TableStyles.Add(\"Mine\")\ns.TableStyleElements(xlWholeTable).Interior.Color = RGB(128, 0, 0)\nout = out & \"style:\" & IIf(Err.Number <> 0, \"E\" & Err.Number, \"ok\") & \";\"\nErr.Clear\nSet pv = wb.Worksheets.Add(After:=three)\npv.Name = \"pivot\"\ntwo.Range(\"A1\").Value = \"Name\"\ntwo.Range(\"B1\").Value = \"Amount\"\nSet pt = wb.PivotCaches.Create(xlDatabase, \"two!R1C1:R3C2\").CreatePivotTable(pv.Range(\"A3\"), \"Totals\")\npt.PivotFields(\"Name\").Orientation = xlRowField\npt.AddDataField pt.PivotFields(\"Amount\"), \"Total\", xlSum\npt.DataBodyRange.Interior.Color = RGB(0, 128, 0)\nout = out & \"pivot:\" & IIf(Err.Number <> 0, \"E\" & Err.Number, \"ok\") & \";\"\nOn Error GoTo 0\nwb.SaveAs \"{folder}\\made.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\made.xlsx\")\nout = out & \"r5:\" & Rule(wb.Worksheets(\"three\"), \"D1:D3\", RGB(128, 128, 0)) & \";\"\nwb.SaveAs \"{folder}\\made_added.xlsx\", 51\nwb.Close False\nBuild = out\nEnd Function\n",
+ "built": "r1:ok;r2:ok;r3:ok;r4:ok;sort:ok;filter:ok;table:ok;style:ok;pivot:ok;r5:ok;",
+ "read": "Private Function Shown(ws As Object) As String\n    Dim f As Object, out As String\n    On Error Resume Next\n    For Each f In ws.Cells.FormatConditions\n        out = out & f.AppliesTo.Address(False, False) & \"@\" & f.Priority & \"=\" & f.Interior.Color & \",\"\n    Next\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number\n    Shown = out\nEnd Function\n\nPublic Function Read() As String\nDim wb As Object, out As String, name As Variant, ws As Object\nApplication.DisplayAlerts = False\nFor Each name In Array({names})\n    On Error Resume Next\n    Err.Clear\n    Set wb = Nothing\n    Set wb = Workbooks.Open(\"{folder}\\\" & name & \".xlsx\")\n    If wb Is Nothing Then\n        out = out & name & \"^E\" & Err.Number & \"|\"\n    Else\n        out = out & name & \"^\"\n        For Each ws In wb.Worksheets\n            out = out & ws.Name & \":\" & Shown(ws) & \";\"\n        Next\n        Err.Clear\n        out = out & \"sort=\" & wb.Worksheets(\"three\").Sort.SortFields(1).SortOnValue.Color & \";\"\n        If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \";\"\n        Err.Clear\n        out = out & \"filter=\" & wb.Worksheets(\"three\").AutoFilter.Filters(2).Criteria1.Color & \";\"\n        If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \";\"\n        Err.Clear\n        out = out & \"style=\" & wb.TableStyles(\"Mine\").TableStyleElements(xlWholeTable).Interior.Color & \"|\"\n        If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \"|\"\n        On Error GoTo 0\n        wb.SaveAs \"{folder}\\\" & name & \"_resaved.xlsx\", 51\n        wb.Close False\n    End If\n    On Error GoTo 0\nNext\nRead = out\nEnd Function\n",
+ "added": {
+  "dxfs": [
+   "<dxf><fill><patternFill><bgColor rgb=\"FF808000\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+   "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+  ],
+  "names": {
+   "xl/pivotTables/pivotTable1.xml": [
+    "format.dxfId=7"
+   ],
+   "xl/styles.xml": [
+    "tableStyleElement.dxfId=8"
+   ],
+   "xl/tables/table1.xml": [
+    "tableColumn.dataDxfId=6"
+   ],
+   "xl/worksheets/sheet1.xml": [
+    "cfRule.dxfId=3:A1:B3@1"
+   ],
+   "xl/worksheets/sheet2.xml": [
+    "cfRule.dxfId=2:A1:A3@1",
+    "cfRule.dxfId=1:B1:B3@2"
+   ],
+   "xl/worksheets/sheet3.xml": [
+    "colorFilter.dxfId=5",
+    "sortCondition.dxfId=4",
+    "cfRule.dxfId=0:D1:D3@1"
+   ]
+  }
+ },
+ "order_build": "Private Function Rule(ws As Object, area As String, colour As Long) As Object\n    Set Rule = ws.Range(area).FormatConditions.Add(xlCellValue, xlGreater, \"5\")\n    Rule.Interior.Color = colour\nEnd Function\n\nPublic Function Build() As String\nDim wb As Object, alpha As Object, beta As Object, gamma As Object, pv As Object, pt As Object, t As Object\nDim r As Long, f As Object, out As String\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet alpha = wb.Worksheets(1)\nalpha.Name = \"alpha\"\nSet beta = wb.Worksheets.Add(After:=alpha)\nbeta.Name = \"beta\"\nSet gamma = wb.Worksheets.Add(After:=beta)\ngamma.Name = \"gamma\"\nFor r = 1 To 6\n    alpha.Cells(r, 1).Value = 9\n    beta.Cells(r, 1).Value = r\n    beta.Cells(r, 2).Value = 7 - r\n    beta.Cells(r, 3).Value = 9\n    beta.Cells(r, 5).Value = 9\n    gamma.Cells(r, 1).Value = 9\nNext\nbeta.Range(\"A1\").Value = \"Key\"\nbeta.Range(\"B1\").Value = \"Other\"\nSet f = Rule(gamma, \"A1:A3\", RGB(255, 128, 0))\nSet f = Rule(beta, \"C1:C3\", RGB(0, 0, 255))\nSet f = Rule(alpha, \"A1:A3\", RGB(255, 0, 0))\nSet f = Rule(beta, \"E1:E3\", RGB(0, 255, 0))\nbeta.Range(\"A3\").Interior.Color = RGB(255, 255, 0)\nbeta.Range(\"B4\").Interior.Color = RGB(255, 0, 255)\nbeta.Sort.SortFields.Clear\nbeta.Sort.SortFields.Add(Key:=beta.Range(\"A2:A6\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 255, 0)\nbeta.Sort.SetRange beta.Range(\"A1:B6\")\nbeta.Sort.Header = xlYes\nbeta.Sort.Apply\nbeta.Range(\"A1:B6\").AutoFilter Field:=2, Criteria1:=RGB(255, 0, 255), Operator:=xlFilterCellColor\nbeta.Range(\"G1\").Value = \"Head\"\nbeta.Range(\"H1\").Value = \"More\"\nbeta.Range(\"G2:H4\").Value = 3\nSet t = beta.ListObjects.Add(xlSrcRange, beta.Range(\"G1:H4\"), , xlYes)\nt.ListColumns(1).DataBodyRange.Interior.Color = RGB(0, 128, 128)\nwb.TableStyles.Add(\"First\").TableStyleElements(xlWholeTable).Interior.Color = RGB(128, 0, 0)\nalpha.Range(\"D1\").Value = \"Head\"\nalpha.Range(\"E1\").Value = \"More\"\nalpha.Range(\"D2:E4\").Value = 3\nSet t = alpha.ListObjects.Add(xlSrcRange, alpha.Range(\"D1:E4\"), , xlYes)\nt.ListColumns(1).DataBodyRange.Interior.Color = RGB(0, 255, 255)\nwb.TableStyles.Add(\"Second\").TableStyleElements(xlHeaderRow).Interior.Color = RGB(0, 0, 128)\ngamma.Range(\"C1\").Value = \"Name\"\ngamma.Range(\"D1\").Value = \"Amount\"\ngamma.Range(\"C2:C3\").Value = \"x\"\ngamma.Range(\"D2:D3\").Value = 4\nSet pv = wb.Worksheets.Add(After:=gamma)\npv.Name = \"pivot\"\nSet pt = wb.PivotCaches.Create(xlDatabase, \"gamma!R1C3:R3C4\").CreatePivotTable(pv.Range(\"A3\"), \"Totals\")\npt.PivotFields(\"Name\").Orientation = xlRowField\npt.AddDataField pt.PivotFields(\"Amount\"), \"Total\", xlSum\npt.DataBodyRange.Interior.Color = RGB(0, 100, 0)\nwb.SaveAs \"{folder}\\order.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\order.xlsx\")\nwb.SaveAs \"{folder}\\order_again.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\order.xlsx\")\nwb.Worksheets(\"alpha\").Range(\"A1\").FormatConditions(1).Interior.Color = RGB(255, 192, 203)\nwb.SaveAs \"{folder}\\order_changed.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\order.xlsx\")\nwb.Worksheets(\"gamma\").Range(\"A1\").FormatConditions(1).Delete\nwb.SaveAs \"{folder}\\order_deleted.xlsx\", 51\nwb.Close False\nBuild = \"ok\"\nEnd Function\n",
+ "order_read": "Private Function Shown(ws As Object) As String\n    Dim f As Object, out As String\n    On Error Resume Next\n    For Each f In ws.Cells.FormatConditions\n        out = out & f.AppliesTo.Address(False, False) & \"@\" & f.Priority & \"=\" & f.Interior.Color & \",\"\n    Next\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number\n    Shown = out\nEnd Function\n\nPublic Function Read() As String\nDim wb As Object, out As String, name As Variant, ws As Object, t As Object\nApplication.DisplayAlerts = False\nFor Each name In Array({names})\n    On Error Resume Next\n    Err.Clear\n    Set wb = Nothing\n    Set wb = Workbooks.Open(\"{folder}\\\" & name & \".xlsx\")\n    If wb Is Nothing Then\n        out = out & name & \"^E\" & Err.Number & \"|\"\n    Else\n        out = out & name & \"^\"\n        For Each ws In wb.Worksheets\n            out = out & ws.Name & \":\" & Shown(ws)\n            For Each t In ws.ListObjects\n                out = out & \"table=\" & t.ListColumns(1).DataBodyRange.Cells(1, 1).Interior.Color & \",\"\n            Next\n            out = out & \";\"\n        Next\n        Err.Clear\n        out = out & \"sort=\" & wb.Worksheets(\"beta\").Sort.SortFields(1).SortOnValue.Color & \";\"\n        If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \";\"\n        Err.Clear\n        out = out & \"filter=\" & wb.Worksheets(\"beta\").AutoFilter.Filters(2).Criteria1.Color & \";\"\n        If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \";\"\n        Err.Clear\n        out = out & \"styles=\" & wb.TableStyles(\"First\").TableStyleElements(xlWholeTable).Interior.Color & \",\" & _\n            wb.TableStyles(\"Second\").TableStyleElements(xlHeaderRow).Interior.Color & \";\"\n        If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \";\"\n        Err.Clear\n        out = out & \"pivot=\" & wb.Worksheets(\"pivot\").PivotTables(1).DataBodyRange.Cells(1, 1).Interior.Color & \"|\"\n        If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \"|\"\n        On Error GoTo 0\n        wb.SaveAs \"{folder}\\\" & name & \"_resaved.xlsx\", 51\n        wb.Close False\n    End If\n    On Error GoTo 0\nNext\nRead = out\nEnd Function\n",
+ "sheet_build": "Private Function Pivot(wb As Object, ws As Object, colour As Long) As Object\n    Dim pt As Object\n    ws.Range(\"A1\").Value = \"Name\"\n    ws.Range(\"B1\").Value = \"Amount\"\n    ws.Range(\"A2:A3\").Value = \"x\"\n    ws.Range(\"B2:B3\").Value = 4\n    Set pt = wb.PivotCaches.Create(xlDatabase, ws.Name & \"!R1C1:R3C2\").CreatePivotTable(ws.Range(\"D3\"))\n    pt.PivotFields(\"Name\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Total\", xlSum\n    pt.DataBodyRange.Interior.Color = colour\n    Set Pivot = pt\nEnd Function\n\nPublic Function Build() As String\nDim wb As Object, p As Object, q As Object, r As Object, s As Object, t As Object, row As Long, f As Object\nDim w As Variant\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet p = wb.Worksheets(1)\np.Name = \"p\"\nSet q = wb.Worksheets.Add(After:=p)\nq.Name = \"q\"\nSet r = wb.Worksheets.Add(After:=q)\nr.Name = \"r\"\nSet s = wb.Worksheets.Add(After:=r)\ns.Name = \"s\"\nFor row = 1 To 6\n    p.Cells(row, 1).Value = row\n    p.Cells(row, 2).Value = 7 - row\n    q.Cells(row, 1).Value = row\n    q.Cells(row, 2).Value = 7 - row\nNext\np.Range(\"A1\").Value = \"Key\"\nq.Range(\"A1\").Value = \"Key\"\nFor Each w In Array(p, q)\n    w.Range(\"D1\").Value = \"Head\"\n    w.Range(\"E1\").Value = \"More\"\n    w.Range(\"D2:E4\").Value = 3\nNext\nSet t = q.ListObjects.Add(xlSrcRange, q.Range(\"D1:E4\"), , xlYes)\nt.ListColumns(1).DataBodyRange.Interior.Color = RGB(0, 128, 128)\nSet t = p.ListObjects.Add(xlSrcRange, p.Range(\"D1:E4\"), , xlYes)\nt.ListColumns(1).DataBodyRange.Interior.Color = RGB(0, 255, 255)\np.Range(\"B4\").Interior.Color = RGB(255, 0, 255)\np.Range(\"A1:B6\").AutoFilter Field:=2, Criteria1:=RGB(255, 0, 255), Operator:=xlFilterCellColor\nq.Range(\"A3\").Interior.Color = RGB(255, 255, 0)\nq.Sort.SortFields.Clear\nq.Sort.SortFields.Add(Key:=q.Range(\"A2:A6\"), SortOn:=xlSortOnCellColor, Order:=xlAscending).SortOnValue.Color = RGB(255, 255, 0)\nq.Sort.SetRange q.Range(\"A1:B6\")\nq.Sort.Header = xlYes\nq.Sort.Apply\nSet f = p.Range(\"G1:G3\").FormatConditions.Add(xlCellValue, xlGreater, \"5\")\nf.Interior.Color = RGB(255, 0, 0)\nSet f = Pivot(wb, s, RGB(128, 128, 0))\nSet f = Pivot(wb, r, RGB(0, 100, 0))\nwb.SaveAs \"{folder}\\sheets.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\sheets.xlsx\")\nwb.SaveAs \"{folder}\\sheets_resaved.xlsx\", 51\nwb.Close False\nBuild = \"ok\"\nEnd Function\n",
+ "cases": [
+  {
+   "name": "sheets",
+   "answer": "",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF808000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF008080\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/pivotTables/pivotTable2.xml": [
+      "format.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=5"
+     ],
+     "xl/tables/table2.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "colorFilter.dxfId=4",
+      "cfRule.dxfId=2:G1:G3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "sortCondition.dxfId=3"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF008080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF808000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=1"
+     ],
+     "xl/pivotTables/pivotTable2.xml": [
+      "format.dxfId=6"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=4"
+     ],
+     "xl/tables/table2.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "colorFilter.dxfId=5",
+      "cfRule.dxfId=0:G1:G3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "sortCondition.dxfId=3"
+     ]
+    }
+   }
+  },
+  {
+   "name": "made",
+   "answer": "one:A1:B3@1=16711680,;two:A1:A3@1=255,B1:B3@2=65280,;three:;pivot:;sort=65535;filter=16711935;style=128",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=7:A1:A3@1",
+      "cfRule.dxfId=5:B1:B3@2"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=8:A1:A3@1",
+      "cfRule.dxfId=6:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=3",
+      "sortCondition.dxfId=4"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=6"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=7"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=5"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=2:A1:B3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=1:A1:A3@1",
+      "cfRule.dxfId=0:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=3"
+     ]
+    }
+   }
+  },
+  {
+   "name": "unused_first",
+   "answer": "one:A1:B3@1=16711680,;two:A1:A3@1=255,B1:B3@2=65280,;three:;pivot:;sort=65535;filter=16711935;style=128",
+   "file": {
+    "dxfs": [
+     "<dxf><font><color rgb=\"FF9C0006\"/></font></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=1"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=2"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=3"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=8:A1:A3@1",
+      "cfRule.dxfId=6:B1:B3@2"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=9:A1:A3@1",
+      "cfRule.dxfId=7:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=5"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=6"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=7"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=5"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=2:A1:B3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=1:A1:A3@1",
+      "cfRule.dxfId=0:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=3"
+     ]
+    }
+   }
+  },
+  {
+   "name": "unused_middle",
+   "answer": "one:A1:B3@1=16711680,;two:A1:A3@1=255,B1:B3@2=65280,;three:;pivot:;sort=65535;filter=16711935;style=128",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><font><color rgb=\"FF9C0006\"/></font></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=8:A1:A3@1",
+      "cfRule.dxfId=6:B1:B3@2"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=9:A1:A3@1",
+      "cfRule.dxfId=7:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=3",
+      "sortCondition.dxfId=5"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=6"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=7"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=5"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=2:A1:B3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=1:A1:A3@1",
+      "cfRule.dxfId=0:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=3"
+     ]
+    }
+   }
+  },
+  {
+   "name": "unused_last",
+   "answer": "one:A1:B3@1=16711680,;two:A1:A3@1=255,B1:B3@2=65280,;three:;pivot:;sort=65535;filter=16711935;style=128",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><font><color rgb=\"FF9C0006\"/></font></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=7:A1:A3@1",
+      "cfRule.dxfId=5:B1:B3@2"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=8:A1:A3@1",
+      "cfRule.dxfId=6:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=3",
+      "sortCondition.dxfId=4"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=6"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=7"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=5"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=2:A1:B3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=1:A1:A3@1",
+      "cfRule.dxfId=0:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=3"
+     ]
+    }
+   }
+  },
+  {
+   "name": "shared",
+   "answer": "one:A1:B3@1=16711680,;two:A1:A3@1=255,B1:B3@2=65280,;three:;pivot:;sort=65535;filter=16711935;style=128",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=7:A1:A3@1",
+      "cfRule.dxfId=7:B1:B3@2"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=8:A1:A3@1",
+      "cfRule.dxfId=6:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=3",
+      "sortCondition.dxfId=4"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF008000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=6"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=7"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=5"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=2:A1:B3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "cfRule.dxfId=1:A1:A3@1",
+      "cfRule.dxfId=0:B1:B3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=3"
+     ]
+    }
+   }
+  },
+  {
+   "name": "order",
+   "answer": "alpha:A1:A3@1=255,table=16776960,;beta:C1:C3@1=16711680,E1:E3@2=65280,table=16777215,;gamma:A1:A3@1=33023,;pivot:;sort=65535;filter=16711935;styles=128,8388608;pivot=25600",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=3",
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=7:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=5",
+      "cfRule.dxfId=8:C1:C3@1",
+      "cfRule.dxfId=6:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=9:A1:A3@1"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ]
+    }
+   }
+  },
+  {
+   "name": "order_again",
+   "answer": "alpha:A1:A3@1=255,table=16776960,;beta:C1:C3@1=16711680,E1:E3@2=65280,table=16777215,;gamma:A1:A3@1=33023,;pivot:;sort=65535;filter=16711935;styles=128,8388608;pivot=25600",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ]
+    }
+   }
+  },
+  {
+   "name": "order_changed",
+   "answer": "alpha:A1:A3@1=13353215,table=16776960,;beta:C1:C3@1=16711680,E1:E3@2=65280,table=16777215,;gamma:A1:A3@1=33023,;pivot:;sort=65535;filter=16711935;styles=128,8388608;pivot=25600",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFC0CB\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=3:C1:C3@1",
+      "cfRule.dxfId=2:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=1:A1:A3@1"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFFC0CB\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ]
+    }
+   }
+  },
+  {
+   "name": "order_deleted",
+   "answer": "alpha:A1:A3@1=255,table=16776960,;beta:C1:C3@1=16711680,E1:E3@2=65280,table=16777215,;gamma:A2:A3@1=33023,;pivot:;sort=65535;filter=16711935;styles=128,8388608;pivot=25600",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A2:A3@1"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A2:A3@1"
+     ]
+    }
+   }
+  },
+  {
+   "name": "order_shared",
+   "answer": "alpha:A1:A3@1=255,table=16776960,;beta:C1:C3@1=16711680,E1:E3@2=16711680,table=16777215,;gamma:A1:A3@1=33023,;pivot:;sort=65535;filter=16711935;styles=128,8388608;pivot=25600",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=3",
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=7:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=5",
+      "cfRule.dxfId=8:C1:C3@1",
+      "cfRule.dxfId=8:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=9:A1:A3@1"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ]
+    }
+   }
+  },
+  {
+   "name": "order_cross",
+   "answer": "alpha:A1:A3@1=255,table=16776960,;beta:C1:C3@1=16711680,E1:E3@2=65280,table=16777215,;gamma:A1:A3@1=16777215,;pivot:;sort=65535;filter=16711935;styles=128,8388608;pivot=25600",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=3",
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=7:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=5",
+      "cfRule.dxfId=8:C1:C3@1",
+      "cfRule.dxfId=6:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=5:A1:A3@1"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ]
+    }
+   }
+  },
+  {
+   "name": "order_listed",
+   "answer": "alpha:A1:A3@1=255,table=16776960,;beta:C1:C3@1=16711680,E1:E3@2=65280,table=16777215,;gamma:A1:A3@1=33023,;pivot:;sort=65535;filter=16711935;styles=128,8388608;pivot=25600",
+   "file": {
+    "dxfs": [
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=0"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=3",
+      "tableStyleElement.dxfId=1"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=2"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=7:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=4",
+      "sortCondition.dxfId=5",
+      "cfRule.dxfId=6:E1:E3@2",
+      "cfRule.dxfId=8:C1:C3@1"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=9:A1:A3@1"
+     ]
+    }
+   },
+   "resaved": {
+    "dxfs": [
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF8000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFFFF00\"/><bgColor indexed=\"65\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FFFF00FF\"/><bgColor rgb=\"FFFFFFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><fgColor indexed=\"64\"/><bgColor rgb=\"FF00FFFF\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill patternType=\"solid\"><bgColor rgb=\"FF006400\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF000080\"/></patternFill></fill></dxf>",
+     "<dxf><fill><patternFill><bgColor rgb=\"FF800000\"/></patternFill></fill></dxf>"
+    ],
+    "names": {
+     "xl/pivotTables/pivotTable1.xml": [
+      "format.dxfId=7"
+     ],
+     "xl/styles.xml": [
+      "tableStyleElement.dxfId=9",
+      "tableStyleElement.dxfId=8"
+     ],
+     "xl/tables/table1.xml": [
+      "tableColumn.dataDxfId=6"
+     ],
+     "xl/worksheets/sheet1.xml": [
+      "cfRule.dxfId=3:A1:A3@1"
+     ],
+     "xl/worksheets/sheet2.xml": [
+      "colorFilter.dxfId=5",
+      "sortCondition.dxfId=4",
+      "cfRule.dxfId=2:C1:C3@1",
+      "cfRule.dxfId=1:E1:E3@2"
+     ],
+     "xl/worksheets/sheet3.xml": [
+      "cfRule.dxfId=0:A1:A3@1"
+     ]
+    }
+   }
+  }
+ ],
+ "copy_build": "Private Sub Rule(ws As Object, area As String, colour As Long)\n    Dim f As Object\n    Set f = ws.Range(area).FormatConditions.Add(xlCellValue, xlGreater, \"5\")\n    f.Interior.Color = colour\nEnd Sub\n\nPrivate Function Made() As Object\nDim wb As Object, one As Object, two As Object\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet one = wb.Worksheets(1)\none.Name = \"one\"\nSet two = wb.Worksheets.Add(After:=one)\ntwo.Name = \"two\"\none.Range(\"A1:B3\").Value = 9\ntwo.Range(\"A1:B3\").Value = 9\nRule one, \"A1:A3\", RGB(255, 0, 0)\nRule two, \"A1:A3\", RGB(0, 255, 0)\nRule one, \"B1:B3\", RGB(0, 0, 255)\nSet Made = wb\nEnd Function\n\nPublic Function Build() As String\nDim wb As Object\nApplication.DisplayAlerts = False\nSet wb = Made()\nwb.Worksheets(\"one\").Copy After:=wb.Worksheets(\"two\")\nwb.SaveAs \"{folder}\\copied.xlsx\", 51\nwb.Close False\nSet wb = Made()\nwb.Worksheets(\"one\").Range(\"A1:A3\").Copy wb.Worksheets(\"two\").Range(\"D1\")\nwb.SaveAs \"{folder}\\pasted.xlsx\", 51\nwb.Close False\nBuild = \"ok\"\nEnd Function\n",
+ "copies": {
+  "copied": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=4:A1:A3@1",
+     "cfRule.dxfId=2:B1:B3@2"
+    ],
+    "xl/worksheets/sheet2.xml": [
+     "cfRule.dxfId=3:A1:A3@1"
+    ],
+    "xl/worksheets/sheet3.xml": [
+     "cfRule.dxfId=1:A1:A3@1",
+     "cfRule.dxfId=0:B1:B3@2"
+    ]
+   }
+  },
+  "pasted": {
+   "dxfs": [
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FF0000FF\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FF00FF00\"/></patternFill></fill></dxf>",
+    "<dxf><fill><patternFill><bgColor rgb=\"FFFF0000\"/></patternFill></fill></dxf>"
+   ],
+   "names": {
+    "xl/worksheets/sheet1.xml": [
+     "cfRule.dxfId=3:A1:A3@1",
+     "cfRule.dxfId=1:B1:B3@2"
+    ],
+    "xl/worksheets/sheet2.xml": [
+     "cfRule.dxfId=2:A1:A3@2",
+     "cfRule.dxfId=0:D1:D3@1"
+    ]
+   }
+  }
+ }
+}

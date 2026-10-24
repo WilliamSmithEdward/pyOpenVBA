@@ -141,13 +141,17 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
 
     copy_document(source, copied)
     copied.cells_ = cells
-    if external:
-        from pyopenvba.apps.excel._differential import renumber
+    from pyopenvba.apps.excel._differential import renumber
 
-        for rule in conditional:
-            if rule.root.get('dxfId') is not None and rule.dxf is not None:
-                renumber(rule.dxf, destination.stylesheet)
-                rule.root.set('dxfId', str(destination.stylesheet.ensure_dxf(rule.dxf)))
+    # The copy's rules take dxfs of their own, as Excel makes for each rule it makes (tests/fixtures/dxf_table/).
+    for rule in conditional:
+        dxf_id = rule.root.get('dxfId')
+        if dxf_id is None:
+            continue
+        own = rule.dxf if rule.dxf is not None else source.book.stylesheet.dxf(int(dxf_id))
+        if external:
+            renumber(own, destination.stylesheet)
+        rule.root.set('dxfId', str(destination.stylesheet.add_dxf(own)))
     copied.conditional_formats = conditional
     from pyopenvba.apps.excel._conditional import rule_groups
     from pyopenvba.apps.excel._conditional_border_context import initialize

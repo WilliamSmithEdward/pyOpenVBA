@@ -146,6 +146,9 @@ class ConditionalPlan:
                 rule.deleted = True
                 self.sheet.conditional_formats.remove(rule)
         for rule in self.incoming_rules:
+            if rule.root.get('dxfId') is not None and rule.dxf is not None:
+                # A rule pasted takes a dxf of its own, as Excel makes one for each rule it makes.
+                rule.root.set('dxfId', str(self.sheet.book.stylesheet.add_dxf(rule.dxf)))
             register(self.sheet, rule)
             self.sheet.conditional_formats.append(rule)
         changed(self.sheet)

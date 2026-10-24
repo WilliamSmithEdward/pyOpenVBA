@@ -840,7 +840,8 @@ class _ConditionalRule(RuleObject):
         return self.rule.dxf
 
     def _style_changed(self) -> None:
-        self.rule.root.set('dxfId', str(self.sheet.book.stylesheet.ensure_dxf(self._dxf())))
+        # Each format given a rule is a dxf of its own, as Excel makes one (tests/fixtures/dxf_table/).
+        self.rule.root.set('dxfId', str(self.sheet.book.stylesheet.add_dxf(self._dxf())))
         changed(self.sheet)
 
     @member

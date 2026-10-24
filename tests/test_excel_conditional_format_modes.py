@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 from zipfile import ZipFile
@@ -22,7 +23,9 @@ CONVERSIONS: list[dict[str, Any]] = json.loads((ROOT / 'native52_provenance.json
 
 
 def untouched(book: Workbook) -> object:
-    return [[(id(rule), list(rule.areas), xml_bytes(rule.root), rule.imported)
+    """Each rule as the model holds it, but for the dxf it names, which a save moves to where it writes that dxf in
+    Excel's order (tests/fixtures/dxf_table/)."""
+    return [[(id(rule), list(rule.areas), re.sub(rb' dxfId="\d+"', b"", xml_bytes(rule.root)), rule.imported)
              for rule in sheet.conditional_formats] for sheet in book.sheets_]
 
 

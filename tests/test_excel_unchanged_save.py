@@ -35,7 +35,6 @@ _SECTION = {"numFmts": "numFmt", "fonts": "font", "fills": "fill", "borders": "b
 GAPS: dict[tuple[str, str], str] = {
     ("unused_parts", "fonts"): "Excel leaves out a font nothing uses; the model keeps every font no xf names, as "
                                "Excel keeps the fonts a form control's label and a note's text are in",
-    ("unused_dxf", "dxfs"): "Excel leaves out a dxf no rule names; the model keeps the file's dxfs",
 }
 #: Each workbook's reader: the formats of its cells, a row's and a column's, and its styles.
 READER = RECORD["read"].split("Public Function Read")[0] + "\n".join([

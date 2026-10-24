@@ -40,9 +40,18 @@ b* it means, blanks as blank="1" -- and anything with a wildcard, <>,
 mean of an average one go with them. Excel reads every one back as it
 wrote it.
 
-What is not modelled reports itself: colour, icon and date filters, the
-other dynamic filters, AutoFilter.Sort, a hidden drop-down, and text
-beyond ASCII where it is compared.
+A filter on a cell's colour or its font's (scripts/measure_colour_filters.py)
+shows the rows whose cell shows the colour as a colour sort finds it, a
+conditional format's included; xlFilterNoFill the cells with no fill, and
+xlFilterAutomaticFontColor those in the automatic font. Criteria1 reads a
+cell colour as an Interior, white with no pattern for no fill, and a
+font's as its colour. The file keeps the colour in a dxf of its own,
+made as the filter is, which a filter on the column again or ShowAllData
+lets go.
+
+What is not modelled reports itself: icon and date filters, the other
+dynamic filters, AutoFilter.Sort, a hidden drop-down, and text beyond
+ASCII where it is compared.
 
 A table has a filter of its own, which a range inside it reaches; the
 sheet's members reach whichever filter the active cell is in. Both are
@@ -68,13 +77,19 @@ from pyopenvba.interpreter._values import (EMPTY, MISSING, NOTHING, VBAArray, VB
                                            to_integer, to_number, to_text)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._editing import CellShift
     from pyopenvba.apps.excel._model import Worksheet
     from pyopenvba.apps.excel._tables import Table
 
 AND, OR, TOP_ITEMS, BOTTOM_ITEMS, TOP_PERCENT, BOTTOM_PERCENT, VALUES = 1, 2, 3, 4, 5, 6, 7
-DYNAMIC = 11
+CELL_COLOR, FONT_COLOR, DYNAMIC, NO_FILL, AUTOMATIC_FONT = 8, 9, 11, 12, 13
 ABOVE_AVERAGE, BELOW_AVERAGE = 33, 34
+WHITE, PATTERN_SOLID, PATTERN_NONE = 0xFFFFFF, 1, -4142
+_MAIN = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+#: The filters on a cell's colour or its font's, and which of them look at the font.
+COLOURS = frozenset({CELL_COLOR, FONT_COLOR, NO_FILL, AUTOMATIC_FONT})
+_FONTS = frozenset({FONT_COLOR, AUTOMATIC_FONT})
 _OPERATORS = ("<>", ">=", "<=", "=", ">", "<")
 #: The file's names for the operators a customFilter can hold; = has none.
 _FILE_OPERATORS = {"<>": "notEqual", ">": "greaterThan", ">=": "greaterThanOrEqual", "<": "lessThan",
@@ -86,15 +101,24 @@ _FILE_OPERATORS = {"<>": "notEqual", ">": "greaterThan", ">=": "greaterThanOrEqu
 
 @dataclass(frozen=True)
 class _Seen:
-    """A cell as a criterion looks at it."""
+    """A cell as a criterion looks at it, and where it is, which a colour filter looks at."""
 
     shown: str
     number: float | None
     text: str | None
     error: bool
+    sheet: Worksheet | None = None
+    row: int = 0
+    column: int = 0
 
 
 def _seen(sheet: Worksheet, row: int, column: int) -> _Seen:
+    from dataclasses import replace
+
+    return replace(_value_seen(sheet, row, column), sheet=sheet, row=row, column=column)
+
+
+def _value_seen(sheet: Worksheet, row: int, column: int) -> _Seen:
     cell = sheet.cells_.get((row, column))
     if cell is None:
         return _Seen("", None, None, False)
@@ -284,6 +308,14 @@ class FieldFilter:
     count: int = 1
     xml: str = ""
     attributes: str = ""
+    #: The dxf a colour filter keeps its colour in, by its place in the stylesheet, which a save renumbers.
+    dxf: int | None = None
+
+    def markup(self) -> str:
+        """What the filterColumn holds: the criteria as read or made, a colour filter naming its dxf's place."""
+        if self.dxf is None:
+            return self.xml
+        return re.sub(r'\bdxfId="\d+"', f'dxfId="{self.dxf}"', self.xml, count=1)
 
 
 def _one(criterion: _Criterion) -> FieldFilter:
@@ -311,6 +343,8 @@ def _field(sheet: Worksheet, area: Area, index: int, criteria1: object, operator
         return _top(sheet, area, index, kind, criteria1)
     if kind == DYNAMIC:
         return _dynamic(sheet, area, index, criteria1)
+    if kind in COLOURS:
+        return _coloured(sheet, kind, criteria1)
     if kind not in (0, AND, OR):
         raise VBAUnsupportedError(f"AutoFilter with Operator {kind} is not implemented")
     epoch_1904 = sheet.book.epoch_1904
@@ -408,6 +442,89 @@ def _averaged(which: int, mean: float) -> FieldFilter:
                        lambda seen: seen.number is not None and seen.number < mean, xml=xml)
 
 
+def _coloured(sheet: Worksheet, kind: int, criteria1: object) -> FieldFilter:
+    """A filter on a cell's colour or its font's, keeping its colour in a dxf of its own, made as the filter is
+    (tests/fixtures/colour_filters/)."""
+    colour: int | None = None
+    if kind in (CELL_COLOR, FONT_COLOR):
+        if criteria1 is MISSING:
+            raise VBAUnsupportedError("AutoFilter on a colour with no Criteria1 is not implemented")
+        colour = int(to_integer(criteria1, "Long"))
+    return _colour_filter(kind, colour, sheet.book.stylesheet.add_dxf(_colour_dxf(kind, colour)))
+
+
+def _colour_filter(kind: int, colour: int | None, dxf: int) -> FieldFilter:
+    """A colour filter keeping its colour in the dxf at ``dxf``: a cell passes that shows the colour, as a sort on
+    it finds it, or no fill, or the automatic font colour."""
+    from pyopenvba.apps.excel._sort import ON_CELL_COLOR, ON_FONT_COLOR, Key, shows_automatic_font, shows_color
+
+    font = kind in _FONTS
+    key = Key(0, on=ON_FONT_COLOR if font else ON_CELL_COLOR, color=colour)
+
+    def test(seen: _Seen) -> bool:
+        assert seen.sheet is not None, "a colour filter looks at a cell where it is"
+        if kind == AUTOMATIC_FONT:
+            return shows_automatic_font(seen.sheet, seen.row, seen.column)
+        return shows_color(seen.sheet, seen.row, seen.column, key)
+
+    # Criteria1 reads a cell colour as an Interior, white with no pattern for no fill, and a font's as its colour.
+    criteria: object = (VBAInt(colour or 0, "Long") if font
+                        else FilterInterior(WHITE if colour is None else colour, PATTERN_NONE if colour is None
+                                            else PATTERN_SOLID))
+    xml = f'<colorFilter dxfId="{dxf}"' + (' cellColor="0"' if font else "") + "/>"
+    return FieldFilter(kind, criteria, MISSING, test, xml=xml, dxf=dxf)
+
+
+def _colour_dxf(kind: int, colour: int | None) -> XmlElement:
+    """The dxf a colour filter keeps its colour in, as Excel writes it: a solid fill of the colour on white, a
+    font's colour as well; no fill; or the automatic colour."""
+    from pyopenvba.apps.excel._charts_file import XmlElement
+    from pyopenvba.apps.excel._styles import Color
+
+    dxf = XmlElement(_MAIN + "dxf")
+    fill = XmlElement(_MAIN + "fill")
+    pattern = XmlElement(_MAIN + "patternFill", {"patternType": "none" if kind == NO_FILL else "solid"})
+    if kind == NO_FILL:
+        colours = {"indexed": "64"}, {"indexed": "65"}
+    elif kind == AUTOMATIC_FONT:
+        colours = {"auto": "1"}, {"indexed": "65"}
+    else:
+        colours = {"rgb": str(Color.from_bgr(colour or 0).value)}, {"rgb": "FFFFFFFF"}
+    pattern.extend([XmlElement(_MAIN + "fgColor", colours[0]), XmlElement(_MAIN + "bgColor", colours[1])])
+    fill.append(pattern)
+    dxf.append(fill)
+    return dxf
+
+
+def _read_colour(sheet: Worksheet, attributes: str) -> FieldFilter | None:
+    """A colour filter from the file, its colour read from the dxf it names; None for one not measured."""
+    from pyopenvba.apps.excel._styles import bgr
+
+    found = _xml_attributes(attributes)
+    if not found.get("dxfId", "").isdecimal():
+        return None
+    index = int(found["dxfId"])
+    font = found.get("cellColor") in ("0", "false")
+    try:
+        dxf = sheet.book.stylesheet.dxf(index)
+    except IndexError:
+        return None
+    pattern = dxf.find(f"{_MAIN}fill/{_MAIN}patternFill")
+    if pattern is None:
+        return None
+    foreground = pattern.find(_MAIN + "fgColor")
+    if pattern.get("patternType") == "none" and not font:
+        return _colour_filter(NO_FILL, None, index)
+    if pattern.get("patternType") != "solid" or foreground is None:
+        return None
+    if font and foreground.get("auto") in ("1", "true"):
+        return _colour_filter(AUTOMATIC_FONT, None, index)
+    rgb = foreground.get("rgb", "")
+    if len(rgb) not in (6, 8):
+        return None
+    return _colour_filter(FONT_COLOR if font else CELL_COLOR, bgr(rgb[-6:]), index)
+
+
 def _opaque(xml: str) -> FieldFilter:
     """A column filter read from a file that the model does not follow: kept as it is, and not applied."""
 
@@ -452,7 +569,7 @@ class SheetFilter:
         """The autoFilter element the file holds for this filter."""
         uid = f' xr:uid="{self.uid}"' if self.uid else ""
         head = f'<autoFilter ref="{self.area.address(absolute=False)}"{uid}'
-        columns = "".join(f'<filterColumn colId="{index - 1}"{one.attributes}>{one.xml}</filterColumn>'
+        columns = "".join(f'<filterColumn colId="{index - 1}"{one.attributes}>{one.markup()}</filterColumn>'
                           for index, one in sorted(self.fields.items()))
         if not columns and not self.tail:
             return head + "/>"
@@ -887,7 +1004,7 @@ def read_filter(sheet: Worksheet, element: str) -> SheetFilter | None:
         if colid is None:
             continue
         others = re.sub(r'\s*\bcolId="\d+"', "", column_attributes)
-        read = _read_column(match.group(2) or "")
+        read = _read_column(match.group(2) or "", sheet)
         read.attributes = others
         found.fields[int(colid.group(1)) + 1] = read
         last = match.end()
@@ -895,8 +1012,14 @@ def read_filter(sheet: Worksheet, element: str) -> SheetFilter | None:
     return found
 
 
-def _read_column(xml: str) -> FieldFilter:
+def _read_column(xml: str, sheet: Worksheet) -> FieldFilter:
     """One column's criteria from the file, as Excel reads them back."""
+    colour = re.fullmatch(r"<colorFilter\b([^>]*?)/>", xml)
+    if colour is not None:
+        found_colour = _read_colour(sheet, colour.group(1))
+        if found_colour is not None:
+            found_colour.xml = xml
+            return found_colour
     values = re.fullmatch(r'<filters\b([^>]*?)(?:/>|>(.*?)</filters>)', xml, re.DOTALL)
     if values is not None:
         return _read_values(xml, values.group(1), values.group(2) or "")
@@ -1068,6 +1191,24 @@ class AutoFilter(ExcelObject):
         else:
             show_all_own(self.sheet)
         return EMPTY
+
+
+class FilterInterior(ExcelObject):
+    """A cell-colour filter's Criteria1: the colour it keeps, solid, or white with no pattern for no fill
+    (tests/fixtures/colour_filters/)."""
+
+    vba_type_name = "Interior"
+
+    def __init__(self, colour: int, pattern: int) -> None:
+        self.colour, self.pattern = colour, pattern
+
+    @member
+    def Color(self) -> object:
+        return float(self.colour)
+
+    @member
+    def Pattern(self) -> object:
+        return VBAInt(self.pattern, "Long")
 
 
 class Filters(VBACollection, ExcelObject):

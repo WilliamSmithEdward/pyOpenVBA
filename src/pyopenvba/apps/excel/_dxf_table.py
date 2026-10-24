@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._autofilter import SheetFilter
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Workbook, Worksheet
     from pyopenvba.apps.excel._styles import Stylesheet
@@ -49,6 +50,8 @@ class _Name:
     rule: str = ""
     #: The dxf of a rule a macro took away, which stands where the rule's name did and names nothing.
     kept: bool = False
+    #: The element naming the dxf, without its prefix.
+    tag: str = ""
 
 
 #: A rule a worksheet's Excel 2010 extension keeps, and the dxf it holds of its own.
@@ -87,14 +90,15 @@ def _names(part: str, text: str, *, rules: bool) -> list[_Name]:
     for found in _NAME.finditer(text):
         opened = text.rfind("<", 0, found.start())
         tag = re.match(r"<([\w:.-]+)", text[opened:])
-        if tag is None or (tag.group(1).rsplit(":", 1)[-1] == "cfRule") != rules:
+        local = "" if tag is None else tag.group(1).rsplit(":", 1)[-1]
+        if tag is None or (local == "cfRule") != rules:
             continue
         priority = 0
         if rules:
             head = text[opened:text.find(">", found.end())]
             given = re.search(r'\bpriority="(\d+)"', head)
             priority = int(given.group(1)) if given else 0
-        out.append(_Name(part, found.start(1), found.end(1), int(found.group(1)), priority))
+        out.append(_Name(part, found.start(1), found.end(1), int(found.group(1)), priority, tag=local))
     return out
 
 
@@ -175,12 +179,25 @@ def _follow(book: Workbook, texts: dict[str, str], renamed: dict[str, list[tuple
             if rule.root.get("dxfId") is not None and not rule.deleted and priority.isdecimal() \
                     and int(priority) in rules:
                 rule.root.set("dxfId", str(rules[int(priority)]))
+        if sheet.auto_filter is not None:
+            _refiltered(sheet.auto_filter, renamed.get(sheet.part_name, []))
         for table in sheet.tables:
             if table.part in texts and table.xml:
                 table.xml = texts[table.part]
+            if table.filter is not None:
+                _refiltered(table.filter, renamed.get(table.part, []))
         for pivot in sheet.pivot_tables:
             if pivot.part in renamed:
                 _renamed_tree(pivot.root, [value for _, value in renamed[pivot.part]])
+
+
+def _refiltered(found: SheetFilter, names: list[tuple[_Name, int]]) -> None:
+    """A filter whose colour filters name their dxfs where the save put them, its columns in their order as its
+    part names them."""
+    places = iter([value for name, value in names if name.tag == "colorFilter"])
+    for _, column in sorted(found.fields.items()):
+        if column.dxf is not None:
+            column.dxf = next(places, column.dxf)
 
 
 def _renamed_tree(root: XmlElement, values: list[int]) -> None:

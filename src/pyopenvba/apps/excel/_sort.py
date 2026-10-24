@@ -57,6 +57,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Cell, Workbook, Worksheet
+    from pyopenvba.apps.excel._styles import Style
 
 ASCENDING, DESCENDING = 1, 2
 GUESS, YES, NO = 0, 1, 2
@@ -132,17 +133,29 @@ def _compare(first: tuple[int, object], second: tuple[int, object], descending: 
     return (-1 if less else 1) * (-1 if descending else 1)
 
 
-def shows_color(sheet: Worksheet, row: int, column: int, key: Key) -> bool:
-    """Whether a cell shows the colour a colour key sorts on, as its conditional formats show it."""
+def _shown_style(sheet: Worksheet, row: int, column: int) -> Style:
+    """A cell's format as its conditional formats show it."""
     from pyopenvba.apps.excel._conditional_eval import display_style
     from pyopenvba.apps.excel._conditional_stats import conditional_read
-    from pyopenvba.apps.excel._styles import Color
 
     if sheet.conditional_formats:
         with conditional_read():
-            style = display_style(sheet, row, column)
-    else:
-        style = sheet.style_at(row, column)
+            return display_style(sheet, row, column)
+    return sheet.style_at(row, column)
+
+
+def shows_automatic_font(sheet: Worksheet, row: int, column: int) -> bool:
+    """Whether a cell's font shows the automatic colour, which a filter on it finds and a colour sort passes over
+    (tests/fixtures/colour_filters/)."""
+    color = _shown_style(sheet, row, column).font.color
+    return color is None or color.kind == "auto" or color == sheet.book.stylesheet.default.font.color
+
+
+def shows_color(sheet: Worksheet, row: int, column: int, key: Key) -> bool:
+    """Whether a cell shows the colour a colour key sorts on, as its conditional formats show it."""
+    from pyopenvba.apps.excel._styles import Color
+
+    style = _shown_style(sheet, row, column)
     wanted = None if key.color is None else str(Color.from_bgr(key.color).value)[-6:]
     if key.on == ON_CELL_COLOR:
         fill = style.fill

@@ -783,10 +783,10 @@ DisplayFormat,WrapText,"property, read-only",As Variant,,PARTIAL,tests/test_exce
 Filter,Application,"property, read-only",As Application,,MISSING,,
 Filter,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
 Filter,Creator,"property, read-only",As XlCreator,,MISSING,,
-Filter,Criteria1,"property, read-only",As Variant,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
+Filter,Criteria1,"property, read-only",As Variant,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json; tests/fixtures/colour_filters/colour_filters.json,"A colour filter's is an Interior holding the colour, white with no pattern for no fill; a font colour filter's is the colour as a number. Icon and date-group filters report themselves unsupported."
 Filter,Criteria2,"property, read-only",As Variant,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
 Filter,On,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
-Filter,Operator,property,As XlAutoFilterOperator,no setter,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
+Filter,Operator,property,As XlAutoFilterOperator,no setter,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json; tests/fixtures/colour_filters/colour_filters.json,
 Filter,Parent,"property, read-only",As Object,,MISSING,,
 Filters,_Default,"property, read-only",As Filter,,MISSING,,
 Filters,_NewEnum,"property, read-only",As IUnknown,,MISSING,,

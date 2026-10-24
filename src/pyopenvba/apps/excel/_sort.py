@@ -33,6 +33,13 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
   set outright: the automatic colour, and a field left at it, match
   nothing. SortOnValue is an Interior or a Font holding the colour, error
   1004 on a field of values, and the file keeps the colour as a dxf.
+- A field on icons (scripts/measure_icon_sorts.py) puts the rows showing
+  the icon SetIcon gave it on top, or at the bottom with xlDescending, as
+  a colour field does, the icon a conditional format's icon set shows a
+  cell as _icon_sets.shown_icon works it out; an icon of another set and
+  a field given none match nothing. SortOnValue is the Icon, Nothing
+  until set, and the file keeps the icon's set and its place from 0. A
+  table's sort on icons reports itself unsupported.
 - With no range or no field, Apply sorts nothing and raises no error.
   The file keeps the rows a sort sorts, under the header given xlYes.
 """
@@ -52,7 +59,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_bool, to_integer
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, VBAInt, error, to_bool, to_integer
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -82,6 +89,8 @@ class Key:
     numbers: bool = False
     on: int = ON_VALUES
     color: int | None = None
+    #: The icon a key on icons orders the rows showing first, as its set and place there; None names none.
+    icon: tuple[int, int] | None = None
 
 
 def text_key(text: str, match_case: bool) -> tuple[tuple[int, ...], tuple[int, ...], tuple[tuple[int, int], ...]]:
@@ -239,9 +248,15 @@ def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: boo
         row_keys: list[tuple[int, object]] = []
         for key in keys:
             if key.on != ON_VALUES:
-                # The colour's rows first: 0 before 1, and after it when descending.
+                # The colour's rows first, or the icon's: 0 before 1, and after it when descending.
                 cell = (area.top + key.index, line) if across else (line, area.left + key.index)
-                row_keys.append((_NUMBER, 0.0 if shows_color(sheet, *cell, key) else 1.0))
+                if key.on == ON_ICON:
+                    from pyopenvba.apps.excel._icon_sets import shown_icon
+
+                    shows = key.icon is not None and shown_icon(sheet, *cell) == key.icon
+                else:
+                    shows = shows_color(sheet, *cell, key)
+                row_keys.append((_NUMBER, 0.0 if shows else 1.0))
                 continue
             raw = value(line, key)
             if charge_value is not None:
@@ -419,8 +434,8 @@ class SortState:
 def settings_signature(state: SortState) -> tuple[object, ...]:
     area = (id(state.area.sheet), tuple(state.area.areas)) if state.area is not None else None
     return (area, state.header, state.match_case, state.orientation, state.method,
-            tuple((id(field.key.sheet), tuple(field.key.areas), field.order, field.option, field.sort_on, field.color)
-                  for field in state.fields))
+            tuple((id(field.key.sheet), tuple(field.key.areas), field.order, field.option, field.sort_on, field.color,
+                   field.icon) for field in state.fields))
 
 
 def changed(sheet: Worksheet) -> bool:
@@ -479,20 +494,27 @@ def with_sort_state(sheet: Worksheet, xml: str) -> str:
 
 _MAIN = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 #: What a sortCondition's sortBy names: the SortOn of its field.
-SORTED_BY = {'value': ON_VALUES, 'cellColor': ON_CELL_COLOR, 'fontColor': ON_FONT_COLOR}
-_SORT_BY = {ON_CELL_COLOR: 'cellColor', ON_FONT_COLOR: 'fontColor'}
+SORTED_BY = {'value': ON_VALUES, 'cellColor': ON_CELL_COLOR, 'fontColor': ON_FONT_COLOR, 'icon': ON_ICON}
+_SORT_BY = {ON_CELL_COLOR: 'cellColor', ON_FONT_COLOR: 'fontColor', ON_ICON: 'icon'}
 
 
 def condition_attributes(book: Workbook, field: SortField) -> dict[str, str]:
     """A field's sortCondition, its attributes in the schema's order as Excel writes them: a colour field names
-    the dxf holding its colour."""
+    the dxf holding its colour, and an icon field its icon's set and place there from 0, none where it has no
+    icon (tests/fixtures/icon_sorts/)."""
+    from pyopenvba.apps.excel._icon_sets import SETS
+
     attributes: dict[str, str] = {}
     if field.order == DESCENDING:
         attributes['descending'] = '1'
     if field.sort_on != ON_VALUES:
         attributes['sortBy'] = _SORT_BY[field.sort_on]
     attributes['ref'] = field.key.first.address(absolute=False)
-    if field.sort_on != ON_VALUES:
+    if field.sort_on == ON_ICON:
+        if field.icon is not None:
+            attributes['iconSet'] = SETS[field.icon[0]][0]
+            attributes['iconId'] = str(field.icon[1] - 1)
+    elif field.sort_on != ON_VALUES:
         attributes['dxfId'] = str(book.stylesheet.ensure_dxf(_color_dxf(book, field)))
     return attributes
 
@@ -562,6 +584,18 @@ def condition_color(book: Workbook, sort_by: str, dxf_id: str) -> int | None:
     return bgr(str(color.get('rgb'))[-6:])
 
 
+def _condition_icon(name: str | None, place: str | None) -> tuple[int, int] | None:
+    """The icon a sort condition on icons names, its set and place there; None where it names none."""
+    from pyopenvba.apps.excel._icon_sets import SETS, set_named
+
+    if name is None and place is None:
+        return None
+    found = set_named(name or '3TrafficLights1')
+    if found is None or place is None or not place.isdecimal() or int(place) >= len(SETS[found][1]):
+        raise VBAUnsupportedError('A sort condition on an icon of an unmeasured form is not implemented')
+    return found, int(place) + 1
+
+
 def preflight_save(book: Workbook) -> None:
     """Refuse new sort serialization boundaries before any package is edited."""
     from pyopenvba.apps.excel._table_sort import changed as table_changed
@@ -612,18 +646,21 @@ def _loaded_state(sheet: Worksheet) -> SortState:
         for condition in group.children:
             sort_by = condition.get('sortBy', 'value')
             if (condition.name != ns + 'sortCondition' or condition.children or condition.has_text or condition.has_opaque
-                    or any(key not in ('ref', 'descending', 'sortBy', 'dxfId') and key != 'xmlns'
+                    or any(key not in ('ref', 'descending', 'sortBy', 'dxfId', 'iconSet', 'iconId') and key != 'xmlns'
                            and not key.startswith('xmlns:') for key in condition.attributes)
                     or condition.get('descending', '0') not in ('0', '1', 'false', 'true')
                     or sort_by not in SORTED_BY
-                    or (sort_by == 'value') == ('dxfId' in condition.attributes)):
+                    or (sort_by in ('value', 'icon')) == ('dxfId' in condition.attributes)
+                    or (sort_by != 'icon' and ('iconSet' in condition.attributes or 'iconId' in condition.attributes))):
                 raise VBAUnsupportedError('Custom worksheet sort conditions are not implemented')
             key = parse_area(condition.get('ref', ''))
             if key.sheet:
                 raise VBAUnsupportedError('Qualified worksheet sort keys are not implemented')
             order = DESCENDING if condition.get('descending') in ('1', 'true') else ASCENDING
             field = SortField(Range(sheet, [key]), order, 0, SORTED_BY[sort_by])
-            if sort_by != 'value':
+            if sort_by == 'icon':
+                field.icon = _condition_icon(condition.attributes.get('iconSet'), condition.attributes.get('iconId'))
+            elif sort_by != 'value':
                 field.color = condition_color(sheet.book, sort_by, str(condition.get('dxfId')))
             state.fields.append(field)
     except ValueError:
@@ -717,7 +754,7 @@ class SortObject(ExcelObject):
         area = target.first
         across = state.orientation == LEFT_TO_RIGHT
         keys = [replace(_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
-                        on=field.sort_on, color=field.color) for field in state.fields]
+                        on=field.sort_on, color=field.color, icon=field.icon) for field in state.fields]
         sort_area(target.sheet, area, keys, header=state.header == YES, match_case=state.match_case, across=across)
         from pyopenvba.apps.excel._events import recalculated
 
@@ -771,6 +808,8 @@ class SortField(ExcelObject):
         self.sort_on = sort_on
         #: The VBA colour a colour field sorts on; None, as it starts, is no fill or the automatic font colour.
         self.color: int | None = None
+        #: The icon an icon field sorts on, its set and place there; None, as it starts, names none.
+        self.icon: tuple[int, int] | None = None
 
     def vba_no_member(self, name: str) -> Exception:
         return error(438) if name.casefold() == 'name' else super().vba_no_member(name)
@@ -787,16 +826,35 @@ class SortField(ExcelObject):
     def _set_sort_on(self, value: object) -> None:
         self.sort_on = sort_on(value)
         self.color = None
+        self.icon = None
 
     @member
     def SortOnValue(self) -> object:
-        """What a colour field sorts on, as an Interior or a Font holding the colour; a field of values has none,
-        error 1004 (tests/fixtures/sort_colour/)."""
+        """What a colour field sorts on, as an Interior or a Font holding the colour, and an icon field its Icon,
+        Nothing until given one; a field of values has none, error 1004 (tests/fixtures/sort_colour/,
+        tests/fixtures/icon_sorts/)."""
         if self.sort_on == ON_CELL_COLOR:
             return SortInterior(self)
         if self.sort_on == ON_FONT_COLOR:
             return SortFont(self)
+        if self.sort_on == ON_ICON:
+            if self.icon is None:
+                return NOTHING
+            from pyopenvba.apps.excel._icon_sets import SETS, Icon, IconSet
+
+            return Icon(IconSet(self.key.sheet.book, self.icon[0], len(SETS[self.icon[0]][1])), self.icon[1])
         raise error(1004, "A sort on values has no SortOnValue")
+
+    @method
+    def SetIcon(self, Icon: object = MISSING) -> object:
+        """The icon an icon field puts first, one of Excel's sets' (tests/fixtures/icon_sorts/)."""
+        from pyopenvba.apps.excel._icon_sets import SETS
+        from pyopenvba.apps.excel._icon_sets import Icon as IconObject
+
+        if not isinstance(Icon, IconObject) or Icon.owner.identifier not in SETS:
+            raise VBAUnsupportedError("sorting on an icon not of one of Excel's sets is not implemented")
+        self.icon = (Icon.owner.identifier, Icon.index)
+        return EMPTY
 
     @member
     def Order(self) -> object:
@@ -816,11 +874,10 @@ class SortField(ExcelObject):
 
 
 def sort_on(value: object) -> int:
-    """The SortOn a macro gives: values, a cell's colour or its font's. Icons are not modelled."""
+    """The SortOn a macro gives: values, a cell's colour or its font's, or the icon a conditional format shows."""
     found = int(to_integer(value, "Long"))
-    if found not in (ON_VALUES, ON_CELL_COLOR, ON_FONT_COLOR):
-        raise VBAUnsupportedError("sorting on a conditional format's icons is not implemented" if found == ON_ICON
-                                  else f"sorting with SortOn {found} is not implemented")
+    if found not in (ON_VALUES, ON_CELL_COLOR, ON_FONT_COLOR, ON_ICON):
+        raise VBAUnsupportedError(f"sorting with SortOn {found} is not implemented")
     return found
 
 

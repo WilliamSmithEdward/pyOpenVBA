@@ -1,0 +1,86 @@
+{
+ "build": "Private Function Dump(ws As Object) As String\n    Dim out As String, r As Long, f As Object, i As Long, v As Object\n    For r = 2 To 9\n        out = out & ws.Cells(r, 1).Value & \",\"\n    Next\n    On Error Resume Next\n    For i = 1 To ws.Sort.SortFields.Count\n        Set f = ws.Sort.SortFields(i)\n        out = out & \" f\" & i & \":\" & f.Key.Address & \":\" & f.SortOn & \":\" & f.Order\n        Err.Clear\n        Set v = Nothing\n        Set v = f.SortOnValue\n        If Err.Number <> 0 Then\n            out = out & \":E\" & Err.Number\n        ElseIf v Is Nothing Then\n            out = out & \":Nothing\"\n        Else\n            out = out & \":\" & TypeName(v)\n            out = out & \":\" & v.Index\n            If Err.Number <> 0 Then out = out & \":E\" & Err.Number\n        End If\n    Next\n    Dump = out\nEnd Function\n\nPrivate Sub Fill(ws As Object)\n    Dim i As Long, f As Object\n    ws.Range(\"A1:B1\").Value = Array(\"Name\", \"N\")\n    For i = 2 To 9\n        ws.Cells(i, 1).Value = \"r\" & i\n        ws.Cells(i, 2).Value = Choose(i - 1, 50, 30, 80, 10, 70, 20, 60, 40)\n    Next\n    Set f = ws.Range(\"B2:B9\").FormatConditions.AddIconSetCondition\n    f.IconSet = ws.Parent.IconSets(xl3Arrows)\nEnd Sub\n\nPrivate Sub Sorted(ws As Object)\n    ws.Sort.SetRange ws.Range(\"A1:B9\")\n    ws.Sort.Header = xlYes\n    ws.Sort.Apply\nEnd Sub\n\nPublic Function Build() As String\nDim wb As Object, ws As Object, out As String\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\n{layouts}\nwb.Worksheets(1).Activate\nwb.SaveAs \"{folder}\\icon_sorts.xlsx\", 51\nwb.Close False\nSet wb = Workbooks.Open(\"{folder}\\icon_sorts.xlsx\")\nout = out & \"~\"\nFor Each ws In wb.Worksheets\n    out = out & ws.Name & \"^\" & Dump(ws) & \"|\"\nNext\nwb.Close False\nBuild = out\nEnd Function\n",
+ "layout": "If wb.Worksheets(1).Name = \"Sheet1\" Then\n    Set ws = wb.Worksheets(1)\nElse\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nEnd If\nws.Name = \"{name}\"\nFill ws\nOn Error Resume Next\nErr.Clear\n{steps}If Err.Number <> 0 Then out = out & \"{name}^E\" & Err.Number & \" \" & Err.Description & \"|\"\nOn Error GoTo 0\nout = out & \"{name}^\" & Dump(ws) & \"|\"\n",
+ "layouts": [
+  {
+   "name": "up_on_top",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending).SetIcon wb.IconSets(xl3Arrows).Item(3)\nSorted ws\n",
+   "error": "",
+   "dump": "r4,r6,r8,r2,r3,r5,r7,r9, f1:$B$2:$B$9:3:1:Icon:3",
+   "reopened": "r4,r6,r8,r2,r3,r5,r7,r9, f1:$B$2:$B$9:3:1:Icon:3",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"3Arrows\" iconId=\"2\"/></sortState>"
+   ]
+  },
+  {
+   "name": "up_at_bottom",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlDescending).SetIcon wb.IconSets(xl3Arrows).Item(3)\nSorted ws\n",
+   "error": "",
+   "dump": "r2,r3,r5,r7,r9,r4,r6,r8, f1:$B$2:$B$9:3:2:Icon:3",
+   "reopened": "r2,r3,r5,r7,r9,r4,r6,r8, f1:$B$2:$B$9:3:2:Icon:3",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"3Arrows\" iconId=\"2\"/></sortState>"
+   ]
+  },
+  {
+   "name": "down_on_top",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending).SetIcon wb.IconSets(xl3Arrows).Item(1)\nSorted ws\n",
+   "error": "",
+   "dump": "r3,r5,r7,r2,r4,r6,r8,r9, f1:$B$2:$B$9:3:1:Icon:1",
+   "reopened": "r3,r5,r7,r2,r4,r6,r8,r9, f1:$B$2:$B$9:3:1:Icon:1",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"3Arrows\" iconId=\"0\"/></sortState>"
+   ]
+  },
+  {
+   "name": "two_icons",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending).SetIcon wb.IconSets(xl3Arrows).Item(1)\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending).SetIcon wb.IconSets(xl3Arrows).Item(2)\nSorted ws\n",
+   "error": "",
+   "dump": "r3,r5,r7,r2,r9,r4,r6,r8, f1:$B$2:$B$9:3:1:Icon:1 f2:$B$2:$B$9:3:1:Icon:2",
+   "reopened": "r3,r5,r7,r2,r9,r4,r6,r8, f1:$B$2:$B$9:3:1:Icon:1 f2:$B$2:$B$9:3:1:Icon:2",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"3Arrows\" iconId=\"0\"/><sortCondition sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"3Arrows\" iconId=\"1\"/></sortState>"
+   ]
+  },
+  {
+   "name": "icon_then_values",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending).SetIcon wb.IconSets(xl3Arrows).Item(2)\nws.Sort.SortFields.Add Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnValues, Order:=xlAscending\nSorted ws\n",
+   "error": "",
+   "dump": "r9,r2,r5,r7,r3,r8,r6,r4, f1:$B$2:$B$9:3:1:Icon:2 f2:$B$2:$B$9:0:1:E1004",
+   "reopened": "r9,r2,r5,r7,r3,r8,r6,r4, f1:$B$2:$B$9:3:1:Icon:2 f2:$B$2:$B$9:0:1:E1004",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"3Arrows\" iconId=\"1\"/><sortCondition ref=\"B2:B9\"/></sortState>"
+   ]
+  },
+  {
+   "name": "other_set",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending).SetIcon wb.IconSets(xl5Arrows).Item(5)\nSorted ws\n",
+   "error": "",
+   "dump": "r2,r3,r4,r5,r6,r7,r8,r9, f1:$B$2:$B$9:3:1:Icon:5",
+   "reopened": "r2,r3,r4,r5,r6,r7,r8,r9, f1:$B$2:$B$9:3:1:Icon:5",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"5Arrows\" iconId=\"4\"/></sortState>"
+   ]
+  },
+  {
+   "name": "never_set",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending\nSorted ws\n",
+   "error": "",
+   "dump": "r2,r3,r4,r5,r6,r7,r8,r9, f1:$B$2:$B$9:3:1:Nothing",
+   "reopened": "r2,r3,r4,r5,r6,r7,r8,r9, f1:$B$2:$B$9:3:1:Nothing",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"icon\" ref=\"B2:B9\"/></sortState>"
+   ]
+  },
+  {
+   "name": "middle_on_top",
+   "steps": "ws.Sort.SortFields.Clear\nws.Sort.SortFields.Add(Key:=ws.Range(\"B2:B9\"), SortOn:=xlSortOnIcon, Order:=xlAscending).SetIcon wb.IconSets(xl3Arrows).Item(2)\nSorted ws\n",
+   "error": "",
+   "dump": "r2,r9,r3,r4,r5,r6,r7,r8, f1:$B$2:$B$9:3:1:Icon:2",
+   "reopened": "r2,r9,r3,r4,r5,r6,r7,r8, f1:$B$2:$B$9:3:1:Icon:2",
+   "file": [
+    "<sortState ref=\"A2:B9\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition sortBy=\"icon\" ref=\"B2:B9\" iconSet=\"3Arrows\" iconId=\"1\"/></sortState>"
+   ]
+  }
+ ]
+}

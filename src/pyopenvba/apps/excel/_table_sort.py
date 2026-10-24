@@ -14,6 +14,7 @@ from pyopenvba.apps.excel._sort import (
     ASCENDING,
     DESCENDING,
     NO,
+    ON_ICON,
     ON_VALUES,
     SORTED_BY,
     YES,
@@ -318,6 +319,8 @@ class _TableFields(SortFields):
         if not isinstance(Key, Range):
             raise error(1004)
         on = ON_VALUES if SortOn is MISSING else sort_on(SortOn)
+        if on == ON_ICON:
+            raise unsupported("on a conditional format's icons")
         if CustomOrder is not MISSING:
             raise unsupported('with custom ordering')
         order = ASCENDING if Order is MISSING else int(to_integer(Order, 'Long'))

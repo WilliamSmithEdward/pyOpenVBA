@@ -1968,9 +1968,9 @@ SortField,ModifyKey,method,ModifyKey(Key As Range),,MISSING,,
 SortField,Order,property,As XlSortOrder,,UNASSESSED,,
 SortField,Parent,"property, read-only",As Object,,MISSING,,
 SortField,Priority,property,As Long,,MISSING,,
-SortField,SetIcon,method,SetIcon(Icon As Icon),,MISSING,,
-SortField,SortOn,property,As XlSortOn,,PARTIAL,tests/fixtures/sort_colour/sort_colour.json,"Values, a cell's colour or its font's, read and set; xlSortOnIcon reports itself unsupported."
-SortField,SortOnValue,"property, read-only",As Object,,PARTIAL,tests/fixtures/sort_colour/sort_colour.json,"An Interior or a Font holding the colour a colour field sorts on, Color read and set: white for no fill and black for the automatic font colour until set. Error 1004 on a field of values; its other members report themselves unsupported."
+SortField,SetIcon,method,SetIcon(Icon As Icon),,PARTIAL,tests/fixtures/icon_sorts/icon_sorts.json,"The icon of one of Excel's sets a field on icons puts first; a custom set's reports itself unsupported."
+SortField,SortOn,property,As XlSortOn,,PARTIAL,tests/fixtures/sort_colour/sort_colour.json; tests/fixtures/icon_sorts/icon_sorts.json,"Values, a cell's colour or its font's, or a conditional format's icons, read and set; a table's sort on icons reports itself unsupported."
+SortField,SortOnValue,"property, read-only",As Object,,PARTIAL,tests/fixtures/sort_colour/sort_colour.json; tests/fixtures/icon_sorts/icon_sorts.json,"An Interior or a Font holding the colour a colour field sorts on, Color read and set: white for no fill and black for the automatic font colour until set; an icon field's Icon, Nothing until set. Error 1004 on a field of values; its other members report themselves unsupported."
 SortField,SubField,property,As Variant,,MISSING,,
 SortFields,_Default,"property, read-only",As SortField,,MISSING,,
 SortFields,_NewEnum,"property, read-only",As IUnknown,,MISSING,,

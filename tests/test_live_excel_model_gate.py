@@ -2115,6 +2115,31 @@ def test_excel_reads_the_icon_filters_this_wrote(tmp_path: Path) -> None:
         assert read[layout["name"]] == layout["reopened"], layout["name"]
 
 
+def test_excel_reads_the_icon_sorts_this_wrote(tmp_path: Path) -> None:
+    """Every layout tests/fixtures/icon_sorts measured, made by the model with the macro Excel ran, a list sorted on
+    an icon set's icons on each sheet, and saved: Excel opens the file and reads each sheet's rows and sort fields
+    as it read its own file opened again."""
+    from test_excel_icon_sorts import LAYOUTS, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    body = "".join(RECORD["layout"].replace("{name}", layout["name"]).replace("{steps}", layout["steps"])
+                   for layout in LAYOUTS)
+    app = ExcelApplication()
+    app.add_module(RECORD["build"].replace("{layouts}", body).replace("{folder}", str(tmp_path)), name="Builder")
+    app.run("Build")
+    reader = RECORD["build"].split("Private Sub Fill")[0] + (
+        "Public Function Read(path As String) As String\nDim wb As Object, ws As Object, out As String\n"
+        "Set wb = Workbooks.Open(path)\nFor Each ws In wb.Worksheets\nout = out & ws.Name & \"^\" & Dump(ws) & \"|\"\n"
+        "Next\nwb.Close False\nRead = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (str(tmp_path / "icon_sorts.xlsx"),), timeout=300.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+    for layout in LAYOUTS:
+        assert read[layout["name"]] == layout["reopened"], layout["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

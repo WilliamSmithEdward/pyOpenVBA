@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import Range
+from pyopenvba.apps.excel._pivot_calculated import Measures, calculated_view, source_count
 from pyopenvba.apps.excel._pivot_calculations import calculated, calculation_of
 from pyopenvba.apps.excel._pivot_create import node, part_root
 from pyopenvba.apps.excel._pivot_criteria import label_hidden, value_filtered
@@ -267,8 +268,10 @@ def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[Xm
     refuse_1904_dates(cache)
     fields = deepcopy(cache.root.find(NS + 'cacheFields'))
     assert fields is not None
+    # A calculated field keeps no values, and lists none (tests/fixtures/pivot_calculated_fields/).
+    sources = source_count(list(fields))
     dictionaries: list[dict[tuple[str, object], int]] = []
-    for field in fields:
+    for field in fields[:sources]:
         shared = field.find(NS + 'sharedItems')
         if shared is None:
             shared = node('sharedItems')
@@ -296,7 +299,7 @@ def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[Xm
         ids.append(row)
         encoded.insert(len(ids) - 1, output)
     positions: list[list[int]] = []
-    for field in fields:
+    for field in fields[:sources]:
         shared = field.find(NS + 'sharedItems')
         assert shared is not None
         types = {entry.tag[len(NS):] for entry in shared}
@@ -322,6 +325,7 @@ def cache_layout(cache: PivotCache, records: list[list[XmlElement]]) -> tuple[Xm
             after = dt.datetime.combine(max(dates).date(), dt.time()) + dt.timedelta(days=1)
             shared.attrib.update(minDate=min(dates).isoformat(), maxDate=after.isoformat())
         positions.append(order(list(shared)))
+    positions.extend([] for _ in fields[sources:])
     return fields, encoded, ids, positions
 
 
@@ -344,7 +348,7 @@ class RenderPlan:
 def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | None = None,
                 *, cache: PivotCache | None = None, normalized: CacheLayout | None = None,
                 cell_limit: int | None = None) -> RenderPlan:
-    from pyopenvba.apps.excel._pivot_aggregate import aggregate, records
+    from pyopenvba.apps.excel._pivot_aggregate import records
 
     table = table.entry
     cache = cache if cache is not None else table.cache
@@ -382,8 +386,10 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     # Hidden items and label filters leave their records out first, then value filters, outer fields first.
     found = filter_rules(root)
     selected = passing(ids, lists, on_axes, chosen_pages, label_hidden(found, list(fields), on_axes))
-    selected = value_filtered(selected, ids, records_, found, (rows, columns), reports)
-    sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_)
+    # Each data field's values, a calculated field's worked out from its formula.
+    measures = Measures(list(fields), table.sheet)
+    selected = value_filtered(selected, ids, records_, found, (rows, columns), reports, measures)
+    sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_, measures)
     layouts = {index: layout_of(root, index) for index in (*rows, *columns)}
     # While ManualUpdate is on, the table shows its captions alone, an axis no items, the Values field its data
     # fields' places (tests/fixtures/pivot_options/ manual_pending, manual_two_data).
@@ -661,9 +667,35 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                 for column in col_lookup[col_key]:
                     measure = line.data if VALUES in rows else col_lines[column].data
                     report = reports[measure]
-                    function = function_of(line) or function_of(col_lines[column]) or report.get('subtotal', 'sum')
-                    value = aggregate([record[int(report.get('fld', '0'))] for record in bucket], function)
-                    put(dr + offset, dc + column, value)
+                    if not measures.calculated(int(report.get('fld', '0'))):
+                        put(dr + offset, dc + column, measures.value(
+                            report, bucket, function_of(line) or function_of(col_lines[column])))
+        if any(measures.calculated(int(report.get('fld', '0'))) for report in reports):
+            # A calculated field works its formula out in every cell, one no record reaches over zeros
+            # (tests/fixtures/pivot_calculated_fields/ margin, ratio).
+            chosen = [records_[row] for row in selected]
+            places: dict[tuple[int, int], set[int]] = {}
+            for position, row in enumerate(selected):
+                for index in (*real_rows, *real_cols):
+                    places.setdefault((index, ids[row][index]), set()).add(position)
+            for offset, line in enumerate(row_lines):
+                if line.header:
+                    continue
+                for column, column_line in enumerate(col_lines):
+                    report = reports[line.data if VALUES in rows else column_line.data]
+                    if not measures.calculated(int(report.get('fld', '0'))):
+                        continue
+                    reached: set[int] | None = None
+                    for pair in (*line.keys, *column_line.keys):
+                        reached = set(places.get(pair, set())) if reached is None else reached & places.get(pair, set())
+                    found = range(len(chosen)) if reached is None else sorted(reached)
+                    value = measures.value(report, [chosen[place] for place in found],
+                                           function_of(line) or function_of(column_line))
+                    key = area.top + dr + offset, area.left + dc + column
+                    if value is EMPTY:
+                        cells.pop(key, None)
+                    else:
+                        cells[key] = value
         # The cells a calculation works out, which show no null string where it leaves them empty (tests/fixtures/
         # pivot_calculations/ null_string).
         worked_out: set[tuple[int, int]] = set()
@@ -671,7 +703,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             if rows_over or columns_over:
                 raise VBAUnsupportedError("Show Values As beside an inner field's subtotals by another function")
             shown = calculated(reports, real_rows, real_cols, row_lines, col_lines, display,
-                               [(records_[row], ids[row]) for row in selected], function_of,
+                               [(records_[row], ids[row]) for row in selected], function_of, measures,
                                measure_of=lambda line, column_line: line.data if VALUES in rows else column_line.data)
             for (offset, column), value in shown.items():
                 key = area.top + dr + offset, area.left + dc + column
@@ -859,6 +891,9 @@ def orient(field: object, value: object) -> None:
     reports = list(table.root.findall(f'{NS}dataFields/{NS}dataField'))
     if field.data and chosen == 4:
         return
+    if chosen in (1, 2, 3) and calculated_view(field):
+        # A calculated field goes to the data area alone (tests/fixtures/pivot_calculated_fields/ errors).
+        raise error(1004)
     if chosen == 4 and field.index != VALUES:
         from pyopenvba.apps.excel._pivot_aggregate import add_data_field
 

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement, XmlParseError, xml_tree
+from pyopenvba.apps.excel._pivot_calculated import is_calculated, source_count
 from pyopenvba.apps.excel._pivot_calculations import (
     BASE_FIELD,
     BASE_ITEM,
@@ -202,10 +203,12 @@ def admit_records(cache: PivotCache, part: str, budget: TextBudget) -> XmlElemen
     if len(records) > 1_000_000:
         raise unsupported('beyond the supported record budget')
     fields = cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
+    # A record holds no value for the calculated fields after the source's.
+    sources = source_count(fields)
     for record in records:
         attributes(record, '')
         children(record, 'n s d b e m x')
-        if len(record) != len(fields):
+        if len(record) != sources:
             raise unsupported('with an inconsistent cached record schema')
         for index, item in enumerate(record):
             attributes(item, 'v')
@@ -239,6 +242,11 @@ def admit_cache(cache: PivotCache) -> None:
     if len(origin) or not origin.get('ref') or not origin.get('sheet'):
         raise unsupported('for named or nonrectangular sources')
     for field in cache.root.findall(f'{NS}cacheFields/{NS}cacheField'):
+        if is_calculated(field):
+            # A calculated field keeps its formula and no values.
+            attributes(field, 'name numFmtId formula databaseField')
+            children(field, '')
+            continue
         attributes(field, 'name numFmtId')
         children(field, 'sharedItems')
         distinct_children(field)
@@ -293,8 +301,9 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
     children(fields, 'pivotField')
     for field in fields:
         distinct_children(field)
-        attributes(field, 'axis dataField showAll defaultSubtotal compact outline subtotalTop subtotalCaption '
+        attributes(field, 'name axis dataField showAll defaultSubtotal compact outline subtotalTop subtotalCaption '
                    'insertBlankRow insertPageBreak multipleItemSelectionAllowed sortType measureFilter numFmtId rankBy '
+                   'dragToRow dragToCol dragToPage '
                    + ' '.join(entry[0] for entry in SUBTOTALS.values()))
         children(field, 'items autoSortScope extLst')
         field_extensions(field)
@@ -487,6 +496,11 @@ def refresh(cache: PivotCache) -> object:
         staged.records.attrib.update({name: value for name, value in previous_records.attrib.items() if name != 'count'})
     if staged.rich_records:
         raise unsupported('for rich source values')
+    # The calculated fields follow the source's again, their formulas as they were.
+    container = staged.root.find(NS + 'cacheFields')
+    assert container is not None
+    container.extend(deepcopy(field) for field in before if is_calculated(field))
+    container.set('count', str(len(container)))
     after = staged.root.findall(f'{NS}cacheFields/{NS}cacheField')
     if len(before) != len(after) or any(old.get('name') != new.get('name') for old, new in zip(before, after, strict=True)):
         raise unsupported('with a changed source schema')

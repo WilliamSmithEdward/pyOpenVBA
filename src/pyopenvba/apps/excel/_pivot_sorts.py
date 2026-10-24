@@ -46,6 +46,7 @@ from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._values import EMPTY, MISSING, VBAErrorValue, error, string_order, to_integer, to_text
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._pivot_calculated import Measures
     from pyopenvba.apps.excel._pivots import PivotField, PivotItem
 
 #: The Values field, -2, as the unsigned number a sort's scope names it by.
@@ -136,10 +137,10 @@ def value_key(value: object) -> tuple[int, float, str]:
 
 
 def value_sorts(fields: list[XmlElement], axes: set[int], reports: list[XmlElement],
-                records: list[list[XmlElement]]) -> dict[int, tuple[bool, SortKey]]:
+                records: list[list[XmlElement]], measures: Measures) -> dict[int, tuple[bool, SortKey]]:
     """Each field on an axis sorted by a data field's values: whether descending, and the key a group of records
-    sorts by."""
-    from pyopenvba.apps.excel._pivot_aggregate import aggregate
+    sorts by, a calculated field's values worked out by ``measures`` (tests/fixtures/pivot_calculated_fields/
+    sort_by_calculated)."""
     from pyopenvba.apps.excel._pivot_calculations import stepping
 
     # A field a data field's values step along, against the item before or after, shows in its items' order
@@ -151,10 +152,8 @@ def value_sorts(fields: list[XmlElement], axes: set[int], reports: list[XmlEleme
         kind, data = sort_kind(field), sort_scope(field)
         if kind is None or data is None or not 0 <= data < len(reports) or index in stepped:
             continue
-        source, function = int(reports[data].get('fld', '0')), reports[data].get('subtotal', 'sum')
-
-        def key(rows: list[int], source: int = source, function: str = function) -> tuple[int, float, str]:
-            return value_key(aggregate([records[row][source] for row in rows], function))
+        def key(rows: list[int], report: XmlElement = reports[data]) -> tuple[int, float, str]:
+            return value_key(measures.value(report, [records[row] for row in rows]))
 
         found[index] = (kind == 'descending', key)
     return found

@@ -61,6 +61,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._pivot_calculated import Measures
     from pyopenvba.apps.excel._pivots import PivotTable
 
 #: Label filters: their type in the file, and the AutoFilter criteria each spells, the value going in for {0}
@@ -383,11 +384,10 @@ def _kept(kind: int, totals: list[tuple[int, float]], amount: float) -> set[int]
 
 
 def value_filtered(selected: list[int], ids: list[list[int]], records: list[list[XmlElement]], found: list[Rule],
-                   axes: tuple[list[int], list[int]], reports: list[XmlElement]) -> list[int]:
+                   axes: tuple[list[int], list[int]], reports: list[XmlElement], measures: Measures) -> list[int]:
     """The records left once each value and top 10 filter on an axis keeps its items' totals, outer fields first,
-    each field's items compared among those inside the same outer items."""
-    from pyopenvba.apps.excel._pivot_aggregate import aggregate
-
+    each field's items compared among those inside the same outer items, a calculated field's totals worked out by
+    ``measures`` (tests/fixtures/pivot_calculated_fields/ value_filter)."""
     by_field = {rule.field: rule for rule in found if not label_class(rule.kind)}
     for axis in axes:
         fields = [index for index in axis if index >= 0]
@@ -396,7 +396,6 @@ def value_filtered(selected: list[int], ids: list[list[int]], records: list[list
             if rule is None or rule.measure is None or not 0 <= rule.measure < len(reports):
                 continue
             report = reports[rule.measure]
-            source, function = int(report.get('fld', '0')), report.get('subtotal', 'sum')
             groups: dict[tuple[int, ...], dict[int, list[int]]] = {}
             for row in selected:
                 outer = tuple(ids[row][index] for index in fields[:depth])
@@ -405,7 +404,7 @@ def value_filtered(selected: list[int], ids: list[list[int]], records: list[list
             for outer, items in groups.items():
                 totals: list[tuple[int, float]] = []
                 for place, rows in items.items():
-                    total = aggregate([records[row][source] for row in rows], function)
+                    total = measures.value(report, [records[row] for row in rows])
                     if isinstance(total, (int, float)) and not isinstance(total, bool):
                         totals.append((place, float(total)))
                 if rule.kind in TOPS:

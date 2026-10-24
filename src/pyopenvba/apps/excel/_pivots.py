@@ -220,6 +220,9 @@ class PivotCache(ExcelObject):
         self.rich_guid = ''
         self.rich_columns: dict[str, list[str | None]] | None = None
         self.changed = False
+        #: The calculated fields, by their cache names, whose formulas a macro gave in this session; Excel reads a
+        #: file's again as it opens it (see _pivot_calculated).
+        self.given_formulas: set[str] = set()
 
     @method
     def CreatePivotTable(self, TableDestination: object, TableName: object = MISSING,
@@ -906,6 +909,13 @@ class PivotTable(ExcelObject):
                                   for field in self.root.findall(f'{NS}dataFields/{NS}dataField')])
         return fields if Index is MISSING else fields.Item(Index)
 
+    @method
+    def CalculatedFields(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_calculated import CalculatedFields
+
+        fields = CalculatedFields(self)
+        return fields if Index is MISSING else fields.Item(Index)
+
 
 class PivotField(ExcelObject):
     vba_type_name = 'PivotField'
@@ -935,9 +945,60 @@ class PivotField(ExcelObject):
         name = self.root.get('name')
         return decode_text(name) if name is not None else self.SourceName()
 
+    @setter('Name')
+    def set_name(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_calculated import rename
+
+        rename(self, value, caption=False)
+
     @member
     def Caption(self) -> object:
         return self.Name()
+
+    @setter('Caption')
+    def set_caption(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_calculated import rename
+
+        rename(self, value, caption=True)
+
+    @member
+    def Formula(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculated import formula
+
+        return formula(self)
+
+    @setter('Formula')
+    def set_formula(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_calculated import set_formula
+
+        set_formula(self, value)
+
+    @member
+    def StandardFormula(self) -> object:
+        return self.Formula()
+
+    @setter('StandardFormula')
+    def set_standard_formula(self, value: object) -> None:
+        self.set_formula(value)
+
+    @member
+    def IsCalculated(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculated import is_calculated_field
+
+        return is_calculated_field(self)
+
+    @member
+    def DataType(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculated import data_type
+
+        return data_type(self)
+
+    @method
+    def Delete(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculated import delete
+
+        delete(self)
+        return EMPTY
 
     @member
     def Orientation(self) -> object:
@@ -1155,8 +1216,13 @@ class PivotField(ExcelObject):
 
     @member
     def PivotItems(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_calculated import calculated_view
         from pyopenvba.apps.excel._pivot_filters import first_for_names, list_on_reading
 
+        if calculated_view(self):
+            # A calculated field has no items, error 1004 (tests/fixtures/pivot_calculated_fields/
+            # items_of_calculated).
+            raise error(1004)
         list_on_reading(self)
         collection = PivotItems(self, list(self.listed_items()), first_for_names=first_for_names(self))
         return collection if Index is MISSING else collection.Item(Index)

@@ -30,21 +30,12 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / "number_format_resave.json").rea
 CASES: list[dict[str, Any]] = RECORD["cases"]
 #: What a file holds of its formats, as number_format_resave.json keeps it.
 SLOTS = ("numFmts", "xfs", "cells", "dxfs", "extension", "pivot")
-_UNUSED = ("Excel leaves out an xf nothing uses, and the format only it names; the model keeps a stylesheet no macro "
-           "changed with its xfs as the file had them")
-_ALIKE = ("Excel takes an xf that comes to name what an earlier one names as that one; the model keeps a stylesheet "
-          "no macro changed with its xfs as the file had them")
-_MISSING = ("Excel takes an xf naming a format the file lacks as the first xf, General's; the model keeps the xf, "
-            "naming General")
 _EXTENSION = ("Excel numbers the format of a rule kept in the worksheet's Excel 2010 extension with the others; the "
               "model keeps that extension as the file had it")
 #: Where the model's save of a file keeps a slot otherwise than Excel's.
 GAPS: dict[tuple[str, str], str] = {
-    ("unused_xf", "numFmts"): _UNUSED, ("unused_xf", "xfs"): _UNUSED, ("duplicate", "xfs"): _ALIKE,
-    ("missing", "xfs"): _MISSING, ("missing", "cells"): _MISSING,
-    **{(name, "extension"): _EXTENSION for name in ("base", "out_of_order", "gaps", "duplicate", "low_id", "spelling",
-                                                     "missing", "pivot_id")},
-}
+    (name, "extension"): _EXTENSION for name in ("base", "out_of_order", "gaps", "duplicate", "low_id", "spelling",
+                                                  "missing", "pivot_id")}
 #: Each workbook's reader: every cell's format and what it shows, the pivot's data field's format and the rules'.
 READER = RECORD["read"].split("Public Function Read")[0] + "\n".join([
     "Public Function Read() As String", "Dim wb As Object, ws As Object, out As String, r As Long, f As Object",

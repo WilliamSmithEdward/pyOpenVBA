@@ -1107,9 +1107,17 @@ leaves the rest out. The model keeps the same tables
 * A cell xf changes in place when its style changes, and two that come
   to say the same stay apart. Opening a file, Excel works each xf's apply
   flags out afresh and takes an xf that then points at what an earlier
-  one points at as that one; a font the file holds twice stays two.
-* A save that follows no change to a format leaves the stylesheet as the
-  file had it, as it leaves a sheet no macro wrote to.
+  one points at as that one; a font the file holds twice stays two. A
+  pivot table field's button, `pivotButton`, keeps an xf apart from one
+  alike in every other part.
+* A save writes what is in use and nothing else though no macro changed a
+  format, as Excel's save does: an xf no cell, row or column uses goes,
+  with the parts only it names; a built-in style nothing uses goes; and
+  every cell, row and column of a sheet no macro wrote to points where
+  its xf went (`tests/fixtures/unchanged_save/`). A font no xf names
+  stays, as Excel keeps the fonts a form control's label and a note's
+  text are in; one nothing at all uses, and a dxf no rule names, which
+  Excel leaves out, the model keeps.
 
 **Colour scales.** `FormatConditions.AddColorScale` makes a scale of two
 or three colours with Excel's defaults, and a cell's DisplayFormat shows

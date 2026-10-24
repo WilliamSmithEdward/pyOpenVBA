@@ -80,7 +80,11 @@ def records(cache: PivotCache) -> list[list[XmlElement]]:
         cache.records_part = parts[0][1]
         root = xml_tree(package.read(cache.records_part))
         cache.records = root
+    from pyopenvba.apps.excel._pivot_calculated import source_count
+
+    # A record holds a value for each field of the source, and none for the calculated fields after them.
     fields = cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
+    fields = fields[:source_count(fields)]
     shared: list[list[XmlElement]] = []
     for field in fields:
         items = field.find(NS + 'sharedItems')
@@ -209,13 +213,16 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
         index = source.index
     else:
         raise error(13)
+    from pyopenvba.apps.excel._pivot_calculated import is_calculated
+
     rows = records(table.cache)
     fields = table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
     if not 0 <= index < len(fields):
         raise error(1004)
-    values = [row[index] for row in rows]
     if function is MISSING or function is NULL:
-        numeric = any(entry.tag == NS + 'n' for entry in values)
+        # A calculated field sums, as Excel's does (tests/fixtures/pivot_calculated_fields/ margin).
+        values = [] if is_calculated(fields[index]) else [row[index] for row in rows]
+        numeric = is_calculated(fields[index]) or any(entry.tag == NS + 'n' for entry in values)
         numeric = numeric and all(entry.tag in (NS + 'n', NS + 'm') for entry in values)
         chosen = -4157 if numeric else -4112
     elif not isinstance(function, (int, float, Decimal)) or isinstance(function, bool):
@@ -267,8 +274,10 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
             pivot_fields[index].attrib.pop('axis', None)
         render(table, definition, reports)
         return PivotField(table, index, new, True)
-    results = [aggregate([row[int(entry.get('fld', '0'))] for row in rows], entry.get('subtotal', 'sum'))
-               for entry in reports]
+    from pyopenvba.apps.excel._pivot_calculated import Measures
+
+    measures = Measures(fields, table.sheet)
+    results = [measures.value(entry, rows) for entry in reports]
     location = table.root.find(NS + 'location')
     assert location is not None
     old = parse_area(location.get('ref', 'A1'))

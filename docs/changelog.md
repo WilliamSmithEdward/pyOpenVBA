@@ -7,6 +7,31 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables take calculated fields. `PivotTable.CalculatedFields.Add`
+  adds a field whose formula names the table's fields by their captions,
+  and the field goes into the data area as any other. Each cell works the
+  formula out over the sums of the fields it names, whatever function its
+  data field shows, so a cell no record reaches works it out over zeros,
+  and a subtotal by another function leaves it empty, as in Excel. Any
+  worksheet function works, through the model's formula engine, TRUE
+  comes out as 1, text that reads as a number as that number, and other
+  text as #VALUE!. `Formula` reads and sets a calculated field's formula,
+  spelled back as Excel spells it: field names in their own case without
+  needless apostrophes, functions in capitals, numbers as a formula spells
+  them, and spaces moved as Excel moves them. `Delete` removes a
+  calculated field and its data fields, leaving #NAME? where another
+  formula named it. `Caption` renames any field for its table and its
+  formulas, `IsCalculated`, `StandardFormula` and `DataType` read, and a
+  refresh keeps the calculated fields. Value sorts and filters, Show
+  Values As and running totals take a calculated field's values, a
+  running total now carrying an error on as Excel's does. A formula Excel
+  refuses adds nothing while alerts are off, as in Excel, and reports
+  itself unsupported while they are on, where Excel shows a message. 59
+  layouts agree with Excel before a save and once the file is opened
+  again, the saved tables, calculated cache fields and every cell's value
+  and format agree with Excel's file, and Excel reads the model's file as
+  its own.
+
 - Pivot data fields show their values as Excel's calculations, Show
   Values As. `PivotField.Calculation` takes all fifteen: a difference,
   percent or percent difference from a base item or from the item before

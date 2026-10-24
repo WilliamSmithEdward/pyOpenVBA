@@ -28,6 +28,9 @@ from pyopenvba.interpreter._values import VBAErrorValue
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.formula._calc.cells import CellError
+    from pyopenvba.formula._calc.nodes import Node
+    from pyopenvba.formula._calc.values import Scalar
 
 #: The longest expression Evaluate reads.
 LONGEST = 255
@@ -78,6 +81,25 @@ def evaluated(sheet: Worksheet, text: str) -> object:
     if isinstance(value, Reference):
         return _range(sheet, value) if value.areas else Range(sheet, [])
     return answer(value)
+
+
+def as_number(sheet: Worksheet, node: Node, values: dict[str, Scalar]) -> float | CellError:
+    """What a formula read into ``node`` comes to as a number, worked out from no cell with ``values`` bound to names
+    as LET binds them, as a pivot table's calculated field works out its formula (see _pivot_formulas)."""
+    from pyopenvba.formula._calc.evaluator import Context
+    from pyopenvba.formula._calc.values import VALUE, Array, Scope
+
+    calculator = sheet.book.calculator
+    now = calculator.now()
+    context = Context(_FromNoCell(calculator), sheet.name, 1, 1, today=now.date(), now=now)
+    context.scopes = [Scope(dict(values))]
+    try:
+        value = context.formula(node)
+    except ExcelError as failure:
+        value = failure.error
+    if isinstance(value, (Reference, Array)):
+        return VALUE
+    return context.coerce_number(value)
 
 
 def _reads_r1c1(tokens: list[P.Token]) -> bool:

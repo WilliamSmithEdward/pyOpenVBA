@@ -28,6 +28,7 @@ from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._values import EMPTY, VBAInt, error, to_integer, to_text
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._pivot_calculated import Measures
     from pyopenvba.apps.excel._pivot_layout import Line
     from pyopenvba.apps.excel._pivots import PivotField
 
@@ -314,12 +315,10 @@ Raw = Callable[[Keys, Keys, bool, bool], object]
 
 def calculated(reports: list[XmlElement], rows: list[int], columns: list[int], row_lines: Sequence[Line],
                column_lines: Sequence[Line], display: list[list[int]], records: list[tuple[list[XmlElement], list[int]]],
-               function_of: Callable[[Line], str], *, measure_of: Callable[[Line, Line], int]
+               function_of: Callable[[Line], str], measures: Measures, *, measure_of: Callable[[Line, Line], int]
                ) -> dict[tuple[int, int], object]:
     """The value cells, by row line and column line, that the data fields with a calculation show, worked out from
-    ``records``, each with the items it stands at in every field."""
-    from pyopenvba.apps.excel._pivot_aggregate import aggregate
-
+    ``records``, each with the items it stands at in every field, by ``measures``."""
     members: dict[tuple[int, int], set[int]] = {}
     for position, (_, items) in enumerate(records):
         for field in (*rows, *columns):
@@ -327,16 +326,19 @@ def calculated(reports: list[XmlElement], rows: list[int], columns: list[int], r
     memo: dict[tuple[int, Keys, str], object] = {}
 
     def total(measure: int, row_keys: Keys, column_keys: Keys, function: str) -> object:
+        """A data field's value at the items given, ``function`` a subtotal's other than the field's own."""
         wanted = (*row_keys, *column_keys)
         key = measure, wanted, function
         if key not in memo:
             places: set[int] | range = range(len(records))
             for one in sorted((members.get(pair, set()) for pair in wanted), key=len):
                 places = one if isinstance(places, range) else places & one
-            source = int(reports[measure].get('fld', '0'))
-            # In the records' order, as the table sums its own values.
-            found = [records[place][0][source] for place in sorted(places)]
-            memo[key] = aggregate(found, function) if found else EMPTY
+            report = reports[measure]
+            # In the records' order, as the table sums its own values. A calculated field works out its formula
+            # where no record reaches.
+            found = [records[place][0] for place in sorted(places)]
+            memo[key] = (measures.value(report, found, function)
+                         if found or measures.calculated(int(report.get('fld', '0'))) else EMPTY)
         return memo[key]
 
     axes = Axes([line.keys for line in row_lines]), Axes([line.keys for line in column_lines])
@@ -348,13 +350,11 @@ def calculated(reports: list[XmlElement], rows: list[int], columns: list[int], r
             measure = measure_of(line, column_line)
             if measure >= len(reports) or calculation_of(reports[measure]) == 'normal':
                 continue
-            own_function = reports[measure].get('subtotal', 'sum')
             row_function, column_function = function_of(line), function_of(column_line)
 
             def raw(row_keys: Keys, column_keys: Keys, row_own: bool, column_own: bool, measure: int = measure,
-                    own_function: str = own_function, row_function: str = row_function,
-                    column_function: str = column_function) -> object:
-                function = (row_function if row_own else '') or (column_function if column_own else '') or own_function
+                    row_function: str = row_function, column_function: str = column_function) -> object:
+                function = (row_function if row_own else '') or (column_function if column_own else '')
                 return total(measure, row_keys, column_keys, function)
 
             # A group's own line that shows a subtotal by another function above the lines inside it stands for the
@@ -447,7 +447,13 @@ def shown_value(entry: XmlElement, rows: list[int], columns: list[int], row_keys
         parent = raw(ancestor, column_keys, False, True) if on_rows else raw(row_keys, ancestor, True, False)
         return EMPTY if parent is EMPTY else _ratio(mine, parent)
     if name in ('runTotal', 'percentOfRunningTotal'):
-        running = sum(_number(at(other)) for other in sequence[:position + 1])
+        running = 0.0
+        for other in sequence[:position + 1]:
+            one = at(other)
+            if isinstance(one, ExcelError):
+                # An error the total passes carries on in it (tests/fixtures/pivot_calculated_fields/ running_total).
+                return one
+            running += _number(one)
         if name == 'runTotal':
             return running
         # Out of the value at the line's items but the base field's (tests/fixtures/pivot_calculations/
@@ -456,9 +462,9 @@ def shown_value(entry: XmlElement, rows: list[int], columns: list[int], row_keys
         whole = raw(rest, column_keys, False, True) if on_rows else raw(row_keys, rest, True, False)
         return _ratio(running, whole)
     if name in ('rankAscending', 'rankDescending'):
-        if value is EMPTY:
-            return EMPTY
-        ranked = sorted({_number(one) for one in map(at, sequence) if one is not EMPTY},
+        if value is EMPTY or isinstance(value, ExcelError):
+            return value
+        ranked = sorted({_number(one) for one in map(at, sequence) if one is not EMPTY and not isinstance(one, ExcelError)},
                         reverse=name == 'rankDescending')
         return float(ranked.index(_number(value)) + 1)
     if item == PREVIOUS:
@@ -470,6 +476,9 @@ def shown_value(entry: XmlElement, rows: list[int], columns: list[int], row_keys
     if moved(target) not in axis.lines:
         return ExcelError('#N/A')
     other = at(target)
+    for one in (value, other):
+        if isinstance(one, ExcelError):
+            return one
     if name == 'difference':
         return _number(value) - _number(other)
     if value is EMPTY:

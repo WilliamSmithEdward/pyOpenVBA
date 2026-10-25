@@ -7,6 +7,29 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- The Application settings everyday macros switch read back what a
+  macro set, as Excel's do, where the model knew none of them:
+  `DisplayStatusBar`, `DisplayFormulaBar`, `DisplayScrollBars`,
+  `DisplayFullScreen`, `EnableAnimations`, `Interactive`,
+  `AskToUpdateLinks`, `AlertBeforeOverwriting`, `CellDragAndDrop`,
+  `CopyObjectsWithCells`, `EditDirectlyInCell`, `EnableAutoComplete`,
+  `FixedDecimal`, `MoveAfterReturn`, `UserControl`, `Cursor`,
+  `EnableCancelKey`, `MoveAfterReturnDirection`, `DisplayCommentIndicator`,
+  `DisplayNoteIndicator`, `FixedDecimalPlaces` and `Caption`, and
+  `Worksheet.DisplayPageBreaks`. A switch takes any value VBA turns into
+  a Boolean, and Null or text that is none leaves it as it was, with no
+  error; a numbered setting ignores a value Excel does not name, with
+  `EnableCancelKey` and `MoveAfterReturnDirection`'s own exceptions.
+  `Caption` reads after the active window's caption, as Excel's does.
+  `PrintCommunication = False` holds PageSetup settings back as Excel
+  does: they read as before and a save writes them as before, until
+  `PrintCommunication = True` applies them in the order they were made,
+  dropping without an error any Excel refuses; the print area and print
+  titles, which are names, apply at once. 595 live settings and 25 cases
+  of settings together agree, `tests/fixtures/application_settings.json`.
+  The model draws nothing and takes no keystrokes, so only
+  PrintCommunication changes what it does.
+
 - PageSetup's headers and footers read, set and save as Excel's do:
   `LeftHeader`, `CenterHeader` and `RightHeader`, the three footers,
   `DifferentFirstPageHeaderFooter`, `OddAndEvenPagesHeaderFooter`,
@@ -961,6 +984,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Application.StatusBar` reads False, a Boolean, until a macro sets it,
+  as Excel's does; the model read the text FALSE from the start. Once a
+  macro sets it, it reads as text as before.
 
 - An `Optional` parameter typed by `As` or a type character compiles
   without a default, as in VBA, where the model refused it:

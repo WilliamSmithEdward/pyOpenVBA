@@ -21,6 +21,36 @@ All notable changes to pyOpenVBA are documented here. This project follows
   agree, `tests/fixtures/characters.json` and
   `tests/fixtures/rich_text_fit.json`.
 
+- How far calculation has got, and the settings that steer it, follow
+  Excel: `Application.CalculationState`, `CalculationVersion`,
+  `CalculationInterruptKey` and `CalculateUntilAsyncQueriesDone`,
+  `Workbook.CalculationVersion` and `ForceFullCalculation`, and
+  `Range.Dirty` and `CalculateRowMajorOrder`. CalculationState is
+  xlCalculating while a formula's VBA Function runs, and xlPending while
+  a formula waits under manual calculation, so a macro waiting for
+  xlDone stops where Excel's does. Range.Dirty marks formulas to work
+  out again, at once under automatic calculation.
+  CalculateRowMajorOrder works a range out a row at a time, a cell
+  reading what a later cell still holds. ForceFullCalculation True
+  holds every workbook to full calculation until Excel quits, as Excel
+  does, and is saved and read. 24 live edits, 17 settings and 10 files
+  opened two ways agree, `tests/fixtures/calculation_state.json`.
+
+- `Application.ConvertFormula` turns a formula's references from A1 to
+  R1C1 or back and makes them absolute or relative, as Excel's does.
+  Relative references are relative to RelativeTo's first cell, or the
+  active cell, and an offset wraps round the sheet's edge as it is read.
+  A reference to a sheet of the active workbook names the workbook too,
+  `[Book1]Data!A1`, and a sheet the workbook has not got keeps its
+  spelling. A name, or a function Excel has not got, is spelled as Excel
+  first saw it in any formula it converted. A range given as the
+  formula converts each cell's value. What Excel cannot convert is the
+  error value #VALUE!: a table's reference, a space in an array
+  constant, a formula longer than 255 characters, and one whose text
+  does not fit the 254 characters Excel writes it into, keeping room
+  for the longest each number and reference could be. 784 live cases
+  agree, `tests/fixtures/convert_formula.json`.
+
 - `Range.Precedents`, `DirectPrecedents`, `Dependents` and
   `DirectDependents` answer as Excel's do. A formula's precedents are
   its references on its own sheet in the order it gives them, a name's
@@ -1043,6 +1073,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and a file kept a column record Excel leaves out. 20 live answers and
   the columns Excel saved agree, `tests/fixtures/autofit_unchanged.json`.
 
+- A file whose calcId is below 191028, or that has none or asks for
+  fullCalcOnLoad, is worked out in full as it opens, as Excel works it
+  out; under manual calculation it keeps the file's values until the
+  next Calculate. The model took every value the file kept, so a file
+  another program wrote with values out of date read them. A save
+  writes the workbook's calcId, 191029 once it is worked out so.
+
+- Adding, redefining or deleting a defined name works out again only
+  the formulas that name it, as Excel does, and a name's Comment or
+  Visible works nothing out. The model worked out every formula of the
+  workbook after any change to a name, a VBA Function among them.
+
 - Sorting or filtering text with a combining mark before anything word
   sort weighs, after only a control character or a hyphen, reports
   itself unsupported, as text that begins with a mark already did.
@@ -1050,6 +1092,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   otherwise than its sort key, and the model ordered it by the key. The
   random comparison with CompareStringEx in
   `tests/test_excel_sort_text.py` found it in one run in twenty.
+
+- A function's name written with no bracket after it reads back in
+  capitals, `=sum` as `=SUM`, as Excel spells it; the model kept the
+  case it was written in. Where a range, an intersection or a union
+  wants cells, Excel refuses one, `=SUM (A1)` or `=SUM:A1`, and so does
+  the model now, with error 1004, over 7 live formulas in
+  `tests/fixtures/formula_spelling.json`.
 
 - `Application.StatusBar` reads False, a Boolean, until a macro sets it,
   as Excel's does; the model read the text FALSE from the start. Once a

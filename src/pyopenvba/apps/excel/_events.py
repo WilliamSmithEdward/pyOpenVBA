@@ -165,6 +165,12 @@ def recalculated(book: Workbook, *, settled: set[tuple[str, int, int]] | None = 
     calculator = book.calculator
     if not calculator.automatic:
         return
+    if book.application.full_calculation:
+        # Every workbook held to full calculation: each edit works every formula out again (see _calculation_state).
+        from pyopenvba.apps.excel._calculation_state import worked_in_full
+
+        worked_in_full(book.application)
+        return
     calculator.automatic_pending = True
     prior = already_calculated or set()
     if not _on(book):

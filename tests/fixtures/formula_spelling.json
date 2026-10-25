@@ -234,6 +234,34 @@
    "answer": "=LET(Total,1,Total*2)<~>=LET(Total,1,Total*2)<~>True"
   },
   {
+   "formula": "\"=sum\"",
+   "answer": "=SUM<~>=SUM<~>True"
+  },
+  {
+   "formula": "\"=Len+1\"",
+   "answer": "=LEN+1<~>=LEN+1<~>True"
+  },
+  {
+   "formula": "\"=Sum (A1)\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=SUM:A1\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=A1:sum\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=pi A1\"",
+   "answer": "E1004"
+  },
+  {
+   "formula": "\"=(sum,A1)\"",
+   "answer": "E1004"
+  },
+  {
    "formula": "\"=1.50\"",
    "answer": "=1.5<~>=1.5<~>True"
   },

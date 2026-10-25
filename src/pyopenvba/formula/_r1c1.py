@@ -66,13 +66,19 @@ def _prefix(text: str, reference: str) -> str:
     return prefix
 
 
-def to_a1(formula: str, row: int, column: int, *, names: bool = False) -> str:
+def to_a1(formula: str, row: int, column: int, *, names: bool = False, strict: bool = False) -> str:
     """Resolve relative coordinates at a cell, wrapping at worksheet edges.
 
     With ``names``, as R1C1 reads a formula written through FormulaR1C1,
     what looks like a cell in A1 is a name, spelled in quotes, 'A1'; and a
     reference with a $ in it is not R1C1 at all, raising ValueError
     (tests/fixtures/formula_notation.json).
+
+    With ``strict``, as Application.ConvertFormula reads R1C1, an offset as
+    far as the sheet is long or wide, R[1048576]C, raises ValueError rather
+    than wrapping; and a reference whose first row or column is past the
+    sheet, R0C1 or R1048577C1, is a name, though R1C16385 raises ValueError
+    (tests/fixtures/convert_formula.json).
     """
     bound: set[int] = _bound_cells(formula) if names else set()
 
@@ -87,17 +93,24 @@ def to_a1(formula: str, row: int, column: int, *, names: bool = False) -> str:
             return text
         _, reference = split_sheet(text)
         parts: list[str] = []
-        for corner in reference.split(":"):
+        for index, corner in enumerate(reference.split(":")):
             rc = _RC.fullmatch(corner)
             assert rc is not None
+            leading = "row" if rc.group("row") is not None else "col"
             axes: list[str] = []
             for axis, origin, limit in (("col", column, MAX_COLUMNS), ("row", row, MAX_ROWS)):
                 value = rc.group(axis)
                 if value is None:
                     continue
                 absolute = bool(value) and not value.startswith("[")
-                number = int(value) if absolute else (origin + (int(value[1:-1]) if value else 0) - 1) % limit + 1
+                offset = 0 if absolute or not value else int(value[1:-1])
+                if strict and abs(offset) >= limit:
+                    raise ValueError("an R1C1 offset past the sheet's edge")
+                number = int(value) if absolute else (origin + offset - 1) % limit + 1
                 if not 1 <= number <= limit:
+                    if strict and index == 0 and axis == leading:
+                        # Not a reference at all, but a name, in quotes where A1 would read it as a cell.
+                        return f"'{text}'" if names and is_cell(text) else text
                     raise ValueError("R1C1 reference outside worksheet")
                 axes.append(("$" if absolute else "") + (column_letter(number) if axis == "col" else str(number)))
             parts.append("".join(axes))

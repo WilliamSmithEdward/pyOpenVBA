@@ -65,6 +65,8 @@ FORMULAS = [
     '"=sin(1)"', '"=address(1,1)"', '"=areas(a1)"', '"=datedif(1,2,""d"")"', '"=norm.dist(1,0,1,true)"',
     '"=Stdev.S(1,2)"', '"=forecast.linear(1,{1,2},{1,2})"', '"=webservice(""x"")"', '"=sequence(2)"',
     '"=let(x,1,X+1)"', '"=Let(Total,1,total*2)"',
+    # A function's name with no bracket after it: a name, but not one a reference operator takes.
+    '"=sum"', '"=Len+1"', '"=Sum (A1)"', '"=SUM:A1"', '"=A1:sum"', '"=pi A1"', '"=(sum,A1)"',
     # Numbers.
     '"=1.50"', '"=1e3"', '"=1E+3"', '"=1e-3"', '"=.5"', '"=5."', '"=0005"', '"=1.0E-10"',
     '"=123456789012345678"', '"=1e308"', '"=0.1+0.2"', '"=1234567890.12345"', '"=100000000000000000000"',

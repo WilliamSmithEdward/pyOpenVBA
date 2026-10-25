@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables that share a cache refresh together on every sheet, as
+  in Excel. `RefreshTable` on one of them, or `PivotCache.Refresh`, lays
+  out every table made from the cache, sheet by sheet in their order and
+  each sheet's newest table first, and fits each one's columns. The
+  cache moves to the end of `PivotCaches`. `Workbook.RefreshAll`
+  refreshes every cache a table uses, from the last to the first,
+  passing over one whose `EnableRefresh` is off without an error. The
+  model refused a refresh whose tables were on more than one sheet, and
+  `RefreshAll` left pivot tables alone. `ClearTable` lays out every
+  table of its cache again too, from the cache as it is, so a table
+  whose style flags wait fits its columns to them. 18 scenarios agree
+  with Excel before a save and once the file is opened again, the saved
+  caches and cells are Excel's, and Excel reads the model's files as its
+  own.
+
 - Pivot tables fit their columns to their cells each time they are laid
   out, as Excel's Autofit column widths on update does, narrower as well
   as wider and over a width a macro set, and a save writes those widths
@@ -734,6 +749,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- Sheets raise Calculate in the order they were made, whatever the
+  order of their tabs, as in Excel: for `Application.Calculate`, an
+  edit, `Worksheet.Calculate` and a pivot refresh alike. A workbook
+  numbers each sheet it makes, a deleted sheet's number goes to no
+  other, and a save writes the numbers as each sheet's `sheetId`, so a
+  file opened again keeps the order. The model raised them in tab order
+  and numbered sheets by their tabs, so a sheet `Worksheets.Add` put
+  first was saved as sheet 1.
+
+- A pivot refresh ends with the calculation Excel does after one. The
+  formulas reading the tables and volatile formulas are worked out, and
+  every sheet that worked one out or holds a notification from formulas
+  written while events were off raises Calculate. `RefreshAll` does it
+  once, after all its caches, and manual calculation not at all. The
+  model raised one Calculate on the source's sheet. The Calculate a
+  refresh raises for each table's sheet no longer uses up the
+  notification that sheet holds.
 
 - A pivot cache saves as Excel saves it. A field lists its shared items
   only where a table of the cache lists items for it, a field it puts on

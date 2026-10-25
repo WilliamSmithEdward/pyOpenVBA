@@ -15,7 +15,6 @@ Font, Interior, Borders, alignment -- lives in
 
 from __future__ import annotations
 
-import itertools
 import re
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
@@ -79,8 +78,6 @@ if TYPE_CHECKING:
 _LIBRARY = "excel"
 #: The cells Range.Value reads in full: a whole column, 1,048,576 rows.
 _WHOLE_COLUMN_CELLS = 1_048_576
-#: Counts the sheets made, so that each knows which came first (see Worksheet.made).
-_SHEETS_MADE = itertools.count()
 #: The longest formula Excel keeps, in characters, and the longest FormulaArray takes
 #: (tests/fixtures/formula_refusals.json).
 LONGEST_FORMULA = 8192
@@ -843,6 +840,9 @@ class Workbook(ExcelObject):
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
         self.sheet_name_counter = 1
+        #: The number the next sheet made takes (see Worksheet.sheet_id): one past the highest a file gave, and never
+        #: taken back when a sheet goes (tests/fixtures/calculate_order.json).
+        self.next_sheet_id = 1
         self.used_code_names: set[str] = set()
         self.deleted_document_names: set[str] = set()
         self.pending_document_sources: dict[str, str] = {}
@@ -1126,12 +1126,24 @@ class Workbook(ExcelObject):
 
     @method
     def RefreshAll(self) -> object:
-        """Evaluate every query and land each one on its sheet."""
+        """Evaluate every query and land each one on its sheet, then refresh every pivot cache a table uses, from
+        the last to the first, passing over one whose refresh is disabled, and calculate once after them all
+        (tests/fixtures/pivot_shared_caches/ refresh_all_three, refresh_all_reordered, refresh_all_disabled;
+        tests/fixtures/calculate_order.json refresh_all_once)."""
+        from pyopenvba.apps.excel._pivot_refresh import refresh as refresh_cache
         from pyopenvba.apps.excel._refresh import refresh
 
         for entry in list(self.queries_.entries):
             refresh(self, entry.name)
-        self.calculator.calculate_all()
+        used = {id(table.cache) for sheet in self.sheets_ for table in sheet.pivot_tables}
+        caches = [cache for cache in reversed(list(self.pivot_caches)) if id(cache) in used and cache.EnableRefresh()]
+        for cache in caches:
+            refresh_cache(cache, calculate=False)
+        if caches and self.calculator.automatic:
+            # The calculation that ends a refresh works out what the queries changed as well.
+            _events.refresh_calculated(self)
+        else:
+            self.calculator.calculate_all()
         return EMPTY
 
     # -- Python side
@@ -1260,9 +1272,11 @@ class Worksheet(ExcelObject):
     def __init__(self, book: Workbook, name: str) -> None:
         self.book = book
         self.name = name
-        #: When the sheet was made among the workbook's, which orders the sheets of a loop of formulas as an
-        #: iteration works them out, whatever their tabs' order (see _calc).
-        self.made = next(_SHEETS_MADE)
+        #: The number the sheet was made with among the workbook's, which a file keeps as its sheetId, whatever the
+        #: tabs' order. Sheets calculate and raise Calculate in this order, and a loop of formulas is iterated in it
+        #: (see _calc, _events.calculated_all).
+        self.sheet_id = book.next_sheet_id
+        book.next_sheet_id += 1
         #: The name the sheet goes by in VBA, Sheet1 in Sheet1.Range("A1"), and its own module's; "" for a sheet a
         #: macro added, which Excel leaves without one.
         self.code_name = ""

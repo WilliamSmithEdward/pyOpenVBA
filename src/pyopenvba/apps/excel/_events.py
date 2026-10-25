@@ -135,9 +135,19 @@ def pivot_updated(table: PivotTable) -> None:
 
 
 def pivot_refresh_calculated(sheet: Worksheet) -> None:
-    """A completed report refresh notifies Calculate even in manual mode."""
-    sheet.book.calculator.pending_notifications.discard(sheet)
+    """A completed report refresh notifies Calculate even in manual mode. A notification the sheet holds stays for
+    the calculation that ends the refresh, or in manual calculation the next one (tests/fixtures/
+    calculate_order.json refresh_held_automatic, refresh_held_manual)."""
     _both(sheet, "Calculate", [])
+
+
+def refresh_calculated(book: Workbook) -> None:
+    """The calculation that ends a refresh in automatic calculation: formulas reading the tables and volatile ones
+    are worked out, and every sheet that worked one out or holds a notification raises Calculate (tests/fixtures/
+    calculate_order.json refresh_*)."""
+    calculator = book.calculator
+    if calculator.automatic:
+        calculated_all(book, calculator.calculate_all(background=True))
 
 
 def selected(sheet: Worksheet, target: Range) -> None:
@@ -182,11 +192,12 @@ def visibility_changed(book: Workbook) -> None:
 
 
 def calculated_all(book: Workbook, worked: list[Worksheet]) -> None:
-    """Application.Calculate: events for sheets with stale or volatile formulas."""
+    """Application.Calculate: events for sheets with stale or volatile formulas, in the order the sheets were made,
+    whatever their tabs' order (tests/fixtures/calculate_order.json)."""
     pending = book.calculator.pending_notifications
     pending.update(worked)
     pending.intersection_update(book.sheets_)
-    for sheet in list(book.sheets_):
+    for sheet in sorted(book.sheets_, key=lambda sheet: sheet.sheet_id):
         if sheet in pending and _on(book):
             pending.remove(sheet)
             _both(sheet, "Calculate", [])

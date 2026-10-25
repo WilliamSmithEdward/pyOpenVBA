@@ -188,10 +188,9 @@ def test_a_table_in_no_style() -> None:
 
 def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
     """Every table's columns as wide as Excel fits them each time it lays the table out, bestFit beside them (see
-    tests/test_excel_pivot_column_fit.py). The style layout is left out: a later layout's RefreshTable lays out
-    again, in Excel, every table of the cache the tables share, this one among them, and the model gives each
-    table a cache of its own."""
-    names = {layout["name"] for layout in LAYOUTS} - {"style"}
+    tests/test_excel_pivot_column_fit.py): the style layout's fit to its style flags, which wait for a layout, as
+    the clear_table layout's ClearTable lays out every table of the cache they share."""
+    names = {layout["name"] for layout in LAYOUTS}
     assert column_widths(made[2] / "pivot_options.xlsx", names) == column_widths(FIXTURES / "pivot_options.xlsx", names)
 
 

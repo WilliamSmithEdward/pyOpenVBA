@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- How far calculation has got, and the settings that steer it, follow
+  Excel: `Application.CalculationState`, `CalculationVersion`,
+  `CalculationInterruptKey` and `CalculateUntilAsyncQueriesDone`,
+  `Workbook.CalculationVersion` and `ForceFullCalculation`, and
+  `Range.Dirty` and `CalculateRowMajorOrder`. CalculationState is
+  xlCalculating while a formula's VBA Function runs, and xlPending while
+  a formula waits under manual calculation, so a macro waiting for
+  xlDone stops where Excel's does. Range.Dirty marks formulas to work
+  out again, at once under automatic calculation.
+  CalculateRowMajorOrder works a range out a row at a time, a cell
+  reading what a later cell still holds. ForceFullCalculation True
+  holds every workbook to full calculation until Excel quits, as Excel
+  does, and is saved and read. 24 live edits, 17 settings and 10 files
+  opened two ways agree, `tests/fixtures/calculation_state.json`.
+
 - The Worksheet settings macros set beside Protect or on dashboards
   follow Excel: `ScrollArea`, `EnableAutoFilter`, `EnableOutlining`,
   `EnablePivotTable`, `EnableCalculation`, `TransitionExpEval`,
@@ -1005,6 +1020,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A file whose calcId is below 191028, or that has none or asks for
+  fullCalcOnLoad, is worked out in full as it opens, as Excel works it
+  out; under manual calculation it keeps the file's values until the
+  next Calculate. The model took every value the file kept, so a file
+  another program wrote with values out of date read them. A save
+  writes the workbook's calcId, 191029 once it is worked out so.
+
+- Adding, redefining or deleting a defined name works out again only
+  the formulas that name it, as Excel does, and a name's Comment or
+  Visible works nothing out. The model worked out every formula of the
+  workbook after any change to a name, a VBA Function among them.
 
 - `Application.StatusBar` reads False, a Boolean, until a macro sets it,
   as Excel's does; the model read the text FALSE from the start. Once a

@@ -1644,6 +1644,41 @@ def test_excel_reads_the_text_filters_this_wrote(tmp_path: Path) -> None:
     assert made.split("|")[2].split(";")[0] == record["saved_kept"]
 
 
+def test_excel_reads_the_sheet_groups_this_saved(tmp_path: Path) -> None:
+    """A workbook saved with sheets grouped, and a new workbook a group copy made (tests/fixtures/sheet_groups.json,
+    sheet_group_moves.json), made by the model and saved: Excel opens each, the first with the group selected as
+    Excel's own was, the second with the copied sheets and their formulas as the model has them."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    fixtures = Path(__file__).parent / "fixtures"
+    moves = json.loads((fixtures / "sheet_group_moves.json").read_text(encoding="utf-8"))
+    groups = json.loads((fixtures / "sheet_groups.json").read_text(encoding="utf-8"))
+    grouped = tmp_path / "grouped.xlsx"
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(moves["saved_code"], name="Probe")
+    app.run("Saved", str(grouped))
+    copied = tmp_path / "copied.xlsx"
+    maker = (groups["helper"] + "Public Function Make(path As String) As String\n    Dim wb As Object\n"
+             '    Set wb = Fresh()\n    wb.Sheets(Array("Two", "One")).Copy\n    Make = Listed(ActiveWorkbook)\n'
+             "    ActiveWorkbook.SaveAs path, 51\nEnd Function\n")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(maker, name="Maker")
+    made = str(app.run("Make", str(copied)))
+    reader = (groups["helper"] + "Public Function Read() As String\n    Read = Listed(ActiveWorkbook)\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(moves["saved_code"], "Reopened", [str(grouped)], timeout=120.0)
+        assert result.ok, result.message
+        assert str(result.value) == moves["reopened"]
+        excel.open_document(copied)
+        result = excel.run_vba(reader, "Read", timeout=120.0)
+        assert result.ok, result.message
+        assert str(result.value) == made
+
+
 def test_excel_reads_the_cell_shifts_this_made(tmp_path: Path) -> None:
     """Cells tests/fixtures/cell_shifts.json shifted, made by the model, saved, and opened in Excel one by one."""
     import json

@@ -1,0 +1,1078 @@
+{
+"sheet_names": [
+"\u00c6sop",
+"aesop",
+"stra\u00dfe",
+"STRASSE",
+"\u0153uvre",
+"oeuvre",
+"\u0130stanbul",
+"istanbul",
+"\u00e9clair",
+"Eclair",
+"\u00c9CLAIR",
+"co-op",
+"coop",
+"\u0440\u0435\u0437\u044e\u043c\u0435",
+"\u0420\u0415\u0417\u042e\u041c\u0415",
+"\u03b1\u03b2\u03b3",
+"\u0391\u0392\u0393",
+"\u01c5emal",
+"\u01c6emal",
+"Zo\u00eb",
+"zoe",
+"na\u00efve",
+"NAIVE",
+"\u00c5ngstr\u00f6m",
+"angstrom"
+],
+"sheet_lookups": [
+"AESOP",
+"\u00c6SOP",
+"STRASSE",
+"STRA\u1e9eE",
+"OEUVRE",
+"\u0152UVRE",
+"ISTANBUL",
+"\u0130STANBUL",
+"ECLAIR",
+"\u00c9CLAIR",
+"COOP",
+"CO-OP",
+"\u0420\u0415\u0417\u042e\u041c\u0415",
+"\u0391\u0392\u0393",
+"\u01c4EMAL",
+"ZO\u00cb",
+"ZOE",
+"NA\u00cfVE",
+"\u00c5NGSTR\u00d6M"
+],
+"names": [
+[
+"a_b",
+"=26"
+],
+[
+"ab",
+"=27"
+],
+[
+"\u00c6sop",
+"=2"
+],
+[
+"angstrom",
+"=25"
+],
+[
+"\u00c5ngstr\u00f6m",
+"=24"
+],
+[
+"co.op",
+"=12"
+],
+[
+"coop",
+"=13"
+],
+[
+"\u01c6emal",
+"=19"
+],
+[
+"Eclair",
+"=10"
+],
+[
+"\u00c9CLAIR",
+"=11"
+],
+[
+"istanbul",
+"=8"
+],
+[
+"\u0130stanbul",
+"=7"
+],
+[
+"NAIVE",
+"=23"
+],
+[
+"na\u00efve",
+"=22"
+],
+[
+"\u0153uvre",
+"=6"
+],
+[
+"stra\u00dfe",
+"=4"
+],
+[
+"zoe",
+"=21"
+],
+[
+"Zo\u00eb",
+"=20"
+],
+[
+"\u0391\u0392\u0393",
+"=17"
+],
+[
+"\u0420\u0415\u0417\u042e\u041c\u0415",
+"=15"
+]
+],
+"name_lookups": [
+"AESOP",
+"\u00c6SOP",
+"STRASSE",
+"STRA\u1e9eE",
+"OEUVRE",
+"\u0152UVRE",
+"ISTANBUL",
+"\u0130STANBUL",
+"ECLAIR",
+"\u00c9CLAIR",
+"COOP",
+"CO.OP",
+"\u0420\u0415\u0417\u042e\u041c\u0415",
+"\u0391\u0392\u0393",
+"\u01c4EMAL",
+"ZO\u00cb",
+"ZOE",
+"NA\u00cfVE",
+"\u00c5NGSTR\u00d6M",
+"A_B"
+],
+"code": "Private Function Coded(text As String) As String\n    Dim i As Long, out As String\n    For i = 1 To Len(text)\n        out = out & Hex(AscW(Mid(text, i, 1)) And &HFFFF&) & \".\"\n    Next\n    Coded = out\nEnd Function\n\nPrivate Function Named(wb As Object, ws As Object, text As String) As Long\n    On Error Resume Next\n    ws.Name = text\n    Named = Err.Number\n    If Err.Number <> 0 Then\n        Application.DisplayAlerts = False\n        ws.Delete\n        Application.DisplayAlerts = True\n    End If\nEnd Function\n\nPublic Function Measure() As String\n    Dim wb As Object, out As String, i As Long, found As String, ws As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    On Error Resume Next\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(97) & ChrW(101) & ChrW(115) & ChrW(111) & ChrW(112)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(223) & ChrW(101)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(83) & ChrW(83) & ChrW(69)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(339) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(111) & ChrW(101) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(304) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(105) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(233) & ChrW(99) & ChrW(108) & ChrW(97) & ChrW(105) & ChrW(114)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(69) & ChrW(99) & ChrW(108) & ChrW(97) & ChrW(105) & ChrW(114)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(201) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(99) & ChrW(111) & ChrW(45) & ChrW(111) & ChrW(112)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(99) & ChrW(111) & ChrW(111) & ChrW(112)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(1088) & ChrW(1077) & ChrW(1079) & ChrW(1102) & ChrW(1084) & ChrW(1077)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(945) & ChrW(946) & ChrW(947)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(913) & ChrW(914) & ChrW(915)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(453) & ChrW(101) & ChrW(109) & ChrW(97) & ChrW(108)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(454) & ChrW(101) & ChrW(109) & ChrW(97) & ChrW(108)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(90) & ChrW(111) & ChrW(235)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(122) & ChrW(111) & ChrW(101)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(110) & ChrW(97) & ChrW(239) & ChrW(118) & ChrW(101)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(78) & ChrW(65) & ChrW(73) & ChrW(86) & ChrW(69)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(197) & ChrW(110) & ChrW(103) & ChrW(115) & ChrW(116) & ChrW(114) & ChrW(246) & ChrW(109)) & \",\"\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    out = out & Named(wb, ws, ChrW(97) & ChrW(110) & ChrW(103) & ChrW(115) & ChrW(116) & ChrW(114) & ChrW(111) & ChrW(109)) & \",\"\n    out = out & \"|\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(65) & ChrW(69) & ChrW(83) & ChrW(79) & ChrW(80)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(198) & ChrW(83) & ChrW(79) & ChrW(80)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(83) & ChrW(83) & ChrW(69)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(7838) & ChrW(69)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(79) & ChrW(69) & ChrW(85) & ChrW(86) & ChrW(82) & ChrW(69)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(338) & ChrW(85) & ChrW(86) & ChrW(82) & ChrW(69)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(73) & ChrW(83) & ChrW(84) & ChrW(65) & ChrW(78) & ChrW(66) & ChrW(85) & ChrW(76)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(304) & ChrW(83) & ChrW(84) & ChrW(65) & ChrW(78) & ChrW(66) & ChrW(85) & ChrW(76)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(69) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(201) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(67) & ChrW(79) & ChrW(79) & ChrW(80)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(67) & ChrW(79) & ChrW(45) & ChrW(79) & ChrW(80)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(913) & ChrW(914) & ChrW(915)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(452) & ChrW(69) & ChrW(77) & ChrW(65) & ChrW(76)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(90) & ChrW(79) & ChrW(203)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(90) & ChrW(79) & ChrW(69)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(78) & ChrW(65) & ChrW(207) & ChrW(86) & ChrW(69)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    Err.Clear\n    found = \"\"\n    found = wb.Worksheets(ChrW(197) & ChrW(78) & ChrW(71) & ChrW(83) & ChrW(84) & ChrW(82) & ChrW(214) & ChrW(77)).Name\n    out = out & Err.Number & \":\" & Coded(found) & \",\"\n    out = out & \"|\"\n    For i = 1 To wb.Worksheets.Count\n        out = out & Coded(wb.Worksheets(i).Name) & \",\"\n    Next\n    out = out & \"|\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112), RefersTo:=\"=1\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(97) & ChrW(101) & ChrW(115) & ChrW(111) & ChrW(112), RefersTo:=\"=2\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(223) & ChrW(101), RefersTo:=\"=3\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(83) & ChrW(83) & ChrW(69), RefersTo:=\"=4\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(339) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101), RefersTo:=\"=5\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(111) & ChrW(101) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101), RefersTo:=\"=6\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(304) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108), RefersTo:=\"=7\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(105) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108), RefersTo:=\"=8\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(233) & ChrW(99) & ChrW(108) & ChrW(97) & ChrW(105) & ChrW(114), RefersTo:=\"=9\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(69) & ChrW(99) & ChrW(108) & ChrW(97) & ChrW(105) & ChrW(114), RefersTo:=\"=10\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(201) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82), RefersTo:=\"=11\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(99) & ChrW(111) & ChrW(46) & ChrW(111) & ChrW(112), RefersTo:=\"=12\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(99) & ChrW(111) & ChrW(111) & ChrW(112), RefersTo:=\"=13\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(1088) & ChrW(1077) & ChrW(1079) & ChrW(1102) & ChrW(1084) & ChrW(1077), RefersTo:=\"=14\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045), RefersTo:=\"=15\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(945) & ChrW(946) & ChrW(947), RefersTo:=\"=16\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(913) & ChrW(914) & ChrW(915), RefersTo:=\"=17\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(453) & ChrW(101) & ChrW(109) & ChrW(97) & ChrW(108), RefersTo:=\"=18\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(454) & ChrW(101) & ChrW(109) & ChrW(97) & ChrW(108), RefersTo:=\"=19\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(90) & ChrW(111) & ChrW(235), RefersTo:=\"=20\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(122) & ChrW(111) & ChrW(101), RefersTo:=\"=21\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(110) & ChrW(97) & ChrW(239) & ChrW(118) & ChrW(101), RefersTo:=\"=22\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(78) & ChrW(65) & ChrW(73) & ChrW(86) & ChrW(69), RefersTo:=\"=23\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(197) & ChrW(110) & ChrW(103) & ChrW(115) & ChrW(116) & ChrW(114) & ChrW(246) & ChrW(109), RefersTo:=\"=24\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(97) & ChrW(110) & ChrW(103) & ChrW(115) & ChrW(116) & ChrW(114) & ChrW(111) & ChrW(109), RefersTo:=\"=25\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(97) & ChrW(95) & ChrW(98), RefersTo:=\"=26\"\n    out = out & Err.Number & \",\"\n    Err.Clear\n    wb.Names.Add Name:=ChrW(97) & ChrW(98), RefersTo:=\"=27\"\n    out = out & Err.Number & \",\"\n    out = out & \"|\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(65) & ChrW(69) & ChrW(83) & ChrW(79) & ChrW(80)).Name) & \":\" & Coded(wb.Names(ChrW(65) & ChrW(69) & ChrW(83) & ChrW(79) & ChrW(80)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(198) & ChrW(83) & ChrW(79) & ChrW(80)).Name) & \":\" & Coded(wb.Names(ChrW(198) & ChrW(83) & ChrW(79) & ChrW(80)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(83) & ChrW(83) & ChrW(69)).Name) & \":\" & Coded(wb.Names(ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(83) & ChrW(83) & ChrW(69)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(7838) & ChrW(69)).Name) & \":\" & Coded(wb.Names(ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(7838) & ChrW(69)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(79) & ChrW(69) & ChrW(85) & ChrW(86) & ChrW(82) & ChrW(69)).Name) & \":\" & Coded(wb.Names(ChrW(79) & ChrW(69) & ChrW(85) & ChrW(86) & ChrW(82) & ChrW(69)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(338) & ChrW(85) & ChrW(86) & ChrW(82) & ChrW(69)).Name) & \":\" & Coded(wb.Names(ChrW(338) & ChrW(85) & ChrW(86) & ChrW(82) & ChrW(69)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(73) & ChrW(83) & ChrW(84) & ChrW(65) & ChrW(78) & ChrW(66) & ChrW(85) & ChrW(76)).Name) & \":\" & Coded(wb.Names(ChrW(73) & ChrW(83) & ChrW(84) & ChrW(65) & ChrW(78) & ChrW(66) & ChrW(85) & ChrW(76)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(304) & ChrW(83) & ChrW(84) & ChrW(65) & ChrW(78) & ChrW(66) & ChrW(85) & ChrW(76)).Name) & \":\" & Coded(wb.Names(ChrW(304) & ChrW(83) & ChrW(84) & ChrW(65) & ChrW(78) & ChrW(66) & ChrW(85) & ChrW(76)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(69) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82)).Name) & \":\" & Coded(wb.Names(ChrW(69) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(201) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82)).Name) & \":\" & Coded(wb.Names(ChrW(201) & ChrW(67) & ChrW(76) & ChrW(65) & ChrW(73) & ChrW(82)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(67) & ChrW(79) & ChrW(79) & ChrW(80)).Name) & \":\" & Coded(wb.Names(ChrW(67) & ChrW(79) & ChrW(79) & ChrW(80)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(67) & ChrW(79) & ChrW(46) & ChrW(79) & ChrW(80)).Name) & \":\" & Coded(wb.Names(ChrW(67) & ChrW(79) & ChrW(46) & ChrW(79) & ChrW(80)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045)).Name) & \":\" & Coded(wb.Names(ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(913) & ChrW(914) & ChrW(915)).Name) & \":\" & Coded(wb.Names(ChrW(913) & ChrW(914) & ChrW(915)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(452) & ChrW(69) & ChrW(77) & ChrW(65) & ChrW(76)).Name) & \":\" & Coded(wb.Names(ChrW(452) & ChrW(69) & ChrW(77) & ChrW(65) & ChrW(76)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(90) & ChrW(79) & ChrW(203)).Name) & \":\" & Coded(wb.Names(ChrW(90) & ChrW(79) & ChrW(203)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(90) & ChrW(79) & ChrW(69)).Name) & \":\" & Coded(wb.Names(ChrW(90) & ChrW(79) & ChrW(69)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(78) & ChrW(65) & ChrW(207) & ChrW(86) & ChrW(69)).Name) & \":\" & Coded(wb.Names(ChrW(78) & ChrW(65) & ChrW(207) & ChrW(86) & ChrW(69)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(197) & ChrW(78) & ChrW(71) & ChrW(83) & ChrW(84) & ChrW(82) & ChrW(214) & ChrW(77)).Name) & \":\" & Coded(wb.Names(ChrW(197) & ChrW(78) & ChrW(71) & ChrW(83) & ChrW(84) & ChrW(82) & ChrW(214) & ChrW(77)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    Err.Clear\n    found = \"\"\n    found = Coded(wb.Names(ChrW(65) & ChrW(95) & ChrW(66)).Name) & \":\" & Coded(wb.Names(ChrW(65) & ChrW(95) & ChrW(66)).RefersTo)\n    out = out & Err.Number & \":\" & found & \",\"\n    out = out & \"|\"\n    For i = 1 To wb.Names.Count\n        out = out & Coded(wb.Names(i).Name) & \":\" & Coded(wb.Names(i).RefersTo) & \",\"\n    Next\n    On Error GoTo 0\n    wb.Close False\n    Measure = out\nEnd Function\n",
+"raw": "0,0,0,0,0,0,0,0,0,0,1004,0,0,0,1004,0,1004,0,1004,0,0,0,0,0,0,|0:C6.73.6F.70.,0:C6.73.6F.70.,0:73.74.72.61.DF.65.,0:73.74.72.61.DF.65.,0:153.75.76.72.65.,0:153.75.76.72.65.,0:69.73.74.61.6E.62.75.6C.,0:130.73.74.61.6E.62.75.6C.,0:45.63.6C.61.69.72.,0:E9.63.6C.61.69.72.,0:63.6F.6F.70.,0:63.6F.2D.6F.70.,0:440.435.437.44E.43C.435.,0:3B1.3B2.3B3.,0:1C5.65.6D.61.6C.,0:5A.6F.EB.,0:7A.6F.65.,0:6E.61.EF.76.65.,0:C5.6E.67.73.74.72.F6.6D.,|53.68.65.65.74.31.,C6.73.6F.70.,61.65.73.6F.70.,73.74.72.61.DF.65.,53.54.52.41.53.53.45.,153.75.76.72.65.,6F.65.75.76.72.65.,130.73.74.61.6E.62.75.6C.,69.73.74.61.6E.62.75.6C.,E9.63.6C.61.69.72.,45.63.6C.61.69.72.,63.6F.2D.6F.70.,63.6F.6F.70.,440.435.437.44E.43C.435.,3B1.3B2.3B3.,1C5.65.6D.61.6C.,5A.6F.EB.,7A.6F.65.,6E.61.EF.76.65.,4E.41.49.56.45.,C5.6E.67.73.74.72.F6.6D.,61.6E.67.73.74.72.6F.6D.,|0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,|0:C6.73.6F.70.:3D.32.,0:C6.73.6F.70.:3D.32.,0:73.74.72.61.DF.65.:3D.34.,0:73.74.72.61.DF.65.:3D.34.,0:153.75.76.72.65.:3D.36.,0:153.75.76.72.65.:3D.36.,0:69.73.74.61.6E.62.75.6C.:3D.38.,0:130.73.74.61.6E.62.75.6C.:3D.37.,0:45.63.6C.61.69.72.:3D.31.30.,0:C9.43.4C.41.49.52.:3D.31.31.,0:63.6F.6F.70.:3D.31.33.,0:63.6F.2E.6F.70.:3D.31.32.,0:420.415.417.42E.41C.415.:3D.31.35.,0:391.392.393.:3D.31.37.,0:1C6.65.6D.61.6C.:3D.31.39.,0:5A.6F.EB.:3D.32.30.,0:7A.6F.65.:3D.32.31.,0:6E.61.EF.76.65.:3D.32.32.,0:C5.6E.67.73.74.72.F6.6D.:3D.32.34.,0:61.5F.62.:3D.32.36.,|61.5F.62.:3D.32.36.,61.62.:3D.32.37.,C6.73.6F.70.:3D.32.,61.6E.67.73.74.72.6F.6D.:3D.32.35.,C5.6E.67.73.74.72.F6.6D.:3D.32.34.,63.6F.2E.6F.70.:3D.31.32.,63.6F.6F.70.:3D.31.33.,1C6.65.6D.61.6C.:3D.31.39.,45.63.6C.61.69.72.:3D.31.30.,C9.43.4C.41.49.52.:3D.31.31.,69.73.74.61.6E.62.75.6C.:3D.38.,130.73.74.61.6E.62.75.6C.:3D.37.,4E.41.49.56.45.:3D.32.33.,6E.61.EF.76.65.:3D.32.32.,153.75.76.72.65.:3D.36.,73.74.72.61.DF.65.:3D.34.,7A.6F.65.:3D.32.31.,5A.6F.EB.:3D.32.30.,391.392.393.:3D.31.37.,420.415.417.42E.41C.415.:3D.31.35.,",
+"sheets_added": [
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+1004,
+0,
+0,
+0,
+1004,
+0,
+1004,
+0,
+1004,
+0,
+0,
+0,
+0,
+0,
+0
+],
+"sheets_found": [
+[
+0,
+"\u00c6sop"
+],
+[
+0,
+"\u00c6sop"
+],
+[
+0,
+"stra\u00dfe"
+],
+[
+0,
+"stra\u00dfe"
+],
+[
+0,
+"\u0153uvre"
+],
+[
+0,
+"\u0153uvre"
+],
+[
+0,
+"istanbul"
+],
+[
+0,
+"\u0130stanbul"
+],
+[
+0,
+"Eclair"
+],
+[
+0,
+"\u00e9clair"
+],
+[
+0,
+"coop"
+],
+[
+0,
+"co-op"
+],
+[
+0,
+"\u0440\u0435\u0437\u044e\u043c\u0435"
+],
+[
+0,
+"\u03b1\u03b2\u03b3"
+],
+[
+0,
+"\u01c5emal"
+],
+[
+0,
+"Zo\u00eb"
+],
+[
+0,
+"zoe"
+],
+[
+0,
+"na\u00efve"
+],
+[
+0,
+"\u00c5ngstr\u00f6m"
+]
+],
+"sheets": [
+"Sheet1",
+"\u00c6sop",
+"aesop",
+"stra\u00dfe",
+"STRASSE",
+"\u0153uvre",
+"oeuvre",
+"\u0130stanbul",
+"istanbul",
+"\u00e9clair",
+"Eclair",
+"co-op",
+"coop",
+"\u0440\u0435\u0437\u044e\u043c\u0435",
+"\u03b1\u03b2\u03b3",
+"\u01c5emal",
+"Zo\u00eb",
+"zoe",
+"na\u00efve",
+"NAIVE",
+"\u00c5ngstr\u00f6m",
+"angstrom"
+],
+"names_added": [
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0
+],
+"names_found": [
+[
+0,
+"\u00c6sop",
+"=2"
+],
+[
+0,
+"\u00c6sop",
+"=2"
+],
+[
+0,
+"stra\u00dfe",
+"=4"
+],
+[
+0,
+"stra\u00dfe",
+"=4"
+],
+[
+0,
+"\u0153uvre",
+"=6"
+],
+[
+0,
+"\u0153uvre",
+"=6"
+],
+[
+0,
+"istanbul",
+"=8"
+],
+[
+0,
+"\u0130stanbul",
+"=7"
+],
+[
+0,
+"Eclair",
+"=10"
+],
+[
+0,
+"\u00c9CLAIR",
+"=11"
+],
+[
+0,
+"coop",
+"=13"
+],
+[
+0,
+"co.op",
+"=12"
+],
+[
+0,
+"\u0420\u0415\u0417\u042e\u041c\u0415",
+"=15"
+],
+[
+0,
+"\u0391\u0392\u0393",
+"=17"
+],
+[
+0,
+"\u01c6emal",
+"=19"
+],
+[
+0,
+"Zo\u00eb",
+"=20"
+],
+[
+0,
+"zoe",
+"=21"
+],
+[
+0,
+"na\u00efve",
+"=22"
+],
+[
+0,
+"\u00c5ngstr\u00f6m",
+"=24"
+],
+[
+0,
+"a_b",
+"=26"
+]
+],
+"rules": {
+"pairs": [
+[
+"K",
+"\u212a",
+"Kelvin sign: lower case"
+],
+[
+"I",
+"\u0131",
+"dotless i: upper case"
+],
+[
+"S",
+"\u017f",
+"long s: upper case"
+],
+[
+"\u03c3",
+"\u03c2",
+"final sigma: upper case"
+],
+[
+"\u00c5",
+"\u212b",
+"angstrom sign: lower case"
+],
+[
+"\u00df",
+"\u1e9e",
+"capital sharp s: lower case"
+],
+[
+"\u03bc",
+"\u00b5",
+"micro sign: upper case"
+],
+[
+"\u03b8",
+"\u03d1",
+"theta symbol: upper case"
+],
+[
+"\u03a9",
+"\u2126",
+"ohm sign: lower case"
+],
+[
+"\u01c4",
+"\u01c5",
+"titlecase DZ: either case"
+],
+[
+"i",
+"\u0130",
+"dotted capital I: linguistic lower case"
+],
+[
+"ae",
+"\u00e6",
+"ash: word sort"
+],
+[
+"ss",
+"\u00df",
+"sharp s: word sort"
+],
+[
+"e",
+"\u00e9",
+"an accent: none"
+],
+[
+"\u00e6ss",
+"ae\u00df",
+"ash and ss against ae and sharp s: as long"
+]
+],
+"code": "Private Function Coded(text As String) As String\n    Dim i As Long, out As String\n    For i = 1 To Len(text)\n        out = out & Hex(AscW(Mid(text, i, 1)) And &HFFFF&) & \".\"\n    Next\n    Coded = out\nEnd Function\n\nPrivate Function Placed(wb As Object, text As String, place As Long) As Long\n    Dim ws As Object\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    On Error Resume Next\n    ws.Name = text\n    Placed = Err.Number\n    On Error GoTo 0\n    If Placed <> 0 Then\n        Application.DisplayAlerts = False\n        ws.Delete\n        Application.DisplayAlerts = True\n    Else\n        ws.Range(\"A1\").Value = place\n    End If\nEnd Function\n\nPrivate Function Found(wb As Object, text As String) As String\n    On Error Resume Next\n    Found = Coded(wb.Worksheets(text).Name)\n    If Err.Number <> 0 Then Found = \"E\" & Err.Number\nEnd Function\n\nPrivate Function NameFound(wb As Object, text As String) As String\n    On Error Resume Next\n    NameFound = Coded(wb.Names(text).Name) & \"=\" & Coded(wb.Names(text).RefersTo)\n    If Err.Number <> 0 Then NameFound = \"E\" & Err.Number\nEnd Function\n\nPrivate Function Shown(v As Variant) As String\n    If IsError(v) Then\n        Shown = \"E\" & CStr(CLng(v))\n    Else\n        Shown = CStr(v)\n    End If\nEnd Function\n\nPublic Function Rules() As String\n    Dim wb As Object, out As String, i As Long, first As String, second As String, ws As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    first = ChrW(75)\n    second = ChrW(8490)\n    out = out & Placed(wb, \"s1\" & first, 11) & \";\"\n    out = out & Placed(wb, \"s1\" & second, 12) & \";\"\n    out = out & Found(wb, \"s1\" & first) & \";\" & Found(wb, \"s1\" & second) & \";\"\n    out = out & Placed(wb, \"r1\" & second, 13) & \";\"\n    out = out & Placed(wb, \"r1\" & first, 14) & \";\"\n    out = out & Found(wb, \"r1\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r1\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n1\" & first, RefersTo:=\"=11\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n1\" & second, RefersTo:=\"=12\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f1\" & first, RefersTo:=\"=1\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n1\" & first) & \";\" & NameFound(wb, \"n1\" & second)\n    out = out & \"|\"\n    first = ChrW(73)\n    second = ChrW(305)\n    out = out & Placed(wb, \"s2\" & first, 21) & \";\"\n    out = out & Placed(wb, \"s2\" & second, 22) & \";\"\n    out = out & Found(wb, \"s2\" & first) & \";\" & Found(wb, \"s2\" & second) & \";\"\n    out = out & Placed(wb, \"r2\" & second, 23) & \";\"\n    out = out & Placed(wb, \"r2\" & first, 24) & \";\"\n    out = out & Found(wb, \"r2\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r2\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n2\" & first, RefersTo:=\"=21\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n2\" & second, RefersTo:=\"=22\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f2\" & first, RefersTo:=\"=2\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n2\" & first) & \";\" & NameFound(wb, \"n2\" & second)\n    out = out & \"|\"\n    first = ChrW(83)\n    second = ChrW(383)\n    out = out & Placed(wb, \"s3\" & first, 31) & \";\"\n    out = out & Placed(wb, \"s3\" & second, 32) & \";\"\n    out = out & Found(wb, \"s3\" & first) & \";\" & Found(wb, \"s3\" & second) & \";\"\n    out = out & Placed(wb, \"r3\" & second, 33) & \";\"\n    out = out & Placed(wb, \"r3\" & first, 34) & \";\"\n    out = out & Found(wb, \"r3\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r3\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n3\" & first, RefersTo:=\"=31\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n3\" & second, RefersTo:=\"=32\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f3\" & first, RefersTo:=\"=3\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n3\" & first) & \";\" & NameFound(wb, \"n3\" & second)\n    out = out & \"|\"\n    first = ChrW(963)\n    second = ChrW(962)\n    out = out & Placed(wb, \"s4\" & first, 41) & \";\"\n    out = out & Placed(wb, \"s4\" & second, 42) & \";\"\n    out = out & Found(wb, \"s4\" & first) & \";\" & Found(wb, \"s4\" & second) & \";\"\n    out = out & Placed(wb, \"r4\" & second, 43) & \";\"\n    out = out & Placed(wb, \"r4\" & first, 44) & \";\"\n    out = out & Found(wb, \"r4\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r4\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n4\" & first, RefersTo:=\"=41\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n4\" & second, RefersTo:=\"=42\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f4\" & first, RefersTo:=\"=4\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n4\" & first) & \";\" & NameFound(wb, \"n4\" & second)\n    out = out & \"|\"\n    first = ChrW(197)\n    second = ChrW(8491)\n    out = out & Placed(wb, \"s5\" & first, 51) & \";\"\n    out = out & Placed(wb, \"s5\" & second, 52) & \";\"\n    out = out & Found(wb, \"s5\" & first) & \";\" & Found(wb, \"s5\" & second) & \";\"\n    out = out & Placed(wb, \"r5\" & second, 53) & \";\"\n    out = out & Placed(wb, \"r5\" & first, 54) & \";\"\n    out = out & Found(wb, \"r5\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r5\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n5\" & first, RefersTo:=\"=51\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n5\" & second, RefersTo:=\"=52\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f5\" & first, RefersTo:=\"=5\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n5\" & first) & \";\" & NameFound(wb, \"n5\" & second)\n    out = out & \"|\"\n    first = ChrW(223)\n    second = ChrW(7838)\n    out = out & Placed(wb, \"s6\" & first, 61) & \";\"\n    out = out & Placed(wb, \"s6\" & second, 62) & \";\"\n    out = out & Found(wb, \"s6\" & first) & \";\" & Found(wb, \"s6\" & second) & \";\"\n    out = out & Placed(wb, \"r6\" & second, 63) & \";\"\n    out = out & Placed(wb, \"r6\" & first, 64) & \";\"\n    out = out & Found(wb, \"r6\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r6\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n6\" & first, RefersTo:=\"=61\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n6\" & second, RefersTo:=\"=62\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f6\" & first, RefersTo:=\"=6\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n6\" & first) & \";\" & NameFound(wb, \"n6\" & second)\n    out = out & \"|\"\n    first = ChrW(956)\n    second = ChrW(181)\n    out = out & Placed(wb, \"s7\" & first, 71) & \";\"\n    out = out & Placed(wb, \"s7\" & second, 72) & \";\"\n    out = out & Found(wb, \"s7\" & first) & \";\" & Found(wb, \"s7\" & second) & \";\"\n    out = out & Placed(wb, \"r7\" & second, 73) & \";\"\n    out = out & Placed(wb, \"r7\" & first, 74) & \";\"\n    out = out & Found(wb, \"r7\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r7\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n7\" & first, RefersTo:=\"=71\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n7\" & second, RefersTo:=\"=72\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f7\" & first, RefersTo:=\"=7\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n7\" & first) & \";\" & NameFound(wb, \"n7\" & second)\n    out = out & \"|\"\n    first = ChrW(952)\n    second = ChrW(977)\n    out = out & Placed(wb, \"s8\" & first, 81) & \";\"\n    out = out & Placed(wb, \"s8\" & second, 82) & \";\"\n    out = out & Found(wb, \"s8\" & first) & \";\" & Found(wb, \"s8\" & second) & \";\"\n    out = out & Placed(wb, \"r8\" & second, 83) & \";\"\n    out = out & Placed(wb, \"r8\" & first, 84) & \";\"\n    out = out & Found(wb, \"r8\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r8\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n8\" & first, RefersTo:=\"=81\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n8\" & second, RefersTo:=\"=82\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f8\" & first, RefersTo:=\"=8\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n8\" & first) & \";\" & NameFound(wb, \"n8\" & second)\n    out = out & \"|\"\n    first = ChrW(937)\n    second = ChrW(8486)\n    out = out & Placed(wb, \"s9\" & first, 91) & \";\"\n    out = out & Placed(wb, \"s9\" & second, 92) & \";\"\n    out = out & Found(wb, \"s9\" & first) & \";\" & Found(wb, \"s9\" & second) & \";\"\n    out = out & Placed(wb, \"r9\" & second, 93) & \";\"\n    out = out & Placed(wb, \"r9\" & first, 94) & \";\"\n    out = out & Found(wb, \"r9\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r9\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n9\" & first, RefersTo:=\"=91\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n9\" & second, RefersTo:=\"=92\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f9\" & first, RefersTo:=\"=9\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n9\" & first) & \";\" & NameFound(wb, \"n9\" & second)\n    out = out & \"|\"\n    first = ChrW(452)\n    second = ChrW(453)\n    out = out & Placed(wb, \"s10\" & first, 101) & \";\"\n    out = out & Placed(wb, \"s10\" & second, 102) & \";\"\n    out = out & Found(wb, \"s10\" & first) & \";\" & Found(wb, \"s10\" & second) & \";\"\n    out = out & Placed(wb, \"r10\" & second, 103) & \";\"\n    out = out & Placed(wb, \"r10\" & first, 104) & \";\"\n    out = out & Found(wb, \"r10\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r10\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n10\" & first, RefersTo:=\"=101\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n10\" & second, RefersTo:=\"=102\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f10\" & first, RefersTo:=\"=10\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n10\" & first) & \";\" & NameFound(wb, \"n10\" & second)\n    out = out & \"|\"\n    first = ChrW(105)\n    second = ChrW(304)\n    out = out & Placed(wb, \"s11\" & first, 111) & \";\"\n    out = out & Placed(wb, \"s11\" & second, 112) & \";\"\n    out = out & Found(wb, \"s11\" & first) & \";\" & Found(wb, \"s11\" & second) & \";\"\n    out = out & Placed(wb, \"r11\" & second, 113) & \";\"\n    out = out & Placed(wb, \"r11\" & first, 114) & \";\"\n    out = out & Found(wb, \"r11\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r11\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n11\" & first, RefersTo:=\"=111\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n11\" & second, RefersTo:=\"=112\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f11\" & first, RefersTo:=\"=11\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n11\" & first) & \";\" & NameFound(wb, \"n11\" & second)\n    out = out & \"|\"\n    first = ChrW(97) & ChrW(101)\n    second = ChrW(230)\n    out = out & Placed(wb, \"s12\" & first, 121) & \";\"\n    out = out & Placed(wb, \"s12\" & second, 122) & \";\"\n    out = out & Found(wb, \"s12\" & first) & \";\" & Found(wb, \"s12\" & second) & \";\"\n    out = out & Placed(wb, \"r12\" & second, 123) & \";\"\n    out = out & Placed(wb, \"r12\" & first, 124) & \";\"\n    out = out & Found(wb, \"r12\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r12\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n12\" & first, RefersTo:=\"=121\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n12\" & second, RefersTo:=\"=122\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f12\" & first, RefersTo:=\"=12\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n12\" & first) & \";\" & NameFound(wb, \"n12\" & second)\n    out = out & \"|\"\n    first = ChrW(115) & ChrW(115)\n    second = ChrW(223)\n    out = out & Placed(wb, \"s13\" & first, 131) & \";\"\n    out = out & Placed(wb, \"s13\" & second, 132) & \";\"\n    out = out & Found(wb, \"s13\" & first) & \";\" & Found(wb, \"s13\" & second) & \";\"\n    out = out & Placed(wb, \"r13\" & second, 133) & \";\"\n    out = out & Placed(wb, \"r13\" & first, 134) & \";\"\n    out = out & Found(wb, \"r13\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r13\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n13\" & first, RefersTo:=\"=131\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n13\" & second, RefersTo:=\"=132\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f13\" & first, RefersTo:=\"=13\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n13\" & first) & \";\" & NameFound(wb, \"n13\" & second)\n    out = out & \"|\"\n    first = ChrW(101)\n    second = ChrW(233)\n    out = out & Placed(wb, \"s14\" & first, 141) & \";\"\n    out = out & Placed(wb, \"s14\" & second, 142) & \";\"\n    out = out & Found(wb, \"s14\" & first) & \";\" & Found(wb, \"s14\" & second) & \";\"\n    out = out & Placed(wb, \"r14\" & second, 143) & \";\"\n    out = out & Placed(wb, \"r14\" & first, 144) & \";\"\n    out = out & Found(wb, \"r14\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r14\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n14\" & first, RefersTo:=\"=141\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n14\" & second, RefersTo:=\"=142\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f14\" & first, RefersTo:=\"=14\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n14\" & first) & \";\" & NameFound(wb, \"n14\" & second)\n    out = out & \"|\"\n    first = ChrW(230) & ChrW(115) & ChrW(115)\n    second = ChrW(97) & ChrW(101) & ChrW(223)\n    out = out & Placed(wb, \"s15\" & first, 151) & \";\"\n    out = out & Placed(wb, \"s15\" & second, 152) & \";\"\n    out = out & Found(wb, \"s15\" & first) & \";\" & Found(wb, \"s15\" & second) & \";\"\n    out = out & Placed(wb, \"r15\" & second, 153) & \";\"\n    out = out & Placed(wb, \"r15\" & first, 154) & \";\"\n    out = out & Found(wb, \"r15\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r15\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n15\" & first, RefersTo:=\"=151\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n15\" & second, RefersTo:=\"=152\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f15\" & first, RefersTo:=\"=15\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n15\" & first) & \";\" & NameFound(wb, \"n15\" & second)\n    out = out & \"|\"\n    out = out & Placed(wb, ChrW(113) & ChrW(49) & ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112), 777) & \";\"\n    out = out & Shown(Application.Evaluate(\"'q1AESOP'!A1\")) & \";\"\n    out = out & Shown(Application.Evaluate(\"'q1aesop'!A1\")) & \";\"\n    out = out & Found(wb, \"q1AESOP\") & \"|\"\n    For i = 1 To wb.Names.Count\n        out = out & Coded(wb.Names(i).Name) & \"=\" & Coded(wb.Names(i).RefersTo) & \",\"\n    Next\n    out = out & \"|\"\n    On Error Resume Next\n    Err.Clear\n    second = ChrW(8490)\n    ws.Range(\"B1\").Formula = \"=f1\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B1\").Value) & \";\" & Coded(ws.Range(\"B1\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(305)\n    ws.Range(\"B2\").Formula = \"=f2\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B2\").Value) & \";\" & Coded(ws.Range(\"B2\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(383)\n    ws.Range(\"B3\").Formula = \"=f3\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B3\").Value) & \";\" & Coded(ws.Range(\"B3\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(962)\n    ws.Range(\"B4\").Formula = \"=f4\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B4\").Value) & \";\" & Coded(ws.Range(\"B4\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(8491)\n    ws.Range(\"B5\").Formula = \"=f5\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B5\").Value) & \";\" & Coded(ws.Range(\"B5\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(7838)\n    ws.Range(\"B6\").Formula = \"=f6\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B6\").Value) & \";\" & Coded(ws.Range(\"B6\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(181)\n    ws.Range(\"B7\").Formula = \"=f7\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B7\").Value) & \";\" & Coded(ws.Range(\"B7\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(977)\n    ws.Range(\"B8\").Formula = \"=f8\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B8\").Value) & \";\" & Coded(ws.Range(\"B8\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(8486)\n    ws.Range(\"B9\").Formula = \"=f9\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B9\").Value) & \";\" & Coded(ws.Range(\"B9\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(453)\n    ws.Range(\"B10\").Formula = \"=f10\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B10\").Value) & \";\" & Coded(ws.Range(\"B10\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(304)\n    ws.Range(\"B11\").Formula = \"=f11\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B11\").Value) & \";\" & Coded(ws.Range(\"B11\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(230)\n    ws.Range(\"B12\").Formula = \"=f12\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B12\").Value) & \";\" & Coded(ws.Range(\"B12\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(223)\n    ws.Range(\"B13\").Formula = \"=f13\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B13\").Value) & \";\" & Coded(ws.Range(\"B13\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(233)\n    ws.Range(\"B14\").Formula = \"=f14\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B14\").Value) & \";\" & Coded(ws.Range(\"B14\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(97) & ChrW(101) & ChrW(223)\n    ws.Range(\"B15\").Formula = \"=f15\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B15\").Value) & \";\" & Coded(ws.Range(\"B15\").Formula) & \",\"\n    On Error GoTo 0\n    wb.Close False\n    Rules = out\nEnd Function\n",
+"raw": "0;1004;73.31.4B.;73.31.4B.;0;1004;72.31.212A.;13;0;0;6E.31.212A.=3D.31.32.;6E.31.212A.=3D.31.32.|0;0;73.32.49.;73.32.131.;0;0;72.32.49.;24;0;0;6E.32.49.=3D.32.31.;6E.32.131.=3D.32.32.|0;0;73.33.53.;73.33.17F.;0;0;72.33.53.;34;0;0;6E.33.53.=3D.33.31.;6E.33.17F.=3D.33.32.|0;1004;73.34.3C3.;73.34.3C3.;0;1004;72.34.3C2.;43;0;0;6E.34.3C2.=3D.34.32.;6E.34.3C2.=3D.34.32.|0;1004;73.35.C5.;73.35.C5.;0;1004;72.35.212B.;53;0;0;6E.35.212B.=3D.35.32.;6E.35.212B.=3D.35.32.|0;1004;73.36.DF.;73.36.DF.;0;1004;72.36.1E9E.;63;0;0;6E.36.1E9E.=3D.36.32.;6E.36.1E9E.=3D.36.32.|0;0;73.37.3BC.;73.37.B5.;0;0;72.37.3BC.;74;0;0;6E.37.3BC.=3D.37.31.;6E.37.B5.=3D.37.32.|0;0;73.38.3B8.;73.38.3D1.;0;0;72.38.3B8.;84;0;0;6E.38.3B8.=3D.38.31.;6E.38.3D1.=3D.38.32.|0;1004;73.39.3A9.;73.39.3A9.;0;1004;72.39.2126.;93;0;0;6E.39.2126.=3D.39.32.;6E.39.2126.=3D.39.32.|0;1004;73.31.30.1C4.;73.31.30.1C4.;0;1004;72.31.30.1C5.;103;0;0;6E.31.30.1C5.=3D.31.30.32.;6E.31.30.1C5.=3D.31.30.32.|0;0;73.31.31.69.;73.31.31.130.;0;0;72.31.31.69.;114;0;0;6E.31.31.69.=3D.31.31.31.;6E.31.31.130.=3D.31.31.32.|0;0;73.31.32.61.65.;73.31.32.61.65.;0;0;72.31.32.E6.;124;0;0;6E.31.32.61.65.=3D.31.32.32.;6E.31.32.61.65.=3D.31.32.32.|0;0;73.31.33.73.73.;73.31.33.73.73.;0;0;72.31.33.DF.;134;0;0;6E.31.33.73.73.=3D.31.33.32.;6E.31.33.73.73.=3D.31.33.32.|0;0;73.31.34.65.;73.31.34.E9.;0;0;72.31.34.65.;144;0;0;6E.31.34.65.=3D.31.34.31.;6E.31.34.E9.=3D.31.34.32.|0;1004;73.31.35.E6.73.73.;73.31.35.E6.73.73.;0;1004;72.31.35.61.65.DF.;153;0;0;6E.31.35.61.65.DF.=3D.31.35.32.;6E.31.35.61.65.DF.=3D.31.35.32.|0;E2023;E2023;71.31.C6.73.6F.70.|66.31.30.1C4.=3D.31.30.,66.31.31.69.=3D.31.31.,66.31.32.61.65.=3D.31.32.,66.31.33.73.73.=3D.31.33.,66.31.34.65.=3D.31.34.,66.31.35.E6.73.73.=3D.31.35.,66.31.4B.=3D.31.,66.32.49.=3D.32.,66.33.53.=3D.33.,66.34.3C3.=3D.34.,66.35.C5.=3D.35.,66.36.DF.=3D.36.,66.37.3BC.=3D.37.,66.38.3B8.=3D.38.,66.39.3A9.=3D.39.,6E.31.30.1C5.=3D.31.30.32.,6E.31.31.69.=3D.31.31.31.,6E.31.31.130.=3D.31.31.32.,6E.31.32.61.65.=3D.31.32.32.,6E.31.33.73.73.=3D.31.33.32.,6E.31.34.65.=3D.31.34.31.,6E.31.34.E9.=3D.31.34.32.,6E.31.35.61.65.DF.=3D.31.35.32.,6E.31.212A.=3D.31.32.,6E.32.49.=3D.32.31.,6E.32.131.=3D.32.32.,6E.33.53.=3D.33.31.,6E.33.17F.=3D.33.32.,6E.34.3C2.=3D.34.32.,6E.35.212B.=3D.35.32.,6E.36.1E9E.=3D.36.32.,6E.37.B5.=3D.37.32.,6E.37.3BC.=3D.37.31.,6E.38.3B8.=3D.38.31.,6E.38.3D1.=3D.38.32.,6E.39.2126.=3D.39.32.,|0;1;3D.66.31.4B.,0;E2029;3D.66.32.131.,0;E2029;3D.66.33.17F.,0;4;3D.66.34.3C3.,0;5;3D.66.35.C5.,0;6;3D.66.36.DF.,0;E2029;3D.66.37.B5.,0;E2029;3D.66.38.3D1.,0;9;3D.66.39.3A9.,0;10;3D.66.31.30.1C4.,0;E2029;3D.66.31.31.130.,0;12;3D.66.31.32.61.65.,0;13;3D.66.31.33.73.73.,0;E2029;3D.66.31.34.E9.,0;15;3D.66.31.35.E6.73.73.,",
+"rules": [
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s1K",
+"found_second": "s1K",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r1\u212a",
+"evaluated": "13",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n1\u212a",
+"=12"
+],
+"name_found_second": [
+"n1\u212a",
+"=12"
+],
+"formula_error": 0,
+"formula_value": "1",
+"formula": "=f1K"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s2I",
+"found_second": "s2\u0131",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r2I",
+"evaluated": "24",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n2I",
+"=21"
+],
+"name_found_second": [
+"n2\u0131",
+"=22"
+],
+"formula_error": 0,
+"formula_value": "E2029",
+"formula": "=f2\u0131"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s3S",
+"found_second": "s3\u017f",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r3S",
+"evaluated": "34",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n3S",
+"=31"
+],
+"name_found_second": [
+"n3\u017f",
+"=32"
+],
+"formula_error": 0,
+"formula_value": "E2029",
+"formula": "=f3\u017f"
+},
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s4\u03c3",
+"found_second": "s4\u03c3",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r4\u03c2",
+"evaluated": "43",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n4\u03c2",
+"=42"
+],
+"name_found_second": [
+"n4\u03c2",
+"=42"
+],
+"formula_error": 0,
+"formula_value": "4",
+"formula": "=f4\u03c3"
+},
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s5\u00c5",
+"found_second": "s5\u00c5",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r5\u212b",
+"evaluated": "53",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n5\u212b",
+"=52"
+],
+"name_found_second": [
+"n5\u212b",
+"=52"
+],
+"formula_error": 0,
+"formula_value": "5",
+"formula": "=f5\u00c5"
+},
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s6\u00df",
+"found_second": "s6\u00df",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r6\u1e9e",
+"evaluated": "63",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n6\u1e9e",
+"=62"
+],
+"name_found_second": [
+"n6\u1e9e",
+"=62"
+],
+"formula_error": 0,
+"formula_value": "6",
+"formula": "=f6\u00df"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s7\u03bc",
+"found_second": "s7\u00b5",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r7\u03bc",
+"evaluated": "74",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n7\u03bc",
+"=71"
+],
+"name_found_second": [
+"n7\u00b5",
+"=72"
+],
+"formula_error": 0,
+"formula_value": "E2029",
+"formula": "=f7\u00b5"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s8\u03b8",
+"found_second": "s8\u03d1",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r8\u03b8",
+"evaluated": "84",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n8\u03b8",
+"=81"
+],
+"name_found_second": [
+"n8\u03d1",
+"=82"
+],
+"formula_error": 0,
+"formula_value": "E2029",
+"formula": "=f8\u03d1"
+},
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s9\u03a9",
+"found_second": "s9\u03a9",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r9\u2126",
+"evaluated": "93",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n9\u2126",
+"=92"
+],
+"name_found_second": [
+"n9\u2126",
+"=92"
+],
+"formula_error": 0,
+"formula_value": "9",
+"formula": "=f9\u03a9"
+},
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s10\u01c4",
+"found_second": "s10\u01c4",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r10\u01c5",
+"evaluated": "103",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n10\u01c5",
+"=102"
+],
+"name_found_second": [
+"n10\u01c5",
+"=102"
+],
+"formula_error": 0,
+"formula_value": "10",
+"formula": "=f10\u01c4"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s11i",
+"found_second": "s11\u0130",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r11i",
+"evaluated": "114",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n11i",
+"=111"
+],
+"name_found_second": [
+"n11\u0130",
+"=112"
+],
+"formula_error": 0,
+"formula_value": "E2029",
+"formula": "=f11\u0130"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s12ae",
+"found_second": "s12ae",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r12\u00e6",
+"evaluated": "124",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n12ae",
+"=122"
+],
+"name_found_second": [
+"n12ae",
+"=122"
+],
+"formula_error": 0,
+"formula_value": "12",
+"formula": "=f12ae"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s13ss",
+"found_second": "s13ss",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r13\u00df",
+"evaluated": "134",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n13ss",
+"=132"
+],
+"name_found_second": [
+"n13ss",
+"=132"
+],
+"formula_error": 0,
+"formula_value": "13",
+"formula": "=f13ss"
+},
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s14e",
+"found_second": "s14\u00e9",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r14e",
+"evaluated": "144",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n14e",
+"=141"
+],
+"name_found_second": [
+"n14\u00e9",
+"=142"
+],
+"formula_error": 0,
+"formula_value": "E2029",
+"formula": "=f14\u00e9"
+},
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s15\u00e6ss",
+"found_second": "s15\u00e6ss",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r15ae\u00df",
+"evaluated": "153",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n15ae\u00df",
+"=152"
+],
+"name_found_second": [
+"n15ae\u00df",
+"=152"
+],
+"formula_error": 0,
+"formula_value": "15",
+"formula": "=f15\u00e6ss"
+}
+],
+"names": [
+[
+"f10\u01c4",
+"=10"
+],
+[
+"f11i",
+"=11"
+],
+[
+"f12ae",
+"=12"
+],
+[
+"f13ss",
+"=13"
+],
+[
+"f14e",
+"=14"
+],
+[
+"f15\u00e6ss",
+"=15"
+],
+[
+"f1K",
+"=1"
+],
+[
+"f2I",
+"=2"
+],
+[
+"f3S",
+"=3"
+],
+[
+"f4\u03c3",
+"=4"
+],
+[
+"f5\u00c5",
+"=5"
+],
+[
+"f6\u00df",
+"=6"
+],
+[
+"f7\u03bc",
+"=7"
+],
+[
+"f8\u03b8",
+"=8"
+],
+[
+"f9\u03a9",
+"=9"
+],
+[
+"n10\u01c5",
+"=102"
+],
+[
+"n11i",
+"=111"
+],
+[
+"n11\u0130",
+"=112"
+],
+[
+"n12ae",
+"=122"
+],
+[
+"n13ss",
+"=132"
+],
+[
+"n14e",
+"=141"
+],
+[
+"n14\u00e9",
+"=142"
+],
+[
+"n15ae\u00df",
+"=152"
+],
+[
+"n1\u212a",
+"=12"
+],
+[
+"n2I",
+"=21"
+],
+[
+"n2\u0131",
+"=22"
+],
+[
+"n3S",
+"=31"
+],
+[
+"n3\u017f",
+"=32"
+],
+[
+"n4\u03c2",
+"=42"
+],
+[
+"n5\u212b",
+"=52"
+],
+[
+"n6\u1e9e",
+"=62"
+],
+[
+"n7\u00b5",
+"=72"
+],
+[
+"n7\u03bc",
+"=71"
+],
+[
+"n8\u03b8",
+"=81"
+],
+[
+"n8\u03d1",
+"=82"
+],
+[
+"n9\u2126",
+"=92"
+]
+],
+"lone": {
+"placed": 0,
+"evaluated_upper": "E2023",
+"evaluated_lower": "E2023",
+"found": "q1\u00c6sop"
+}
+},
+"marks": {
+"pairs": [
+[
+"\u00e9",
+"e\u0301",
+"a precomposed accent against a combining one"
+],
+[
+"e\u0301",
+"E\u0301",
+"a combining accent in either case"
+]
+],
+"code": "Private Function Coded(text As String) As String\n    Dim i As Long, out As String\n    For i = 1 To Len(text)\n        out = out & Hex(AscW(Mid(text, i, 1)) And &HFFFF&) & \".\"\n    Next\n    Coded = out\nEnd Function\n\nPrivate Function Placed(wb As Object, text As String, place As Long) As Long\n    Dim ws As Object\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    On Error Resume Next\n    ws.Name = text\n    Placed = Err.Number\n    On Error GoTo 0\n    If Placed <> 0 Then\n        Application.DisplayAlerts = False\n        ws.Delete\n        Application.DisplayAlerts = True\n    Else\n        ws.Range(\"A1\").Value = place\n    End If\nEnd Function\n\nPrivate Function Found(wb As Object, text As String) As String\n    On Error Resume Next\n    Found = Coded(wb.Worksheets(text).Name)\n    If Err.Number <> 0 Then Found = \"E\" & Err.Number\nEnd Function\n\nPrivate Function NameFound(wb As Object, text As String) As String\n    On Error Resume Next\n    NameFound = Coded(wb.Names(text).Name) & \"=\" & Coded(wb.Names(text).RefersTo)\n    If Err.Number <> 0 Then NameFound = \"E\" & Err.Number\nEnd Function\n\nPrivate Function Shown(v As Variant) As String\n    If IsError(v) Then\n        Shown = \"E\" & CStr(CLng(v))\n    Else\n        Shown = CStr(v)\n    End If\nEnd Function\n\nPublic Function Marks() As String\n    Dim wb As Object, out As String, i As Long, first As String, second As String, ws As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    first = ChrW(233)\n    second = ChrW(101) & ChrW(769)\n    out = out & Placed(wb, \"s1\" & first, 11) & \";\"\n    out = out & Placed(wb, \"s1\" & second, 12) & \";\"\n    out = out & Found(wb, \"s1\" & first) & \";\" & Found(wb, \"s1\" & second) & \";\"\n    out = out & Placed(wb, \"r1\" & second, 13) & \";\"\n    out = out & Placed(wb, \"r1\" & first, 14) & \";\"\n    out = out & Found(wb, \"r1\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r1\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n1\" & first, RefersTo:=\"=11\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n1\" & second, RefersTo:=\"=12\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f1\" & first, RefersTo:=\"=1\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n1\" & first) & \";\" & NameFound(wb, \"n1\" & second)\n    out = out & \"|\"\n    first = ChrW(101) & ChrW(769)\n    second = ChrW(69) & ChrW(769)\n    out = out & Placed(wb, \"s2\" & first, 21) & \";\"\n    out = out & Placed(wb, \"s2\" & second, 22) & \";\"\n    out = out & Found(wb, \"s2\" & first) & \";\" & Found(wb, \"s2\" & second) & \";\"\n    out = out & Placed(wb, \"r2\" & second, 23) & \";\"\n    out = out & Placed(wb, \"r2\" & first, 24) & \";\"\n    out = out & Found(wb, \"r2\" & first) & \";\"\n    out = out & Shown(Application.Evaluate(\"'r2\" & first & \"'!A1\")) & \";\"\n    On Error Resume Next\n    wb.Names.Add Name:=\"n2\" & first, RefersTo:=\"=21\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"n2\" & second, RefersTo:=\"=22\"\n    out = out & Err.Number & \";\"\n    Err.Clear\n    wb.Names.Add Name:=\"f2\" & first, RefersTo:=\"=2\"\n    On Error GoTo 0\n    out = out & NameFound(wb, \"n2\" & first) & \";\" & NameFound(wb, \"n2\" & second)\n    out = out & \"|\"\n    For i = 1 To wb.Names.Count\n        out = out & Coded(wb.Names(i).Name) & \"=\" & Coded(wb.Names(i).RefersTo) & \",\"\n    Next\n    out = out & \"|\"\n    On Error Resume Next\n    Err.Clear\n    second = ChrW(101) & ChrW(769)\n    ws.Range(\"B1\").Formula = \"=f1\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B1\").Value) & \";\" & Coded(ws.Range(\"B1\").Formula) & \",\"\n    Err.Clear\n    second = ChrW(69) & ChrW(769)\n    ws.Range(\"B2\").Formula = \"=f2\" & second\n    out = out & Err.Number & \";\"\n    out = out & Shown(ws.Range(\"B2\").Value) & \";\" & Coded(ws.Range(\"B2\").Formula) & \",\"\n    On Error GoTo 0\n    wb.Close False\n    Marks = out\nEnd Function\n",
+"raw": "0;0;73.31.E9.;73.31.E9.;0;0;72.31.65.301.;14;0;0;6E.31.E9.=3D.31.32.;6E.31.E9.=3D.31.32.|0;1004;73.32.65.301.;73.32.65.301.;0;1004;72.32.45.301.;23;0;0;6E.32.45.301.=3D.32.32.;6E.32.45.301.=3D.32.32.|66.31.E9.=3D.31.,66.32.65.301.=3D.32.,6E.31.E9.=3D.31.32.,6E.32.45.301.=3D.32.32.,|0;1;3D.66.31.E9.,0;2;3D.66.32.65.301.,",
+"rules": [
+{
+"sheet_first": 0,
+"sheet_second": 0,
+"found_first": "s1\u00e9",
+"found_second": "s1\u00e9",
+"reversed_second": 0,
+"reversed_first": 0,
+"reversed_found": "r1e\u0301",
+"evaluated": "14",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n1\u00e9",
+"=12"
+],
+"name_found_second": [
+"n1\u00e9",
+"=12"
+],
+"formula_error": 0,
+"formula_value": "1",
+"formula": "=f1\u00e9"
+},
+{
+"sheet_first": 0,
+"sheet_second": 1004,
+"found_first": "s2e\u0301",
+"found_second": "s2e\u0301",
+"reversed_second": 0,
+"reversed_first": 1004,
+"reversed_found": "r2E\u0301",
+"evaluated": "23",
+"name_first": 0,
+"name_second": 0,
+"name_found_first": [
+"n2E\u0301",
+"=22"
+],
+"name_found_second": [
+"n2E\u0301",
+"=22"
+],
+"formula_error": 0,
+"formula_value": "2",
+"formula": "=f2e\u0301"
+}
+],
+"names": [
+[
+"f1\u00e9",
+"=1"
+],
+[
+"f2e\u0301",
+"=2"
+],
+[
+"n1\u00e9",
+"=12"
+],
+[
+"n2E\u0301",
+"=22"
+]
+]
+}
+}

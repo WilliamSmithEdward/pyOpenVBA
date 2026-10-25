@@ -148,7 +148,7 @@ _WHOLE_ROWS = r"\$?[0-9]{1,7}:\$?[0-9]{1,7}"
 _ESCAPED = r"(?:'[\s\S]|[^\[\]'])"
 _BRACKETED = rf"\[{_ESCAPED}*\]"
 #: A structured reference: a table's name, or none inside the table, and what stands in its brackets.
-STRUCTURED: Final = (rf"(?:{_SHEET})?(?:[A-Za-z_\\À-￿][A-Za-z0-9_.À-￿]*)?"
+STRUCTURED: Final = (rf"(?:{_SHEET})?(?:[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.\u00aa\u00b5\u00baÀ-￿]*)?"
                      rf"\[(?:{_ESCAPED}*|\s*@?\s*{_BRACKETED}(?:\s*[,:]\s*{_BRACKETED})*\s*)\]")
 #: Another workbook as a file spells it, by its link's number: [1]Sheet1!, [1]Sheet1:Other! or, for its names, [1]!.
 _LINKED = rf"\[[0-9]+\](?:{BARE_SHEET}(?::{BARE_SHEET})?)?!"
@@ -159,12 +159,12 @@ _TOKEN: Final = re.compile(
     rf"""
     (?P<ws>\s+)
   | (?P<text>"(?:[^"]|"")*")
-  | (?P<linked_ref>(?:{_LINKED}|{_BOOK_SHEET})(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
-  | (?P<linked_name>{_LINKED}[A-Za-z_\\À-￿][A-Za-z0-9_.?\\À-￿]*)
+  | (?P<linked_ref>(?:{_LINKED}|{_BOOK_SHEET})(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff]))
+  | (?P<linked_name>{_LINKED}[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*)
   | (?P<structured>{STRUCTURED})
   | (?P<error>(?:{_SHEET})?(?i:\#N/A|\#NULL!|\#DIV/0!|\#VALUE!|\#REF!|\#NAME\?|\#NUM!|\#SPILL!|\#CALC!|\#GETTING_DATA))
-  | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(]))
-  | (?P<name>(?:{_SHEET})?(?:[A-Za-z_\\À-￿][A-Za-z0-9_.?\\À-￿]*|'(?:[^']|'')+'(?!!)))
+  | (?P<ref>(?:{_SHEET})?(?:{_CELL}:{_CELL}|{_WHOLE_COLUMNS}|{_WHOLE_ROWS}|{_CELL})(?![A-Za-z0-9_.(\u00aa\u00b5\u00ba\u00c0-\uffff]))
+  | (?P<name>(?:{_SHEET})?(?:[A-Za-z_\\\u00aa\u00b5\u00baÀ-￿][A-Za-z0-9_.?\\\u00aa\u00b5\u00baÀ-￿]*|'(?:[^']|'')+'(?!!)))
   | (?P<number>(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][-+]?[0-9]+)?)
   | (?P<op><>|<=|>=|[=<>+\-*/^&%:@#])
   | (?P<open>\()

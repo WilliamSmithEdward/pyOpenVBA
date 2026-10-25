@@ -1197,7 +1197,7 @@ class Workbook(ExcelObject):
     def add_sheet(self, name: str = "", *, at: int | None = None) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
         chosen = name or self._next_sheet_name()
-        if any(sheet.name.lower() == chosen.lower() for sheet in self.sheets_):
+        if any(_names.same_sheet_name(sheet.name, chosen) for sheet in self.sheets_):
             raise error(1004, f"a sheet called {chosen} is already there")
         sheet = Worksheet(self, chosen)
         if at is None:
@@ -1220,8 +1220,19 @@ class Workbook(ExcelObject):
         return [self._next_sheet_name() for _ in range(count)]
 
     def sheet_named(self, name: str) -> Worksheet:
+        """The sheet a name names where Excel keeps sheets apart, as a formula's sheet is found: 'q1AESOP'!A1 is
+        #REF! beside a sheet q1Aesop with the ash (tests/fixtures/name_equality.json)."""
         for sheet in self.sheets_:
-            if sheet.name.lower() == name.lower():
+            if _names.same_sheet_name(sheet.name, name):
+                return sheet
+        raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, f"there is no sheet called {name}")
+
+    def sheet_found(self, name: str) -> Worksheet:
+        """The sheet Worksheets(name) and Sheets(name) find: the first in tab order whose name word sort cannot tell
+        from it, case aside, so AESOP finds Aesop with the ash ahead of a later aesop
+        (tests/fixtures/name_equality.json)."""
+        for sheet in self.sheets_:
+            if _names.same_name(sheet.name, name):
                 return sheet
         raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, f"there is no sheet called {name}")
 
@@ -1249,7 +1260,7 @@ class Sheets(VBACollection, ExcelObject):
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
-            return self.book.sheet_named(index)
+            return self.book.sheet_found(index)
         return super().vba_lookup(index, items)
 
     @method
@@ -1505,7 +1516,7 @@ class Worksheet(ExcelObject):
         if (not wanted or len(wanted) > 31 or any(char in wanted for char in "\\/?*[]:")
                 or wanted[0] == "'" or wanted[-1] == "'" or wanted.lower() == "history"):
             raise error(1004, "Method 'Name' of object '_Worksheet' failed")
-        if any(sheet is not self and sheet.name.lower() == wanted.lower() for sheet in self.book.sheets_):
+        if any(sheet is not self and _names.same_sheet_name(sheet.name, wanted) for sheet in self.book.sheets_):
             raise error(1004, "That name is already taken. Try a different one.")
         from pyopenvba.apps.excel._worksheet_rename import rename
 
@@ -4536,7 +4547,7 @@ class Names(VBACollection, ExcelObject):
 
         owner, bare = split_sheet(name)
         if self.sheet is not None:
-            scopes = [self.sheet.name] if not owner or owner.casefold() == self.sheet.name.casefold() else []
+            scopes = [self.sheet.name] if not owner or _names.same_sheet_name(owner, self.sheet.name) else []
         elif owner and owner.casefold() != self.book.name.casefold():
             scopes = [owner]
         else:
@@ -4544,7 +4555,7 @@ class Names(VBACollection, ExcelObject):
         for scope in scopes:
             for entry in self.entries:
                 entry_scope, entry_bare = split_sheet(entry.name)
-                if entry_bare.casefold() == bare.casefold() and entry_scope.casefold() == scope.casefold():
+                if _names.same_name(entry_bare, bare) and _names.same_sheet_name(entry_scope, scope):
                     return DefinedName(entry)
         return None
 
@@ -4558,13 +4569,13 @@ class Names(VBACollection, ExcelObject):
         fallback = None
         for entry in self.entries:
             entry_scope, entry_bare = split_sheet(entry.name)
-            if entry_bare.casefold() != bare.casefold():
+            if not _names.same_name(entry_bare, bare):
                 continue
             if workbook_qualified:
                 if not entry_scope:
                     return DefinedName(entry)
                 continue
-            if entry_scope.casefold() == wanted_scope.casefold():
+            if _names.same_sheet_name(entry_scope, wanted_scope):
                 return DefinedName(entry)
             if not entry_scope and not owner and self.sheet is None:
                 fallback = DefinedName(entry)
@@ -4591,7 +4602,7 @@ class Names(VBACollection, ExcelObject):
             # The workbook's Names take a name the active sheet has one of its own of as that one
             # (tests/fixtures/names_add/, active_local_then_book).
             local = quote_sheet(owner.name) + "!" + wanted
-            if any(one.name.casefold() == local.casefold() for one in self.entries):
+            if any(_names.same_entry(one.name, local) for one in self.entries):
                 wanted = local
         refers = RefersTo if RefersTo is not MISSING else RefersToLocal
         if refers is MISSING:
@@ -4609,11 +4620,18 @@ class Names(VBACollection, ExcelObject):
             text = "=" + ",".join(quote_sheet(refers.sheet.name) + "!" + area.address() for area in refers.areas)
         else:
             text = _names.qualify(to_text(refers), owner.name)
-        entry = next((one for one in self.entries if one.name.casefold() == wanted.casefold()), None)
+        # A name word sort cannot tell from one there is redefines it, and takes the spelling given where that is
+        # the old one's as Excel keeps names apart, ECLAIR for eclair but not aesop for the ash's
+        # (tests/fixtures/name_equality.json).
+        from pyopenvba._a1 import split_sheet
+
+        entry = next((one for one in self.entries if _names.same_entry(one.name, wanted)), None)
         if entry is None:
             entry = NameEntry(wanted, text, self.book)
             self.entries.append(entry)
-        entry.name, entry.refers_to = wanted, text
+        elif _names.same_sheet_name(split_sheet(entry.name)[1], split_sheet(wanted)[1]):
+            entry.name = wanted
+        entry.refers_to = text
         if Visible is not MISSING:
             entry.visible = to_bool(Visible)
         _names.changed(self.book)
@@ -4647,7 +4665,7 @@ class DefinedName(ExcelObject):
         book = self.entry.book
         scope, _ = split_sheet(self.entry.name)
         wanted = _names.canonical(book, to_text(value), book.sheet_named(scope) if scope else None)
-        if any(one is not self.entry and one.name.casefold() == wanted.casefold() for one in book.names_.entries):
+        if any(one is not self.entry and _names.same_entry(one.name, wanted) for one in book.names_.entries):
             return  # Excel silently leaves the original name on collision.
         for sheet in book.sheets_:
             for cell in sheet.cells_.values():

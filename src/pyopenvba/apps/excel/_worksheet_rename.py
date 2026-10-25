@@ -10,6 +10,7 @@ from pyopenvba._a1 import parse_reference, quote_sheet
 from pyopenvba._opc_xml import RELS_NS, opc_part
 from pyopenvba.apps.excel._advanced_filter import attribute_values
 from pyopenvba.apps.excel._charts_file import XmlParseError, xml_parser
+from pyopenvba.apps.excel._names import entry_key, same_sheet_name
 from pyopenvba.exceptions import VBACompileError, VBAUnsupportedError
 from pyopenvba.formula._parse import FormulaError, parse, split_sheet, tokenize
 from pyopenvba.interpreter._lex import tokenize as vba_tokens
@@ -350,15 +351,15 @@ def rename(sheet: Worksheet, wanted: str) -> None:
                 proposed = _formula(cell.formula, sheet.name, wanted, budget)
                 cells.append((owner, cell, proposed))
     names: list[tuple[NameEntry, str, str]] = []
-    seen: set[str] = set()
+    seen: set[tuple[int, bytes | str, bytes | str]] = set()
     for entry in book.names_.entries:
         owner, bare = split_sheet(entry.name)
-        if owner and not any(owner.casefold() == one.name.casefold() for one in book.sheets_):
+        if owner and not any(same_sheet_name(owner, one.name) for one in book.sheets_):
             raise unsupported('with an unregistered defined-name scope')
-        name = quote_sheet(wanted) + '!' + bare if owner.casefold() == sheet.name.casefold() else entry.name
-        if name.casefold() in seen:
+        name = quote_sheet(wanted) + '!' + bare if same_sheet_name(owner, sheet.name) else entry.name
+        if entry_key(name) in seen:
             raise unsupported('with conflicting defined names')
-        seen.add(name.casefold())
+        seen.add(entry_key(name))
         # Validate opaque attribute syntax before the names writer can be reached.
         attribute_values(entry.attributes)
         names.append((entry, name, _formula(entry.refers_to, sheet.name, wanted, budget, name_expression=True)))

@@ -12,17 +12,28 @@ if TYPE_CHECKING:
 _CALC = re.compile(r'<calcPr\b[^>]*(?:/>|>.*?</calcPr>)', re.DOTALL)
 _MODES = {'manual': -4135, 'auto': -4105, 'autoNoTable': 2}
 #: What a calcPr attribute left out means, where it is not 1 (ECMA-376 Part 1, 18.2.2).
-_DEFAULTS = {'calcMode': 'auto', 'refMode': 'A1', 'iterate': '0', 'iterateCount': '100', 'iterateDelta': '0.001'}
+_DEFAULTS = {'calcMode': 'auto', 'refMode': 'A1', 'iterate': '0', 'iterateCount': '100', 'iterateDelta': '0.001',
+             'forceFullCalc': '0'}
 
 
 def read(book: Workbook, xml: str) -> None:
-    """The first ordinary workbook supplies the application calculation settings."""
+    """The first ordinary workbook supplies the application calculation settings; each workbook its calcId and the
+    full calculation it may want as it opens (see _calculation_state)."""
+    from pyopenvba.apps.excel._calculation_state import opened
+
+    found = _CALC.search(xml)
+    values = attributes(found.group(0)) if found else {}
+    _application_settings(book, values)
+    calc_id = values.get('calcId', '')
+    opened(book, int(calc_id) if calc_id.isdigit() else 0, values.get('fullCalcOnLoad', '0').lower() in ('1', 'true'),
+           values.get('forceFullCalc', '0').lower() in ('1', 'true'))
+
+
+def _application_settings(book: Workbook, values: dict[str, str]) -> None:
     application = book.application
     excluded = ('.xlam', '.xla', '.xltx', '.xltm', '.xlt')
     if book.name.lower().endswith(excluded) or any(not other.name.lower().endswith(excluded) for other in application.workbooks_.books):
         return
-    found = _CALC.search(xml)
-    values = attributes(found.group(0)) if found else {}
     application.calculation = _MODES.get(values.get('calcMode', 'auto'), -4105)
     application.calculate_before_save = values.get('calcOnSave', '1').lower() not in ('0', 'false')
     # A workbook saved in the R1C1 style says so; one opened after another keeps the style the application has
@@ -57,6 +68,16 @@ def write(book: Workbook, xml: str) -> str:
     elif 'refMode' in values:
         # Saved in the A1 style, the workbook says nothing of it.
         changed = re.sub(r'\srefMode="[^"]*"', '', changed)
+    # The calcId of the engine that last worked it out in full, what fullCalcOnLoad asked for done once it is, and
+    # ForceFullCalculation (see _calculation_state).
+    if book.calculation_version:
+        desired['calcId'] = str(book.calculation_version)
+    if not book.full_pending:
+        changed = re.sub(r'\sfullCalcOnLoad="[^"]*"', '', changed)
+    if book.force_full_calculation:
+        desired['forceFullCalc'] = '1'
+    else:
+        changed = re.sub(r'\sforceFullCalc="[^"]*"', '', changed)
     # The iteration's settings are written where they are not Excel's own, off, 100 and 0.001, each on its own
     # (tests/fixtures/iteration.json).
     from pyopenvba.apps.excel._styles import excel_number

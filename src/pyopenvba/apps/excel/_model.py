@@ -265,6 +265,11 @@ class Application(ExcelObject):
         self.recent_format = "General"
         #: The spelling ConvertFormula first saw each name in, by the name in lower case (see _convert_formula).
         self.convert_spellings: dict[str, str] = {}
+        #: Application.CalculationInterruptKey, xlAnyKey until a macro sets it; and whether a workbook's
+        #: ForceFullCalculation has held every workbook to full calculation, as it does until Excel quits (see
+        #: _calculation_state).
+        self.calculation_interrupt_key = 2
+        self.full_calculation = False
 
     # -- identity
 
@@ -662,25 +667,70 @@ class Application(ExcelObject):
 
     @method
     def Calculate(self) -> object:
+        """Work out what each workbook has to, every formula of one held to full calculation or opened wanting it
+        (see _calculation_state)."""
+        from pyopenvba.apps.excel._calculation_state import calculated, in_full
+
         for book in self.workbooks_.books:
-            worked = book.calculator.calculate_all(asked=True)
+            full = in_full(book)
+            worked = book.calculator.calculate_all(asked=True, full=full)
+            calculated(book, full)
             _events.calculated_all(book, worked)
         return EMPTY
 
     @method
     def CalculateFull(self) -> object:
+        from pyopenvba.apps.excel._calculation_state import calculated
+
         for book in self.workbooks_.books:
             worked = book.calculator.calculate_all(full=True, asked=True)
+            calculated(book, True)
             _events.calculated_all(book, worked)
         return EMPTY
 
     @method
     def CalculateFullRebuild(self) -> object:
+        from pyopenvba.apps.excel._calculation_state import calculated
+
         for book in self.workbooks_.books:
             book.calculator.rebuild(keep_pending=True)
             worked = book.calculator.calculate_all(full=True, asked=True)
+            calculated(book, True)
             _events.calculated_all(book, worked)
         return EMPTY
+
+    @method
+    def CalculateUntilAsyncQueriesDone(self) -> object:
+        """Waits for queries refreshing in the background, which the model refreshes at once, and works nothing out
+        (tests/fixtures/calculation_state.json)."""
+        return EMPTY
+
+    @member
+    def CalculationState(self) -> object:
+        """xlDone, xlCalculating while a formula's VBA Function runs, or xlPending while there is a formula to work
+        out under manual calculation (see _calculation_state)."""
+        from pyopenvba.apps.excel._calculation_state import state
+
+        return state(self)
+
+    @member
+    def CalculationVersion(self) -> object:
+        """The calculation engine's version, Excel 365's."""
+        from pyopenvba.apps.excel._calculation_state import VERSION
+
+        return VBAInt(VERSION, "Long")
+
+    @member
+    def CalculationInterruptKey(self) -> object:
+        """xlAnyKey until a macro sets xlEscKey or xlNoKey; the model keeps the setting, as nothing interrupts its
+        calculation."""
+        return VBAInt(self.calculation_interrupt_key, "Long")
+
+    @setter("CalculationInterruptKey")
+    def _set_calculation_interrupt_key(self, value: object) -> None:
+        from pyopenvba.apps.excel._calculation_state import set_interrupt_key
+
+        set_interrupt_key(self, value)
 
     def vba_sink_attached(self) -> None:
         for book in self.workbooks_.books:
@@ -922,6 +972,14 @@ class Workbook(ExcelObject):
         interpreter = application.interpreter
         self.made_at = (interpreter.clock() if interpreter is not None else _dt.datetime.now()).replace(microsecond=0)
         self.made_by = application.user_name
+        from pyopenvba.apps.excel._calculation_state import VERSION
+
+        #: The calculation engine that last worked the workbook out in full, as its calcId has it; whether its
+        #: ForceFullCalculation is on; and whether it was opened wanting a full calculation it has not had yet
+        #: (see _calculation_state).
+        self.calculation_version = VERSION
+        self.force_full_calculation = False
+        self.full_pending = False
 
     @property
     def calculator(self) -> Any:
@@ -1190,6 +1248,23 @@ class Workbook(ExcelObject):
     def Calculate(self) -> object:
         _events.calculated_all(self, self.calculator.calculate_all(asked=True))
         return EMPTY
+
+    @member
+    def CalculationVersion(self) -> object:
+        """The version of the calculation engine that last worked the workbook out in full: Excel's own, or the
+        calcId its file has where Excel keeps the file's values (see _calculation_state)."""
+        return VBAInt(self.calculation_version, "Long")
+
+    @member
+    def ForceFullCalculation(self) -> object:
+        return self.force_full_calculation
+
+    @setter("ForceFullCalculation")
+    def _set_force_full_calculation(self, value: object) -> None:
+        """True holds every workbook to full calculation until Excel quits (see _calculation_state)."""
+        from pyopenvba.apps.excel._calculation_state import set_force
+
+        set_force(self, value)
 
     def vba_sink_attached(self) -> None:
         """A WithEvents variable now hears this workbook: formulas written while
@@ -2002,9 +2077,11 @@ class Worksheet(ExcelObject):
 
     @method
     def Calculate(self) -> object:
-        """Calculate this sheet against foreign caches and deliver pending notifications."""
+        """Calculate this sheet against foreign caches and deliver pending notifications; every formula of it while
+        a workbook has held every workbook to full calculation (see _calculation_state)."""
         self.book.calculator.settle_automatic_cache()
-        _events.calculated_all(self.book, self.book.calculator.calculate_all(self, asked=True))
+        _events.calculated_all(self.book, self.book.calculator.calculate_all(
+            self, asked=True, full=self.book.application.full_calculation))
         return EMPTY
 
     def vba_sink_attached(self) -> None:
@@ -3085,6 +3162,26 @@ class Range(ExcelObject):
                         cell.stale = True
                     compiled.udf_pending = compiled.calls_user
         return NULL
+
+    @method
+    def CalculateRowMajorOrder(self) -> object:
+        """Under manual calculation, each formula of the range worked out once, a row at a time, reading what the
+        others hold then; under automatic calculation as Calculate. Excel answers Null (see _calculation_state)."""
+        if self.sheet.book.calculator.automatic:
+            return self.Calculate()
+        from pyopenvba.apps.excel._calculation_state import row_major
+
+        row_major(self)
+        return NULL
+
+    @method
+    def Dirty(self) -> object:
+        """The range's formulas, and what reads its cells, to work out again: at once under automatic calculation,
+        at the next calculation under manual (see _calculation_state)."""
+        from pyopenvba.apps.excel._calculation_state import dirty
+
+        dirty(self)
+        return EMPTY
 
     @member
     def Rows(self, Index: object = MISSING, Second: object = MISSING) -> object:
@@ -4760,7 +4857,7 @@ class Names(VBACollection, ExcelObject):
         entry.refers_to = text
         if Visible is not MISSING:
             entry.visible = to_bool(Visible)
-        _names.changed(self.book)
+        _names.changed(self.book, entry.name)
         return DefinedName(entry)
 
 
@@ -4812,8 +4909,8 @@ class DefinedName(ExcelObject):
             entry_scope, _ = split_sheet(entry.name)
             owner = book.sheet_named(entry_scope) if entry_scope else book.active_sheet
             entry.refers_to = _names.renamed_formula(entry.refers_to, owner, self.entry, wanted)
-        self.entry.name = wanted
-        _names.changed(book)
+        before, self.entry.name = self.entry.name, wanted
+        _names.changed(book, before, wanted)
 
     @member
     def Visible(self) -> object:
@@ -4873,7 +4970,7 @@ class DefinedName(ExcelObject):
     @setter("RefersTo")
     def _set_refers_to(self, value: object) -> None:
         self.entry.refers_to = _names.qualify(to_text(value), self.entry.book.active_sheet.name)
-        _names.changed(self.entry.book)
+        _names.changed(self.entry.book, self.entry.name)
 
     @member(default=True)
     def Value(self) -> object:
@@ -4891,7 +4988,7 @@ class DefinedName(ExcelObject):
     def Delete(self) -> object:
         book = self.entry.book
         book.names_.entries = [one for one in book.names_.entries if one is not self.entry]
-        _names.changed(book)
+        _names.changed(book, self.entry.name)
         return EMPTY
 
     def refers_to_range(self) -> Range:

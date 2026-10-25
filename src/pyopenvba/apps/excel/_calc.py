@@ -20,6 +20,7 @@ only by a calculation a macro asked for.
 from __future__ import annotations
 
 import datetime as _dt
+import re
 from collections import deque
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -47,6 +48,8 @@ CellKey = tuple[str, int, int]
 
 #: How many cells deep one cell is worked out inside another before the next is put off (see Calculator.value_of).
 _DEEPEST = 24
+#: What in a name's formula may be another name (see Calculator.names_changed).
+_WORDS = re.compile(r"[A-Za-z_\\][A-Za-z0-9_.\\]*")
 
 
 class _Deeper(BaseException):
@@ -394,6 +397,53 @@ class Calculator:
                     reading.update(self._members(key))
         if reading:
             self._spoil(reading, set(reading))
+
+    def names_changed(self, changed: set[str]) -> None:
+        """Defined names added, redefined, renamed or deleted, by their names in lower case: each formula naming
+        one, or naming a name that names one, read again and worked out again with what reads it; every other
+        formula keeps what it holds (tests/fixtures/calculation_state.json, name_*)."""
+        from pyopenvba._a1 import split_sheet
+        from pyopenvba.formula._calc.nodes import Call, NameReference, walk
+
+        self.build()
+        reached = set(changed)
+        growing = True
+        while growing:
+            growing = False
+            for entry in self.book.names_.entries:
+                bare = split_sheet(entry.name)[1].lower()
+                if bare not in reached and any(word.lower() in reached for word in _WORDS.findall(entry.refers_to)):
+                    reached.add(bare)
+                    growing = True
+        marked: set[CellKey] = set()
+        for key, compiled in list(self.compiled.items()):
+            if compiled.node is None or not any(
+                    isinstance(one, NameReference) and one.name.lower() in reached
+                    or isinstance(one, Call) and one.name.lower() in reached for one in walk(compiled.node)):
+                continue
+            cell = self._cell(key)
+            owner = self._sheet_named(key[0])
+            if cell is not None and owner is not None:
+                self.remember(owner.name, key[1], key[2], cell)
+                cell.stale = True
+                marked.add(key)
+        self._spoil(marked, set(marked))
+
+    def dirtied(self, sheet: str, area: Area) -> None:
+        """Range.Dirty: the formulas in ``area``, what reads a cell of it, and what reads those, to work out again,
+        the cells keeping what they hold until then (tests/fixtures/calculation_state.json)."""
+        self.build()
+        name = sheet.lower()
+        marked: set[CellKey] = set()
+        for key, compiled in self.compiled.items():
+            if key[0] == name and area.contains(key[1], key[2]) or any(
+                    one.sheet.lower() == name and one.top <= area.bottom and area.top <= one.bottom
+                    and one.left <= area.right and area.left <= one.right for one in compiled.precedents):
+                cell = self._cell(key)
+                if cell is not None:
+                    cell.stale = True
+                    marked.add(key)
+        self._spoil(marked, set(marked))
 
     def _spoil(self, changed: set[CellKey], seen: set[CellKey]) -> None:
         """Mark stale what reads ``changed``, and what reads that, a wave at a time."""

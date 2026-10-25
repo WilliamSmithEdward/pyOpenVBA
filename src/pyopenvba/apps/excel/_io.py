@@ -220,8 +220,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     _read_queries(book, path)
     from pyopenvba.apps.excel._calculation_settings import read as read_calculation
 
-    read_calculation(book, workbook_xml)
     book.saved = True
+    # Last, as a workbook worked out in full as it opens may be left unsaved (see _calculation_state).
+    read_calculation(book, workbook_xml)
     return book
 
 

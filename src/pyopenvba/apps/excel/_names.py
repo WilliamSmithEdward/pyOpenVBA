@@ -102,10 +102,14 @@ def renamed_formula(formula: str, owner: Worksheet, entry: NameEntry, wanted: st
     return text
 
 
-def changed(book: Workbook) -> None:
+def changed(book: Workbook, *names: str) -> None:
+    """A name changed: the workbook's names to write again, and the formulas naming ``names``, the names added,
+    redefined, renamed or deleted, to work out again; a name's comment or visibility changes no formula
+    (tests/fixtures/calculation_state.json, name_*)."""
     book.names_.changed = True
     book.saved = False
-    book.calculator.rebuild()
+    if names:
+        book.calculator.names_changed({split_sheet(name)[1].lower() for name in names})
 
 
 

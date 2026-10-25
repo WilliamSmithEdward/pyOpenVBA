@@ -139,6 +139,22 @@ def text_key(text: str, match_case: bool) -> bytes:
                          bytes(passed))) + b"\x00"
 
 
+def ordering_key(text: str, match_case: bool) -> bytes:
+    """What Excel's sort, and a filter's comparisons, order text by: its word-sort key, :func:`text_key`. Windows'
+    CompareString, which orders Excel's text, takes a combining mark with nothing weighed before it, after only what
+    word sort passes over, \\x02 or a hyphen, otherwise than the key does, and such text reports itself unsupported
+    (tests/test_excel_sort_text.py, the strings it draws at random)."""
+    weights = _weights()
+    for character in text:
+        found = weights.get(ord(character))
+        if found is None or found[0]:
+            break
+        if found[1]:
+            raise VBAUnsupportedError("ordering text with a combining mark before anything word sort weighs is not "
+                                      "implemented")
+    return text_key(text, match_case)
+
+
 def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]:
     """A value's class, and what orders it within its class."""
     from pyopenvba.apps.excel._typing import typed_text
@@ -156,7 +172,7 @@ def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]
         found = typed_text(text).value
         if isinstance(found, float):
             return _NUMBER, found
-    return _TEXT, text_key(text, match_case)
+    return _TEXT, ordering_key(text, match_case)
 
 
 def _compare(first: tuple[int, object], second: tuple[int, object], descending: bool) -> int:

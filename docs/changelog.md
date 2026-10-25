@@ -22,6 +22,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   does, and is saved and read. 24 live edits, 17 settings and 10 files
   opened two ways agree, `tests/fixtures/calculation_state.json`.
 
+- `Range.Precedents`, `DirectPrecedents`, `Dependents` and
+  `DirectDependents` answer as Excel's do. A formula's precedents are
+  its references on its own sheet in the order it gives them, a name's
+  cells among them; another sheet's are left out, and so is what
+  INDIRECT names. A reference a legacy formula cuts to one value counts
+  as the cell the formula's row meets. Direct dependents are the
+  formulas reading the range, a dynamic array by its whole spill, by
+  rows and then columns. The full answers go level by level, each
+  formula once, and join their areas as Excel joins them, which is why
+  a chain of four answers `$B$1,$A$1:$A$4`. Nothing found is error 1004,
+  "No cells were found." 264 live answers over eleven layouts, one of
+  them saved and opened again, agree, `tests/fixtures/precedents.json`.
+
 - The Worksheet settings macros set beside Protect or on dashboards
   follow Excel: `ScrollArea`, `EnableAutoFilter`, `EnableOutlining`,
   `EnablePivotTable`, `EnableCalculation`, `TransitionExpEval`,
@@ -1032,6 +1045,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the formulas that name it, as Excel does, and a name's Comment or
   Visible works nothing out. The model worked out every formula of the
   workbook after any change to a name, a VBA Function among them.
+
+- Sorting or filtering text with a combining mark before anything word
+  sort weighs, after only a control character or a hyphen, reports
+  itself unsupported, as text that begins with a mark already did.
+  Windows' CompareString, which orders Excel's text, orders such text
+  otherwise than its sort key, and the model ordered it by the key. The
+  random comparison with CompareStringEx in
+  `tests/test_excel_sort_text.py` found it in one run in twenty.
 
 - `Application.StatusBar` reads False, a Boolean, until a macro sets it,
   as Excel's does; the model read the text FALSE from the start. Once a

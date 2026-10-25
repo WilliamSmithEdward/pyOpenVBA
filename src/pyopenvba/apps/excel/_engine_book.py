@@ -323,7 +323,7 @@ class EngineBook:
         found: list[ModelArea] = []
         for one in walk(node):
             if isinstance(one, (CellReference, AreaReference, AxisReference)):
-                found.extend(_block(one, name) for name in self._sheets_of(one.prefix, sheet))
+                found.extend(block(one, name) for name in self._sheets_of(one.prefix, sheet))
             elif isinstance(one, NameReference) and one.name.casefold() not in names:
                 formula = self._name_formula(one, sheet)
                 if formula is not None:
@@ -372,7 +372,8 @@ class EngineBook:
         return order[start:end + 1]
 
 
-def _block(node: CellReference | AreaReference | AxisReference, sheet: str) -> ModelArea:
+def block(node: CellReference | AreaReference | AxisReference, sheet: str) -> ModelArea:
+    """The cells a reference names on ``sheet``, a whole row or column to the sheet's edge."""
     if isinstance(node, CellReference):
         return ModelArea(node.ref.row, node.ref.column, node.ref.row, node.ref.column, sheet)
     if isinstance(node, AreaReference):

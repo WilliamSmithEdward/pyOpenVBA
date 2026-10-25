@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Worksheet.Tab` colours a sheet's tab as Excel does. `Color`,
+  `ColorIndex`, `ThemeColor` and `TintAndShade` set the colour and read
+  it back. `Color = False` and `ColorIndex = xlColorIndexNone` take it
+  away, and any other `Color` is its low 24 bits, so xlNone is a pale
+  blue. A slot beyond 1 to 56 or a theme colour beyond the twelve is
+  error 9. A tint is cut toward zero to n / 32767 and kept in 16 bits,
+  so 1.5 reads back as -0.5000763. A colour off the palette reads the
+  `ColorIndex` a tab finds, not a cell's: a near-grey takes the nearest
+  grey, and any other colour the nearest slot in Windows' HLS, the hue
+  not wrapped round. 1,397 colours agree with Excel. A save writes the
+  colour as the sheet's `tabColor`, a copied sheet keeps it, the file
+  reads back as Excel's does, and Excel reads the model's file as its
+  own.
+
 - `Range.PivotCell`, `Range.PivotTable`, `Range.PivotField` and
   `Range.PivotItem` say what a cell of a pivot table stands for, as in
   Excel. `PivotCellType` tells a value from an item, a subtotal, a custom
@@ -766,6 +780,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A new workbook saved as xlsx no longer gives its first sheet the
+  template's code name, which Excel's own xlsx leaves out. A tint whose
+  15 digits end in a zero is written with 17, as Excel writes
+  `-0.50007629627368999`.
 
 - Sheets raise Calculate in the order they were made, whatever the
   order of their tabs, as in Excel: for `Application.Calculate`, an

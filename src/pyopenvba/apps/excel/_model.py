@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._spills import Spill
-    from pyopenvba.apps.excel._styles import Style, Stylesheet
+    from pyopenvba.apps.excel._styles import Color, Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._outline import OutlineState
@@ -1331,6 +1331,9 @@ class Worksheet(ExcelObject):
         #: FilterMode as a table's filter at the active cell left it, None while the sheet's own answers for it
         #: (see _table_filters).
         self.table_filter_mode: bool | None = None
+        #: The tab's colour, None for none, and whether a macro changed it, so a save writes it (see _sheet_tabs).
+        self.tab_color: Color | None = None
+        self.tab_changed = False
         #: An AdvancedFilter has no dropdowns but retains its filtered list.
         self.advanced_filter: Area | None = None
         self.advanced_filter_changed = False
@@ -1647,6 +1650,13 @@ class Worksheet(ExcelObject):
 
         links = Hyperlinks(self)
         return links if Index is MISSING else links.vba_get("Item", [Index])
+
+    @member
+    def Tab(self) -> object:
+        """The sheet's tab and its colour (see _sheet_tabs)."""
+        from pyopenvba.apps.excel._sheet_tabs import Tab
+
+        return Tab(self)
 
     @member
     def UsedRange(self) -> object:

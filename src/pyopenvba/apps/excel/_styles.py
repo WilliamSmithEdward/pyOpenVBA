@@ -131,16 +131,21 @@ def excel_double(value: float) -> str:
 
     Below 0.1 always 17 digits, in scientific notation; from 0.1 up the
     way :func:`excel_number` spells any measurement: ``0.249977111117893``,
-    ``0.39997558519241921``, ``9.9978637043366805E-2``.
+    ``0.39997558519241921``, ``9.9978637043366805E-2``. A tint whose 15
+    digits end in a zero gets 17 too: ``-0.50007629627368999``, not
+    ``-0.50007629627369`` (tests/fixtures/sheet_tabs/ theme_tint_beyond).
     """
     if value != 0 and abs(value) < 0.1:
         mantissa, exponent = f"{value:.16e}".split("e")
         mantissa = mantissa.rstrip("0").rstrip(".")
         return f"{mantissa}E{int(exponent)}"
+    short = f"{value:.15g}"
+    if len(short.lstrip("-").replace(".", "").lstrip("0")) < 15:
+        return f"{value:.17g}"
     return excel_number(value)
 
 
-def _color_attributes(color: Color) -> str:
+def color_attributes(color: Color) -> str:
     if color.kind == "auto":
         text = 'auto="1"'
     elif color.kind == "rgb":
@@ -155,7 +160,7 @@ def _color_attributes(color: Color) -> str:
 
 
 def color_xml(tag: str, color: Color) -> str:
-    return f"<{tag} {_color_attributes(color)}/>"
+    return f"<{tag} {color_attributes(color)}/>"
 
 
 def parse_color(element: str) -> Color | None:
@@ -285,6 +290,33 @@ class Colors:
             if 0 <= index < 8:
                 return index + 1
         return self.nearest(self.rrggbb(color, automatic))
+
+    def tab_index(self, color: Color) -> int:
+        """Tab.ColorIndex: an indexed colour's own slot, tinted or not; for any other colour the slot a tab finds
+        for it, which is not a cell's. A colour within 10 of grey across its channels takes the nearest of the
+        palette's greys by summed channel distance; any other the slot nearest in Windows' HLS by 6 dH^2 + 3 dL^2 +
+        dS^2, the hue not wrapped round; the first slot on a tie (tests/fixtures/sheet_tabs/ nearest, 1,397
+        colours)."""
+        if color.kind == "indexed":
+            index = int(color.value)
+            if 8 <= index < 64:
+                return index - 7
+            if 0 <= index < 8:
+                return index + 1
+        rrggbb = self.rrggbb(color, "FFFFFF")
+        wanted = tuple(int(rrggbb[i:i + 2], 16) for i in (0, 2, 4))
+        entries = [tuple(int(entry[i:i + 2], 16) for i in (0, 2, 4)) for entry in self.indexed[8:64]]
+        greys = [place for place, entry in enumerate(entries, start=1) if len(set(entry)) == 1]
+        if max(wanted) - min(wanted) <= 10 and greys:
+            return min(greys, key=lambda place: sum(abs(a - b) for a, b in zip(entries[place - 1], wanted)))
+        hue, luminance, saturation = _hls(*wanted)
+
+        def distance(place: int) -> int:
+            other_hue, other_luminance, other_saturation = _hls(*entries[place - 1])
+            return (6 * (hue - other_hue) ** 2 + 3 * (luminance - other_luminance) ** 2
+                    + (saturation - other_saturation) ** 2)
+
+        return min(range(1, len(entries) + 1), key=distance)
 
     def nearest(self, rrggbb: str) -> int:
         """The palette slot nearest by summed channel distance, the first on a tie."""

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import re
 import shutil
 import sys
@@ -52,7 +53,12 @@ FILE_GAPS = {
 USER = "Ann Author"
 NOW = dt.datetime(2026, 10, 25, 4, 21, 32)
 
-ONE = RECORD["build"].split("Public Function Build", 1)[0] + '''
+def portable(code: str) -> str:
+    """Excel's macro with its folder joined to a file by this system's separator, not Windows' alone."""
+    return code.replace('folder & "\\', 'folder & "' + os.sep)
+
+
+ONE = portable(RECORD["build"].split("Public Function Build", 1)[0]) + '''
 Public Function One(index As Long, folder As String) As String
     Dim wb As Object
     Application.DisplayAlerts = False
@@ -133,7 +139,7 @@ def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, tuple[
             if name not in UNSUPPORTED:
                 found.update(_run(name, ONE, "One", index, str(folder)))
         shutil.copy(FIXTURES / "no_docprops.xlsx", folder / "no_docprops.xlsx")
-        found.update(_run("no_docprops", RECORD["opened"], "Opened", str(folder)))
+        found.update(_run("no_docprops", portable(RECORD["opened"]), "Opened", str(folder)))
     return found, folder, now
 
 

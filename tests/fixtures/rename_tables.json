@@ -1,0 +1,117 @@
+{
+ "helper": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\n",
+ "cases": {
+  "own_sheet": {
+   "code": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\nPublic Function Case_own_sheet(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    ws.Name = \"Main\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & t.Name & \"|\" & t.Range.Address\n    out = out & \"|\" & Shown(ws.Range(\"A2\"))\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Case_own_sheet = out\nEnd Function\n",
+   "cells": [
+    "ws.Range(\"A2\")"
+   ],
+   "answer": "Main|Sheet2|Sales|$A$1:$C$4|2=2",
+   "saved": {
+    "calculated": [],
+    "totals": [],
+    "names": []
+   }
+  },
+  "calculated_other": {
+   "code": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\nPublic Function Case_calculated_other(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    ws.Range(\"C2\").Formula = \"=Sheet2!$A$1*[@H1]\"\n    other.Name = \"Data 2\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & t.Name & \"|\" & t.Range.Address\n    out = out & \"|\" & Shown(ws.Range(\"C2\"))\n    out = out & \"|\" & Shown(ws.Range(\"C4\"))\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Case_calculated_other = out\nEnd Function\n",
+   "cells": [
+    "ws.Range(\"C2\")",
+    "ws.Range(\"C4\")"
+   ],
+   "answer": "Sheet1|Data 2|Sales|$A$1:$C$4|='Data 2'!$A$1*[@H1]=20|='Data 2'!$A$1*[@H1]=20",
+   "saved": {
+    "calculated": [
+     "'Data 2'!$A$1*Sales[[#This Row],[H1]]"
+    ],
+    "totals": [],
+    "names": []
+   }
+  },
+  "calculated_own": {
+   "code": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\nPublic Function Case_calculated_own(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    ws.Range(\"C2\").Formula = \"=Sheet1!$A$2+[@H2]\"\n    ws.Name = \"Main\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & t.Name & \"|\" & t.Range.Address\n    out = out & \"|\" & Shown(ws.Range(\"C2\"))\n    out = out & \"|\" & Shown(ws.Range(\"C3\"))\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Case_calculated_own = out\nEnd Function\n",
+   "cells": [
+    "ws.Range(\"C2\")",
+    "ws.Range(\"C3\")"
+   ],
+   "answer": "Main|Sheet2|Sales|$A$1:$C$4|=Main!$A$2+[@H2]=4|=Main!$A$2+[@H2]=4",
+   "saved": {
+    "calculated": [
+     "Main!$A$2+Sales[[#This Row],[H2]]"
+    ],
+    "totals": [],
+    "names": []
+   }
+  },
+  "totals_other": {
+   "code": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\nPublic Function Case_totals_other(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    t.ShowTotals = True\n    ws.Range(\"B5\").Formula = \"=SUBTOTAL(109,[H2])+Sheet2!$B$1\"\n    other.Name = \"Data 2\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & t.Name & \"|\" & t.Range.Address\n    out = out & \"|\" & Shown(ws.Range(\"B5\"))\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Case_totals_other = out\nEnd Function\n",
+   "cells": [
+    "ws.Range(\"B5\")"
+   ],
+   "answer": "Sheet1|Data 2|Sales|$A$1:$C$5|=SUBTOTAL(109,[H2])+'Data 2'!$B$1=11",
+   "saved": {
+    "calculated": [],
+    "totals": [
+     "SUBTOTAL(109,Sales[H2])+'Data 2'!$B$1"
+    ],
+    "names": []
+   }
+  },
+  "formula_to_table_sheet": {
+   "code": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\nPublic Function Case_formula_to_table_sheet(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    other.Range(\"A5\").Formula = \"=Sheet1!A2+SUM(Sales[H1])\"\n    ws.Name = \"Main\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & t.Name & \"|\" & t.Range.Address\n    out = out & \"|\" & Shown(other.Range(\"A5\"))\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Case_formula_to_table_sheet = out\nEnd Function\n",
+   "cells": [
+    "other.Range(\"A5\")"
+   ],
+   "answer": "Main|Sheet2|Sales|$A$1:$C$4|=Main!A2+SUM(Sales[H1])=8",
+   "saved": {
+    "calculated": [],
+    "totals": [],
+    "names": []
+   }
+  },
+  "name_to_table": {
+   "code": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\nPublic Function Case_name_to_table(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    wb.Names.Add Name:=\"Total\", RefersTo:=\"=SUM(Sales[H1])+Sheet1!$A$2\"\n    other.Range(\"A6\").Formula = \"=Total\"\n    ws.Name = \"Main\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & t.Name & \"|\" & t.Range.Address\n    out = out & \"|\" & Shown(other.Range(\"A6\"))\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Case_name_to_table = out\nEnd Function\n",
+   "cells": [
+    "other.Range(\"A6\")"
+   ],
+   "answer": "Main|Sheet2|Sales|$A$1:$C$4|=Total=8",
+   "saved": {
+    "calculated": [],
+    "totals": [],
+    "names": [
+     "SUM(Sales[H1])+Main!$A$2"
+    ]
+   }
+  },
+  "quoted_names": {
+   "code": "Private Function Shown(c As Object) As String\n    If IsError(c.Value) Then\n        Shown = c.Formula & \"=\" & \"E\" & CStr(CLng(c.Value))\n    Else\n        Shown = c.Formula & \"=\" & CStr(c.Value)\n    End If\nEnd Function\nPublic Function Case_quoted_names(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    ws.Range(\"C2\").Formula = \"=Sheet2!$A$1+[@H1]\"\n    t.ShowTotals = True\n    ws.Range(\"A5\").Formula = \"=SUBTOTAL(109,[H1])+Sheet2!$A$1\"\n    other.Name = \"It's\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & t.Name & \"|\" & t.Range.Address\n    out = out & \"|\" & Shown(ws.Range(\"C2\"))\n    out = out & \"|\" & Shown(ws.Range(\"A5\"))\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Case_quoted_names = out\nEnd Function\n",
+   "cells": [
+    "ws.Range(\"C2\")",
+    "ws.Range(\"A5\")"
+   ],
+   "answer": "Sheet1|It's|Sales|$A$1:$C$5|='It''s'!$A$1+[@H1]=12|=SUBTOTAL(109,[H1])+'It''s'!$A$1=16",
+   "saved": {
+    "calculated": [
+     "'It''s'!$A$1+Sales[[#This Row],[H1]]"
+    ],
+    "totals": [
+     "SUBTOTAL(109,Sales[H1])+'It''s'!$A$1"
+    ],
+    "names": []
+   }
+  }
+ },
+ "loaded": {
+  "code": "Public Function Make(path As String) As String\n    Dim wb As Object, ws As Object, other As Object, t As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets.Add(After:=ws)\n    other.Range(\"A1\").Value = 10\n    other.Range(\"B1\").Value = 5\n    ws.Range(\"A1:C1\").Value = Array(\"H1\", \"H2\", \"H3\")\n    ws.Range(\"A2:B4\").Value = 2\n    Set t = ws.ListObjects.Add(1, ws.Range(\"A1:C4\"), , 1)\n    t.Name = \"Sales\"\n    ws.Range(\"C2\").Formula = \"=Sheet2!$A$1*[@H1]\"\n    t.ShowTotals = True\n    ws.Range(\"B5\").Formula = \"=SUBTOTAL(109,[H2])+Sheet2!$B$1\"\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Make = \"made\"\nEnd Function\n\nPublic Function Rename(path As String, saved As String) As String\n    Dim wb As Object, ws As Object, other As Object, out As String\n    Set wb = Workbooks.Open(path)\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets(2)\n    other.Name = \"Data 2\"\n    out = ws.Name & \"|\" & other.Name & \"|\" & ws.ListObjects(1).Name & \"|\" & ws.ListObjects(1).Range.Address\n    out = out & \"|\" & ws.Range(\"C2\").Formula & \"|\" & ws.Range(\"C4\").Formula & \"|\" & ws.Range(\"B5\").Formula\n    out = out & \"|\" & ws.Range(\"B5\").Value\n    Application.DisplayAlerts = False\n    wb.SaveAs saved, 51\n    wb.Close False\n    Rename = out\nEnd Function\n",
+  "answer": "Sheet1|Data 2|Sales|$A$1:$C$5|='Data 2'!$A$1*[@H1]|='Data 2'!$A$1*[@H1]|=SUBTOTAL(109,[H2])+'Data 2'!$B$1|11",
+  "saved": {
+   "calculated": [
+    "'Data 2'!$A$1*Sales[[#This Row],[H1]]"
+   ],
+   "totals": [
+    "SUBTOTAL(109,Sales[H2])+'Data 2'!$B$1"
+   ],
+   "names": []
+  }
+ }
+}

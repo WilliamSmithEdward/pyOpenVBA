@@ -17,6 +17,7 @@ from pyopenvba.interpreter._lex import tokenize as vba_tokens
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, NameEntry, Workbook, Worksheet
+    from pyopenvba.apps.excel._tables import Table, TableColumn
     from pyopenvba.powerquery._opc import Entry
 
 NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
@@ -38,6 +39,17 @@ _RELATION_TYPES = {
     'http://schemas.microsoft.com/office/2006/relationships/vbaProject',
 }
 _RESERVED = {'_xlnm.Print_Area', '_xlnm.Print_Titles', '_xlnm.Criteria', '_xlnm.Extract', '_xlnm._FilterDatabase'}
+_TABLE = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/table'
+
+
+def _sheet_table(relationships: str, target: str) -> bool:
+    """Whether a table relationship stands where Excel writes one: a worksheet's, naming a part in xl/tables/."""
+    import posixpath
+
+    if not (relationships.startswith('xl/worksheets/_rels/') and relationships.endswith('.xml.rels')):
+        return False
+    part = target[1:] if target.startswith('/') else posixpath.normpath(posixpath.join('xl/worksheets', target))
+    return part.startswith('xl/tables/') and part.endswith('.xml')
 
 
 def unsupported(detail: str) -> VBAUnsupportedError:
@@ -196,7 +208,8 @@ def _package(book: Workbook, budget: Budget, old: str, wanted: str) -> None:
         return
     if len(package.entries) > MAX_PARTS:
         raise unsupported('beyond the supported package-part budget')
-    forbidden = ('xl/charts/', 'xl/drawings/', 'xl/pivot', 'xl/tables/', 'xl/externalLinks/',
+    # A table's part names no sheet; the formulas in it are the model's, rewritten with its cells'.
+    forbidden = ('xl/charts/', 'xl/drawings/', 'xl/pivot', 'xl/externalLinks/',
                  'xl/queryTables/', 'xl/activeX/', 'xl/embeddings/', 'xl/ctrlProps/')
     worksheet_parts = {sheet.part_name for sheet in book.sheets_ if sheet.part_name}
     for entry in package.entries:
@@ -205,7 +218,10 @@ def _package(book: Workbook, budget: Budget, old: str, wanted: str) -> None:
         if entry.name.endswith('.rels'):
             relations = opc_part(metadata_bytes(entry, budget), RELS_NS, 'Relationships')
             for tag, attrs, _start, _end in relations.children:
-                if (tag != RELS_NS + '}Relationship' or attrs.get('Type') not in _RELATION_TYPES
+                kind = attrs.get('Type')
+                admitted = kind in _RELATION_TYPES or (kind == _TABLE
+                                                       and _sheet_table(entry.name, attrs.get('Target', '')))
+                if (tag != RELS_NS + '}Relationship' or not admitted
                         or attrs.get('TargetMode', '').casefold() not in ('', 'internal')):
                     raise unsupported('with unmeasured or external package relationships')
         elif (entry.name == 'xl/workbook.xml' or entry.name in worksheet_parts
@@ -227,7 +243,7 @@ def _package(book: Workbook, budget: Budget, old: str, wanted: str) -> None:
 
                 worksheet(raw, old, wanted, budget)
                 guarded = {'hyperlinks', 'drawing', 'legacyDrawing',
-                           'legacyDrawingHF', 'picture', 'oleObjects', 'controls', 'tableParts', 'extLst',
+                           'legacyDrawingHF', 'picture', 'oleObjects', 'controls', 'extLst',
                            'pivotTableParts', 'dataConsolidate', 'scenarios', 'customSheetViews', 'cellWatches', 'smartTags'}
                 if any(tag.rsplit('}', 1)[-1] in guarded or not tag.startswith(NS + '}')
                        for tag, _attrs, _start, _end in part.children):
@@ -250,8 +266,9 @@ def _formula(text: str, old: str, wanted: str, budget: Budget, *, name_expressio
             if depth > MAX_NESTING or powers > MAX_NESTING:
                 raise unsupported('beyond the supported formula nesting')
             owner, _reference = split_sheet(token.text) if token.kind != 'text' else ('', '')
-            if token.kind == 'structured' or (owner and (':' in owner or '[' in owner or ']' in owner)):
-                raise unsupported('with structured, external or three-dimensional references')
+            # A table's reference names no sheet, so a rename leaves it as it is (tests/fixtures/rename_tables.json).
+            if owner and (token.kind == 'structured' or ':' in owner or '[' in owner or ']' in owner):
+                raise unsupported('with qualified structured, external or three-dimensional references')
             if token.kind == 'op' and token.text == ':':
                 raise unsupported('with unmeasured reference operators')
             if owner and token.kind not in ('ref', 'name'):
@@ -314,8 +331,6 @@ def rename(sheet: Worksheet, wanted: str) -> None:
     if any(owner.spills or any(cell.dynamic or cell.spilled_from is not None for cell in owner.cells_.values())
            for owner in book.sheets_):
         raise unsupported('with dynamic spill storage')
-    if any(owner.tables for owner in book.sheets_):
-        raise unsupported('with table references')
     from pyopenvba.apps.excel._worksheet_rename_secondary import admit
 
     try:
@@ -363,6 +378,16 @@ def rename(sheet: Worksheet, wanted: str) -> None:
         # Validate opaque attribute syntax before the names writer can be reached.
         attribute_values(entry.attributes)
         names.append((entry, name, _formula(entry.refers_to, sheet.name, wanted, budget, name_expression=True)))
+    # A table's calculated column and its totals keep a formula of their own, which the rename reaches as it
+    # reaches the cells' (tests/fixtures/rename_tables.json).
+    columns: list[tuple[Table, TableColumn, str, str]] = []
+    for owner in book.sheets_:
+        for table in owner.tables:
+            for column in table.columns:
+                for field in ('calculated', 'totals_formula'):
+                    text: str = getattr(column, field)
+                    if text:
+                        columns.append((table, column, field, _formula(text, sheet.name, wanted, budget)))
     # Rebuild is callback-free for this admitted scalar-only population. Its
     # invalidation must not discard manual cached values or invent save dirt.
     dirty = [(cell, cell.save_dirty if cell.save_dirty is not None else cell.stale) for _, cell, _ in cells]
@@ -372,6 +397,10 @@ def rename(sheet: Worksheet, wanted: str) -> None:
             owner.touched()
     for entry, name, refers in names:
         entry.name, entry.refers_to = name, refers
+    for table, column, field, formula in columns:
+        if getattr(column, field) != formula:
+            setattr(column, field, formula)
+            table.changed = True
     for key, area in shared_updates:
         sheet.shared_groups[key] = area
     sheet.name = wanted

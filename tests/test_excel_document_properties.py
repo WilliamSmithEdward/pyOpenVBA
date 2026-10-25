@@ -38,8 +38,6 @@ MADE = [name for name in CASES if name != "no_docprops"]
 #: The cases the model does not make, and why.
 UNSUPPORTED = {
     "chart_sheet": "a chart sheet, which the model does not make",
-    "names_add_context": "a sheet renamed once a table is made; tests/test_excel_names_add.py measures the same "
-                         "names with the sheets named first",
 }
 #: The user the model writes as the author, and the moment its clock is held at.
 USER = "Ann Author"

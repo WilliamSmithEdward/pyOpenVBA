@@ -21,6 +21,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
   1,500 more. Text in other scripts, and text that begins with a
   combining mark, still report themselves unsupported.
 
+- Renaming a sheet works in a workbook that holds a table. It reported
+  itself unsupported before. The rename reaches every formula that
+  names the sheet, as Excel's does: the cells', the defined names', and
+  the table's own calculated columns and totals row, in the table part
+  a save writes. A table's references name no sheet and stay as they
+  were. 7 live cases agree, and so does a workbook Excel saved with a
+  table, opened, renamed and saved again,
+  `tests/fixtures/rename_tables.json`.
+
 - `Workbook.BuiltinDocumentProperties` and `CustomDocumentProperties`
   read, set, add, rename, retype, link and delete a workbook's
   properties as Excel does. A new workbook's author is the user, its

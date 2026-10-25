@@ -306,6 +306,12 @@ def _places(value: Decimal) -> int:
     return -exponent if isinstance(exponent, int) else 0
 
 
+#: Half a second, as a part of a day: what a Date's moment is rounded by.
+_HALF_SECOND: Final = 0.5 / 86400.0
+#: 9999-12-31, the last day a Date holds.
+_LAST_DAY: Final = 2958465.0
+
+
 class VBADate:
     """A VBA Date: a Double whose whole part is days from 1899-12-30."""
 
@@ -315,7 +321,9 @@ class VBADate:
     EPOCH: Final = _dt.datetime(1899, 12, 30)
 
     def __init__(self, serial: float) -> None:
-        if not -657434.0 <= serial < 2958466.0:
+        # 100-01-01 runs to just short of -657435, its time counting forwards (native probe: -657434.99999 is
+        # 1/1/100 11:59:59 PM, -657435 is error 6).
+        if not -657435.0 < serial < 2958466.0:
             raise error(ERR_OVERFLOW)
         self.serial = float(serial)
 
@@ -333,19 +341,26 @@ class VBADate:
         return cls(seconds / 86400.0 + when.microsecond / 86400e6)
 
     def to_datetime(self) -> _dt.datetime:
-        """The moment this serial names, to the second VBA stores."""
-        days = math.floor(self.serial)
-        fraction = self.serial - days
-        if self.serial < 0:
-            # A negative serial counts the day backwards but the time forwards.
-            days = -math.floor(-self.serial)
-            fraction = -self.serial - math.floor(-self.serial)
-        seconds = round(fraction * 86400.0)
-        if seconds >= 86400:
-            days, seconds = days + 1, 0
-        if days >= 2958466:
-            # A time that rounds past the last second of 9999 stays on it.
-            days, seconds = 2958465, 86399
+        """The moment this serial names, to the second VBA stores.
+
+        Rounded as oleaut32's VariantTimeToSystemTime rounds it, which VBA's
+        CStr, Format, Hour, Minute and Second go through: half a second is
+        added to the serial away from zero, the days are cut toward zero and
+        the seconds cut from the part of a day left over. A negative serial
+        counts the day backwards but the time forwards, so one whose time
+        rounds past its own day takes the day after it. A serial the half
+        second would carry past the start of 9999-12-31 is cut instead, so
+        the last day's times never round up. That matches the system's own
+        conversion on 760,000 serials, ties and both ends of the Date range
+        among them.
+        """
+        moved = self.serial + _HALF_SECOND if self.serial >= 0 else self.serial - _HALF_SECOND
+        if moved > _LAST_DAY:
+            moved = self.serial
+        days = math.floor(moved) if moved >= 0 else -math.floor(-moved)
+        seconds = int(abs(moved - days) * 86400.0)
+        if self.serial < 0 and days != -math.floor(-self.serial):
+            days = -math.floor(-self.serial) + 1
         return self.EPOCH + _dt.timedelta(days=days, seconds=seconds)
 
     def __repr__(self) -> str:

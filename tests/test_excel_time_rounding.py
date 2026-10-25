@@ -8,8 +8,10 @@ the TEXT function and through VBA's CStr, Format, Hour, Minute and Second,
 and as the text Replace edits in a cell, the recorded probe run as it
 ran. Each value reaches both sides exactly, rebuilt in VBA from its bits.
 
-Two counts of elapsed seconds, ``[s]``, and some of VBA's own roundings
-are not reproduced: the rule behind them is not known yet.
+Two counts of elapsed seconds, ``[s]``, are not reproduced: the rule
+behind them is not known yet. VBA's own roundings all are, oleaut32's rule
+for a Date's moment (see VBADate.to_datetime) on the last day of 9999
+included.
 """
 
 from __future__ import annotations
@@ -90,12 +92,6 @@ def test_replace_edits_a_time_rounded_as_the_formula_bar_rounds_it(edited: list[
     assert edited[index] == CASES[index]["edited"]
 
 
-def _vba_matches(answers: list[list[str]], index: int) -> bool:
-    return answers[index][len(FORMATS) + 1:] == CASES[index]["read"][1:]
-
-
 @pytest.mark.parametrize("index", range(len(CASES)), ids=[repr(case["value"]) for case in CASES])
 def test_vba_rounds_a_date_to_the_second(answers: list[list[str]], index: int) -> None:
-    if not _vba_matches(answers, index):
-        pytest.xfail("VBA's own rounding of a Date to the second is not known for this value yet")
     assert answers[index][len(FORMATS) + 1:] == CASES[index]["read"][1:]

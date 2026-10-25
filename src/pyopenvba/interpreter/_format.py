@@ -25,13 +25,10 @@ from pyopenvba.interpreter._values import (
 
 
     date_text,
-    error,
     parse_date_text,
     to_number,
     to_text,
 )
-
-ERR_OVERFLOW: Final = 6
 
 #: Formats with a name, matched only when the name is the whole format.
 NAMED_NUMBER: Final = {
@@ -192,10 +189,7 @@ def _date_or_none(value: object) -> VBADate | None:
     # The double itself: cut to 15 digits, a time near a half second rounds the
     # other way (tests/fixtures/time_rounding.json).
     number = to_number(value)
-    serial = float(number)
-    if not -657434.0 <= serial < 2958466.0:
-        raise error(ERR_OVERFLOW)
-    return VBADate(serial)
+    return VBADate(float(number))
 
 
 # --- numbers -------------------------------------------------------------------------------

@@ -826,6 +826,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A Date with part of a second rounds to the second as VBA rounds it,
+  in `CStr`, `Format`, `Hour`, `Minute` and `Second` alike. VBA goes
+  through oleaut32's VariantTimeToSystemTime. It adds half a second to
+  the serial away from zero and cuts the days, then the seconds, from
+  what that leaves. A time before day zero that rounds past midnight
+  takes the next day. A time on 9999-12-31 is cut rather than rounded.
+  The model rounded the part of a day half to even, so `0.5 / 86400`
+  showed `12:00:00 AM` where VBA shows `12:00:01 AM`, and a time on the
+  last day of 9999 could show a second late. Measured against
+  oleaut32 on 7,013 serials, `tests/fixtures/variant_time.json`; the
+  last 11 of the 152 live time-rounding cases now agree.
+
+- A Date may fall on 100-01-01 after midnight: -657434.5 is
+  `1/1/100 12:00:00 PM`, as in VBA, where the model raised error 6 for
+  any serial below -657434.
+
 - `Names.Add` spells a sheet in RefersTo as Excel does, quoted only
   where it has to be: `='Data'!$C$2` reads back `=Data!$C$2`.
 

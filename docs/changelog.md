@@ -7,6 +7,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.Precedents`, `DirectPrecedents`, `Dependents` and
+  `DirectDependents` answer as Excel's do. A formula's precedents are
+  its references on its own sheet in the order it gives them, a name's
+  cells among them; another sheet's are left out, and so is what
+  INDIRECT names. A reference a legacy formula cuts to one value counts
+  as the cell the formula's row meets. Direct dependents are the
+  formulas reading the range, a dynamic array by its whole spill, by
+  rows and then columns. The full answers go level by level, each
+  formula once, and join their areas as Excel joins them, which is why
+  a chain of four answers `$B$1,$A$1:$A$4`. Nothing found is error 1004,
+  "No cells were found." 264 live answers over eleven layouts, one of
+  them saved and opened again, agree, `tests/fixtures/precedents.json`.
+
 - The Worksheet settings macros set beside Protect or on dashboards
   follow Excel: `ScrollArea`, `EnableAutoFilter`, `EnableOutlining`,
   `EnablePivotTable`, `EnableCalculation`, `TransitionExpEval`,

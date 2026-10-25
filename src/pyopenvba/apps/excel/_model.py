@@ -2544,6 +2544,34 @@ class Range(ExcelObject):
         return has_spill(self)
 
     @member
+    def Precedents(self) -> object:
+        """The cells on the sheet the range's formulas read, at every level, as Excel finds and orders them (see
+        _precedents)."""
+        from pyopenvba.apps.excel._precedents import answer
+
+        return answer(self, dependents=False, direct=False)
+
+    @member
+    def DirectPrecedents(self) -> object:
+        from pyopenvba.apps.excel._precedents import answer
+
+        return answer(self, dependents=False, direct=True)
+
+    @member
+    def Dependents(self) -> object:
+        """The formulas on the sheet reading the range, at every level, as Excel finds and orders them (see
+        _precedents)."""
+        from pyopenvba.apps.excel._precedents import answer
+
+        return answer(self, dependents=True, direct=False)
+
+    @member
+    def DirectDependents(self) -> object:
+        from pyopenvba.apps.excel._precedents import answer
+
+        return answer(self, dependents=True, direct=True)
+
+    @member
     def SpillParent(self) -> object:
         """The cell of the dynamic-array formula whose answer spilled over the range's first cell, or Nothing."""
         from pyopenvba.apps.excel._spills import spill_parent

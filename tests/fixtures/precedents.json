@@ -1,0 +1,745 @@
+{
+ "probe": "Private Function Asked(target As Range, member As String) As String\n    Dim found As Range\n    On Error Resume Next\n    Select Case member\n        Case \"Precedents\": Set found = target.Precedents\n        Case \"DirectPrecedents\": Set found = target.DirectPrecedents\n        Case \"Dependents\": Set found = target.Dependents\n        Case \"DirectDependents\": Set found = target.DirectDependents\n    End Select\n    If Err.Number <> 0 Then\n        Asked = \"E\" & Err.Number & \":\" & Err.Description\n    Else\n        Asked = found.Parent.Name & \"!\" & found.Address & \"#\" & found.Areas.Count\n    End If\n    Err.Clear\nEnd Function\nPrivate Function Layout0() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"A2\").Formula = \"2\"\n    ws.Range(\"A3\").Formula = \"=A1+A2\"\n    ws.Range(\"A4\").Formula = \"=A3*2\"\n    ws.Range(\"B1\").Formula = \"=SUM(A1:A3)\"\n    ws.Range(\"B2\").Formula = \"=A4+B1\"\n    ws.Range(\"C2\").Formula = \"5\"\n    out = \"chain\"\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    out = out & \"^A2 Precedents=\" & Asked(ws.Range(\"A2\"), \"Precedents\")\n    out = out & \"^A2 DirectPrecedents=\" & Asked(ws.Range(\"A2\"), \"DirectPrecedents\")\n    out = out & \"^A2 Dependents=\" & Asked(ws.Range(\"A2\"), \"Dependents\")\n    out = out & \"^A2 DirectDependents=\" & Asked(ws.Range(\"A2\"), \"DirectDependents\")\n    out = out & \"^A3 Precedents=\" & Asked(ws.Range(\"A3\"), \"Precedents\")\n    out = out & \"^A3 DirectPrecedents=\" & Asked(ws.Range(\"A3\"), \"DirectPrecedents\")\n    out = out & \"^A3 Dependents=\" & Asked(ws.Range(\"A3\"), \"Dependents\")\n    out = out & \"^A3 DirectDependents=\" & Asked(ws.Range(\"A3\"), \"DirectDependents\")\n    out = out & \"^A4 Precedents=\" & Asked(ws.Range(\"A4\"), \"Precedents\")\n    out = out & \"^A4 DirectPrecedents=\" & Asked(ws.Range(\"A4\"), \"DirectPrecedents\")\n    out = out & \"^A4 Dependents=\" & Asked(ws.Range(\"A4\"), \"Dependents\")\n    out = out & \"^A4 DirectDependents=\" & Asked(ws.Range(\"A4\"), \"DirectDependents\")\n    out = out & \"^B1 Precedents=\" & Asked(ws.Range(\"B1\"), \"Precedents\")\n    out = out & \"^B1 DirectPrecedents=\" & Asked(ws.Range(\"B1\"), \"DirectPrecedents\")\n    out = out & \"^B1 Dependents=\" & Asked(ws.Range(\"B1\"), \"Dependents\")\n    out = out & \"^B1 DirectDependents=\" & Asked(ws.Range(\"B1\"), \"DirectDependents\")\n    out = out & \"^B2 Precedents=\" & Asked(ws.Range(\"B2\"), \"Precedents\")\n    out = out & \"^B2 DirectPrecedents=\" & Asked(ws.Range(\"B2\"), \"DirectPrecedents\")\n    out = out & \"^B2 Dependents=\" & Asked(ws.Range(\"B2\"), \"Dependents\")\n    out = out & \"^B2 DirectDependents=\" & Asked(ws.Range(\"B2\"), \"DirectDependents\")\n    out = out & \"^C2 Precedents=\" & Asked(ws.Range(\"C2\"), \"Precedents\")\n    out = out & \"^C2 DirectPrecedents=\" & Asked(ws.Range(\"C2\"), \"DirectPrecedents\")\n    out = out & \"^C2 Dependents=\" & Asked(ws.Range(\"C2\"), \"Dependents\")\n    out = out & \"^C2 DirectDependents=\" & Asked(ws.Range(\"C2\"), \"DirectDependents\")\n    out = out & \"^H9 Precedents=\" & Asked(ws.Range(\"H9\"), \"Precedents\")\n    out = out & \"^H9 DirectPrecedents=\" & Asked(ws.Range(\"H9\"), \"DirectPrecedents\")\n    out = out & \"^H9 Dependents=\" & Asked(ws.Range(\"H9\"), \"Dependents\")\n    out = out & \"^H9 DirectDependents=\" & Asked(ws.Range(\"H9\"), \"DirectDependents\")\n    out = out & \"^A3:A4 Precedents=\" & Asked(ws.Range(\"A3:A4\"), \"Precedents\")\n    out = out & \"^A3:A4 DirectPrecedents=\" & Asked(ws.Range(\"A3:A4\"), \"DirectPrecedents\")\n    out = out & \"^A3:A4 Dependents=\" & Asked(ws.Range(\"A3:A4\"), \"Dependents\")\n    out = out & \"^A3:A4 DirectDependents=\" & Asked(ws.Range(\"A3:A4\"), \"DirectDependents\")\n    out = out & \"^A1:A2 Precedents=\" & Asked(ws.Range(\"A1:A2\"), \"Precedents\")\n    out = out & \"^A1:A2 DirectPrecedents=\" & Asked(ws.Range(\"A1:A2\"), \"DirectPrecedents\")\n    out = out & \"^A1:A2 Dependents=\" & Asked(ws.Range(\"A1:A2\"), \"Dependents\")\n    out = out & \"^A1:A2 DirectDependents=\" & Asked(ws.Range(\"A1:A2\"), \"DirectDependents\")\n    out = out & \"^A1:B2 Precedents=\" & Asked(ws.Range(\"A1:B2\"), \"Precedents\")\n    out = out & \"^A1:B2 DirectPrecedents=\" & Asked(ws.Range(\"A1:B2\"), \"DirectPrecedents\")\n    out = out & \"^A1:B2 Dependents=\" & Asked(ws.Range(\"A1:B2\"), \"Dependents\")\n    out = out & \"^A1:B2 DirectDependents=\" & Asked(ws.Range(\"A1:B2\"), \"DirectDependents\")\n    wb.Close False\n    Layout0 = out & \"~\"\nEnd Function\nPrivate Function Layout1() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    wb.Worksheets(\"Other\").Range(\"A1\").Formula = \"3\"\n    wb.Worksheets(\"Other\").Range(\"B1\").Formula = \"=Sheet1!A1*2\"\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"C1\").Formula = \"=Other!A1+A1\"\n    ws.Range(\"C2\").Formula = \"=Other!A1\"\n    out = \"sheets\"\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    out = out & \"^C1 Precedents=\" & Asked(ws.Range(\"C1\"), \"Precedents\")\n    out = out & \"^C1 DirectPrecedents=\" & Asked(ws.Range(\"C1\"), \"DirectPrecedents\")\n    out = out & \"^C1 Dependents=\" & Asked(ws.Range(\"C1\"), \"Dependents\")\n    out = out & \"^C1 DirectDependents=\" & Asked(ws.Range(\"C1\"), \"DirectDependents\")\n    out = out & \"^C2 Precedents=\" & Asked(ws.Range(\"C2\"), \"Precedents\")\n    out = out & \"^C2 DirectPrecedents=\" & Asked(ws.Range(\"C2\"), \"DirectPrecedents\")\n    out = out & \"^C2 Dependents=\" & Asked(ws.Range(\"C2\"), \"Dependents\")\n    out = out & \"^C2 DirectDependents=\" & Asked(ws.Range(\"C2\"), \"DirectDependents\")\n    wb.Close False\n    Layout1 = out & \"~\"\nEnd Function\nPrivate Function Layout2() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"A2\").Formula = \"2\"\n    ws.Range(\"D1\").Formula = \"=INDIRECT(\"\"A1\"\")\"\n    ws.Range(\"D2\").Formula = \"=OFFSET(A1,1,0)\"\n    ws.Range(\"D3\").Formula = \"=INDEX(A1:A2,2)\"\n    ws.Range(\"D4\").Formula = \"=IF(A1>0,A2,B9)\"\n    ws.Range(\"D5\").Formula = \"=COUNTIF(A1:A2,\"\">0\"\")\"\n    ws.Range(\"D6\").Formula = \"=A1:A2\"\n    ws.Range(\"D7\").Formula = \"=SUM(A:A)\"\n    ws.Range(\"D8\").Formula = \"=SUM(1:1)\"\n    ws.Range(\"D9\").Formula = \"=ROW()\"\n    out = \"functions\"\n    out = out & \"^D1 Precedents=\" & Asked(ws.Range(\"D1\"), \"Precedents\")\n    out = out & \"^D1 DirectPrecedents=\" & Asked(ws.Range(\"D1\"), \"DirectPrecedents\")\n    out = out & \"^D1 Dependents=\" & Asked(ws.Range(\"D1\"), \"Dependents\")\n    out = out & \"^D1 DirectDependents=\" & Asked(ws.Range(\"D1\"), \"DirectDependents\")\n    out = out & \"^D2 Precedents=\" & Asked(ws.Range(\"D2\"), \"Precedents\")\n    out = out & \"^D2 DirectPrecedents=\" & Asked(ws.Range(\"D2\"), \"DirectPrecedents\")\n    out = out & \"^D2 Dependents=\" & Asked(ws.Range(\"D2\"), \"Dependents\")\n    out = out & \"^D2 DirectDependents=\" & Asked(ws.Range(\"D2\"), \"DirectDependents\")\n    out = out & \"^D3 Precedents=\" & Asked(ws.Range(\"D3\"), \"Precedents\")\n    out = out & \"^D3 DirectPrecedents=\" & Asked(ws.Range(\"D3\"), \"DirectPrecedents\")\n    out = out & \"^D3 Dependents=\" & Asked(ws.Range(\"D3\"), \"Dependents\")\n    out = out & \"^D3 DirectDependents=\" & Asked(ws.Range(\"D3\"), \"DirectDependents\")\n    out = out & \"^D4 Precedents=\" & Asked(ws.Range(\"D4\"), \"Precedents\")\n    out = out & \"^D4 DirectPrecedents=\" & Asked(ws.Range(\"D4\"), \"DirectPrecedents\")\n    out = out & \"^D4 Dependents=\" & Asked(ws.Range(\"D4\"), \"Dependents\")\n    out = out & \"^D4 DirectDependents=\" & Asked(ws.Range(\"D4\"), \"DirectDependents\")\n    out = out & \"^D5 Precedents=\" & Asked(ws.Range(\"D5\"), \"Precedents\")\n    out = out & \"^D5 DirectPrecedents=\" & Asked(ws.Range(\"D5\"), \"DirectPrecedents\")\n    out = out & \"^D5 Dependents=\" & Asked(ws.Range(\"D5\"), \"Dependents\")\n    out = out & \"^D5 DirectDependents=\" & Asked(ws.Range(\"D5\"), \"DirectDependents\")\n    out = out & \"^D6 Precedents=\" & Asked(ws.Range(\"D6\"), \"Precedents\")\n    out = out & \"^D6 DirectPrecedents=\" & Asked(ws.Range(\"D6\"), \"DirectPrecedents\")\n    out = out & \"^D6 Dependents=\" & Asked(ws.Range(\"D6\"), \"Dependents\")\n    out = out & \"^D6 DirectDependents=\" & Asked(ws.Range(\"D6\"), \"DirectDependents\")\n    out = out & \"^D7 Precedents=\" & Asked(ws.Range(\"D7\"), \"Precedents\")\n    out = out & \"^D7 DirectPrecedents=\" & Asked(ws.Range(\"D7\"), \"DirectPrecedents\")\n    out = out & \"^D7 Dependents=\" & Asked(ws.Range(\"D7\"), \"Dependents\")\n    out = out & \"^D7 DirectDependents=\" & Asked(ws.Range(\"D7\"), \"DirectDependents\")\n    out = out & \"^D8 Precedents=\" & Asked(ws.Range(\"D8\"), \"Precedents\")\n    out = out & \"^D8 DirectPrecedents=\" & Asked(ws.Range(\"D8\"), \"DirectPrecedents\")\n    out = out & \"^D8 Dependents=\" & Asked(ws.Range(\"D8\"), \"Dependents\")\n    out = out & \"^D8 DirectDependents=\" & Asked(ws.Range(\"D8\"), \"DirectDependents\")\n    out = out & \"^D9 Precedents=\" & Asked(ws.Range(\"D9\"), \"Precedents\")\n    out = out & \"^D9 DirectPrecedents=\" & Asked(ws.Range(\"D9\"), \"DirectPrecedents\")\n    out = out & \"^D9 Dependents=\" & Asked(ws.Range(\"D9\"), \"Dependents\")\n    out = out & \"^D9 DirectDependents=\" & Asked(ws.Range(\"D9\"), \"DirectDependents\")\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    out = out & \"^A2 Precedents=\" & Asked(ws.Range(\"A2\"), \"Precedents\")\n    out = out & \"^A2 DirectPrecedents=\" & Asked(ws.Range(\"A2\"), \"DirectPrecedents\")\n    out = out & \"^A2 Dependents=\" & Asked(ws.Range(\"A2\"), \"Dependents\")\n    out = out & \"^A2 DirectDependents=\" & Asked(ws.Range(\"A2\"), \"DirectDependents\")\n    out = out & \"^B9 Precedents=\" & Asked(ws.Range(\"B9\"), \"Precedents\")\n    out = out & \"^B9 DirectPrecedents=\" & Asked(ws.Range(\"B9\"), \"DirectPrecedents\")\n    out = out & \"^B9 Dependents=\" & Asked(ws.Range(\"B9\"), \"Dependents\")\n    out = out & \"^B9 DirectDependents=\" & Asked(ws.Range(\"B9\"), \"DirectDependents\")\n    wb.Close False\n    Layout2 = out & \"~\"\nEnd Function\nPrivate Function Layout3() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    wb.Names.Add \"Pair\", \"=Sheet1!$A$1:$A$2\"\n    wb.Names.Add \"One\", \"=Sheet1!$A$1\"\n    wb.Names.Add \"Spread\", \"=Sheet1!$A$1*2\"\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"A2\").Formula = \"2\"\n    ws.Range(\"E1\").Formula = \"=Pair\"\n    ws.Range(\"E2\").Formula = \"=SUM(Pair)+One\"\n    ws.Range(\"E3\").Formula = \"=Spread\"\n    out = \"names\"\n    out = out & \"^E1 Precedents=\" & Asked(ws.Range(\"E1\"), \"Precedents\")\n    out = out & \"^E1 DirectPrecedents=\" & Asked(ws.Range(\"E1\"), \"DirectPrecedents\")\n    out = out & \"^E1 Dependents=\" & Asked(ws.Range(\"E1\"), \"Dependents\")\n    out = out & \"^E1 DirectDependents=\" & Asked(ws.Range(\"E1\"), \"DirectDependents\")\n    out = out & \"^E2 Precedents=\" & Asked(ws.Range(\"E2\"), \"Precedents\")\n    out = out & \"^E2 DirectPrecedents=\" & Asked(ws.Range(\"E2\"), \"DirectPrecedents\")\n    out = out & \"^E2 Dependents=\" & Asked(ws.Range(\"E2\"), \"Dependents\")\n    out = out & \"^E2 DirectDependents=\" & Asked(ws.Range(\"E2\"), \"DirectDependents\")\n    out = out & \"^E3 Precedents=\" & Asked(ws.Range(\"E3\"), \"Precedents\")\n    out = out & \"^E3 DirectPrecedents=\" & Asked(ws.Range(\"E3\"), \"DirectPrecedents\")\n    out = out & \"^E3 Dependents=\" & Asked(ws.Range(\"E3\"), \"Dependents\")\n    out = out & \"^E3 DirectDependents=\" & Asked(ws.Range(\"E3\"), \"DirectDependents\")\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    out = out & \"^A2 Precedents=\" & Asked(ws.Range(\"A2\"), \"Precedents\")\n    out = out & \"^A2 DirectPrecedents=\" & Asked(ws.Range(\"A2\"), \"DirectPrecedents\")\n    out = out & \"^A2 Dependents=\" & Asked(ws.Range(\"A2\"), \"Dependents\")\n    out = out & \"^A2 DirectDependents=\" & Asked(ws.Range(\"A2\"), \"DirectDependents\")\n    wb.Close False\n    Layout3 = out & \"~\"\nEnd Function\nPrivate Function Layout4() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"A2\").Formula = \"2\"\n    ws.Range(\"F1\").Formula = \"=A1+A1\"\n    ws.Range(\"F2\").Formula = \"=$A$1+A$1\"\n    ws.Range(\"F3\").Formula = \"=A1+A2+A1\"\n    ws.Range(\"F4\").Formula = \"=SUM(A1:A2,A1)\"\n    ws.Range(\"F5\").Formula = \"=A2+A1\"\n    out = \"repeats\"\n    out = out & \"^F1 Precedents=\" & Asked(ws.Range(\"F1\"), \"Precedents\")\n    out = out & \"^F1 DirectPrecedents=\" & Asked(ws.Range(\"F1\"), \"DirectPrecedents\")\n    out = out & \"^F1 Dependents=\" & Asked(ws.Range(\"F1\"), \"Dependents\")\n    out = out & \"^F1 DirectDependents=\" & Asked(ws.Range(\"F1\"), \"DirectDependents\")\n    out = out & \"^F2 Precedents=\" & Asked(ws.Range(\"F2\"), \"Precedents\")\n    out = out & \"^F2 DirectPrecedents=\" & Asked(ws.Range(\"F2\"), \"DirectPrecedents\")\n    out = out & \"^F2 Dependents=\" & Asked(ws.Range(\"F2\"), \"Dependents\")\n    out = out & \"^F2 DirectDependents=\" & Asked(ws.Range(\"F2\"), \"DirectDependents\")\n    out = out & \"^F3 Precedents=\" & Asked(ws.Range(\"F3\"), \"Precedents\")\n    out = out & \"^F3 DirectPrecedents=\" & Asked(ws.Range(\"F3\"), \"DirectPrecedents\")\n    out = out & \"^F3 Dependents=\" & Asked(ws.Range(\"F3\"), \"Dependents\")\n    out = out & \"^F3 DirectDependents=\" & Asked(ws.Range(\"F3\"), \"DirectDependents\")\n    out = out & \"^F4 Precedents=\" & Asked(ws.Range(\"F4\"), \"Precedents\")\n    out = out & \"^F4 DirectPrecedents=\" & Asked(ws.Range(\"F4\"), \"DirectPrecedents\")\n    out = out & \"^F4 Dependents=\" & Asked(ws.Range(\"F4\"), \"Dependents\")\n    out = out & \"^F4 DirectDependents=\" & Asked(ws.Range(\"F4\"), \"DirectDependents\")\n    out = out & \"^F5 Precedents=\" & Asked(ws.Range(\"F5\"), \"Precedents\")\n    out = out & \"^F5 DirectPrecedents=\" & Asked(ws.Range(\"F5\"), \"DirectPrecedents\")\n    out = out & \"^F5 Dependents=\" & Asked(ws.Range(\"F5\"), \"Dependents\")\n    out = out & \"^F5 DirectDependents=\" & Asked(ws.Range(\"F5\"), \"DirectDependents\")\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    wb.Close False\n    Layout4 = out & \"~\"\nEnd Function\nPrivate Function Layout5() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    ws.Range(\"C3\").Formula = \"1\"\n    ws.Range(\"A1\").Formula = \"2\"\n    ws.Range(\"B2\").Formula = \"3\"\n    ws.Range(\"A5\").Formula = \"4\"\n    ws.Range(\"D1\").Formula = \"=C3+A1+B2+A5\"\n    ws.Range(\"D2\").Formula = \"=A5+B2+A1+C3\"\n    ws.Range(\"D3\").Formula = \"=SUM(C3,A1)+SUM(B2:B3)\"\n    out = \"order\"\n    out = out & \"^D1 Precedents=\" & Asked(ws.Range(\"D1\"), \"Precedents\")\n    out = out & \"^D1 DirectPrecedents=\" & Asked(ws.Range(\"D1\"), \"DirectPrecedents\")\n    out = out & \"^D1 Dependents=\" & Asked(ws.Range(\"D1\"), \"Dependents\")\n    out = out & \"^D1 DirectDependents=\" & Asked(ws.Range(\"D1\"), \"DirectDependents\")\n    out = out & \"^D2 Precedents=\" & Asked(ws.Range(\"D2\"), \"Precedents\")\n    out = out & \"^D2 DirectPrecedents=\" & Asked(ws.Range(\"D2\"), \"DirectPrecedents\")\n    out = out & \"^D2 Dependents=\" & Asked(ws.Range(\"D2\"), \"Dependents\")\n    out = out & \"^D2 DirectDependents=\" & Asked(ws.Range(\"D2\"), \"DirectDependents\")\n    out = out & \"^D3 Precedents=\" & Asked(ws.Range(\"D3\"), \"Precedents\")\n    out = out & \"^D3 DirectPrecedents=\" & Asked(ws.Range(\"D3\"), \"DirectPrecedents\")\n    out = out & \"^D3 Dependents=\" & Asked(ws.Range(\"D3\"), \"Dependents\")\n    out = out & \"^D3 DirectDependents=\" & Asked(ws.Range(\"D3\"), \"DirectDependents\")\n    out = out & \"^C3 Precedents=\" & Asked(ws.Range(\"C3\"), \"Precedents\")\n    out = out & \"^C3 DirectPrecedents=\" & Asked(ws.Range(\"C3\"), \"DirectPrecedents\")\n    out = out & \"^C3 Dependents=\" & Asked(ws.Range(\"C3\"), \"Dependents\")\n    out = out & \"^C3 DirectDependents=\" & Asked(ws.Range(\"C3\"), \"DirectDependents\")\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    wb.Close False\n    Layout5 = out & \"~\"\nEnd Function\nPrivate Function Layout6() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"G1\").Formula = \"=G2+A1\"\n    ws.Range(\"G2\").Formula = \"=G1+1\"\n    out = \"loops\"\n    out = out & \"^G1 Precedents=\" & Asked(ws.Range(\"G1\"), \"Precedents\")\n    out = out & \"^G1 DirectPrecedents=\" & Asked(ws.Range(\"G1\"), \"DirectPrecedents\")\n    out = out & \"^G1 Dependents=\" & Asked(ws.Range(\"G1\"), \"Dependents\")\n    out = out & \"^G1 DirectDependents=\" & Asked(ws.Range(\"G1\"), \"DirectDependents\")\n    out = out & \"^G2 Precedents=\" & Asked(ws.Range(\"G2\"), \"Precedents\")\n    out = out & \"^G2 DirectPrecedents=\" & Asked(ws.Range(\"G2\"), \"DirectPrecedents\")\n    out = out & \"^G2 Dependents=\" & Asked(ws.Range(\"G2\"), \"Dependents\")\n    out = out & \"^G2 DirectDependents=\" & Asked(ws.Range(\"G2\"), \"DirectDependents\")\n    wb.Close False\n    Layout6 = out & \"~\"\nEnd Function\nPrivate Function Layout7() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"A2\").Formula = \"2\"\n    ws.Range(\"A3\").Formula = \"3\"\n    ws.Range(\"B1\").Formula = \"=A1\"\n    ws.Range(\"B2\").Formula = \"=A2\"\n    ws.Range(\"B3\").Formula = \"=A3\"\n    ws.Range(\"C1\").Formula = \"=B1+B2+B3\"\n    ws.Range(\"C2\").Formula = \"=C1\"\n    out = \"wide\"\n    out = out & \"^C2 Precedents=\" & Asked(ws.Range(\"C2\"), \"Precedents\")\n    out = out & \"^C2 DirectPrecedents=\" & Asked(ws.Range(\"C2\"), \"DirectPrecedents\")\n    out = out & \"^C2 Dependents=\" & Asked(ws.Range(\"C2\"), \"Dependents\")\n    out = out & \"^C2 DirectDependents=\" & Asked(ws.Range(\"C2\"), \"DirectDependents\")\n    out = out & \"^C1 Precedents=\" & Asked(ws.Range(\"C1\"), \"Precedents\")\n    out = out & \"^C1 DirectPrecedents=\" & Asked(ws.Range(\"C1\"), \"DirectPrecedents\")\n    out = out & \"^C1 Dependents=\" & Asked(ws.Range(\"C1\"), \"Dependents\")\n    out = out & \"^C1 DirectDependents=\" & Asked(ws.Range(\"C1\"), \"DirectDependents\")\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    out = out & \"^A2:A3 Precedents=\" & Asked(ws.Range(\"A2:A3\"), \"Precedents\")\n    out = out & \"^A2:A3 DirectPrecedents=\" & Asked(ws.Range(\"A2:A3\"), \"DirectPrecedents\")\n    out = out & \"^A2:A3 Dependents=\" & Asked(ws.Range(\"A2:A3\"), \"Dependents\")\n    out = out & \"^A2:A3 DirectDependents=\" & Asked(ws.Range(\"A2:A3\"), \"DirectDependents\")\n    out = out & \"^B1:B3 Precedents=\" & Asked(ws.Range(\"B1:B3\"), \"Precedents\")\n    out = out & \"^B1:B3 DirectPrecedents=\" & Asked(ws.Range(\"B1:B3\"), \"DirectPrecedents\")\n    out = out & \"^B1:B3 Dependents=\" & Asked(ws.Range(\"B1:B3\"), \"Dependents\")\n    out = out & \"^B1:B3 DirectDependents=\" & Asked(ws.Range(\"B1:B3\"), \"DirectDependents\")\n    wb.Close False\n    Layout7 = out & \"~\"\nEnd Function\nPrivate Function Layout8() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    wb.Names.Add \"Pair\", \"=Sheet1!$A$1:$A$2\"\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"A2\").Formula = \"2\"\n    ws.Range(\"X1\").Formula = \"=A1:A2\"\n    ws.Range(\"X2\").Formula = \"=Pair\"\n    ws.Range(\"X6\").Formula = \"=Pair\"\n    ws.Range(\"X7\").Formula = \"=A1:A2+1\"\n    ws.Range(\"Y1\").Formula = \"=SUM(A1:A2)\"\n    ws.Range(\"Z1\").Formula2 = \"=A1:A2\"\n    ws.Range(\"Z4\").Formula2 = \"=Pair\"\n    ws.Range(\"W1\").Formula = \"=@A1:A2\"\n    ws.Range(\"W8\").Formula = \"=@Pair\"\n    out = \"intersections\"\n    out = out & \"^X1 Precedents=\" & Asked(ws.Range(\"X1\"), \"Precedents\")\n    out = out & \"^X1 DirectPrecedents=\" & Asked(ws.Range(\"X1\"), \"DirectPrecedents\")\n    out = out & \"^X1 Dependents=\" & Asked(ws.Range(\"X1\"), \"Dependents\")\n    out = out & \"^X1 DirectDependents=\" & Asked(ws.Range(\"X1\"), \"DirectDependents\")\n    out = out & \"^X2 Precedents=\" & Asked(ws.Range(\"X2\"), \"Precedents\")\n    out = out & \"^X2 DirectPrecedents=\" & Asked(ws.Range(\"X2\"), \"DirectPrecedents\")\n    out = out & \"^X2 Dependents=\" & Asked(ws.Range(\"X2\"), \"Dependents\")\n    out = out & \"^X2 DirectDependents=\" & Asked(ws.Range(\"X2\"), \"DirectDependents\")\n    out = out & \"^X6 Precedents=\" & Asked(ws.Range(\"X6\"), \"Precedents\")\n    out = out & \"^X6 DirectPrecedents=\" & Asked(ws.Range(\"X6\"), \"DirectPrecedents\")\n    out = out & \"^X6 Dependents=\" & Asked(ws.Range(\"X6\"), \"Dependents\")\n    out = out & \"^X6 DirectDependents=\" & Asked(ws.Range(\"X6\"), \"DirectDependents\")\n    out = out & \"^X7 Precedents=\" & Asked(ws.Range(\"X7\"), \"Precedents\")\n    out = out & \"^X7 DirectPrecedents=\" & Asked(ws.Range(\"X7\"), \"DirectPrecedents\")\n    out = out & \"^X7 Dependents=\" & Asked(ws.Range(\"X7\"), \"Dependents\")\n    out = out & \"^X7 DirectDependents=\" & Asked(ws.Range(\"X7\"), \"DirectDependents\")\n    out = out & \"^Y1 Precedents=\" & Asked(ws.Range(\"Y1\"), \"Precedents\")\n    out = out & \"^Y1 DirectPrecedents=\" & Asked(ws.Range(\"Y1\"), \"DirectPrecedents\")\n    out = out & \"^Y1 Dependents=\" & Asked(ws.Range(\"Y1\"), \"Dependents\")\n    out = out & \"^Y1 DirectDependents=\" & Asked(ws.Range(\"Y1\"), \"DirectDependents\")\n    out = out & \"^Z1 Precedents=\" & Asked(ws.Range(\"Z1\"), \"Precedents\")\n    out = out & \"^Z1 DirectPrecedents=\" & Asked(ws.Range(\"Z1\"), \"DirectPrecedents\")\n    out = out & \"^Z1 Dependents=\" & Asked(ws.Range(\"Z1\"), \"Dependents\")\n    out = out & \"^Z1 DirectDependents=\" & Asked(ws.Range(\"Z1\"), \"DirectDependents\")\n    out = out & \"^Z4 Precedents=\" & Asked(ws.Range(\"Z4\"), \"Precedents\")\n    out = out & \"^Z4 DirectPrecedents=\" & Asked(ws.Range(\"Z4\"), \"DirectPrecedents\")\n    out = out & \"^Z4 Dependents=\" & Asked(ws.Range(\"Z4\"), \"Dependents\")\n    out = out & \"^Z4 DirectDependents=\" & Asked(ws.Range(\"Z4\"), \"DirectDependents\")\n    out = out & \"^W1 Precedents=\" & Asked(ws.Range(\"W1\"), \"Precedents\")\n    out = out & \"^W1 DirectPrecedents=\" & Asked(ws.Range(\"W1\"), \"DirectPrecedents\")\n    out = out & \"^W1 Dependents=\" & Asked(ws.Range(\"W1\"), \"Dependents\")\n    out = out & \"^W1 DirectDependents=\" & Asked(ws.Range(\"W1\"), \"DirectDependents\")\n    out = out & \"^W8 Precedents=\" & Asked(ws.Range(\"W8\"), \"Precedents\")\n    out = out & \"^W8 DirectPrecedents=\" & Asked(ws.Range(\"W8\"), \"DirectPrecedents\")\n    out = out & \"^W8 Dependents=\" & Asked(ws.Range(\"W8\"), \"Dependents\")\n    out = out & \"^W8 DirectDependents=\" & Asked(ws.Range(\"W8\"), \"DirectDependents\")\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    out = out & \"^A2 Precedents=\" & Asked(ws.Range(\"A2\"), \"Precedents\")\n    out = out & \"^A2 DirectPrecedents=\" & Asked(ws.Range(\"A2\"), \"DirectPrecedents\")\n    out = out & \"^A2 Dependents=\" & Asked(ws.Range(\"A2\"), \"Dependents\")\n    out = out & \"^A2 DirectDependents=\" & Asked(ws.Range(\"A2\"), \"DirectDependents\")\n    wb.Close False\n    Layout8 = out & \"~\"\nEnd Function\nPrivate Function Layout9() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Worksheets.Add(After:=ws).Name = \"Other\"\n    ws.Activate\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"C3\").Formula = \"=A1\"\n    ws.Range(\"B2\").Formula = \"=A1\"\n    ws.Range(\"D1\").Formula = \"=A1\"\n    ws.Range(\"A5\").Formula = \"=A1\"\n    ws.Range(\"C3\").Formula = \"=A1*2\"\n    out = \"entry_order\"\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    wb.Close False\n    Layout9 = out & \"~\"\nEnd Function\nPublic Function Probe() As String\n    Dim out As String\n    Application.DisplayAlerts = False\n    out = out & Layout0()\n    out = out & Layout1()\n    out = out & Layout2()\n    out = out & Layout3()\n    out = out & Layout4()\n    out = out & Layout5()\n    out = out & Layout6()\n    out = out & Layout7()\n    out = out & Layout8()\n    out = out & Layout9()\n    Probe = out\nEnd Function\n",
+ "reopened": "Private Function Asked(target As Range, member As String) As String\n    Dim found As Range\n    On Error Resume Next\n    Select Case member\n        Case \"Precedents\": Set found = target.Precedents\n        Case \"DirectPrecedents\": Set found = target.DirectPrecedents\n        Case \"Dependents\": Set found = target.Dependents\n        Case \"DirectDependents\": Set found = target.DirectDependents\n    End Select\n    If Err.Number <> 0 Then\n        Asked = \"E\" & Err.Number & \":\" & Err.Description\n    Else\n        Asked = found.Parent.Name & \"!\" & found.Address & \"#\" & found.Areas.Count\n    End If\n    Err.Clear\nEnd Function\nPublic Function Reopened(folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Formula = \"1\"\n    ws.Range(\"A2\").Formula = \"2\"\n    ws.Range(\"A3\").Formula = \"=A1+A2\"\n    ws.Range(\"A4\").Formula = \"=A3*2\"\n    ws.Range(\"B1\").Formula = \"=SUM(A1:A3)\"\n    ws.Range(\"B2\").Formula = \"=A4+B1\"\n    ws.Range(\"C2\").Formula = \"5\"\n    wb.SaveAs folder & \"\\reopened.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\reopened.xlsx\")\n    Set ws = wb.Worksheets(1)\n    out = \"reopened_chain\"\n    out = out & \"^A1 Precedents=\" & Asked(ws.Range(\"A1\"), \"Precedents\")\n    out = out & \"^A1 DirectPrecedents=\" & Asked(ws.Range(\"A1\"), \"DirectPrecedents\")\n    out = out & \"^A1 Dependents=\" & Asked(ws.Range(\"A1\"), \"Dependents\")\n    out = out & \"^A1 DirectDependents=\" & Asked(ws.Range(\"A1\"), \"DirectDependents\")\n    out = out & \"^A3 Precedents=\" & Asked(ws.Range(\"A3\"), \"Precedents\")\n    out = out & \"^A3 DirectPrecedents=\" & Asked(ws.Range(\"A3\"), \"DirectPrecedents\")\n    out = out & \"^A3 Dependents=\" & Asked(ws.Range(\"A3\"), \"Dependents\")\n    out = out & \"^A3 DirectDependents=\" & Asked(ws.Range(\"A3\"), \"DirectDependents\")\n    out = out & \"^A1:A2 Precedents=\" & Asked(ws.Range(\"A1:A2\"), \"Precedents\")\n    out = out & \"^A1:A2 DirectPrecedents=\" & Asked(ws.Range(\"A1:A2\"), \"DirectPrecedents\")\n    out = out & \"^A1:A2 Dependents=\" & Asked(ws.Range(\"A1:A2\"), \"Dependents\")\n    out = out & \"^A1:A2 DirectDependents=\" & Asked(ws.Range(\"A1:A2\"), \"DirectDependents\")\n    out = out & \"^A3:A4 Precedents=\" & Asked(ws.Range(\"A3:A4\"), \"Precedents\")\n    out = out & \"^A3:A4 DirectPrecedents=\" & Asked(ws.Range(\"A3:A4\"), \"DirectPrecedents\")\n    out = out & \"^A3:A4 Dependents=\" & Asked(ws.Range(\"A3:A4\"), \"Dependents\")\n    out = out & \"^A3:A4 DirectDependents=\" & Asked(ws.Range(\"A3:A4\"), \"DirectDependents\")\n    out = out & \"^A1:B2 Precedents=\" & Asked(ws.Range(\"A1:B2\"), \"Precedents\")\n    out = out & \"^A1:B2 DirectPrecedents=\" & Asked(ws.Range(\"A1:B2\"), \"DirectPrecedents\")\n    out = out & \"^A1:B2 Dependents=\" & Asked(ws.Range(\"A1:B2\"), \"Dependents\")\n    out = out & \"^A1:B2 DirectDependents=\" & Asked(ws.Range(\"A1:B2\"), \"DirectDependents\")\n    wb.Close False\n    Reopened = out & \"~\"\nEnd Function\n",
+ "layouts": {
+  "chain": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "A2",
+     "2"
+    ],
+    [
+     "A3",
+     "=A1+A2"
+    ],
+    [
+     "A4",
+     "=A3*2"
+    ],
+    [
+     "B1",
+     "=SUM(A1:A3)"
+    ],
+    [
+     "B2",
+     "=A4+B1"
+    ],
+    [
+     "C2",
+     "5"
+    ]
+   ],
+   [],
+   [],
+   [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "C2",
+    "H9",
+    "A3:A4",
+    "A1:A2",
+    "A1:B2"
+   ]
+  ],
+  "sheets": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "C1",
+     "=Other!A1+A1"
+    ],
+    [
+     "C2",
+     "=Other!A1"
+    ]
+   ],
+   [
+    [
+     "A1",
+     "3"
+    ],
+    [
+     "B1",
+     "=Sheet1!A1*2"
+    ]
+   ],
+   [],
+   [
+    "A1",
+    "C1",
+    "C2"
+   ]
+  ],
+  "functions": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "A2",
+     "2"
+    ],
+    [
+     "D1",
+     "=INDIRECT(\"A1\")"
+    ],
+    [
+     "D2",
+     "=OFFSET(A1,1,0)"
+    ],
+    [
+     "D3",
+     "=INDEX(A1:A2,2)"
+    ],
+    [
+     "D4",
+     "=IF(A1>0,A2,B9)"
+    ],
+    [
+     "D5",
+     "=COUNTIF(A1:A2,\">0\")"
+    ],
+    [
+     "D6",
+     "=A1:A2"
+    ],
+    [
+     "D7",
+     "=SUM(A:A)"
+    ],
+    [
+     "D8",
+     "=SUM(1:1)"
+    ],
+    [
+     "D9",
+     "=ROW()"
+    ]
+   ],
+   [],
+   [],
+   [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "A1",
+    "A2",
+    "B9"
+   ]
+  ],
+  "names": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "A2",
+     "2"
+    ],
+    [
+     "E1",
+     "=Pair"
+    ],
+    [
+     "E2",
+     "=SUM(Pair)+One"
+    ],
+    [
+     "E3",
+     "=Spread"
+    ]
+   ],
+   [],
+   [
+    [
+     "Pair",
+     "=Sheet1!$A$1:$A$2"
+    ],
+    [
+     "One",
+     "=Sheet1!$A$1"
+    ],
+    [
+     "Spread",
+     "=Sheet1!$A$1*2"
+    ]
+   ],
+   [
+    "E1",
+    "E2",
+    "E3",
+    "A1",
+    "A2"
+   ]
+  ],
+  "repeats": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "A2",
+     "2"
+    ],
+    [
+     "F1",
+     "=A1+A1"
+    ],
+    [
+     "F2",
+     "=$A$1+A$1"
+    ],
+    [
+     "F3",
+     "=A1+A2+A1"
+    ],
+    [
+     "F4",
+     "=SUM(A1:A2,A1)"
+    ],
+    [
+     "F5",
+     "=A2+A1"
+    ]
+   ],
+   [],
+   [],
+   [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "A1"
+   ]
+  ],
+  "order": [
+   [
+    [
+     "C3",
+     "1"
+    ],
+    [
+     "A1",
+     "2"
+    ],
+    [
+     "B2",
+     "3"
+    ],
+    [
+     "A5",
+     "4"
+    ],
+    [
+     "D1",
+     "=C3+A1+B2+A5"
+    ],
+    [
+     "D2",
+     "=A5+B2+A1+C3"
+    ],
+    [
+     "D3",
+     "=SUM(C3,A1)+SUM(B2:B3)"
+    ]
+   ],
+   [],
+   [],
+   [
+    "D1",
+    "D2",
+    "D3",
+    "C3",
+    "A1"
+   ]
+  ],
+  "loops": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "G1",
+     "=G2+A1"
+    ],
+    [
+     "G2",
+     "=G1+1"
+    ]
+   ],
+   [],
+   [],
+   [
+    "G1",
+    "G2"
+   ]
+  ],
+  "wide": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "A2",
+     "2"
+    ],
+    [
+     "A3",
+     "3"
+    ],
+    [
+     "B1",
+     "=A1"
+    ],
+    [
+     "B2",
+     "=A2"
+    ],
+    [
+     "B3",
+     "=A3"
+    ],
+    [
+     "C1",
+     "=B1+B2+B3"
+    ],
+    [
+     "C2",
+     "=C1"
+    ]
+   ],
+   [],
+   [],
+   [
+    "C2",
+    "C1",
+    "A1",
+    "A2:A3",
+    "B1:B3"
+   ]
+  ],
+  "intersections": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "A2",
+     "2"
+    ],
+    [
+     "X1",
+     "=A1:A2"
+    ],
+    [
+     "X2",
+     "=Pair"
+    ],
+    [
+     "X6",
+     "=Pair"
+    ],
+    [
+     "X7",
+     "=A1:A2+1"
+    ],
+    [
+     "Y1",
+     "=SUM(A1:A2)"
+    ],
+    [
+     "Z1",
+     "@2=A1:A2"
+    ],
+    [
+     "Z4",
+     "@2=Pair"
+    ],
+    [
+     "W1",
+     "=@A1:A2"
+    ],
+    [
+     "W8",
+     "=@Pair"
+    ]
+   ],
+   [],
+   [
+    [
+     "Pair",
+     "=Sheet1!$A$1:$A$2"
+    ]
+   ],
+   [
+    "X1",
+    "X2",
+    "X6",
+    "X7",
+    "Y1",
+    "Z1",
+    "Z4",
+    "W1",
+    "W8",
+    "A1",
+    "A2"
+   ]
+  ],
+  "entry_order": [
+   [
+    [
+     "A1",
+     "1"
+    ],
+    [
+     "C3",
+     "=A1"
+    ],
+    [
+     "B2",
+     "=A1"
+    ],
+    [
+     "D1",
+     "=A1"
+    ],
+    [
+     "A5",
+     "=A1"
+    ],
+    [
+     "C3",
+     "=A1*2"
+    ]
+   ],
+   [],
+   [],
+   [
+    "A1"
+   ]
+  ]
+ },
+ "cases": [
+  [
+   "chain",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$B$1:$B$2,$A$3:$A$4#2",
+   "A1 DirectDependents=Sheet1!$B$1,$A$3#2",
+   "A2 Precedents=E1004:No cells were found.",
+   "A2 DirectPrecedents=E1004:No cells were found.",
+   "A2 Dependents=Sheet1!$B$1:$B$2,$A$3:$A$4#2",
+   "A2 DirectDependents=Sheet1!$B$1,$A$3#2",
+   "A3 Precedents=Sheet1!$A$1:$A$2#1",
+   "A3 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "A3 Dependents=Sheet1!$A$4,$B$1:$B$2#2",
+   "A3 DirectDependents=Sheet1!$B$1,$A$4#2",
+   "A4 Precedents=Sheet1!$A$1:$A$3#1",
+   "A4 DirectPrecedents=Sheet1!$A$3#1",
+   "A4 Dependents=Sheet1!$B$2#1",
+   "A4 DirectDependents=Sheet1!$B$2#1",
+   "B1 Precedents=Sheet1!$A$1:$A$3#1",
+   "B1 DirectPrecedents=Sheet1!$A$1:$A$3#1",
+   "B1 Dependents=Sheet1!$B$2#1",
+   "B1 DirectDependents=Sheet1!$B$2#1",
+   "B2 Precedents=Sheet1!$B$1,$A$1:$A$4#2",
+   "B2 DirectPrecedents=Sheet1!$A$4,$B$1#2",
+   "B2 Dependents=E1004:No cells were found.",
+   "B2 DirectDependents=E1004:No cells were found.",
+   "C2 Precedents=E1004:No cells were found.",
+   "C2 DirectPrecedents=E1004:No cells were found.",
+   "C2 Dependents=E1004:No cells were found.",
+   "C2 DirectDependents=E1004:No cells were found.",
+   "H9 Precedents=E1004:No cells were found.",
+   "H9 DirectPrecedents=E1004:No cells were found.",
+   "H9 Dependents=E1004:No cells were found.",
+   "H9 DirectDependents=E1004:No cells were found.",
+   "A3:A4 Precedents=Sheet1!$A$1:$A$3#1",
+   "A3:A4 DirectPrecedents=Sheet1!$A$1:$A$3#1",
+   "A3:A4 Dependents=Sheet1!$B$1:$B$2,$A$4#2",
+   "A3:A4 DirectDependents=Sheet1!$B$1:$B$2,$A$4#2",
+   "A1:A2 Precedents=E1004:No cells were found.",
+   "A1:A2 DirectPrecedents=E1004:No cells were found.",
+   "A1:A2 Dependents=Sheet1!$B$1:$B$2,$A$3:$A$4#2",
+   "A1:A2 DirectDependents=Sheet1!$B$1,$A$3#2",
+   "A1:B2 Precedents=Sheet1!$B$1,$A$1:$A$4#2",
+   "A1:B2 DirectPrecedents=Sheet1!$A$1:$A$4,$B$1#2",
+   "A1:B2 Dependents=Sheet1!$B$1:$B$2,$A$3:$A$4#2",
+   "A1:B2 DirectDependents=Sheet1!$B$1:$B$2,$A$3#2"
+  ],
+  [
+   "sheets",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$C$1#1",
+   "A1 DirectDependents=Sheet1!$C$1#1",
+   "C1 Precedents=Sheet1!$A$1#1",
+   "C1 DirectPrecedents=Sheet1!$A$1#1",
+   "C1 Dependents=E1004:No cells were found.",
+   "C1 DirectDependents=E1004:No cells were found.",
+   "C2 Precedents=E1004:No cells were found.",
+   "C2 DirectPrecedents=E1004:No cells were found.",
+   "C2 Dependents=E1004:No cells were found.",
+   "C2 DirectDependents=E1004:No cells were found."
+  ],
+  [
+   "functions",
+   "D1 Precedents=E1004:No cells were found.",
+   "D1 DirectPrecedents=E1004:No cells were found.",
+   "D1 Dependents=Sheet1!$D$8#1",
+   "D1 DirectDependents=Sheet1!$D$8#1",
+   "D2 Precedents=Sheet1!$A$1#1",
+   "D2 DirectPrecedents=Sheet1!$A$1#1",
+   "D2 Dependents=E1004:No cells were found.",
+   "D2 DirectDependents=E1004:No cells were found.",
+   "D3 Precedents=Sheet1!$A$1:$A$2#1",
+   "D3 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "D3 Dependents=E1004:No cells were found.",
+   "D3 DirectDependents=E1004:No cells were found.",
+   "D4 Precedents=Sheet1!$A$1:$A$2,$B$9#2",
+   "D4 DirectPrecedents=Sheet1!$A$1:$A$2,$B$9#2",
+   "D4 Dependents=E1004:No cells were found.",
+   "D4 DirectDependents=E1004:No cells were found.",
+   "D5 Precedents=Sheet1!$A$1:$A$2#1",
+   "D5 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "D5 Dependents=E1004:No cells were found.",
+   "D5 DirectDependents=E1004:No cells were found.",
+   "D6 Precedents=Sheet1!$A$1:$A$2#1",
+   "D6 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "D6 Dependents=E1004:No cells were found.",
+   "D6 DirectDependents=E1004:No cells were found.",
+   "D7 Precedents=Sheet1!$A:$A#1",
+   "D7 DirectPrecedents=Sheet1!$A:$A#1",
+   "D7 Dependents=E1004:No cells were found.",
+   "D7 DirectDependents=E1004:No cells were found.",
+   "D8 Precedents=Sheet1!$1:$1#1",
+   "D8 DirectPrecedents=Sheet1!$1:$1#1",
+   "D8 Dependents=E1004:No cells were found.",
+   "D8 DirectDependents=E1004:No cells were found.",
+   "D9 Precedents=E1004:No cells were found.",
+   "D9 DirectPrecedents=E1004:No cells were found.",
+   "D9 Dependents=E1004:No cells were found.",
+   "D9 DirectDependents=E1004:No cells were found.",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$D$2:$D$8#1",
+   "A1 DirectDependents=Sheet1!$D$2:$D$8#1",
+   "A2 Precedents=E1004:No cells were found.",
+   "A2 DirectPrecedents=E1004:No cells were found.",
+   "A2 Dependents=Sheet1!$D$3:$D$7#1",
+   "A2 DirectDependents=Sheet1!$D$3:$D$7#1",
+   "B9 Precedents=E1004:No cells were found.",
+   "B9 DirectPrecedents=E1004:No cells were found.",
+   "B9 Dependents=Sheet1!$D$4#1",
+   "B9 DirectDependents=Sheet1!$D$4#1"
+  ],
+  [
+   "names",
+   "E1 Precedents=Sheet1!$A$1#1",
+   "E1 DirectPrecedents=Sheet1!$A$1#1",
+   "E1 Dependents=E1004:No cells were found.",
+   "E1 DirectDependents=E1004:No cells were found.",
+   "E2 Precedents=Sheet1!$A$1:$A$2#1",
+   "E2 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "E2 Dependents=E1004:No cells were found.",
+   "E2 DirectDependents=E1004:No cells were found.",
+   "E3 Precedents=Sheet1!$A$1#1",
+   "E3 DirectPrecedents=Sheet1!$A$1#1",
+   "E3 Dependents=E1004:No cells were found.",
+   "E3 DirectDependents=E1004:No cells were found.",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$E$1:$E$3#1",
+   "A1 DirectDependents=Sheet1!$E$1:$E$3#1",
+   "A2 Precedents=E1004:No cells were found.",
+   "A2 DirectPrecedents=E1004:No cells were found.",
+   "A2 Dependents=Sheet1!$E$2#1",
+   "A2 DirectDependents=Sheet1!$E$2#1"
+  ],
+  [
+   "repeats",
+   "F1 Precedents=Sheet1!$A$1#1",
+   "F1 DirectPrecedents=Sheet1!$A$1#1",
+   "F1 Dependents=E1004:No cells were found.",
+   "F1 DirectDependents=E1004:No cells were found.",
+   "F2 Precedents=Sheet1!$A$1#1",
+   "F2 DirectPrecedents=Sheet1!$A$1#1",
+   "F2 Dependents=E1004:No cells were found.",
+   "F2 DirectDependents=E1004:No cells were found.",
+   "F3 Precedents=Sheet1!$A$1:$A$2#1",
+   "F3 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "F3 Dependents=E1004:No cells were found.",
+   "F3 DirectDependents=E1004:No cells were found.",
+   "F4 Precedents=Sheet1!$A$1:$A$2#1",
+   "F4 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "F4 Dependents=E1004:No cells were found.",
+   "F4 DirectDependents=E1004:No cells were found.",
+   "F5 Precedents=Sheet1!$A$1:$A$2#1",
+   "F5 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "F5 Dependents=E1004:No cells were found.",
+   "F5 DirectDependents=E1004:No cells were found.",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$F$1:$F$5#1",
+   "A1 DirectDependents=Sheet1!$F$1:$F$5#1"
+  ],
+  [
+   "order",
+   "D1 Precedents=Sheet1!$C$3,$A$1,$B$2,$A$5#4",
+   "D1 DirectPrecedents=Sheet1!$C$3,$A$1,$B$2,$A$5#4",
+   "D1 Dependents=E1004:No cells were found.",
+   "D1 DirectDependents=E1004:No cells were found.",
+   "D2 Precedents=Sheet1!$A$5,$B$2,$A$1,$C$3#4",
+   "D2 DirectPrecedents=Sheet1!$A$5,$B$2,$A$1,$C$3#4",
+   "D2 Dependents=E1004:No cells were found.",
+   "D2 DirectDependents=E1004:No cells were found.",
+   "D3 Precedents=Sheet1!$C$3,$A$1,$B$2:$B$3#3",
+   "D3 DirectPrecedents=Sheet1!$C$3,$A$1,$B$2:$B$3#3",
+   "D3 Dependents=E1004:No cells were found.",
+   "D3 DirectDependents=E1004:No cells were found.",
+   "C3 Precedents=E1004:No cells were found.",
+   "C3 DirectPrecedents=E1004:No cells were found.",
+   "C3 Dependents=Sheet1!$D$1:$D$3#1",
+   "C3 DirectDependents=Sheet1!$D$1:$D$3#1",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$D$1:$D$3#1",
+   "A1 DirectDependents=Sheet1!$D$1:$D$3#1"
+  ],
+  [
+   "loops",
+   "G1 Precedents=Sheet1!$A$1,$G$1:$G$2#2",
+   "G1 DirectPrecedents=Sheet1!$G$2,$A$1#2",
+   "G1 Dependents=Sheet1!$G$1:$G$2#1",
+   "G1 DirectDependents=Sheet1!$G$2#1",
+   "G2 Precedents=Sheet1!$G$1:$G$2,$A$1#2",
+   "G2 DirectPrecedents=Sheet1!$G$1#1",
+   "G2 Dependents=Sheet1!$G$1:$G$2#1",
+   "G2 DirectDependents=Sheet1!$G$1#1"
+  ],
+  [
+   "wide",
+   "C2 Precedents=Sheet1!$C$1,$A$1:$B$3#2",
+   "C2 DirectPrecedents=Sheet1!$C$1#1",
+   "C2 Dependents=E1004:No cells were found.",
+   "C2 DirectDependents=E1004:No cells were found.",
+   "C1 Precedents=Sheet1!$A$1:$B$3#1",
+   "C1 DirectPrecedents=Sheet1!$B$1:$B$3#1",
+   "C1 Dependents=Sheet1!$C$2#1",
+   "C1 DirectDependents=Sheet1!$C$2#1",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$B$1,$C$1:$C$2#2",
+   "A1 DirectDependents=Sheet1!$B$1#1",
+   "A2:A3 Precedents=E1004:No cells were found.",
+   "A2:A3 DirectPrecedents=E1004:No cells were found.",
+   "A2:A3 Dependents=Sheet1!$B$2:$B$3,$C$1:$C$2#2",
+   "A2:A3 DirectDependents=Sheet1!$B$2:$B$3#1",
+   "B1:B3 Precedents=Sheet1!$A$1:$A$3#1",
+   "B1:B3 DirectPrecedents=Sheet1!$A$1:$A$3#1",
+   "B1:B3 Dependents=Sheet1!$C$1:$C$2#1",
+   "B1:B3 DirectDependents=Sheet1!$C$1#1"
+  ],
+  [
+   "intersections",
+   "X1 Precedents=Sheet1!$A$1#1",
+   "X1 DirectPrecedents=Sheet1!$A$1#1",
+   "X1 Dependents=E1004:No cells were found.",
+   "X1 DirectDependents=E1004:No cells were found.",
+   "X2 Precedents=Sheet1!$A$2#1",
+   "X2 DirectPrecedents=Sheet1!$A$2#1",
+   "X2 Dependents=E1004:No cells were found.",
+   "X2 DirectDependents=E1004:No cells were found.",
+   "X6 Precedents=Sheet1!$A$1:$A$2#1",
+   "X6 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "X6 Dependents=E1004:No cells were found.",
+   "X6 DirectDependents=E1004:No cells were found.",
+   "X7 Precedents=Sheet1!$A$1:$A$2#1",
+   "X7 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "X7 Dependents=E1004:No cells were found.",
+   "X7 DirectDependents=E1004:No cells were found.",
+   "Y1 Precedents=Sheet1!$A$1:$A$2#1",
+   "Y1 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "Y1 Dependents=E1004:No cells were found.",
+   "Y1 DirectDependents=E1004:No cells were found.",
+   "Z1 Precedents=Sheet1!$A$1:$A$2#1",
+   "Z1 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "Z1 Dependents=E1004:No cells were found.",
+   "Z1 DirectDependents=E1004:No cells were found.",
+   "Z4 Precedents=Sheet1!$A$1:$A$2#1",
+   "Z4 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "Z4 Dependents=E1004:No cells were found.",
+   "Z4 DirectDependents=E1004:No cells were found.",
+   "W1 Precedents=Sheet1!$A$1#1",
+   "W1 DirectPrecedents=Sheet1!$A$1#1",
+   "W1 Dependents=E1004:No cells were found.",
+   "W1 DirectDependents=E1004:No cells were found.",
+   "W8 Precedents=Sheet1!$A$1:$A$2#1",
+   "W8 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "W8 Dependents=E1004:No cells were found.",
+   "W8 DirectDependents=E1004:No cells were found.",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$W$1:$Y$1,$Z$1:$Z$2,$Z$4:$Z$5,$X$6:$X$7,$W$8#5",
+   "A1 DirectDependents=Sheet1!$W$1:$Y$1,$Z$1:$Z$2,$Z$4:$Z$5,$X$6:$X$7,$W$8#5",
+   "A2 Precedents=E1004:No cells were found.",
+   "A2 DirectPrecedents=E1004:No cells were found.",
+   "A2 Dependents=Sheet1!$Y$1,$Z$1:$Z$2,$X$2,$Z$4:$Z$5,$X$6:$X$7,$W$8#6",
+   "A2 DirectDependents=Sheet1!$Y$1,$Z$1:$Z$2,$X$2,$Z$4:$Z$5,$X$6:$X$7,$W$8#6"
+  ],
+  [
+   "entry_order",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$D$1,$B$2,$C$3,$A$5#4",
+   "A1 DirectDependents=Sheet1!$D$1,$B$2,$C$3,$A$5#4"
+  ],
+  [
+   "reopened_chain",
+   "A1 Precedents=E1004:No cells were found.",
+   "A1 DirectPrecedents=E1004:No cells were found.",
+   "A1 Dependents=Sheet1!$B$1:$B$2,$A$3:$A$4#2",
+   "A1 DirectDependents=Sheet1!$B$1,$A$3#2",
+   "A3 Precedents=Sheet1!$A$1:$A$2#1",
+   "A3 DirectPrecedents=Sheet1!$A$1:$A$2#1",
+   "A3 Dependents=Sheet1!$A$4,$B$1:$B$2#2",
+   "A3 DirectDependents=Sheet1!$B$1,$A$4#2",
+   "A1:A2 Precedents=E1004:No cells were found.",
+   "A1:A2 DirectPrecedents=E1004:No cells were found.",
+   "A1:A2 Dependents=Sheet1!$B$1:$B$2,$A$3:$A$4#2",
+   "A1:A2 DirectDependents=Sheet1!$B$1,$A$3#2",
+   "A3:A4 Precedents=Sheet1!$A$1:$A$3#1",
+   "A3:A4 DirectPrecedents=Sheet1!$A$1:$A$3#1",
+   "A3:A4 Dependents=Sheet1!$B$1:$B$2,$A$4#2",
+   "A3:A4 DirectDependents=Sheet1!$B$1:$B$2,$A$4#2",
+   "A1:B2 Precedents=Sheet1!$B$1,$A$1:$A$4#2",
+   "A1:B2 DirectPrecedents=Sheet1!$A$1:$A$4,$B$1#2",
+   "A1:B2 Dependents=Sheet1!$B$1:$B$2,$A$3:$A$4#2",
+   "A1:B2 DirectDependents=Sheet1!$B$1:$B$2,$A$3#2"
+  ]
+ ]
+}

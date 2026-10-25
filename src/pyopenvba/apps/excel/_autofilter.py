@@ -76,8 +76,16 @@ alike in another set, and xlFilterNoIcon those it shows none
 the Icon, or Empty, and the file keeps the set and the place from 0, or
 for no icon the column's set alone.
 
+Text is matched as Excel matches it beyond ASCII too
+(scripts/measure_filter_text.py): an = with no wildcard, and each value
+of a list, keeps the text Windows' word sort cannot tell from it, case
+aside, so =aesop keeps the spelling with the ash and =strasse the one
+with a sharp s; > and < order text by word sort; and a wildcard pattern
+matches one character at a time, each by its word-sort key, so ae* leaves
+out the ash's spelling and k* keeps the Kelvin sign's.
+
 What is not modelled reports itself: AutoFilter.Sort, a hidden drop-down,
-and text beyond ASCII where it is compared.
+and text beyond Latin, Greek and Cyrillic where it is compared.
 
 A table has a filter of its own, which a range inside it reaches; the
 sheet's members reach whichever filter the active cell is in. Both are
@@ -198,7 +206,7 @@ class Criterion:
             return seen.number is not None and _compare(seen.number, self.operator, self.number)
         if seen.text is None:
             return False
-        return _compare(_collated(seen.text), self.operator, _collated(self.operand))
+        return _compare(_ordered(seen.text), self.operator, _ordered(self.operand))
 
 
 def _criterion(value: object, *, epoch_1904: bool = False) -> Criterion:
@@ -242,24 +250,29 @@ def _compare(left: object, operator: str, right: object) -> bool:
     return left <= right  # type: ignore[operator]
 
 
-def _collated(text: str) -> object:
-    _plain(text)
-    return _ordered(text)
-
-
 def _ordered(text: str) -> bytes:
-    """Text's place where a filter compares or lists it: Windows' word sort, as Excel's sort orders text, measured
-    for filters on printable ASCII alone."""
+    """What a filter tells text by, case aside: Windows' word-sort key, which orders text for > and < and lists the
+    file's values, and is one for the text an = with no wildcard keeps, so =aesop keeps Aesop with the ash and
+    =strasse keeps the sharp s while =resume leaves out the accented spelling (tests/fixtures/filter_text.json)."""
     from pyopenvba.apps.excel._sort import text_key
 
-    if not all(" " <= char <= "~" for char in text):
-        raise VBAUnsupportedError("filtering text with characters beyond printable ASCII is not implemented")
-    return text_key(text, False)
+    try:
+        return text_key(text, False)
+    except VBAUnsupportedError:
+        raise VBAUnsupportedError("filtering text with characters beyond Latin, Greek and Cyrillic, their marks and "
+                                  "punctuation, or that begins with a combining mark, is not implemented") from None
 
 
-def _plain(text: str) -> None:
-    if any(ord(char) > 126 and char.isalpha() for char in text):
-        raise VBAUnsupportedError("filtering text with letters beyond ASCII is not implemented")
+def _letter(char: str) -> bytes | str:
+    """What a filter's wildcard pattern tells a character by: its word-sort key, case aside, so a Kelvin sign is a K,
+    a final sigma a sigma and the capital sharp s a sharp s, while a dotless i is no I and the ash no a
+    (tests/fixtures/filter_text.json, letters); a combining accent by itself."""
+    from pyopenvba.apps.excel._sort_weights import WEIGHTS
+
+    found = WEIGHTS.get(ord(char))
+    if found is not None and not found[0] and found[1]:
+        return char
+    return _ordered(char)
 
 
 def _wild(pattern: str) -> bool:
@@ -279,15 +292,23 @@ def _escaped(value: str) -> str:
 def _like(seen: Seen, pattern: str) -> bool:
     """Whether what a cell shows matches a criterion's text: any case, * and ? wild, ~ before one to mean it.
 
-    A pattern with a wildcard in it matches text only, never a number however it shows.
+    A pattern with a wildcard in it matches text only, never a number however it shows, one character at a time
+    (:func:`_letter`); one without is the text its word-sort key is (:func:`_ordered`).
     """
+    from pyopenvba.apps.excel._filter_wildcards import matches, matches_by
+
     if _wild(pattern) and seen.text is None:
         return False
-    _plain(seen.shown)
-    _plain(pattern)
-    from pyopenvba.apps.excel._filter_wildcards import matches
-
-    return matches(seen.shown, pattern, escape_tilde=False)
+    try:
+        if not _wild(pattern):
+            return _ordered(seen.shown) == _ordered(_literal(pattern))
+        return matches_by(seen.shown, pattern, _letter, escape_tilde=False)
+    except VBAUnsupportedError:
+        # Text past the word sort's weights, a check mark or an emoji, is matched character for character in any
+        # case where no letter past ASCII is in it, as before the weights were measured.
+        if any(ord(char) > 126 and char.isalpha() for char in seen.shown + pattern):
+            raise
+        return matches(seen.shown, pattern, escape_tilde=False)
 
 
 # --- the file's spelling -------------------------------------------------------------------------------
@@ -395,8 +416,6 @@ def _field(sheet: Worksheet, area: Area, index: int, criteria1: object, operator
 
 def _values(criteria1: object) -> FieldFilter:
     items = [to_text(item) for item in (criteria1.elements() if isinstance(criteria1, VBAArray) else [criteria1])]
-    for item in items:
-        _plain(item)
     items.sort(key=_ordered)
     if len(items) == 1:
         return _one(_criterion(items[0]))

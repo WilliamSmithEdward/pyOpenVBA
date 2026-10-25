@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- AutoFilter filters text beyond ASCII as Excel does. An `=` with no
+  wildcard, and each value of an xlFilterValues list, keeps the text
+  Windows' word sort cannot tell from it, case aside: `=aesop` keeps
+  `Æsop` and `=strasse` keeps `straße`, while `=resume` leaves out
+  `résumé`. `>` and `<` order text by word sort. A wildcard pattern
+  matches one character at a time by each one's word-sort key, so `ae*`
+  leaves out `Æsop`, `*ss*` leaves out `straße`, and `k*` keeps a
+  Kelvin sign, while a dotless i is no I. A saved list keeps its values
+  in word sort's order. Any letter beyond ASCII in a filtered column
+  reported itself unsupported before. 36 spellings, 51 criteria, 6
+  lists and 13 pairs of letters agree, `tests/fixtures/filter_text.json`,
+  and a live gate has Excel read the model's filters as its own. Letters
+  past Latin, Greek and Cyrillic still report themselves unsupported.
+
 - `Range.Sort` and the Sort object order text beyond ASCII as Excel
   does. Excel orders text by Windows' word sort, and the model builds
   Windows' own sort key for each string from the weights of Latin and

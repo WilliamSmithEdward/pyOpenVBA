@@ -57,10 +57,15 @@ def test_autofilter_type_gating_newlines_and_no_new_length_cap(
     assert getattr(_autofilter, '_like')(seen, pattern) is expected
 
 
-def test_autofilter_keeps_existing_non_ascii_letter_admission() -> None:
-    seen = _autofilter.Seen('caf\u00e9', None, 'caf\u00e9', False)
+def test_autofilter_admits_letters_word_sort_weighs_and_no_others() -> None:
+    """Latin, Greek and Cyrillic match as Excel matches them (tests/test_excel_filter_text.py); a letter past them
+    reports itself, and text past them with no such letter is matched character for character."""
+    like = getattr(_autofilter, '_like')
+    assert like(_autofilter.Seen('caf\u00e9', None, 'caf\u00e9', False), '*')
     with pytest.raises(VBAUnsupportedError):
-        getattr(_autofilter, '_like')(seen, '*')
+        like(_autofilter.Seen('\u4e2d', None, '\u4e2d', False), '*')
+    assert like(_autofilter.Seen('\u2713', None, '\u2713', False), '\u2713')
+    assert not like(_autofilter.Seen('\u2713', None, '\u2713', False), 'x')
 
 
 def test_optional_tilde_escape_is_explicit() -> None:

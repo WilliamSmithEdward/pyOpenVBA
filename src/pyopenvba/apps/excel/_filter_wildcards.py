@@ -1,17 +1,21 @@
 """Whole-string filter wildcards with bounded, non-backtracking transitions.
 
 Callers retain their own type, text-admission and criterion-length policies.
-Single-character literal comparisons retain Python's Unicode IGNORECASE rules;
-only escaped literal characters are compiled as regular expressions.
+In :func:`matches` single-character literal comparisons retain Python's Unicode
+IGNORECASE rules; only escaped literal characters are compiled as regular
+expressions. :func:`matches_by` compares them by a key the caller gives.
 """
 from __future__ import annotations
 
 import re
+from collections.abc import Callable, Hashable
 from functools import lru_cache
 
 
 @lru_cache(maxsize=64)
-def _compile(pattern: str, escape_tilde: bool) -> tuple[int, int, tuple[tuple[re.Pattern[str], int], ...], int]:
+def _parsed(pattern: str, escape_tilde: bool) -> tuple[int, int, tuple[tuple[str, int], ...], int]:
+    """The places of a pattern's stars and question marks as bits, each literal character with the bits of its
+    places, and the bit past the last place."""
     stars, questions, count = 0, 0, 0
     literals: dict[str, int] = {}
     index = 0
@@ -33,8 +37,14 @@ def _compile(pattern: str, escape_tilde: bool) -> tuple[int, int, tuple[tuple[re
             literals[char] = literals.get(char, 0) | (1 << count)
         count += 1
         index += 1
-    compiled = tuple((re.compile(re.escape(char), re.IGNORECASE), mask) for char, mask in literals.items())
-    return stars, questions, compiled, 1 << count
+    return stars, questions, tuple(literals.items()), 1 << count
+
+
+@lru_cache(maxsize=64)
+def _compile(pattern: str, escape_tilde: bool) -> tuple[int, int, tuple[tuple[re.Pattern[str], int], ...], int]:
+    stars, questions, literals, final = _parsed(pattern, escape_tilde)
+    compiled = tuple((re.compile(re.escape(char), re.IGNORECASE), mask) for char, mask in literals)
+    return stars, questions, compiled, final
 
 
 def _literal_mask(char: str, literals: tuple[tuple[re.Pattern[str], int], ...]) -> int:
@@ -43,6 +53,20 @@ def _literal_mask(char: str, literals: tuple[tuple[re.Pattern[str], int], ...]) 
         if literal.fullmatch(char) is not None:
             mask |= positions
     return mask
+
+
+def _run(text: str, stars: int, questions: int, final: int, mask_of: Callable[[str], int]) -> bool:
+    states = 1
+    states |= (states & stars) << 1
+    masks: dict[str, int] = {}
+    for char in text:
+        if char not in masks:
+            masks[char] = mask_of(char)
+        states = ((states & (questions | masks[char])) << 1) | (states & stars)
+        states |= (states & stars) << 1
+        if not states:
+            return False
+    return bool(states & final)
 
 
 def matches(text: str, pattern: str, *, escape_tilde: bool = False) -> bool:
@@ -54,14 +78,14 @@ def matches(text: str, pattern: str, *, escape_tilde: bool = False) -> bool:
     AutoFilter escapes only * and ?; other callers may explicitly escape ~ too.
     """
     stars, questions, literals, final = _compile(pattern, escape_tilde)
-    states = 1
-    states |= (states & stars) << 1
-    masks: dict[str, int] = {}
-    for char in text:
-        if char not in masks:
-            masks[char] = _literal_mask(char, literals)
-        states = ((states & (questions | masks[char])) << 1) | (states & stars)
-        states |= (states & stars) << 1
-        if not states:
-            return False
-    return bool(states & final)
+    return _run(text, stars, questions, final, lambda char: _literal_mask(char, literals))
+
+
+def matches_by(text: str, pattern: str, key: Callable[[str], Hashable], *, escape_tilde: bool = False) -> bool:
+    """As :func:`matches`, a literal standing for every character with its ``key``."""
+    stars, questions, literals, final = _parsed(pattern, escape_tilde)
+    keyed: dict[Hashable, int] = {}
+    for char, mask in literals:
+        found = key(char)
+        keyed[found] = keyed.get(found, 0) | mask
+    return _run(text, stars, questions, final, lambda char: keyed.get(key(char), 0))

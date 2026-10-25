@@ -1,0 +1,311 @@
+{
+"values": [
+"aesop",
+"\u00c6sop",
+"AESOP",
+"strasse",
+"stra\u00dfe",
+"STRASSE",
+"resume",
+"r\u00e9sum\u00e9",
+"R\u00c9SUM\u00c9",
+"re\u0301sume\u0301",
+"oeuvre",
+"\u0153uvre",
+"kelvin",
+"\u212aelvin",
+"coop",
+"co-op",
+"co\u2010op",
+"naive",
+"na\u00efve",
+"istanbul",
+"\u0130stanbul",
+"\u01c5emal",
+"\u01c6emal",
+"\u03c3\u03bf\u03c6\u03af\u03b1",
+"\u03a3\u039f\u03a6\u0399\u0391",
+"\u0440\u0435\u0437\u044e\u043c\u0435",
+"\u0420\u0415\u0417\u042e\u041c\u0415",
+"caf\u00e9",
+"CAF\u00c9",
+"cafe",
+"m",
+"n",
+"z",
+"\u00e9",
+"e",
+"f"
+],
+"criteria": [
+"aesop",
+"=aesop",
+"=\u00c6sop",
+"=AESOP",
+"=strasse",
+"=stra\u00dfe",
+"=resume",
+"=r\u00e9sum\u00e9",
+"=RESUME",
+"=re\u0301sume\u0301",
+"=oeuvre",
+"=\u0153uvre",
+"=kelvin",
+"=\u212aelvin",
+"=coop",
+"=co-op",
+"=naive",
+"=na\u00efve",
+"=istanbul",
+"=\u0130stanbul",
+"=\u01c6emal",
+"=\u03c3\u03bf\u03c6\u03af\u03b1",
+"=\u03a3\u039f\u03a6\u0399\u0391",
+"=\u0440\u0435\u0437\u044e\u043c\u0435",
+"<>aesop",
+"<>caf\u00e9",
+"*sop",
+"\u00e6*",
+"ae*",
+"*\u00e9*",
+"*e*",
+"r?sum?",
+"caf?",
+"*ss*",
+"*\u00df*",
+"co?op",
+"co*op",
+"\u212a*",
+"k*",
+">m",
+">=e",
+"<f",
+">\u00e9",
+"<\u00e9",
+">=caf\u00e9",
+">resume",
+"<r\u00e9sum\u00e9",
+">=oeuvre",
+"<\u0153uvre",
+">\u03b1",
+"<\u0430"
+],
+"lists": [
+[
+"aesop"
+],
+[
+"\u00c6sop"
+],
+[
+"caf\u00e9",
+"resume"
+],
+[
+"strasse"
+],
+[
+"\u212aelvin"
+],
+[
+"co-op"
+]
+],
+"code": "Private Function Shown(ws As Object) As String\n    Dim r As Long, out As String\n    For r = 2 To 37\n        If ws.Rows(r).Hidden Then out = out & \"0\" Else out = out & \"1\"\n    Next\n    Shown = out\nEnd Function\n\nPublic Function Measure() As String\n    Dim wb As Object, ws As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Columns(\"A\").NumberFormat = \"@\"\n    ws.Cells(1, 1).Value = \"Word\"\n    ws.Cells(2, 1).Value = ChrW(97) & ChrW(101) & ChrW(115) & ChrW(111) & ChrW(112)\n    ws.Cells(3, 1).Value = ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112)\n    ws.Cells(4, 1).Value = ChrW(65) & ChrW(69) & ChrW(83) & ChrW(79) & ChrW(80)\n    ws.Cells(5, 1).Value = ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(115) & ChrW(115) & ChrW(101)\n    ws.Cells(6, 1).Value = ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(223) & ChrW(101)\n    ws.Cells(7, 1).Value = ChrW(83) & ChrW(84) & ChrW(82) & ChrW(65) & ChrW(83) & ChrW(83) & ChrW(69)\n    ws.Cells(8, 1).Value = ChrW(114) & ChrW(101) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(101)\n    ws.Cells(9, 1).Value = ChrW(114) & ChrW(233) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(233)\n    ws.Cells(10, 1).Value = ChrW(82) & ChrW(201) & ChrW(83) & ChrW(85) & ChrW(77) & ChrW(201)\n    ws.Cells(11, 1).Value = ChrW(114) & ChrW(101) & ChrW(769) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(101) & ChrW(769)\n    ws.Cells(12, 1).Value = ChrW(111) & ChrW(101) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)\n    ws.Cells(13, 1).Value = ChrW(339) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)\n    ws.Cells(14, 1).Value = ChrW(107) & ChrW(101) & ChrW(108) & ChrW(118) & ChrW(105) & ChrW(110)\n    ws.Cells(15, 1).Value = ChrW(8490) & ChrW(101) & ChrW(108) & ChrW(118) & ChrW(105) & ChrW(110)\n    ws.Cells(16, 1).Value = ChrW(99) & ChrW(111) & ChrW(111) & ChrW(112)\n    ws.Cells(17, 1).Value = ChrW(99) & ChrW(111) & ChrW(45) & ChrW(111) & ChrW(112)\n    ws.Cells(18, 1).Value = ChrW(99) & ChrW(111) & ChrW(8208) & ChrW(111) & ChrW(112)\n    ws.Cells(19, 1).Value = ChrW(110) & ChrW(97) & ChrW(105) & ChrW(118) & ChrW(101)\n    ws.Cells(20, 1).Value = ChrW(110) & ChrW(97) & ChrW(239) & ChrW(118) & ChrW(101)\n    ws.Cells(21, 1).Value = ChrW(105) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108)\n    ws.Cells(22, 1).Value = ChrW(304) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108)\n    ws.Cells(23, 1).Value = ChrW(453) & ChrW(101) & ChrW(109) & ChrW(97) & ChrW(108)\n    ws.Cells(24, 1).Value = ChrW(454) & ChrW(101) & ChrW(109) & ChrW(97) & ChrW(108)\n    ws.Cells(25, 1).Value = ChrW(963) & ChrW(959) & ChrW(966) & ChrW(943) & ChrW(945)\n    ws.Cells(26, 1).Value = ChrW(931) & ChrW(927) & ChrW(934) & ChrW(921) & ChrW(913)\n    ws.Cells(27, 1).Value = ChrW(1088) & ChrW(1077) & ChrW(1079) & ChrW(1102) & ChrW(1084) & ChrW(1077)\n    ws.Cells(28, 1).Value = ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045)\n    ws.Cells(29, 1).Value = ChrW(99) & ChrW(97) & ChrW(102) & ChrW(233)\n    ws.Cells(30, 1).Value = ChrW(67) & ChrW(65) & ChrW(70) & ChrW(201)\n    ws.Cells(31, 1).Value = ChrW(99) & ChrW(97) & ChrW(102) & ChrW(101)\n    ws.Cells(32, 1).Value = ChrW(109)\n    ws.Cells(33, 1).Value = ChrW(110)\n    ws.Cells(34, 1).Value = ChrW(122)\n    ws.Cells(35, 1).Value = ChrW(233)\n    ws.Cells(36, 1).Value = ChrW(101)\n    ws.Cells(37, 1).Value = ChrW(102)\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(97) & ChrW(101) & ChrW(115) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(97) & ChrW(101) & ChrW(115) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(65) & ChrW(69) & ChrW(83) & ChrW(79) & ChrW(80)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(115) & ChrW(115) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(223) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(114) & ChrW(101) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(114) & ChrW(233) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(233)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(82) & ChrW(69) & ChrW(83) & ChrW(85) & ChrW(77) & ChrW(69)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(114) & ChrW(101) & ChrW(769) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(101) & ChrW(769)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(111) & ChrW(101) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(339) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(107) & ChrW(101) & ChrW(108) & ChrW(118) & ChrW(105) & ChrW(110)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(8490) & ChrW(101) & ChrW(108) & ChrW(118) & ChrW(105) & ChrW(110)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(99) & ChrW(111) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(99) & ChrW(111) & ChrW(45) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(110) & ChrW(97) & ChrW(105) & ChrW(118) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(110) & ChrW(97) & ChrW(239) & ChrW(118) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(105) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(304) & ChrW(115) & ChrW(116) & ChrW(97) & ChrW(110) & ChrW(98) & ChrW(117) & ChrW(108)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(454) & ChrW(101) & ChrW(109) & ChrW(97) & ChrW(108)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(963) & ChrW(959) & ChrW(966) & ChrW(943) & ChrW(945)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(931) & ChrW(927) & ChrW(934) & ChrW(921) & ChrW(913)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(61) & ChrW(1088) & ChrW(1077) & ChrW(1079) & ChrW(1102) & ChrW(1084) & ChrW(1077)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(60) & ChrW(62) & ChrW(97) & ChrW(101) & ChrW(115) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(60) & ChrW(62) & ChrW(99) & ChrW(97) & ChrW(102) & ChrW(233)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(42) & ChrW(115) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(230) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(97) & ChrW(101) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(42) & ChrW(233) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(42) & ChrW(101) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(114) & ChrW(63) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(63)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(99) & ChrW(97) & ChrW(102) & ChrW(63)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(42) & ChrW(115) & ChrW(115) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(42) & ChrW(223) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(99) & ChrW(111) & ChrW(63) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(99) & ChrW(111) & ChrW(42) & ChrW(111) & ChrW(112)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(8490) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(107) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(62) & ChrW(109)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(62) & ChrW(61) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(60) & ChrW(102)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(62) & ChrW(233)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(60) & ChrW(233)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(62) & ChrW(61) & ChrW(99) & ChrW(97) & ChrW(102) & ChrW(233)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(62) & ChrW(114) & ChrW(101) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(60) & ChrW(114) & ChrW(233) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(233)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(62) & ChrW(61) & ChrW(111) & ChrW(101) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(60) & ChrW(339) & ChrW(117) & ChrW(118) & ChrW(114) & ChrW(101)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(62) & ChrW(945)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=ChrW(60) & ChrW(1072)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    out = out & \"|\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=Array(ChrW(97) & ChrW(101) & ChrW(115) & ChrW(111) & ChrW(112)), Operator:=xlFilterValues\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=Array(ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112)), Operator:=xlFilterValues\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=Array(ChrW(99) & ChrW(97) & ChrW(102) & ChrW(233), ChrW(114) & ChrW(101) & ChrW(115) & ChrW(117) & ChrW(109) & ChrW(101)), Operator:=xlFilterValues\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=Array(ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(115) & ChrW(115) & ChrW(101)), Operator:=xlFilterValues\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=Array(ChrW(8490) & ChrW(101) & ChrW(108) & ChrW(118) & ChrW(105) & ChrW(110)), Operator:=xlFilterValues\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A37\").AutoFilter Field:=1, Criteria1:=Array(ChrW(99) & ChrW(111) & ChrW(45) & ChrW(111) & ChrW(112)), Operator:=xlFilterValues\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws) & \",\"\n    On Error GoTo 0\n    wb.Close False\n    Measure = out\nEnd Function\n",
+"raw": "111000000000000000000000000000000000,111000000000000000000000000000000000,111000000000000000000000000000000000,111000000000000000000000000000000000,000111000000000000000000000000000000,000111000000000000000000000000000000,000000100000000000000000000000000000,000000011100000000000000000000000000,000000100000000000000000000000000000,000000011100000000000000000000000000,000000000011000000000000000000000000,000000000011000000000000000000000000,000000000000110000000000000000000000,000000000000110000000000000000000000,000000000000001000000000000000000000,000000000000000100000000000000000000,000000000000000001000000000000000000,000000000000000000100000000000000000,000000000000000000010000000000000000,000000000000000000001000000000000000,000000000000000000000110000000000000,000000000000000000000001000000000000,000000000000000000000000100000000000,000000000000000000000000011000000000,000111111111111111111111111111111111,111111111111111111111111111001111111,111000000000000000000000000000000000,010000000000000000000000000000000000,101000000000000000000000000000000000,000000011000000000000000000110000100,101111100111110001100110000001000010,000000111000000000000000000000000000,000000000000000000000000000111000000,000101000000000000000000000000000000,000010000000000000000000000000000000,000000000000000110000000000000000000,000000000000001110000000000000000000,000000000000110000000000000000000000,000000000000110000000000000000000000,000111111111000001100001111000011000,000111111111110001111001111000111111,111000000000001110000110000111000110,000111111111110001111001111000111001,111000000000001110000110000111000010,000111111111111111111111111110111111,000111011100000000000001111000001000,111000100011111111111110000111110111,000111111111000000000001111000001000,111000000000111111111110000111110111,000000000000000000000001111000000000,111111111111111111111111100111111111,|111000000000000000000000000000000000,111000000000000000000000000000000000,000000100000000000000000000110000000,000111000000000000000000000000000000,000000000000110000000000000000000000,000000000000000100000000000000000000,",
+"by_criterion": {
+"aesop": "111000000000000000000000000000000000",
+"=aesop": "111000000000000000000000000000000000",
+"=\u00c6sop": "111000000000000000000000000000000000",
+"=AESOP": "111000000000000000000000000000000000",
+"=strasse": "000111000000000000000000000000000000",
+"=stra\u00dfe": "000111000000000000000000000000000000",
+"=resume": "000000100000000000000000000000000000",
+"=r\u00e9sum\u00e9": "000000011100000000000000000000000000",
+"=RESUME": "000000100000000000000000000000000000",
+"=re\u0301sume\u0301": "000000011100000000000000000000000000",
+"=oeuvre": "000000000011000000000000000000000000",
+"=\u0153uvre": "000000000011000000000000000000000000",
+"=kelvin": "000000000000110000000000000000000000",
+"=\u212aelvin": "000000000000110000000000000000000000",
+"=coop": "000000000000001000000000000000000000",
+"=co-op": "000000000000000100000000000000000000",
+"=naive": "000000000000000001000000000000000000",
+"=na\u00efve": "000000000000000000100000000000000000",
+"=istanbul": "000000000000000000010000000000000000",
+"=\u0130stanbul": "000000000000000000001000000000000000",
+"=\u01c6emal": "000000000000000000000110000000000000",
+"=\u03c3\u03bf\u03c6\u03af\u03b1": "000000000000000000000001000000000000",
+"=\u03a3\u039f\u03a6\u0399\u0391": "000000000000000000000000100000000000",
+"=\u0440\u0435\u0437\u044e\u043c\u0435": "000000000000000000000000011000000000",
+"<>aesop": "000111111111111111111111111111111111",
+"<>caf\u00e9": "111111111111111111111111111001111111",
+"*sop": "111000000000000000000000000000000000",
+"\u00e6*": "010000000000000000000000000000000000",
+"ae*": "101000000000000000000000000000000000",
+"*\u00e9*": "000000011000000000000000000110000100",
+"*e*": "101111100111110001100110000001000010",
+"r?sum?": "000000111000000000000000000000000000",
+"caf?": "000000000000000000000000000111000000",
+"*ss*": "000101000000000000000000000000000000",
+"*\u00df*": "000010000000000000000000000000000000",
+"co?op": "000000000000000110000000000000000000",
+"co*op": "000000000000001110000000000000000000",
+"\u212a*": "000000000000110000000000000000000000",
+"k*": "000000000000110000000000000000000000",
+">m": "000111111111000001100001111000011000",
+">=e": "000111111111110001111001111000111111",
+"<f": "111000000000001110000110000111000110",
+">\u00e9": "000111111111110001111001111000111001",
+"<\u00e9": "111000000000001110000110000111000010",
+">=caf\u00e9": "000111111111111111111111111110111111",
+">resume": "000111011100000000000001111000001000",
+"<r\u00e9sum\u00e9": "111000100011111111111110000111110111",
+">=oeuvre": "000111111111000000000001111000001000",
+"<\u0153uvre": "111000000000111111111110000111110111",
+">\u03b1": "000000000000000000000001111000000000",
+"<\u0430": "111111111111111111111111100111111111"
+},
+"by_list": [
+[
+[
+"aesop"
+],
+"111000000000000000000000000000000000"
+],
+[
+[
+"\u00c6sop"
+],
+"111000000000000000000000000000000000"
+],
+[
+[
+"caf\u00e9",
+"resume"
+],
+"000000100000000000000000000110000000"
+],
+[
+[
+"strasse"
+],
+"000111000000000000000000000000000000"
+],
+[
+[
+"\u212aelvin"
+],
+"000000000000110000000000000000000000"
+],
+[
+[
+"co-op"
+],
+"000000000000000100000000000000000000"
+]
+],
+"letters": [
+[
+"I",
+"\u0131"
+],
+[
+"S",
+"\u017f"
+],
+[
+"\u03bc",
+"\u00b5"
+],
+[
+"\u03b8",
+"\u03d1"
+],
+[
+"\u03c3",
+"\u03c2"
+],
+[
+"\u00df",
+"\u1e9e"
+],
+[
+"\u01c4",
+"\u01c6"
+],
+[
+"\u00c5",
+"\u212b"
+],
+[
+"\u03a9",
+"\u2126"
+],
+[
+"i",
+"\u0130"
+],
+[
+"K",
+"\u212a"
+],
+[
+"e",
+"\u00e9"
+],
+[
+"\u00e6",
+"a"
+]
+],
+"letters_code": "Private Function Shown(ws As Object, last As Long) As String\n    Dim r As Long, out As String\n    For r = 2 To last\n        If ws.Rows(r).Hidden Then out = out & \"0\" Else out = out & \"1\"\n    Next\n    Shown = out\nEnd Function\n\nPublic Function Letters(path As String) As String\n    Dim wb As Object, ws As Object, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Columns(\"A\").NumberFormat = \"@\"\n    ws.Cells(1, 1).Value = \"Word\"\n    ws.Cells(2, 1).Value = ChrW(120) & ChrW(73) & ChrW(121)\n    ws.Cells(3, 1).Value = ChrW(120) & ChrW(305) & ChrW(121)\n    ws.Cells(4, 1).Value = ChrW(120) & ChrW(83) & ChrW(121)\n    ws.Cells(5, 1).Value = ChrW(120) & ChrW(383) & ChrW(121)\n    ws.Cells(6, 1).Value = ChrW(120) & ChrW(956) & ChrW(121)\n    ws.Cells(7, 1).Value = ChrW(120) & ChrW(181) & ChrW(121)\n    ws.Cells(8, 1).Value = ChrW(120) & ChrW(952) & ChrW(121)\n    ws.Cells(9, 1).Value = ChrW(120) & ChrW(977) & ChrW(121)\n    ws.Cells(10, 1).Value = ChrW(120) & ChrW(963) & ChrW(121)\n    ws.Cells(11, 1).Value = ChrW(120) & ChrW(962) & ChrW(121)\n    ws.Cells(12, 1).Value = ChrW(120) & ChrW(223) & ChrW(121)\n    ws.Cells(13, 1).Value = ChrW(120) & ChrW(7838) & ChrW(121)\n    ws.Cells(14, 1).Value = ChrW(120) & ChrW(452) & ChrW(121)\n    ws.Cells(15, 1).Value = ChrW(120) & ChrW(454) & ChrW(121)\n    ws.Cells(16, 1).Value = ChrW(120) & ChrW(197) & ChrW(121)\n    ws.Cells(17, 1).Value = ChrW(120) & ChrW(8491) & ChrW(121)\n    ws.Cells(18, 1).Value = ChrW(120) & ChrW(937) & ChrW(121)\n    ws.Cells(19, 1).Value = ChrW(120) & ChrW(8486) & ChrW(121)\n    ws.Cells(20, 1).Value = ChrW(120) & ChrW(105) & ChrW(121)\n    ws.Cells(21, 1).Value = ChrW(120) & ChrW(304) & ChrW(121)\n    ws.Cells(22, 1).Value = ChrW(120) & ChrW(75) & ChrW(121)\n    ws.Cells(23, 1).Value = ChrW(120) & ChrW(8490) & ChrW(121)\n    ws.Cells(24, 1).Value = ChrW(120) & ChrW(101) & ChrW(121)\n    ws.Cells(25, 1).Value = ChrW(120) & ChrW(233) & ChrW(121)\n    ws.Cells(26, 1).Value = ChrW(120) & ChrW(230) & ChrW(121)\n    ws.Cells(27, 1).Value = ChrW(120) & ChrW(97) & ChrW(121)\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(73) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(305) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(83) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(383) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(956) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(181) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(952) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(977) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(963) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(962) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(223) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(7838) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(452) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(454) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(197) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(8491) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(937) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(8486) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(105) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(304) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(75) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(8490) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(101) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(233) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(230) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    Err.Clear\n    ws.Range(\"A1:A27\").AutoFilter Field:=1, Criteria1:=ChrW(120) & ChrW(97) & ChrW(42)\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \",\" Else out = out & Shown(ws, 27) & \",\"\n    out = out & \"|\"\n    On Error GoTo 0\n    ws.AutoFilterMode = False\n    ws.Cells.Clear\n    ws.Cells(1, 1).Value = \"Word\"\n    ws.Cells(2, 1).Value = ChrW(233)\n    ws.Cells(3, 1).Value = ChrW(122)\n    ws.Cells(4, 1).Value = ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112)\n    ws.Cells(5, 1).Value = ChrW(101)\n    ws.Cells(6, 1).Value = ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045)\n    ws.Cells(7, 1).Value = ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(115) & ChrW(115) & ChrW(101)\n    ws.Cells(8, 1).Value = ChrW(945)\n    ws.Range(\"A1:A8\").AutoFilter Field:=1, Criteria1:=Array(ChrW(233), ChrW(122), ChrW(198) & ChrW(115) & ChrW(111) & ChrW(112), ChrW(101), ChrW(1056) & ChrW(1045) & ChrW(1047) & ChrW(1070) & ChrW(1052) & ChrW(1045), ChrW(115) & ChrW(116) & ChrW(114) & ChrW(97) & ChrW(115) & ChrW(115) & ChrW(101), ChrW(945)), Operator:=xlFilterValues\n    out = out & Shown(ws, 8)\n    Application.DisplayAlerts = False\n    wb.SaveAs path, 51\n    wb.Close False\n    Letters = out\nEnd Function\n",
+"letters_raw": "10000000000000000010000000,01000000000000000000000000,00100000000000000000000000,00010000000000000000000000,00001000000000000000000000,00000100000000000000000000,00000010000000000000000000,00000001000000000000000000,00000000110000000000000000,00000000110000000000000000,00000000001100000000000000,00000000001100000000000000,00000000000011000000000000,00000000000011000000000000,00000000000000110000000000,00000000000000110000000000,00000000000000001100000000,00000000000000001100000000,10000000000000000010000000,00000000000000000001000000,00000000000000000000110000,00000000000000000000110000,00000000000000000000001000,00000000000000000000000100,00000000000000000000000010,00000000000000000000000001,|1111111",
+"by_letter": [
+"10000000000000000010000000",
+"01000000000000000000000000",
+"00100000000000000000000000",
+"00010000000000000000000000",
+"00001000000000000000000000",
+"00000100000000000000000000",
+"00000010000000000000000000",
+"00000001000000000000000000",
+"00000000110000000000000000",
+"00000000110000000000000000",
+"00000000001100000000000000",
+"00000000001100000000000000",
+"00000000000011000000000000",
+"00000000000011000000000000",
+"00000000000000110000000000",
+"00000000000000110000000000",
+"00000000000000001100000000",
+"00000000000000001100000000",
+"10000000000000000010000000",
+"00000000000000000001000000",
+"00000000000000000000110000",
+"00000000000000000000110000",
+"00000000000000000000001000",
+"00000000000000000000000100",
+"00000000000000000000000010",
+"00000000000000000000000001"
+],
+"saved_list": [
+"\u00e9",
+"z",
+"\u00c6sop",
+"e",
+"\u0420\u0415\u0417\u042e\u041c\u0415",
+"strasse",
+"\u03b1"
+],
+"saved_kept": "1111111",
+"saved_values": [
+"\u00c6sop",
+"e",
+"\u00e9",
+"strasse",
+"z",
+"\u03b1",
+"\u0420\u0415\u0417\u042e\u041c\u0415"
+]
+}

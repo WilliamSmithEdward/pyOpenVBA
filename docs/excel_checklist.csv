@@ -2263,7 +2263,7 @@ Window,DisplayGridlines,property,As Boolean,,VERIFIED,tests/fixtures/windows/win
 Window,DisplayHeadings,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,DisplayHorizontalScrollBar,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,DisplayOutline,property,As Boolean,,MISSING,,
-Window,DisplayRightToLeft,property,As Boolean,,MISSING,,
+Window,DisplayRightToLeft,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,The active sheet's view's rightToLeft (rtl_window)
 Window,DisplayRuler,property,As Boolean,,MISSING,,
 Window,DisplayVerticalScrollBar,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,DisplayWhitespace,property,As Boolean,,MISSING,,
@@ -2607,13 +2607,13 @@ Worksheet,CustomProperties,"property, read-only",As CustomProperties,,MISSING,,
 Worksheet,Deactivate,event,Deactivate(),,MISSING,,
 Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Removes worksheet runtime document and saved VBA module; native persistence gate. The formulas and names that read the sheet read #REF! in its place; the active sheet stays, or where it is the one deleted the next visible sheet after it is active, or the last visible one before it. Deleting every visible sheet, event/object lifetime and dialog conformance remain incomplete."
 Worksheet,DisplayPageBreaks,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, as Application's switches do, and is not saved, measured"
-Worksheet,DisplayRightToLeft,property,As Boolean,,MISSING,,
+Worksheet,DisplayRightToLeft,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"The sheet view's rightToLeft, the window's DisplayRightToLeft too, saved and kept by a copy; cells keep their Left"
 Worksheet,DrawingObjects,not in the type library,,,UNASSESSED,,
-Worksheet,EnableAutoFilter,property,As Boolean,,MISSING,,
-Worksheet,EnableCalculation,property,As Boolean,,MISSING,,
-Worksheet,EnableFormatConditionsCalculation,property,As Boolean,,MISSING,,
-Worksheet,EnableOutlining,property,As Boolean,,MISSING,,
-Worksheet,EnablePivotTable,property,As Boolean,,MISSING,,
+Worksheet,EnableAutoFilter,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; kept by a copy, not saved; it changes nothing the model does"
+Worksheet,EnableCalculation,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"False keeps the sheet's formulas through every calculation, a formula written there reading 0; True again works the sheet out under automatic calculation; not copied or saved; over 10 live cases"
+Worksheet,EnableFormatConditionsCalculation,property,As Boolean,,MISSING,,"Excel's reading lags behind a setting, on a new workbook True until a sheet is added or copied; left unimplemented"
+Worksheet,EnableOutlining,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; kept by a copy, not saved; it changes nothing the model does"
+Worksheet,EnablePivotTable,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; kept by a copy, not saved; it changes nothing the model does"
 Worksheet,EnableSelection,property,As XlEnableSelection,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"Kept as set, and saved and read as Excel does; the model has no selection to restrict."
 Worksheet,Evaluate,method,Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/evaluate.json; tests/test_excel_conditional_udf.py; tests/test_excel_conditional_udf_context.py; tests/fixtures/conditional_udf,"As Application.Evaluate, with references on this sheet rather than the active one. Native nested Evaluate controls permit fresh DisplayFormat acquisition by evaluated UDFs, restore the enclosing worksheet/conditional origin afterward, and retain existing UDF mutation restrictions."
 Worksheet,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
@@ -2660,7 +2660,7 @@ Worksheet,ResetAllPageBreaks,method,ResetAllPageBreaks(),,PARTIAL,tests/test_exc
 Worksheet,Rows,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,SaveAs,method,"SaveAs(Filename As String, [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant])",,MISSING,,
 Worksheet,Scenarios,method,Scenarios([Index As Variant]) As Object,,MISSING,,
-Worksheet,ScrollArea,property,As String,,MISSING,,
+Worksheet,ScrollArea,property,As String,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Takes text Range takes on the sheet, one area, and reads its absolute address; anything else changes nothing; """" and Empty clear it; set with the active cell outside, and Goto outside, select its first cell; not copied or saved; over 48 live settings and 5 cases"
 Worksheet,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/sheet_groups.json,"The sheet active and alone; with Replace:=False it joins the selection, the active sheet staying. Activating a sheet of a group keeps the group."
 Worksheet,SelectionChange,event,SelectionChange(Target As Range),,MISSING,,
 Worksheet,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,MISSING,,
@@ -2672,8 +2672,8 @@ Worksheet,StandardHeight,"property, read-only",As Double,,PARTIAL,tests/fixtures
 Worksheet,StandardWidth,property,As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
 Worksheet,Tab,"property, read-only",As Tab,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"The sheet's tab, whose colour a save keeps as the sheetPr's tabColor and a copied sheet carries."
 Worksheet,TableUpdate,event,TableUpdate(Target As TableObject),,MISSING,,
-Worksheet,TransitionExpEval,property,As Boolean,,MISSING,,
-Worksheet,TransitionFormEntry,property,As Boolean,,MISSING,,
+Worksheet,TransitionExpEval,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,Saved as sheetPr transitionEvaluation and kept by a copy; 1-2-3's rules of evaluation are not modelled
+Worksheet,TransitionFormEntry,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,Saved as sheetPr transitionEntry and kept by a copy
 Worksheet,Type,"property, read-only",As XlSheetType,,UNASSESSED,,
 Worksheet,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"The password matched case and all, any opening a sheet that has none; given none where Excel would ask in a dialog, it reports itself unsupported. Saved and read as Excel saves and reads it."
 Worksheet,UsedRange,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,

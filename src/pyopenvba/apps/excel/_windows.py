@@ -101,6 +101,8 @@ class SheetViewState:
     headings: bool = True
     zeros: bool = True
     formulas: bool = False
+    #: rightToLeft, Worksheet.DisplayRightToLeft and the window's (tests/fixtures/worksheet_settings.json).
+    right_to_left: bool = False
     top_left: tuple[int, int] = (1, 1)
     #: The pane's state: "" with no panes, "split", "frozen" or "frozenSplit".
     state: str = ""
@@ -163,6 +165,7 @@ def read_view(sheet: Worksheet, xml: str) -> None:
     view.gridlines = _flag(head.get("showGridLines"), True)
     view.headings = _flag(head.get("showRowColHeaders"), True)
     view.zeros = _flag(head.get("showZeros"), True)
+    view.right_to_left = _flag(head.get("rightToLeft"), False)
     view.tab_selected = _flag(head.get("tabSelected"), False)
     view.top_left = _cell(head.get("topLeftCell", "")) or (1, 1)
     pane = _PANE.search(element)
@@ -256,7 +259,7 @@ def with_view(sheet: Worksheet, xml: str, *, tabs: bool) -> str:
         replacement = _rewritten(sheet, element, active)
     else:
         opening, inside = _opening(element)
-        replacement = _closed(_with_attribute(opening, "tabSelected", "1" if active else "", _SHEET_VIEW_ORDER),
+        replacement = _closed(with_attribute(opening, "tabSelected", "1" if active else "", _SHEET_VIEW_ORDER),
                               inside, "sheetView")
     return xml[:found.start()] + replacement + xml[found.end():]
 
@@ -273,7 +276,7 @@ def _closed(opening: str, inside: str, tag: str) -> str:
     return f"{opening}>{inside}</{tag}>" if inside else f"{opening}/>"
 
 
-def _with_attribute(opening: str, name: str, value: str, order: tuple[str, ...]) -> str:
+def with_attribute(opening: str, name: str, value: str, order: tuple[str, ...]) -> str:
     """An opening tag with one attribute set, in the place the schema gives it, or taken out when ``value`` is ""."""
     opening = re.sub(rf'\s{re.escape(name)}="[^"]*"', "", opening)
     if not value:
@@ -297,11 +300,12 @@ def _rewritten(sheet: Worksheet, element: str, active: bool) -> str:
                         ("showGridLines", "" if view.gridlines else "0"),
                         ("showRowColHeaders", "" if view.headings else "0"),
                         ("showZeros", "" if view.zeros else "0"),
+                        ("rightToLeft", "1" if view.right_to_left else ""),
                         ("tabSelected", "1" if active else ""),
                         ("view", "" if view.view == 1 else VIEWS[view.view]),
                         ("topLeftCell", "" if view.top_left == (1, 1) else _spelled_cell(*view.top_left)),
                         *zooms):
-        opening = _with_attribute(opening, name, value, _SHEET_VIEW_ORDER)
+        opening = with_attribute(opening, name, value, _SHEET_VIEW_ORDER)
     kept = "".join(found.group(0) for found in _KEPT.finditer(inside))
     return _closed(opening, _pane_xml(view) + _selections_xml(sheet) + kept, "sheetView")
 
@@ -375,7 +379,7 @@ def with_book_view(book: Workbook, xml: str) -> str:
                         ("showSheetTabs", "" if view.tabs else "0"),
                         ("tabRatio", "" if ratio == 600 else str(ratio)),
                         ("activeTab", str(active) if active else "")):
-        opening = _with_attribute(opening, name, value, _BOOK_VIEW_ORDER)
+        opening = with_attribute(opening, name, value, _BOOK_VIEW_ORDER)
     return xml[:found.start()] + opening + closing + xml[found.end():]
 
 
@@ -487,6 +491,9 @@ def goto(application: Application, reference: object, scroll: object) -> None:
     if application.active_book is not sheet.book or sheet.book.active_sheet is not sheet:
         sheet.Activate()
     target.select_as_excel_does()
+    from pyopenvba.apps.excel._worksheet_settings import after_goto
+
+    after_goto(target)
     if scrolled:
         _scroll_to(sheet.view, 0, target.first.top)
         _scroll_to(sheet.view, 1, target.first.left)
@@ -804,6 +811,15 @@ class Window(ExcelObject):
     @setter("DisplayFormulas")
     def _set_formulas(self, value: object) -> None:
         self._flag("formulas", value)
+
+    @member
+    def DisplayRightToLeft(self) -> object:
+        """The active sheet's, Worksheet.DisplayRightToLeft (rtl_window)."""
+        return self.view().right_to_left
+
+    @setter("DisplayRightToLeft")
+    def _set_right_to_left(self, value: object) -> None:
+        self._flag("right_to_left", value)
 
     # -- scrolling
 

@@ -261,6 +261,10 @@ def _published(stage: _Staged, destination: Workbook, at: int | None, external: 
 
     # And its headers and footers (tests/fixtures/page_headers.json, copied).
     copied_headers(source, copied)
+    from pyopenvba.apps.excel._worksheet_settings import copied as copied_settings
+
+    # And the settings Excel copies with it (tests/fixtures/worksheet_settings.json, copy).
+    copied_settings(source, copied)
     # A protected sheet's copy is protected the same way (tests/fixtures/protection.json).
     copied.protection = source.protection
     copied.protection_allows = source.protection_allows

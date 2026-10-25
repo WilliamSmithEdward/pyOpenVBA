@@ -7,6 +7,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- The Worksheet settings macros set beside Protect or on dashboards
+  follow Excel: `ScrollArea`, `EnableAutoFilter`, `EnableOutlining`,
+  `EnablePivotTable`, `EnableCalculation`, `TransitionExpEval`,
+  `TransitionFormEntry` and `DisplayRightToLeft`, and
+  `Window.DisplayRightToLeft`. `ScrollArea` takes what `Range` takes on
+  the sheet, one area of it, and reads back its address; anything else
+  changes nothing, with no error, and `""` clears it. Set while the
+  active cell is outside it, and by `Goto` outside it, Excel selects its
+  first cell, while a macro's `Select` still goes outside.
+  `EnableCalculation = False` keeps the sheet's formulas as they are
+  through every calculation, a formula written there reading 0, and a
+  save writes the values kept; True again works the sheet out under
+  automatic calculation. A save writes the Transition settings and
+  right-to-left as Excel does, and a copied sheet keeps them and the
+  three Enable switches; the rest are not saved. 209 live settings, 21
+  cases and a workbook saved and opened again agree,
+  `tests/fixtures/worksheet_settings.json`.
+  `EnableFormatConditionsCalculation` is left out, since Excel's reading
+  of it lags behind a setting, and `TransitionExpEval`'s 1-2-3 rules of
+  evaluation are not modelled.
+
 - The Application settings everyday macros switch read back what a
   macro set, as Excel's do, where the model knew none of them:
   `DisplayStatusBar`, `DisplayFormulaBar`, `DisplayScrollBars`,

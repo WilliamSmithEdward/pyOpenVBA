@@ -82,6 +82,18 @@ def quote_sheet(name: str) -> str:
     return "'" + name.replace("'", "''") + "'"
 
 
+def quote_workbook(book: str, sheet: str = "") -> str:
+    """A workbook's sheet as a formula names it from outside the workbook, ``[Book1]Data``, or the workbook alone
+    for one of its names, ``Book1``: in apostrophes where a character of the workbook's name or a sheet's needs
+    them, though a sheet named like a cell stands bare after the workbook's name. ``sheet`` may be a pair of
+    sheets, ``Jan:Mar`` (tests/fixtures/convert_formula.json)."""
+    text = f"[{book}]{sheet}" if sheet else book
+    sheets = sheet.split(":") if sheet else []
+    if _plain(book) and all(_plain(part) for part in sheets):
+        return text
+    return "'" + text.replace("'", "''") + "'"
+
+
 def _plain(name: str) -> bool:
     """Whether every character of a name may stand bare where it is: in ASCII a letter or an underscore first, then
     letters, digits, underscores and full stops; past ASCII any character the two tables above leave out."""

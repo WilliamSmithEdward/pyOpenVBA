@@ -484,8 +484,11 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     if empty:
         dr, dc = (0, 0) if pages else (1, 0)
         height, width = (1, 1) if pages else (18, 3)
-    area = Area(old.top, old.left, old.top + max(1, height) - 1, old.left + max(1, width) - 1, table.sheet.name)
-    if area.bottom > MAX_ROWS or area.right > MAX_COLUMNS or (pages and area.top - page_rows - 1 < 1):
+    # Page fields with no room above the body move it down until they fit, a blank row between; taking them away
+    # leaves it where it is (tests/fixtures/pivot_show_pages/ two_pages).
+    top = max(old.top, page_rows + 2) if pages else old.top
+    area = Area(top, old.left, top + max(1, height) - 1, old.left + max(1, width) - 1, table.sheet.name)
+    if area.bottom > MAX_ROWS or area.right > MAX_COLUMNS:
         raise error(1004)
     extent = Area(area.top - page_rows - 1 if pages else area.top, area.left, area.bottom,
                   max(area.right, area.left + 3 * page_columns - 2) if pages else area.right, table.sheet.name)
@@ -819,9 +822,11 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             given = kept.get(field, {}).get(showing, {}).get('n')
             label = decode_text(given) if given is not None else item_label(values[showing], formats[field])
             put(-page_rows - 1 + row_offset, 3 * column_offset + 1, label)
-            if isinstance(label, Typed):
+            # A number or a date shows aligned left, whatever form the rows take (tests/fixtures/pivot_show_pages/
+            # numbers, numbers_no_rows, numbers_tabular, dates).
+            if isinstance(label, Typed) or (isinstance(label, (int, float)) and not isinstance(label, bool)):
                 labels[area.top - page_rows - 1 + row_offset, area.left + 3 * column_offset + 1] = label_format(
-                    code_of(field, label), None)
+                    code_of(field, label), 0)
         else:
             put(-page_rows - 1 + row_offset, 3 * column_offset + 1, showing)
     previous_areas = [old, extent]

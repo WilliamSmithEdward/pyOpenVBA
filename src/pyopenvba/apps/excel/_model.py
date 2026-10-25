@@ -245,6 +245,9 @@ class Application(ExcelObject):
         self._this_workbook: Workbook | None = None
         self.worksheet_function = WorksheetFunction(self)
         self.find_state = FindState()
+        #: The number the next pivot table a macro makes without naming it takes, counted through the session
+        #: whatever workbook the table is in (see _pivot_create.next_table_name).
+        self.pivot_table_number = 1
 
     # -- identity
 

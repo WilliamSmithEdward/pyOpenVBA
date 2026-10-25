@@ -63,10 +63,8 @@ def test_blank_workbook_has_empty_pivot_collections() -> None:
 
 def test_unimplemented_pivot_source_and_layout_mutations_remain_explicitly_unsupported() -> None:
     app = ExcelApplication.open(ROOT / 'native-simple.xlsx', with_vba=False)
-    for expression in ('ThisWorkbook.PivotCaches.Create(2)',
-                       'Worksheets(1).PivotTables(1).ShowPages("Region")'):
-        with pytest.raises(VBAUnsupportedError):
-            app.evaluate(expression)
+    with pytest.raises(VBAUnsupportedError):
+        app.evaluate('ThisWorkbook.PivotCaches.Create(2)')
 
 
 

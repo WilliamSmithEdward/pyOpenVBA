@@ -375,6 +375,12 @@ class PivotTable(ExcelObject):
         clear_table(self)
         return EMPTY
 
+    @method
+    def ShowPages(self, PageField: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_pages import show_pages
+
+        return show_pages(self, PageField)
+
     @member
     def AllowMultipleFilters(self) -> object:
         return self.entry.root.get('multipleFieldFilters', '1') not in ('0', 'false')

@@ -1,0 +1,481 @@
+{
+ "log": "Public Log As String\n",
+ "sink": "Public WithEvents Book As Workbook\nPublic WithEvents App As Application\nPrivate Sub Book_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)\n    Log = Log & \"book-before:\" & SaveAsUI & \"|\"\nEnd Sub\nPrivate Sub Book_AfterSave(ByVal Success As Boolean)\n    Log = Log & \"book-after:\" & Success & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookBeforeSave(ByVal Wb As Workbook, ByVal SaveAsUI As Boolean, Cancel As Boolean)\n    Log = Log & \"app-before:\" & SaveAsUI & \"|\"\nEnd Sub\nPrivate Sub App_WorkbookAfterSave(ByVal Wb As Workbook, ByVal Success As Boolean)\n    Log = Log & \"app-after:\" & Success & \"|\"\nEnd Sub\n",
+ "probe": "Private Sink As CopySink\n\nPrivate Function Copy(label As String, wb As Workbook, target As Variant, folder As String, _\n                      Optional timed As Boolean) As String\n    Dim was As Boolean, n As String, f As String, e As String, stamp As Variant, moved As String\n    was = wb.Saved\n    n = wb.Name\n    f = wb.FullName\n    On Error Resume Next\n    If timed Then\n        stamp = wb.BuiltinDocumentProperties(\"Last save time\").Value\n        If Err.Number <> 0 Then stamp = Empty\n        Err.Clear\n        Application.Wait Now + TimeSerial(0, 0, 2)\n    End If\n    Log = \"\"\n    wb.SaveCopyAs target\n    e = Err.Number & \":\" & Err.Description\n    Err.Clear\n    If timed Then\n        moved = \"none\"\n        If IsEmpty(stamp) Then\n            If Not IsEmpty(wb.BuiltinDocumentProperties(\"Last save time\").Value) Then moved = \"set\"\n        ElseIf wb.BuiltinDocumentProperties(\"Last save time\").Value = stamp Then\n            moved = \"same\"\n        ElseIf wb.BuiltinDocumentProperties(\"Last save time\").Value > stamp Then\n            moved = \"moved\"\n        End If\n        If Err.Number <> 0 Then moved = \"none\"\n        Err.Clear\n    End If\n    On Error GoTo 0\n    Copy = label & \"^\" & was & \">\" & wb.Saved & \"^\" & (wb.Name = n) & \"^\" & (wb.FullName = f) & \"^\" & Log & \"^\" & _\n        Replace(e, folder, \"<folder>\") & \"^\" & moved & \"~\"\nEnd Function\n\nPrivate Function Linked(wb As Workbook, folder As String) As String\n    Linked = Replace(wb.Worksheets(1).Hyperlinks(1).Address, folder, \"<folder>\")\nEnd Function\n\nPublic Function Probe(folder As String) As String\n    Dim wb As Workbook, other As Workbook, fresh As Workbook, out As String, e As String\n    Set Sink = New CopySink\n    ChDrive Left(folder, 1)\n    ChDir folder\n    Application.EnableEvents = False\n    Application.DisplayAlerts = False\n    out = \"settings^\" & Application.CalculateBeforeSave & \"~\"\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets(1).Range(\"A1\").Value = 1\n    wb.Worksheets(1).Range(\"B1\").Formula = \"=A1*2\"\n    wb.Worksheets(1).Hyperlinks.Add wb.Worksheets(1).Range(\"A3\"), folder & \"\\target.txt\"\n    wb.SaveAs folder & \"\\named.xlsx\", 51\n    Set Sink.Book = wb\n    Set Sink.App = Application\n    Application.EnableEvents = True\n    wb.Worksheets(1).Range(\"A1\").Value = 5\n    out = out & Copy(\"dirty\", wb, folder & \"\\copy1.xlsx\", folder, True)\n    Log = \"\"\n    wb.Save\n    out = out & \"save^\" & Log & \"~\"\n    out = out & Copy(\"clean\", wb, folder & \"\\copy2.xlsx\", folder, True)\n    wb.Worksheets(1).Range(\"A1\").Value = 6\n    out = out & Copy(\"no_extension\", wb, folder & \"\\noext\", folder)\n    out = out & Copy(\"bak\", wb, folder & \"\\copy.bak\", folder)\n    out = out & Copy(\"macro_name\", wb, folder & \"\\as_macro.xlsm\", folder)\n    out = out & Copy(\"missing_folder\", wb, folder & \"\\nope\\missing.xlsx\", folder, True)\n    out = out & Copy(\"own_path\", wb, wb.FullName, folder)\n    Application.EnableEvents = False\n    Set other = Workbooks.Add(xlWBATWorksheet)\n    other.SaveAs folder & \"\\other.xlsx\", 51\n    Application.EnableEvents = True\n    out = out & Copy(\"open_path\", wb, folder & \"\\other.xlsx\", folder)\n    Application.EnableEvents = False\n    other.Close False\n    Application.EnableEvents = True\n    MkDir folder & \"\\sub\"\n    out = out & \"link_before^\" & Linked(wb, folder) & \"~\"\n    out = out & Copy(\"same_name_elsewhere\", wb, folder & \"\\sub\\named.xlsx\", folder)\n    out = out & \"link_after^\" & Linked(wb, folder) & \"~\"\n    out = out & Copy(\"empty_name\", wb, \"\", folder, True)\n    out = out & Copy(\"null_name\", wb, Null, folder)\n    out = out & Copy(\"relative\", wb, \"relative.xlsx\", folder)\n    out = out & Copy(\"quiet_first\", wb, folder & \"\\over.xlsx\", folder)\n    wb.Worksheets(1).Range(\"A1\").Value = 8\n    out = out & Copy(\"quiet_again\", wb, folder & \"\\over.xlsx\", folder)\n    On Error Resume Next\n    wb.SaveCopyAs Filename:=folder & \"\\named_argument.xlsx\"\n    e = Err.Number & \":\" & Err.Description\n    On Error GoTo 0\n    out = out & \"named_argument^\" & Replace(e, folder, \"<folder>\") & \"~\"\n    Application.Calculation = xlCalculationManual\n    wb.Worksheets(1).Range(\"A1\").Value = 7\n    out = out & \"manual_before^\" & wb.Worksheets(1).Range(\"B1\").Value & \"~\"\n    out = out & Copy(\"manual\", wb, folder & \"\\manual.xlsx\", folder)\n    out = out & \"manual_after^\" & wb.Worksheets(1).Range(\"B1\").Value & \"~\"\n    wb.Worksheets(1).Range(\"A1\").Value = 11\n    out = out & Copy(\"manual_empty\", wb, \"\", folder)\n    out = out & \"manual_empty_after^\" & wb.Worksheets(1).Range(\"B1\").Value & \"~\"\n    Application.Calculation = xlCalculationAutomatic\n    wb.BuiltinDocumentProperties(\"Last author\").Value = \"Someone else\"\n    out = out & Copy(\"author_empty\", wb, \"\", folder)\n    out = out & \"author_empty_after^\" & (wb.BuiltinDocumentProperties(\"Last author\").Value = \"Someone else\") & \"~\"\n    wb.BuiltinDocumentProperties(\"Last author\").Value = \"Someone else\"\n    out = out & Copy(\"author\", wb, folder & \"\\author.xlsx\", folder)\n    out = out & \"author_after^\" & (wb.BuiltinDocumentProperties(\"Last author\").Value = \"Someone else\") & \"~\"\n    Application.EnableEvents = False\n    Set fresh = Workbooks.Add(xlWBATWorksheet)\n    fresh.Worksheets(1).Range(\"A1\").Value = 3\n    fresh.Worksheets(1).Hyperlinks.Add fresh.Worksheets(1).Range(\"A3\"), folder & \"\\target.txt\"\n    Set Sink.Book = fresh\n    Application.EnableEvents = True\n    out = out & \"fresh_format^\" & fresh.FileFormat & \"^\" & (fresh.Path = \"\") & \"~\"\n    out = out & \"fresh_link_before^\" & Linked(fresh, folder) & \"~\"\n    out = out & Copy(\"fresh\", fresh, folder & \"\\sub\\fresh.xlsx\", folder, True)\n    out = out & \"fresh_link_after^\" & Linked(fresh, folder) & \"~\"\n    out = out & Copy(\"fresh_macro_name\", fresh, folder & \"\\fresh_macro.xlsm\", folder, True)\n    out = out & \"fresh_after^\" & (fresh.Path = \"\") & \"^\" & (Left(fresh.Name, 4) = \"Book\") & \"~\"\n    Application.EnableEvents = False\n    fresh.Close False\n    Set fresh = Workbooks.Add(xlWBATWorksheet)\n    fresh.SaveAs folder & \"\\macro.xlsm\", 52\n    Set Sink.Book = fresh\n    Application.EnableEvents = True\n    fresh.Worksheets(1).Range(\"A1\").Value = 4\n    out = out & Copy(\"macro_book\", fresh, folder & \"\\macro_copy.xlsx\", folder)\n    Application.EnableEvents = False\n    fresh.Close False\n    Set Sink.Book = ThisWorkbook\n    Application.EnableEvents = True\n    out = out & \"harness_format^\" & ThisWorkbook.FileFormat & \"~\"\n    out = out & Copy(\"harness\", ThisWorkbook, folder & \"\\harness_copy.xlsm\", folder)\n    Application.EnableEvents = False\n    Probe = out\nEnd Function\n",
+ "loud": "Public Function Loud(folder As String) As String\n    Dim wb As Workbook, e As String\n    Set wb = Workbooks(\"named.xlsx\")\n    wb.Worksheets(1).Range(\"A1\").Value = 9\n    Application.DisplayAlerts = True\n    On Error Resume Next\n    wb.SaveCopyAs folder & \"\\over.xlsx\"\n    e = Err.Number & \":\" & Err.Description\n    On Error GoTo 0\n    Application.DisplayAlerts = False\n    wb.Close False\n    Loud = \"loud^\" & Replace(e, folder, \"<folder>\") & \"~\"\nEnd Function\n",
+ "cases": [
+  [
+   "settings",
+   "True"
+  ],
+  [
+   "dirty",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   "moved"
+  ],
+  [
+   "save",
+   "book-before:False|app-before:False|book-after:True|app-after:True|"
+  ],
+  [
+   "clean",
+   "True>True",
+   "True",
+   "True",
+   "",
+   "0:",
+   "moved"
+  ],
+  [
+   "no_extension",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "bak",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "macro_name",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "missing_folder",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "1004:Microsoft Excel cannot access the file '<folder>\\nope\\missing.xlsx'. There are several possible reasons:\n\n\u2022 The file name or path does not exist.\n\u2022 The file is being used by another program.\n\u2022 The workbook you are trying to save has the same name as a currently open workbook.",
+   "same"
+  ],
+  [
+   "own_path",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "1004:Microsoft Excel cannot access the file '<folder>\\named.xlsx'. There are several possible reasons:\n\n\u2022 The file name or path does not exist.\n\u2022 The file is being used by another program.\n\u2022 The workbook you are trying to save has the same name as a currently open workbook.",
+   ""
+  ],
+  [
+   "open_path",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "1004:Microsoft Excel cannot access the file '<folder>\\other.xlsx'. There are several possible reasons:\n\n\u2022 The file name or path does not exist.\n\u2022 The file is being used by another program.\n\u2022 The workbook you are trying to save has the same name as a currently open workbook.",
+   ""
+  ],
+  [
+   "link_before",
+   "target.txt"
+  ],
+  [
+   "same_name_elsewhere",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "link_after",
+   "../target.txt"
+  ],
+  [
+   "empty_name",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   "moved"
+  ],
+  [
+   "null_name",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "1004:Method 'SaveCopyAs' of object '_Workbook' failed",
+   ""
+  ],
+  [
+   "relative",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "quiet_first",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "quiet_again",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "named_argument",
+   "0:"
+  ],
+  [
+   "manual_before",
+   "16"
+  ],
+  [
+   "manual",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "manual_after",
+   "14"
+  ],
+  [
+   "manual_empty",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "manual_empty_after",
+   "22"
+  ],
+  [
+   "author_empty",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "author_empty_after",
+   "False"
+  ],
+  [
+   "author",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "author_after",
+   "False"
+  ],
+  [
+   "fresh_format",
+   "51",
+   "True"
+  ],
+  [
+   "fresh_link_before",
+   "<folder>\\target.txt"
+  ],
+  [
+   "fresh",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   "set"
+  ],
+  [
+   "fresh_link_after",
+   "../target.txt"
+  ],
+  [
+   "fresh_macro_name",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   "moved"
+  ],
+  [
+   "fresh_after",
+   "True",
+   "False"
+  ],
+  [
+   "macro_book",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "harness_format",
+   "51"
+  ],
+  [
+   "harness",
+   "False>False",
+   "True",
+   "True",
+   "",
+   "0:",
+   ""
+  ],
+  [
+   "loud",
+   "0:"
+  ]
+ ],
+ "files": {
+  "as_macro.xlsm": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "6",
+    "B1": "12"
+   },
+   "link": "target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "author.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "11",
+    "B1": "22"
+   },
+   "link": "../../../../../../../../Temp/target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "copy.bak": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "6",
+    "B1": "12"
+   },
+   "link": "target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "copy1.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "5",
+    "B1": "10"
+   },
+   "link": "target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "copy2.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "5",
+    "B1": "10"
+   },
+   "link": "target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "fresh_macro.xlsm": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "3"
+   },
+   "link": "../target.txt",
+   "abs_path": null,
+   "last_author_someone_else": false
+  },
+  "harness_copy.xlsm": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {},
+   "link": null,
+   "abs_path": null,
+   "last_author_someone_else": false
+  },
+  "macro.xlsm": {
+   "zip": true,
+   "content_type": "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
+   "vba": false,
+   "cells": {},
+   "link": null,
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "macro_copy.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "4"
+   },
+   "link": null,
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "manual.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "7",
+    "B1": "14"
+   },
+   "link": "../../../../Temp/target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "named.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "5",
+    "B1": "10"
+   },
+   "link": "target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "named_argument.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "8",
+    "B1": "16"
+   },
+   "link": "../../../../Temp/target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "noext": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "6",
+    "B1": "12"
+   },
+   "link": "target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "other.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {},
+   "link": null,
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "over.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "9",
+    "B1": "18"
+   },
+   "link": "../../../../../../../../Temp/target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "relative.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "6",
+    "B1": "12"
+   },
+   "link": "../../../../Temp/target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  },
+  "sub/fresh.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "3"
+   },
+   "link": "../target.txt",
+   "abs_path": null,
+   "last_author_someone_else": false
+  },
+  "sub/named.xlsx": {
+   "zip": true,
+   "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
+   "vba": false,
+   "cells": {
+    "A1": "6",
+    "B1": "12"
+   },
+   "link": "../target.txt",
+   "abs_path": "<folder>\\",
+   "last_author_someone_else": false
+  }
+ },
+ "copy1_differs_from_save": [
+  "xl/workbook.xml"
+ ]
+}

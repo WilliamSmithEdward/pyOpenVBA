@@ -909,10 +909,9 @@ def _now(book: Workbook) -> dt.datetime:
     return moment.replace(microsecond=0)
 
 
-def write(book: Workbook, package: OpcFile) -> None:
-    """The docProps parts as a save writes them: the last author, the save time, a creation date where there is
-    none, Excel's application and security, each linked property's range's value, and every property in its part
-    (session_after_save, no_docprops)."""
+def stamp(book: Workbook) -> Properties:
+    """The properties a save sets, set: the last author, the save time, a creation date where there is none, and
+    Excel's application and security."""
     found = state(book)
     saved = to_utc(_now(book))
     found.builtin[LAST_AUTHOR] = book.application.user_name
@@ -921,6 +920,13 @@ def write(book: Workbook, package: OpcFile) -> None:
         found.builtin[CREATED] = saved
     found.builtin[APPLICATION] = "Microsoft Excel"
     found.builtin[SECURITY] = VBAInt(0, "Long")
+    return found
+
+
+def write(book: Workbook, package: OpcFile) -> None:
+    """The docProps parts as a save writes them: the properties it stamps, each linked property's range's value,
+    and every property in its part (session_after_save, no_docprops)."""
+    found = stamp(book)
     if not found.opaque:
         for entry in found.custom:
             resolved = _resolved(book, entry.link) if entry.link else None

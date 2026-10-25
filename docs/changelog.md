@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbook.SaveCopyAs` writes a copy as Excel does: the file a save
+  would write at that moment, a workbook under manual calculation
+  calculated first, in the workbook's own format whatever the name's
+  extension, so a `.xlsm` name gets a macro-free workbook's file. It
+  raises no save event, and the workbook keeps its name, its path and
+  its Saved flag, while its Last save time and Last author move as a
+  save's do. A file already there is replaced without a prompt, alerts
+  on or off. An empty name writes nothing and raises nothing. `Null`, a
+  missing folder, the workbook's own file and another open workbook's
+  file are error 1004 with Excel's message. Copied into another folder,
+  Excel writes a workbook's hyperlinks to files relative to the copy and
+  moves the workbook's own links there too, so every later save writes
+  them wrong; the model refuses that copy, and one into another folder
+  of a workbook whose formulas link to other workbooks, which is not
+  measured. 34 live copies agree, `tests/fixtures/save_copy_as.json`.
+
 - `Range.AdvancedFilter` matches text beyond ASCII as Excel does, and
   takes text comparisons such as `>m`, which it reported unsupported
   before. Excel's AdvancedFilter compares text as its AutoFilter does:
@@ -936,6 +952,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   array are compile errors with VBA's message, and a fixed-length String
   parameter is the compile error VBA gives it, over 29 live
   declarations, `tests/fixtures/vba_semantics/optional_types.json`.
+
+- `Application.Wait` moves a frozen clock on to the time it waits for,
+  so `Now` reads that time after it. Under the real clock it still
+  returns at once.
 
 - Deleting a sheet rewrites the formulas and names that read it as
   Excel does: `=Two!A1+1` becomes `=#REF!A1+1`, and a name's

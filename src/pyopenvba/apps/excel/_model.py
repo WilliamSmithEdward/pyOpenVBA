@@ -2515,6 +2515,34 @@ class Range(ExcelObject):
         table = table_at(self.sheet, self.first.top, self.first.left)
         return NOTHING if table is None else view(table)
 
+    @member
+    def PivotCell(self) -> object:
+        """What the range's first cell stands for in the pivot table it is part of (see _pivot_cells)."""
+        from pyopenvba.apps.excel._pivot_cells import pivot_cell
+
+        return pivot_cell(self)
+
+    @member
+    def PivotTable(self) -> object:
+        """The pivot table the range's first cell is part of, its page fields too."""
+        from pyopenvba.apps.excel._pivot_cells import pivot_table
+
+        return pivot_table(self)
+
+    @member
+    def PivotField(self) -> object:
+        """The pivot field the range's first cell names, a value's data field among them."""
+        from pyopenvba.apps.excel._pivot_cells import pivot_field
+
+        return pivot_field(self)
+
+    @member
+    def PivotItem(self) -> object:
+        """The pivot item the range's first cell names, a value's data field's among them."""
+        from pyopenvba.apps.excel._pivot_cells import pivot_item
+
+        return pivot_item(self)
+
     @setter("FormulaR1C1")
     def _set_formula_r1c1(self, value: object) -> None:
         from pyopenvba.apps.excel._protection import writing

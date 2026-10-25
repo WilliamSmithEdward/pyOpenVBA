@@ -121,6 +121,12 @@ class PivotField:
         return None
 
 
+#: The item a line stands at in a field it skips, one inside a collapsed item (see _lines).
+GAP = -1
+#: The item a line stands at in the fields outside an inner field's subtotal over every item of theirs.
+EVERY = 1048832
+
+
 @dataclass(frozen=True)
 class PivotLine:
     """A row or column of a report's data area: its kind (``data``,
@@ -312,16 +318,28 @@ def _number(raw: str | None) -> int:
         return 0
 
 
+def axis_lines(root: XmlElement, axis: str) -> tuple[PivotLine, ...]:
+    """A table definition's lines of ``rowItems`` or ``colItems``, as the file lists them, whatever else the table
+    holds."""
+    found = Element(root).child(axis)
+    return _lines(found)
+
+
 def _lines(container: Element | None) -> tuple[PivotLine, ...]:
     """An axis's lines, each ``<i>`` repeating the first ``r`` items of the
-    one before it; a grand total's placeholder item left off."""
+    one before it; a grand total's placeholder item left off. A collapsed
+    item has no lines for the fields inside it, so the line after its own
+    can repeat places its line never had: those stand at GAP
+    (tests/fixtures/pivot_cells/ pivot_show_detail.json values_rows)."""
     if container is None:
         return ()
     found: list[PivotLine] = []
     previous: list[int] = []
     for line in container.children_named("i"):
         kind = line.get("t") or "data"
-        items = previous[: _number(line.get("r"))] + [_number(entry.get("v")) for entry in line.children_named("x")]
+        repeated = _number(line.get("r"))
+        kept = previous[:repeated]
+        items = kept + [GAP] * (repeated - len(kept)) + [_number(entry.get("v")) for entry in line.children_named("x")]
         found.append(PivotLine(kind, () if kind == "grand" else tuple(items), _number(line.get("i"))))
         previous = items
     return tuple(found)

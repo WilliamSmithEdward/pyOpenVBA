@@ -1192,6 +1192,26 @@ PivotCaches,Create,method,"Create(SourceType As XlPivotTableSourceType, [SourceD
 PivotCaches,Creator,"property, read-only",As XlCreator,,MISSING,,
 PivotCaches,Item,method,Item(Index As Variant) As PivotCache,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotCaches,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
+PivotCell,AllocateChange,method,AllocateChange(),,MISSING,,
+PivotCell,Application,"property, read-only",As Application,,MISSING,,
+PivotCell,CellChanged,"property, read-only",As XlCellChangedState,,MISSING,,
+PivotCell,ColumnItems,"property, read-only",As PivotItemList,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The items a value's column stands at, outer first; error 1004 on a label cell."
+PivotCell,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotCell,CustomSubtotalFunction,"property, read-only",As XlConsolidationFunction,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"A custom subtotal's XlConsolidationFunction on its labels, and on its values where the Values field is on that axis."
+PivotCell,DataField,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The data field a value, a data caption or a grand total shows; error 1004 elsewhere."
+PivotCell,DataSourceValue,"property, read-only",As Variant,,MISSING,,
+PivotCell,DiscardChange,method,DiscardChange(),,MISSING,,
+PivotCell,MDX,"property, read-only",As String,,MISSING,,
+PivotCell,Parent,"property, read-only",As Object,,MISSING,,
+PivotCell,PivotCellType,"property, read-only",As XlPivotCellType,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"xlPivotCellValue to xlPivotCellBlankCell as Excel types each cell of compact, outline and tabular layouts, subtotals at the top or bottom, custom subtotals, blank lines, collapsed items, the Values field on either axis and the page area."
+PivotCell,PivotColumnLine,"property, read-only",As PivotLine,,MISSING,,
+PivotCell,PivotField,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The field the cell names; a value names its data field, a line beyond the Values field's place the Values field."
+PivotCell,PivotItem,"property, read-only",As PivotItem,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The item a label or page cell names, (All) for a page field showing every item or several; error 1004 elsewhere."
+PivotCell,PivotRowLine,"property, read-only",As PivotLine,,MISSING,,
+PivotCell,PivotTable,"property, read-only",As PivotTable,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,The table the cell is part of.
+PivotCell,Range,"property, read-only",As Range,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,The cell itself.
+PivotCell,RowItems,"property, read-only",As PivotItemList,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The items a value's row stands at, outer first, a skipped place left out; error 1004 on a label cell."
+PivotCell,ServerActions,"property, read-only",As Actions,,MISSING,,
 PivotField,_Default,property,As String,,MISSING,,
 PivotField,AddPageItem,method,"AddPageItem(Item As String, [ClearList As Variant])",,MISSING,,
 PivotField,AllItemsVisible,"property, read-only",As Boolean,,MISSING,,
@@ -1338,6 +1358,13 @@ PivotItem,SourceNameStandard,"property, read-only",As String,,MISSING,,
 PivotItem,StandardFormula,property,As String,,PARTIAL,tests/test_excel_pivot_calculated_items.py; tests/fixtures/pivot_calculated_items/pivot_calculated_items.json; scripts/measure_pivot_calculated_items.py; tests/test_live_excel_model_gate.py,"The same as Formula, in the en-US the model reads and writes."
 PivotItem,Value,property,As String,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json; tests/test_excel_pivot_names.py; tests/fixtures/pivot_names/pivot_names.json; scripts/measure_pivot_names.py; tests/test_live_excel_model_gate.py,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations. Setting it gives the item a caption, its n, which it shows, sorts and is found by from then on, its SourceName still the value: error 1004 where another item of the field has it in any case; an empty one is a caption too."
 PivotItem,Visible,property,As Boolean,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json; tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations. Hides and shows an item of a row, column or page field, the last one showing refused with error 1004, as 65 live layouts show; a page field choosing one item reads whether the item is the chosen one, and hiding it moves the choice on. A field outside the layout filters nothing and Excel's lookup quirk there is followed."
+PivotItemList,_Default,"property, read-only",As PivotItem,,MISSING,,
+PivotItemList,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+PivotItemList,Application,"property, read-only",As Application,,MISSING,,
+PivotItemList,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,How many items a pivot cell's row or column stands at.
+PivotItemList,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotItemList,Item,method,Item(Index As Variant) As PivotItem,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"An item by its place from 1, or by name."
+PivotItemList,Parent,"property, read-only",As Object,,UNASSESSED,,
 PivotItems,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotItems,Add,method,Add(Name As String),,MISSING,,
 PivotItems,Application,"property, read-only",As Application,,MISSING,,
@@ -1643,10 +1670,10 @@ Range,PastePictureInCell,method,PastePictureInCell(),,MISSING,,
 Range,PasteSpecial,method,"PasteSpecial([Paste As XlPasteType], [Operation As XlPasteSpecialOperation], [SkipBlanks As Variant], [Transpose As Variant]) As Variant",,PARTIAL,tests/fixtures/paste.json; tests/fixtures/autofilter_edits.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/cse_array_edits.json; tests/test_excel_conditional_transfer_core.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_multiple.py; tests/test_excel_conditional_transfer_groups.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Everything, values, formulas, formats, number formats, all but borders and column widths, with operations, skipped blanks and transposing; comments paste the notes alone, which everything takes along too; validation reports itself unsupported. A copy of several areas pastes closed up, each formula moved as far as its own cell; a filtered destination takes the paste whole. Measured disjoint rectangular same-workbook conditional copies/pastes admit ordinary/statistical/predicate rules with distinct validated fresh or loaded group identities, preserving clipped populations, independent styles, destination subtraction and priority gaps; unsupported overlaps, tiling, transposition, shared-group or ambiguous loaded sources, ambiguous copied-sheet identities and affected mixed-feature combinations fail before mutation. Native loaded-copy controls preserve complete population ordering and generic source API projection; shared-group transfers remain unsupported."
 Range,Phonetic,"property, read-only",As Phonetic,,MISSING,,
 Range,Phonetics,"property, read-only",As Phonetics,,MISSING,,
-Range,PivotCell,"property, read-only",As PivotCell,,MISSING,,
-Range,PivotField,"property, read-only",As PivotField,,MISSING,,
-Range,PivotItem,"property, read-only",As PivotItem,,MISSING,,
-Range,PivotTable,"property, read-only",As PivotTable,,MISSING,,
+Range,PivotCell,"property, read-only",As PivotCell,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"What the range's first cell stands for in the pivot table it is part of, its page fields included; error 1004 elsewhere, the row under the page fields among them. Every cell of 595 tables Excel saved agrees. Tables of a cube are reported unsupported."
+Range,PivotField,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The field the first cell names: a value's or a grand total's data field, the Values field, or a row, column or page field; error 1004 where it names none."
+Range,PivotItem,"property, read-only",As PivotItem,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The item the first cell names, and for a cell showing a data field the Values field's item of that data field; error 1004 where it names none."
+Range,PivotTable,"property, read-only",As PivotTable,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The pivot table the first cell is part of, its page fields too; error 1004 elsewhere."
 Range,PlacePictureOverCells,method,PlacePictureOverCells([AsReference As Variant]),,MISSING,,
 Range,Precedents,"property, read-only",As Range,,MISSING,,
 Range,PrefixCharacter,"property, read-only",As Variant,,PARTIAL,tests/fixtures/value_typing.json; tests/fixtures/typing_formats.json,"The apostrophe a cell was typed with, kept by its format until Clear or ClearFormats and shown while the cell holds text; the Lotus navigation prefixes are not modelled."

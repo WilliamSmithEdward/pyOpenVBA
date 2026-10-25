@@ -50,6 +50,11 @@ def interval(low: int, high: int, start: int, count: int, delete: bool, limit: i
 
 def rewrite(formula: str, owner: str, edited: str, *, rows: bool, start: int, count: int, delete: bool) -> str:
     """Update references to moved cells regardless of absolute-dollar markers."""
+    if owner.casefold() != edited.casefold():
+        # A formula on another sheet reaches the edited one only by its name, quoted with its apostrophes doubled.
+        text, name = formula.casefold(), edited.casefold()
+        if name not in text and name.replace("'", "''") not in text:
+            return formula
     pieces: list[tuple[int, int, str]] = []
     for token in tokenize(formula):
         if token.kind != "ref":
@@ -94,9 +99,10 @@ def name_scope(book: Workbook, entry: NameEntry) -> str:
     return scope
 
 
-def edit(target: Range, *, delete: bool, below: bool = False) -> None:
+def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False) -> None:
     """Whole rows or columns deleted or inserted; inserted ones take the formats of the line before them, or with
-    ``below`` the line after them."""
+    ``below`` the line after them. ``laid`` is for a caller that lays the outline out itself once it is done, as
+    Subtotal does: the lines' outline marks move with them meanwhile."""
     sheet, area = target.sheet, target.first
     if sheet.advanced_filter is not None:
         raise VBAUnsupportedError('Structural edits on an advanced-filtered sheet are not implemented')
@@ -106,9 +112,10 @@ def edit(target: Range, *, delete: bool, below: bool = False) -> None:
         raise VBAUnsupportedError("Whole-row/column edits on sheets with merges or shapes are not implemented")
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
-    from pyopenvba.apps.excel._outline import guard_axis_edit
+    if not laid:
+        from pyopenvba.apps.excel._outline import guard_axis_edit
 
-    guard_axis_edit(sheet, rows, start)
+        guard_axis_edit(sheet, rows, start)
     from pyopenvba.apps.excel._conditional_edits import LineEdit, planned
 
     conditional = planned(sheet, LineEdit(rows, start, count, delete), below=below)

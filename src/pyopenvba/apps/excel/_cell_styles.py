@@ -909,6 +909,9 @@ class StyleFont(RangeFont):
             raise VBAUnsupportedError(f"changing the Normal style's Font.{member}, which the sheets' column widths "
                                       "and row heights rest on, is not implemented")
 
+    def after_set(self, member: str) -> None:
+        """A cell style's format meets no cell."""
+
     def _read(self, get: Callable[[S.Font], object]) -> object:
         return get(self.font)
 
@@ -979,6 +982,9 @@ class StyleInterior(RangeInterior):
 
     def guard_set(self, member: str) -> None:
         return
+
+    def after_set(self, member: str) -> None:
+        """A cell style's format meets no cell."""
 
     def _fills(self) -> list[S.Fill]:
         return [self.fill]
@@ -1062,6 +1068,9 @@ class StyleBorders(RangeBorders):
     def guard_set(self, member: str) -> None:
         return
 
+    def after_set(self, member: str) -> None:
+        """A cell style's format meets no cell."""
+
     def vba_items(self) -> list[object]:
         return [StyleBorder(self.owner, index) for index in (-4131, -4152, -4160, -4107, 5, 6)]
 
@@ -1104,6 +1113,9 @@ class StyleBorder(RangeBorder):
 
     def guard_set(self, member: str) -> None:
         return
+
+    def after_set(self, member: str) -> None:
+        """A cell style's format meets no cell."""
 
     def answer(self, what: str) -> object:
         border = self.owner.cell_style.format.border

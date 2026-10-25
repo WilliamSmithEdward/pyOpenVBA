@@ -222,6 +222,16 @@ def after_edit(target: Range, *, calculate_first: bool = True) -> None:
         recalculated(book, settled=settled, already_calculated=calculated)
 
 
+def quietly_edited(book: Workbook) -> None:
+    """An edit that raises no Change, as Subtotal and RemoveSubtotal make: what it left to work out, and the
+    Calculate that brings (tests/fixtures/subtotals/)."""
+    book.calculator.settle_spills()
+    settled = book.calculator.settle_entries()
+    settled_names = {key[0] for key in settled}
+    recalculated(book, settled=settled,
+                 already_calculated={sheet for sheet in book.sheets_ if sheet.name.lower() in settled_names})
+
+
 def activated(book: Workbook, before: Worksheet | None, after: Worksheet) -> None:
     """Another sheet made active: the one left deactivates, then the new one activates."""
     if not _on(book) or before is after:

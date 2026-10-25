@@ -7,6 +7,34 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.Subtotal` and `Range.RemoveSubtotal` put subtotal rows into a
+  list and take them out as Excel's Data > Subtotal does. A single cell
+  takes the region around it and a larger range is cut to the cells the
+  sheet uses; the first row is the header. Rows whose GroupBy cell shows
+  the same text, case and spaces at either end aside, make a group. Each
+  group gets a row of its own with the group's first text and the
+  function's word in bold, `East Total`, and `=SUBTOTAL(9,C2:C3)` in each
+  TotalList column. A Grand row closes the list. The rows go in whole,
+  each taking the formats of the row it follows, or with
+  `SummaryBelowData:=xlSummaryAbove` above each group, taking the row
+  after's. The list is outlined, and `Outline.SummaryRow` follows, its
+  own setting the default. All eleven functions, by constant or by the
+  dialog's numbers 1 to 11, label as Excel labels them. Under the data a
+  blank key gets no row; over it each blank row gets a ` Total` row.
+  Where TotalList totals the GroupBy column, the labels move to the
+  nearest column left of it that it does not total, or into a column put
+  in before the list. Replace takes the old subtotals out first, and
+  `Replace:=False` subtotals inside them in their summary place, adding
+  a Grand row only where Excel does. RemoveSubtotal deletes every row of
+  the list holding one SUBTOTAL call alone and takes the list's rows and
+  columns out of the outline, showing those in a group. The first label
+  takes the number format a macro last read or formatted a cell with, as
+  Excel's leftover state gives it. Neither call raises Change; Subtotal
+  raises Calculate. 157 measured cases agree cell by cell, in each saved
+  cell's xf and outline row, and Excel reads the model's file as its own.
+  Page breaks between groups, manual page breaks and a filtered list
+  report themselves unsupported.
+
 - `Worksheet.Tab` colours a sheet's tab as Excel does. `Color`,
   `ColorIndex`, `ThemeColor` and `TintAndShade` set the colour and read
   it back. `Color = False` and `ColorIndex = xlColorIndexNone` take it
@@ -780,6 +808,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Names.Add` spells a sheet in RefersTo as Excel does, quoted only
+  where it has to be: `='Data'!$C$2` reads back `=Data!$C$2`.
+
+- `Outline.SummaryRow` set on a sheet whose file had no `outlinePr`
+  wrote `<outlinePr  summaryBelow="0"/>` with two spaces; it is written
+  as Excel writes it.
+
+- Inserting or deleting whole rows or columns no longer reads every
+  formula of the workbook's other sheets, only those that name the sheet
+  edited, so a workbook of many formulas edits faster.
 
 - A new workbook saved as xlsx no longer gives its first sheet the
   template's code name, which Excel's own xlsx leaves out. A tint whose

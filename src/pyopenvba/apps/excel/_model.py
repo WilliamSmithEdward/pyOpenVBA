@@ -106,11 +106,16 @@ class ExcelObject(VBAObject):
     def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
                 *, by_ref: bool = False) -> None:
         spec = self.vba_member(name)
-        self.guard_set(spec.name if spec is not None else name)
+        member = spec.name if spec is not None else name
+        self.guard_set(member)
         super().vba_set(name, value, args, named, by_ref=by_ref)
+        self.after_set(member)
 
     def guard_set(self, member: str) -> None:
         """Refuse a property a protected sheet does not let a macro set: the classes of cells say which."""
+
+    def after_set(self, member: str) -> None:
+        """What a property a macro set leaves behind besides its value; the classes of formats say what."""
 
 
 # --- what a cell holds ---------------------------------------------------------------
@@ -245,6 +250,9 @@ class Application(ExcelObject):
         #: The number the next pivot table a macro makes without naming it takes, counted through the session
         #: whatever workbook the table is in (see _pivot_create.next_table_name).
         self.pivot_table_number = 1
+        #: The number format a macro last met in a cell, which the next Subtotal gives its first label in General's
+        #: place (see Range.note_seen and _subtotals).
+        self.recent_format = "General"
 
     # -- identity
 
@@ -2053,6 +2061,12 @@ def _short_value(value: object) -> str:
 # --- Range ---------------------------------------------------------------------------------
 
 
+#: The properties of a range that set its cells' format, as a protected sheet guards them.
+_FORMAT_PROPERTIES = frozenset({"NumberFormat", "NumberFormatLocal", "HorizontalAlignment", "VerticalAlignment",
+                                "WrapText", "ShrinkToFit", "IndentLevel", "AddIndent", "Orientation", "ReadingOrder",
+                                "Locked", "FormulaHidden"})
+
+
 class Range(ExcelObject):
     """A rectangle of cells, or several of them."""
 
@@ -2085,6 +2099,43 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._protection import check_range_set
 
         check_range_set(self, member)
+
+    # A macro reaching a cell leaves Excel the cell's number format, which the next Subtotal gives its first label
+    # in General's place (tests/fixtures/subtotals/, register_*): any property of a range read or written, and
+    # ClearContents, where its first cell is one the sheet holds; any format set, whatever the cell; and Style set
+    # leaves General. Whole rows and columns, an empty cell and the other methods, Sort among them, leave it.
+
+    def vba_get(self, name: str, args: Sequence[object] = (), named: dict[str, object] | None = None) -> object:
+        spec = self.vba_member(name)
+        if spec is not None and (spec.kind == "property" or spec.name == "ClearContents"):
+            self.note_seen()
+        return super().vba_get(name, args, named)
+
+    def vba_set(self, name: str, value: object, args: Sequence[object] = (), named: dict[str, object] | None = None,
+                *, by_ref: bool = False) -> None:
+        self.note_seen()
+        super().vba_set(name, value, args, named, by_ref=by_ref)
+
+    def after_set(self, member: str) -> None:
+        if member in _FORMAT_PROPERTIES:
+            self.note_formatted()
+        elif member == "Style":
+            self.sheet.book.application.recent_format = "General"
+
+    def note_seen(self) -> None:
+        """The range's first cell's number format as the one Subtotal's first label takes, where the sheet holds
+        the cell."""
+        area = self.first
+        if area.whole_rows or area.whole_columns:
+            return
+        cell = self.sheet.cells_.get((area.top, area.left))
+        if cell is not None:
+            self.sheet.book.application.recent_format = cell.number_format
+
+    def note_formatted(self) -> None:
+        """A format set on the range: its first cell's number format after it, held or not, as the one."""
+        area = self.first
+        self.sheet.book.application.recent_format = self.sheet.style_at(area.top, area.left).number_format
 
     @property
     def first(self) -> Area:
@@ -3179,6 +3230,22 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._outline import group
 
         return group(self, 'ClearOutline')
+
+    @method
+    def Subtotal(self, GroupBy: object = MISSING, Function: object = MISSING, TotalList: object = MISSING,
+                 Replace: object = MISSING, PageBreaks: object = MISSING,
+                 SummaryBelowData: object = MISSING) -> object:
+        """Subtotal rows put into the list around or in the range, as _subtotals has it."""
+        from pyopenvba.apps.excel._subtotals import subtotal
+
+        return subtotal(self, GroupBy, Function, TotalList, Replace, PageBreaks, SummaryBelowData)
+
+    @method
+    def RemoveSubtotal(self) -> object:
+        """The list's subtotal rows taken out, and the list out of the outline."""
+        from pyopenvba.apps.excel._subtotals import remove_subtotal
+
+        return remove_subtotal(self)
 
     @member
     def OutlineLevel(self) -> object:

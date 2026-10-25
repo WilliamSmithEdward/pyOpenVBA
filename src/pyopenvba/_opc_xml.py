@@ -22,7 +22,8 @@ class OpcPart:
 
     def child(self, local: str, attributes: str) -> bytes:
         prefix = self.qname.rpartition(":")[0]
-        return f'<{prefix + ":" if prefix else ""}{local} {attributes}/>'.encode()
+        # No space before the close where there are no attributes: one added later then reads <outlinePr a="1"/>.
+        return f'<{prefix + ":" if prefix else ""}{local}{" " + attributes if attributes else ""}/>'.encode()
 
     def insert(self, at: int, markup: bytes) -> bytes:
         if self.data[self.opening_end - 2:self.opening_end] == b"/>":

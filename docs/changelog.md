@@ -1006,6 +1006,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Sorting or filtering text with a combining mark before anything word
+  sort weighs, after only a control character or a hyphen, reports
+  itself unsupported, as text that begins with a mark already did.
+  Windows' CompareString, which orders Excel's text, orders such text
+  otherwise than its sort key, and the model ordered it by the key. The
+  random comparison with CompareStringEx in
+  `tests/test_excel_sort_text.py` found it in one run in twenty.
+
 - `Application.StatusBar` reads False, a Boolean, until a macro sets it,
   as Excel's does; the model read the text FALSE from the start. Once a
   macro sets it, it reads as text as before.

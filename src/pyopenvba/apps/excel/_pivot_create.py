@@ -17,6 +17,7 @@ from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, split_sheet
 from pyopenvba._relationships import in_office_order
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_tree
 from pyopenvba.apps.excel._model import Range
+from pyopenvba.apps.excel._pivot_cache_file import saved
 from pyopenvba.apps.excel._pivots import NS, REL, PivotCache, PivotTable
 from pyopenvba.apps.excel._xstring import encode_attribute as encoded
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -495,10 +496,12 @@ def write(book: Workbook, package: OpcFile) -> None:
                 from pyopenvba.apps.excel._pivot_refresh import existing_record_part
 
                 cache.records_part = existing_record_part(cache)
-            package.write(cache.part, xml_bytes(cache.root))
+            # As Excel saves a cache (see _pivot_cache_file).
+            definition, rows = saved(cache, book)
+            package.write(cache.part, xml_bytes(definition))
             # Metadata-only setters preserve lazy, untouched records byte for byte.
-            if cache.records is not None:
-                package.write(cache.records_part, xml_bytes(cache.records))
+            if rows is not None:
+                package.write(cache.records_part, xml_bytes(rows))
             cache.changed = False
             continue
         number = 1
@@ -526,7 +529,7 @@ def write(book: Workbook, package: OpcFile) -> None:
         package.write('xl/workbook.xml', text.encode('utf-8'))
         if cache.root.get('saveData', '1') in ('0', 'false'):
             # SaveData off: the cache goes without its records, as Excel saves it (a probe in Excel).
-            package.write(cache.part, xml_bytes(cache.root))
+            package.write(cache.part, xml_bytes(saved(cache, book)[0]))
             add_content_type(package, cache.part,
                              'application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml')
             cache.records_part = ''
@@ -554,9 +557,10 @@ def write(book: Workbook, package: OpcFile) -> None:
             cache.root.append(extensions)
         else:
             cache.root.set(REL + 'id', records_id)
-        package.write(cache.part, xml_bytes(cache.root))
-        assert cache.records is not None
-        package.write(cache.records_part, xml_bytes(cache.records))
+        definition, rows = saved(cache, book)
+        package.write(cache.part, xml_bytes(definition))
+        assert rows is not None
+        package.write(cache.records_part, xml_bytes(rows))
         add_content_type(package, cache.part,
                          'application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml')
         add_content_type(package, cache.records_part,

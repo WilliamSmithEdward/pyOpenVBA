@@ -22,7 +22,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from test_excel_pivot_layouts import column_widths, sheet_cells
+from test_excel_pivot_layouts import caches, column_widths, sheet_cells
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_show_detail"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_show_detail.json").read_text(encoding="utf-8"))
@@ -134,3 +134,12 @@ def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str]
     tests/test_excel_pivot_column_fit.py)."""
     names = {layout["name"] for layout in LAYOUTS}
     assert column_widths(made[2] / "pivot_show_detail.xlsx", names) == column_widths(FIXTURES / "pivot_show_detail.xlsx", names)
+
+
+def test_the_caches_are_excels(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's cache as Excel saves it: shared items listed for the fields a table lists items for, the
+    other fields' values in the records, the sharedItems' attributes and the numbers spelled as Excel's (see
+    src/pyopenvba/apps/excel/_pivot_cache_file.py)."""
+    names = {layout["name"] for layout in LAYOUTS}
+    mine, theirs = caches(made[2] / "pivot_show_detail.xlsx"), caches(FIXTURES / "pivot_show_detail.xlsx")
+    assert {name: mine.get(name) for name in names} == {name: theirs.get(name) for name in names}

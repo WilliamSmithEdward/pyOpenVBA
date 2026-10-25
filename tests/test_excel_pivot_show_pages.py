@@ -27,7 +27,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from test_excel_pivot_layouts import column_widths, sheet_cells
+from test_excel_pivot_layouts import caches, column_widths, sheet_cells
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_show_pages"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_show_pages.json").read_text(encoding="utf-8"))
@@ -178,6 +178,14 @@ def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], Path], scenari
     path = f"{scenario['name']}.xlsx"
     names = set(table_relationships(FIXTURES / path))
     assert column_widths(made[1] / path, names) == column_widths(FIXTURES / path, names)
+
+
+@pytest.mark.parametrize("scenario", SCENARIOS, ids=lambda scenario: scenario["name"])
+def test_the_caches_are_excels(made: tuple[dict[str, str], Path], scenario: dict[str, Any]) -> None:
+    """The cache every copy shares with the table it copies, as Excel saves it (see
+    src/pyopenvba/apps/excel/_pivot_cache_file.py)."""
+    path = f"{scenario['name']}.xlsx"
+    assert caches(made[1] / path) == caches(FIXTURES / path)
 
 
 def test_each_sheet_raises_the_events_excel_raises() -> None:

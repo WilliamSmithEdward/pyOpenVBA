@@ -6,11 +6,17 @@ Measured in live Excel (scripts/measure_sort_order.py, scripts/measure_sort.py):
   errors, all of them equal; descending, errors, TRUE and FALSE, text,
   numbers. Blank cells go last either way. The sort is stable: rows that
   compare equal keep their order.
-- Text sorts as Windows sorts words, which ``text_key`` reproduces for
-  ASCII, checked on 400 random strings: spaces and marks before digits,
-  digits before letters, case ignored unless MatchCase asks for lower
-  case first, and hyphens and apostrophes ignored but for breaking ties.
-  Text with other characters reports itself unsupported.
+- Text sorts as Windows sorts words, en-US (scripts/measure_sort_text.py:
+  400 strings Excel sorted as Windows' CompareStringEx orders them).
+  ``text_key`` builds Windows' own sort key from each character's
+  weights, baked in _sort_weights for Latin and its extensions, combining
+  marks, Greek, Cyrillic, punctuation, symbols and control characters:
+  spaces and marks before digits, digits before letters, accents after
+  the letters they sit on, case ignored unless MatchCase asks for lower
+  case first, and hyphens, apostrophes, dashes and control characters
+  passed over but for breaking ties. Text with other characters, or that
+  begins with a combining mark, which Windows' CompareString orders as
+  no key does, reports itself unsupported.
 - Each row of the range moves whole, formats and all, and its formulas
   shift with it as a copy's would; nothing outside the range changes.
   xlSortTextAsNumbers compares text that would type as a number as that
@@ -48,7 +54,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, replace
-from functools import cmp_to_key
+from functools import cache, cmp_to_key, lru_cache
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -72,10 +78,6 @@ TOP_TO_BOTTOM, LEFT_TO_RIGHT = 1, 2
 TEXT_AS_NUMBERS = 1
 #: XlSortOn: what a sort field orders by.
 ON_VALUES, ON_CELL_COLOR, ON_FONT_COLOR, ON_ICON = 0, 1, 2, 3
-#: Printable ASCII other than letters, hyphens and apostrophes, lowest first, as Excel's sort orders them.
-_SYMBOLS = " !\"#$%&()*,./:;?@[\\]^_`{|}~+<=>0123456789"
-#: Characters word sort passes over but for breaking ties, apostrophe before hyphen.
-_IGNORED = {"'": 0, "-": 1}
 _NUMBER, _TEXT, _LOGICAL, _ERROR, _BLANK = range(5)
 
 
@@ -93,21 +95,59 @@ class Key:
     icon: tuple[int, int] | None = None
 
 
-def text_key(text: str, match_case: bool) -> tuple[tuple[int, ...], tuple[int, ...], tuple[tuple[int, int], ...]]:
-    """Text as Windows word sort compares it: weights, then case, then the hyphens and apostrophes it passed over."""
-    weights: list[int] = []
-    cases: list[int] = []
-    passed: list[tuple[int, int]] = []
-    for index, char in enumerate(text):
-        if ord(char) > 126 or (ord(char) < 32):
-            raise VBAUnsupportedError("sorting text with characters beyond printable ASCII is not implemented")
-        if char in _IGNORED:
-            # A later one sorts earlier, and at the same place an apostrophe before a hyphen.
-            passed.append((-index, _IGNORED[char]))
+@cache
+def _weights() -> dict[int, tuple[bytes, bytes, bytes, bytes, bytes]]:
+    from pyopenvba.apps.excel._sort_weights import WEIGHTS
+
+    return {code: (bytes.fromhex(primary), bytes.fromhex(accent), bytes.fromhex(ignoring), bytes.fromhex(matching),
+                   bytes.fromhex(skipped))
+            for code, (primary, accent, ignoring, matching, skipped) in WEIGHTS.items()}
+
+
+def text_key(text: str, match_case: bool) -> bytes:
+    """Text's sort key as Windows word sort (en-US) makes it, which Excel's sort orders text by: each character's
+    primary weights in turn; then its diacritic weight for each of them, a combining mark adding its own to the
+    one before it, modulo 256; then its case weight, matched or ignored; then, for a character word sort passes over
+    but for ties, a hyphen, an apostrophe, a dash or a control character, its place, 0xFFFF less the primary weights
+    before it, and its weight. A diacritic or case weight is 2 where a character has none, and those at the end are
+    cut, with any that came to 1 (scripts/bake_sort_weights.py; tests/fixtures/sort_keys.json and sort_text.json)."""
+    weights = _weights()
+    primary, accents, cases, passed = bytearray(), bytearray(), bytearray(), bytearray()
+    for index, character in enumerate(text):
+        found = weights.get(ord(character))
+        if found is None:
+            raise VBAUnsupportedError("sorting text with characters beyond Latin, Greek and Cyrillic, their marks "
+                                      "and punctuation is not implemented")
+        units, accent, ignoring, matching, skipped = found
+        if not units and accent:
+            if index == 0:
+                # Windows' CompareString, Excel's, takes a mark that begins the text otherwise than its sort keys do.
+                raise VBAUnsupportedError("sorting text that begins with a combining mark is not implemented")
+            if accents:
+                accents[-1] = (accents[-1] + accent[0]) % 256
+            else:
+                accents += accent
             continue
-        weights.append(100 + ord(char.lower()) if char.isalpha() else _SYMBOLS.index(char))
-        cases.append(1 if match_case and char.isupper() else 0)
-    return tuple(weights), tuple(cases), tuple(passed)
+        for at in range(0, len(skipped), 2):
+            passed += (0xFFFF - len(primary) // 2).to_bytes(2, "big") + skipped[at:at + 2]
+        count = len(units) // 2
+        case = matching if match_case else ignoring
+        primary += units
+        accents += accent + b"\x02" * (count - len(accent))
+        cases += case + b"\x02" * (count - len(case))
+    return b"\x01".join((bytes(primary), bytes(accents).rstrip(b"\x01\x02"), bytes(cases).rstrip(b"\x01\x02"), b"",
+                         bytes(passed))) + b"\x00"
+
+
+@lru_cache(maxsize=4096)
+def name_key(text: str) -> bytes | str:
+    """What Excel tells two names apart by, case aside: word sort's key, under which ss is a sharp s and ae the
+    ligature while an accent or a hyphen tells two apart (tests/fixtures/style_order.json); for a name the key is not
+    reproduced for, its characters in any case."""
+    try:
+        return text_key(text, False)
+    except VBAUnsupportedError:
+        return text.casefold()
 
 
 def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]:

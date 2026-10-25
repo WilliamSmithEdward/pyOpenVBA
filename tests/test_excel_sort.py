@@ -4,8 +4,7 @@ tests/fixtures/sort_order.json is what scripts/measure_sort_order.py saw in
 live Excel: one column of values, each beside its place in the list,
 sorted four ways -- ascending and descending, ignoring case and matching
 it -- and the places read back in their new order. The model sorts the
-same list without the text that has characters beyond ASCII, which it
-reports it cannot sort, and has to leave the rest in Excel's order.
+same list and has to leave it in Excel's order.
 
 tests/fixtures/sort.json is what scripts/measure_sort.py saw: layouts that
 fill a small table and sort it, dumping A1:E7 afterwards.
@@ -14,14 +13,12 @@ fill a small table and sort it, dumping A1:E7 afterwards.
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / "fixtures"
 ORDER: dict[str, Any] = json.loads((FIXTURES / "sort_order.json").read_text(encoding="utf-8"))
@@ -29,14 +26,8 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / "sort.json").read_text(encoding=
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
 
 
-def _text(expression: str) -> str:
-    found = re.fullmatch(r"ChrW\((\d+)\)", expression)
-    return chr(int(found.group(1))) if found else expression[1:-1].replace('""', '"')
-
-
-#: The places of the values the model sorts: every one but text beyond ASCII.
-KEPT = [place for place, expression in enumerate([*ORDER["texts"], *ORDER["others"]], start=1)
-        if place > len(ORDER["texts"]) or all(ord(char) < 127 for char in _text(expression))]
+#: The places of the values in the list.
+PLACES = list(range(1, len(ORDER["texts"]) + len(ORDER["others"]) + 1))
 
 
 def _order_module(places: list[int]) -> str:
@@ -77,26 +68,15 @@ End Function
 '''
 
 
-def test_text_beyond_ascii_says_it_cannot_be_sorted() -> None:
-    app = ExcelApplication()
-    app.add_workbook()
-    app.add_module(_order_module(list(range(1, len(ORDER["texts"]) + len(ORDER["others"]) + 1))), name="Probe")
-    with pytest.raises(VBAUnsupportedError, match="ASCII"):
-        app.run("Probe")
-
-
 @pytest.mark.parametrize("index", range(4), ids=[f"{one['order']}{' match case' if one['match_case'] else ''}"
                                                  for one in ORDER["sorts"]])
 def test_values_sort_in_excels_order(index: int) -> None:
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module(_order_module(KEPT), name="Probe")
+    app.add_module(_order_module(PLACES), name="Probe")
     got = [int(place) for place in str(app.run("Probe")).split("|")[index].split(",") if place]
     # Blank rows carry place 0 in the replay; Excel's record numbers them past the values.
-    values = len(ORDER["texts"]) + len(ORDER["others"])
-    kept = set(KEPT)
-    measured = [0 if place > values else place for place in ORDER["sorts"][index]["places"]
-                if place in kept or place > values]
+    measured = [0 if place > len(PLACES) else place for place in ORDER["sorts"][index]["places"]]
     assert got == measured
 
 

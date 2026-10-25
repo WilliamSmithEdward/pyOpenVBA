@@ -7,6 +7,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.Sort` and the Sort object order text beyond ASCII as Excel
+  does. Excel orders text by Windows' word sort, and the model builds
+  Windows' own sort key for each string from the weights of Latin and
+  its extensions, combining marks, Greek, Cyrillic, punctuation,
+  currency and letterlike symbols, and control characters. An accent
+  comes after the letter it sits on, a ligature sorts as its letters and
+  a sharp s as ss. Case breaks ties, lower case first under MatchCase,
+  and hyphens, apostrophes and dashes count only after everything else.
+  Text with any character beyond printable ASCII reported itself
+  unsupported before. Excel's sort agrees over 400 strings, case
+  ignored and matched, and the keys are Windows' LCMapStringEx keys over
+  1,500 more. Text in other scripts, and text that begins with a
+  combining mark, still report themselves unsupported.
+
 - `Workbook.BuiltinDocumentProperties` and `CustomDocumentProperties`
   read, set, add, rename, retype, link and delete a workbook's
   properties as Excel does. A new workbook's author is the user, its
@@ -849,6 +863,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- Cell styles named beyond ASCII are told apart as Excel tells them. A
+  name is another style's in any case, and in any spelling Windows' word
+  sort cannot tell from it: `Styles("AESOP")` finds `Æsop`, and
+  `Styles.Add "oeuvre"` is error 1004 where `œuvre` exists. An accent
+  makes another name. The Styles collection lists the names, and a save
+  writes them, in word sort's order. The model matched names by
+  Python's casefold, which keeps ae apart from the ligature, and a style
+  named beyond ASCII stopped the collection being listed or added to.
+  38 live names and 19 lookups agree, `tests/fixtures/style_order.json`.
+
+- A defined name beyond ASCII takes the place Excel gives it in the
+  Names collection, in workbook.xml and among the named ranges app.xml
+  lists: `eclair` before `éclair`, beside it, by Windows' word sort. The
+  model put such a name after the ASCII ones, by its characters.
 
 - A Date with part of a second rounds to the second as VBA rounds it,
   in `CStr`, `Format`, `Hour`, `Minute` and `Second` alike. VBA goes

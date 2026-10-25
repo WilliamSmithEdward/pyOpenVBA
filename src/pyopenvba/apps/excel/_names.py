@@ -118,12 +118,14 @@ def owned_reserved(sheet: Worksheet, supported: tuple[str, ...]) -> list[tuple[N
     return result
 
 
-def collation(text: str) -> tuple[object, ...]:
-    """The name word ordering shared by iteration and persisted definitions."""
+def collation(text: str) -> bytes:
+    """The name word ordering shared by iteration and persisted definitions: Windows' word sort, which puts
+    eclair before its accented spelling as Excel does (tests/fixtures/document_properties/, names_more); text
+    it does not reproduce sorts after the rest, by its characters."""
     from pyopenvba.apps.excel._sort import text_key
     from pyopenvba.exceptions import VBAUnsupportedError
 
     try:
         return text_key(text, False)
     except VBAUnsupportedError:
-        return (tuple(100 + ord(char) for char in text.lower()), (), ())
+        return b"\xff" + text.lower().encode("utf-32-be")

@@ -243,9 +243,17 @@ def _compare(left: object, operator: str, right: object) -> bool:
 
 
 def _collated(text: str) -> object:
+    _plain(text)
+    return _ordered(text)
+
+
+def _ordered(text: str) -> bytes:
+    """Text's place where a filter compares or lists it: Windows' word sort, as Excel's sort orders text, measured
+    for filters on printable ASCII alone."""
     from pyopenvba.apps.excel._sort import text_key
 
-    _plain(text)
+    if not all(" " <= char <= "~" for char in text):
+        raise VBAUnsupportedError("filtering text with characters beyond printable ASCII is not implemented")
     return text_key(text, False)
 
 
@@ -386,12 +394,10 @@ def _field(sheet: Worksheet, area: Area, index: int, criteria1: object, operator
 
 
 def _values(criteria1: object) -> FieldFilter:
-    from pyopenvba.apps.excel._sort import text_key
-
     items = [to_text(item) for item in (criteria1.elements() if isinstance(criteria1, VBAArray) else [criteria1])]
     for item in items:
         _plain(item)
-    items.sort(key=lambda item: text_key(item, False))
+    items.sort(key=_ordered)
     if len(items) == 1:
         return _one(_criterion(items[0]))
     if len(items) == 2:
@@ -488,7 +494,6 @@ def _dated(sheet: Worksheet, criteria1: object, criteria2: object) -> FieldFilte
     """xlFilterValues with dates as Criteria2, in pairs of a level, 0 for a year to 5 for a second, and a date
     that level of it names, with the values of an array Criteria1 beside them; a single Criteria1 is passed over
     (tests/fixtures/date_filters/)."""
-    from pyopenvba.apps.excel._sort import text_key
     from pyopenvba.interpreter._values import parse_date_text
 
     if not isinstance(criteria2, VBAArray) or len(criteria2.elements()) % 2:
@@ -509,7 +514,7 @@ def _dated(sheet: Worksheet, criteria1: object, criteria2: object) -> FieldFilte
     words: list[str] = []
     listed: FieldFilter | None = None
     if isinstance(criteria1, VBAArray):
-        words = sorted((to_text(item) for item in criteria1.elements()), key=lambda item: text_key(item, False))
+        words = sorted((to_text(item) for item in criteria1.elements()), key=_ordered)
         if "" in words:
             raise VBAUnsupportedError("AutoFilter by dates beside blank cells is not implemented")
         listed = _values(criteria1)

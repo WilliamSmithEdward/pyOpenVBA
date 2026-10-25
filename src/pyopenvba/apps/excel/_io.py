@@ -2257,8 +2257,8 @@ def _name_order(book: Workbook, name: str, local: str | None) -> tuple[object, .
     return (_collation(name.removeprefix("_xlnm.")), 0 if local is not None else 1, _collation(sheet))
 
 
-def _collation(text: str) -> tuple[object, ...]:
-    """Text as Excel orders names: word sort ignoring case, and other text by its lower-case characters."""
+def _collation(text: str) -> bytes:
+    """Text as Excel orders names: Windows' word sort ignoring case, and other text after it by its characters."""
     from pyopenvba.apps.excel._names import collation
 
     return collation(text)

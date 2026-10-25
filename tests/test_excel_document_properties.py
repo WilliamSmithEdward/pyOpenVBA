@@ -41,11 +41,6 @@ UNSUPPORTED = {
     "names_add_context": "a sheet renamed once a table is made; tests/test_excel_names_add.py measures the same "
                          "names with the sheets named first",
 }
-#: Where a saved file differs for the order the model's names take, not for its properties.
-FILE_GAPS = {
-    "names_more": "a name beyond printable ASCII, éclair, sorts by its code point in the model, where Windows "
-                  "sorts it beside eclair",
-}
 #: The user the model writes as the author, and the moment its clock is held at.
 USER = "Ann Author"
 NOW = dt.datetime(2026, 10, 25, 4, 21, 32)
@@ -152,11 +147,6 @@ def _run(name: str, code: str, macro: str, *args: object) -> dict[str, tuple[str
         return {name: (f"failed: {exc!r}", "", None)}
 
 
-def _gaps(names: list[str], gaps: dict[str, str]) -> list[Any]:
-    return [pytest.param(name, marks=pytest.mark.xfail(strict=True, reason=gaps[name])) if name in gaps else name
-            for name in names]
-
-
 @pytest.mark.parametrize("name", [name for name in CASES if name not in UNSUPPORTED])
 def test_a_workbooks_properties_read_as_excels(replayed: tuple[dict[str, Any], Path, int], name: str) -> None:
     """Every property's name, type, value and link, and the errors the steps raise, as the macro reads them before
@@ -178,7 +168,7 @@ def excels_parts(name: str) -> dict[str, str]:
     return found
 
 
-@pytest.mark.parametrize("name", _gaps(FILES, FILE_GAPS))
+@pytest.mark.parametrize("name", FILES)
 def test_a_save_writes_the_docprops_parts_as_excel_does(replayed: tuple[dict[str, Any], Path, int],
                                                         name: str) -> None:
     """core.xml, app.xml and custom.xml, the package's relationships and the parts' content types, byte for byte

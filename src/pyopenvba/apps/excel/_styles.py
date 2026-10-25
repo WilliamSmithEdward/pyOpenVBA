@@ -1284,10 +1284,12 @@ class Stylesheet:
     # -- cell styles
 
     def named(self, name: str) -> int | None:
-        """The place of the cell style a name names, in any case, among the ones the stylesheet holds."""
-        key = name.casefold()
+        """The place of the cell style a name names, as Excel matches names, among the ones the stylesheet holds."""
+        from pyopenvba.apps.excel._sort import name_key
+
+        key = name_key(name)
         for index, entry in enumerate(self.cell_styles):
-            if entry.name and not entry.deleted and entry.name.casefold() == key:
+            if entry.name and not entry.deleted and name_key(entry.name) == key:
                 return index
         return None
 

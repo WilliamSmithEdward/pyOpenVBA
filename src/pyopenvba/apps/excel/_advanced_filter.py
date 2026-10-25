@@ -2,6 +2,12 @@
 
 Formula criteria, shared filters and feature-bearing output mappings are refused
 before mutation. This is not a general worksheet Copy implementation.
+
+Text matches as AutoFilter's does, beyond ASCII too (scripts/measure_advanced_filter_text.py):
+an = with no wildcard by Windows' word sort, case aside; > and < in word sort's order; a
+wildcard pattern one character at a time by each one's key; and a plain criterion, a
+beginning, by as many of the text's first characters as it has. Headers and the records
+xlUnique compares stay within ASCII.
 """
 from __future__ import annotations
 
@@ -53,15 +59,8 @@ def _plain(text: str) -> None:
         raise _unsupported('with non-ASCII comparison text')
 
 
-def _compare(left: float | str, operator: str, right: float | str) -> bool:
-    if isinstance(left, str):
-        if not isinstance(right, str):
-            return False
-        order = (left > right) - (left < right)
-    else:
-        if isinstance(right, str):
-            return False
-        order = (left > right) - (left < right)
+def _met(order: int, operator: str) -> bool:
+    """Whether an order, -1, 0 or 1, meets a comparison's operator."""
     return {'>': order > 0, '>=': order >= 0, '<': order < 0, '<=': order <= 0}[operator]
 
 
@@ -113,6 +112,30 @@ def _matches(text: str, pattern: str, *, is_text: bool) -> bool:
     return bool(states & final)
 
 
+def _like(text: str, pattern: str, *, prefix: bool, is_text: bool) -> bool:
+    """Whether a cell's text meets an = criterion, as Excel's does beyond ASCII too
+    (tests/fixtures/advanced_filter_text.json): with a wildcard one character at a time, each by its word-sort key,
+    so ae* leaves out Aesop with the ash; without, by word sort, the text whole or, for a plain criterion, as many
+    of its first characters as the criterion has, so aesop begins Aesop with the ash and ae does not."""
+    from pyopenvba.apps.excel._autofilter import letter, ordered
+    from pyopenvba.apps.excel._filter_wildcards import matches_by
+
+    stars, questions, _literals, _final = _pattern(pattern)
+    if (stars or questions) and not is_text:
+        return False
+    try:
+        if stars or questions:
+            return matches_by(text, pattern, letter, escape_tilde=True)
+        literal = re.sub(r'~([*?~])', r'\1', pattern)
+        return ordered(text[:len(literal)] if prefix else text) == ordered(literal)
+    except VBAUnsupportedError:
+        # Text past the word sort's weights with no letter past ASCII in it, a check mark or an emoji, is matched
+        # character for character in any case, as before the weights were measured.
+        if any(ord(char) > 126 and char.isalpha() for char in text + pattern):
+            raise
+        return _matches(text, pattern + ('*' if prefix else ''), is_text=is_text)
+
+
 @dataclass(frozen=True)
 class Criterion:
     column: int
@@ -137,7 +160,7 @@ class Criterion:
                 return number is not None and number == self.number
             if self.operator == '<>':
                 return number is None or number != self.number
-            return number is not None and _compare(number, self.operator, self.number)
+            return number is not None and _met((number > self.number) - (number < self.number), self.operator)
         if value is EMPTY:
             text = ''
         elif isinstance(value, ExcelError):
@@ -146,12 +169,16 @@ class Criterion:
             text = 'TRUE' if value else 'FALSE'
         else:
             text = to_text(value)
-        _plain(text)
-        pattern = self.operand + ('*' if self.prefix else '')
         if self.operator in ('=', '<>'):
-            found = _matches(text, pattern, is_text=isinstance(value, str))
+            found = _like(text, self.operand, prefix=self.prefix, is_text=isinstance(value, str))
             return found if self.operator == '=' else not found
-        return isinstance(value, str) and _compare(text.casefold(), self.operator, self.operand.casefold())
+        if not isinstance(value, str):
+            return False
+        from pyopenvba.apps.excel._autofilter import ordered
+
+        # Text compares in word sort's order (tests/fixtures/advanced_filter_text.json).
+        left, right = ordered(text), ordered(self.operand)
+        return _met((left > right) - (left < right), self.operator)
 
 
 def _criterion(column: int, value: object, work: _Work) -> Criterion:
@@ -165,7 +192,6 @@ def _criterion(column: int, value: object, work: _Work) -> Criterion:
     if numeric is not None:
         return Criterion(column, '=', '', numeric)
     text = to_text(value)
-    _plain(text)
     if len(text) > 254:
         raise _unsupported('with criteria longer than 254 characters')
     operator = next((operator for operator in ('<>', '>=', '<=', '=', '>', '<') if text.startswith(operator)), '')
@@ -174,8 +200,6 @@ def _criterion(column: int, value: object, work: _Work) -> Criterion:
 
     typed = typed_text(operand)
     numeric = _number(typed.value)
-    if operator not in ('', '=', '<>') and numeric is None:
-        raise _unsupported('with text-order criteria')
     return Criterion(column, operator or '=', operand, numeric,
                      prefix=not operator and numeric is None and not re.search(r'(?<!~)[*?]', operand))
 

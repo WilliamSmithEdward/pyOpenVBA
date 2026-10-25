@@ -420,16 +420,16 @@ def test_comparison_text_work_accumulates_across_rows_before_the_next_scan(monke
     source = sheet.Range('A1:B5')
     assert isinstance(source, Range)
     before = state(app)
-    original_work, original_match = getattr(_advanced_filter, '_Work'), getattr(_advanced_filter, '_matches')
+    original_work, original_like = getattr(_advanced_filter, '_Work'), getattr(_advanced_filter, '_like')
     monkeypatch.setattr(_advanced_filter, '_Work', lambda: original_work(65))
     scanned: list[str] = []
 
-    def checked_match(text: str, pattern: str, *, is_text: bool) -> bool:
+    def checked_like(text: str, pattern: str, *, prefix: bool, is_text: bool) -> bool:
         scanned.append(text)
         assert len(scanned) <= 2, 'third scan started after aggregate budget was exhausted'
-        return original_match(text, pattern, is_text=is_text)
+        return original_like(text, pattern, prefix=prefix, is_text=is_text)
 
-    monkeypatch.setattr(_advanced_filter, '_matches', checked_match)
+    monkeypatch.setattr(_advanced_filter, '_like', checked_like)
     with pytest.raises(VBAUnsupportedError, match='text characters of comparison work'):
         source.AdvancedFilter(1, sheet.Range('G1:G2'))
     assert len(scanned) == 2 and state(app) == before

@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.AdvancedFilter` matches text beyond ASCII as Excel does, and
+  takes text comparisons such as `>m`, which it reported unsupported
+  before. Excel's AdvancedFilter compares text as its AutoFilter does:
+  an `=` with no wildcard by Windows' word sort, case aside, `>` and `<`
+  in word sort's order, and a wildcard pattern one character at a time.
+  A plain criterion is a beginning, and keeps text whose first
+  characters, as many as the criterion has, word sort cannot tell from
+  it: `aesop` begins `Æsop`, while `ae` does not. The model compared
+  text by its characters in lower case. 51 criteria, 26 wildcard
+  patterns and 20 beginnings agree, `tests/fixtures/advanced_filter_text.json`.
+  Headers and the records `Unique` compares stay within ASCII.
+
 - `Sheets(Array(...))` and `Worksheets(Array(...))` group sheets as
   Excel does, where they were error 13. A group holds the sheets the
   array names, by name or by place, in the array's order, and a name

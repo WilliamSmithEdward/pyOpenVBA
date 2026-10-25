@@ -5,7 +5,9 @@ Every rule here was measured (scripts/measure_cell_styles.py, tests/fixtures/cel
 * A new workbook's Styles collection holds Excel's 47 standard built-in
   styles, and its file only Normal until a cell uses another. Styles
   lists them, and any a macro adds, in the order Windows word sort puts
-  their names; a name finds its style in any case.
+  their names; a name finds its style in any case, and so does any
+  spelling word sort cannot tell from it, ss for a sharp s or ae for the
+  ligature, while an accent tells two apart (scripts/measure_style_order.py).
 * Giving a cell a style replaces the parts of its format the style
   includes -- IncludeNumber, IncludeFont, IncludeAlignment,
   IncludeBorder, IncludePatterns, IncludeProtection -- with the style's
@@ -213,16 +215,18 @@ def find(book: Workbook, name: str) -> int | None:
 
 
 def _listed(book: Workbook) -> list[str]:
-    """Every style's name, as the Styles collection lists them."""
+    """Every style's name, as the Styles collection lists them, in word sort's order
+    (tests/fixtures/style_order.json)."""
     from pyopenvba.apps.excel._sort import text_key
 
     stylesheet = book.stylesheet
-    names = {entry.name.casefold(): entry.name for entry in stylesheet.cell_styles if entry.name and not entry.deleted}
+    names = {text_key(entry.name, False): entry.name for entry in stylesheet.cell_styles
+             if entry.name and not entry.deleted}
     held = {entry.builtin for entry in stylesheet.cell_styles}
     for name, builtin, *_ in STANDARD:
         if builtin not in held:
-            names.setdefault(name.casefold(), name)
-    return sorted(names.values(), key=lambda name: text_key(name, False))
+            names.setdefault(text_key(name, False), name)
+    return [names[key] for key in sorted(names)]
 
 
 # --- giving cells a style --------------------------------------------------------------------------------
@@ -388,14 +392,16 @@ class Styles(VBACollection, ExcelObject):
 
     @method
     def Add(self, Name: object = MISSING, BasedOn: object = MISSING) -> object:
+        from pyopenvba.apps.excel._sort import name_key
+
         if Name is MISSING:
             raise error(449)
         name = to_text(Name).lstrip(" ")
         if not name:
             raise VBAUnsupportedError("a cell style with no name, which Excel calls Style 1, is not implemented")
         stylesheet = self.book.stylesheet
-        key = name.casefold()
-        if len(name) > 255 or any(one.casefold() == key for one in _listed(self.book)):
+        key = name_key(name)
+        if len(name) > 255 or any(name_key(one) == key for one in _listed(self.book)):
             raise error(1004, "Add method of Styles class failed")
         if BasedOn is MISSING:
             own, includes = _normal(stylesheet).format, S.PARTS

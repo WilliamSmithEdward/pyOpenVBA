@@ -2599,7 +2599,7 @@ def test_excel_reads_the_document_properties_this_wrote(tmp_path: Path) -> None:
     """Every case tests/fixtures/document_properties measured that the model makes, made by the model with Excel's
     functions for them, this machine's time zone, clock and user, and saved, the workbook without docProps among
     them: Excel opens each file and reads every property as it read its own."""
-    from test_excel_document_properties import CASES, FILE_GAPS, FIXTURES, MADE, ONE, RECORD, UNSUPPORTED
+    from test_excel_document_properties import CASES, FIXTURES, MADE, ONE, RECORD, UNSUPPORTED
 
     from pyopenvba.interpreter._values import VBADate
 
@@ -2618,8 +2618,8 @@ def test_excel_reads_the_document_properties_this_wrote(tmp_path: Path) -> None:
         assert who.ok, who.message
         author = str(who.value)
         files: list[tuple[str, Path, float]] = []
-        # A file Excel cannot open again, dates_overflow, among the cases the model does not make as Excel does.
-        left_out = {*UNSUPPORTED, *FILE_GAPS, "dates_overflow"}
+        # A file Excel cannot open again, dates_overflow, beside the cases the model does not make.
+        left_out = {*UNSUPPORTED, "dates_overflow"}
         for index, name in enumerate(MADE):
             if name in left_out:
                 continue

@@ -2023,22 +2023,22 @@ Shapes,Range,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_m
 Shapes,SelectAll,method,SelectAll(),,UNASSESSED,,
 Sheets,_Default,"property, read-only",As Object,,MISSING,,
 Sheets,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Sheets,Add,method,"Add([Before As Variant], [After As Variant], [Count As Variant], [Type As Variant]) As Object",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Multiple worksheets, fractional Count truncation, lazy code names and caption counters measured. Grouped-sheet defaults, wider Count/Type/anchor cases and event ordering remain incomplete."
+Sheets,Add,method,"Add([Before As Variant], [After As Variant], [Count As Variant], [Type As Variant]) As Object",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Multiple worksheets, fractional Count truncation, lazy code names and caption counters measured. Grouped-sheet defaults, wider Count/Type/anchor cases and event ordering remain incomplete. Error 1004 while sheets are grouped."
 Sheets,Add2,method,"Add2([Before As Variant], [After As Variant], [Count As Variant], [NewLayout As Variant]) As Object",,MISSING,,
 Sheets,Application,"property, read-only",As Application,,UNASSESSED,,
-Sheets,Copy,method,"Copy([Before As Variant], [After As Variant])",,MISSING,,
-Sheets,Count,"property, read-only",As Long,,UNASSESSED,,
+Sheets,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"On Sheets(Array(...)), with no place a new workbook of the group's sheets in tab order, their references to one another kept; with Before or After the copies there in tab order, named as one sheet's copy is, their references to one another the copies'; the first copy active. A copy reading a sheet left behind, from another workbook, reports itself unsupported, as Worksheet.Copy's does. The whole collection copies as a group of every sheet: Worksheets.Copy makes a new workbook of them all."
+Sheets,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sheet_groups.json,"Of a group, its sheets as the array names them, one named twice twice."
 Sheets,Creator,"property, read-only",As XlCreator,,MISSING,,
-Sheets,Delete,method,Delete(),,MISSING,,
+Sheets,Delete,method,Delete(),,PARTIAL,tests/fixtures/sheet_groups.json,"On a group, every sheet of it, error 1004 where no sheet would be left; the formulas and names that read them read #REF! in their place, and where the active sheet goes the next visible sheet after it is active, or the last visible one before it. A conditional format, validation, link, control or chart that reads a sheet deleted, and deleting every visible sheet, report themselves unsupported. The whole collection deletes as a group of every sheet, so error 1004."
 Sheets,FillAcrossSheets,method,"FillAcrossSheets(Range As Range, [Type As XlFillWith])",,MISSING,,
 Sheets,HPageBreaks,"property, read-only",As HPageBreaks,,MISSING,,
-Sheets,Item,"property, read-only",As Object,,PARTIAL,tests/fixtures/name_equality.json,"By place, or by name: the first sheet in tab order whose name Windows' word sort cannot tell from it, case aside, so AESOP finds the sheet spelt with the ash ahead of a later aesop, else error 9. Worksheets(...) finds a sheet the same way."
-Sheets,Move,method,"Move([Before As Variant], [After As Variant])",,MISSING,,
+Sheets,Item,"property, read-only",As Object,,PARTIAL,tests/fixtures/name_equality.json; tests/fixtures/sheet_groups.json,"By place, or by name: the first sheet in tab order whose name Windows' word sort cannot tell from it, case aside, so AESOP finds the sheet spelt with the ash ahead of a later aesop, else error 9. Worksheets(...) finds a sheet the same way. Sheets(Array(...)) is a group of the sheets the array names, by name or by place, in its order, a missing one error 9 and an empty array error 13; a group's Item takes a place or a name."
+Sheets,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"On a group, with no place a new workbook of its sheets; with Before or After the group together, in tab order, before the first sheet outside it at the place the anchor gives or past it, one place further when the array's first sheet stands past that place and some of the group before it, over 608 live moves; the group's first sheet active. A move reading or read by a sheet left behind reports itself unsupported, as Worksheet.Move's does. The whole collection moves as a group of every sheet: with no place error 1004."
 Sheets,Parent,"property, read-only",As Object,,UNASSESSED,,
 Sheets,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,MISSING,,
 Sheets,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
-Sheets,Select,method,Select([Replace As Variant]),,MISSING,,
-Sheets,Visible,property,As Variant,,MISSING,,
+Sheets,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/sheet_groups.json,"On a group, the array's first sheet active and the group selected; with Replace:=False the group joins the selection, the active sheet staying. A hidden sheet in it is error 1004. The whole collection selects every sheet, the first active."
+Sheets,Visible,property,As Variant,,PARTIAL,tests/fixtures/sheet_groups.json,"Setting it on a group selects the group, then hides or shows each sheet of it; hiding every sheet is error 1004, and reading it error 1004. On the whole collection it acts on every sheet, so setting it is error 1004 while one is hidden."
 Sheets,VPageBreaks,"property, read-only",As VPageBreaks,,MISSING,,
 Sort,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Worksheet and table Sort expose their owning Application; native defaults and identity controls.
 Sort,Apply,method,Apply(),,PARTIAL,tests/fixtures/sort.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_array_edits.json; tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/; tests/fixtures/sort_colour/sort_colour.json,"Sorts the range by its fields in order, keeping them; a header only with xlYes. Several areas report themselves unsupported. On a filtered sheet the visible rows sort among themselves. Table Apply stages ordinary local rows, formulas and sort metadata; protected/UDF/event controls are native-measured. Filtered/rich table paths are refused before mutation. Worksheet metadata hydration streams unrelated data and bounds complete selected XML, including closing tags; UTF-8 declarations are required. Worksheet save preflight limits persisted fields to 64 as an engine metadata limit. With no range or no field it sorts nothing and raises no error, as Excel. The file keeps the rows sorted, under a header given xlYes."
@@ -2284,7 +2284,7 @@ Window,ScrollColumn,property,As Long,,PARTIAL,tests/fixtures/windows/windows.jso
 Window,ScrollIntoView,method,"ScrollIntoView(Left As Long, Top As Long, Width As Long, Height As Long, [Start As Variant])",,MISSING,,
 Window,ScrollRow,property,As Long,,PARTIAL,tests/fixtures/windows/windows.json,Scrolling a window split without being frozen reports itself.
 Window,ScrollWorkbookTabs,method,"ScrollWorkbookTabs([Sheets As Variant], [Position As Variant]) As Variant",,MISSING,,
-Window,SelectedSheets,"property, read-only",As Sheets,,MISSING,,
+Window,SelectedSheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"The selected sheets in tab order, a group's or the active sheet alone; each tab's tabSelected in the file, read again when the file opens."
 Window,Selection,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,SheetViews,"property, read-only",As SheetViews,,MISSING,,
 Window,SmallScroll,method,"SmallScroll([Down As Variant], [Up As Variant], [ToRight As Variant], [ToLeft As Variant]) As Variant",,MISSING,,
@@ -2597,7 +2597,7 @@ Worksheet,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,t
 Worksheet,Creator,"property, read-only",As XlCreator,,MISSING,,
 Worksheet,CustomProperties,"property, read-only",As CustomProperties,,MISSING,,
 Worksheet,Deactivate,event,Deactivate(),,MISSING,,
-Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Removes worksheet runtime document and saved VBA module; native persistence gate. Last-visible-sheet rules, event/object lifetime and dialog conformance remain incomplete."
+Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Removes worksheet runtime document and saved VBA module; native persistence gate. The formulas and names that read the sheet read #REF! in its place; the active sheet stays, or where it is the one deleted the next visible sheet after it is active, or the last visible one before it. Deleting every visible sheet, event/object lifetime and dialog conformance remain incomplete."
 Worksheet,DisplayPageBreaks,property,As Boolean,,MISSING,,
 Worksheet,DisplayRightToLeft,property,As Boolean,,MISSING,,
 Worksheet,DrawingObjects,not in the type library,,,UNASSESSED,,
@@ -2653,7 +2653,7 @@ Worksheet,Rows,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,SaveAs,method,"SaveAs(Filename As String, [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant])",,MISSING,,
 Worksheet,Scenarios,method,Scenarios([Index As Variant]) As Object,,MISSING,,
 Worksheet,ScrollArea,property,As String,,MISSING,,
-Worksheet,Select,method,Select([Replace As Variant]),,UNASSESSED,,
+Worksheet,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/sheet_groups.json,"The sheet active and alone; with Replace:=False it joins the selection, the active sheet staying. Activating a sheet of a group keeps the group."
 Worksheet,SelectionChange,event,SelectionChange(Target As Range),,MISSING,,
 Worksheet,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,MISSING,,
 Worksheet,Shapes,"property, read-only",As Shapes,,UNASSESSED,,
@@ -2669,7 +2669,7 @@ Worksheet,TransitionFormEntry,property,As Boolean,,MISSING,,
 Worksheet,Type,"property, read-only",As XlSheetType,,UNASSESSED,,
 Worksheet,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"The password matched case and all, any opening a sheet that has none; given none where Excel would ask in a dialog, it reports itself unsupported. Saved and read as Excel saves and reads it."
 Worksheet,UsedRange,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Worksheet,Visible,property,As XlSheetVisibility,,UNASSESSED,,
+Worksheet,Visible,property,As XlSheetVisibility,,PARTIAL,tests/fixtures/sheet_groups.json,"Hiding the last visible sheet is error 1004; hiding the active one makes the next visible sheet after it active, or the last visible one before it."
 Worksheet,VPageBreaks,"property, read-only",As VPageBreaks,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted."
 Worksheet,XmlDataQuery,method,"XmlDataQuery(XPath As String, [SelectionNamespaces As Variant], [Map As Variant]) As Range",,MISSING,,
 Worksheet,XmlMapQuery,method,"XmlMapQuery(XPath As String, [SelectionNamespaces As Variant], [Map As Variant]) As Range",,MISSING,,

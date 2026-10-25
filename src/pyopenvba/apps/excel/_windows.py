@@ -116,6 +116,8 @@ class SheetViewState:
     #: A pane the model does not lay out, kept as the file had it: a split in twips, or panes frozen with nothing
     #: split, which a hidden Excel saves.
     split_xml: str = ""
+    #: Whether the file has the sheet's tab selected, as each sheet of a group is.
+    tab_selected: bool = False
     changed: bool = False
 
 
@@ -135,6 +137,8 @@ class BookViewState:
     height: float | None = None
     #: The sheet whose tab the file has selected, so a save moves that only when another sheet is active.
     saved_active: Worksheet | None = None
+    #: The sheets the file has selected, so a save rewrites their tabs only when another group is.
+    saved_selected: list[Worksheet] = field(default_factory=lambda: [])
     changed: bool = False
     window: Window | None = None
 
@@ -159,6 +163,7 @@ def read_view(sheet: Worksheet, xml: str) -> None:
     view.gridlines = _flag(head.get("showGridLines"), True)
     view.headings = _flag(head.get("showRowColHeaders"), True)
     view.zeros = _flag(head.get("showZeros"), True)
+    view.tab_selected = _flag(head.get("tabSelected"), False)
     view.top_left = _cell(head.get("topLeftCell", "")) or (1, 1)
     pane = _PANE.search(element)
     if pane is not None:
@@ -224,8 +229,11 @@ def _spelled(area: Area) -> str:
 
 
 def tabs_moved(book: Workbook) -> bool:
-    """Whether another sheet is active than the one whose tab the file has selected."""
-    return book.active_sheet is not book.view.saved_active
+    """Whether another sheet is active than the one whose tab the file has selected, or other sheets selected."""
+    selected = book.selected()
+    saved = book.view.saved_selected
+    return (book.active_sheet is not book.view.saved_active or len(selected) != len(saved)
+            or any(one is not other for one, other in zip(selected, saved)))
 
 
 def with_view(sheet: Worksheet, xml: str, *, tabs: bool) -> str:
@@ -234,7 +242,8 @@ def with_view(sheet: Worksheet, xml: str, *, tabs: bool) -> str:
     view = sheet.view
     if not (view.changed or tabs):
         return xml
-    active = sheet.book.active_sheet is sheet
+    # Every sheet of a group has its tab selected, the active one among them.
+    active = any(one is sheet for one in sheet.book.selected())
     found = _SHEET_VIEW.search(xml)
     if found is None:
         at = re.search(r"<sheetFormatPr\b|<cols\b|<sheetData\b", xml)
@@ -344,7 +353,10 @@ def read_book_view(book: Workbook, xml: str) -> None:
         view.tab_ratio = _number(head.get("tabRatio"), 600) / 1000
         if book.sheets_:
             book.active_sheet_index = min(_number(head.get("activeTab"), 0), len(book.sheets_) - 1)
+    # A group the file keeps selected, its active tab among them, stays selected.
+    book.selected_sheets = [sheet for sheet in book.sheets_ if sheet.view.tab_selected]
     book.view.saved_active = book.active_sheet
+    book.view.saved_selected = book.selected()
 
 
 def with_book_view(book: Workbook, xml: str) -> str:
@@ -373,6 +385,7 @@ def saved(book: Workbook) -> None:
         sheet.view.changed = False
     book.view.changed = False
     book.view.saved_active = book.active_sheet
+    book.view.saved_selected = book.selected()
 
 
 def copied(source: Worksheet, copy: Worksheet) -> None:
@@ -623,6 +636,13 @@ class Window(ExcelObject):
     @member
     def ActiveSheet(self) -> object:
         return self.sheet()
+
+    @member
+    def SelectedSheets(self) -> object:
+        """The selected sheets, in tab order (tests/fixtures/sheet_groups.json)."""
+        from pyopenvba.apps.excel._sheet_groups import SheetGroup
+
+        return SheetGroup(self.book, self.book.selected())
 
     @member
     def ActiveCell(self) -> object:

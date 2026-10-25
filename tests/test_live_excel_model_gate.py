@@ -1595,6 +1595,55 @@ def test_excel_reads_the_renamed_table_workbooks_this_wrote(tmp_path: Path) -> N
         assert read[name] == case["answer"], name
 
 
+def test_excel_reads_the_text_filters_this_wrote(tmp_path: Path) -> None:
+    """Filters over text beyond ASCII (tests/fixtures/filter_text.json), an =, a wildcard pattern and a list, made by
+    the model and saved: Excel opens the file and reads the rows each hides and its criteria as the model has them."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "filter_text.json").read_text(encoding="utf-8"))
+
+    def text(value: str) -> str:
+        return " & ".join(f"ChrW({ord(character)})" for character in value)
+
+    cases = [(record["values"], text("=\u00c6sop")), (record["values"], text("\u00e6*")),
+             (record["saved_list"], "Array(" + ", ".join(text(one) for one in record["saved_list"]) + "), "
+              "Operator:=xlFilterValues")]
+    build = ["Public Sub Build()", "Dim wb As Object, ws As Object", "Set wb = ActiveWorkbook"]
+    for index, (values, criteria) in enumerate(cases):
+        build += ["Set ws = wb.Worksheets(1)" if index == 0 else
+                  "Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))",
+                  'ws.Columns("A").NumberFormat = "@"', 'ws.Cells(1, 1).Value = "Word"',
+                  *(f"ws.Cells({row}, 1).Value = {text(value)}" for row, value in enumerate(values, start=2)),
+                  f'ws.Range("A1:A{len(values) + 1}").AutoFilter Field:=1, Criteria1:={criteria}']
+    build += ["End Sub"]
+    reader = ('Private Function Coded(v As Variant) As String\n    Dim i As Long, out As String\n'
+              '    If IsArray(v) Then\n        For i = LBound(v) To UBound(v)\n'
+              '            out = out & Coded(v(i)) & ","\n        Next\n        Coded = out\n        Exit Function\n'
+              '    End If\n    For i = 1 To Len(v)\n        out = out & Hex(AscW(Mid(v, i, 1)) And &HFFFF&) & "."\n'
+              '    Next\n    Coded = out\nEnd Function\n\n'
+              'Public Function Report() As String\n    Dim ws As Object, out As String, r As Long\n'
+              '    For Each ws In ActiveWorkbook.Worksheets\n'
+              '        For r = 2 To ws.UsedRange.Rows.Count\n'
+              '            If ws.Rows(r).Hidden Then out = out & "0" Else out = out & "1"\n        Next\n'
+              '        out = out & ";" & Coded(ws.AutoFilter.Filters(1).Criteria1) & "|"\n    Next\n'
+              '    Report = out\nEnd Function\n')
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module("\n".join(build) + "\n", name="Builder")
+    app.add_module(reader, name="Reader")
+    app.run("Build")
+    made = str(app.run("Report"))
+    path = tmp_path / "text_filters.xlsx"
+    app.save(path)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.open_document(path)
+        result = excel.run_vba(reader, "Report", timeout=240.0)
+        assert result.ok, result.message
+    assert str(result.value) == made
+    assert made.split("|")[2].split(";")[0] == record["saved_kept"]
+
+
 def test_excel_reads_the_cell_shifts_this_made(tmp_path: Path) -> None:
     """Cells tests/fixtures/cell_shifts.json shifted, made by the model, saved, and opened in Excel one by one."""
     import json

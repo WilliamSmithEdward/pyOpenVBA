@@ -698,6 +698,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A pivot table's standard deviations and variances are Excel's to the
+  last bit. A sample's comes from the sum of the squares less the square
+  of the sum over the count, and a whole population's from the count
+  times the sum of the squares less the square of the sum, over the
+  count squared, neither below 0. The model worked them out in two
+  passes, which keep digits Excel loses: 100000001, 100000002 and
+  100000003 came to a deviation of 1 where Excel's is 0, and a total of
+  2, 5, 8, 5 and 6 to a variance of 4.7 where Excel's is
+  4.700000000000003.
+
 - A pivot cache over a field of numbers with a blank cell is one Excel
   opens. The model declared such a field not semi-mixed, and Excel
   refused the whole workbook.

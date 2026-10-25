@@ -130,16 +130,7 @@ def formats(made: tuple[dict[str, str], dict[str, str], Path]) -> tuple[
             sheet_cells(FIXTURES / "pivot_calculated_items.xlsx", names))
 
 
-#: A total's standard deviation or variance, which Excel's file keeps a few bits off the model's in the tables that
-#: show them, its sum of squares less the square of its sum taken apart from the model's two passes (docs/
-#: host_completeness.md); the layouts are here for the error adding a calculated item beside them raises.
-VARIANCE = "a pivot total's variance differs from Excel's in its last bits"
-
-
-@pytest.mark.parametrize("layout", [
-    pytest.param(layout, id=layout["name"], marks=[pytest.mark.xfail(reason=VARIANCE, strict=True)]
-                 if layout["name"] in ("function_stdev", "function_var") else [])
-    for layout in LAYOUTS])
+@pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_cells_keep_excels_formats(formats: tuple[dict[str, dict[str, tuple[object, str, int]]],
                                                       dict[str, dict[str, tuple[object, str, int]]]],
                                        layout: dict[str, Any]) -> None:

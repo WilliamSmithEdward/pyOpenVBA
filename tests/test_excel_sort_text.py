@@ -28,7 +28,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.apps.excel._sort import text_key
+from pyopenvba.apps.excel._sort import ordering_key, text_key
 from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -80,10 +80,26 @@ def test_styles_named_beyond_ascii_are_refused_found_listed_and_saved_as_in_exce
     assert [html.unescape(name) for name in re.findall(r'<cellStyle name="([^"]*)"', styles)] == STYLES["saved"]
 
 
-@pytest.mark.parametrize("text", ["\u0301a", "\u4e2d", "\u0385"], ids=["leading mark", "CJK", "dialytika tonos"])
+@pytest.mark.parametrize("text", ["\u0301a", "\u4e2d", "\u0385", "\x02\u0301a", "-\u0301b"],
+                         ids=["leading mark", "CJK", "dialytika tonos", "mark after a control character",
+                              "mark after a hyphen"])
 def test_text_the_model_does_not_sort_reports_itself(text: str) -> None:
     with pytest.raises(VBAUnsupportedError):
-        text_key(text, False)
+        ordering_key(text, False)
+
+
+def _mark_first(text: str) -> bool:
+    """Whether what Windows weighs as a combining mark, a diacritic and no primary weight, comes before anything it
+    weighs otherwise in ``text``."""
+    from pyopenvba.apps.excel._sort_weights import WEIGHTS
+
+    for character in text:
+        primary, diacritic = WEIGHTS[ord(character)][:2]
+        if primary:
+            return False
+        if diacritic:
+            return True
+    return False
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="CompareStringEx is Windows'")
@@ -91,21 +107,17 @@ def test_fresh_strings_sort_as_compare_string_orders_them() -> None:
     compare = _windows.WinDLL("kernel32").CompareStringEx
     compare.argtypes = [ctypes.c_wchar_p, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_int, ctypes.c_wchar_p,
                         ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-    from pyopenvba.apps.excel._sort_weights import WEIGHTS
-
     pick = random.Random()
     alphabet = sorted({character for text, _ignoring, _matching in KEYS for character in text})
-    # Text beginning with what Windows weighs as a combining mark, a diacritic and no primary weight, reports itself
-    # unsupported (see the test above).
-    marks = {character for character in alphabet if not WEIGHTS[ord(character)][0] and WEIGHTS[ord(character)][1]}
     missed: list[tuple[str, str, bool]] = []
     for _ in range(20000):
         first, second = ("".join(pick.choice(alphabet) for _ in range(pick.randint(1, 6))) for _ in range(2))
-        if first[0] in marks or second[0] in marks:
+        if _mark_first(first) or _mark_first(second):
+            # Text the model reports itself unable to order (see the test above).
             continue
         for matching in (False, True):
-            mine = (text_key(first, matching) > text_key(second, matching)) - \
-                (text_key(first, matching) < text_key(second, matching))
+            mine = (ordering_key(first, matching) > ordering_key(second, matching)) - \
+                (ordering_key(first, matching) < ordering_key(second, matching))
             theirs = compare("en-US", 0 if matching else 1, first, -1, second, -1, None, None, None) - 2
             if mine != theirs:
                 missed.append((first, second, matching))

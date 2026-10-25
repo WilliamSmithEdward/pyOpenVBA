@@ -254,13 +254,14 @@ def ordered(text: str) -> bytes:
     """What a filter tells text by, case aside: Windows' word-sort key, which orders text for > and < and lists the
     file's values, and is one for the text an = with no wildcard keeps, so =aesop keeps Aesop with the ash and
     =strasse keeps the sharp s while =resume leaves out the accented spelling (tests/fixtures/filter_text.json)."""
-    from pyopenvba.apps.excel._sort import text_key
+    from pyopenvba.apps.excel._sort import ordering_key
 
     try:
-        return text_key(text, False)
+        return ordering_key(text, False)
     except VBAUnsupportedError:
         raise VBAUnsupportedError("filtering text with characters beyond Latin, Greek and Cyrillic, their marks and "
-                                  "punctuation, or that begins with a combining mark, is not implemented") from None
+                                  "punctuation, or with a combining mark before anything word sort weighs, is not "
+                                  "implemented") from None
 
 
 def letter(char: str) -> bytes | str:

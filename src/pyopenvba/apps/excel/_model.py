@@ -54,6 +54,7 @@ from pyopenvba.interpreter._values import (
 )
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._rich_text import Run
     from pyopenvba.apps.excel._udf import EvaluationOrigin
     from pyopenvba.powerquery._opc import Entry
     from pyopenvba.apps.excel._charts import ChartState
@@ -145,6 +146,8 @@ class Cell:
     spilled_from: tuple[int, int] | None = None
     #: A clipped CSE fill can be dirty in memory but saved without a per-cell dirty flag.
     save_dirty: bool | None = None
+    #: The runs of fonts the cell's text is in, where it is in more than its own (see _rich_text).
+    runs: tuple[Run, ...] | None = None
 
     @property
     def number_format(self) -> str:
@@ -3321,6 +3324,13 @@ class Range(ExcelObject):
         return Font(self)
 
     @member
+    def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        """Part of a cell's text, its font among it (see _rich_text)."""
+        from pyopenvba.apps.excel._rich_text import characters
+
+        return characters(self, Start, Length)
+
+    @member
     def Interior(self) -> object:
         from pyopenvba.apps.excel._formats import Interior
 
@@ -4668,6 +4678,8 @@ class Range(ExcelObject):
         cell.shared = None
         cell.dynamic = False
         cell.spilled_from = None
+        # A value written, the same text too, is in the cell's own font (tests/fixtures/characters.json).
+        cell.runs = None
         changed = style
         if result.number_format is not None:
             changed = applying(changed, "number_format", number_format=result.number_format)

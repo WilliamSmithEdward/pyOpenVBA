@@ -468,16 +468,16 @@ CalculatedFields,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_p
 CalculatedFields,Creator,"property, read-only",As XlCreator,,MISSING,,
 CalculatedFields,Item,method,Item(Index As Variant) As PivotField,,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,"A calculated field by its place or its name, else error 1004."
 CalculatedFields,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,The table.
-Characters,Application,"property, read-only",As Application,,MISSING,,
-Characters,Caption,property,As String,,MISSING,,
-Characters,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Characters,Creator,"property, read-only",As XlCreator,,MISSING,,
-Characters,Delete,method,Delete() As Variant,,MISSING,,
-Characters,Font,"property, read-only",As Font,,MISSING,,
-Characters,Insert,method,Insert(String As String) As Variant,,MISSING,,
-Characters,Parent,"property, read-only",As Object,,MISSING,,
+Characters,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/characters.json,
+Characters,Caption,property,As String,,PARTIAL,tests/fixtures/characters.json,Read and set over one cell; set over several cells is not implemented.
+Characters,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/characters.json,"Start where Length is more than 0, -1 with Start left out, else the text's length; a shape's text by its length."
+Characters,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/characters.json,
+Characters,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/characters.json,One cell; several cells are not implemented.
+Characters,Font,"property, read-only",As Font,,PARTIAL,tests/fixtures/characters.json; tests/fixtures/rich_text_fit.json,"Read over one cell and set over any; the runs it makes save, count in the row's height and AutoFit's width. Superscript and subscript runs are not measured for heights and widths."
+Characters,Insert,method,Insert(String As String) As Variant,,PARTIAL,tests/fixtures/characters.json,One cell; several cells are not implemented.
+Characters,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/characters.json,The range.
 Characters,PhoneticCharacters,property,As String,,MISSING,,
-Characters,Text,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
+Characters,Text,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/characters.json,"Read and set over one cell, the replaced characters' font kept; an edit leaving more than 255 characters changes nothing. Set over several cells is not implemented."
 Chart,_CodeName,property,As String,,MISSING,,
 Chart,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,MISSING,,
 Chart,Activate,event,Activate(),,MISSING,,
@@ -1602,7 +1602,7 @@ Range,Calculate,method,Calculate() As Variant,,PARTIAL,tests/fixtures/excel_mode
 Range,CalculateRowMajorOrder,method,CalculateRowMajorOrder() As Variant,,PARTIAL,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"Under manual calculation each formula of the range once, a row at a time, reading what the others hold then, where Calculate works out first what a cell reads; answers Null; under automatic calculation as Calculate"
 Range,CellControl,"property, read-only",As CellControl,,MISSING,,
 Range,Cells,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Range,Characters,"property, read-only",As Characters,,MISSING,,
+Range,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/characters.json; tests/fixtures/rich_text_fit.json,"Start and Length as Excel takes them; rich text read from and written to files, kept by copies and sorts and dropped by values written. PhoneticCharacters is not implemented."
 Range,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant]) As Variant",,MISSING,,
 Range,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofilter_edits.json,"A position a row or column format reaches keeps a cell in the default format. On a filtered sheet only the visible cells clear, and clearing a filter's whole header row turns the filter off."
 Range,ClearComments,method,ClearComments(),,VERIFIED,tests/fixtures/excel_model/probes.txt,

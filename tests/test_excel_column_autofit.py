@@ -6,8 +6,9 @@ a digit wide for each digit, point and exponent sign, italic reaching a
 little further, and the text's width made the column's by a fixed rule up
 to 255 characters. Hidden rows count, merged cells and empty text do not,
 a hidden column is shown, Range.Columns.AutoFit fits the range's cells
-alone, and a file keeps the width with bestFit="1". What AutoFit was not
-measured over reports itself unsupported.
+alone, and a file keeps the width with bestFit="1", unless the column
+shows that width already. What AutoFit was not measured over reports
+itself unsupported.
 """
 from __future__ import annotations
 
@@ -29,8 +30,10 @@ NORMALS = {'aptos_narrow': 'Aptos Narrow', 'calibri': 'Calibri'}
 #: Probes replayed as they ran in Excel.
 WHOLE = [name for name in PROBES if name.startswith(('display_', 'runs_', 'latin_', 'ranges_', 'states_'))]
 #: The cells cases AutoFit was not measured over, which report themselves unsupported.
-UNMEASURED_CELLS = {'wrapped', 'line_break', 'indent', 'turned', 'mixed_runs', 'wrapped_beside',
-                    'line_break_unwrapped', 'line_break_wraps'}
+UNMEASURED_CELLS = {'wrapped', 'line_break', 'indent', 'turned', 'wrapped_beside', 'line_break_unwrapped',
+                    'line_break_wraps'}
+UNCHANGED: dict[str, Any] = json.loads(
+    (Path(__file__).parent / 'fixtures/autofit_unchanged.json').read_text(encoding='utf-8'))
 
 
 def _run(source: str) -> object:
@@ -129,6 +132,20 @@ def test_a_size_past_72pt() -> None:
     with pytest.raises(VBAUnsupportedError, match='8 to 72pt'):
         _run(_module('Aptos Narrow', 'ws.Range("A1").Value = "\'abc": ws.Range("A1").Font.Size = 80: '
                                      's = s & " " & Fitted(ws, 1)'))
+
+
+def test_a_width_the_column_shows_already(tmp_path: Path) -> None:
+    """AutoFit to the width a column shows changes nothing: a standard column stays standard and follows a new
+    StandardWidth, and a column of its own width takes no best fit (scripts/measure_autofit_unchanged.py)."""
+    path = tmp_path / 'unchanged.xlsx'
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(UNCHANGED['probe'], name='Harness')
+    assert app.run('Harness.Probe', str(path)) == UNCHANGED['answer']
+    with zipfile.ZipFile(path) as package:
+        sheet = package.read('xl/worksheets/sheet1.xml').decode('utf-8')
+    found = re.search(r'<cols>.*?</cols>', sheet)
+    assert found is not None and found.group(0) == UNCHANGED['cols']
 
 
 def test_the_columns_a_file_keeps(tmp_path: Path) -> None:

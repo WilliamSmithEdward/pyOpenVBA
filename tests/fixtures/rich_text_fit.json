@@ -1,0 +1,346 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-10-25T23:03:10.071521+00:00",
+  "cases": {
+    "bold_first": "c.Characters(1, 3).Font.Bold = True",
+    "bold_last": "c.Characters(6, 3).Font.Bold = True",
+    "bold_middle": "c.Characters(3, 3).Font.Bold = True",
+    "bold_alternate": "For i = 1 To 8 Step 2: c.Characters(i, 1).Font.Bold = True: Next",
+    "italic_first": "c.Characters(1, 3).Font.Italic = True",
+    "italic_last": "c.Characters(6, 3).Font.Italic = True",
+    "italic_middle": "c.Characters(3, 3).Font.Italic = True",
+    "italic_after_first": "c.Characters(2, 7).Font.Italic = True",
+    "italic_bold_cell": "c.Font.Bold = True: c.Characters(6, 3).Font.Italic = True",
+    "bold_italic_mix": "c.Characters(1, 4).Font.Bold = True: c.Characters(3, 4).Font.Italic = True",
+    "size8_last": "c.Characters(6, 3).Font.Size = 8",
+    "size16_last": "c.Characters(6, 3).Font.Size = 16",
+    "size16_first": "c.Characters(1, 3).Font.Size = 16",
+    "size30_last": "c.Characters(6, 3).Font.Size = 30",
+    "size30_first": "c.Characters(1, 3).Font.Size = 30",
+    "size30_middle": "c.Characters(4, 2).Font.Size = 30",
+    "size16_italic_last": "c.Characters(6, 3).Font.Size = 16: c.Characters(6, 3).Font.Italic = True",
+    "italic_alternate": "For i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next",
+    "italic_alternate_first": "For i = 1 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next",
+    "italic_two_first": "c.Characters(1, 2).Font.Italic = True: c.Characters(6, 2).Font.Italic = True",
+    "italic_cell_bold_last": "c.Font.Italic = True: c.Characters(6, 3).Font.Bold = True",
+    "size72_italic_last": "c.Font.Size = 72: c.Characters(6, 3).Font.Italic = True",
+    "size72_italic_alternate": "c.Font.Size = 72: For i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next",
+    "size72_italic_alternate_first": "c.Font.Size = 72: For i = 1 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next",
+    "size48_italic_middle": "c.Font.Size = 48: c.Characters(3, 3).Font.Italic = True",
+    "size72_after_small": "c.Characters(2, 7).Font.Size = 72: For i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next",
+    "size16_reset": "c.Characters(6, 3).Font.Size = 16: c.Font.Size = 11",
+    "other_font_last": "c.Characters(6, 3).Font.Name = \"OTHER\"",
+    "other_font_first": "c.Characters(1, 3).Font.Name = \"OTHER\"",
+    "superscript_last": "c.Characters(6, 3).Font.Superscript = True",
+    "subscript_last": "c.Characters(6, 3).Font.Subscript = True",
+    "underline_last": "c.Characters(6, 3).Font.Underline = xlUnderlineStyleSingle",
+    "strikethrough_last": "c.Characters(6, 3).Font.Strikethrough = True",
+    "color_last": "c.Characters(6, 3).Font.Color = RGB(255, 0, 0)",
+    "beside_plain": "c.Characters(6, 3).Font.Size = 16: ws.Range(\"B1\").Value = \"x\": ws.Range(\"B1\").Font.Size = 20",
+    "quoted": "c.Value = \"'abcdef\": c.Characters(1, 3).Font.Bold = True"
+  },
+  "probes": [
+    {
+      "normal": "Aptos Narrow",
+      "macro": "Function Shape(ws As Worksheet) As String\nDim before As Double\nbefore = ws.Rows(1).Height\nws.Columns(1).AutoFit\nShape = before & \"/\" & CLng(ws.Columns(1).Width * 4 / 3) & \"/\"\nws.Rows(1).AutoFit\nShape = Shape & ws.Rows(1).Height\nEnd Function\n\nFunction Probe(path As String) As String\nDim wb As Workbook, ws As Worksheet, c As Range, s As String, i As Long\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\nwb.Styles(\"Normal\").Font.Name = \"Aptos Narrow\"\nwb.Styles(\"Normal\").Font.Size = 11\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Bold = True\ns = s & \"#bold_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Bold = True\ns = s & \"#bold_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(3, 3).Font.Bold = True\ns = s & \"#bold_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_alternate\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nFor i = 1 To 8 Step 2: c.Characters(i, 1).Font.Bold = True: Next\ns = s & \"#bold_alternate=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Italic = True\ns = s & \"#italic_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Italic = True\ns = s & \"#italic_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(3, 3).Font.Italic = True\ns = s & \"#italic_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_after_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(2, 7).Font.Italic = True\ns = s & \"#italic_after_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_bold_cell\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Bold = True: c.Characters(6, 3).Font.Italic = True\ns = s & \"#italic_bold_cell=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_italic_mix\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 4).Font.Bold = True: c.Characters(3, 4).Font.Italic = True\ns = s & \"#bold_italic_mix=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size8_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 8\ns = s & \"#size8_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16\ns = s & \"#size16_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Size = 16\ns = s & \"#size16_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size30_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 30\ns = s & \"#size30_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size30_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Size = 30\ns = s & \"#size30_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size30_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(4, 2).Font.Size = 30\ns = s & \"#size30_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_italic_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16: c.Characters(6, 3).Font.Italic = True\ns = s & \"#size16_italic_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_alternate\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nFor i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#italic_alternate=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_alternate_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nFor i = 1 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#italic_alternate_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_two_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 2).Font.Italic = True: c.Characters(6, 2).Font.Italic = True\ns = s & \"#italic_two_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_cell_bold_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Italic = True: c.Characters(6, 3).Font.Bold = True\ns = s & \"#italic_cell_bold_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_italic_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 72: c.Characters(6, 3).Font.Italic = True\ns = s & \"#size72_italic_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_italic_alternate\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 72: For i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#size72_italic_alternate=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_italic_alternate_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 72: For i = 1 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#size72_italic_alternate_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size48_italic_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 48: c.Characters(3, 3).Font.Italic = True\ns = s & \"#size48_italic_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_after_small\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(2, 7).Font.Size = 72: For i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#size72_after_small=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_reset\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16: c.Font.Size = 11\ns = s & \"#size16_reset=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"other_font_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Name = \"Calibri\"\ns = s & \"#other_font_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"other_font_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Name = \"Calibri\"\ns = s & \"#other_font_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"superscript_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Superscript = True\ns = s & \"#superscript_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"subscript_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Subscript = True\ns = s & \"#subscript_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"underline_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Underline = xlUnderlineStyleSingle\ns = s & \"#underline_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"strikethrough_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Strikethrough = True\ns = s & \"#strikethrough_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"color_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Color = RGB(255, 0, 0)\ns = s & \"#color_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"beside_plain\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16: ws.Range(\"B1\").Value = \"x\": ws.Range(\"B1\").Font.Size = 20\ns = s & \"#beside_plain=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"quoted\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Value = \"'abcdef\": c.Characters(1, 3).Font.Bold = True\ns = s & \"#quoted=\" & Shape(ws)\nwb.SaveAs path, xlOpenXMLWorkbook\nwb.Close False\nApplication.DisplayAlerts = True\nProbe = Mid$(s, 2)\nEnd Function\n",
+      "result": "bold_first=15/63/15#bold_last=15/65/15#bold_middle=15/65/15#bold_alternate=15/64/15#italic_first=15/69/15#italic_last=15/67/15#italic_middle=15/67/15#italic_after_first=15/67/15#italic_bold_cell=15/67/15#bold_italic_mix=15/69/15#size8_last=15/59/15#size16_last=21/71/21#size16_first=21/74/21#size30_last=39/95/39#size30_first=39/108/39#size30_middle=39/89/39#size16_italic_last=21/75/21#italic_alternate=15/76/15#italic_alternate_first=15/78/15#italic_two_first=15/72/15#italic_cell_bold_last=15/72/15#size72_italic_last=93.75/413/93.75#size72_italic_alternate=93.75/474/93.75#size72_italic_alternate_first=93.75/493/93.75#size48_italic_middle=63.75/276/63.75#size72_after_small=93.75/412/93.75#size16_reset=15/64/15#other_font_last=15/65/15#other_font_first=15/62/15#superscript_last=16.5/58/16.5#subscript_last=18/58/18#underline_last=15/64/15#strikethrough_last=15/64/15#color_last=15/64/15#beside_plain=26.25/71/26.25#quoted=15/48/15",
+      "file": {
+        "bold_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "bold_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "bold_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "bold_alternate": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "italic_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_after_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_bold_cell": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "bold_italic_mix": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size8_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"8.42578125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"21\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"21\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size30_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"39\" x14ac:dyDescent=\"0.6\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"13.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size30_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"39\" x14ac:dyDescent=\"0.6\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"15.42578125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size30_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"39\" x14ac:dyDescent=\"0.6\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"12.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_italic_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"21\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_alternate": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_alternate_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"11.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_two_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_cell_bold_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_italic_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"93.75\" x14ac:dyDescent=\"1.4\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"59\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_italic_alternate": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"93.75\" x14ac:dyDescent=\"1.4\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"67.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_italic_alternate_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"93.75\" x14ac:dyDescent=\"1.4\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"70.42578125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size48_italic_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"63.75\" x14ac:dyDescent=\"1\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"39.42578125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_after_small": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"93.75\" x14ac:dyDescent=\"1.4\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"58.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_reset": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "other_font_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "other_font_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"8.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "superscript_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"16.5\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"8.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "subscript_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"18\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"8.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "underline_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "strikethrough_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "color_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "beside_plain": {
+          "row": "<row r=\"1\" spans=\"1:2\" ht=\"26.25\" x14ac:dyDescent=\"0.4\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "quoted": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"6.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        }
+      }
+    },
+    {
+      "normal": "Calibri",
+      "macro": "Function Shape(ws As Worksheet) As String\nDim before As Double\nbefore = ws.Rows(1).Height\nws.Columns(1).AutoFit\nShape = before & \"/\" & CLng(ws.Columns(1).Width * 4 / 3) & \"/\"\nws.Rows(1).AutoFit\nShape = Shape & ws.Rows(1).Height\nEnd Function\n\nFunction Probe(path As String) As String\nDim wb As Workbook, ws As Worksheet, c As Range, s As String, i As Long\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\nwb.Styles(\"Normal\").Font.Name = \"Calibri\"\nwb.Styles(\"Normal\").Font.Size = 11\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Bold = True\ns = s & \"#bold_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Bold = True\ns = s & \"#bold_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(3, 3).Font.Bold = True\ns = s & \"#bold_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_alternate\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nFor i = 1 To 8 Step 2: c.Characters(i, 1).Font.Bold = True: Next\ns = s & \"#bold_alternate=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Italic = True\ns = s & \"#italic_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Italic = True\ns = s & \"#italic_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(3, 3).Font.Italic = True\ns = s & \"#italic_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_after_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(2, 7).Font.Italic = True\ns = s & \"#italic_after_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_bold_cell\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Bold = True: c.Characters(6, 3).Font.Italic = True\ns = s & \"#italic_bold_cell=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"bold_italic_mix\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 4).Font.Bold = True: c.Characters(3, 4).Font.Italic = True\ns = s & \"#bold_italic_mix=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size8_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 8\ns = s & \"#size8_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16\ns = s & \"#size16_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Size = 16\ns = s & \"#size16_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size30_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 30\ns = s & \"#size30_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size30_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Size = 30\ns = s & \"#size30_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size30_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(4, 2).Font.Size = 30\ns = s & \"#size30_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_italic_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16: c.Characters(6, 3).Font.Italic = True\ns = s & \"#size16_italic_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_alternate\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nFor i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#italic_alternate=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_alternate_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nFor i = 1 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#italic_alternate_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_two_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 2).Font.Italic = True: c.Characters(6, 2).Font.Italic = True\ns = s & \"#italic_two_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"italic_cell_bold_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Italic = True: c.Characters(6, 3).Font.Bold = True\ns = s & \"#italic_cell_bold_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_italic_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 72: c.Characters(6, 3).Font.Italic = True\ns = s & \"#size72_italic_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_italic_alternate\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 72: For i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#size72_italic_alternate=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_italic_alternate_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 72: For i = 1 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#size72_italic_alternate_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size48_italic_middle\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Font.Size = 48: c.Characters(3, 3).Font.Italic = True\ns = s & \"#size48_italic_middle=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size72_after_small\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(2, 7).Font.Size = 72: For i = 2 To 8 Step 2: c.Characters(i, 1).Font.Italic = True: Next\ns = s & \"#size72_after_small=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"size16_reset\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16: c.Font.Size = 11\ns = s & \"#size16_reset=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"other_font_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Name = \"Aptos Narrow\"\ns = s & \"#other_font_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"other_font_first\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(1, 3).Font.Name = \"Aptos Narrow\"\ns = s & \"#other_font_first=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"superscript_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Superscript = True\ns = s & \"#superscript_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"subscript_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Subscript = True\ns = s & \"#subscript_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"underline_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Underline = xlUnderlineStyleSingle\ns = s & \"#underline_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"strikethrough_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Strikethrough = True\ns = s & \"#strikethrough_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"color_last\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Color = RGB(255, 0, 0)\ns = s & \"#color_last=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"beside_plain\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Characters(6, 3).Font.Size = 16: ws.Range(\"B1\").Value = \"x\": ws.Range(\"B1\").Font.Size = 20\ns = s & \"#beside_plain=\" & Shape(ws)\nSet ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\nws.Name = \"quoted\"\nSet c = ws.Range(\"A1\")\nc.Value = \"abcdefgh\"\nc.Value = \"'abcdef\": c.Characters(1, 3).Font.Bold = True\ns = s & \"#quoted=\" & Shape(ws)\nwb.SaveAs path, xlOpenXMLWorkbook\nwb.Close False\nApplication.DisplayAlerts = True\nProbe = Mid$(s, 2)\nEnd Function\n",
+      "result": "bold_first=15/64/15#bold_last=15/64/15#bold_middle=15/64/15#bold_alternate=15/64/15#italic_first=15/69/15#italic_last=15/67/15#italic_middle=15/65/15#italic_after_first=15/66/15#italic_bold_cell=15/67/15#bold_italic_mix=15/67/15#size8_last=15/58/15#size16_last=21/71/21#size16_first=21/75/21#size30_last=39/97/39#size30_first=39/107/39#size30_middle=39/89/39#size16_italic_last=21/76/21#italic_alternate=15/72/15#italic_alternate_first=15/75/15#italic_two_first=15/72/15#italic_cell_bold_last=15/71/15#size72_italic_last=92.25/420/92.25#size72_italic_alternate=92.25/470/92.25#size72_italic_alternate_first=92.25/495/92.25#size48_italic_middle=61.5/278/61.5#size72_after_small=92.25/407/92.25#size16_reset=15/64/15#other_font_last=15/63/15#other_font_first=15/66/15#superscript_last=17.25/57/17.25#subscript_last=18/57/18#underline_last=15/64/15#strikethrough_last=15/64/15#color_last=15/64/15#beside_plain=26.25/71/26.25#quoted=15/49/15",
+      "file": {
+        "bold_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "bold_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "bold_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "bold_alternate": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "italic_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_after_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.42578125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_bold_cell": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "bold_italic_mix": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.5703125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size8_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"8.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"21\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"21\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size30_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"39\" x14ac:dyDescent=\"0.6\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"13.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size30_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"39\" x14ac:dyDescent=\"0.6\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"15.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size30_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"39\" x14ac:dyDescent=\"0.6\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"12.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_italic_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"21\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.85546875\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_alternate": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_alternate_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_two_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.28515625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "italic_cell_bold_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_italic_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"92.25\" x14ac:dyDescent=\"1.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"60\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_italic_alternate": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"92.25\" x14ac:dyDescent=\"1.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"67.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_italic_alternate_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"92.25\" x14ac:dyDescent=\"1.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"70.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size48_italic_middle": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"61.5\" x14ac:dyDescent=\"0.9\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"39.7109375\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size72_after_small": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"92.25\" x14ac:dyDescent=\"1.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"58.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "size16_reset": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "other_font_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "other_font_first": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"9.42578125\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "superscript_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"17.25\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"8.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "subscript_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" ht=\"18\" x14ac:dyDescent=\"0.35\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"8.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "underline_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "strikethrough_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "color_last": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": ""
+        },
+        "beside_plain": {
+          "row": "<row r=\"1\" spans=\"1:2\" ht=\"26.25\" x14ac:dyDescent=\"0.4\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"10.140625\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        },
+        "quoted": {
+          "row": "<row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+          "cols": "<cols><col min=\"1\" max=\"1\" width=\"7\" bestFit=\"1\" customWidth=\"1\"/></cols>"
+        }
+      }
+    }
+  ]
+}

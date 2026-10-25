@@ -406,8 +406,11 @@ def add_fields(table: PivotTable, rows: object, columns: object, pages: object, 
 
 def clear_table(table: PivotTable) -> None:
     """ClearTable: every field off the table, its data fields and filters too, leaving the empty table (tests/
-    fixtures/pivot_options/ clear_table, clear_filters)."""
-    from pyopenvba.apps.excel._pivot_layout import render
+    fixtures/pivot_options/ clear_table, clear_filters). Every table of its cache is laid out again with it, as a
+    refresh lays them out but from the cache as it is, so that one whose style flags wait fits its columns to them
+    (tests/fixtures/pivot_options/ style; tests/fixtures/calculate_order.json clear_table, clear_table_manual)."""
+    from pyopenvba.apps.excel._pivot_layout import apply_render, plan_render
+    from pyopenvba.apps.excel._pivot_refresh import announce, cache_tables
 
     table = table.entry
     root = deepcopy(table.root)
@@ -417,8 +420,12 @@ def clear_table(table: PivotTable) -> None:
     for field in root.findall(f'{NS}pivotFields/{NS}pivotField'):
         for key in ('axis', 'dataField', 'measureFilter'):
             field.attrib.pop(key, None)
-    render(table, root, [])
+    plans = [plan_render(other, root, []) if other is table else plan_render(other, deepcopy(other.root))
+             for other in cache_tables(table.cache)]
+    for plan in plans:
+        apply_render(plan)
     table.sheet.book.saved = False
+    announce(table.sheet.book, plans)
 
 
 def set_location(table: PivotTable, value: object) -> None:

@@ -488,8 +488,9 @@ def admit_footprints(plans: list[RenderPlan]) -> None:
             raise unsupported('over populated cells outside the previous report footprint')
 
 
-def refresh(cache: PivotCache) -> object:
-    from pyopenvba.apps.excel import _events
+def refresh(cache: PivotCache, *, calculate: bool = True) -> object:
+    """Refresh ``cache`` and every table made from it; ``calculate`` False leaves the calculation that ends a refresh
+    to the caller, as RefreshAll does over all its caches."""
     from pyopenvba.apps.excel._model import Range
     from pyopenvba.apps.excel._pivot_aggregate import records
     from pyopenvba.apps.excel._pivot_create import apply_materialized, plan_materialize
@@ -508,15 +509,17 @@ def refresh(cache: PivotCache) -> object:
     if book.package is not None and cache.part:
         original = book.package.read('xl/workbook.xml')
         cache_order_bytes(original, [entry.cache_id for entry in book.pivot_caches if entry.part])
-    reports = [table for sheet in book.sheets_ for table in sheet.pivot_tables if table.cache is cache]
-    if not reports or len({table.sheet for table in reports}) != 1:
-        raise unsupported('for reportless or cross-sheet cache groups')
-    if len(reports[0].sheet.pivot_tables) > MAX_REPORTS:
+    reports = cache_tables(cache)
+    if not reports:
+        raise unsupported('for reportless cache groups')
+    sheets = list(dict.fromkeys(table.sheet for table in reports))
+    if len(reports) > MAX_REPORTS or any(len(sheet.pivot_tables) > MAX_REPORTS for sheet in sheets):
         raise unsupported('beyond the supported transaction report budget')
     budget = TextBudget(len(reports))
     budget.metadata(cache.root)
-    for table in reports[0].sheet.pivot_tables:
-        budget.metadata(table.root)
+    for sheet in sheets:
+        for table in sheet.pivot_tables:
+            budget.metadata(table.root)
     admit_cache(cache)
     record_part = existing_record_part(cache) if cache.part else cache.records_part
     previous_records = admit_records(cache, record_part, budget) if cache.part or cache.records is not None else None
@@ -599,15 +602,32 @@ def refresh(cache: PivotCache) -> object:
     for index, entry in enumerate(book.pivot_caches, 1):
         entry.index = index
     book.saved = False
+    announce(book, plans, calculate=calculate)
+    return EMPTY
+
+
+def cache_tables(cache: PivotCache) -> list[PivotTable]:
+    """Every table made from ``cache``, on whatever sheet: in the sheets' order, and each sheet's own, newest first,
+    as a refresh or ClearTable lays them out (tests/fixtures/pivot_shared_caches/ refresh_table; tests/fixtures/
+    calculate_order.json clear_table)."""
+    return [table for sheet in cache.book.sheets_ for table in sheet.pivot_tables if table.cache is cache]
+
+
+def announce(book: Workbook, plans: list[RenderPlan], *, calculate: bool = True) -> None:
+    """The events of tables laid out together, after all of them are: each one's Change, its sheet's Calculate and
+    its PivotTableUpdate, in the order they were laid out, then, unless ``calculate`` is False, the calculation
+    that ends a refresh (see _events.refresh_calculated)."""
+    from pyopenvba.apps.excel import _events
+    from pyopenvba.apps.excel._model import Range
+
     for plan in plans:
         _events.changed(Range(plan.table.sheet, [plan.extent]))
         if book.calculator.automatic:
             book.calculator.calculate_all(only=plan.table.sheet, background=True)
         _events.pivot_refresh_calculated(plan.table.sheet)
         _events.pivot_updated(plan.table)
-    if book.calculator.automatic:
-        _events.pivot_refresh_calculated(reports[0].sheet)
-    return EMPTY
+    if calculate:
+        _events.refresh_calculated(book)
 
 
 def cache_order_bytes(data: bytes, identifiers: list[int]) -> bytes:

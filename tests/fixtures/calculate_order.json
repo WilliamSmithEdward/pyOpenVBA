@@ -1,0 +1,280 @@
+{
+ "sink": "Public WithEvents App As Application\nPrivate Sub App_SheetPivotTableUpdate(ByVal Sh As Object, ByVal Target As PivotTable)\nLog = Log & \"update:\" & Sh.Name & \"/\" & Target.Name & \"|\"\nEnd Sub\nPrivate Sub App_SheetChange(ByVal Sh As Object, ByVal Target As Range)\nLog = Log & \"change:\" & Sh.Name & \"!\" & Target.Address(False, False) & \"|\"\nEnd Sub\nPrivate Sub App_SheetCalculate(ByVal Sh As Object)\nLog = Log & \"calculate:\" & Sh.Name & \"|\"\nEnd Sub\n",
+ "watch": "Private Function Sheet(wb As Object, name As String, before As String, after As String) As Object\n    Dim ws As Object\n    If before <> \"\" Then\n        Set ws = wb.Worksheets.Add(Before:=wb.Worksheets(before))\n    Else\n        Set ws = wb.Worksheets.Add(After:=wb.Worksheets(after))\n    End If\n    ws.Name = name\n    Set Sheet = ws\nEnd Function\n\nPrivate Function Book(kind As Long) As Object\n    Dim wb As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets(1).Name = \"s1\"\n    Select Case kind\n        Case 1\n            Sheet wb, \"s2\", \"\", \"s1\"\n            Sheet wb, \"s3\", \"s1\", \"\"\n            Sheet wb, \"s4\", \"\", \"s2\"\n            Sheet wb, \"s5\", \"s3\", \"\"\n        Case 2, 3\n            Sheet wb, \"s2\", \"\", \"s1\"\n            Sheet wb, \"s3\", \"\", \"s2\"\n            Sheet wb, \"s4\", \"\", \"s3\"\n            If kind = 2 Then\n                wb.Worksheets(\"s1\").Move After:=wb.Worksheets(\"s4\")\n            Else\n                wb.Worksheets(\"s3\").Move Before:=wb.Worksheets(\"s1\")\n            End If\n        Case 4\n            Sheet wb, \"s2\", \"\", \"s1\"\n            Sheet wb, \"s3\", \"\", \"s2\"\n            wb.Worksheets(\"s1\").Delete\n            Sheet wb, \"s4\", \"s2\", \"\"\n    End Select\n    Set Book = wb\nEnd Function\n\nPrivate Sub Formulas(wb As Object, formula As String)\n    Dim ws As Object\n    For Each ws In wb.Worksheets\n        ws.Range(\"Z1\").Formula = formula\n    Next\nEnd Sub\n\nPrivate Sub Lists(ws As Object)\n    Dim r As Long\n    ws.Range(\"A1:B1\").Value = Array(\"Region\", \"Amount\")\n    For r = 0 To 7\n        ws.Cells(r + 2, 1).Value = Array(\"East\", \"North\", \"South\", \"West\")(r Mod 4)\n        ws.Cells(r + 2, 2).Value = (r + 1) * 10\n    Next\n    ws.Range(\"H1:I1\").Value = Array(\"Kind\", \"Count\")\n    For r = 0 To 3\n        ws.Cells(r + 2, 8).Value = Array(\"New\", \"Used\")(r Mod 2)\n        ws.Cells(r + 2, 9).Value = (r + 1) * 3\n    Next\nEnd Sub\n\nPrivate Sub Report(wb As Object, source As String, at As Object, name As String, rows As String, values As String)\n    Dim pt As Object\n    Set pt = wb.PivotCaches.Create(xlDatabase, source).CreatePivotTable(at, name)\n    pt.PivotFields(rows).Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(values), \"Sum of \" & values, xlSum\nEnd Sub\n\nPublic Function Watch(how As Long, folder As String) As String\n    Dim wb As Object, s2 As Object, sink As New CalculateSink, out As String, name As String\n    Application.DisplayAlerts = False\n    Application.EnableEvents = False\n    Application.Calculation = xlCalculationAutomatic\n    Select Case how\n        Case 6\n            Set wb = Book(2)\n        Case 7\n            Set wb = Book(3)\n        Case 8\n            Set wb = Book(4)\n        Case Else\n            Set wb = Book(1)\n    End Select\n    Set s2 = wb.Worksheets(\"s2\")\n    If how >= 10 Then\n        Lists s2\n        Report wb, \"s2!R1C1:R9C2\", s2.Range(\"E3\"), \"T\", \"Region\", \"Amount\"\n        If how = 16 Then Report wb, \"s2!R1C8:R5C9\", wb.Worksheets(\"s4\").Range(\"A3\"), \"U\", \"Kind\", \"Count\"\n        If how >= 18 Then\n            With s2.PivotTables(\"T\").PivotCache.CreatePivotTable(wb.Worksheets(\"s4\").Range(\"A3\"), \"V\")\n                .PivotFields(\"Region\").Orientation = xlRowField\n                .AddDataField .PivotFields(\"Amount\"), \"Sum of Amount\", xlSum\n            End With\n        End If\n    End If\n    Select Case how\n        Case 3 To 8, 10, 16, 17, 18\n            Formulas wb, \"=1+1\"\n        Case 9\n            Formulas wb, \"=RAND()\"\n        Case 11, 12, 19\n            s2.Range(\"Z1\").Formula = \"=2+2\"\n    End Select\n    If how = 9 Or how = 17 Then\n        name = \"calculate_order.xlsx\"\n        wb.SaveAs folder & \"\\\" & name, 51\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\\" & name)\n        Set s2 = wb.Worksheets(\"s2\")\n    End If\n    If how >= 10 Then s2.Range(\"B3\").Value = 1000\n    If how = 16 Then s2.Range(\"I3\").Value = 100\n    If how = 11 Or how = 19 Then Application.Calculation = xlCalculationManual\n    Set sink.App = Application\n    Application.EnableEvents = True\n    Select Case how\n        Case 1, 2\n            Formulas wb, \"=RAND()\"\n        Case 13\n            wb.Worksheets(\"s4\").Range(\"Z1\").Formula = \"=RAND()\"\n        Case 14\n            wb.Worksheets(\"s4\").Range(\"Z1\").Formula = \"=SUM(s2!F4:F7)\"\n        Case 15\n            wb.Worksheets(\"s4\").Range(\"Z1\").Formula = \"=GETPIVOTDATA(\"\"Sum of Amount\"\",s2!E3)\"\n    End Select\n    Log = \"\"\n    Select Case how\n        Case 1, 3, 6, 7, 8, 9\n            Application.Calculate\n        Case 2, 4\n            s2.Range(\"B1\").Value = 7\n        Case 5\n            s2.Calculate\n        Case 10 To 15, 17\n            s2.PivotTables(\"T\").PivotCache.Refresh\n        Case 16\n            wb.RefreshAll\n        Case 18, 19\n            s2.PivotTables(\"T\").ClearTable\n    End Select\n    If how = 11 Or how = 12 Or how = 19 Then\n        Log = Log & \"then|\"\n        Application.Calculate\n    End If\n    out = Log\n    Application.EnableEvents = False\n    If how = 14 Or how = 15 Then out = out & \"value=\" & wb.Worksheets(\"s4\").Range(\"Z1\").Value\n    Application.Calculation = xlCalculationAutomatic\n    wb.Close False\n    Watch = out\nEnd Function\n",
+ "make": "Public Function Make(how As Long, folder As String) As String\n    Dim wb As Object, name As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Select Case how\n        Case 1\n            wb.Worksheets.Add\n            wb.Worksheets.Add\n            wb.Worksheets.Add\n        Case 2\n            wb.Worksheets(1).Name = \"s1\"\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s1\")).Name = \"s2\"\n            wb.Worksheets.Add(Before:=wb.Worksheets(\"s1\")).Name = \"s3\"\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s2\")).Name = \"s4\"\n            wb.Worksheets.Add(Before:=wb.Worksheets(\"s3\")).Name = \"s5\"\n        Case 3\n            wb.Worksheets(1).Name = \"s1\"\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s1\")).Name = \"s2\"\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s2\")).Name = \"s3\"\n            wb.Worksheets(\"s3\").Delete\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s2\")).Name = \"s4\"\n        Case 4\n            wb.Worksheets(1).Name = \"s1\"\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s1\")).Name = \"s2\"\n            wb.Worksheets(\"s1\").Delete\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s2\")).Name = \"s3\"\n        Case 5\n            wb.Worksheets(1).Name = \"s1\"\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s1\")).Name = \"s2\"\n            wb.Worksheets(\"s1\").Copy Before:=wb.Worksheets(\"s1\")\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s2\")).Name = \"s3\"\n        Case 6, 7\n            wb.Worksheets(1).Name = \"s1\"\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s1\")).Name = \"s2\"\n            wb.Worksheets.Add(Before:=wb.Worksheets(\"s1\")).Name = \"s3\"\n            name = \"numbers_first.xlsx\"\n            wb.SaveAs folder & \"\\\" & name, 51\n            wb.Close False\n            Set wb = Workbooks.Open(folder & \"\\\" & name)\n            If how = 7 Then wb.Worksheets(\"s3\").Delete\n            wb.Worksheets.Add(After:=wb.Worksheets(\"s2\")).Name = \"s4\"\n            wb.Worksheets.Add(Before:=wb.Worksheets(\"s1\")).Name = \"s5\"\n    End Select\n    name = \"numbers.xlsx\"\n    wb.SaveAs folder & \"\\\" & name, 51\n    wb.Close False\n    Make = \"ok\"\nEnd Function\n",
+ "cases": [
+  {
+   "name": "calculate_volatile",
+   "how": 1,
+   "what": "=RAND() on each sheet, written with events on; Application.Calculate",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|"
+  },
+  {
+   "name": "edit_volatile",
+   "how": 2,
+   "what": "=RAND() on each sheet, written with events on; an edit to s2!B1",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|change:s2!B1|"
+  },
+  {
+   "name": "calculate_held",
+   "how": 3,
+   "what": "=1+1 on each sheet, written with events off; Application.Calculate",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|"
+  },
+  {
+   "name": "edit_held",
+   "how": 4,
+   "what": "=1+1 on each sheet, written with events off; an edit to s2!B1",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|change:s2!B1|"
+  },
+  {
+   "name": "sheet_calculate_held",
+   "how": 5,
+   "what": "=1+1 on each sheet, written with events off; Worksheets(\"s2\").Calculate",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|"
+  },
+  {
+   "name": "moved_after",
+   "how": 6,
+   "what": "s1 to s4 one after another, s1 moved after s4; held =1+1; Application.Calculate",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|"
+  },
+  {
+   "name": "moved_before",
+   "how": 7,
+   "what": "s1 to s4 one after another, s3 moved before s1; held =1+1; Application.Calculate",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|"
+  },
+  {
+   "name": "deleted",
+   "how": 8,
+   "what": "s1 to s3 one after another, s1 deleted, s4 before s2; held =1+1; Application.Calculate",
+   "log": "calculate:s2|calculate:s3|calculate:s4|"
+  },
+  {
+   "name": "reopened",
+   "how": 9,
+   "what": "=RAND() on each sheet, the workbook saved and opened again; Application.Calculate",
+   "log": "calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|"
+  },
+  {
+   "name": "refresh_held",
+   "how": 10,
+   "what": "a table on s2 refreshed, =1+1 held on each sheet",
+   "log": "change:s2!E3:F8|calculate:s2|update:s2/T|calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|"
+  },
+  {
+   "name": "refresh_held_manual",
+   "how": 11,
+   "what": "s2!Z1 =2+2 held; manual calculation; the table refreshed, then Application.Calculate",
+   "log": "change:s2!E3:F8|calculate:s2|update:s2/T|then|calculate:s2|"
+  },
+  {
+   "name": "refresh_held_automatic",
+   "how": 12,
+   "what": "s2!Z1 =2+2 held; the table refreshed, then Application.Calculate",
+   "log": "change:s2!E3:F8|calculate:s2|update:s2/T|calculate:s2|then|"
+  },
+  {
+   "name": "refresh_volatile",
+   "how": 13,
+   "what": "s4!Z1 =RAND() written with events on; the table refreshed",
+   "log": "change:s2!E3:F8|calculate:s2|update:s2/T|calculate:s4|"
+  },
+  {
+   "name": "refresh_dependent",
+   "how": 14,
+   "what": "s4!Z1 =SUM(s2!F4:F7) over the table, written with events on; the table refreshed",
+   "log": "change:s2!E3:F8|calculate:s2|update:s2/T|calculate:s4|value=1340"
+  },
+  {
+   "name": "refresh_getpivotdata",
+   "how": 15,
+   "what": "s4!Z1 =GETPIVOTDATA over the table, written with events on; the table refreshed",
+   "log": "change:s2!E3:F8|calculate:s2|update:s2/T|calculate:s4|value=1340"
+  },
+  {
+   "name": "refresh_all_once",
+   "how": 16,
+   "what": "a second cache's table on s4; =1+1 held on each sheet; RefreshAll",
+   "log": "change:s4!A3:B6|calculate:s4|update:s4/U|change:s2!E3:F8|calculate:s2|update:s2/T|calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|"
+  },
+  {
+   "name": "refresh_reopened",
+   "how": 17,
+   "what": "=1+1 on each sheet, the workbook saved and opened again; the table refreshed",
+   "log": "change:s2!E3:F8|calculate:s2|update:s2/T|"
+  },
+  {
+   "name": "clear_table",
+   "how": 18,
+   "what": "a second table V of the cache on s4; =1+1 held on each sheet; T.ClearTable",
+   "log": "change:s2!E3:G20|calculate:s2|update:s2/T|change:s4!A3:B8|calculate:s4|update:s4/V|calculate:s1|calculate:s2|calculate:s3|calculate:s4|calculate:s5|"
+  },
+  {
+   "name": "clear_table_manual",
+   "how": 19,
+   "what": "a second table V of the cache on s4; s2!Z1 =2+2 held; manual calculation; T.ClearTable, then Application.Calculate",
+   "log": "change:s2!E3:G20|calculate:s2|update:s2/T|change:s4!A3:B8|calculate:s4|update:s4/V|then|calculate:s2|"
+  }
+ ],
+ "numbers": [
+  {
+   "name": "added_before",
+   "how": 1,
+   "what": "Worksheets.Add three times, each new sheet before the active one",
+   "sheets": [
+    [
+     "Sheet4",
+     4
+    ],
+    [
+     "Sheet3",
+     3
+    ],
+    [
+     "Sheet2",
+     2
+    ],
+    [
+     "Sheet1",
+     1
+    ]
+   ]
+  },
+  {
+   "name": "added_out_of_order",
+   "how": 2,
+   "what": "s1, s2 after s1, s3 before s1, s4 after s2, s5 before s3",
+   "sheets": [
+    [
+     "s5",
+     5
+    ],
+    [
+     "s3",
+     3
+    ],
+    [
+     "s1",
+     1
+    ],
+    [
+     "s2",
+     2
+    ],
+    [
+     "s4",
+     4
+    ]
+   ]
+  },
+  {
+   "name": "newest_deleted",
+   "how": 3,
+   "what": "s1, s2, s3 one after another, s3 deleted, s4 after s2",
+   "sheets": [
+    [
+     "s1",
+     1
+    ],
+    [
+     "s2",
+     2
+    ],
+    [
+     "s4",
+     4
+    ]
+   ]
+  },
+  {
+   "name": "oldest_deleted",
+   "how": 4,
+   "what": "s1, s2 one after another, s1 deleted, s3 after s2",
+   "sheets": [
+    [
+     "s2",
+     2
+    ],
+    [
+     "s3",
+     3
+    ]
+   ]
+  },
+  {
+   "name": "copied",
+   "how": 5,
+   "what": "s1, s2 after s1, s1 copied before s1, s3 after s2",
+   "sheets": [
+    [
+     "s1 (2)",
+     3
+    ],
+    [
+     "s1",
+     1
+    ],
+    [
+     "s2",
+     2
+    ],
+    [
+     "s3",
+     4
+    ]
+   ]
+  },
+  {
+   "name": "reopened_added",
+   "how": 6,
+   "what": "s1, s2 after s1, s3 before s1, saved and opened again, s4 after s2, s5 before s1",
+   "sheets": [
+    [
+     "s3",
+     3
+    ],
+    [
+     "s5",
+     5
+    ],
+    [
+     "s1",
+     1
+    ],
+    [
+     "s2",
+     2
+    ],
+    [
+     "s4",
+     4
+    ]
+   ]
+  },
+  {
+   "name": "reopened_highest_deleted",
+   "how": 7,
+   "what": "as reopened_added, s3 deleted after the file is opened again",
+   "sheets": [
+    [
+     "s5",
+     5
+    ],
+    [
+     "s1",
+     1
+    ],
+    [
+     "s2",
+     2
+    ],
+    [
+     "s4",
+     4
+    ]
+   ]
+  }
+ ]
+}

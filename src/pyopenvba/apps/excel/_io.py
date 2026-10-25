@@ -148,9 +148,18 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     found = re.search(r'<workbookPr\b[^>]*\bcodeName="([^"]*)"', workbook_xml)
     if found is not None:
         book.code_name = _unescape(found.group(1))
+    # Each sheet keeps the number the file gives it, by its relationship, and the next one made takes one past
+    # the highest.
+    numbers: dict[str, int] = {}
+    for tag in re.findall(r"<sheet\b[^>]*>", workbook_xml):
+        attributes = _tag_attributes(tag)
+        identifier = next((value for key, value in attributes.items() if key.endswith(":id")), "")
+        if attributes.get("sheetId", "").isdecimal():
+            numbers[identifier] = int(attributes["sheetId"])
     for name, relationship_id in sheet_entries(workbook_xml):
         part = relationships.get(relationship_id, "")
         sheet = book.add_sheet(name)
+        sheet.sheet_id = numbers.get(relationship_id, sheet.sheet_id)
         sheet.part_name = part
         # Missing code names stay empty until project access materializes them.
         if part and package.has(part):
@@ -185,6 +194,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
             initialize(sheet)
             read_view(sheet, sheet_xml)
+    book.next_sheet_id = max((sheet.sheet_id for sheet in book.sheets_), default=0) + 1
     from pyopenvba.apps.excel._windows import read_book_view
 
     read_book_view(book, workbook_xml)
@@ -1550,7 +1560,7 @@ def _match_sheets_to_package(book: Workbook, package: OpcFile) -> None:
                 "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
                 f"worksheets/sheet{index + 1}.xml",
             )
-            additions.append(f'<sheet name="{_escape(sheet.name)}" sheetId="{index + 1}" r:id="{relationship}"/>')
+            additions.append(f'<sheet name="{_escape(sheet.name)}" sheetId="{sheet.sheet_id}" r:id="{relationship}"/>')
     _rename_sheets_in_workbook(book, package, existing)
     if additions:
         text = package.read("xl/workbook.xml").decode("utf-8")
@@ -1581,11 +1591,9 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
     if block is None:
         raise WorkbookFileError("Workbook has no sheets list")
     existing: dict[str, dict[str, str]] = {}
-    identifiers: list[int] = []
     for tag in re.findall(r"<sheet\b[^>]*/>", block.group()):
         attrs = _tag_attributes(tag)
         existing[relationships.get(attrs.get("r:id", ""), "")] = attrs
-        identifiers.append(int(attrs.get("sheetId", "0")))
     from pyopenvba.apps.excel._advanced_filter import attribute_values, patch_attribute
 
     old_parts = list(existing)
@@ -1603,7 +1611,6 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
         reserved[match.group()] = ("" if position is None else
                                   "<definedName" + patch_attribute(fragment, "localSheetId", str(position))
                                   + ">" + body + "</definedName>")
-    next_id = max(identifiers, default=0) + 1
     tags: list[str] = []
     for sheet in book.sheets_:
         attrs = dict(existing.get(sheet.part_name, {}))
@@ -1617,9 +1624,8 @@ def _sync_sheets(book: Workbook, package: OpcFile) -> None:
             rid = add_relationship(package, "xl/_rels/workbook.xml.rels",
                                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet",
                                    f"worksheets/sheet{number}.xml")
-            # The name first, as Excel writes a sheet.
-            attrs = {"name": sheet.name, "sheetId": str(next_id), "r:id": rid}
-            next_id += 1
+            # The name first, as Excel writes a sheet, and the number it was made with.
+            attrs = {"name": sheet.name, "sheetId": str(sheet.sheet_id), "r:id": rid}
         attrs["name"] = sheet.name
         tags.append("<sheet " + " ".join(f'{key}="{_escape(value)}"' for key, value in attrs.items()) + "/>")
     rebuilt = "<sheets>" + "".join(tags) + "</sheets>"
@@ -1737,9 +1743,9 @@ def _follow_defined_name(book: Workbook, package: OpcFile, name: str, target: Lo
 
 
 def _rename_sheets_in_workbook(book: Workbook, package: OpcFile, existing: list[tuple[str, str]]) -> None:
-    """Put the model's sheet names into the package's workbook part.
+    """Put the model's sheet names, and the numbers the sheets were made with, into the package's workbook part.
 
-    Only the names of the sheets the template already has: adding a
+    Only those of the sheets the template already has: adding a
     sheet to the workbook part means a relationship and a content type
     as well, which is why a new workbook starts from a template rather
     than from nothing.
@@ -1748,9 +1754,13 @@ def _rename_sheets_in_workbook(book: Workbook, package: OpcFile, existing: list[
     for index, (old, _) in enumerate(existing):
         if index >= len(book.sheets_):
             break
-        wanted = book.sheets_[index].name
-        if wanted != old:
-            text = text.replace(f'name="{_escape(old)}"', f'name="{_escape(wanted)}"', 1)
+        sheet = book.sheets_[index]
+        if sheet.name != old:
+            text = text.replace(f'name="{_escape(old)}"', f'name="{_escape(sheet.name)}"', 1)
+        found = re.search(rf'<sheet\b[^>]*\bname="{re.escape(_escape(sheet.name))}"[^>]*>', text)
+        if found is not None:
+            tag = re.sub(r'\bsheetId="\d+"', lambda _: f'sheetId="{sheet.sheet_id}"', found.group(), count=1)
+            text = text[:found.start()] + tag + text[found.end():]
     package.write("xl/workbook.xml", text.encode("utf-8"))
 
 

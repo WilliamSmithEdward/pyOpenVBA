@@ -2478,6 +2478,38 @@ def test_excel_reads_the_pivot_show_pages_this_wrote(tmp_path: Path) -> None:
             assert read[scenario["name"]] == scenario["reopened"], scenario["name"]
 
 
+def test_excel_reads_the_shared_pivot_caches_this_wrote(tmp_path: Path) -> None:
+    """Every scenario tests/fixtures/pivot_shared_caches measured, made by the model with the macro Excel ran, a
+    cache's tables on two sheets refreshed, the workbook's caches refreshed or a setting of a cache set, and saved:
+    Excel opens each workbook and reads every sheet's widths and tables, their caches' indexes, places and cells,
+    as it reads its own workbook of the scenario, a sheet's tables in either order. Excel reads a width against
+    its display's pixels, so both are read in one session rather than against the widths a 96-DPI Excel read."""
+    import shutil
+
+    from test_excel_pivot_shared_caches import FIXTURES, RECORD, SCENARIOS, built, unordered
+
+    harness = pytest.importorskip("pyvbaharness")
+    ours, theirs = tmp_path / "model", tmp_path / "excel"
+    ours.mkdir()
+    theirs.mkdir()
+    built(ours).run("Build")
+    for scenario in SCENARIOS:
+        shutil.copy(FIXTURES / f"{scenario['name']}.xlsx", theirs)
+    reader = RECORD["build"].split("Private Function Made")[0] + (
+        "Public Function Read(folder As String, names As String) As String\n"
+        "Dim wb As Object, name As Variant, out As String\nApplication.DisplayAlerts = False\n"
+        "For Each name In Split(names, \",\")\nSet wb = Workbooks.Open(folder & \"\\\" & name & \".xlsx\")\n"
+        "out = out & name & \"^\" & Dump(wb) & \"|\"\nwb.Close False\nNext\nRead = out\nEnd Function\n")
+    names = ",".join(scenario["name"] for scenario in SCENARIOS)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        results = [excel.run_vba(reader, "Read", (str(folder), names), timeout=600.0) for folder in (ours, theirs)]
+        assert all(result.ok for result in results), [result.message for result in results]
+    model, own = (dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one) for result in results)
+    for scenario in SCENARIOS:
+        assert unordered(model[scenario["name"]]) == unordered(own[scenario["name"]]), scenario["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

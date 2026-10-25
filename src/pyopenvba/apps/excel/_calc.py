@@ -753,7 +753,7 @@ class Calculator:
         if not keys:
             return
         application = self.book.application
-        made = {sheet.name.lower(): sheet.made for sheet in self.book.sheets_}
+        made = {sheet.name.lower(): sheet.sheet_id for sheet in self.book.sheets_}
         cells: list[tuple[CellKey, Cell, Compiled]] = []
         for key in sorted(keys, key=lambda key: (made.get(key[0], 0), key[1], key[2])):
             cell = self._cell(key)

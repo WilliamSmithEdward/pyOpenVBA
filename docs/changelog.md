@@ -879,6 +879,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   lists: `eclair` before `éclair`, beside it, by Windows' word sort. The
   model put such a name after the ASCII ones, by its characters.
 
+- `Workbooks.Add(xlWBATWorksheet)` names its workbook Sheet and the next
+  of its own numbers, `Sheet1`, as Excel does, apart from the Book
+  numbers a workbook with no template takes; neither number is taken
+  back when a workbook closes. The model named every new workbook Book.
+
 - A Date with part of a second rounds to the second as VBA rounds it,
   in `CStr`, `Format`, `Hour`, `Minute` and `Second` alike. VBA goes
   through oleaut32's VariantTimeToSystemTime. It adds half a second to

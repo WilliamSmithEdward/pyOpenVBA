@@ -734,12 +734,14 @@ class Workbooks(VBACollection, ExcelObject):
     def __init__(self, application: Application) -> None:
         self.application = application
         self.books: list[Workbook] = []
-        self._next_number = 1
+        #: The number the next new workbook of each kind takes: Book for one with no template, Sheet for one made
+        #: from xlWBATWorksheet, each counting on its own and taking none back (tests/fixtures/workbook_names.json).
+        self._next_numbers = {"Book": 1, "Sheet": 1}
 
-    def next_name(self) -> str:
+    def next_name(self, stem: str = "Book") -> str:
         while True:
-            name = f"Book{self._next_number}"
-            self._next_number += 1
+            name = f"{stem}{self._next_numbers[stem]}"
+            self._next_numbers[stem] += 1
             if not any(book.name.casefold() == name.casefold() for book in self.books):
                 return name
 
@@ -758,7 +760,7 @@ class Workbooks(VBACollection, ExcelObject):
     def Add(self, Template: object = MISSING) -> object:
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
-        book = Workbook(self.application, self.next_name())
+        book = Workbook(self.application, self.next_name("Book" if Template is MISSING else "Sheet"))
         book.add_sheet("Sheet1")
         book.saved = True
         self.books.append(book)

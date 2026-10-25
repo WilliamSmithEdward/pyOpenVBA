@@ -7,6 +7,28 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot fields take calculated items as Excel's do.
+  `PivotField.CalculatedItems.Add` makes an item of a field on the rows
+  or columns whose formula names the field's other items: bare, in
+  apostrophes, as `Region[East]` or by place as `Region[1]`, with
+  numbers, text and worksheet functions. The table works the item out
+  in every cell from the items it names there, their hidden items too,
+  and a total over the field takes every item's value together by the
+  data field's function, summed, the greatest, the least or multiplied.
+  The item shows under every item outside it, sorts last by name and
+  with the others by value, and reads back its formula as Excel spells
+  it. `PivotItem.Formula` changes it, `Delete` takes it away, leaving
+  #NAME? where another's formula named it, and `IsCalculated` and
+  `StandardFormula` read it. A refresh keeps calculated items, and the
+  file keeps each one as Excel's does. As in Excel, a name an item has,
+  an unknown item, a field on no axis or the page area, a data field,
+  a field of groups and an average, standard deviation or variance
+  beside one are error 1004, and so are moving its field to the page
+  area, custom subtotals and grouping its numbers by ranges. 70 layouts
+  agree with Excel before a save and once the file is opened again,
+  the saved tables and caches agree with Excel's file, and Excel reads
+  the model's file as its own.
+
 - Pivot tables group their fields as Excel does. `Range.Group` on one
   item's cell groups a field of numbers into ranges by `By` from `Start`
   to `End`, the field's least and greatest where those are True or left

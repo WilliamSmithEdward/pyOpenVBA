@@ -17,6 +17,7 @@ from pyopenvba.apps.excel._pivot_calculations import (
 )
 from pyopenvba.apps.excel._pivot_forms import FIELD_EXTENSION, SUBTOTALS
 from pyopenvba.apps.excel._pivot_groups import carry_groups, extend_groups, is_database, is_group_field, remap_groups
+from pyopenvba.apps.excel._pivot_items import carry_items
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, error
@@ -223,6 +224,27 @@ def admit_records(cache: PivotCache, part: str, budget: TextBudget) -> XmlElemen
     return records
 
 
+def admit_items(root: XmlElement) -> None:
+    """A cache's calculated items, of the parts the model reads: each one's formula and the item it names."""
+    for container in root.findall(NS + 'calculatedItems'):
+        attributes(container, 'count')
+        children(container, 'calculatedItem')
+        for element in container:
+            attributes(element, 'formula')
+            children(element, 'pivotArea')
+            for area in element:
+                attributes(area, 'cacheIndex outline fieldPosition')
+                children(area, 'references')
+                for references in area:
+                    attributes(references, 'count')
+                    children(references, 'reference')
+                    for reference in references:
+                        attributes(reference, 'field count')
+                        children(reference, 'x')
+                        for spot in reference:
+                            attributes(spot, 'v')
+
+
 def admit_group(field: XmlElement) -> None:
     """A field's grouping, of the parts the model reads: its par and base, its ranges or periods, its groups."""
     for group in field.findall(NS + 'fieldGroup'):
@@ -252,9 +274,10 @@ def admit_cache(cache: PivotCache) -> None:
         raise unsupported('for external, OLAP or rich sources')
     attributes(cache.root, 'createdVersion refreshedVersion minRefreshableVersion recordCount enableRefresh '
                'refreshedBy refreshedDate refreshedDateIso saveData refreshOnLoad backgroundQuery', provenance=True)
-    children(cache.root, 'cacheSource cacheFields extLst')
+    children(cache.root, 'cacheSource cacheFields calculatedItems extLst')
     distinct_children(cache.root)
     extensions(cache.root, cache=True)
+    admit_items(cache.root)
     source = cache.root.find(NS + 'cacheSource')
     origin = cache.root.find(f'{NS}cacheSource/{NS}worksheetSource')
     if source is None or origin is None:
@@ -287,7 +310,7 @@ def admit_cache(cache: PivotCache) -> None:
                        'longText')
             children(shared, 'n s b d e m')
             for item in shared:
-                attributes(item, 'v u')
+                attributes(item, 'v u f')
                 if len(item):
                     raise unsupported('with custom shared-item metadata')
     fields = cache.root.find(NS + 'cacheFields')
@@ -345,7 +368,7 @@ def admit_report(table: PivotTable, field_count: int, record_count: int) -> None
             attributes(items, 'count')
             children(items, 'item')
             for item in items:
-                attributes(item, 'n x t h sd m')
+                attributes(item, 'n x t h sd f m')
                 if len(item) or item.get('t', 'data') not in ('data', 'default', *SUBTOTALS):
                     raise unsupported('with grouped or filtered items')
     for name, attr in (('rowFields', 'x'), ('colFields', 'x'), ('pageFields', 'fld')):
@@ -540,8 +563,10 @@ def refresh(cache: PivotCache) -> object:
     carry_groups(before, after)
     values = records(staged)
     normalized = cache_layout(staged, values)
-    if remap_groups(before, list(normalized[0])):
-        # A field of groups finds its base's items again by their values once the layout listed them.
+    regrouped = remap_groups(before, list(normalized[0]))
+    if carry_items(cache.root, staged.root, list(normalized[0])) or regrouped:
+        # A field of groups finds its base's items again by their values once the layout listed them, and a
+        # calculated item follows the values the source gives its field.
         listed = staged.root.find(NS + 'cacheFields')
         assert listed is not None
         staged.root[list(staged.root).index(listed)] = deepcopy(normalized[0])

@@ -178,6 +178,12 @@ def set_function(field: PivotField, value: object) -> None:
         raise error(1004)
     table = field.table.entry
     kind, label = FUNCTIONS[int(chosen)]
+    from pyopenvba.apps.excel._pivot_items import REFUSED_FUNCTIONS, has_items
+
+    if kind in REFUSED_FUNCTIONS and has_items(table.cache):
+        # A table showing calculated items shows no average, standard deviation or variance (tests/fixtures/
+        # pivot_calculated_items/ function_after).
+        raise error(1004)
     sources = table.cache.root.findall(f'{NS}cacheFields/{NS}cacheField')
     source = decode_text(sources[field.index].get('name', '')) if field.index < len(sources) else ''
     if kind == 'sum':

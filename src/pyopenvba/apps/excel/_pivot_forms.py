@@ -523,7 +523,12 @@ def set_subtotals(field: PivotField, index: object, value: object) -> None:
         if flags[0]:
             flags[1:] = [False] * 11
     from pyopenvba.apps.excel._pivot_filters import ensure_items
+    from pyopenvba.apps.excel._pivot_items import has_items
 
+    if any(flags[1:]) and has_items(field.table.entry.cache):
+        # A table showing calculated items takes no custom subtotals (tests/fixtures/pivot_calculated_items/
+        # subtotal_function).
+        raise error(1004)
     table, root, definition = _source(field)
     assert definition is not None
     for kind, chosen in zip(KINDS, flags[1:], strict=True):

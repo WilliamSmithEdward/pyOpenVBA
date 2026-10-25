@@ -1,0 +1,375 @@
+{
+ "helper": "Private Function Show(v As Variant) As String\n    If IsObject(v) Then\n        Show = \"Object:\" & TypeName(v)\n    ElseIf IsEmpty(v) Then\n        Show = \"Empty\"\n    ElseIf IsError(v) Then\n        Show = \"Error:\" & CStr(CLng(v))\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Listed(wb As Object) As String\n    Dim s As Object, out As String\n    For Each s In wb.Sheets\n        out = out & s.Name & \"~\" & s.Visible & \"~\" & s.Range(\"A1\").Formula & \"~\" & s.Range(\"B1\").Formula & \";\"\n    Next\n    Listed = out\nEnd Function\n\nPrivate Function State(wb As Object) As String\n    Dim out As String, s As Object\n    If ActiveWorkbook Is wb Then out = \"same\" Else out = \"new\"\n    out = out & \"|\" & ActiveSheet.Name & \"|\"\n    For Each s In ActiveWindow.SelectedSheets\n        out = out & s.Name & \",\"\n    Next\n    out = out & \"|\" & Listed(wb)\n    If Not ActiveWorkbook Is wb Then out = out & \"|\" & Listed(ActiveWorkbook)\n    State = out\nEnd Function\n\nPrivate Function Fresh() As Object\n    Dim wb As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets(1).Name = \"One\"\n    wb.Worksheets.Add(After:=wb.Worksheets(1)).Name = \"Two\"\n    wb.Worksheets.Add(After:=wb.Worksheets(2)).Name = \"Three\"\n    wb.Worksheets.Add(After:=wb.Worksheets(3)).Name = \"Four\"\n    wb.Worksheets(\"One\").Range(\"A1\").Value = 1\n    wb.Worksheets(\"Two\").Range(\"A1\").Value = 2\n    wb.Worksheets(\"Three\").Range(\"A1\").Value = 3\n    wb.Worksheets(\"Four\").Range(\"A1\").Value = 4\n    wb.Worksheets(\"One\").Range(\"B1\").Formula = \"=Two!A1+1\"\n    wb.Worksheets(\"Two\").Range(\"B1\").Formula = \"=One!A1*2\"\n    wb.Worksheets(\"Three\").Range(\"B1\").Formula = \"=Three!A1*3\"\n    wb.Worksheets(\"Four\").Range(\"B1\").Formula = \"=A1*4\"\n    wb.Worksheets(\"One\").Activate\n    Set Fresh = wb\nEnd Function\n",
+ "cases": [
+  {
+   "name": "count",
+   "code": "Public Function Case_count() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"Three\", \"One\")).Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_count = out\nEnd Function\n",
+   "answer": "Long:2|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "type_name",
+   "code": "Public Function Case_type_name() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = TypeName(wb.Sheets(Array(\"Three\", \"One\")))\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_type_name = out\nEnd Function\n",
+   "answer": "String:Sheets|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "walked",
+   "code": "Public Function Case_walked() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    For Each s In wb.Sheets(Array(\"Three\", \"One\"))\n    v = v & s.Name & \",\"\n    Next\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_walked = out\nEnd Function\n",
+   "answer": "String:Three,One,|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "item",
+   "code": "Public Function Case_item() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"Three\", \"One\"))(1).Name\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_item = out\nEnd Function\n",
+   "answer": "String:Three|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "item_two",
+   "code": "Public Function Case_item_two() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"Three\", \"One\")).Item(2).Name\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_item_two = out\nEnd Function\n",
+   "answer": "String:One|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "indexes",
+   "code": "Public Function Case_indexes() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(3, 1))(1).Name & wb.Sheets(Array(3, 1)).Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_indexes = out\nEnd Function\n",
+   "answer": "String:Three2|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "worksheets",
+   "code": "Public Function Case_worksheets() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = TypeName(wb.Worksheets(Array(\"One\", \"Two\"))) & wb.Worksheets(Array(\"One\", \"Two\")).Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_worksheets = out\nEnd Function\n",
+   "answer": "String:Sheets2|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "mixed",
+   "code": "Public Function Case_mixed() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"Four\", 1))(2).Name\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_mixed = out\nEnd Function\n",
+   "answer": "String:One|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "missing",
+   "code": "Public Function Case_missing() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"One\", \"Nope\")).Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_missing = out\nEnd Function\n",
+   "answer": "E9|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "duplicate",
+   "code": "Public Function Case_duplicate() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"One\", \"One\")).Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_duplicate = out\nEnd Function\n",
+   "answer": "Long:2|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "empty",
+   "code": "Public Function Case_empty() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array()).Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_empty = out\nEnd Function\n",
+   "answer": "E13|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "any_case",
+   "code": "Public Function Case_any_case() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"one\", \"THREE\"))(2).Name\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_any_case = out\nEnd Function\n",
+   "answer": "String:Three|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "beyond",
+   "code": "Public Function Case_beyond() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(1, 5)).Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_beyond = out\nEnd Function\n",
+   "answer": "E9|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "select",
+   "code": "Public Function Case_select() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Three\", \"One\")).Select\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_select = out\nEnd Function\n",
+   "answer": "Empty|same|Three|One,Three,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "select_then_one",
+   "code": "Public Function Case_select_then_one() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Three\", \"One\")).Select\n    wb.Sheets(\"Two\").Select\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_select_then_one = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "select_added",
+   "code": "Public Function Case_select_added() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Two\").Select\n    wb.Sheets(\"Four\").Select Replace:=False\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_select_added = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,Four,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "select_group_added",
+   "code": "Public Function Case_select_group_added() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Two\", \"Three\")).Select Replace:=False\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_select_group_added = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,Two,Three,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "copy_new",
+   "code": "Public Function Case_copy_new() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Two\", \"One\")).Copy\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_copy_new = out\nEnd Function\n",
+   "answer": "Empty|new|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;"
+  },
+  {
+   "name": "copy_new_outside",
+   "code": "Public Function Case_copy_new_outside() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Three\")).Copy\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_copy_new_outside = out\nEnd Function\n",
+   "answer": "Empty|new|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;|One~-1~1~=[Sheet19]Two!A1+1;Three~-1~3~=Three!A1*3;"
+  },
+  {
+   "name": "copy_after",
+   "code": "Public Function Case_copy_after() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Two\", \"One\")).Copy After:=wb.Sheets(\"Four\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_copy_after = out\nEnd Function\n",
+   "answer": "Empty|same|One (2)|One (2),|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;One (2)~-1~1~='Two (2)'!A1+1;Two (2)~-1~2~='One (2)'!A1*2;"
+  },
+  {
+   "name": "copy_before",
+   "code": "Public Function Case_copy_before() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Three\")).Copy Before:=wb.Sheets(1)\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_copy_before = out\nEnd Function\n",
+   "answer": "Empty|same|One (2)|One (2),|One (2)~-1~1~=Two!A1+1;Three (2)~-1~3~='Three (2)'!A1*3;One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_new",
+   "code": "Public Function Case_move_new() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Four\", \"Three\")).Move\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_new = out\nEnd Function\n",
+   "answer": "Empty|new|Three|Three,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;|Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_after",
+   "code": "Public Function Case_move_after() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Four\", \"One\")).Move After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_after = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;One~-1~1~=Two!A1+1;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_after_mid",
+   "code": "Public Function Case_move_after_mid() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Three\")).Move After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_after_mid = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|Two~-1~2~=One!A1*2;One~-1~1~=Two!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_before_mid",
+   "code": "Public Function Case_move_before_mid() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Four\")).Move Before:=wb.Sheets(\"Three\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_before_mid = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|Two~-1~2~=One!A1*2;One~-1~1~=Two!A1+1;Four~-1~4~=A1*4;Three~-1~3~=Three!A1*3;"
+  },
+  {
+   "name": "move_before",
+   "code": "Public Function Case_move_before() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Four\", \"Three\")).Move Before:=wb.Sheets(\"One\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_before = out\nEnd Function\n",
+   "answer": "Empty|same|Three|Three,|Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;"
+  },
+  {
+   "name": "move_before_late",
+   "code": "Public Function Case_move_before_late() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Three\", \"Four\")).Move Before:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_before_late = out\nEnd Function\n",
+   "answer": "Empty|same|Three|Three,|One~-1~1~=Two!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;Two~-1~2~=One!A1*2;"
+  },
+  {
+   "name": "move_one_after",
+   "code": "Public Function Case_move_one_after() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"One\").Move After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_one_after = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|Two~-1~2~=One!A1*2;One~-1~1~=Two!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_group_one_after",
+   "code": "Public Function Case_move_group_one_after() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\")).Move After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_group_one_after = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|Two~-1~2~=One!A1*2;One~-1~1~=Two!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "copy_after_mid",
+   "code": "Public Function Case_copy_after_mid() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Three\", \"One\")).Copy After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_copy_after_mid = out\nEnd Function\n",
+   "answer": "Empty|same|One (2)|One (2),|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;One (2)~-1~1~=Two!A1+1;Three (2)~-1~3~='Three (2)'!A1*3;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete",
+   "code": "Public Function Case_delete() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    wb.Sheets(Array(\"Four\", \"Three\")).Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;"
+  },
+  {
+   "name": "delete_all",
+   "code": "Public Function Case_delete_all() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    wb.Sheets(Array(\"One\", \"Two\", \"Three\", \"Four\")).Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_all = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_read",
+   "code": "Public Function Case_delete_read() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    wb.Sheets(Array(\"Two\")).Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_read = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|One~-1~1~=#REF!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "hidden",
+   "code": "Public Function Case_hidden() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Two\", \"Three\")).Visible = xlSheetHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hidden = out\nEnd Function\n",
+   "answer": "Empty|same|Four|Four,|One~-1~1~=Two!A1+1;Two~0~2~=One!A1*2;Three~0~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "hidden_all",
+   "code": "Public Function Case_hidden_all() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Two\", \"Three\", \"Four\")).Visible = xlSheetHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hidden_all = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,Two,Three,Four,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "selected_copy",
+   "code": "Public Function Case_selected_copy() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Two\", \"One\")).Select\n    ActiveWindow.SelectedSheets.Copy\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_selected_copy = out\nEnd Function\n",
+   "answer": "Empty|new|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;"
+  },
+  {
+   "name": "selected_delete",
+   "code": "Public Function Case_selected_delete() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Three\", \"Four\")).Select\n    Application.DisplayAlerts = False\n    ActiveWindow.SelectedSheets.Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_selected_delete = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;"
+  },
+  {
+   "name": "activate_in_group",
+   "code": "Public Function Case_activate_in_group() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Three\")).Select\n    wb.Sheets(\"Three\").Activate\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_activate_in_group = out\nEnd Function\n",
+   "answer": "Empty|same|Three|One,Three,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "activate_outside",
+   "code": "Public Function Case_activate_outside() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Three\")).Select\n    wb.Sheets(\"Two\").Activate\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_activate_outside = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "add_in_group",
+   "code": "Public Function Case_add_in_group() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Three\")).Select\n    v = wb.Worksheets.Add.Name\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_add_in_group = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,Three,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "visible_read",
+   "code": "Public Function Case_visible_read() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"One\", \"Two\")).Visible\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_visible_read = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "item_by_name",
+   "code": "Public Function Case_item_by_name() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Sheets(Array(\"One\", \"Two\"))(\"Two\").Name\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_item_by_name = out\nEnd Function\n",
+   "answer": "String:Two|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "selected_count",
+   "code": "Public Function Case_selected_count() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Four\", \"Two\", \"One\")).Select\n    v = ActiveWindow.SelectedSheets.Count\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_selected_count = out\nEnd Function\n",
+   "answer": "Long:3|same|Four|One,Two,Four,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "selected_item",
+   "code": "Public Function Case_selected_item() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Four\", \"Two\")).Select\n    v = ActiveWindow.SelectedSheets(1).Name\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_selected_item = out\nEnd Function\n",
+   "answer": "String:Two|same|Four|Two,Four,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_shifted_three",
+   "code": "Public Function Case_move_shifted_three() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Four\", \"One\", \"Two\")).Move Before:=wb.Sheets(\"Three\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_shifted_three = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|Three~-1~3~=Three!A1*3;One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "copy_shifted",
+   "code": "Public Function Case_copy_shifted() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Four\", \"One\")).Copy Before:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_copy_shifted = out\nEnd Function\n",
+   "answer": "Empty|same|One (2)|One (2),|One~-1~1~=Two!A1+1;One (2)~-1~1~=Two!A1+1;Four (2)~-1~4~=A1*4;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "hidden_active",
+   "code": "Public Function Case_hidden_active() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Four\")).Visible = xlSheetHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hidden_active = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,|One~0~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~0~4~=A1*4;"
+  },
+  {
+   "name": "select_hidden",
+   "code": "Public Function Case_select_hidden() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Two\").Visible = xlSheetHidden\n    wb.Sheets(Array(\"One\", \"Two\")).Select\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_select_hidden = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~0~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_before_active",
+   "code": "Public Function Case_delete_before_active() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Three\").Activate\n    Application.DisplayAlerts = False\n    wb.Sheets(\"Two\").Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_before_active = out\nEnd Function\n",
+   "answer": "Empty|same|Three|Three,|One~-1~1~=#REF!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_active_mid",
+   "code": "Public Function Case_delete_active_mid() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Two\").Activate\n    Application.DisplayAlerts = False\n    wb.Sheets(\"Two\").Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_active_mid = out\nEnd Function\n",
+   "answer": "Empty|same|Three|Three,|One~-1~1~=#REF!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_active_last",
+   "code": "Public Function Case_delete_active_last() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Four\").Activate\n    Application.DisplayAlerts = False\n    wb.Sheets(\"Four\").Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_active_last = out\nEnd Function\n",
+   "answer": "Empty|same|Three|Three,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;"
+  },
+  {
+   "name": "delete_active_next_hidden",
+   "code": "Public Function Case_delete_active_next_hidden() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Three\").Visible = xlSheetHidden\n    wb.Sheets(\"Two\").Activate\n    Application.DisplayAlerts = False\n    wb.Sheets(\"Two\").Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_active_next_hidden = out\nEnd Function\n",
+   "answer": "Empty|same|Four|Four,|One~-1~1~=#REF!A1+1;Three~0~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_active_hidden_after",
+   "code": "Public Function Case_delete_active_hidden_after() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Four\").Visible = xlSheetHidden\n    wb.Sheets(\"Three\").Activate\n    Application.DisplayAlerts = False\n    wb.Sheets(\"Three\").Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_active_hidden_after = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Four~0~4~=A1*4;"
+  },
+  {
+   "name": "delete_group_mid",
+   "code": "Public Function Case_delete_group_mid() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Two\", \"Three\")).Select\n    Application.DisplayAlerts = False\n    ActiveWindow.SelectedSheets.Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_group_mid = out\nEnd Function\n",
+   "answer": "Empty|same|Four|Four,|One~-1~1~=#REF!A1+1;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_group_inactive",
+   "code": "Public Function Case_delete_group_inactive() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Four\").Activate\n    Application.DisplayAlerts = False\n    wb.Sheets(Array(\"Two\", \"One\")).Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_group_inactive = out\nEnd Function\n",
+   "answer": "Empty|same|Four|Four,|Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_name_read",
+   "code": "Public Function Case_delete_name_read() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Names.Add Name:=\"Far\", RefersTo:=\"=Two!$A$1\"\n    Application.DisplayAlerts = False\n    wb.Sheets(\"Two\").Delete\n    Application.DisplayAlerts = True\n    v = wb.Names(\"Far\").RefersTo\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_name_read = out\nEnd Function\n",
+   "answer": "String:=#REF!$A$1|same|One|One,|One~-1~1~=#REF!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "hide_active_one",
+   "code": "Public Function Case_hide_active_one() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"One\").Visible = xlSheetHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hide_active_one = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,|One~0~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "hide_active_last",
+   "code": "Public Function Case_hide_active_last() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Four\").Activate\n    wb.Sheets(\"Four\").Visible = xlSheetVeryHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hide_active_last = out\nEnd Function\n",
+   "answer": "Empty|same|Three|Three,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~2~4~=A1*4;"
+  },
+  {
+   "name": "hide_active_next_hidden",
+   "code": "Public Function Case_hide_active_next_hidden() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Three\").Visible = xlSheetHidden\n    wb.Sheets(\"Two\").Activate\n    wb.Sheets(\"Two\").Visible = xlSheetHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hide_active_next_hidden = out\nEnd Function\n",
+   "answer": "Empty|same|Four|Four,|One~-1~1~=Two!A1+1;Two~0~2~=One!A1*2;Three~0~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "hide_last_visible",
+   "code": "Public Function Case_hide_last_visible() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Two\").Visible = xlSheetHidden\n    wb.Sheets(\"Three\").Visible = xlSheetHidden\n    wb.Sheets(\"Four\").Visible = xlSheetHidden\n    wb.Sheets(\"One\").Visible = xlSheetHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hide_last_visible = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~0~2~=One!A1*2;Three~0~3~=Three!A1*3;Four~0~4~=A1*4;"
+  },
+  {
+   "name": "hide_inactive",
+   "code": "Public Function Case_hide_inactive() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Three\").Visible = xlSheetHidden\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_hide_inactive = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~0~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "all_copy",
+   "code": "Public Function Case_all_copy() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Worksheets.Copy\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_copy = out\nEnd Function\n",
+   "answer": "Empty|new|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "all_select",
+   "code": "Public Function Case_all_select() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Three\").Activate\n    wb.Worksheets.Select\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_select = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,Two,Three,Four,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "all_shown",
+   "code": "Public Function Case_all_shown() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Two\").Visible = xlSheetHidden\n    wb.Sheets(\"Four\").Visible = xlSheetVeryHidden\n    wb.Worksheets.Visible = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_shown = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~0~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~2~4~=A1*4;"
+  },
+  {
+   "name": "all_hidden",
+   "code": "Public Function Case_all_hidden() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Worksheets.Visible = False\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_hidden = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,Two,Three,Four,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "all_delete",
+   "code": "Public Function Case_all_delete() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    wb.Worksheets.Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_delete = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "all_move",
+   "code": "Public Function Case_all_move() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Worksheets.Move\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_move = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "all_move_after",
+   "code": "Public Function Case_all_move_after() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Worksheets.Move After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_move_after = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "all_visible_read",
+   "code": "Public Function Case_all_visible_read() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    v = wb.Worksheets.Visible\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_all_visible_read = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "delete_last_visible",
+   "code": "Public Function Case_delete_last_visible() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(\"Two\").Visible = xlSheetHidden\n    wb.Sheets(\"Three\").Visible = xlSheetHidden\n    wb.Sheets(\"Four\").Visible = xlSheetHidden\n    Application.DisplayAlerts = False\n    wb.Sheets(\"One\").Delete\n    Application.DisplayAlerts = True\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_delete_last_visible = out\nEnd Function\n",
+   "answer": "E1004|Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~0~2~=One!A1*2;Three~0~3~=Three!A1*3;Four~0~4~=A1*4;"
+  },
+  {
+   "name": "move_anchor_in_after",
+   "code": "Public Function Case_move_anchor_in_after() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Two\")).Move After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_anchor_in_after = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_anchor_in_before",
+   "code": "Public Function Case_move_anchor_in_before() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"One\", \"Three\")).Move Before:=wb.Sheets(\"One\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_anchor_in_before = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|One~-1~1~=Two!A1+1;Three~-1~3~=Three!A1*3;Two~-1~2~=One!A1*2;Four~-1~4~=A1*4;"
+  },
+  {
+   "name": "move_anchor_in_two",
+   "code": "Public Function Case_move_anchor_in_two() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Two\", \"Four\")).Move After:=wb.Sheets(\"Two\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_anchor_in_two = out\nEnd Function\n",
+   "answer": "Empty|same|Two|Two,|One~-1~1~=Two!A1+1;Two~-1~2~=One!A1*2;Four~-1~4~=A1*4;Three~-1~3~=Three!A1*3;"
+  },
+  {
+   "name": "move_anchor_in_late",
+   "code": "Public Function Case_move_anchor_in_late() As String\n    Dim wb As Object, v As Variant, s As Object, failed As String, out As String\n    Set wb = Fresh()\n    On Error Resume Next\n    wb.Sheets(Array(\"Three\", \"One\")).Move Before:=wb.Sheets(\"Three\")\n    If Err.Number <> 0 Then failed = \"E\" & Err.Number & \"|\"\n    Err.Clear\n    On Error GoTo 0\n    out = failed & Show(v) & \"|\" & State(wb)\n    If Not ActiveWorkbook Is wb Then ActiveWorkbook.Close False\n    wb.Close False\n    Case_move_anchor_in_late = out\nEnd Function\n",
+   "answer": "Empty|same|One|One,|Two~-1~2~=One!A1*2;One~-1~1~=Two!A1+1;Three~-1~3~=Three!A1*3;Four~-1~4~=A1*4;"
+  }
+ ]
+}

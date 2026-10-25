@@ -868,6 +868,9 @@ class Workbook(ExcelObject):
         #: None until a formula is written, when the formulas it has teach it.
         self.name_spellings: dict[str, str] | None = None
         self.active_sheet_index = 0
+        #: The sheets selected with the active one, in tab order, while they are grouped; empty while the active
+        #: sheet stands alone (see _sheet_groups).
+        self.selected_sheets: list[Worksheet] = []
         #: The package this was loaded from, kept so a save can put back
         #: every part pyOpenVBA does not model.
         self.package: Any = None
@@ -1192,7 +1195,21 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._table_filters import refocus
 
         self.active_sheet_index = self.sheets_.index(sheet)
+        # A sheet of the group stays in it as it becomes active; any other stands alone
+        # (tests/fixtures/sheet_groups.json, activate_in_group and activate_outside).
+        if not any(one is sheet for one in self.selected_sheets):
+            self.selected_sheets = []
         refocus(sheet)
+
+    def selected(self) -> list[Worksheet]:
+        """The sheets the workbook's window has selected, in tab order: the group the active sheet is in, or the
+        active sheet alone."""
+        active = self.active_sheet
+        if active is None:
+            return []
+        if not any(one is active for one in self.selected_sheets):
+            return [active]
+        return [sheet for sheet in self.sheets_ if any(one is sheet for one in self.selected_sheets)]
 
     def add_sheet(self, name: str = "", *, at: int | None = None) -> Worksheet:
         """A new worksheet, named the way Excel names one when asked."""
@@ -1261,6 +1278,10 @@ class Sheets(VBACollection, ExcelObject):
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
             return self.book.sheet_found(index)
+        if isinstance(index, VBAArray):
+            from pyopenvba.apps.excel._sheet_groups import group
+
+            return group(self.book, index)
         return super().vba_lookup(index, items)
 
     @method
@@ -1274,6 +1295,9 @@ class Sheets(VBACollection, ExcelObject):
         from pyopenvba.apps.excel._protection import ADDING, refuse_structure
 
         refuse_structure(self.book, ADDING)
+        if len(self.book.selected()) > 1:
+            # Excel adds no sheet while sheets are grouped (tests/fixtures/sheet_groups.json, add_in_group).
+            raise error(1004, "Add method of Sheets class failed")
         count = 1 if Count is MISSING else int(to_number(Count))
         if count <= 0:
             raise error(1004, "Count must be positive")
@@ -1299,6 +1323,37 @@ class Sheets(VBACollection, ExcelObject):
             _events.new_sheet(self.book, sheet, left)
         self.book.activate_sheet(added[0])
         return added[0]
+
+    def _all(self) -> Any:
+        """Every sheet as one group, which the collection's own Select, Copy, Move, Delete and Visible act on as
+        Sheets(Array(...))'s do (tests/fixtures/sheet_groups.json, all_*)."""
+        from pyopenvba.apps.excel._sheet_groups import SheetGroup
+
+        return SheetGroup(self.book, list(self.book.sheets_))
+
+    @method
+    def Select(self, Replace: object = MISSING) -> object:
+        return self._all().Select(Replace)
+
+    @method
+    def Copy(self, Before: object = MISSING, After: object = MISSING) -> object:
+        return self._all().Copy(Before, After)
+
+    @method
+    def Move(self, Before: object = MISSING, After: object = MISSING) -> object:
+        return self._all().Move(Before, After)
+
+    @method
+    def Delete(self) -> object:
+        return self._all().Delete()
+
+    @member
+    def Visible(self) -> object:
+        return self._all().Visible()
+
+    @setter("Visible")
+    def _set_visible(self, value: object) -> None:
+        self._all().vba_set("Visible", value)
 
     @member
     def Application(self) -> object:
@@ -1544,10 +1599,11 @@ class Worksheet(ExcelObject):
 
     @setter("Visible")
     def _set_visible(self, value: object) -> None:
-        from pyopenvba.apps.excel._protection import HIDING, refuse_structure
+        """Hide or show the sheet; hiding the last visible sheet is error 1004, and hiding the active one makes the
+        next visible sheet after it active, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
+        from pyopenvba.apps.excel._sheet_groups import set_visible
 
-        refuse_structure(self.book, HIDING)
-        self.visible = -1 if value is True else (0 if value is False else int(to_integer(value, "Long")))
+        set_visible(self.book, [self], value, "Unable to set the Visible property of the Worksheet class")
 
     @member
     def Application(self) -> object:
@@ -1843,7 +1899,16 @@ class Worksheet(ExcelObject):
 
     @method
     def Select(self, Replace: object = MISSING) -> object:
-        return self.Activate()
+        """The sheet active and alone; with Replace:=False the sheet joins the selection, the active sheet staying
+        (tests/fixtures/sheet_groups.json, select_added)."""
+        if Replace is not MISSING and not to_bool(Replace):
+            from pyopenvba.apps.excel._sheet_groups import select
+
+            select(self.book, [self], False)
+            return EMPTY
+        result = self.Activate()
+        self.book.selected_sheets = []
+        return result
 
     @method
     def Paste(self, Destination: object = MISSING, Link: object = MISSING) -> object:
@@ -1854,25 +1919,11 @@ class Worksheet(ExcelObject):
 
     @method
     def Delete(self) -> object:
-        from pyopenvba.apps.excel._protection import DELETING, refuse_structure
+        """Take the sheet out: the formulas and names that read it read #REF! instead, and where it was active the
+        next visible sheet after it is, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
+        from pyopenvba.apps.excel._sheet_groups import delete
 
-        refuse_structure(self.book, DELETING)
-        if len(self.book.sheets_) == 1:
-            raise error(1004, "Cannot delete the only worksheet")
-        from pyopenvba.apps.excel._documents import remove_document
-
-        remove_document(self)
-        self.book.sheets_.remove(self)
-        # Local names belong to the removed sheet, independently of RefersTo.
-        # Retaining them would make the writer silently globalize their scope.
-        from pyopenvba._a1 import split_sheet
-
-        retained = [entry for entry in self.book.names_.entries
-                    if split_sheet(entry.name)[0].casefold() != self.name.casefold()]
-        if len(retained) != len(self.book.names_.entries):
-            self.book.names_.entries[:] = retained
-            _names.changed(self.book)
-        self.book.saved = False
+        delete(self.book, [self], "Cannot delete the only worksheet")
         return EMPTY
 
     @method
@@ -1880,7 +1931,7 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._protection import COPYING
         from pyopenvba.apps.excel._sheet_copy import copy_sheet
 
-        self._guard_structure(Before, After, COPYING, "Copying")
+        self.guard_structure(Before, After, COPYING, "Copying")
         return copy_sheet(self, Before, After)
 
     @method
@@ -1888,10 +1939,10 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._protection import MOVING
         from pyopenvba.apps.excel._sheet_move import move_sheet
 
-        self._guard_structure(Before, After, MOVING, "Moving")
+        self.guard_structure(Before, After, MOVING, "Moving")
         return move_sheet(self, Before, After)
 
-    def _guard_structure(self, before: object, after: object, message: str, what: str) -> None:
+    def guard_structure(self, before: object, after: object, message: str, what: str) -> None:
         """Within one protected workbook, error 1004 with ``message``; to or from another while one is protected,
         which was not measured, a report."""
         from pyopenvba.apps.excel._protection import refuse_structure

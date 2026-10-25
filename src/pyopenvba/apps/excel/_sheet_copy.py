@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import replace
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba._a1 import Area, quote_sheet
 from pyopenvba.apps.excel._charts_file import xml_tree
@@ -13,26 +13,29 @@ from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import EMPTY, MISSING, error
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._model import Cell, NameEntry, Workbook, Worksheet
 
 
-def formula(text: str, source: Worksheet, name: str, external: bool) -> str:
+def formula(text: str, renamed: dict[str, str], external: bool) -> str:
+    """A copied formula: a reference to a sheet copied with it names that sheet's copy, ``renamed`` holding each
+    copy's name by its sheet's lower-case name; one to another sheet stays, within the workbook, and would need an
+    external link, which is not implemented, from another."""
     for token in reversed(tokenize(text)):
         if token.kind not in ("ref", "name"):
             continue
         sheet, body = split_sheet(token.text)
         if not sheet:
             continue
-        if sheet.casefold() == source.name.casefold():
-            replacement = quote_sheet(name) + "!" + body
+        copy = renamed.get(sheet.casefold())
+        if copy is not None:
+            replacement = quote_sheet(copy) + "!" + body
             text = text[:token.at] + replacement + text[token.at + len(token.text):]
         elif external:
             raise VBAUnsupportedError("Copying formulas that require external workbook links is not implemented")
     return text
 
 
-def copy_sheet(source: Worksheet, before: object, after: object) -> object:
-    from pyopenvba.apps.excel._model import NameEntry, Workbook, Worksheet
+def _admit_filters(source: Worksheet) -> None:
     from pyopenvba.apps.excel._names import owned_reserved
 
     filter_names = {bare for _entry, bare in owned_reserved(source, ('Criteria', 'Extract', '_FilterDatabase'))}
@@ -40,14 +43,9 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
             or ('_FilterDatabase' in filter_names and source.auto_filter is None)):
         raise VBAUnsupportedError('Worksheet.Copy with AdvancedFilter state or owned metadata is not implemented')
 
-    if before is not MISSING and after is not MISSING:
-        raise error(1004, "Specify Before or After, not both")
-    anchor = before if before is not MISSING else after
-    if anchor is not MISSING and not isinstance(anchor, Worksheet):
-        raise error(1004, "A worksheet is required")
-    app = source.book.application
-    if isinstance(anchor, Worksheet) and anchor.book.application is not app:
-        raise error(1004, "Worksheets must belong to the same Excel application")
+
+def _admit_content(source: Worksheet) -> None:
+    """Report what a copy of ``source`` would leave out, before anything is copied."""
     from pyopenvba.apps.excel._page_setup import guard_copy
 
     guard_copy(source)
@@ -79,68 +77,143 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
             for entry in extensions.iter()
         ):
             raise VBAUnsupportedError("Worksheet.Copy with extended conditional formatting is not implemented")
-    destination = anchor.book if isinstance(anchor, Worksheet) else Workbook(app, app.workbooks_.next_name())
-    name, number = source.name, 2
-    while any(sheet.name.casefold() == name.casefold() for sheet in destination.sheets_):
-        suffix = f" ({number})"
-        name = source.name[:31 - len(suffix)] + suffix
-        number += 1
-    external = destination is not source.book
+
+
+@dataclass
+class _Staged:
+    """One sheet's copy, worked out before any copy is made."""
+
+    source: Worksheet
+    name: str
+    cells: dict[tuple[int, int], Cell]
+    conditional: list[Any]
+
+
+def _staged(source: Worksheet, name: str, renamed: dict[str, str], external: bool) -> _Staged:
+    """The copy's cells and conditional formats, their formulas reading the group's copies."""
     conditional = deepcopy(source.conditional_formats)
     for priority, rule in enumerate(sorted(conditional, key=lambda rule: int(rule.root.get('priority', '0'))), 1):
         rule.root.set('priority', str(priority))
-    conditional_formulas: list[str] = []
     for rule in conditional:
         rule.areas = [Area(a.top, a.left, a.bottom, a.right, name) for a in rule.areas]
         for node in rule.root.findall('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}formula'):
-            text = decode(node.text or '')
-            conditional_formulas.append(text)
-            node.text = encode_text(formula(text, source, name, external))
+            node.text = encode_text(formula(decode(node.text or ''), renamed, external))
         dxf_id = rule.root.get('dxfId')
         if external and dxf_id is not None:
             rule.dxf = rule.dxf if rule.dxf is not None else source.book.stylesheet.dxf(int(dxf_id))
     cells = {position: replace(cell) for position, cell in source.cells_.items()}
     for cell in cells.values():
         if cell.formula:
-            cell.formula = formula(cell.formula, source, name, external)
+            cell.formula = formula(cell.formula, renamed, external)
             cell.stale = True
-    used = {token.text.casefold() for cell in cells.values() if cell.formula
+    return _Staged(source, name, cells, conditional)
+
+
+def _used_names(source: Worksheet) -> set[str]:
+    """The names a sheet's formulas and conditional formats call, and the names those call, in lower case."""
+    used = {token.text.casefold() for cell in source.cells_.values() if cell.formula
             for token in tokenize(cell.formula) if token.kind == "name"}
-    used.update(token.text.casefold() for text in conditional_formulas
-                for token in tokenize(text) if token.kind == "name")
+    for rule in source.conditional_formats:
+        for node in rule.root.findall('{http://schemas.openxmlformats.org/spreadsheetml/2006/main}formula'):
+            used.update(token.text.casefold() for token in tokenize(decode(node.text or ''))
+                        if token.kind == "name")
     while True:
         expanded = used | {token.text.casefold() for entry in source.book.names_.entries
                           if split_sheet(entry.name)[1].casefold() in used
                           for token in tokenize(entry.refers_to) if token.kind == "name"}
         if expanded == used:
-            break
+            return used
         used = expanded
+
+
+def _copied_names(sources: list[Worksheet], destination: Workbook, renamed: dict[str, str],
+                  external: bool) -> list[NameEntry]:
+    """The defined names the copies bring: each sheet's own, as its copy's, and in another workbook the workbook's
+    names they read or call."""
+    from pyopenvba.apps.excel._model import NameEntry
+
     names: list[NameEntry] = []
-    for entry in source.book.names_.entries:
-        scope, bare = split_sheet(entry.name)
-        own_reference = any(token.kind == "ref" and split_sheet(token.text)[0].casefold() == source.name.casefold()
-                            for token in tokenize(entry.refers_to))
-        if scope.casefold() == source.name.casefold():
-            wanted = quote_sheet(name) + "!" + bare
-        elif external and not scope and (own_reference or bare.casefold() in used):
-            wanted = bare
-        else:
-            continue
-        text = formula(entry.refers_to, source, name, external)
-        existing = next((one for one in destination.names_.entries if one.name.casefold() == wanted.casefold()), None)
-        if existing is not None:
-            if existing.refers_to != text:
-                raise VBAUnsupportedError("Worksheet.Copy with conflicting defined names is not implemented")
-            continue
-        names.append(NameEntry(wanted, text, destination, visible=entry.visible, comment=entry.comment))
+    for source in sources:
+        used = _used_names(source)
+        for entry in source.book.names_.entries:
+            scope, bare = split_sheet(entry.name)
+            own_reference = any(token.kind == "ref" and split_sheet(token.text)[0].casefold() == source.name.casefold()
+                                for token in tokenize(entry.refers_to))
+            if scope.casefold() == source.name.casefold():
+                wanted = quote_sheet(renamed[source.name.casefold()]) + "!" + bare
+            elif external and not scope and (own_reference or bare.casefold() in used):
+                wanted = bare
+            else:
+                continue
+            text = formula(entry.refers_to, renamed, external)
+            existing = next((one for one in [*destination.names_.entries, *names]
+                             if one.name.casefold() == wanted.casefold()), None)
+            if existing is not None:
+                if existing.refers_to != text:
+                    raise VBAUnsupportedError("Worksheet.Copy with conflicting defined names is not implemented")
+                continue
+            names.append(NameEntry(wanted, text, destination, visible=entry.visible, comment=entry.comment))
+    return names
+
+
+def copy_sheet(source: Worksheet, before: object, after: object) -> object:
+    return copy_sheets([source], before, after)
+
+
+def copy_sheets(sources: list[Worksheet], before: object, after: object) -> object:
+    """Copy ``sources``, in their order, into a new workbook or at Before or After, each reference among them reading
+    the copies; the first copy is then active (tests/fixtures/sheet_groups.json)."""
+    from pyopenvba.apps.excel._model import Workbook, Worksheet
+    from pyopenvba.apps.excel._names import same_sheet_name
+
+    for source in sources:
+        _admit_filters(source)
+    if before is not MISSING and after is not MISSING:
+        raise error(1004, "Specify Before or After, not both")
+    anchor = before if before is not MISSING else after
+    if anchor is not MISSING and not isinstance(anchor, Worksheet):
+        raise error(1004, "A worksheet is required")
+    book = sources[0].book
+    app = book.application
+    if isinstance(anchor, Worksheet) and anchor.book.application is not app:
+        raise error(1004, "Worksheets must belong to the same Excel application")
+    for source in sources:
+        _admit_content(source)
+    destination = anchor.book if isinstance(anchor, Worksheet) else Workbook(app, app.workbooks_.next_name())
+    renamed: dict[str, str] = {}
+    taken = [sheet.name for sheet in destination.sheets_]
+    for source in sources:
+        name, number = source.name, 2
+        while any(same_sheet_name(one, name) for one in taken):
+            suffix = f" ({number})"
+            name = source.name[:31 - len(suffix)] + suffix
+            number += 1
+        taken.append(name)
+        renamed[source.name.casefold()] = name
+    external = destination is not book
+    staged = [_staged(source, renamed[source.name.casefold()], renamed, external) for source in sources]
+    names = _copied_names(sources, destination, renamed, external)
     if anchor is MISSING:
         app.workbooks_.books.append(destination)
     at = destination.sheets_.index(anchor) + (0 if before is not MISSING else 1) if isinstance(anchor, Worksheet) else None
+    copies = [_published(stage, destination, None if at is None else at + offset, external)
+              for offset, stage in enumerate(staged)]
+    destination.names_.entries.extend(names)
+    destination.names_.changed = True
+    for copied in copies:
+        copied.shape_changed()
+    copies[0].Activate()
+    return EMPTY
+
+
+def _published(stage: _Staged, destination: Workbook, at: int | None, external: bool) -> Worksheet:
+    """Make one staged copy in ``destination`` at ``at``, the end with None."""
+    source, name, conditional = stage.source, stage.name, stage.conditional
     copied = destination.add_sheet(name, at=at)
     from pyopenvba.apps.excel._documents import copy_document
 
     copy_document(source, copied)
-    copied.cells_ = cells
+    copied.cells_ = stage.cells
     from pyopenvba.apps.excel._differential import renumber
 
     # The copy's rules take dxfs of their own, as Excel makes for each rule it makes (tests/fixtures/dxf_table/).
@@ -192,8 +265,4 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
     from pyopenvba.apps.excel._windows import copied as copied_view
 
     copied_view(source, copied)
-    destination.names_.entries.extend(names)
-    destination.names_.changed = True
-    copied.shape_changed()
-    copied.Activate()
-    return EMPTY
+    return copied

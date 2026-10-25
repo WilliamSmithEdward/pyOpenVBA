@@ -467,8 +467,10 @@ End Sub''', name='DeleteNamesSetup')
         expected_local.add('Extract')
     assert {split_sheet(entry.name)[1] for entry in app.workbook.names_.entries
             if split_sheet(entry.name)[0] == owner_name} == expected_local
-    preserved = [(entry.name, entry.refers_to) for entry in app.workbook.names_.entries
-                 if split_sheet(entry.name)[0] != owner_name]
+    # A name that reads the deleted sheet reads #REF! in its place, as Excel's does
+    # (tests/fixtures/sheet_groups.json, delete_name_read).
+    preserved = [(entry.name, "=#REF!$A$2" if entry.name == "WorkbookReference" else entry.refers_to)
+                 for entry in app.workbook.names_.entries if split_sheet(entry.name)[0] != owner_name]
     owner.Delete()
     assert [(entry.name, entry.refers_to) for entry in app.workbook.names_.entries] == preserved
     assert {entry.name for entry in app.workbook.names_.entries} == {

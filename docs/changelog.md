@@ -7,6 +7,29 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Sheets(Array(...))` and `Worksheets(Array(...))` group sheets as
+  Excel does, where they were error 13. A group holds the sheets the
+  array names, by name or by place, in the array's order, and a name
+  no sheet has is error 9. `Select` makes the array's first sheet
+  active and the group the window's selected sheets, and
+  `ActiveWindow.SelectedSheets` lists them in tab order; `Replace:=False`
+  adds a group, or one sheet, to the selection. `Copy` with no place
+  makes a new workbook of the group's sheets, their references to one
+  another kept, and beside a sheet makes copies whose references to one
+  another read the copies. `Move` with no place makes a new workbook of
+  them. Beside a sheet they move together in tab order, with Excel's
+  own quirk: the group goes one place further when the array's first
+  sheet stands past the place the anchor gives and some of the group
+  before it, as 608 live moves bear out. `Delete` takes them all, and
+  setting `Visible` selects the group first, so it is error 1004 while
+  a sheet of it is hidden. A workbook's whole `Worksheets` collection
+  acts as a group of every sheet, so `Worksheets.Copy` copies them all
+  to a new workbook. While sheets are grouped, `Worksheets.Add` is error
+  1004, as in Excel. A save marks each grouped sheet's tab selected,
+  and opening the file selects the group again. 74 live cases agree,
+  `tests/fixtures/sheet_groups.json` and `sheet_group_moves.json`, and
+  a live gate has Excel open the model's grouped and copied workbooks.
+
 - AutoFilter filters text beyond ASCII as Excel does. An `=` with no
   wildcard, and each value of an xlFilterValues list, keeps the text
   Windows' word sort cannot tell from it, case aside: `=aesop` keeps
@@ -893,6 +916,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- Deleting a sheet rewrites the formulas and names that read it as
+  Excel does: `=Two!A1+1` becomes `=#REF!A1+1`, and a name's
+  `=Two!$A$1` becomes `=#REF!$A$1`. The model left them reading a
+  sheet that was gone. Deleting another sheet now leaves the active
+  sheet active; the model held the active sheet by its place, so
+  deleting a sheet before it made the next one active. Deleting or
+  hiding the active sheet makes the next visible sheet after it
+  active, or the last visible one before it, and deleting or hiding
+  the last visible sheet is error 1004, as in Excel. A conditional
+  format, validation, link, control or chart that reads a deleted
+  sheet reports itself unsupported. Measured in
+  `tests/fixtures/sheet_groups.json`.
 
 - Sheet names and defined names beyond ASCII are kept apart and found
   as Excel does. Excel compares them by Windows' word sort, case aside,

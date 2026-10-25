@@ -25,7 +25,7 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBAUnsupportedError
-from test_excel_pivot_layouts import REVISIONS, sheet_cells
+from test_excel_pivot_layouts import REVISIONS, column_widths, sheet_cells
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_options"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_options.json").read_text(encoding="utf-8"))
@@ -184,3 +184,12 @@ def test_a_table_in_no_style() -> None:
     for name in ("", "NoSuchStyle", "PivotStyleLight29"):
         with pytest.raises(VBAUnsupportedError, match="no style"):
             app.run("Run", name)
+
+
+def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's columns as wide as Excel fits them each time it lays the table out, bestFit beside them (see
+    tests/test_excel_pivot_column_fit.py). The style layout is left out: a later layout's RefreshTable lays out
+    again, in Excel, every table of the cache the tables share, this one among them, and the model gives each
+    table a cache of its own."""
+    names = {layout["name"] for layout in LAYOUTS} - {"style"}
+    assert column_widths(made[2] / "pivot_options.xlsx", names) == column_widths(FIXTURES / "pivot_options.xlsx", names)

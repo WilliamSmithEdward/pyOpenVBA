@@ -1,0 +1,3116 @@
+{
+ "texts": [
+  "Mx",
+  "Kiwi fruit",
+  "Wm Wm",
+  "Apples and pears",
+  "Mountains",
+  "Wwwwwwwwwwwwww",
+  "Quick brown fox jumps",
+  "Lorem ipsum dolor sit amet",
+  "Mmmmmmmmmmmmmmmmmmmm",
+  "Extraordinarily long product name"
+ ],
+ "grid": "\nPrivate Function Made(wb As Object, depth As Long, fields As Long, drill As Boolean, indent As Long, text As String, _\n        totals As Boolean) As Object\n    Dim data As Object, ws As Object, pt As Object, f As Long\n    Set data = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    data.Range(\"A1:E1\").Value = Array(\"L0\", \"L1\", \"L2\", \"L3\", \"Amount\")\n    For f = 0 To 3\n        data.Cells(2, f + 1).Value = IIf(f = depth, text, Chr(97 + f))\n    Next\n    data.Cells(2, 5).Value = 1\n    Set ws = wb.Worksheets.Add(After:=data)\n    Set pt = wb.PivotCaches.Create(xlDatabase, data.Name & \"!R1C1:R2C5\").CreatePivotTable(ws.Range(\"A3\"))\n    pt.CompactLayoutRowHeader = \"R\"\n    pt.ColumnGrand = False\n    pt.RowGrand = False\n    pt.ShowDrillIndicators = drill\n    pt.CompactRowIndent = indent\n    For f = 0 To fields - 1\n        pt.PivotFields(\"L\" & f).Orientation = xlRowField\n        If totals And f = depth Then\n            pt.PivotFields(\"L\" & f).Subtotals(1) = True\n            pt.PivotFields(\"L\" & f).LayoutSubtotalLocation = xlAtBottom\n        Else\n            pt.PivotFields(\"L\" & f).Subtotals(1) = False\n        End If\n    Next\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"S\", xlSum\n    Set Made = ws\nEnd Function\n\nPrivate Function Fit(wb As Object, depth As Long, fields As Long, drill As Boolean, indent As Long, text As String, _\n        totals As Boolean) As String\n    Dim ws As Object\n    Set ws = Made(wb, depth, fields, drill, indent, text, totals)\n    Fit = Round(ws.Columns(1).Width * 4 / 3)\n    Application.DisplayAlerts = False\n    wb.Worksheets(ws.Index - 1).Delete\n    ws.Delete\nEnd Function\n\nPublic Function Grid(t As Long, text As String, totals As Boolean) As String\n    Dim wb As Object, out As String, fields As Long, depth As Long, d As Long, indent As Long, last As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    For fields = 1 To 4\n        last = IIf(totals, fields - 2, fields - 1)\n        For depth = 0 To last\n            For d = 0 To 1\n                For indent = 0 To 3\n                    out = out & t & \":\" & fields & \":\" & depth & \":\" & d & \":\" & indent & \"=\" & _\n                        Fit(wb, depth, fields, d = 1, indent, text, totals) & \";\"\n                Next\n            Next\n        Next\n    Next\n    wb.Close False\n    Grid = out\nEnd Function\n",
+ "source": "\nPrivate Function Book() As Object\n    Dim wb As Object, data As Object, r As Long\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set data = wb.Worksheets(1)\n    data.Name = \"data\"\n    data.Range(\"A1:E1\").Value = Array(\"Region\", \"Product\", \"Channel\", \"Amount\", \"Units\")\n    For r = 0 To 11\n        data.Cells(r + 2, 1).Value = Array(\"East\", \"North\", \"South\", \"West\")(r Mod 4)\n        data.Cells(r + 2, 2).Value = Array(\"Apple\", \"Banana\", \"Extraordinarily long product name\")(r Mod 3)\n        data.Cells(r + 2, 3).Value = Array(\"Online\", \"Store\")(r Mod 2)\n        data.Cells(r + 2, 4).Value = (r + 1) * 10\n        data.Cells(r + 2, 5).Value = r + 1\n    Next\n    Set Book = wb\nEnd Function\n\nPrivate Function Widths(ws As Object) As String\n    Dim c As Long, out As String\n    For c = 1 To 14\n        out = out & Round(ws.Columns(c).Width * 4 / 3) & \",\"\n    Next\n    Widths = out\nEnd Function\n\nPrivate Function Run(name As String, rows As String, columns As String, step As Long) As String\n    Dim wb As Object, ws As Object, pt As Object, f As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(1))\n    ws.Name = \"report\"\n    Set pt = wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R13C5\").CreatePivotTable(ws.Range(\"A3\"), \"Report\")\n    If Len(rows) > 0 Then\n        For Each f In Split(rows, \",\")\n            pt.PivotFields(f).Orientation = xlRowField\n        Next\n    End If\n    If Len(columns) > 0 Then\n        For Each f In Split(columns, \",\")\n            pt.PivotFields(f).Orientation = xlColumnField\n        Next\n    End If\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Sum of Amount\", xlSum\n    out = \"w=\" & Widths(ws) & \" \"\n    On Error Resume Next\n    Err.Clear\n    Select Case step\n{steps}\n    End Select\n    If Err.Number <> 0 Then out = out & \"E\" & Err.Number & \" \"\n    On Error GoTo 0\n    out = out & \"w=\" & Widths(ws)\n    wb.Close False\n    Run = name & \"^\" & out & \"|\"\nEnd Function\n\nPublic Function Scenarios() As String\n    Dim out As String\n    Application.DisplayAlerts = False\n{calls}\n    Scenarios = out\nEnd Function\n",
+ "styles": {
+  "TableStyleLight1": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight2": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight3": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight4": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight5": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight6": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight7": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight8": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight9": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight10": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight11": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight12": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight13": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight14": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight15": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight16": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight17": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight18": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight19": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight20": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleLight21": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium1": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium2": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium3": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium4": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium5": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium6": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium7": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium8": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium9": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium10": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium11": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium12": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium13": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium14": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium15": {
+   "kinds": "t",
+   "bold": [
+    1,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium16": {
+   "kinds": "t",
+   "bold": [
+    1,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium17": {
+   "kinds": "t",
+   "bold": [
+    1,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium18": {
+   "kinds": "t",
+   "bold": [
+    1,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium19": {
+   "kinds": "t",
+   "bold": [
+    1,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium20": {
+   "kinds": "t",
+   "bold": [
+    1,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium21": {
+   "kinds": "t",
+   "bold": [
+    1,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium22": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium23": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium24": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium25": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium26": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium27": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleMedium28": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark1": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark2": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark3": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark4": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark5": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark6": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark7": {
+   "kinds": "t",
+   "bold": [
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark8": {
+   "kinds": "t",
+   "bold": [
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark9": {
+   "kinds": "t",
+   "bold": [
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark10": {
+   "kinds": "t",
+   "bold": [
+    2,
+    3,
+    4
+   ]
+  },
+  "TableStyleDark11": {
+   "kinds": "t",
+   "bold": [
+    2,
+    3,
+    4
+   ]
+  },
+  "PivotStyleLight1": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight2": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23
+   ]
+  },
+  "PivotStyleLight3": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight4": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight5": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight6": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight7": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight8": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight9": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight10": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight11": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight12": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight13": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight14": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight15": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight16": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight17": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight18": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight19": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight20": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight21": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleLight22": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    13,
+    16,
+    17,
+    26
+   ]
+  },
+  "PivotStyleLight23": {
+   "kinds": "p",
+   "bold": []
+  },
+  "PivotStyleLight24": {
+   "kinds": "p",
+   "bold": []
+  },
+  "PivotStyleLight25": {
+   "kinds": "p",
+   "bold": []
+  },
+  "PivotStyleLight26": {
+   "kinds": "p",
+   "bold": []
+  },
+  "PivotStyleLight27": {
+   "kinds": "p",
+   "bold": []
+  },
+  "PivotStyleLight28": {
+   "kinds": "p",
+   "bold": []
+  },
+  "PivotStyleMedium1": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17
+   ]
+  },
+  "PivotStyleMedium2": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17
+   ]
+  },
+  "PivotStyleMedium3": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17
+   ]
+  },
+  "PivotStyleMedium4": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17
+   ]
+  },
+  "PivotStyleMedium5": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17
+   ]
+  },
+  "PivotStyleMedium6": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17
+   ]
+  },
+  "PivotStyleMedium7": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17
+   ]
+  },
+  "PivotStyleMedium8": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    13,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleMedium9": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    13,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleMedium10": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    13,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleMedium11": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    13,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleMedium12": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    13,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleMedium13": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    13,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleMedium14": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    13,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleMedium15": {
+   "kinds": "p",
+   "bold": [
+    16,
+    17,
+    23,
+    24,
+    25
+   ]
+  },
+  "PivotStyleMedium16": {
+   "kinds": "p",
+   "bold": [
+    16,
+    17,
+    23,
+    24,
+    25
+   ]
+  },
+  "PivotStyleMedium17": {
+   "kinds": "p",
+   "bold": [
+    16,
+    17,
+    23,
+    24,
+    25
+   ]
+  },
+  "PivotStyleMedium18": {
+   "kinds": "p",
+   "bold": [
+    16,
+    17,
+    23,
+    24,
+    25
+   ]
+  },
+  "PivotStyleMedium19": {
+   "kinds": "p",
+   "bold": [
+    16,
+    17,
+    23,
+    24,
+    25
+   ]
+  },
+  "PivotStyleMedium20": {
+   "kinds": "p",
+   "bold": [
+    16,
+    17,
+    23,
+    24,
+    25
+   ]
+  },
+  "PivotStyleMedium21": {
+   "kinds": "p",
+   "bold": [
+    16,
+    17,
+    23,
+    24,
+    25
+   ]
+  },
+  "PivotStyleMedium22": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    16,
+    17,
+    23,
+    26
+   ]
+  },
+  "PivotStyleMedium23": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    16,
+    17,
+    23,
+    26
+   ]
+  },
+  "PivotStyleMedium24": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    16,
+    17,
+    23,
+    26
+   ]
+  },
+  "PivotStyleMedium25": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    16,
+    17,
+    23,
+    26
+   ]
+  },
+  "PivotStyleMedium26": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    16,
+    17,
+    23,
+    26
+   ]
+  },
+  "PivotStyleMedium27": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    16,
+    17,
+    23,
+    26
+   ]
+  },
+  "PivotStyleMedium28": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    3,
+    16,
+    17,
+    23,
+    26
+   ]
+  },
+  "PivotStyleDark1": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark2": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark3": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark4": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark5": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark6": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark7": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark8": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark9": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark10": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark11": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark12": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark13": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark14": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark15": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark16": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark17": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark18": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark19": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark20": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark21": {
+   "kinds": "p",
+   "bold": [
+    1,
+    2,
+    16,
+    23,
+    24,
+    26
+   ]
+  },
+  "PivotStyleDark22": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    16,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark23": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark24": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark25": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark26": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark27": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    17,
+    23,
+    24
+   ]
+  },
+  "PivotStyleDark28": {
+   "kinds": "p",
+   "bold": [
+    2,
+    9,
+    17,
+    23,
+    24
+   ]
+  },
+  "SlicerStyleLight1": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleLight2": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleLight3": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleLight4": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleLight5": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleLight6": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleOther1": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleOther2": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleDark1": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleDark2": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleDark3": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleDark4": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleDark5": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "SlicerStyleDark6": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleLight1": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleLight2": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleLight3": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleLight4": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleLight5": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleLight6": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleDark1": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleDark2": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleDark3": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleDark4": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleDark5": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  },
+  "TimeSlicerStyleDark6": {
+   "kinds": "",
+   "bold": [
+    1
+   ]
+  }
+ },
+ "layouts": {
+  "outline_one_column": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.RowAxisLayout xlOutlineRow",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,224,224,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_one_column": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.RowAxisLayout xlTabularRow",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,224,224,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_one_column_no_grand": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.RowAxisLayout xlTabularRow\npt.RowGrand = False",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,72,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_one_column_no_column_grand": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.RowAxisLayout xlTabularRow\npt.ColumnGrand = False",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,224,224,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_one_column_long_caption": {
+   "rows": "Region",
+   "columns": "Channel",
+   "step": "pt.RowAxisLayout xlTabularRow\npt.PivotFields(\"Channel\").Caption = \"A channel caption longer than its items\"",
+   "widths": "w=104,118,41,79,64,64,64,64,64,64,64,64,64,64, w=104,272,272,79,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_two_columns": {
+   "rows": "Region",
+   "columns": "Product,Channel",
+   "step": "pt.RowAxisLayout xlTabularRow",
+   "widths": "w=104,118,41,77,65,41,86,237,41,259,79,64,64,64, w=104,76,76,77,65,65,86,237,237,259,79,64,64,64,"
+  },
+  "tabular_two_columns_no_grand": {
+   "rows": "Region",
+   "columns": "Product,Channel",
+   "step": "pt.RowAxisLayout xlTabularRow\npt.RowGrand = False",
+   "widths": "w=104,118,41,77,65,41,86,237,41,259,79,64,64,64, w=104,76,76,77,65,65,86,237,237,259,79,64,64,64,"
+  },
+  "outline_two_columns": {
+   "rows": "Region",
+   "columns": "Product,Channel",
+   "step": "pt.RowAxisLayout xlOutlineRow",
+   "widths": "w=104,118,41,77,65,41,86,237,41,259,79,64,64,64, w=104,76,76,77,65,65,86,237,237,259,79,64,64,64,"
+  },
+  "tabular_two_columns_no_subtotals": {
+   "rows": "Region",
+   "columns": "Product,Channel",
+   "step": "pt.RowAxisLayout xlTabularRow\npt.PivotFields(\"Product\").Subtotals(1) = False",
+   "widths": "w=104,118,41,77,65,41,86,237,41,259,79,64,64,64, w=104,237,237,237,237,237,237,79,237,259,79,64,64,64,"
+  },
+  "tabular_inner_long": {
+   "rows": "Region",
+   "columns": "Channel,Product",
+   "step": "pt.RowAxisLayout xlTabularRow",
+   "widths": "w=104,118,52,224,83,54,52,224,75,79,64,64,64,64, w=104,224,224,224,83,224,224,224,75,79,64,64,64,64,"
+  },
+  "tabular_column_only": {
+   "rows": "",
+   "columns": "Product",
+   "step": "pt.RowAxisLayout xlTabularRow",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,224,224,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_column_only_no_grand": {
+   "rows": "",
+   "columns": "Product",
+   "step": "pt.RowAxisLayout xlTabularRow\npt.RowGrand = False",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,72,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_two_rows": {
+   "rows": "Region,Channel",
+   "columns": "Product",
+   "step": "pt.RowAxisLayout xlTabularRow",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,76,224,224,224,79,64,64,64,64,64,64,64,64,"
+  },
+  "compact_two_columns": {
+   "rows": "Region",
+   "columns": "Product,Channel",
+   "step": "",
+   "widths": "w=104,118,41,77,65,41,86,237,41,259,79,64,64,64, w=104,118,41,77,65,41,86,237,41,259,79,64,64,64,"
+  },
+  "compact_two_columns_no_drill": {
+   "rows": "Region",
+   "columns": "Product,Channel",
+   "step": "pt.ShowDrillIndicators = False",
+   "widths": "w=104,118,41,77,65,41,86,237,41,259,79,64,64,64, w=104,118,41,77,65,41,86,237,41,259,79,64,64,64,"
+  },
+  "column_form_outline": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.PivotFields(\"Product\").LayoutForm = xlOutline",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "column_compact_off": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.PivotFields(\"Product\").LayoutCompactRow = False",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  }
+ },
+ "steps": {
+  "subtotals_bottom": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.PivotFields(\"Region\").LayoutSubtotalLocation = xlAtBottom",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=247,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "inner_subtotals": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.PivotFields(\"Product\").Subtotals = Array(False, True, True, False, False, False, False, False, False, False, False, False)",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=271,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "grand_caption": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.GrandTotalName = \"A grand total name that is longer\"",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=213,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "style_medium4": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.TableStyle2 = \"PivotStyleMedium4\"",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,115,55,221,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "style_dark1": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.TableStyle2 = \"PivotStyleDark1\"",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=247,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "style_table": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.TableStyle2 = \"TableStyleMedium2\"",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "flags_off": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.ShowTableStyleColumnHeaders = False\nW\npt.ShowTableStyleRowHeaders = False",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "flag_last_column": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.TableStyle2 = \"PivotStyleMedium22\"\nW\npt.ShowTableStyleLastColumn = False",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "autoformat_off": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.HasAutoFormat = False\nW\npt.PivotFields(\"Product\").Orientation = xlRowField",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "manual_width": {
+   "rows": "Region",
+   "columns": "",
+   "step": "ws.Columns(1).ColumnWidth = 40\nW\npt.PivotFields(\"Product\").Orientation = xlColumnField",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=285,104,64,64,64,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "outside": {
+   "rows": "Region",
+   "columns": "",
+   "step": "ws.Range(\"A40\").Value = \"Text outside the table that is very long indeed\"\nW\npt.PivotFields(\"Product\").Orientation = xlColumnField",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "page_field": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.PivotFields(\"Product\").Orientation = xlPageField\nW\npt.PivotFields(\"Product\").CurrentPage = \"Extraordinarily long product name\"",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,237,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "page_multiple": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.PivotFields(\"Product\").Orientation = xlPageField\npt.PivotFields(\"Product\").EnableMultiplePageItems = True\npt.PivotFields(\"Product\").PivotItems(\"Apple\").Visible = False",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,121,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "values_rows": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.AddDataField pt.PivotFields(\"Units\"), \"Sum of Units\", xlSum\nW\npt.DataPivotField.Orientation = xlRowField",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,104,87,64,64,64,64,64,64,64,64,64,64,64, w=139,28,87,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "values_columns": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.AddDataField pt.PivotFields(\"Units\"), \"Sum of Units\", xlSum",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=94,118,87,104,87,224,87,139,123,64,64,64,64,64,"
+  },
+  "values_row_shown": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.AddDataField pt.PivotFields(\"Units\"), \"Sum of Units\", xlSum\npt.ShowValuesRow = True",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,104,87,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "number_format": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.DataFields(1).NumberFormat = \"#,##0.000000000000\"",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,117,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "item_caption": {
+   "rows": "Region",
+   "columns": "",
+   "step": "pt.PivotFields(\"Region\").PivotItems(\"East\").Caption = \"A caption much longer than the rest of them\"",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=280,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "refresh": {
+   "rows": "Region",
+   "columns": "",
+   "step": "wb.Worksheets(\"data\").Range(\"A2\").Value = \"A region name much longer than any other\"\npt.PivotCache.Refresh",
+   "widths": "w=94,104,64,64,64,64,64,64,64,64,64,64,64,64, w=273,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "collapse": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.PivotFields(\"Region\").ShowDetail = False",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "tabular_outer_kept": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.RowAxisLayout xlTabularRow\nW\npt.PivotFields(\"Region\").PivotItems(\"East\").Caption = \"A caption much longer than the rest of them\"",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=247,221,104,64,64,64,64,64,64,64,64,64,64,64, w=247,221,104,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "compact_mixed": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.PivotFields(\"Region\").LayoutForm = xlTabular",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=94,221,104,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "drill_off": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.ShowDrillIndicators = False",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=247,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "indent_two": {
+   "rows": "Region,Product",
+   "columns": "",
+   "step": "pt.CompactRowIndent = 2",
+   "widths": "w=247,104,64,64,64,64,64,64,64,64,64,64,64,64, w=253,104,64,64,64,64,64,64,64,64,64,64,64,64,"
+  },
+  "headers_off": {
+   "rows": "Region",
+   "columns": "Product",
+   "step": "pt.DisplayFieldCaptions = False",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,43,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "no_rows": {
+   "rows": "",
+   "columns": "Product",
+   "step": "",
+   "widths": "w=104,118,52,224,79,64,64,64,64,64,64,64,64,64, w=104,118,52,224,79,64,64,64,64,64,64,64,64,64,"
+  },
+  "no_columns_no_rows": {
+   "rows": "",
+   "columns": "",
+   "step": "pt.AddDataField pt.PivotFields(\"Units\"), \"Sum of Units\", xlSum",
+   "widths": "w=104,64,64,64,64,64,64,64,64,64,64,64,64,64, w=104,87,64,64,64,64,64,64,64,64,64,64,64,64,"
+  }
+ },
+ "compact": {
+  "0:1:0:0:0": "32",
+  "0:1:0:0:1": "32",
+  "0:1:0:0:2": "32",
+  "0:1:0:0:3": "32",
+  "0:1:0:1:0": "32",
+  "0:1:0:1:1": "32",
+  "0:1:0:1:2": "32",
+  "0:1:0:1:3": "32",
+  "0:2:0:0:0": "32",
+  "0:2:0:0:1": "32",
+  "0:2:0:0:2": "33",
+  "0:2:0:0:3": "42",
+  "0:2:0:1:0": "38",
+  "0:2:0:1:1": "41",
+  "0:2:0:1:2": "46",
+  "0:2:0:1:3": "55",
+  "0:2:1:0:0": "32",
+  "0:2:1:0:1": "33",
+  "0:2:1:0:2": "42",
+  "0:2:1:0:3": "51",
+  "0:2:1:1:0": "37",
+  "0:2:1:1:1": "50",
+  "0:2:1:1:2": "55",
+  "0:2:1:1:3": "64",
+  "0:3:0:0:0": "32",
+  "0:3:0:0:1": "32",
+  "0:3:0:0:2": "50",
+  "0:3:0:0:3": "68",
+  "0:3:0:1:0": "38",
+  "0:3:0:1:1": "53",
+  "0:3:0:1:2": "63",
+  "0:3:0:1:3": "81",
+  "0:3:1:0:0": "32",
+  "0:3:1:0:1": "34",
+  "0:3:1:0:2": "50",
+  "0:3:1:0:3": "68",
+  "0:3:1:1:0": "38",
+  "0:3:1:1:1": "53",
+  "0:3:1:1:2": "63",
+  "0:3:1:1:3": "81",
+  "0:3:2:0:0": "32",
+  "0:3:2:0:1": "42",
+  "0:3:2:0:2": "60",
+  "0:3:2:0:3": "78",
+  "0:3:2:1:0": "37",
+  "0:3:2:1:1": "63",
+  "0:3:2:1:2": "73",
+  "0:3:2:1:3": "91",
+  "0:4:0:0:0": "32",
+  "0:4:0:0:1": "42",
+  "0:4:0:0:2": "69",
+  "0:4:0:0:3": "97",
+  "0:4:0:1:0": "38",
+  "0:4:0:1:1": "67",
+  "0:4:0:1:2": "82",
+  "0:4:0:1:3": "110",
+  "0:4:1:0:0": "32",
+  "0:4:1:0:1": "42",
+  "0:4:1:0:2": "69",
+  "0:4:1:0:3": "97",
+  "0:4:1:1:0": "38",
+  "0:4:1:1:1": "67",
+  "0:4:1:1:2": "82",
+  "0:4:1:1:3": "110",
+  "0:4:2:0:0": "32",
+  "0:4:2:0:1": "42",
+  "0:4:2:0:2": "69",
+  "0:4:2:0:3": "97",
+  "0:4:2:1:0": "37",
+  "0:4:2:1:1": "67",
+  "0:4:2:1:2": "82",
+  "0:4:2:1:3": "110",
+  "0:4:3:0:0": "32",
+  "0:4:3:0:1": "51",
+  "0:4:3:0:2": "78",
+  "0:4:3:0:3": "106",
+  "0:4:3:1:0": "37",
+  "0:4:3:1:1": "76",
+  "0:4:3:1:2": "91",
+  "0:4:3:1:3": "119",
+  "1:1:0:0:0": "61",
+  "1:1:0:0:1": "61",
+  "1:1:0:0:2": "61",
+  "1:1:0:0:3": "61",
+  "1:1:0:1:0": "61",
+  "1:1:0:1:1": "61",
+  "1:1:0:1:2": "61",
+  "1:1:0:1:3": "61",
+  "1:2:0:0:0": "63",
+  "1:2:0:0:1": "63",
+  "1:2:0:0:2": "63",
+  "1:2:0:0:3": "63",
+  "1:2:0:1:0": "76",
+  "1:2:0:1:1": "76",
+  "1:2:0:1:2": "76",
+  "1:2:0:1:3": "76",
+  "1:2:1:0:0": "61",
+  "1:2:1:0:1": "70",
+  "1:2:1:0:2": "79",
+  "1:2:1:0:3": "88",
+  "1:2:1:1:0": "74",
+  "1:2:1:1:1": "87",
+  "1:2:1:1:2": "92",
+  "1:2:1:1:3": "101",
+  "1:3:0:0:0": "63",
+  "1:3:0:0:1": "63",
+  "1:3:0:0:2": "63",
+  "1:3:0:0:3": "68",
+  "1:3:0:1:0": "76",
+  "1:3:0:1:1": "76",
+  "1:3:0:1:2": "76",
+  "1:3:0:1:3": "81",
+  "1:3:1:0:0": "63",
+  "1:3:1:0:1": "72",
+  "1:3:1:0:2": "81",
+  "1:3:1:0:3": "90",
+  "1:3:1:1:0": "76",
+  "1:3:1:1:1": "89",
+  "1:3:1:1:2": "94",
+  "1:3:1:1:3": "103",
+  "1:3:2:0:0": "61",
+  "1:3:2:0:1": "79",
+  "1:3:2:0:2": "98",
+  "1:3:2:0:3": "116",
+  "1:3:2:1:0": "74",
+  "1:3:2:1:1": "100",
+  "1:3:2:1:2": "111",
+  "1:3:2:1:3": "129",
+  "1:4:0:0:0": "63",
+  "1:4:0:0:1": "63",
+  "1:4:0:0:2": "69",
+  "1:4:0:0:3": "97",
+  "1:4:0:1:0": "76",
+  "1:4:0:1:1": "76",
+  "1:4:0:1:2": "82",
+  "1:4:0:1:3": "110",
+  "1:4:1:0:0": "63",
+  "1:4:1:0:1": "72",
+  "1:4:1:0:2": "81",
+  "1:4:1:0:3": "97",
+  "1:4:1:1:0": "76",
+  "1:4:1:1:1": "89",
+  "1:4:1:1:2": "94",
+  "1:4:1:1:3": "110",
+  "1:4:2:0:0": "61",
+  "1:4:2:0:1": "79",
+  "1:4:2:0:2": "98",
+  "1:4:2:0:3": "116",
+  "1:4:2:1:0": "74",
+  "1:4:2:1:1": "100",
+  "1:4:2:1:2": "111",
+  "1:4:2:1:3": "129",
+  "1:4:3:0:0": "61",
+  "1:4:3:0:1": "88",
+  "1:4:3:0:2": "116",
+  "1:4:3:0:3": "144",
+  "1:4:3:1:0": "74",
+  "1:4:3:1:1": "113",
+  "1:4:3:1:2": "129",
+  "1:4:3:1:3": "157",
+  "2:1:0:0:0": "58",
+  "2:1:0:0:1": "58",
+  "2:1:0:0:2": "58",
+  "2:1:0:0:3": "58",
+  "2:1:0:1:0": "58",
+  "2:1:0:1:1": "58",
+  "2:1:0:1:2": "58",
+  "2:1:0:1:3": "58",
+  "2:2:0:0:0": "60",
+  "2:2:0:0:1": "60",
+  "2:2:0:0:2": "60",
+  "2:2:0:0:3": "60",
+  "2:2:0:1:0": "73",
+  "2:2:0:1:1": "73",
+  "2:2:0:1:2": "73",
+  "2:2:0:1:3": "73",
+  "2:2:1:0:0": "58",
+  "2:2:1:0:1": "67",
+  "2:2:1:0:2": "76",
+  "2:2:1:0:3": "85",
+  "2:2:1:1:0": "71",
+  "2:2:1:1:1": "84",
+  "2:2:1:1:2": "89",
+  "2:2:1:1:3": "98",
+  "2:3:0:0:0": "60",
+  "2:3:0:0:1": "60",
+  "2:3:0:0:2": "60",
+  "2:3:0:0:3": "68",
+  "2:3:0:1:0": "73",
+  "2:3:0:1:1": "73",
+  "2:3:0:1:2": "73",
+  "2:3:0:1:3": "81",
+  "2:3:1:0:0": "60",
+  "2:3:1:0:1": "69",
+  "2:3:1:0:2": "78",
+  "2:3:1:0:3": "87",
+  "2:3:1:1:0": "73",
+  "2:3:1:1:1": "86",
+  "2:3:1:1:2": "91",
+  "2:3:1:1:3": "100",
+  "2:3:2:0:0": "58",
+  "2:3:2:0:1": "76",
+  "2:3:2:0:2": "95",
+  "2:3:2:0:3": "113",
+  "2:3:2:1:0": "71",
+  "2:3:2:1:1": "97",
+  "2:3:2:1:2": "108",
+  "2:3:2:1:3": "126",
+  "2:4:0:0:0": "60",
+  "2:4:0:0:1": "60",
+  "2:4:0:0:2": "69",
+  "2:4:0:0:3": "97",
+  "2:4:0:1:0": "73",
+  "2:4:0:1:1": "73",
+  "2:4:0:1:2": "82",
+  "2:4:0:1:3": "110",
+  "2:4:1:0:0": "60",
+  "2:4:1:0:1": "69",
+  "2:4:1:0:2": "78",
+  "2:4:1:0:3": "97",
+  "2:4:1:1:0": "73",
+  "2:4:1:1:1": "86",
+  "2:4:1:1:2": "91",
+  "2:4:1:1:3": "110",
+  "2:4:2:0:0": "58",
+  "2:4:2:0:1": "76",
+  "2:4:2:0:2": "95",
+  "2:4:2:0:3": "113",
+  "2:4:2:1:0": "71",
+  "2:4:2:1:1": "97",
+  "2:4:2:1:2": "108",
+  "2:4:2:1:3": "126",
+  "2:4:3:0:0": "58",
+  "2:4:3:0:1": "85",
+  "2:4:3:0:2": "113",
+  "2:4:3:0:3": "141",
+  "2:4:3:1:0": "71",
+  "2:4:3:1:1": "110",
+  "2:4:3:1:2": "126",
+  "2:4:3:1:3": "154",
+  "3:1:0:0:0": "115",
+  "3:1:0:0:1": "115",
+  "3:1:0:0:2": "115",
+  "3:1:0:0:3": "115",
+  "3:1:0:1:0": "115",
+  "3:1:0:1:1": "115",
+  "3:1:0:1:2": "115",
+  "3:1:0:1:3": "115",
+  "3:2:0:0:0": "115",
+  "3:2:0:0:1": "115",
+  "3:2:0:0:2": "115",
+  "3:2:0:0:3": "115",
+  "3:2:0:1:0": "128",
+  "3:2:0:1:1": "128",
+  "3:2:0:1:2": "128",
+  "3:2:0:1:3": "128",
+  "3:2:1:0:0": "115",
+  "3:2:1:0:1": "125",
+  "3:2:1:0:2": "134",
+  "3:2:1:0:3": "143",
+  "3:2:1:1:0": "128",
+  "3:2:1:1:1": "142",
+  "3:2:1:1:2": "147",
+  "3:2:1:1:3": "156",
+  "3:3:0:0:0": "115",
+  "3:3:0:0:1": "115",
+  "3:3:0:0:2": "115",
+  "3:3:0:0:3": "115",
+  "3:3:0:1:0": "128",
+  "3:3:0:1:1": "128",
+  "3:3:0:1:2": "128",
+  "3:3:0:1:3": "128",
+  "3:3:1:0:0": "115",
+  "3:3:1:0:1": "125",
+  "3:3:1:0:2": "134",
+  "3:3:1:0:3": "143",
+  "3:3:1:1:0": "128",
+  "3:3:1:1:1": "142",
+  "3:3:1:1:2": "147",
+  "3:3:1:1:3": "156",
+  "3:3:2:0:0": "115",
+  "3:3:2:0:1": "134",
+  "3:3:2:0:2": "153",
+  "3:3:2:0:3": "171",
+  "3:3:2:1:0": "128",
+  "3:3:2:1:1": "155",
+  "3:3:2:1:2": "166",
+  "3:3:2:1:3": "184",
+  "3:4:0:0:0": "115",
+  "3:4:0:0:1": "115",
+  "3:4:0:0:2": "115",
+  "3:4:0:0:3": "115",
+  "3:4:0:1:0": "128",
+  "3:4:0:1:1": "128",
+  "3:4:0:1:2": "128",
+  "3:4:0:1:3": "128",
+  "3:4:1:0:0": "115",
+  "3:4:1:0:1": "125",
+  "3:4:1:0:2": "134",
+  "3:4:1:0:3": "143",
+  "3:4:1:1:0": "128",
+  "3:4:1:1:1": "142",
+  "3:4:1:1:2": "147",
+  "3:4:1:1:3": "156",
+  "3:4:2:0:0": "115",
+  "3:4:2:0:1": "134",
+  "3:4:2:0:2": "153",
+  "3:4:2:0:3": "171",
+  "3:4:2:1:0": "128",
+  "3:4:2:1:1": "155",
+  "3:4:2:1:2": "166",
+  "3:4:2:1:3": "184",
+  "3:4:3:0:0": "115",
+  "3:4:3:0:1": "143",
+  "3:4:3:0:2": "171",
+  "3:4:3:0:3": "199",
+  "3:4:3:1:0": "128",
+  "3:4:3:1:1": "168",
+  "3:4:3:1:2": "184",
+  "3:4:3:1:3": "212",
+  "4:1:0:0:0": "73",
+  "4:1:0:0:1": "73",
+  "4:1:0:0:2": "73",
+  "4:1:0:0:3": "73",
+  "4:1:0:1:0": "73",
+  "4:1:0:1:1": "73",
+  "4:1:0:1:2": "73",
+  "4:1:0:1:3": "73",
+  "4:2:0:0:0": "73",
+  "4:2:0:0:1": "73",
+  "4:2:0:0:2": "73",
+  "4:2:0:0:3": "73",
+  "4:2:0:1:0": "86",
+  "4:2:0:1:1": "86",
+  "4:2:0:1:2": "86",
+  "4:2:0:1:3": "86",
+  "4:2:1:0:0": "73",
+  "4:2:1:0:1": "82",
+  "4:2:1:0:2": "92",
+  "4:2:1:0:3": "101",
+  "4:2:1:1:0": "86",
+  "4:2:1:1:1": "99",
+  "4:2:1:1:2": "105",
+  "4:2:1:1:3": "114",
+  "4:3:0:0:0": "73",
+  "4:3:0:0:1": "73",
+  "4:3:0:0:2": "73",
+  "4:3:0:0:3": "73",
+  "4:3:0:1:0": "86",
+  "4:3:0:1:1": "86",
+  "4:3:0:1:2": "86",
+  "4:3:0:1:3": "86",
+  "4:3:1:0:0": "73",
+  "4:3:1:0:1": "82",
+  "4:3:1:0:2": "92",
+  "4:3:1:0:3": "101",
+  "4:3:1:1:0": "86",
+  "4:3:1:1:1": "99",
+  "4:3:1:1:2": "105",
+  "4:3:1:1:3": "114",
+  "4:3:2:0:0": "73",
+  "4:3:2:0:1": "92",
+  "4:3:2:0:2": "110",
+  "4:3:2:0:3": "129",
+  "4:3:2:1:0": "86",
+  "4:3:2:1:1": "113",
+  "4:3:2:1:2": "123",
+  "4:3:2:1:3": "142",
+  "4:4:0:0:0": "73",
+  "4:4:0:0:1": "73",
+  "4:4:0:0:2": "73",
+  "4:4:0:0:3": "97",
+  "4:4:0:1:0": "86",
+  "4:4:0:1:1": "86",
+  "4:4:0:1:2": "86",
+  "4:4:0:1:3": "110",
+  "4:4:1:0:0": "73",
+  "4:4:1:0:1": "82",
+  "4:4:1:0:2": "92",
+  "4:4:1:0:3": "101",
+  "4:4:1:1:0": "86",
+  "4:4:1:1:1": "99",
+  "4:4:1:1:2": "105",
+  "4:4:1:1:3": "114",
+  "4:4:2:0:0": "73",
+  "4:4:2:0:1": "92",
+  "4:4:2:0:2": "110",
+  "4:4:2:0:3": "129",
+  "4:4:2:1:0": "86",
+  "4:4:2:1:1": "113",
+  "4:4:2:1:2": "123",
+  "4:4:2:1:3": "142",
+  "4:4:3:0:0": "73",
+  "4:4:3:0:1": "101",
+  "4:4:3:0:2": "129",
+  "4:4:3:0:3": "157",
+  "4:4:3:1:0": "86",
+  "4:4:3:1:1": "126",
+  "4:4:3:1:2": "142",
+  "4:4:3:1:3": "170",
+  "5:1:0:0:0": "152",
+  "5:1:0:0:1": "152",
+  "5:1:0:0:2": "152",
+  "5:1:0:0:3": "152",
+  "5:1:0:1:0": "152",
+  "5:1:0:1:1": "152",
+  "5:1:0:1:2": "152",
+  "5:1:0:1:3": "152",
+  "5:2:0:0:0": "153",
+  "5:2:0:0:1": "153",
+  "5:2:0:0:2": "153",
+  "5:2:0:0:3": "153",
+  "5:2:0:1:0": "166",
+  "5:2:0:1:1": "166",
+  "5:2:0:1:2": "166",
+  "5:2:0:1:3": "166",
+  "5:2:1:0:0": "152",
+  "5:2:1:0:1": "161",
+  "5:2:1:0:2": "170",
+  "5:2:1:0:3": "180",
+  "5:2:1:1:0": "165",
+  "5:2:1:1:1": "178",
+  "5:2:1:1:2": "183",
+  "5:2:1:1:3": "193",
+  "5:3:0:0:0": "153",
+  "5:3:0:0:1": "153",
+  "5:3:0:0:2": "153",
+  "5:3:0:0:3": "153",
+  "5:3:0:1:0": "166",
+  "5:3:0:1:1": "166",
+  "5:3:0:1:2": "166",
+  "5:3:0:1:3": "166",
+  "5:3:1:0:0": "153",
+  "5:3:1:0:1": "162",
+  "5:3:1:0:2": "171",
+  "5:3:1:0:3": "181",
+  "5:3:1:1:0": "166",
+  "5:3:1:1:1": "179",
+  "5:3:1:1:2": "184",
+  "5:3:1:1:3": "194",
+  "5:3:2:0:0": "152",
+  "5:3:2:0:1": "170",
+  "5:3:2:0:2": "189",
+  "5:3:2:0:3": "208",
+  "5:3:2:1:0": "165",
+  "5:3:2:1:1": "191",
+  "5:3:2:1:2": "202",
+  "5:3:2:1:3": "221",
+  "5:4:0:0:0": "153",
+  "5:4:0:0:1": "153",
+  "5:4:0:0:2": "153",
+  "5:4:0:0:3": "153",
+  "5:4:0:1:0": "166",
+  "5:4:0:1:1": "166",
+  "5:4:0:1:2": "166",
+  "5:4:0:1:3": "166",
+  "5:4:1:0:0": "153",
+  "5:4:1:0:1": "162",
+  "5:4:1:0:2": "171",
+  "5:4:1:0:3": "181",
+  "5:4:1:1:0": "166",
+  "5:4:1:1:1": "179",
+  "5:4:1:1:2": "184",
+  "5:4:1:1:3": "194",
+  "5:4:2:0:0": "152",
+  "5:4:2:0:1": "170",
+  "5:4:2:0:2": "189",
+  "5:4:2:0:3": "208",
+  "5:4:2:1:0": "165",
+  "5:4:2:1:1": "191",
+  "5:4:2:1:2": "202",
+  "5:4:2:1:3": "221",
+  "5:4:3:0:0": "152",
+  "5:4:3:0:1": "180",
+  "5:4:3:0:2": "208",
+  "5:4:3:0:3": "235",
+  "5:4:3:1:0": "165",
+  "5:4:3:1:1": "205",
+  "5:4:3:1:2": "221",
+  "5:4:3:1:3": "248",
+  "6:1:0:0:0": "151",
+  "6:1:0:0:1": "151",
+  "6:1:0:0:2": "151",
+  "6:1:0:0:3": "151",
+  "6:1:0:1:0": "151",
+  "6:1:0:1:1": "151",
+  "6:1:0:1:2": "151",
+  "6:1:0:1:3": "151",
+  "6:2:0:0:0": "153",
+  "6:2:0:0:1": "153",
+  "6:2:0:0:2": "153",
+  "6:2:0:0:3": "153",
+  "6:2:0:1:0": "166",
+  "6:2:0:1:1": "166",
+  "6:2:0:1:2": "166",
+  "6:2:0:1:3": "166",
+  "6:2:1:0:0": "151",
+  "6:2:1:0:1": "160",
+  "6:2:1:0:2": "169",
+  "6:2:1:0:3": "179",
+  "6:2:1:1:0": "164",
+  "6:2:1:1:1": "177",
+  "6:2:1:1:2": "182",
+  "6:2:1:1:3": "192",
+  "6:3:0:0:0": "153",
+  "6:3:0:0:1": "153",
+  "6:3:0:0:2": "153",
+  "6:3:0:0:3": "153",
+  "6:3:0:1:0": "166",
+  "6:3:0:1:1": "166",
+  "6:3:0:1:2": "166",
+  "6:3:0:1:3": "166",
+  "6:3:1:0:0": "153",
+  "6:3:1:0:1": "162",
+  "6:3:1:0:2": "171",
+  "6:3:1:0:3": "181",
+  "6:3:1:1:0": "166",
+  "6:3:1:1:1": "179",
+  "6:3:1:1:2": "184",
+  "6:3:1:1:3": "194",
+  "6:3:2:0:0": "151",
+  "6:3:2:0:1": "169",
+  "6:3:2:0:2": "188",
+  "6:3:2:0:3": "206",
+  "6:3:2:1:0": "164",
+  "6:3:2:1:1": "190",
+  "6:3:2:1:2": "201",
+  "6:3:2:1:3": "219",
+  "6:4:0:0:0": "153",
+  "6:4:0:0:1": "153",
+  "6:4:0:0:2": "153",
+  "6:4:0:0:3": "153",
+  "6:4:0:1:0": "166",
+  "6:4:0:1:1": "166",
+  "6:4:0:1:2": "166",
+  "6:4:0:1:3": "166",
+  "6:4:1:0:0": "153",
+  "6:4:1:0:1": "162",
+  "6:4:1:0:2": "171",
+  "6:4:1:0:3": "181",
+  "6:4:1:1:0": "166",
+  "6:4:1:1:1": "179",
+  "6:4:1:1:2": "184",
+  "6:4:1:1:3": "194",
+  "6:4:2:0:0": "151",
+  "6:4:2:0:1": "169",
+  "6:4:2:0:2": "188",
+  "6:4:2:0:3": "206",
+  "6:4:2:1:0": "164",
+  "6:4:2:1:1": "190",
+  "6:4:2:1:2": "201",
+  "6:4:2:1:3": "219",
+  "6:4:3:0:0": "151",
+  "6:4:3:0:1": "179",
+  "6:4:3:0:2": "206",
+  "6:4:3:0:3": "234",
+  "6:4:3:1:0": "164",
+  "6:4:3:1:1": "204",
+  "6:4:3:1:2": "219",
+  "6:4:3:1:3": "247",
+  "7:1:0:0:0": "179",
+  "7:1:0:0:1": "179",
+  "7:1:0:0:2": "179",
+  "7:1:0:0:3": "179",
+  "7:1:0:1:0": "179",
+  "7:1:0:1:1": "179",
+  "7:1:0:1:2": "179",
+  "7:1:0:1:3": "179",
+  "7:2:0:0:0": "183",
+  "7:2:0:0:1": "183",
+  "7:2:0:0:2": "183",
+  "7:2:0:0:3": "183",
+  "7:2:0:1:0": "196",
+  "7:2:0:1:1": "196",
+  "7:2:0:1:2": "196",
+  "7:2:0:1:3": "196",
+  "7:2:1:0:0": "179",
+  "7:2:1:0:1": "188",
+  "7:2:1:0:2": "197",
+  "7:2:1:0:3": "206",
+  "7:2:1:1:0": "192",
+  "7:2:1:1:1": "205",
+  "7:2:1:1:2": "210",
+  "7:2:1:1:3": "219",
+  "7:3:0:0:0": "183",
+  "7:3:0:0:1": "183",
+  "7:3:0:0:2": "183",
+  "7:3:0:0:3": "183",
+  "7:3:0:1:0": "196",
+  "7:3:0:1:1": "196",
+  "7:3:0:1:2": "196",
+  "7:3:0:1:3": "196",
+  "7:3:1:0:0": "183",
+  "7:3:1:0:1": "192",
+  "7:3:1:0:2": "201",
+  "7:3:1:0:3": "211",
+  "7:3:1:1:0": "196",
+  "7:3:1:1:1": "209",
+  "7:3:1:1:2": "214",
+  "7:3:1:1:3": "224",
+  "7:3:2:0:0": "179",
+  "7:3:2:0:1": "197",
+  "7:3:2:0:2": "216",
+  "7:3:2:0:3": "234",
+  "7:3:2:1:0": "192",
+  "7:3:2:1:1": "218",
+  "7:3:2:1:2": "229",
+  "7:3:2:1:3": "247",
+  "7:4:0:0:0": "183",
+  "7:4:0:0:1": "183",
+  "7:4:0:0:2": "183",
+  "7:4:0:0:3": "183",
+  "7:4:0:1:0": "196",
+  "7:4:0:1:1": "196",
+  "7:4:0:1:2": "196",
+  "7:4:0:1:3": "196",
+  "7:4:1:0:0": "183",
+  "7:4:1:0:1": "192",
+  "7:4:1:0:2": "201",
+  "7:4:1:0:3": "211",
+  "7:4:1:1:0": "196",
+  "7:4:1:1:1": "209",
+  "7:4:1:1:2": "214",
+  "7:4:1:1:3": "224",
+  "7:4:2:0:0": "179",
+  "7:4:2:0:1": "197",
+  "7:4:2:0:2": "216",
+  "7:4:2:0:3": "234",
+  "7:4:2:1:0": "192",
+  "7:4:2:1:1": "218",
+  "7:4:2:1:2": "229",
+  "7:4:2:1:3": "247",
+  "7:4:3:0:0": "179",
+  "7:4:3:0:1": "206",
+  "7:4:3:0:2": "234",
+  "7:4:3:0:3": "262",
+  "7:4:3:1:0": "192",
+  "7:4:3:1:1": "231",
+  "7:4:3:1:2": "247",
+  "7:4:3:1:3": "275",
+  "8:1:0:0:0": "252",
+  "8:1:0:0:1": "252",
+  "8:1:0:0:2": "252",
+  "8:1:0:0:3": "252",
+  "8:1:0:1:0": "252",
+  "8:1:0:1:1": "252",
+  "8:1:0:1:2": "252",
+  "8:1:0:1:3": "252",
+  "8:2:0:0:0": "252",
+  "8:2:0:0:1": "252",
+  "8:2:0:0:2": "252",
+  "8:2:0:0:3": "252",
+  "8:2:0:1:0": "265",
+  "8:2:0:1:1": "265",
+  "8:2:0:1:2": "265",
+  "8:2:0:1:3": "265",
+  "8:2:1:0:0": "252",
+  "8:2:1:0:1": "261",
+  "8:2:1:0:2": "271",
+  "8:2:1:0:3": "280",
+  "8:2:1:1:0": "265",
+  "8:2:1:1:1": "278",
+  "8:2:1:1:2": "284",
+  "8:2:1:1:3": "293",
+  "8:3:0:0:0": "252",
+  "8:3:0:0:1": "252",
+  "8:3:0:0:2": "252",
+  "8:3:0:0:3": "252",
+  "8:3:0:1:0": "265",
+  "8:3:0:1:1": "265",
+  "8:3:0:1:2": "265",
+  "8:3:0:1:3": "265",
+  "8:3:1:0:0": "252",
+  "8:3:1:0:1": "261",
+  "8:3:1:0:2": "271",
+  "8:3:1:0:3": "280",
+  "8:3:1:1:0": "265",
+  "8:3:1:1:1": "278",
+  "8:3:1:1:2": "284",
+  "8:3:1:1:3": "293",
+  "8:3:2:0:0": "252",
+  "8:3:2:0:1": "271",
+  "8:3:2:0:2": "289",
+  "8:3:2:0:3": "308",
+  "8:3:2:1:0": "265",
+  "8:3:2:1:1": "292",
+  "8:3:2:1:2": "302",
+  "8:3:2:1:3": "321",
+  "8:4:0:0:0": "252",
+  "8:4:0:0:1": "252",
+  "8:4:0:0:2": "252",
+  "8:4:0:0:3": "252",
+  "8:4:0:1:0": "265",
+  "8:4:0:1:1": "265",
+  "8:4:0:1:2": "265",
+  "8:4:0:1:3": "265",
+  "8:4:1:0:0": "252",
+  "8:4:1:0:1": "261",
+  "8:4:1:0:2": "271",
+  "8:4:1:0:3": "280",
+  "8:4:1:1:0": "265",
+  "8:4:1:1:1": "278",
+  "8:4:1:1:2": "284",
+  "8:4:1:1:3": "293",
+  "8:4:2:0:0": "252",
+  "8:4:2:0:1": "271",
+  "8:4:2:0:2": "289",
+  "8:4:2:0:3": "308",
+  "8:4:2:1:0": "265",
+  "8:4:2:1:1": "292",
+  "8:4:2:1:2": "302",
+  "8:4:2:1:3": "321",
+  "8:4:3:0:0": "252",
+  "8:4:3:0:1": "280",
+  "8:4:3:0:2": "308",
+  "8:4:3:0:3": "336",
+  "8:4:3:1:0": "265",
+  "8:4:3:1:1": "305",
+  "8:4:3:1:2": "321",
+  "8:4:3:1:3": "349",
+  "9:1:0:0:0": "221",
+  "9:1:0:0:1": "221",
+  "9:1:0:0:2": "221",
+  "9:1:0:0:3": "221",
+  "9:1:0:1:0": "221",
+  "9:1:0:1:1": "221",
+  "9:1:0:1:2": "221",
+  "9:1:0:1:3": "221",
+  "9:2:0:0:0": "224",
+  "9:2:0:0:1": "224",
+  "9:2:0:0:2": "224",
+  "9:2:0:0:3": "224",
+  "9:2:0:1:0": "237",
+  "9:2:0:1:1": "237",
+  "9:2:0:1:2": "237",
+  "9:2:0:1:3": "237",
+  "9:2:1:0:0": "221",
+  "9:2:1:0:1": "230",
+  "9:2:1:0:2": "240",
+  "9:2:1:0:3": "249",
+  "9:2:1:1:0": "234",
+  "9:2:1:1:1": "247",
+  "9:2:1:1:2": "253",
+  "9:2:1:1:3": "262",
+  "9:3:0:0:0": "224",
+  "9:3:0:0:1": "224",
+  "9:3:0:0:2": "224",
+  "9:3:0:0:3": "224",
+  "9:3:0:1:0": "237",
+  "9:3:0:1:1": "237",
+  "9:3:0:1:2": "237",
+  "9:3:0:1:3": "237",
+  "9:3:1:0:0": "224",
+  "9:3:1:0:1": "233",
+  "9:3:1:0:2": "243",
+  "9:3:1:0:3": "252",
+  "9:3:1:1:0": "237",
+  "9:3:1:1:1": "250",
+  "9:3:1:1:2": "256",
+  "9:3:1:1:3": "265",
+  "9:3:2:0:0": "221",
+  "9:3:2:0:1": "240",
+  "9:3:2:0:2": "258",
+  "9:3:2:0:3": "277",
+  "9:3:2:1:0": "234",
+  "9:3:2:1:1": "261",
+  "9:3:2:1:2": "271",
+  "9:3:2:1:3": "290",
+  "9:4:0:0:0": "224",
+  "9:4:0:0:1": "224",
+  "9:4:0:0:2": "224",
+  "9:4:0:0:3": "224",
+  "9:4:0:1:0": "237",
+  "9:4:0:1:1": "237",
+  "9:4:0:1:2": "237",
+  "9:4:0:1:3": "237",
+  "9:4:1:0:0": "224",
+  "9:4:1:0:1": "233",
+  "9:4:1:0:2": "243",
+  "9:4:1:0:3": "252",
+  "9:4:1:1:0": "237",
+  "9:4:1:1:1": "250",
+  "9:4:1:1:2": "256",
+  "9:4:1:1:3": "265",
+  "9:4:2:0:0": "221",
+  "9:4:2:0:1": "240",
+  "9:4:2:0:2": "258",
+  "9:4:2:0:3": "277",
+  "9:4:2:1:0": "234",
+  "9:4:2:1:1": "261",
+  "9:4:2:1:2": "271",
+  "9:4:2:1:3": "290",
+  "9:4:3:0:0": "221",
+  "9:4:3:0:1": "249",
+  "9:4:3:0:2": "277",
+  "9:4:3:0:3": "305",
+  "9:4:3:1:0": "234",
+  "9:4:3:1:1": "274",
+  "9:4:3:1:2": "290",
+  "9:4:3:1:3": "318"
+ },
+ "subtotals": {
+  "0:2:0:0:0": "59",
+  "0:2:0:0:1": "59",
+  "0:2:0:0:2": "59",
+  "0:2:0:0:3": "59",
+  "0:2:0:1:0": "59",
+  "0:2:0:1:1": "59",
+  "0:2:0:1:2": "59",
+  "0:2:0:1:3": "59",
+  "0:3:0:0:0": "59",
+  "0:3:0:0:1": "59",
+  "0:3:0:0:2": "59",
+  "0:3:0:0:3": "68",
+  "0:3:0:1:0": "59",
+  "0:3:0:1:1": "59",
+  "0:3:0:1:2": "63",
+  "0:3:0:1:3": "81",
+  "0:3:1:0:0": "59",
+  "0:3:1:0:1": "68",
+  "0:3:1:0:2": "77",
+  "0:3:1:0:3": "86",
+  "0:3:1:1:0": "59",
+  "0:3:1:1:1": "68",
+  "0:3:1:1:2": "77",
+  "0:3:1:1:3": "86",
+  "0:4:0:0:0": "59",
+  "0:4:0:0:1": "59",
+  "0:4:0:0:2": "69",
+  "0:4:0:0:3": "97",
+  "0:4:0:1:0": "59",
+  "0:4:0:1:1": "67",
+  "0:4:0:1:2": "82",
+  "0:4:0:1:3": "110",
+  "0:4:1:0:0": "59",
+  "0:4:1:0:1": "68",
+  "0:4:1:0:2": "77",
+  "0:4:1:0:3": "97",
+  "0:4:1:1:0": "59",
+  "0:4:1:1:1": "68",
+  "0:4:1:1:2": "82",
+  "0:4:1:1:3": "110",
+  "0:4:2:0:0": "58",
+  "0:4:2:0:1": "76",
+  "0:4:2:0:2": "95",
+  "0:4:2:0:3": "113",
+  "0:4:2:1:0": "58",
+  "0:4:2:1:1": "76",
+  "0:4:2:1:2": "95",
+  "0:4:2:1:3": "113",
+  "1:2:0:0:0": "98",
+  "1:2:0:0:1": "98",
+  "1:2:0:0:2": "98",
+  "1:2:0:0:3": "98",
+  "1:2:0:1:0": "98",
+  "1:2:0:1:1": "98",
+  "1:2:0:1:2": "98",
+  "1:2:0:1:3": "98",
+  "1:3:0:0:0": "98",
+  "1:3:0:0:1": "98",
+  "1:3:0:0:2": "98",
+  "1:3:0:0:3": "98",
+  "1:3:0:1:0": "98",
+  "1:3:0:1:1": "98",
+  "1:3:0:1:2": "98",
+  "1:3:0:1:3": "98",
+  "1:3:1:0:0": "98",
+  "1:3:1:0:1": "107",
+  "1:3:1:0:2": "116",
+  "1:3:1:0:3": "126",
+  "1:3:1:1:0": "98",
+  "1:3:1:1:1": "107",
+  "1:3:1:1:2": "116",
+  "1:3:1:1:3": "126",
+  "1:4:0:0:0": "98",
+  "1:4:0:0:1": "98",
+  "1:4:0:0:2": "98",
+  "1:4:0:0:3": "98",
+  "1:4:0:1:0": "98",
+  "1:4:0:1:1": "98",
+  "1:4:0:1:2": "98",
+  "1:4:0:1:3": "110",
+  "1:4:1:0:0": "98",
+  "1:4:1:0:1": "107",
+  "1:4:1:0:2": "116",
+  "1:4:1:0:3": "126",
+  "1:4:1:1:0": "98",
+  "1:4:1:1:1": "107",
+  "1:4:1:1:2": "116",
+  "1:4:1:1:3": "126",
+  "1:4:2:0:0": "96",
+  "1:4:2:0:1": "114",
+  "1:4:2:0:2": "133",
+  "1:4:2:0:3": "152",
+  "1:4:2:1:0": "96",
+  "1:4:2:1:1": "114",
+  "1:4:2:1:2": "133",
+  "1:4:2:1:3": "152",
+  "2:2:0:0:0": "95",
+  "2:2:0:0:1": "95",
+  "2:2:0:0:2": "95",
+  "2:2:0:0:3": "95",
+  "2:2:0:1:0": "95",
+  "2:2:0:1:1": "95",
+  "2:2:0:1:2": "95",
+  "2:2:0:1:3": "95",
+  "2:3:0:0:0": "95",
+  "2:3:0:0:1": "95",
+  "2:3:0:0:2": "95",
+  "2:3:0:0:3": "95",
+  "2:3:0:1:0": "95",
+  "2:3:0:1:1": "95",
+  "2:3:0:1:2": "95",
+  "2:3:0:1:3": "95",
+  "2:3:1:0:0": "95",
+  "2:3:1:0:1": "104",
+  "2:3:1:0:2": "113",
+  "2:3:1:0:3": "123",
+  "2:3:1:1:0": "95",
+  "2:3:1:1:1": "104",
+  "2:3:1:1:2": "113",
+  "2:3:1:1:3": "123",
+  "2:4:0:0:0": "95",
+  "2:4:0:0:1": "95",
+  "2:4:0:0:2": "95",
+  "2:4:0:0:3": "97",
+  "2:4:0:1:0": "95",
+  "2:4:0:1:1": "95",
+  "2:4:0:1:2": "95",
+  "2:4:0:1:3": "110",
+  "2:4:1:0:0": "95",
+  "2:4:1:0:1": "104",
+  "2:4:1:0:2": "113",
+  "2:4:1:0:3": "123",
+  "2:4:1:1:0": "95",
+  "2:4:1:1:1": "104",
+  "2:4:1:1:2": "113",
+  "2:4:1:1:3": "123",
+  "2:4:2:0:0": "93",
+  "2:4:2:0:1": "111",
+  "2:4:2:0:2": "130",
+  "2:4:2:0:3": "148",
+  "2:4:2:1:0": "93",
+  "2:4:2:1:1": "111",
+  "2:4:2:1:2": "130",
+  "2:4:2:1:3": "148",
+  "3:2:0:0:0": "151",
+  "3:2:0:0:1": "151",
+  "3:2:0:0:2": "151",
+  "3:2:0:0:3": "151",
+  "3:2:0:1:0": "151",
+  "3:2:0:1:1": "151",
+  "3:2:0:1:2": "151",
+  "3:2:0:1:3": "151",
+  "3:3:0:0:0": "151",
+  "3:3:0:0:1": "151",
+  "3:3:0:0:2": "151",
+  "3:3:0:0:3": "151",
+  "3:3:0:1:0": "151",
+  "3:3:0:1:1": "151",
+  "3:3:0:1:2": "151",
+  "3:3:0:1:3": "151",
+  "3:3:1:0:0": "151",
+  "3:3:1:0:1": "160",
+  "3:3:1:0:2": "169",
+  "3:3:1:0:3": "179",
+  "3:3:1:1:0": "151",
+  "3:3:1:1:1": "160",
+  "3:3:1:1:2": "169",
+  "3:3:1:1:3": "179",
+  "3:4:0:0:0": "151",
+  "3:4:0:0:1": "151",
+  "3:4:0:0:2": "151",
+  "3:4:0:0:3": "151",
+  "3:4:0:1:0": "151",
+  "3:4:0:1:1": "151",
+  "3:4:0:1:2": "151",
+  "3:4:0:1:3": "151",
+  "3:4:1:0:0": "151",
+  "3:4:1:0:1": "160",
+  "3:4:1:0:2": "169",
+  "3:4:1:0:3": "179",
+  "3:4:1:1:0": "151",
+  "3:4:1:1:1": "160",
+  "3:4:1:1:2": "169",
+  "3:4:1:1:3": "179",
+  "3:4:2:0:0": "151",
+  "3:4:2:0:1": "169",
+  "3:4:2:0:2": "188",
+  "3:4:2:0:3": "206",
+  "3:4:2:1:0": "151",
+  "3:4:2:1:1": "169",
+  "3:4:2:1:2": "188",
+  "3:4:2:1:3": "206",
+  "4:2:0:0:0": "108",
+  "4:2:0:0:1": "108",
+  "4:2:0:0:2": "108",
+  "4:2:0:0:3": "108",
+  "4:2:0:1:0": "108",
+  "4:2:0:1:1": "108",
+  "4:2:0:1:2": "108",
+  "4:2:0:1:3": "108",
+  "4:3:0:0:0": "108",
+  "4:3:0:0:1": "108",
+  "4:3:0:0:2": "108",
+  "4:3:0:0:3": "108",
+  "4:3:0:1:0": "108",
+  "4:3:0:1:1": "108",
+  "4:3:0:1:2": "108",
+  "4:3:0:1:3": "108",
+  "4:3:1:0:0": "108",
+  "4:3:1:0:1": "117",
+  "4:3:1:0:2": "127",
+  "4:3:1:0:3": "136",
+  "4:3:1:1:0": "108",
+  "4:3:1:1:1": "117",
+  "4:3:1:1:2": "127",
+  "4:3:1:1:3": "136",
+  "4:4:0:0:0": "108",
+  "4:4:0:0:1": "108",
+  "4:4:0:0:2": "108",
+  "4:4:0:0:3": "108",
+  "4:4:0:1:0": "108",
+  "4:4:0:1:1": "108",
+  "4:4:0:1:2": "108",
+  "4:4:0:1:3": "110",
+  "4:4:1:0:0": "108",
+  "4:4:1:0:1": "117",
+  "4:4:1:0:2": "127",
+  "4:4:1:0:3": "136",
+  "4:4:1:1:0": "108",
+  "4:4:1:1:1": "117",
+  "4:4:1:1:2": "127",
+  "4:4:1:1:3": "136",
+  "4:4:2:0:0": "108",
+  "4:4:2:0:1": "127",
+  "4:4:2:0:2": "145",
+  "4:4:2:0:3": "164",
+  "4:4:2:1:0": "108",
+  "4:4:2:1:1": "127",
+  "4:4:2:1:2": "145",
+  "4:4:2:1:3": "164",
+  "5:2:0:0:0": "188",
+  "5:2:0:0:1": "188",
+  "5:2:0:0:2": "188",
+  "5:2:0:0:3": "188",
+  "5:2:0:1:0": "188",
+  "5:2:0:1:1": "188",
+  "5:2:0:1:2": "188",
+  "5:2:0:1:3": "188",
+  "5:3:0:0:0": "188",
+  "5:3:0:0:1": "188",
+  "5:3:0:0:2": "188",
+  "5:3:0:0:3": "188",
+  "5:3:0:1:0": "188",
+  "5:3:0:1:1": "188",
+  "5:3:0:1:2": "188",
+  "5:3:0:1:3": "188",
+  "5:3:1:0:0": "188",
+  "5:3:1:0:1": "197",
+  "5:3:1:0:2": "206",
+  "5:3:1:0:3": "216",
+  "5:3:1:1:0": "188",
+  "5:3:1:1:1": "197",
+  "5:3:1:1:2": "206",
+  "5:3:1:1:3": "216",
+  "5:4:0:0:0": "188",
+  "5:4:0:0:1": "188",
+  "5:4:0:0:2": "188",
+  "5:4:0:0:3": "188",
+  "5:4:0:1:0": "188",
+  "5:4:0:1:1": "188",
+  "5:4:0:1:2": "188",
+  "5:4:0:1:3": "188",
+  "5:4:1:0:0": "188",
+  "5:4:1:0:1": "197",
+  "5:4:1:0:2": "206",
+  "5:4:1:0:3": "216",
+  "5:4:1:1:0": "188",
+  "5:4:1:1:1": "197",
+  "5:4:1:1:2": "206",
+  "5:4:1:1:3": "216",
+  "5:4:2:0:0": "187",
+  "5:4:2:0:1": "205",
+  "5:4:2:0:2": "224",
+  "5:4:2:0:3": "243",
+  "5:4:2:1:0": "187",
+  "5:4:2:1:1": "205",
+  "5:4:2:1:2": "224",
+  "5:4:2:1:3": "243",
+  "6:2:0:0:0": "188",
+  "6:2:0:0:1": "188",
+  "6:2:0:0:2": "188",
+  "6:2:0:0:3": "188",
+  "6:2:0:1:0": "188",
+  "6:2:0:1:1": "188",
+  "6:2:0:1:2": "188",
+  "6:2:0:1:3": "188",
+  "6:3:0:0:0": "188",
+  "6:3:0:0:1": "188",
+  "6:3:0:0:2": "188",
+  "6:3:0:0:3": "188",
+  "6:3:0:1:0": "188",
+  "6:3:0:1:1": "188",
+  "6:3:0:1:2": "188",
+  "6:3:0:1:3": "188",
+  "6:3:1:0:0": "188",
+  "6:3:1:0:1": "197",
+  "6:3:1:0:2": "206",
+  "6:3:1:0:3": "216",
+  "6:3:1:1:0": "188",
+  "6:3:1:1:1": "197",
+  "6:3:1:1:2": "206",
+  "6:3:1:1:3": "216",
+  "6:4:0:0:0": "188",
+  "6:4:0:0:1": "188",
+  "6:4:0:0:2": "188",
+  "6:4:0:0:3": "188",
+  "6:4:0:1:0": "188",
+  "6:4:0:1:1": "188",
+  "6:4:0:1:2": "188",
+  "6:4:0:1:3": "188",
+  "6:4:1:0:0": "188",
+  "6:4:1:0:1": "197",
+  "6:4:1:0:2": "206",
+  "6:4:1:0:3": "216",
+  "6:4:1:1:0": "188",
+  "6:4:1:1:1": "197",
+  "6:4:1:1:2": "206",
+  "6:4:1:1:3": "216",
+  "6:4:2:0:0": "186",
+  "6:4:2:0:1": "204",
+  "6:4:2:0:2": "223",
+  "6:4:2:0:3": "242",
+  "6:4:2:1:0": "186",
+  "6:4:2:1:1": "204",
+  "6:4:2:1:2": "223",
+  "6:4:2:1:3": "242",
+  "7:2:0:0:0": "218",
+  "7:2:0:0:1": "218",
+  "7:2:0:0:2": "218",
+  "7:2:0:0:3": "218",
+  "7:2:0:1:0": "218",
+  "7:2:0:1:1": "218",
+  "7:2:0:1:2": "218",
+  "7:2:0:1:3": "218",
+  "7:3:0:0:0": "218",
+  "7:3:0:0:1": "218",
+  "7:3:0:0:2": "218",
+  "7:3:0:0:3": "218",
+  "7:3:0:1:0": "218",
+  "7:3:0:1:1": "218",
+  "7:3:0:1:2": "218",
+  "7:3:0:1:3": "218",
+  "7:3:1:0:0": "218",
+  "7:3:1:0:1": "227",
+  "7:3:1:0:2": "237",
+  "7:3:1:0:3": "246",
+  "7:3:1:1:0": "218",
+  "7:3:1:1:1": "227",
+  "7:3:1:1:2": "237",
+  "7:3:1:1:3": "246",
+  "7:4:0:0:0": "218",
+  "7:4:0:0:1": "218",
+  "7:4:0:0:2": "218",
+  "7:4:0:0:3": "218",
+  "7:4:0:1:0": "218",
+  "7:4:0:1:1": "218",
+  "7:4:0:1:2": "218",
+  "7:4:0:1:3": "218",
+  "7:4:1:0:0": "218",
+  "7:4:1:0:1": "227",
+  "7:4:1:0:2": "237",
+  "7:4:1:0:3": "246",
+  "7:4:1:1:0": "218",
+  "7:4:1:1:1": "227",
+  "7:4:1:1:2": "237",
+  "7:4:1:1:3": "246",
+  "7:4:2:0:0": "214",
+  "7:4:2:0:1": "232",
+  "7:4:2:0:2": "251",
+  "7:4:2:0:3": "270",
+  "7:4:2:1:0": "214",
+  "7:4:2:1:1": "232",
+  "7:4:2:1:2": "251",
+  "7:4:2:1:3": "270",
+  "8:2:0:0:0": "287",
+  "8:2:0:0:1": "287",
+  "8:2:0:0:2": "287",
+  "8:2:0:0:3": "287",
+  "8:2:0:1:0": "287",
+  "8:2:0:1:1": "287",
+  "8:2:0:1:2": "287",
+  "8:2:0:1:3": "287",
+  "8:3:0:0:0": "287",
+  "8:3:0:0:1": "287",
+  "8:3:0:0:2": "287",
+  "8:3:0:0:3": "287",
+  "8:3:0:1:0": "287",
+  "8:3:0:1:1": "287",
+  "8:3:0:1:2": "287",
+  "8:3:0:1:3": "287",
+  "8:3:1:0:0": "287",
+  "8:3:1:0:1": "297",
+  "8:3:1:0:2": "306",
+  "8:3:1:0:3": "315",
+  "8:3:1:1:0": "287",
+  "8:3:1:1:1": "297",
+  "8:3:1:1:2": "306",
+  "8:3:1:1:3": "315",
+  "8:4:0:0:0": "287",
+  "8:4:0:0:1": "287",
+  "8:4:0:0:2": "287",
+  "8:4:0:0:3": "287",
+  "8:4:0:1:0": "287",
+  "8:4:0:1:1": "287",
+  "8:4:0:1:2": "287",
+  "8:4:0:1:3": "287",
+  "8:4:1:0:0": "287",
+  "8:4:1:0:1": "297",
+  "8:4:1:0:2": "306",
+  "8:4:1:0:3": "315",
+  "8:4:1:1:0": "287",
+  "8:4:1:1:1": "297",
+  "8:4:1:1:2": "306",
+  "8:4:1:1:3": "315",
+  "8:4:2:0:0": "287",
+  "8:4:2:0:1": "306",
+  "8:4:2:0:2": "325",
+  "8:4:2:0:3": "343",
+  "8:4:2:1:0": "287",
+  "8:4:2:1:1": "306",
+  "8:4:2:1:2": "325",
+  "8:4:2:1:3": "343",
+  "9:2:0:0:0": "259",
+  "9:2:0:0:1": "259",
+  "9:2:0:0:2": "259",
+  "9:2:0:0:3": "259",
+  "9:2:0:1:0": "259",
+  "9:2:0:1:1": "259",
+  "9:2:0:1:2": "259",
+  "9:2:0:1:3": "259",
+  "9:3:0:0:0": "259",
+  "9:3:0:0:1": "259",
+  "9:3:0:0:2": "259",
+  "9:3:0:0:3": "259",
+  "9:3:0:1:0": "259",
+  "9:3:0:1:1": "259",
+  "9:3:0:1:2": "259",
+  "9:3:0:1:3": "259",
+  "9:3:1:0:0": "259",
+  "9:3:1:0:1": "269",
+  "9:3:1:0:2": "278",
+  "9:3:1:0:3": "287",
+  "9:3:1:1:0": "259",
+  "9:3:1:1:1": "269",
+  "9:3:1:1:2": "278",
+  "9:3:1:1:3": "287",
+  "9:4:0:0:0": "259",
+  "9:4:0:0:1": "259",
+  "9:4:0:0:2": "259",
+  "9:4:0:0:3": "259",
+  "9:4:0:1:0": "259",
+  "9:4:0:1:1": "259",
+  "9:4:0:1:2": "259",
+  "9:4:0:1:3": "259",
+  "9:4:1:0:0": "259",
+  "9:4:1:0:1": "269",
+  "9:4:1:0:2": "278",
+  "9:4:1:0:3": "287",
+  "9:4:1:1:0": "259",
+  "9:4:1:1:1": "269",
+  "9:4:1:1:2": "278",
+  "9:4:1:1:3": "287",
+  "9:4:2:0:0": "256",
+  "9:4:2:0:1": "275",
+  "9:4:2:0:2": "293",
+  "9:4:2:0:3": "312",
+  "9:4:2:1:0": "256",
+  "9:4:2:1:1": "275",
+  "9:4:2:1:2": "293",
+  "9:4:2:1:3": "312"
+ }
+}

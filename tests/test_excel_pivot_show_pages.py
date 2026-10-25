@@ -27,7 +27,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from test_excel_pivot_layouts import sheet_cells
+from test_excel_pivot_layouts import column_widths, sheet_cells
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_show_pages"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_show_pages.json").read_text(encoding="utf-8"))
@@ -169,6 +169,15 @@ def test_every_cell_is_excels(made: tuple[dict[str, str], Path], scenario: dict[
     with zipfile.ZipFile(FIXTURES / path) as package:
         names = set(sheets(package))
     assert sheet_cells(made[1] / path, names) == sheet_cells(FIXTURES / path, names)
+
+
+@pytest.mark.parametrize("scenario", SCENARIOS, ids=lambda scenario: scenario["name"])
+def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], Path], scenario: dict[str, Any]) -> None:
+    """Each sheet's columns as wide as Excel fits them to its table, the copies' and the table they copy (see
+    tests/test_excel_pivot_column_fit.py)."""
+    path = f"{scenario['name']}.xlsx"
+    names = set(table_relationships(FIXTURES / path))
+    assert column_widths(made[1] / path, names) == column_widths(FIXTURES / path, names)
 
 
 def test_each_sheet_raises_the_events_excel_raises() -> None:

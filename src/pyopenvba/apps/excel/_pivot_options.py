@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._pivot_create import encoded, node
+from pyopenvba.apps.excel._pivot_fit import refit
 from pyopenvba.apps.excel._pivot_forms import TABLE_ORDER, X14, on, ordered, set_flag, set_text
 from pyopenvba.apps.excel._pivots import NS, STYLE_FLAGS, TABLE_FLAGS as FLAGS, decode_text
 from pyopenvba.exceptions import VBAError, VBAUnsupportedError
@@ -222,6 +223,9 @@ def set_table_style(table: PivotTable, value: object) -> None:
         # A table ManualUpdate holds back lays itself out again as its captions alone (tests/fixtures/
         # pivot_options/ manual_style).
         _laid_out(table, deepcopy(table.root))
+    else:
+        # Its columns fit its cells in the new style's fonts (tests/fixtures/pivot_options/ style_lower).
+        refit(table)
     _changed(table)
 
 
@@ -239,6 +243,8 @@ def set_style_flag(table: PivotTable, name: str, value: object) -> None:
         extensions = table.root.find(NS + 'extLst')
         table.root.insert(list(table.root).index(extensions) if extensions is not None else len(table.root), info)
     info.set(STYLE_FLAGS[name], '1' if to_bool(value) else '0')
+    # The flags turn the style's bold on or off, which the columns take as the table is next laid out, not now
+    # (tests/fixtures/pivot_column_fit/ flags_off).
     _changed(table)
 
 

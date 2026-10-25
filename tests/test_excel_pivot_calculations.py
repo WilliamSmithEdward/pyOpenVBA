@@ -23,7 +23,7 @@ import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
-from test_excel_pivot_layouts import REVISIONS, sheet_cells
+from test_excel_pivot_layouts import REVISIONS, column_widths, sheet_cells
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_calculations"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_calculations.json").read_text(encoding="utf-8"))
@@ -146,3 +146,10 @@ def test_a_calculation_beside_an_inner_fields_subtotals_by_another_function() ->
         "pt.DataFields(1).Calculation = 8\nEnd Sub\n", name="Probe")
     with pytest.raises(VBAUnsupportedError, match="inner field's subtotals"):
         app.run("Run")
+
+
+def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's columns as wide as Excel fits them each time it lays the table out, bestFit beside them (see
+    tests/test_excel_pivot_column_fit.py)."""
+    names = {layout["name"] for layout in LAYOUTS}
+    assert column_widths(made[2] / "pivot_calculations.xlsx", names) == column_widths(FIXTURES / "pivot_calculations.xlsx", names)

@@ -25,7 +25,7 @@ import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.exceptions import VBAUnsupportedError
-from test_excel_pivot_layouts import sheet_cells
+from test_excel_pivot_layouts import column_widths, sheet_cells
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_calculated_fields"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_calculated_fields.json").read_text(encoding="utf-8"))
@@ -168,3 +168,10 @@ def test_a_refused_formula_with_alerts_on() -> None:
     assert app.run("Run", False) == "0"
     with pytest.raises(VBAUnsupportedError, match="shows a message"):
         app.run("Run", True)
+
+
+def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's columns as wide as Excel fits them each time it lays the table out, bestFit beside them (see
+    tests/test_excel_pivot_column_fit.py)."""
+    names = {layout["name"] for layout in LAYOUTS}
+    assert column_widths(made[2] / "pivot_calculated_fields.xlsx", names) == column_widths(FIXTURES / "pivot_calculated_fields.xlsx", names)

@@ -5,6 +5,7 @@ import datetime as dt
 from collections.abc import Callable, Sequence
 from copy import deepcopy
 from dataclasses import dataclass, replace
+from fractions import Fraction
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, MAX_COLUMNS, MAX_ROWS, parse_area
@@ -38,6 +39,24 @@ from pyopenvba.apps.excel._pivot_forms import (
     layout_of,
     on,
     set_flag,
+)
+from pyopenvba.apps.excel._pivot_fit import (
+    BUTTON,
+    COLUMN_SUBHEADING,
+    DROPDOWN,
+    FIRST_COLUMN,
+    FIRST_HEADER_CELL,
+    GRAND_TOTAL_COLUMN,
+    GRAND_TOTAL_ROW,
+    HEADER_ROW,
+    PAGE_LABELS,
+    PAGE_VALUES,
+    ROW_SUBHEADING,
+    SUBTOTAL_COLUMN,
+    SUBTOTAL_ROW,
+    Fit,
+    fit_columns,
+    label_offset,
 )
 from pyopenvba.apps.excel._pivot_groups import automatic_dates, items_of, layout_groups, refresh_ranges
 from pyopenvba.apps.excel._pivot_items import REFUSED_FUNCTIONS, Workout, has_items, item_field
@@ -371,6 +390,11 @@ class RenderPlan:
     cells: dict[tuple[int, int], object]
     #: Each formatted cell's format, in the order Excel makes them.
     styles: list[tuple[tuple[int, int], Style]]
+    #: What each cell asks of its column, and the columns Excel fits to them (see _pivot_fit).
+    fits: dict[tuple[int, int], Fit]
+    fitted: set[int]
+    #: Columns Excel makes as wide as the widest of them.
+    groups: list[list[int]]
 
 
 def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement] | None = None,
@@ -527,10 +551,23 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                 labels[row, column] = replace(base, border=placeholder_border(area, row, column),
                                               applied=base.applied | {'border'})
 
-    def button(row: int, column: int, value: object) -> None:
-        """A field's caption, which shows its button."""
+    # What each cell asks of its column when Excel fits the table's columns to it (see _pivot_fit).
+    fits: dict[tuple[int, int], Fit] = {}
+
+    def fit(row: int, column: int, *elements: int, offset: Fraction = Fraction(0), extra: int = 0) -> None:
+        fits[area.top + row, area.left + column] = Fit(frozenset(elements), offset, extra)
+
+    def heading(row: int, column: int) -> tuple[int, ...]:
+        """The style elements a cell of the header rows or the page fields takes."""
+        if row < 0:
+            return (PAGE_LABELS,)
+        return (HEADER_ROW, FIRST_HEADER_CELL) if (row, column) == (0, 0) else (HEADER_ROW,)
+
+    def button(row: int, column: int, value: object, *, dropdown: bool = True) -> None:
+        """A field's caption, which shows its button, and beside a field's dropdown."""
         put(row, column, value)
         buttons[area.top + row, area.left + column] = replace(base, pivot_button=True)
+        fit(row, column, *heading(row, column), extra=DROPDOWN if dropdown else 0)
 
     captions: dict[tuple[int, int], object] = {}
     codes = table.sheet.book.stylesheet.number_formats
@@ -541,6 +578,16 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     # innermost too (tests/fixtures/pivot_layouts/ compact_off_outer, tabular_compact_on, outline_form_compact).
     aligned = any(layouts[index].mode == 'compact' for index in rows)
     step = compact_indent(root)
+    # The label columns a row field lays out compactly, and those of them whose items show +/- buttons, with a
+    # field inside another there (tests/fixtures/pivot_column_fit/).
+    compact_columns = {label_of[position] for position, index in enumerate(rows)
+                       if depth_of[position] or layouts.get(index, FieldLayout()).mode == 'compact'}
+    drill_shown = on(root, 'showDrill', True)
+    # An item shows a button where a field is inside it; the Values field gives it none (tests/fixtures/
+    # pivot_column_fit/ values_columns).
+    drilled: set[int] = {column for column in compact_columns
+               if any(depth_of[position] and rows[position] != VALUES for position in range(len(rows))
+                      if label_of[position] == column)} if drill_shown else set()
     grand_name = decode_text(root.get('grandTotalCaption', 'Grand Total'))
     data_caption = decode_text(root.get('dataCaption', 'Values'))
 
@@ -595,11 +642,14 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             return label.number_format or 'General'
         return 'General' if field == VALUES else formats[field]
 
-    def row_label(offset: int, position: int, value: object, code: str) -> None:
+    def row_label(offset: int, position: int, value: object, code: str, *elements: int, total: bool = False) -> None:
         column = label_of[position]
         put(dr + offset, column, value)
         labels[area.top + dr + offset, area.left + column] = label_format(
             code, depth_of[position] if aligned else None)
+        start = (label_offset(depth_of[position], step, column in drilled, total=total) if column in compact_columns
+                 else Fraction(0))
+        fit(dr + offset, column, FIRST_COLUMN, *elements, offset=start)
 
     def repeated(position: int) -> bool:
         """Whether a row field shows its item's label on every line inside it: where it repeats its labels and
@@ -616,35 +666,43 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                 if column == 0 and compact_names and rows != [VALUES]:
                     button(dr - 1, 0, decode_text(root.get('rowHeaderCaption', 'Row Labels')))
                 else:
-                    button(dr - 1, column, field_name(first))
+                    # The Values field's caption shows no dropdown.
+                    button(dr - 1, column, field_name(first), dropdown=first != VALUES)
         if not columns and VALUES not in rows and reports:
             put(dr - 1, dc, report_names[0])
+            fit(dr - 1, dc, *heading(dr - 1, dc))
     elif not columns:
         for index, name in enumerate(report_names):
             put(0, index, name)
+            fit(0, index, *heading(0, index))
     if any(index != VALUES for index in columns):
         if captions_shown and compact_names:
             button(0, dc, decode_text(root.get('colHeaderCaption', 'Column Labels')))
         elif captions_shown:
             for position, index in enumerate(columns):
-                button(0, dc + position, field_name(index))
+                button(0, dc + position, field_name(index), dropdown=index != VALUES)
         if len(reports) == 1:
             if rows:
-                button(0, 0, report_names[0])
+                # The data field's caption in the corner shows no dropdown (tests/fixtures/pivot_column_fit/).
+                button(0, 0, report_names[0], dropdown=False)
             else:
+                # With no row fields the one line of values is the grand total row.
                 put(dr, 0, report_names[0])
+                fit(dr, 0, GRAND_TOTAL_ROW, FIRST_COLUMN)
     elif values_row and captions_shown:
-        button(0, dc, data_caption)
+        button(0, dc, data_caption, dropdown=False)
     previous: tuple[int, ...] = ()
     for offset, line in enumerate(col_lines):
         if columns:
             if line.kind == 'grand':
                 label = report_totals[line.data] if VALUES in columns and reports else grand_name
                 put(1 if dr > 1 else 0, dc + offset, label)
+                fit(1 if dr > 1 else 0, dc + offset, HEADER_ROW, GRAND_TOTAL_COLUMN)
             elif line.kind != 'data':
                 level = len(line.items) - 1
                 put(len(line.items), dc + offset, subtotal_label(columns[level], line.items[-1], line.kind, line.data,
                                                                  VALUES in columns[level + 1:]))
+                fit(len(line.items), dc + offset, HEADER_ROW, SUBTOTAL_COLUMN + min(level, 2))
             else:
                 for level, item in enumerate(line.items):
                     if item == COLLAPSED:
@@ -653,6 +711,11 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                         label = caption(columns[level], item)
                         row = level + 1 if dr > 1 else 0
                         put(row, dc + offset, label)
+                        # An item with a field under it shows its +/- button ahead of its label.
+                        outer = any(index != VALUES for index in columns[level + 1:])
+                        fit(row, dc + offset, HEADER_ROW,
+                            *((COLUMN_SUBHEADING + level,) if outer and level < 3 else ()),
+                            offset=BUTTON if outer and drill_shown else Fraction(0))
                         if code_of(columns[level], label) != 'General':
                             labels[area.top + row, area.left + dc + offset] = label_format(
                                 code_of(columns[level], label), None)
@@ -664,25 +727,31 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         last = len(line.items) - 1
         if line.kind == 'grand':
             label = report_totals[line.data] if VALUES in rows and reports else grand_name
-            row_label(offset, 0, label, code_of(rows[0]))
+            row_label(offset, 0, label, code_of(rows[0]), GRAND_TOTAL_ROW, total=True)
         elif line.kind == 'blank':
             # A blank line's label cell keeps its field's format, empty (tests/fixtures/pivot_layouts/ blank).
             labels[area.top + dr + offset, area.left + label_of[last]] = label_format(
                 code_of(rows[last]), depth_of[last] if aligned else None)
         elif line.kind != 'data':
+            # An inner field's total over every outer item takes no subtotal's style (tests/fixtures/pivot_layouts/
+            # inner_sum_count_hidden).
+            subtotal = () if line.items and line.items[0] == ALL_ITEMS else (SUBTOTAL_ROW + min(last, 2),)
             for outer in range(last):
                 if repeated(outer) and line.items[outer] != ALL_ITEMS:
                     row_label(offset, outer, caption(rows[outer], line.items[outer]),
-                              code_of(rows[outer], caption(rows[outer], line.items[outer])))
+                              code_of(rows[outer], caption(rows[outer], line.items[outer])), *subtotal)
             row_label(offset, last, subtotal_label(rows[last], line.items[last], line.kind, line.data,
-                                                   VALUES in rows[last + 1:]), code_of(rows[last]))
+                                                   VALUES in rows[last + 1:]), code_of(rows[last]), *subtotal,
+                      total=True)
         else:
             for position, item in enumerate(line.items):
                 if item == COLLAPSED:
                     continue
                 if previous[:position + 1] != line.items[:position + 1] or (repeated(position) and position < last):
                     label = caption(rows[position], item)
-                    row_label(offset, position, label, code_of(rows[position], label))
+                    # An item with items inside it on a line of its own is a row subheading at its depth.
+                    heads = (ROW_SUBHEADING + position,) if position == last < len(rows) - 1 and position < 3 else ()
+                    row_label(offset, position, label, code_of(rows[position], label), *heads)
         previous = line.items
     # Populate only observed intersections and their prefix totals. A sparse
     # diagonal must not scan every source row for every blank grid cell.
@@ -814,7 +883,9 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             column_offset, row_offset = divmod(offset, page_rows)
         # A page field shows by its caption, and its choice by the item's (tests/fixtures/pivot_names/ field_page,
         # item_page).
-        button(-page_rows - 1 + row_offset, 3 * column_offset, field_name(field))
+        # A page field's dropdown shows beside its value, not its caption (tests/fixtures/pivot_column_fit/).
+        button(-page_rows - 1 + row_offset, 3 * column_offset, field_name(field), dropdown=False)
+        fit(-page_rows - 1 + row_offset, 3 * column_offset + 1, PAGE_VALUES, extra=DROPDOWN)
         showing = page_caption(lists[field] or [], chosen_pages.get(field), flag(pivot_fields[field], MULTIPLE))
         if isinstance(showing, int):
             values = items_of(fields[field])
@@ -900,7 +971,51 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         location.attrib.pop('colPageCount', None)
     set_flag(root, 'dataOnRows', VALUES in rows, False, TABLE_ORDER)
     styles = [*buttons.items(), *labels.items(), *values_formats.items()]
-    return RenderPlan(table, root, fields, cache_records, extent, previous_areas, cells, styles)
+    # A value takes the elements of its lines: a grand total's, a subtotal's or a subheading's; with no fields on
+    # an axis its one line is the grand total's.
+    for offset, line in enumerate(row_lines):
+        across = line_elements(line, rows, GRAND_TOTAL_ROW, SUBTOTAL_ROW, ROW_SUBHEADING) if rows else (
+            GRAND_TOTAL_ROW,)
+        for column, column_line in enumerate(col_lines):
+            down = line_elements(column_line, columns, GRAND_TOTAL_COLUMN, SUBTOTAL_COLUMN, COLUMN_SUBHEADING) if (
+                columns) else (GRAND_TOTAL_COLUMN,)
+            key = area.top + dr + offset, area.left + dc + column
+            if key in cells and key not in fits:
+                fits[key] = Fit(frozenset((*across, *down)))
+    for key in cells:
+        fits.setdefault(key, Fit())
+    # Excel fits every column of the table but a row field's that is neither compact nor the innermost.
+    unfitted = {area.left + column for column in set(label_of)
+                if not any(layouts.get(rows[position], FieldLayout()).compact or position == len(rows) - 1
+                           for position in range(len(rows)) if label_of[position] == column)}
+    fitted: set[int] = set() if empty else set(range(extent.left, extent.right + 1)) - unfitted
+    # Where the columns show their fields' captions, each run of item columns a subtotal's or the grand total's
+    # column closes is as wide as the widest of them; a run the table's edge ends is not (tests/fixtures/
+    # pivot_column_fit/ layouts).
+    groups: list[list[int]] = []
+    if any(index != VALUES for index in columns) and not compact_names:
+        run: list[int] = []
+        for offset, line in enumerate(col_lines):
+            if line.kind == 'data':
+                run.append(area.left + dc + offset)
+                continue
+            if len(run) > 1:
+                groups.append(run)
+            run = []
+    return RenderPlan(table, root, fields, cache_records, extent, previous_areas, cells, styles, fits, fitted, groups)
+
+
+def line_elements(line: Line, axis: list[int], grand: int, subtotal: int, subheading: int) -> tuple[int, ...]:
+    """The style elements a line of an axis gives its cells: a grand total's, a subtotal's at its field's depth, or
+    a subheading's where an item with items inside it has a line of its own."""
+    depth = len(line.items) - 1
+    if line.kind == 'grand':
+        return (grand,)
+    if line.kind == 'blank':
+        return ()
+    if line.kind != 'data':
+        return () if line.items and line.items[0] == ALL_ITEMS else (subtotal + min(depth, 2),)
+    return (subheading + depth,) if 0 <= depth < len(axis) - 1 and depth < 3 else ()
 
 
 def unformat(sheet: Worksheet, areas: list[Area]) -> None:
@@ -949,6 +1064,8 @@ def apply_render(plan: RenderPlan, *, cache: PivotCache | None = None) -> None:
         output.store_typed(row, column, value if isinstance(value, Typed) else Typed(value))
     for (row, column), style in plan.styles:
         table.sheet.restyle(row, column, style)
+    # Excel fits the table's columns each time it lays the table out (see _pivot_fit).
+    fit_columns(table.sheet, table.root, plan.fits, plan.fitted, plan.groups)
     table.changed = True
     table.report_loaded = False
     table.report_metadata = None

@@ -7,6 +7,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Pivot tables fit their columns to their cells each time they are laid
+  out, as Excel's Autofit column widths on update does, narrower as well
+  as wider and over a width a macro set, and a save writes those widths
+  with `bestFit` beside them. A cell is measured in the bold its table
+  style draws there, as each of Excel's 144 built-in pivot and table
+  styles draws its header rows, totals, subheadings and page fields, less
+  what the style's flags turn off. A dropdown adds 16 pixels. A compact
+  label beside the +/- buttons starts 88/7 pixels in, and each depth a
+  step of 9 pixels for each compact indent, 90/7 at least. A subtotal's
+  label sits at its plain indent. Outline and tabular forms keep an outer
+  row field's column as it is, and make each run of item columns a total
+  column closes as wide as its widest. A change of style fits the columns
+  again; a style's flags and the +/- buttons wait for the next layout, and
+  `HasAutoFormat` off fits nothing, as in Excel. 1,280 measured labels,
+  44 edited tables and every column of the pivot tables the earlier
+  fixtures saved agree with Excel.
+
 - `PivotTable.ShowPages` makes a sheet for each item of a page field as
   Excel does, each holding a copy of the table that shows that item
   alone. The sheets come from the field's last item to its first, each

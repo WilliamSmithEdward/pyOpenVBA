@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
@@ -20,12 +21,12 @@ from pyopenvba.apps.excel._advanced_filter import attribute_values, patch_attrib
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.apps.excel._page_headers import FLAGS as HEADER_FLAGS
 from pyopenvba.apps.excel._page_headers import LIMIT, Headers, read, section, with_headers, with_section
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, setter
 from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, error, to_bool, to_text
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import NameEntry, Worksheet
+    from pyopenvba.apps.excel._model import Application, NameEntry, Worksheet
 
 NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 MARGINS = dict(zip(('LeftMargin', 'RightMargin', 'TopMargin', 'BottomMargin', 'HeaderMargin', 'FooterMargin'),
@@ -187,21 +188,57 @@ def copied(source: Worksheet, copy: Worksheet) -> None:
         state(copy).headers = Headers(dict(found.texts), dict(found.flags), changed=True)
 
 
+def deferred(sheet: Worksheet, value: object, apply: Callable[[], None]) -> None:
+    """Apply a PageSetup setting of ``value`` now, or, while Application.PrintCommunication is False, once it is True
+    again: until then the setting reads as it was and a save writes it as it was (tests/fixtures/
+    application_settings.json, print_off, print_back_on, queued)."""
+    application = sheet.book.application
+    if application.print_communication:
+        apply()
+    else:
+        application.held_page_settings.append((sheet, value, apply))
+
+
+def flush(application: Application) -> None:
+    """The PageSetup settings held back while PrintCommunication was False, applied in the order they were made,
+    the last of a property's winning. One Excel refuses is dropped without an error, as is one of Null or of text
+    that is no number (print_zoom_invalid, print_header_too_long, print_coercion), and one on a sheet or workbook
+    gone since (print_book_closed)."""
+    from pyopenvba.apps.excel._application_settings import number
+
+    held, application.held_page_settings = application.held_page_settings, []
+    for sheet, value, apply in held:
+        if sheet.book not in application.workbooks_.books or sheet not in sheet.book.sheets_:
+            continue
+        try:
+            apply()
+        except VBARuntimeError:
+            continue
+        except VBAUnsupportedError:
+            if value is NULL or (isinstance(value, str) and number(value) is None):
+                continue
+            raise
+
+
 def _set_header(sheet: Worksheet, child: str, code: str, value: object, message: str) -> None:
     """Set one section of a header or footer string as Excel sets it, error 1004 with ``message`` where the string
     would be longer than Excel keeps."""
     if sheet.book.application.udf_callers:
         raise unsupported('setting a header or footer from a worksheet function')
-    text = to_text(value)
-    found = headers(sheet)
-    if found.pictures:
-        raise unsupported('setting a header or footer on a sheet with header pictures')
-    updated = with_section(found.texts.get(child, ''), code, text)
-    if len(updated) > LIMIT:
-        raise error(1004, message)
-    found.texts[child] = updated
-    found.changed = True
-    sheet.book.saved = False
+
+    def apply() -> None:
+        text = to_text(value)
+        found = headers(sheet)
+        if found.pictures:
+            raise unsupported('setting a header or footer on a sheet with header pictures')
+        updated = with_section(found.texts.get(child, ''), code, text)
+        if len(updated) > LIMIT:
+            raise error(1004, message)
+        found.texts[child] = updated
+        found.changed = True
+        sheet.book.saved = False
+
+    deferred(sheet, value, apply)
 
 
 def _change(sheet: Worksheet, updates: dict[tuple[str, ...], dict[str, str | None]]) -> None:
@@ -350,8 +387,8 @@ class PageSetup(ExcelObject):
         udf = bool(self.sheet.book.application.udf_callers)
         if udf and name not in ('LeftMargin', 'Orientation', 'PrintArea'):
             raise unsupported('setting this property from a worksheet function')
-        updates: dict[tuple[str, ...], dict[str, str | None]] = {}
         if name.startswith('Print') and name in ('PrintArea', 'PrintTitleRows', 'PrintTitleColumns'):
+            # The print names are names, set at once whatever PrintCommunication is (print_area, print_titles).
             if not isinstance(value, str) or len(value) > 8192:
                 raise unsupported('with unmeasured print-reference arguments')
             try:
@@ -373,6 +410,10 @@ class PageSetup(ExcelObject):
                             if area.whole_rows != rows]
                 _name(self.sheet, 'Print_Titles', [*retained, *areas])
             return
+        deferred(self.sheet, value, lambda: self._apply(name, value, udf))
+
+    def _apply(self, name: str, value: object, udf: bool) -> None:
+        updates: dict[tuple[str, ...], dict[str, str | None]] = {}
         if name in MARGINS:
             number = _finite(value)
             if number < 0:
@@ -684,15 +725,20 @@ class PageSetup(ExcelObject):
     def _set_flag(self, name: str, value: object) -> None:
         if self.sheet.book.application.udf_callers:
             raise unsupported('setting a header flag from a worksheet function')
-        attribute, default = HEADER_FLAGS[name]
-        flag = to_bool(value)
-        found = headers(self.sheet)
-        if flag == default:
-            found.flags.pop(attribute, None)
-        else:
-            found.flags[attribute] = flag
-        found.changed = True
-        self.sheet.book.saved = False
+        sheet = self.sheet
+
+        def apply() -> None:
+            attribute, default = HEADER_FLAGS[name]
+            flag = to_bool(value)
+            found = headers(sheet)
+            if flag == default:
+                found.flags.pop(attribute, None)
+            else:
+                found.flags[attribute] = flag
+            found.changed = True
+            sheet.book.saved = False
+
+        deferred(sheet, value, apply)
 
     @member
     def DifferentFirstPageHeaderFooter(self) -> object:

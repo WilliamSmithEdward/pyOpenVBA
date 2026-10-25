@@ -234,7 +234,13 @@ class Application(ExcelObject):
         #: xlA1 or xlR1C1, as Application.ReferenceStyle has it.
         self.reference_style = 1
         self.use_system_separators = True
-        self.status_bar: object = False
+        #: What a macro last set Application.StatusBar to, None until one does.
+        self.status_bar: object = None
+        #: The settings that only read back what a macro set, by member name (see _application_settings).
+        self.settings: dict[str, object] = {}
+        #: Whether PageSetup settings take effect at once, and those held back while they do not (see _page_setup).
+        self.print_communication = True
+        self.held_page_settings: list[tuple[Worksheet, object, Callable[[], None]]] = []
         #: What Copy or Cut last put on the clipboard (see _clipboard).
         self.clipboard: Clip | None = None
         self.user_name = "pyOpenVBA"
@@ -468,9 +474,12 @@ class Application(ExcelObject):
 
     @member
     def StatusBar(self) -> object:
-        """Always text: what a macro set, a number or a logical as Excel spells it, FALSE while Excel keeps the bar
-        (tests/fixtures/excel_everyday_3.json, statusbar_types)."""
+        """False, a Boolean, until a macro sets it, and text from then on: what a macro set, a number or a logical as
+        Excel spells it, FALSE once a macro gives the bar back to Excel (tests/fixtures/excel_everyday_3.json,
+        statusbar_types; tests/fixtures/application_settings.json, status_hidden)."""
         value = self.status_bar
+        if value is None:
+            return False
         return ("TRUE" if value else "FALSE") if isinstance(value, bool) else to_text(value)
 
     @setter("StatusBar")
@@ -1412,6 +1421,8 @@ class Worksheet(ExcelObject):
         self.pivot_tables: list[PivotTable] = []
         self.outline_state: OutlineState | None = None
         self.page_setup_state: PageState | None = None
+        #: Worksheet.DisplayPageBreaks, which is not saved (see _application_settings).
+        self.display_page_breaks = False
         self.page_print_names_owned: set[str] = set()
         #: The sheet's data validation rules, in the order its file lists them (see _validation).
         self.validations: list[ValidationRule] = []
@@ -4991,6 +5002,19 @@ def _register_worksheet_functions() -> None:
 
 
 _register_worksheet_functions()
+
+
+def _register_settings() -> None:
+    """A member for each setting that reads back what a macro set (see _application_settings)."""
+    from pyopenvba.apps.excel._application_settings import application_members, worksheet_members
+
+    for spec in application_members():
+        Application.vba_add_member(spec)
+    for spec in worksheet_members():
+        Worksheet.vba_add_member(spec)
+
+
+_register_settings()
 
 
 # --- helpers ----------------------------------------------------------------------------------------

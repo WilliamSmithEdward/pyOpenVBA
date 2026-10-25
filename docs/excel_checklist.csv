@@ -35,12 +35,12 @@ Application,AddCustomList,method,"AddCustomList(ListArray As Variant, [ByRow As 
 Application,AddIns,"property, read-only",As AddIns,,MISSING,,
 Application,AddIns2,"property, read-only",As AddIns2,,MISSING,,
 Application,AfterCalculate,event,AfterCalculate(),,MISSING,,
-Application,AlertBeforeOverwriting,property,As Boolean,,MISSING,,
+Application,AlertBeforeOverwriting,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,AltStartupPath,property,As String,,MISSING,,
 Application,AlwaysUseClearType,property,As Boolean,,MISSING,,
 Application,Application,"property, read-only",As Application,,UNASSESSED,,
 Application,ArbitraryXMLSupportAvailable,"property, read-only",As Boolean,,MISSING,,
-Application,AskToUpdateLinks,property,As Boolean,,MISSING,,
+Application,AskToUpdateLinks,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Assistance,"property, read-only",As IAssistance,,MISSING,,
 Application,AutoCorrect,"property, read-only",As AutoCorrect,,MISSING,,
 Application,AutoFormatAsYouTypeReplaceHyperlinks,property,As Boolean,,MISSING,,
@@ -60,8 +60,8 @@ Application,CalculationVersion,"property, read-only",As Long,,MISSING,,
 Application,Caller,"property, read-only",As Variant,,UNASSESSED,,
 Application,CanPlaySounds,"property, read-only",As Boolean,,MISSING,,
 Application,CanRecordSounds,"property, read-only",As Boolean,,MISSING,,
-Application,Caption,property,As String,,MISSING,,
-Application,CellDragAndDrop,property,As Boolean,,MISSING,,
+Application,Caption,property,As String,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads after the active window's caption and a dash, kept to 200 characters, an empty one Excel's own, over 11 live settings"
+Application,CellDragAndDrop,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Cells,"property, read-only",As Range,,UNASSESSED,,
 Application,CentimetersToPoints,method,CentimetersToPoints(Centimeters As Double) As Double,,MISSING,,
 Application,ChartDataPointTrack,property,As Boolean,,MISSING,,
@@ -77,9 +77,9 @@ Application,CommandUnderlines,property,As XlCommandUnderlines,,MISSING,,
 Application,ConstrainNumeric,property,As Boolean,,MISSING,,
 Application,ControlCharacters,property,As Boolean,,MISSING,,
 Application,ConvertFormula,method,"ConvertFormula(Formula As Variant, FromReferenceStyle As XlReferenceStyle, [ToReferenceStyle As Variant], [ToAbsolute As Variant], [RelativeTo As Variant]) As Variant",,MISSING,,
-Application,CopyObjectsWithCells,property,As Boolean,,MISSING,,
+Application,CopyObjectsWithCells,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
-Application,Cursor,property,As XlMousePointer,,MISSING,,
+Application,Cursor,property,As XlMousePointer,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlDefault, xlNorthwestArrow, xlWait and xlIBeam read back; 0 is xlDefault and other values change nothing, over 28 live settings; the model shows no cursor"
 Application,CursorMovement,property,As Long,,MISSING,,
 Application,CustomListCount,"property, read-only",As Long,,MISSING,,
 Application,CutCopyMode,property,As XlCutCopyMode,,VERIFIED,tests/fixtures/paste.json,"0, 1 after Copy and 2 after Cut; False clears the clipboard."
@@ -101,26 +101,26 @@ Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,MISSING,,
 Application,Dialogs,"property, read-only",As Dialogs,,MISSING,,
 Application,DisplayAlerts,property,As Boolean,,UNASSESSED,,
 Application,DisplayClipboardWindow,property,As Boolean,,MISSING,,
-Application,DisplayCommentIndicator,property,As XlCommentDisplayMode,,MISSING,,
+Application,DisplayCommentIndicator,property,As XlCommentDisplayMode,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlNoIndicator, xlCommentIndicatorOnly and xlCommentAndIndicator read back, other values change nothing, over 19 live settings; notes' display is not modelled"
 Application,DisplayDocumentActionTaskPane,property,As Boolean,,MISSING,,
 Application,DisplayDocumentInformationPanel,property,As Boolean,,MISSING,,
 Application,DisplayExcel4Menus,property,As Boolean,,MISSING,,
 Application,DisplayFormulaAutoComplete,property,As Boolean,,MISSING,,
-Application,DisplayFormulaBar,property,As Boolean,,MISSING,,
-Application,DisplayFullScreen,property,As Boolean,,MISSING,,
+Application,DisplayFormulaBar,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
+Application,DisplayFullScreen,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,DisplayFunctionToolTips,property,As Boolean,,MISSING,,
 Application,DisplayInsertOptions,property,As Boolean,,MISSING,,
-Application,DisplayNoteIndicator,property,As Boolean,,MISSING,,
+Application,DisplayNoteIndicator,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads whether DisplayCommentIndicator shows anything; True sets it to indicators only and False to none, over 5 live cases"
 Application,DisplayPasteOptions,property,As Boolean,,MISSING,,
 Application,DisplayRecentFiles,property,As Boolean,,MISSING,,
-Application,DisplayScrollBars,property,As Boolean,,MISSING,,
-Application,DisplayStatusBar,property,As Boolean,,MISSING,,
+Application,DisplayScrollBars,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
+Application,DisplayStatusBar,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,DisplayXMLSourcePane,method,DisplayXMLSourcePane([XmlMap As Variant]),,MISSING,,
 Application,DoubleClick,method,DoubleClick(),,MISSING,,
-Application,EditDirectlyInCell,property,As Boolean,,MISSING,,
-Application,EnableAnimations,property,As Boolean,,MISSING,,
-Application,EnableAutoComplete,property,As Boolean,,MISSING,,
-Application,EnableCancelKey,property,As XlEnableCancelKey,,MISSING,,
+Application,EditDirectlyInCell,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
+Application,EnableAnimations,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
+Application,EnableAutoComplete,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
+Application,EnableCancelKey,property,As XlEnableCancelKey,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlDisabled, xlInterrupt and xlErrorHandler read back; any other value is xlInterrupt from xlDisabled and xlDisabled from either other, over 53 live settings; the model takes no keystrokes, so no Esc or Ctrl+Break reaches it"
 Application,EnableCheckFileExtensions,property,As Boolean,,MISSING,,
 Application,EnableEvents,property,As Boolean,,UNASSESSED,; tests/fixtures/calculation_scope.json," Calculation scope, cached precedents, deferred notifications and saved dirty states have 192 native probes, 1080 additional UDF observations and four XLSM file gates. Broader graph, reentrancy and event-error behavior remains partial."
 Application,EnableLargeOperationAlert,property,As Boolean,,MISSING,,
@@ -141,8 +141,8 @@ Application,FileValidation,property,As MsoFileValidationMode,,MISSING,,
 Application,FileValidationPivot,property,As XlFileValidationPivotMode,,MISSING,,
 Application,FindFile,method,FindFile() As Boolean,,MISSING,,
 Application,FindFormat,property,As CellFormat,,MISSING,,
-Application,FixedDecimal,property,As Boolean,,MISSING,,
-Application,FixedDecimalPlaces,property,As Long,,MISSING,,
+Application,FixedDecimal,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
+Application,FixedDecimalPlaces,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Takes -300 to 300, rounded as VBA rounds to a Long; other values change nothing, over 57 live settings"
 Application,FlashFill,property,As Boolean,,MISSING,,
 Application,FlashFillMode,property,As Boolean,,MISSING,,
 Application,FormatStaleValues,property,As Boolean,,MISSING,,
@@ -164,7 +164,7 @@ Application,Hwnd,"property, read-only",As Long,,MISSING,,
 Application,IgnoreRemoteRequests,property,As Boolean,,MISSING,,
 Application,InchesToPoints,method,InchesToPoints(Inches As Double) As Double,,MISSING,,
 Application,InputBox,method,"InputBox(Prompt As String, [Title As Variant], [Default As Variant], [Left As Variant], [Top As Variant], [HelpFile As Variant], [HelpContextID As Variant], [Type As Variant]) As Variant",,MISSING,,
-Application,Interactive,property,As Boolean,,MISSING,,
+Application,Interactive,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,International,"property, read-only",As Variant,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Every index 1 to 46 as en-US answers them, error 1004 outside; the model works in that locale only."
 Application,Intersect,method,"Intersect(Arg1 As Range, Arg2 As Range, [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Range",,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,Ranges on two sheets are error 1004; only each range's first area is intersected.
 Application,IsSandboxed,"property, read-only",As Boolean,,MISSING,,
@@ -186,8 +186,8 @@ Application,MaxSupportedCompatibilityVersion,"property, read-only",As Long,,MISS
 Application,MeasurementUnit,property,As Long,,MISSING,,
 Application,MergeInstances,property,As Boolean,,MISSING,,
 Application,MouseAvailable,"property, read-only",As Boolean,,MISSING,,
-Application,MoveAfterReturn,property,As Boolean,,MISSING,,
-Application,MoveAfterReturnDirection,property,As XlDirection,,MISSING,,
+Application,MoveAfterReturn,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
+Application,MoveAfterReturnDirection,property,As XlDirection,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"The four directions read back, 1 to 4 as down, right, up and left, any other number as set and 65536 more where it is not positive, over 36 live settings"
 Application,MultiThreadedCalculation,"property, read-only",As MultiThreadedCalculation,,MISSING,,
 Application,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Application,Names,"property, read-only",As Names,,UNASSESSED,,
@@ -209,7 +209,7 @@ Application,Path,"property, read-only",As String,,UNASSESSED,,
 Application,PathSeparator,"property, read-only",As String,,MISSING,,
 Application,PivotTableSelection,property,As Boolean,,MISSING,,
 Application,PreviousSelections,"property, read-only",As Variant,,MISSING,,
-Application,PrintCommunication,property,As Boolean,,MISSING,,
+Application,PrintCommunication,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"False holds PageSetup settings back: they read as before and a save writes them as before, until True applies them in order, dropping any Excel refuses; the print names apply at once; over 17 live cases"
 Application,ProductCode,"property, read-only",As String,,MISSING,,
 Application,PromptForSummaryInfo,property,As Boolean,,MISSING,,
 Application,ProtectedViewWindowActivate,event,ProtectedViewWindowActivate(Pvw As ProtectedViewWindow),,MISSING,,
@@ -275,7 +275,7 @@ Application,SpellingOptions,"property, read-only",As SpellingOptions,,MISSING,,
 Application,StandardFont,property,As String,,PARTIAL,tests/fixtures/column_autofit.json,"Aptos Narrow, the font new workbooks take in today's Excel; set to another font it reports itself unsupported."
 Application,StandardFontSize,property,As Double,,PARTIAL,tests/fixtures/column_autofit.json,11; set to another size it reports itself unsupported.
 Application,StartupPath,"property, read-only",As String,,MISSING,,
-Application,StatusBar,property,As Variant,,PARTIAL,tests/fixtures/excel_everyday_3.json,"Reads back as a String, as Excel's does: FALSE while Excel has the status bar, TRUE after it is set to True, and a number as its text. The model has no status bar to show it on."
+Application,StatusBar,property,As Variant,,PARTIAL,tests/fixtures/excel_everyday_3.json; tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"False, a Boolean, until a macro sets it, then text: what a macro set as Excel spells it, FALSE once a macro gives the bar back"
 Application,TemplatesPath,"property, read-only",As String,,MISSING,,
 Application,ThisCell,"property, read-only",As Range,,MISSING,,
 Application,ThisWorkbook,"property, read-only",As Workbook,,UNASSESSED,,
@@ -290,7 +290,7 @@ Application,UsableHeight,"property, read-only",As Double,,MISSING,,
 Application,UsableWidth,"property, read-only",As Double,,MISSING,,
 Application,UseClusterConnector,property,As Boolean,,MISSING,,
 Application,UsedObjects,"property, read-only",As UsedObjects,,MISSING,,
-Application,UserControl,property,As Boolean,,MISSING,,
+Application,UserControl,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,UserLibraryPath,"property, read-only",As String,,MISSING,,
 Application,UserName,property,As String,,UNASSESSED,,
 Application,UseSystemSeparators,property,As Boolean,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Reads True; turning it off changes nothing shown, since the custom separators are the system's."
@@ -2606,7 +2606,7 @@ Worksheet,Creator,"property, read-only",As XlCreator,,MISSING,,
 Worksheet,CustomProperties,"property, read-only",As CustomProperties,,MISSING,,
 Worksheet,Deactivate,event,Deactivate(),,MISSING,,
 Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Removes worksheet runtime document and saved VBA module; native persistence gate. The formulas and names that read the sheet read #REF! in its place; the active sheet stays, or where it is the one deleted the next visible sheet after it is active, or the last visible one before it. Deleting every visible sheet, event/object lifetime and dialog conformance remain incomplete."
-Worksheet,DisplayPageBreaks,property,As Boolean,,MISSING,,
+Worksheet,DisplayPageBreaks,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, as Application's switches do, and is not saved, measured"
 Worksheet,DisplayRightToLeft,property,As Boolean,,MISSING,,
 Worksheet,DrawingObjects,not in the type library,,,UNASSESSED,,
 Worksheet,EnableAutoFilter,property,As Boolean,,MISSING,,

@@ -51,6 +51,7 @@ class Piece:
 
 _PIECE = re.compile(
     r"(?P<ws>\s+)"
+    r"|(?P<item>(?:[^\W\d][\w.]*|'(?:[^']|'')+')\[(?:'(?:[^']|'')+'|[^\]]*)\])"
     r"|(?P<number>(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)"
     r'|(?P<string>"(?:[^"]|"")*")'
     r"|(?P<quoted>'(?:[^']|'')+')"
@@ -65,9 +66,12 @@ _BINARY = {'+', '-', '*', '/', '^', '&', '=', '<>', '<', '>', '<=', '>='}
 _FIELD = '_PVF{}'
 
 
-def read(text: str, resolve: Callable[[str], int | None]) -> list[Piece]:
+def read(text: str, resolve: Callable[[str], int | None],
+         named: Callable[[str, str], tuple[str, int] | None] | None = None) -> list[Piece]:
     """A formula's pieces, each field found by ``resolve`` from the name the formula gives it, ending in an 'end'
-    piece that holds the space at the end; Refused where Excel refuses the formula."""
+    piece that holds the space at the end; Refused where Excel refuses the formula. ``named`` reads a calculated
+    item's Field[Item] from the field's name and what the brackets hold, as a 'field' piece of the item or a
+    'position' one of its place in the field's list; a calculated field's formula has none."""
     body = text[1:] if text.startswith('=') else text
     pieces: list[Piece] = []
     space = ''
@@ -81,7 +85,15 @@ def read(text: str, resolve: Callable[[str], int | None]) -> list[Piece]:
         if kind == 'ws':
             space += written
             continue
-        if kind == 'word' and body[position:position + 1] != '(':
+        if kind == 'item':
+            owner, _, inside = written[:-1].partition('[')
+            if owner.startswith("'"):
+                owner = owner[1:-1].replace("''", "'")
+            resolved = named(owner, inside) if named is not None else None
+            if resolved is None:
+                raise Refused(f'no item is named {written}')
+            pieces.append(Piece(resolved[0], written, space, resolved[1]))
+        elif kind == 'word' and body[position:position + 1] != '(':
             index = resolve(written)
             if index is None and written.upper() not in ('TRUE', 'FALSE'):
                 raise Refused(f'no field is named {written}')
@@ -101,6 +113,16 @@ def read(text: str, resolve: Callable[[str], int | None]) -> list[Piece]:
     return pieces
 
 
+def item_owners(text: str) -> list[str]:
+    """The fields a formula's Field[Item] references name, as it writes them."""
+    owners: list[str] = []
+    for found in _PIECE.finditer(text):
+        if found.lastgroup == 'item':
+            owner = found.group()[:-1].partition('[')[0]
+            owners.append(owner[1:-1].replace("''", "'") if owner.startswith("'") else owner)
+    return owners
+
+
 def _expression(pieces: list[Piece], at: int) -> int:
     at = _operand(pieces, at)
     while pieces[at].kind == 'op' and pieces[at].text in _BINARY:
@@ -112,7 +134,7 @@ def _operand(pieces: list[Piece], at: int) -> int:
     while pieces[at].kind == 'op' and pieces[at].text in ('+', '-'):
         at += 1
     piece = pieces[at]
-    if piece.kind in ('number', 'string', 'bool', 'error', 'field'):
+    if piece.kind in ('number', 'string', 'bool', 'error', 'field', 'position'):
         at += 1
     elif piece.kind == 'function' and pieces[at + 1].kind == 'open':
         at += 2
@@ -149,14 +171,16 @@ def quoted(name: str) -> str:
     return "'" + name.replace("'", "''") + "'"
 
 
-def spelled(pieces: list[Piece], name_of: Callable[[int], str], *, given: bool = True) -> str:
+def spelled(pieces: list[Piece], name_of: Callable[[int], str], *, given: bool = True, bare: bool = False,
+            place_of: Callable[[int], str] | None = None) -> str:
     """The formula as Excel spells it back, without its =, each field named by ``name_of``: one ``given`` as a macro
-    gives it, else one spelled already, as its cache keeps it, which keeps its spaces where they are."""
+    gives it, else one spelled already, as its cache keeps it, which keeps its spaces where they are. A ``bare``
+    name is written as ``name_of`` gives it, and ``place_of`` writes a calculated item's place in its field."""
     out: list[str] = []
     moved: str | None = None
     for piece in pieces:
         space, moved = (piece.space if moved is None else moved), None
-        if piece.kind == 'field' and given:
+        if piece.kind in ('field', 'position') and given:
             # A field's space goes after it, in place of whatever space is there.
             space, moved = '', space
         if piece.kind in ('comma', 'end'):
@@ -168,7 +192,9 @@ def spelled(pieces: list[Piece], name_of: Callable[[int], str], *, given: bool =
         elif piece.kind == 'function':
             text = piece.text.upper() if is_excel_function(piece.text) else piece.text
         elif piece.kind == 'field':
-            text = quoted(name_of(piece.field))
+            text = name_of(piece.field) if bare else quoted(name_of(piece.field))
+        elif piece.kind == 'position' and place_of is not None:
+            text = place_of(piece.field)
         else:
             text = piece.text
         out.append(space + text)

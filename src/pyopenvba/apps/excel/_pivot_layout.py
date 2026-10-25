@@ -40,6 +40,7 @@ from pyopenvba.apps.excel._pivot_forms import (
     set_flag,
 )
 from pyopenvba.apps.excel._pivot_groups import automatic_dates, items_of, layout_groups, refresh_ranges
+from pyopenvba.apps.excel._pivot_items import REFUSED_FUNCTIONS, Workout, has_items, item_field
 from pyopenvba.apps.excel._pivot_options import shown_text, values_row_shown as shows_values_row
 from pyopenvba.apps.excel._pivot_sorts import value_sorts
 from pyopenvba.apps.excel._pivots import NS, decode_text
@@ -135,11 +136,15 @@ def item_label(entry: XmlElement, code: str) -> object:
 
 
 def order(items: list[XmlElement]) -> list[int]:
-    text = [str(scalar(entry)).lower() for entry in items if entry.tag == NS + 's']
+    text = [str(scalar(entry)).lower() for entry in items if entry.tag == NS + 's' and entry.get('f') is None]
     custom = next((sequence for sequence in _MONTHS if text and all(value in sequence for value in text)), None)
 
     def key(index: int) -> tuple[int, object]:
         entry = items[index]
+        if entry.get('f') in ('1', 'true'):
+            # Calculated items follow the field's values, in the order they were made (tests/fixtures/
+            # pivot_calculated_items/ add_two).
+            return 6, index
         kind, value = entry.tag[len(NS):], scalar(entry)
         if kind == 'n':
             return 0, value
@@ -415,7 +420,28 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
     # Each data field's values, a calculated field's worked out from its formula.
     measures = Measures(list(fields), table.sheet)
     selected = value_filtered(selected, ids, records_, found, (rows, columns), reports, measures)
-    sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_, measures)
+    # A field's calculated items add rows for each combination of the other fields' items, whose values their
+    # formulas work out (tests/fixtures/pivot_calculated_items/).
+    workout: Workout | None = None
+    shown_fields = [index for index in (*rows, *columns) if index != VALUES]
+    items_field = item_field(list(fields), cache, shown_fields)
+    if items_field is not None:
+        if found or any(calculation_of(report) != 'normal' for report in reports):
+            raise VBAUnsupportedError('Filters and Show Values As beside calculated items are not implemented')
+        if any(report.get('subtotal') in REFUSED_FUNCTIONS for report in reports):
+            raise VBAUnsupportedError('Calculated items beside an average, a standard deviation or a variance are '
+                                      'not implemented')
+        # A calculated item's formula reaches its field's hidden items too (tests/fixtures/pivot_calculated_items/
+        # hide_member).
+        open_lists = [[(place, False, gone) for place, _, gone in listing] if index == items_field and listing
+                      else listing for index, listing in enumerate(lists)]
+        counted = passing(ids, open_lists, on_axes, chosen_pages)
+        ids, records_ = [*ids], [*records_]
+        workout = Workout(cache, list(fields), items_field, lists[items_field] or [], records_, ids, counted,
+                          [index for index in shown_fields if index != items_field], measures, table.sheet)
+        selected = workout.extend(selected)
+    sorts = value_sorts(root.findall(f'{NS}pivotFields/{NS}pivotField'), on_axes, reports, records_, measures,
+                        workout.value if workout is not None else None)
     layouts = {index: layout_of(root, index) for index in (*rows, *columns)}
     for index in layouts:
         if index != VALUES:
@@ -666,7 +692,13 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
         col_lookup.setdefault(line.keys, []).append(offset)
     real_rows = [index for index in rows if index != VALUES]
     real_cols = [index for index in columns if index != VALUES]
-    buckets: dict[tuple[tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]], list[list[XmlElement]]] = {}
+    buckets: dict[tuple[tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]], list[int]] = {}
+
+    def valued(report: XmlElement, picked: list[int], other: str) -> object:
+        """A data field's value over a set of the table's rows, calculated items' worked out where it has any."""
+        if workout is not None:
+            return workout.value(report, picked, other)
+        return measures.value(report, [records_[row] for row in picked], other)
 
     def function_of(line: Line) -> str:
         """The function a line's subtotal takes its data field's values through, where not the field's own."""
@@ -686,7 +718,8 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                     line.data if VALUES in rows else column_line.data)
         rows_over = {line.keys for line in row_lines if line.items and line.items[0] == ALL_ITEMS}
         columns_over = {line.keys for line in col_lines if line.items and line.items[0] == ALL_ITEMS}
-        for record, indices in ((records_[row], ids[row]) for row in selected):
+        for row in selected:
+            indices = ids[row]
             row_keys = [tuple((index, indices[index]) for index in real_rows[:depth]) for depth in range(len(real_rows) + 1)]
             if rows_over and ((real_rows[-1], indices[real_rows[-1]]),) in rows_over:
                 row_keys.append(((real_rows[-1], indices[real_rows[-1]]),))
@@ -698,7 +731,7 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                     continue
                 for col_key in col_keys:
                     if col_key in col_lookup:
-                        buckets.setdefault((row_key, col_key), []).append(record)
+                        buckets.setdefault((row_key, col_key), []).append(row)
         for (row_key, col_key), bucket in buckets.items():
             for offset in row_lookup[row_key]:
                 line = row_lines[offset]
@@ -706,12 +739,12 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                     measure = line.data if VALUES in rows else col_lines[column].data
                     report = reports[measure]
                     if not measures.calculated(int(report.get('fld', '0'))):
-                        put(dr + offset, dc + column, measures.value(
+                        put(dr + offset, dc + column, valued(
                             report, bucket, function_of(line) or function_of(col_lines[column])))
         if any(measures.calculated(int(report.get('fld', '0'))) for report in reports):
             # A calculated field works its formula out in every cell, one no record reaches over zeros
             # (tests/fixtures/pivot_calculated_fields/ margin, ratio).
-            chosen = [records_[row] for row in selected]
+            chosen = list(selected)
             places: dict[tuple[int, int], set[int]] = {}
             for position, row in enumerate(selected):
                 for index in (*real_rows, *real_cols):
@@ -727,8 +760,8 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
                     for pair in (*line.keys, *column_line.keys):
                         reached = set(places.get(pair, set())) if reached is None else reached & places.get(pair, set())
                     found = range(len(chosen)) if reached is None else sorted(reached)
-                    value = measures.value(report, [chosen[place] for place in found],
-                                           function_of(line) or function_of(column_line))
+                    value = valued(report, [chosen[place] for place in found],
+                                   function_of(line) or function_of(column_line))
                     key = area.top + dr + offset, area.left + dc + column
                     if value is EMPTY:
                         cells.pop(key, None)
@@ -818,10 +851,12 @@ def plan_render(table: PivotTable, definition: XmlElement, data: list[XmlElement
             # subtotals (tests/fixtures/pivot_layouts/ no_subtotals, all_functions).
             kinds = functions_of(original)
             items = node('items', {'count': str(len(listing) + len(kinds))})
+            own = items_of(fields[index]) if index < len(fields) else None
             for place, hide, gone in listing:
                 extra = kept.get(index, {}).get(place, {})
+                formula = own is not None and place < len(own) and own[place].get('f') in ('1', 'true')
                 items.append(item_node(place, hide=hide, gone=gone, caption=extra.get('n'),
-                                       collapsed=extra.get('sd') in ('0', 'false')))
+                                       collapsed=extra.get('sd') in ('0', 'false'), formula=formula))
             for kind in kinds:
                 items.append(node('item', {'t': kind, **({'sd': '0'} if shown_kinds.get(kind) in ('0', 'false')
                                                          else {})}))
@@ -942,6 +977,9 @@ def orient(field: object, value: object) -> None:
     if chosen in (1, 2, 3) and calculated_view(field):
         # A calculated field goes to the data area alone (tests/fixtures/pivot_calculated_fields/ errors).
         raise error(1004)
+    if chosen == 3 and field.index >= 0 and has_items(table.cache, field.index):
+        # A field with calculated items keeps off the page area (tests/fixtures/pivot_calculated_items/ page_rows).
+        raise error(1004)
     if chosen == 4 and field.index != VALUES:
         from pyopenvba.apps.excel._pivot_aggregate import add_data_field
 
@@ -957,6 +995,10 @@ def orient(field: object, value: object) -> None:
     elif chosen == int(field.Orientation()):
         # Reassigning the same visible axis preserves its field position.
         if chosen == 0:
+            # A field on no axis lists its items first (tests/fixtures/pivot_calculated_items/ hidden_field).
+            from pyopenvba.apps.excel._pivot_filters import list_on_reading
+
+            list_on_reading(field)
             raise error(1004)
         return
     if chosen == 3 and any(rule.field == field.index for rule in filter_rules(table.root)):

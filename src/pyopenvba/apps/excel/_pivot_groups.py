@@ -494,8 +494,17 @@ def group(target: Range, start: object, end: object, by: object, periods: object
     table = table_at(target)
     if table is None:
         raise VBAUnsupportedError('Group with pivot/date/number arguments is not implemented')
+    from pyopenvba.apps.excel._pivot_items import has_items
+
     field, places = _picked(table, target)
     fields = fields_of(table.cache)
+    if has_items(table.cache, field):
+        # A field with calculated items groups by no ranges (tests/fixtures/pivot_calculated_items/
+        # group_numbers_with_item); Excel groups its items, which the model does not.
+        if len(_cells(target)) == 1 and {entry.tag for entry in _entries(fields[field], 'sharedItems')
+                                         if entry.get('f') is None} <= {NS + 'n', NS + 'm'}:
+            raise error(1004)
+        raise VBAUnsupportedError('Grouping a pivot field with calculated items is not implemented')
     if len(_cells(target)) > 1:
         if len(places) < 2:
             raise VBAUnsupportedError('Grouping the cells of one pivot item is not implemented')

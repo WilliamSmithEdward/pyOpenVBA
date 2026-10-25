@@ -67,14 +67,17 @@ def place_of(item: XmlElement) -> int:
 
 
 def item_node(x: int, *, hide: bool = False, gone: bool = False, caption: str | None = None,
-              collapsed: bool = False) -> XmlElement:
-    """An item as Excel writes one, its caption and flags ahead of ``x`` as the schema orders them
-    (tests/fixtures/pivot_names/ item_hidden, tests/fixtures/pivot_show_detail/ collapse_item)."""
+              collapsed: bool = False, formula: bool = False) -> XmlElement:
+    """An item as Excel writes one, its caption and flags ahead of ``x`` as the schema orders them, ``f`` marking a
+    calculated item (tests/fixtures/pivot_names/ item_hidden, tests/fixtures/pivot_show_detail/ collapse_item,
+    tests/fixtures/pivot_calculated_items/ hide)."""
     attributes = {'n': caption} if caption is not None else {}
     if hide:
         attributes['h'] = '1'
     if collapsed:
         attributes['sd'] = '0'
+    if formula:
+        attributes['f'] = '1'
     if gone:
         attributes['m'] = '1'
     attributes['x'] = str(x)
@@ -82,9 +85,9 @@ def item_node(x: int, *, hide: bool = False, gone: bool = False, caption: str | 
 
 
 def restate(item: XmlElement, *, hide: bool) -> None:
-    rest = {key: value for key, value in item.attrib.items() if key not in ('n', 'h', 'sd', 'm', 'x')}
+    rest = {key: value for key, value in item.attrib.items() if key not in ('n', 'h', 'sd', 'f', 'm', 'x')}
     fresh = item_node(place_of(item), hide=hide, gone=flag(item, 'm'), caption=item.get('n'),
-                      collapsed=item.get('sd') in ('0', 'false'))
+                      collapsed=item.get('sd') in ('0', 'false'), formula=flag(item, 'f'))
     item.attrib.clear()
     item.attrib.update(fresh.attrib)
     item.attrib.update(rest)
@@ -224,8 +227,10 @@ def carried(root: XmlElement, before: list[XmlElement], after: list[XmlElement],
 
 def shown_entry(entry: XmlElement, caption: str | None) -> XmlElement:
     """An item's value as a sort by name reads it: its caption, as text, where it was given one (tests/fixtures/
-    pivot_names/ item_sorted)."""
-    return entry if caption is None else node('s', {'v': caption})
+    pivot_names/ item_sorted), a calculated item's still marked one."""
+    if caption is None:
+        return entry
+    return node('s', {'v': caption, **({'f': '1'} if entry.get('f') in ('1', 'true') else {})})
 
 
 def retain_missing(cache: PivotCache, fields: XmlElement, reports: list[PivotTable]) -> None:
@@ -362,7 +367,7 @@ def ensure_items(table: PivotTable, field: XmlElement, index: int) -> bool:
 
     items = node('items')
     for place in natural_places(cache_fields, index):
-        items.append(item_node(place))
+        items.append(item_node(place, formula=entries[place].get('f') in ('1', 'true')))
     for kind in functions_of(field):
         items.append(node('item', {'t': kind}))
     items.set('count', str(len(items)))

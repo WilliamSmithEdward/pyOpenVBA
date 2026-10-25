@@ -223,6 +223,9 @@ class PivotCache(ExcelObject):
         #: The calculated fields, by their cache names, whose formulas a macro gave in this session; Excel reads a
         #: file's again as it opens it (see _pivot_calculated).
         self.given_formulas: set[str] = set()
+        #: The formulas a macro gave calculated items in this session, as they read back, by each item's field and
+        #: place; Excel reads a file's without their spaces (see _pivot_items).
+        self.given_items: dict[tuple[int, int], str] = {}
 
     @method
     def CreatePivotTable(self, TableDestination: object, TableName: object = MISSING,
@@ -1232,6 +1235,13 @@ class PivotField(ExcelObject):
     def LabelRange(self) -> object:
         return self._range(True)
 
+    @method
+    def CalculatedItems(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._pivot_items import CalculatedItems
+
+        items = CalculatedItems(self)
+        return items if Index is MISSING else items.Item(Index)
+
     @member
     def ParentField(self) -> object:
         from pyopenvba.apps.excel._pivot_groups import parent_field
@@ -1553,6 +1563,39 @@ class PivotItem(ExcelObject):
         from pyopenvba.apps.excel._pivot_groups import child_items
 
         return child_items(self, Index)
+
+    @member
+    def IsCalculated(self) -> object:
+        from pyopenvba.apps.excel._pivot_items import is_calculated
+
+        return is_calculated(self)
+
+    @member
+    def Formula(self) -> object:
+        from pyopenvba.apps.excel._pivot_items import formula_of
+
+        return formula_of(self)
+
+    @setter('Formula')
+    def set_formula(self, value: object) -> None:
+        from pyopenvba.apps.excel._pivot_items import set_formula
+
+        set_formula(self, value)
+
+    @member
+    def StandardFormula(self) -> object:
+        return self.Formula()
+
+    @setter('StandardFormula')
+    def set_standard_formula(self, value: object) -> None:
+        self.set_formula(value)
+
+    @method
+    def Delete(self) -> object:
+        from pyopenvba.apps.excel._pivot_items import delete
+
+        delete(self)
+        return EMPTY
 
     @member
     def Visible(self) -> object:

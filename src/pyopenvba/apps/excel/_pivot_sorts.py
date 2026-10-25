@@ -107,7 +107,10 @@ def by_name(entries: list[XmlElement], descending: bool) -> list[int]:
     from pyopenvba.apps.excel._pivot_layout import order
 
     ranked = order(entries)
-    return ranked[::-1] if descending else ranked
+    # Calculated items stay last, either way (tests/fixtures/pivot_calculated_items/ sorted).
+    own = [place for place in ranked if entries[place].get('f') not in ('1', 'true')]
+    calculated = [place for place in ranked if entries[place].get('f') in ('1', 'true')]
+    return [*(own[::-1] if descending else own), *calculated]
 
 
 def relist(field: XmlElement, data_items: list[XmlElement]) -> None:
@@ -150,10 +153,12 @@ def value_key(value: object) -> tuple[int, float, str]:
 
 
 def value_sorts(fields: list[XmlElement], axes: set[int], reports: list[XmlElement],
-                records: list[list[XmlElement]], measures: Measures) -> dict[int, tuple[bool, SortKey]]:
+                records: list[list[XmlElement]], measures: Measures,
+                valued: Callable[[XmlElement, list[int]], object] | None = None) -> dict[int, tuple[bool, SortKey]]:
     """Each field on an axis sorted by a data field's values: whether descending, and the key a group of records
     sorts by, a calculated field's values worked out by ``measures`` (tests/fixtures/pivot_calculated_fields/
-    sort_by_calculated)."""
+    sort_by_calculated), or by ``valued`` from the rows where a table works calculated items out (tests/fixtures/
+    pivot_calculated_items/ value_sorted)."""
     from pyopenvba.apps.excel._pivot_calculations import stepping
 
     # A field a data field's values step along, against the item before or after, shows in its items' order
@@ -166,6 +171,8 @@ def value_sorts(fields: list[XmlElement], axes: set[int], reports: list[XmlEleme
         if kind is None or data is None or not 0 <= data < len(reports) or index in stepped:
             continue
         def key(rows: list[int], report: XmlElement = reports[data]) -> tuple[int, float, str]:
+            if valued is not None:
+                return value_key(valued(report, rows))
             return value_key(measures.value(report, [records[row] for row in rows]))
 
         found[index] = (kind == 'descending', key)

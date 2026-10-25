@@ -2555,7 +2555,7 @@ WorkbookQuery,Parent,"property, read-only",As Object,,MISSING,,
 WorkbookQuery,Refresh,method,Refresh(),,UNASSESSED,,
 Workbooks,_Default,"property, read-only",As Workbook,,MISSING,,
 Workbooks,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Workbooks,Add,method,Add([Template As Variant]) As Workbook,,PARTIAL,tests/fixtures/workbook_copy.json,Template other than a worksheet workbook reports unsupported.
+Workbooks,Add,method,Add([Template As Variant]) As Workbook,,PARTIAL,tests/fixtures/workbook_copy.json; tests/test_excel_workbook_names.py; tests/fixtures/workbook_names.json,"Template other than a worksheet workbook reports unsupported. Book and its own number with no template, Sheet and its own with xlWBATWorksheet, as Excel names them."
 Workbooks,Application,"property, read-only",As Application,,UNASSESSED,,
 Workbooks,CanCheckOut,method,CanCheckOut(Filename As String) As Boolean,,MISSING,,
 Workbooks,CheckOut,method,CheckOut(Filename As String),,MISSING,,

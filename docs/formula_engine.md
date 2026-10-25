@@ -153,3 +153,8 @@ name looking like a cell is not read as the cell.
     A5 is 1. An exact MATCH, VLOOKUP or HLOOKUP over cells reads them in
     order and stops at its match, through the model's book handing cells
     over one at a time: `MATCH(3,A1:A10,0)` in A5 is 3.
+16. **Combining accents in names.** The lexer reads a combining accent
+    (U+0300 to U+036F) after a name's first character, as Excel's defined
+    names hold one: `f2e` with U+0301 is a name
+    (`tests/fixtures/name_equality.json`, marks), where pyOfficeEditor's
+    stops before the accent.

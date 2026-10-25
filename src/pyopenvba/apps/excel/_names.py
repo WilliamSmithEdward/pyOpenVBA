@@ -1,6 +1,7 @@
 """Shared name validation, scope and reference rewriting."""
 from __future__ import annotations
 import re
+from functools import lru_cache
 from typing import TYPE_CHECKING, Final
 from pyopenvba._a1 import parse_area, quote_sheet
 from pyopenvba.formula._parse import tokenize, split_sheet, FormulaError
@@ -29,7 +30,10 @@ def canonical(book: Workbook, name: str, scope: Worksheet | None = None) -> str:
         owner = scope.name
     if owner:
         owner = book.sheet_named(owner).name
-    if not re.fullmatch(r"[A-Za-z_\\\u0080-\uffff][\w.\\]*", bare) or len(bare) > 255 or bare.upper() in {"R", "C"}:
+    # After its first character a name may hold a combining accent, e with U+0301
+    # (tests/fixtures/name_equality.json, marks).
+    if (not re.fullmatch(r"[A-Za-z_\\\u0080-\uffff][\w.\\\u0300-\u036f]*", bare) or len(bare) > 255
+            or bare.upper() in {"R", "C"}):
         raise error(1004, SYNTAX)
     if re.fullmatch(r"R[0-9]*C[0-9]*", bare, re.I):
         raise error(1004, SYNTAX)
@@ -116,6 +120,48 @@ def owned_reserved(sheet: Worksheet, supported: tuple[str, ...]) -> list[tuple[N
                 and attribute_values(entry.attributes).get('name') == '_xlnm.' + bare):
             result.append((entry, bare))
     return result
+
+
+@lru_cache(maxsize=4096)
+def name_key(text: str) -> bytes | str:
+    """What Excel tells two names apart by, case aside: word sort's key, under which ss is a sharp s and ae the
+    ligature while an accent or a hyphen tells two apart (tests/fixtures/style_order.json,
+    tests/fixtures/name_equality.json); for a name the key is not reproduced for, its characters in any case."""
+    from pyopenvba.apps.excel._sort import text_key
+    from pyopenvba.exceptions import VBAUnsupportedError
+
+    try:
+        return text_key(text, False)
+    except VBAUnsupportedError:
+        return text.casefold()
+
+
+def same_name(one: str, other: str) -> bool:
+    """Whether Excel finds a name by another: where word sort cannot tell them apart, case aside, so AESOP finds
+    Aesop with the ash. Worksheets(...), Names(...), Names.Add and a formula's names find a name so
+    (tests/fixtures/name_equality.json)."""
+    return one == other or name_key(one) == name_key(other)
+
+
+def same_sheet_name(one: str, other: str) -> bool:
+    """Whether Excel takes two names for one where it keeps names apart: as long as each other, and word sort cannot
+    tell them apart, so a Kelvin sign is a K and a final sigma a sigma while ae is not the ash. A sheet's name must
+    differ so from every other, a formula's sheet is found so, and Names.Add takes the spelling it is given where
+    the name's own is the same so (tests/fixtures/name_equality.json)."""
+    return one == other or (len(one) == len(other) and name_key(one) == name_key(other))
+
+
+def entry_key(name: str) -> tuple[int, bytes | str, bytes | str]:
+    """What tells a defined name, with its sheet's name and a ! before it where it is one sheet's own, from every
+    other: its sheet as Excel keeps sheets apart, and its name as word sort tells names apart."""
+    scope, bare = split_sheet(name)
+    return len(scope), name_key(scope), name_key(bare)
+
+
+def same_entry(one: str, other: str) -> bool:
+    """Whether two defined names, each with its sheet's name and a ! before it where it is one sheet's own, are one
+    name (:func:`entry_key`)."""
+    return one == other or entry_key(one) == entry_key(other)
 
 
 def collation(text: str) -> bytes:

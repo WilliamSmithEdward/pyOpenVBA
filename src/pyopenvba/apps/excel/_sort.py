@@ -54,7 +54,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, replace
-from functools import cache, cmp_to_key, lru_cache
+from functools import cache, cmp_to_key
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
@@ -137,17 +137,6 @@ def text_key(text: str, match_case: bool) -> bytes:
         cases += case + b"\x02" * (count - len(case))
     return b"\x01".join((bytes(primary), bytes(accents).rstrip(b"\x01\x02"), bytes(cases).rstrip(b"\x01\x02"), b"",
                          bytes(passed))) + b"\x00"
-
-
-@lru_cache(maxsize=4096)
-def name_key(text: str) -> bytes | str:
-    """What Excel tells two names apart by, case aside: word sort's key, under which ss is a sharp s and ae the
-    ligature while an accent or a hyphen tells two apart (tests/fixtures/style_order.json); for a name the key is not
-    reproduced for, its characters in any case."""
-    try:
-        return text_key(text, False)
-    except VBAUnsupportedError:
-        return text.casefold()
 
 
 def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]:

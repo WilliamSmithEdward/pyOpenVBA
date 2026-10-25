@@ -1285,7 +1285,7 @@ class Stylesheet:
 
     def named(self, name: str) -> int | None:
         """The place of the cell style a name names, as Excel matches names, among the ones the stylesheet holds."""
-        from pyopenvba.apps.excel._sort import name_key
+        from pyopenvba.apps.excel._names import name_key
 
         key = name_key(name)
         for index, entry in enumerate(self.cell_styles):

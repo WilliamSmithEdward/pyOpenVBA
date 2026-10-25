@@ -22,13 +22,6 @@ RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / "fixtures" / "remove_duplicates.json").read_text(encoding="utf-8"))
 LAYOUTS: list[dict[str, Any]] = RECORD["layouts"]
 
-#: Layouts the model reports it cannot do, and why.
-UNSUPPORTED: dict[str, str] = {
-    "accents": "text beyond ASCII compares by Windows' linguistic rules",
-    "ligature": "text beyond ASCII compares by Windows' linguistic rules",
-}
-
-
 def _run(layout: dict[str, Any]) -> object:
     code = ["Public Function Report() As String", "Dim ws As Object, failed As String, v As Variant",
             "Set ws = ActiveWorkbook.Worksheets(1)", "On Error Resume Next", "Err.Clear", *layout["setup"].splitlines(),
@@ -42,8 +35,12 @@ def _run(layout: dict[str, Any]) -> object:
 
 @pytest.mark.parametrize("layout", LAYOUTS, ids=[layout["name"] for layout in LAYOUTS])
 def test_duplicates_go_as_excel_removes_them(layout: dict[str, Any]) -> None:
-    if layout["name"] in UNSUPPORTED:
-        with pytest.raises(VBAUnsupportedError):
-            _run(layout)
-        return
     assert _run(layout) == layout["answers"]
+
+
+def test_text_word_sort_does_not_weigh_reports_itself() -> None:
+    """Text beyond Latin, Greek and Cyrillic: Excel's word sort is not reproduced for it."""
+    layout = {"setup": 'ws.Range("A1").Value = ChrW(20013)\nws.Range("A2").Value = ChrW(20013)\n'
+                       'ws.Range("A1:A2").RemoveDuplicates Columns:=1, Header:=xlNo'}
+    with pytest.raises(VBAUnsupportedError):
+        _run(layout)

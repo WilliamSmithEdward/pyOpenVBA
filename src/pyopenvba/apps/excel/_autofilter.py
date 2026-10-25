@@ -206,7 +206,7 @@ class Criterion:
             return seen.number is not None and _compare(seen.number, self.operator, self.number)
         if seen.text is None:
             return False
-        return _compare(_ordered(seen.text), self.operator, _ordered(self.operand))
+        return _compare(ordered(seen.text), self.operator, ordered(self.operand))
 
 
 def _criterion(value: object, *, epoch_1904: bool = False) -> Criterion:
@@ -250,7 +250,7 @@ def _compare(left: object, operator: str, right: object) -> bool:
     return left <= right  # type: ignore[operator]
 
 
-def _ordered(text: str) -> bytes:
+def ordered(text: str) -> bytes:
     """What a filter tells text by, case aside: Windows' word-sort key, which orders text for > and < and lists the
     file's values, and is one for the text an = with no wildcard keeps, so =aesop keeps Aesop with the ash and
     =strasse keeps the sharp s while =resume leaves out the accented spelling (tests/fixtures/filter_text.json)."""
@@ -263,7 +263,7 @@ def _ordered(text: str) -> bytes:
                                   "punctuation, or that begins with a combining mark, is not implemented") from None
 
 
-def _letter(char: str) -> bytes | str:
+def letter(char: str) -> bytes | str:
     """What a filter's wildcard pattern tells a character by: its word-sort key, case aside, so a Kelvin sign is a K,
     a final sigma a sigma and the capital sharp s a sharp s, while a dotless i is no I and the ash no a
     (tests/fixtures/filter_text.json, letters); a combining accent by itself."""
@@ -272,7 +272,7 @@ def _letter(char: str) -> bytes | str:
     found = WEIGHTS.get(ord(char))
     if found is not None and not found[0] and found[1]:
         return char
-    return _ordered(char)
+    return ordered(char)
 
 
 def _wild(pattern: str) -> bool:
@@ -293,7 +293,7 @@ def _like(seen: Seen, pattern: str) -> bool:
     """Whether what a cell shows matches a criterion's text: any case, * and ? wild, ~ before one to mean it.
 
     A pattern with a wildcard in it matches text only, never a number however it shows, one character at a time
-    (:func:`_letter`); one without is the text its word-sort key is (:func:`_ordered`).
+    (:func:`letter`); one without is the text its word-sort key is (:func:`ordered`).
     """
     from pyopenvba.apps.excel._filter_wildcards import matches, matches_by
 
@@ -301,8 +301,8 @@ def _like(seen: Seen, pattern: str) -> bool:
         return False
     try:
         if not _wild(pattern):
-            return _ordered(seen.shown) == _ordered(_literal(pattern))
-        return matches_by(seen.shown, pattern, _letter, escape_tilde=False)
+            return ordered(seen.shown) == ordered(_literal(pattern))
+        return matches_by(seen.shown, pattern, letter, escape_tilde=False)
     except VBAUnsupportedError:
         # Text past the word sort's weights, a check mark or an emoji, is matched character for character in any
         # case where no letter past ASCII is in it, as before the weights were measured.
@@ -416,7 +416,7 @@ def _field(sheet: Worksheet, area: Area, index: int, criteria1: object, operator
 
 def _values(criteria1: object) -> FieldFilter:
     items = [to_text(item) for item in (criteria1.elements() if isinstance(criteria1, VBAArray) else [criteria1])]
-    items.sort(key=_ordered)
+    items.sort(key=ordered)
     if len(items) == 1:
         return _one(_criterion(items[0]))
     if len(items) == 2:
@@ -533,7 +533,7 @@ def _dated(sheet: Worksheet, criteria1: object, criteria2: object) -> FieldFilte
     words: list[str] = []
     listed: FieldFilter | None = None
     if isinstance(criteria1, VBAArray):
-        words = sorted((to_text(item) for item in criteria1.elements()), key=_ordered)
+        words = sorted((to_text(item) for item in criteria1.elements()), key=ordered)
         if "" in words:
             raise VBAUnsupportedError("AutoFilter by dates beside blank cells is not implemented")
         listed = _values(criteria1)

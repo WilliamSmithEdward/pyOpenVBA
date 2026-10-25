@@ -7,6 +7,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `PivotTable.ShowPages` makes a sheet for each item of a page field as
+  Excel does, each holding a copy of the table that shows that item
+  alone. The sheets come from the field's last item to its first, each
+  put before the sheet active then, so they end in the field's order
+  with the first item's sheet active, in the table's workbook whichever
+  is active. A hidden item and the item the field chooses get no sheet.
+  A copy keeps all the table has but its name, the next default name,
+  and stands at the top left of its sheet. A sheet takes its item's
+  name cut to 26 characters, with ` (2)`, ` (3)` and on where another
+  sheet has the name in any case, and keeps the `Sheet` name it was
+  added with where no sheet can take the item's: past 31 characters,
+  with a character no sheet's name holds, or an apostrophe first or
+  last. The field goes by its name in any case or as a `PivotField`, or
+  is left out for the first page field. As in Excel, a field that is
+  not a page field and a table with none are error 1004, and the
+  events come once every sheet is made, sheet by sheet. 35 scenarios
+  agree with Excel before a save and once the file is opened again, the
+  saved tables agree with Excel's files, and Excel reads the model's
+  files as its own.
+
 - Pivot fields take calculated items as Excel's do.
   `PivotField.CalculatedItems.Add` makes an item of a field on the rows
   or columns whose formula names the field's other items: bare, in
@@ -697,6 +717,24 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- A pivot table made without a name is `PivotTable` and the next number
+  of one count through the session, as in Excel, whatever workbook it is
+  in and whatever was closed or opened before, stepping past a name the
+  sheet's own tables have in any case. The model took the lowest number
+  no table in the workbook had. Two sheets' tables may share a name, as
+  in Excel; the model refused a name any table in the workbook had.
+
+- A page field added to a pivot table with no room above it moves the
+  table down until the page fields fit with a blank row under them, as
+  in Excel. The model raised error 1004. Taking page fields away leaves
+  the table where it is.
+
+- A pivot page field showing a number or a date shows it aligned left,
+  as Excel does in every form of table. The model left it unaligned.
+
+- A sheet's relationships to the pivot tables the model adds are saved
+  in the order Office writes a part's relationships.
 
 - A pivot table's standard deviations and variances are Excel's to the
   last bit. A sample's comes from the sum of the squares less the square

@@ -14,6 +14,7 @@ from html import escape
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, split_sheet
+from pyopenvba._relationships import in_office_order
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_tree
 from pyopenvba.apps.excel._model import Range
 from pyopenvba.apps.excel._pivots import NS, REL, PivotCache, PivotTable
@@ -351,6 +352,19 @@ def placeholder_border(area: Area, row: int, column: int) -> Border:
                   top=edge if row == area.top else grid, bottom=edge if row == area.bottom else NO_SIDE)
 
 
+def next_table_name(sheet: Worksheet) -> str:
+    """The name Excel gives a pivot table a macro makes without naming it: PivotTable and the next number of one
+    count through the session, whatever workbook the table is in and whatever files were opened, stepping past a
+    name the sheet's own tables have in any case (tests/fixtures/pivot_show_pages/ default_names)."""
+    application = sheet.book.application
+    used = {str(table.Name()).casefold() for table in sheet.pivot_tables}
+    number = application.pivot_table_number
+    while f'pivottable{number}' in used:
+        number += 1
+    application.pivot_table_number = number + 1
+    return f'PivotTable{number}'
+
+
 def create_table(cache: PivotCache, destination: object, name: object, read: object, version: object) -> PivotTable:
     if read is not MISSING and not to_bool(read):
         raise error(1004)
@@ -366,16 +380,11 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
         raise error(1004)
     # A table made from a cache turns its SaveData back on (a probe in Excel).
     cache.root.attrib.pop('saveData', None)
-    if name is MISSING:
-        number = 1
-        used = {str(table.Name()).casefold() for sheet in cache.book.sheets_ for table in sheet.pivot_tables}
-        while f'pivottable{number}' in used:
-            number += 1
-        caption = f'PivotTable{number}'
-    else:
-        caption = to_text(name)
-    if not caption or len(caption) > 255 or any(ord(char) < 32 for char in caption) or any(
-            str(table.Name()).casefold() == caption.casefold() for sheet in cache.book.sheets_ for table in sheet.pivot_tables):
+    caption = '' if name is MISSING else to_text(name)
+    # Two sheets' tables may share a name; one sheet's may not, in any case (tests/fixtures/pivot_show_pages/
+    # default_names).
+    if name is not MISSING and (not caption or len(caption) > 255 or any(ord(char) < 32 for char in caption) or any(
+            str(table.Name()).casefold() == caption.casefold() for table in target.sheet.pivot_tables)):
         raise error(1004)
     first = target.first
     area = Area(first.top, first.left, first.top + 17, first.left + 2, target.sheet.name)
@@ -393,6 +402,8 @@ def create_table(cache: PivotCache, destination: object, name: object, read: obj
         for merged in target.sheet.merged_areas)
     if blocked:
         area = Area(first.top, first.left, first.top, first.left, target.sheet.name)
+    if name is MISSING:
+        caption = next_table_name(target.sheet)
     # Further reports share the existing snapshot, even after the source changes.
     if cache.index == 0:
         materialize(cache)
@@ -599,7 +610,8 @@ def write(book: Workbook, package: OpcFile) -> None:
                     return re.sub(r'\bTarget="[^"]*"', lambda _: f'Target="{escape(target, quote=True)}"', tag)
                 return tag
 
-            package.write(part, re.sub(r'<Relationship\b[^>]*/>', reorder, text).encode('utf-8'))
+            # In the order Office writes a part's relationships (tests/fixtures/pivot_show_pages/ default_names).
+            package.write(part, in_office_order(re.sub(r'<Relationship\b[^>]*/>', reorder, text)).encode('utf-8'))
 
     from pyopenvba.apps.excel._pivot_refresh import persist_cache_order
 

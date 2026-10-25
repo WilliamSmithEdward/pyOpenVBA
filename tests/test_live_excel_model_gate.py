@@ -2452,6 +2452,32 @@ def test_excel_reads_the_pivot_calculated_items_this_wrote(tmp_path: Path) -> No
         assert read[layout["name"]] == layout["reopened"], layout["name"]
 
 
+def test_excel_reads_the_pivot_show_pages_this_wrote(tmp_path: Path) -> None:
+    """Every scenario tests/fixtures/pivot_show_pages measured, made by the model with the macro Excel ran, a
+    sheet of its own for each page of a pivot table, and saved: Excel opens each workbook and reads every sheet in
+    order and each table's name, place, page choices and cells as it read its own workbook opened again."""
+    from test_excel_pivot_show_pages import RECORD, ROTATING, SCENARIOS, built, unordered
+
+    harness = pytest.importorskip("pyvbaharness")
+    built(tmp_path).run("Build")
+    reader = RECORD["build"].split("Private Function Scenario")[0] + (
+        "Public Function Read(folder As String, names As String) As String\n"
+        "Dim wb As Object, name As Variant, out As String\nApplication.DisplayAlerts = False\n"
+        "For Each name In Split(names, \",\")\nSet wb = Workbooks.Open(folder & \"\\\" & name & \".xlsx\")\n"
+        "out = out & name & \"^\" & Dump(wb) & \"|\"\nwb.Close False\nNext\nRead = out\nEnd Function\n")
+    names = ",".join(scenario["name"] for scenario in SCENARIOS)
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (str(tmp_path), names), timeout=600.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("|") if "^" in one)
+    for scenario in SCENARIOS:
+        if scenario["name"] in ROTATING:
+            assert unordered(read[scenario["name"]]) == unordered(scenario["reopened"]), scenario["name"]
+        else:
+            assert read[scenario["name"]] == scenario["reopened"], scenario["name"]
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

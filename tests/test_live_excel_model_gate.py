@@ -2532,6 +2532,40 @@ def test_excel_reads_the_tab_colours_this_wrote(tmp_path: Path) -> None:
     assert read == RECORD["reopened"]
 
 
+def test_excel_reads_the_subtotals_this_wrote(tmp_path: Path) -> None:
+    """A spread of the cases tests/fixtures/subtotals measured, made by the model with Excel's functions for them in
+    one workbook and saved: Excel opens it and reads every subtotal row, label, formula, format and outline level
+    as it read its own."""
+    from test_excel_subtotals import NAMES, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    chosen = ["fn_sum", "fn_count", "fn_varp", "above", "range_columns", "offset_list", "outside_cells",
+              "outside_formulas", "list_formulas", "values_kinds", "values_numbers", "values_blanks",
+              "values_all_blank", "total_groupby", "groupby_total_outside", "nested_sum", "nested_count",
+              "nested_above", "nested_three", "nested_grand_again", "replace_true", "remove_basic", "remove_range_rows",
+              "collapsed", "collapsed_then_nested", "hidden_row", "formats_rows", "formats_currency",
+              "formats_whole_row", "register_set", "register_after_subtotal", "large"]
+    calls = "".join(f"out = out & Make{NAMES.index(name)}(wb, scratch)\n" for name in chosen)
+    app = ExcelApplication()
+    app.add_module(RECORD["build"].split("Public Function Build")[0] + (
+        "Public Function Gate(path As String) As String\nDim wb As Object, scratch As Object, out As String\n"
+        "Set wb = Workbooks.Add(xlWBATWorksheet)\nSet scratch = wb.Worksheets(1)\nscratch.Name = \"scratch\"\n"
+        f"scratch.Range(\"A1\").NumberFormat = \"General\"\n{calls}wb.SaveAs path, 51\nGate = out\nEnd Function\n"),
+        name="Builder")
+    app.run("Gate", str(tmp_path / "subtotals.xlsx"))
+    reader = RECORD["build"].split("Public Function Build")[0] + (
+        "Public Function Read(path As String) As String\nDim wb As Object, ws As Object, out As String\n"
+        "Application.DisplayAlerts = False\nSet wb = Workbooks.Open(path)\n"
+        'For Each ws In wb.Worksheets\nout = out & ws.Name & "^" & Dump(ws) & "~"\nNext\n'
+        "wb.Close False\nRead = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (str(tmp_path / "subtotals.xlsx"),), timeout=300.0)
+        assert result.ok, result.message
+    read = dict(one.split("^", 1) for one in str(result.value).split("~") if "^" in one)
+    assert {name: read[name] for name in chosen} == {name: RECORD["reopened"][name] for name in chosen}
+
+
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:
     """Every protection tests/fixtures/protection_file.json measured, made by the model, saved, opened in Excel.
 

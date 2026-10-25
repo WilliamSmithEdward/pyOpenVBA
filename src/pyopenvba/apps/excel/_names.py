@@ -41,8 +41,19 @@ def qualify(formula: str, sheet: str) -> str:
     if len(tokens) <= 2:
         raise error(1004, "A name requires a reference or formula")
     for token in reversed(tokens):
-        if token.kind == "ref" and not split_sheet(token.text)[0]:
-            text = text[:token.at] + quote_sheet(sheet) + "!" + token.text + text[token.at + len(token.text):]
+        if token.kind != "ref":
+            continue
+        owner, reference = split_sheet(token.text)
+        if not owner:
+            replacement = quote_sheet(sheet) + "!" + token.text
+        elif ":" in owner or "[" in token.text.rpartition("!")[0]:
+            # A 3D span or another workbook's sheet keeps the spelling it was given.
+            continue
+        else:
+            # A sheet's name is spelled as Excel spells it, quoted only where it has to be:
+            # ='Data'!$C$2 reads back =Data!$C$2 (tests/fixtures/subtotals/, outside_formulas).
+            replacement = quote_sheet(owner) + "!" + reference
+        text = text[:token.at] + replacement + text[token.at + len(token.text):]
     return text
 
 

@@ -496,6 +496,58 @@ class Outline(ExcelObject):
         return True
 
 
+def admit_layout(sheet: Worksheet) -> None:
+    """Admit an outline a command lays out line by line itself, as Subtotal does: the stored one read and checked."""
+    _alive(sheet)
+    _admit_axes(sheet)
+    if state(sheet).attributes.get('applyStyles') in ('1', 'true'):
+        raise unsupported('with automatic summary styles')
+
+
+def depth(sheet: Worksheet, rows: bool, number: int) -> int:
+    """A row's or a column's outline depth as the file numbers it, 0 outside every group."""
+    return _depth(_records(sheet, rows).get(number))
+
+
+def relevel(sheet: Worksheet, rows: dict[int, int], columns: dict[int, int], shown_rows: set[int],
+            shown_columns: set[int], *, folded: dict[int, bool] | None = None) -> bool:
+    """Rows and columns laid at the depths given, the ``shown`` ones made visible with their collapsed marks taken
+    off and rows ``folded`` marked collapsed or not, in one commit that raises no event; whether a line's visibility
+    changed."""
+    plans: list[tuple[bool, dict[int, RowRecord | ColumnRecord]]] = []
+    for lines, depths, shown in ((True, rows, shown_rows), (False, columns, shown_columns)):
+        marks = (folded or {}) if lines else {}
+        changed: dict[int, RowRecord | ColumnRecord] = {}
+        for number in sorted({*depths, *shown, *marks}):
+            record = _clone(sheet, lines, number)
+            if number in depths:
+                if depths[number]:
+                    record.extra['outlineLevel'] = str(depths[number])
+                else:
+                    record.extra.pop('outlineLevel', None)
+            if number in marks:
+                if marks[number]:
+                    record.extra['collapsed'] = '1'
+                else:
+                    record.extra.pop('collapsed', None)
+            if number in shown:
+                record.hidden = False
+                record.extra.pop('collapsed', None)
+            changed[number] = record
+        if changed:
+            plans.append((lines, changed))
+    return bool(plans) and _commit_plans(sheet, plans, notify=False)
+
+
+def summary_below(sheet: Worksheet) -> bool:
+    """Whether the sheet's summary rows go below their detail, as Outline.SummaryRow has it."""
+    return _flag(sheet, 'summaryBelow', True)
+
+
+def set_summary_below(sheet: Worksheet, below: bool) -> None:
+    _change_flag(sheet, 'summaryBelow', '1' if below else '0')
+
+
 def _admit_stored_axes(sheet: Worksheet) -> None:
     package = sheet.book.package
     if package is not None and sheet.part_name and package.has(sheet.part_name):

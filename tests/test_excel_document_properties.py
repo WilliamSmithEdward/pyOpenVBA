@@ -36,16 +36,13 @@ CASES: dict[str, dict[str, Any]] = {case["name"]: case for case in RECORD["cases
 #: The cases Excel's Build made, in its order: each one's Make function.
 MADE = [name for name in CASES if name != "no_docprops"]
 #: The cases the model does not make, and why.
-UNSUPPORTED = {"chart_sheet": "a chart sheet, which the model does not make"}
-#: Where the model's names, not its properties, differ from Excel's, measured here and not reproduced yet.
-NAME_GAPS = {
-    "names_add_context": "Names.Add refuses =Sales[Qty] only while the table's own sheet is active, and an "
-                         "unqualified name the active sheet has a name of its own for changes that one; the model "
-                         "refuses the reference anywhere and adds a workbook name",
+UNSUPPORTED = {
+    "chart_sheet": "a chart sheet, which the model does not make",
+    "names_add_context": "a sheet renamed once a table is made; tests/test_excel_names_add.py measures the same "
+                         "names with the sheets named first",
 }
-#: Where a saved file differs for the same reasons, or for the order the model's names take.
+#: Where a saved file differs for the order the model's names take, not for its properties.
 FILE_GAPS = {
-    **NAME_GAPS,
     "names_more": "a name beyond printable ASCII, éclair, sorts by its code point in the model, where Windows "
                   "sorts it beside eclair",
 }
@@ -160,7 +157,7 @@ def _gaps(names: list[str], gaps: dict[str, str]) -> list[Any]:
             for name in names]
 
 
-@pytest.mark.parametrize("name", _gaps([name for name in CASES if name not in UNSUPPORTED], NAME_GAPS))
+@pytest.mark.parametrize("name", [name for name in CASES if name not in UNSUPPORTED])
 def test_a_workbooks_properties_read_as_excels(replayed: tuple[dict[str, Any], Path, int], name: str) -> None:
     """Every property's name, type, value and link, and the errors the steps raise, as the macro reads them before
     the save, once the file is opened again and once it is saved and opened a second time."""
@@ -264,12 +261,13 @@ def test_half_a_surrogate_pair_reports_itself(tmp_path: Path) -> None:
                   "ChrW(&HD83D)\nActiveWorkbook.SaveAs path, 51\nEnd Sub\n", tmp_path / "half.xlsx")
 
 
-def test_the_model_does_not_make_a_chart_sheet(tmp_path: Path) -> None:
-    """Which Excel lists under a heading of its own, Charts, after the worksheets."""
+@pytest.mark.parametrize("name", sorted(UNSUPPORTED))
+def test_what_the_model_does_not_do_reports_itself(tmp_path: Path, name: str) -> None:
+    """A chart sheet among them, which Excel lists under a heading of its own, Charts, after the worksheets."""
     app = ExcelApplication()
     app.add_module(ONE, name="Cases")
     with pytest.raises(VBAUnsupportedError):
-        app.run("One", MADE.index("chart_sheet"), str(tmp_path))
+        app.run("One", MADE.index(name), str(tmp_path))
 
 
 @pytest.mark.parametrize(("local", "utc"), [

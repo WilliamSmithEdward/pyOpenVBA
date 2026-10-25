@@ -357,6 +357,8 @@ class Param:
     default: Expr | None = None
     param_array: bool = False
     is_array: bool = False
+    #: True when the type comes from a DefType statement, neither an As clause nor a type character giving it.
+    deftyped: bool = False
 
 
 @dataclass(slots=True)

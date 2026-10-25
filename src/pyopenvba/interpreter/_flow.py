@@ -61,8 +61,13 @@ def compile_program(procedure: A.Procedure, where: str, global_declarations: Seq
     for parameter in procedure.params:
         if parameter.param_array and (not parameter.is_array or parameter.declared != 'Variant'):
             raise VBACompileError('ParamArray must be an array of Variant', where=where)
-        if parameter.optional and parameter.default is None and parameter.declared != 'Variant':
-            raise VBACompileError('Optional typed arguments require a default value', where=where)
+        # An optional array, or one a DefType types with no default, does not compile; one typed by As or a type
+        # character does, and holds its type's empty value when left out (tests/fixtures/vba_semantics/
+        # optional_types.json).
+        if parameter.optional and (parameter.is_array or (parameter.default is None and parameter.deftyped
+                                                          and parameter.declared != 'Variant')):
+            raise VBACompileError('Optional argument must be Variant or intrinsic type with a default value',
+                                  where=where)
     program = Program()
     loops: list[Loop] = []
     declarations = {item.name.lower(): (item.declared, item.is_array)

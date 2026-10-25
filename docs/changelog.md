@@ -929,6 +929,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- An `Optional` parameter typed by `As` or a type character compiles
+  without a default, as in VBA, where the model refused it:
+  `Sub Report(Optional rows As Long)` now runs, `rows` holding 0 when
+  it is left out. One a `DefType` types with no default and an optional
+  array are compile errors with VBA's message, and a fixed-length String
+  parameter is the compile error VBA gives it, over 29 live
+  declarations, `tests/fixtures/vba_semantics/optional_types.json`.
+
 - Deleting a sheet rewrites the formulas and names that read it as
   Excel does: `=Two!A1+1` becomes `=#REF!A1+1`, and a name's
   `=Two!$A$1` becomes `=#REF!$A$1`. The model left them reading a

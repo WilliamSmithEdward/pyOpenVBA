@@ -1,0 +1,155 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-10-25T18:16:41.240822+00:00",
+  "probes": [
+    {
+      "name": "long",
+      "source": "Function Watch(Optional x As Long) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Long:False:0"
+    },
+    {
+      "name": "integer",
+      "source": "Function Watch(Optional x As Integer) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Integer:False:0"
+    },
+    {
+      "name": "byte",
+      "source": "Function Watch(Optional x As Byte) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Byte:False:0"
+    },
+    {
+      "name": "boolean",
+      "source": "Function Watch(Optional x As Boolean) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Boolean:False:False"
+    },
+    {
+      "name": "single",
+      "source": "Function Watch(Optional x As Single) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Single:False:0"
+    },
+    {
+      "name": "double",
+      "source": "Function Watch(Optional x As Double) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Double:False:0"
+    },
+    {
+      "name": "currency",
+      "source": "Function Watch(Optional x As Currency) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Currency:False:0"
+    },
+    {
+      "name": "date",
+      "source": "Function Watch(Optional x As Date) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Date:False:12:00:00 AM"
+    },
+    {
+      "name": "string",
+      "source": "Function Watch(Optional x As String) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "String:False:"
+    },
+    {
+      "name": "long_long",
+      "source": "Function Watch(Optional x As LongLong) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "LongLong:False:0"
+    },
+    {
+      "name": "long_ptr",
+      "source": "Function Watch(Optional x As LongPtr) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "LongLong:False:0"
+    },
+    {
+      "name": "variant",
+      "source": "Function Watch(Optional x As Variant) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x)\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Error:True"
+    },
+    {
+      "name": "untyped",
+      "source": "Function Watch(Optional x) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x)\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Error:True"
+    },
+    {
+      "name": "object",
+      "source": "Function Watch(Optional x As Object) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & (x Is Nothing)\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Nothing:False:True"
+    },
+    {
+      "name": "collection",
+      "source": "Function Watch(Optional x As Collection) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & (x Is Nothing)\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Nothing:False:True"
+    },
+    {
+      "name": "enum",
+      "source": "Enum Shade\n    Pale = 1\nEnd Enum\nFunction Watch(Optional x As Shade) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Long:False:0"
+    },
+    {
+      "name": "integer_character",
+      "source": "Function Watch(Optional x%) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Integer:False:0"
+    },
+    {
+      "name": "string_character",
+      "source": "Function Watch(Optional x$) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "String:False:"
+    },
+    {
+      "name": "by_value",
+      "source": "Function Watch(Optional ByVal x As Long) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Long:False:0"
+    },
+    {
+      "name": "by_reference",
+      "source": "Function Watch(Optional ByRef x As Long) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Long:False:0"
+    },
+    {
+      "name": "passed",
+      "source": "Function Watch(Optional x As Long) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch(5)\nEnd Function\n",
+      "result": "Long:False:5"
+    },
+    {
+      "name": "skipped",
+      "source": "Function Watch(a As Long, Optional x As Long, Optional c As String) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x & \":\" & c\nEnd Function\nFunction Probe() As String\n    Probe = Watch(1, , \"z\")\nEnd Function\n",
+      "result": "Long:False:0:z"
+    },
+    {
+      "name": "named",
+      "source": "Function Watch(Optional a As Long, Optional x As Long) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x & \":\" & a\nEnd Function\nFunction Probe() As String\n    Probe = Watch(x:=3)\nEnd Function\n",
+      "result": "Long:False:3:0"
+    },
+    {
+      "name": "deftype",
+      "source": "DefLng X\nFunction Watch(Optional xval) As String\n    Watch = TypeName(xval) & \":\" & xval\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "deftype_with_as",
+      "source": "DefLng X\nFunction Watch(Optional xval As Long) As String\n    Watch = TypeName(xval) & \":\" & xval\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Long:0"
+    },
+    {
+      "name": "deftype_with_default",
+      "source": "DefLng X\nFunction Watch(Optional xval = 4) As String\n    Watch = TypeName(xval) & \":\" & xval\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "result": "Long:4"
+    },
+    {
+      "name": "long_array",
+      "source": "Function Watch(Optional x() As Long) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x)\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "variant_array",
+      "source": "Function Watch(Optional x()) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x)\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nOptional argument must be Variant or intrinsic type with a default value"
+    },
+    {
+      "name": "fixed_string",
+      "source": "Function Watch(Optional x As String * 3) As String\n    Watch = TypeName(x) & \":\" & IsMissing(x) & \":\" & x\nEnd Function\nFunction Probe() As String\n    Probe = Watch()\nEnd Function\n",
+      "compile_error": true,
+      "compiler_message": "Compile error:\n\nExpected array"
+    }
+  ]
+}

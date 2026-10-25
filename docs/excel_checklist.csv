@@ -1089,7 +1089,7 @@ Name,Index,"property, read-only",As Long,,MISSING,,
 Name,MacroType,property,As XlXLMMacroType,,MISSING,,
 Name,Name,property,As String,,PARTIAL,tests/fixtures/names_crud.json; tests/test_excel_worksheet_rename.py; tests/fixtures/worksheet_rename," Ordinary names follow admitted Worksheet.Name changes with local scope, held identity, comment/visibility and RefersTo retained; native ordering clarifiers cover local/global enumeration. Broader Name.Add scope and mixed-feature behavior remain partial."
 Name,NameLocal,property,As String,,UNASSESSED,,
-Name,Parent,"property, read-only",As Object,,UNASSESSED,,
+Name,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_names_add.py; tests/fixtures/names_add; scripts/measure_names_add.py,"The workbook, or the sheet of a sheet's own name."
 Name,RefersTo,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json; tests/test_excel_worksheet_rename.py; tests/fixtures/worksheet_rename," Ordinary names follow admitted Worksheet.Name changes with local scope, held identity, comment/visibility and RefersTo retained; native ordering clarifiers cover local/global enumeration. Broader Name.Add scope and mixed-feature behavior remain partial."
 Name,RefersToLocal,property,As Variant,,UNASSESSED,,
 Name,RefersToR1C1,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json,
@@ -1102,11 +1102,11 @@ Name,Visible,property,As Boolean,,PARTIAL,tests/fixtures/names_crud.json,
 Name,WorkbookParameter,property,As Boolean,,MISSING,,
 Names,_Default,method,"_Default([Index As Variant], [IndexLocal As Variant], [RefersTo As Variant]) As Name",,MISSING,,
 Names,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Names,Add,method,"Add([Name As Variant], [RefersTo As Variant], [Visible As Variant], [MacroType As Variant], [ShortcutKey As Variant], [Category As Variant], [NameLocal As Variant], [RefersToLocal As Variant], [CategoryLocal As Variant], [RefersToR1C1 As Variant], [RefersToR1C1Local As Variant]) As Name",,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/structured_references/structured.json,"MacroType, ShortcutKey and Category report unsupported. A structured reference in RefersTo is error 1004, as in Excel, and taken in RefersToR1C1."
+Names,Add,method,"Add([Name As Variant], [RefersTo As Variant], [Visible As Variant], [MacroType As Variant], [ShortcutKey As Variant], [Category As Variant], [NameLocal As Variant], [RefersToLocal As Variant], [CategoryLocal As Variant], [RefersToR1C1 As Variant], [RefersToR1C1Local As Variant]) As Name",,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/structured_references/structured.json; tests/test_excel_names_add.py; tests/fixtures/names_add; scripts/measure_names_add.py,"MacroType, ShortcutKey and Category report unsupported. A structured reference naming one column of a table on the sheet the name is read on is refused with Excel's message, and taken from any other sheet and in RefersToR1C1; an unqualified name the active sheet has one of its own of changes that one."
 Names,Application,"property, read-only",As Application,,MISSING,,
 Names,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt,
 Names,Creator,"property, read-only",As XlCreator,,MISSING,,
-Names,Item,method,"Item([Index As Variant], [IndexLocal As Variant], [RefersTo As Variant]) As Name","no IndexLocal, RefersTo",UNASSESSED,,
+Names,Item,method,"Item([Index As Variant], [IndexLocal As Variant], [RefersTo As Variant]) As Name","no IndexLocal, RefersTo",PARTIAL,tests/test_excel_names_add.py; tests/fixtures/names_add; scripts/measure_names_add.py,"By place, or by text: a sheet's Names its own; the workbook's a qualified name, or the first sheet's own before the workbook's, never another sheet's, else error 1004."
 Names,Parent,"property, read-only",As Object,,MISSING,,
 NegativeBarFormat,Application,"property, read-only",As Application,,MISSING,,
 NegativeBarFormat,BorderColor,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,

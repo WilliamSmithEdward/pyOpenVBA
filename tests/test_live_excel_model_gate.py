@@ -2618,8 +2618,10 @@ def test_excel_reads_the_document_properties_this_wrote(tmp_path: Path) -> None:
         assert who.ok, who.message
         author = str(who.value)
         files: list[tuple[str, Path, float]] = []
+        # A file Excel cannot open again, dates_overflow, among the cases the model does not make as Excel does.
+        left_out = {*UNSUPPORTED, *FILE_GAPS, "dates_overflow"}
         for index, name in enumerate(MADE):
-            if name in UNSUPPORTED or name in FILE_GAPS or name == "dates_overflow":
+            if name in left_out:
                 continue
             app = ExcelApplication()
             app.application.user_name = author
@@ -2640,11 +2642,35 @@ def test_excel_reads_the_document_properties_this_wrote(tmp_path: Path) -> None:
         result = excel.run_vba(reader, "Read", (paths, author), timeout=600.0)
         assert result.ok, result.message
     read = str(result.value).replace(author, "<author>").split("~")
-    assert len(files) == len(read) - 1 == len(MADE) - 4 + 3, "every case the model makes, read back"
+    saved_again = [name for name in MADE if name not in left_out and CASES[name]["again"] is not None]
+    assert len(files) == len(read) - 1 == len(MADE) - len(left_out) + len(saved_again) + 1, "every case, read back"
     found = {name: read[place] for place, (name, _path, _started) in enumerate(files)}
     expected = {name: CASES[name.removesuffix(" again")]["again" if name.endswith(" again") else "reopened"]
                 for name, _path, _started in files}
     assert found == expected
+
+
+def test_excel_reads_the_names_this_wrote(tmp_path: Path) -> None:
+    """Every case tests/fixtures/names_add measured, made by the model with Excel's functions for them and saved:
+    Excel opens each file and reads every name, structured references among them, as it read its own."""
+    from test_excel_names_add import NAMES, ONE, RECORD
+
+    harness = pytest.importorskip("pyvbaharness")
+    for index in range(len(NAMES)):
+        app = ExcelApplication()
+        app.add_module(ONE, name="Cases")
+        app.run("One", index, str(tmp_path))
+    reader = RECORD["helper"] + (
+        "Public Function Read(paths As String) As String\nDim wb As Object, one As Variant, out As String\n"
+        'Application.DisplayAlerts = False\nFor Each one In Split(paths, "|")\nSet wb = Workbooks.Open(one)\n'
+        'out = out & Listed(wb) & "{{case}}"\nwb.Close False\nNext\nRead = out\nEnd Function\n')
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", ("|".join(str(tmp_path / f"{name}.xlsx") for name in NAMES),),
+                               timeout=300.0)
+        assert result.ok, result.message
+    read = str(result.value).split("{{case}}")[:-1]
+    assert dict(zip(NAMES, read, strict=True)) == {case["name"]: case["reopened"] for case in RECORD["cases"]}
 
 
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:

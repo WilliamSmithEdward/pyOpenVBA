@@ -1,0 +1,444 @@
+{
+ "helper": "\nPrivate Function Listed(wb As Object) As String\n    Dim n As Object, out As String\n    For Each n In wb.Names\n        out = out & n.Name & \"=\" & n.RefersTo & \"|\" & n.RefersToR1C1 & \"|\" & n.Visible & \";\"\n    Next\n    Listed = out\nEnd Function\n",
+ "build": "\nPrivate Function Listed(wb As Object) As String\n    Dim n As Object, out As String\n    For Each n In wb.Names\n        out = out & n.Name & \"=\" & n.RefersTo & \"|\" & n.RefersToR1C1 & \"|\" & n.Visible & \";\"\n    Next\n    Listed = out\nEnd Function\nPrivate Function Make0(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_column\", \"=Sales[Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_column_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_column_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_column_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make0 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make1(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_column\", \"=Sales[Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_column_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_column_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_column_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make1 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make2(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_table\", \"=Sales\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_table_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_table_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_table_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make2 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make3(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_table\", \"=Sales\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_table_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_table_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_table_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make3 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make4(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_all\", \"=Sales[#All]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_all_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_all_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_all_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make4 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make5(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_all\", \"=Sales[#All]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_all_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_all_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_all_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make5 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make6(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_headers\", \"=Sales[[#Headers],[Qty]]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_headers_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_headers_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_headers_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make6 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make7(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_headers\", \"=Sales[[#Headers],[Qty]]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_headers_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_headers_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_headers_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make7 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make8(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_data\", \"=Sales[#Data]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_data_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_data_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_data_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make8 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make9(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_data\", \"=Sales[#Data]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_data_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_data_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_data_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make9 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make10(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_this_row\", \"=Sales[@Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_this_row_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_this_row_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_this_row_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make10 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make11(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_this_row\", \"=Sales[@Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_this_row_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_this_row_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_this_row_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make11 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make12(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_sum\", \"=SUM(Sales[Qty])\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_sum_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_sum_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_sum_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make12 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make13(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_sum\", \"=SUM(Sales[Qty])\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_sum_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_sum_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_sum_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make13 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make14(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_two_columns\", \"=Sales[[Qty]:[Price]]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_two_columns_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_two_columns_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_two_columns_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make14 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make15(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_two_columns\", \"=Sales[[Qty]:[Price]]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_two_columns_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_two_columns_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_two_columns_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make15 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make16(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_cell\", \"=Data!$D$4\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_cell_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_cell_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_cell_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make16 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make17(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"N_cell\", \"=Data!$D$4\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_cell_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_cell_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_cell_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make17 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make18(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add Name:=\"N\", RefersToR1C1:=\"=Sales[Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"r1c1_column_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\r1c1_column_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\r1c1_column_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make18 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make19(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"N\", \"=Sales[Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"local_refers_column_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\local_refers_column_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\local_refers_column_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make19 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make20(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"N\", \"=Sales[Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"local_refers_column_on_other_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\local_refers_column_on_other_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\local_refers_column_on_other_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make20 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make21(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"N\", \"=Sales[Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"other_local_refers_column_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\other_local_refers_column_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\other_local_refers_column_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make21 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make22(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add Name:=\"N\", RefersToLocal:=\"=Sales[Qty]\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"refers_local_column_on_table_sheet{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\refers_local_column_on_table_sheet.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\refers_local_column_on_table_sheet.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make22 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make23(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$3\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"active_local_then_book{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\active_local_then_book.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\active_local_then_book.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make23 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make24(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$3\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"other_local_then_book{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\other_local_then_book.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\other_local_then_book.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make24 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make25(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$3\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"book_then_active_local_then_book{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\book_then_active_local_then_book.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\book_then_active_local_then_book.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make25 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make26(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Names.Add \"twin\", \"=Data!$A$3\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"book_then_book{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\book_then_book.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\book_then_book.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make26 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make27(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"Data!Twin\", \"=Data!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Names.Add \"Data!Twin\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"qualified_inactive{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\qualified_inactive.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\qualified_inactive.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make27 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make28(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"'Other'!Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"qualified_quoted{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\qualified_quoted.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\qualified_quoted.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make28 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make29(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$3\", False\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"active_local_hidden_by_book{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\active_local_hidden_by_book.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\active_local_hidden_by_book.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make29 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make30(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$3\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"active_local_then_sheet_add{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\active_local_then_sheet_add.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\active_local_then_sheet_add.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make30 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make31(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"active_local_lookup{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\active_local_lookup.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\active_local_lookup.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make31 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make32(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"lookup_active_local_only{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\lookup_active_local_only.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\lookup_active_local_only.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make32 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make33(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"lookup_other_local_only{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\lookup_other_local_only.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\lookup_other_local_only.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make33 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make34(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"lookup_book_and_other_local{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\lookup_book_and_other_local.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\lookup_book_and_other_local.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make34 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make35(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"lookup_book_and_active_local{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\lookup_book_and_active_local.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\lookup_book_and_active_local.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make35 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make36(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Names.Add \"Twin\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"lookup_all_three{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\lookup_all_three.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\lookup_all_three.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make36 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make37(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    wb.Worksheets.Add Before:=ws\n    wb.Worksheets(1).Name = \"Zed\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Data\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Zed\").Names.Add \"Twin\", \"=Zed!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Names.Add \"Lone\", \"=Data!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Lone\", \"=Other!$A$2\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[twin]\" & wb.Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[lone]\" & wb.Names(\"Lone\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"lookup_first_tab_last_by_name{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\lookup_first_tab_last_by_name.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\lookup_first_tab_last_by_name.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make37 = out & \"{{case}}\"\nEnd Function\nPrivate Function Make38(folder As String) As String\n    Dim wb As Object, ws As Object, notes As String, out As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Data\"\n    wb.Worksheets.Add After:=ws\n    wb.Worksheets(2).Name = \"Other\"\n    wb.Worksheets.Add Before:=ws\n    wb.Worksheets(1).Name = \"Zed\"\n    ws.Range(\"A1\").Value = \"Qty\"\n    ws.Range(\"B1\").Value = \"Price\"\n    ws.Range(\"A2:B3\").Value = 1\n    ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"Sales\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Err.Clear\n    wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[twin]\" & wb.Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    wb.Worksheets(\"Zed\").Activate\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"[zed active]\" & wb.Names(\"Twin\").RefersTo & \";\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    out = \"lookup_first_tab_none{{name}}\" & notes & \"{{names}}\" & Listed(wb) & \"{{reopened}}\"\n    wb.SaveAs folder & \"\\lookup_first_tab_none.xlsx\", 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\lookup_first_tab_none.xlsx\")\n    out = out & Listed(wb)\n    wb.Close False\n    Make38 = out & \"{{case}}\"\nEnd Function\nPublic Function Build(folder As String) As String\n    Dim out As String\n    Application.DisplayAlerts = False\n    out = out & Make0(folder)\n    out = out & Make1(folder)\n    out = out & Make2(folder)\n    out = out & Make3(folder)\n    out = out & Make4(folder)\n    out = out & Make5(folder)\n    out = out & Make6(folder)\n    out = out & Make7(folder)\n    out = out & Make8(folder)\n    out = out & Make9(folder)\n    out = out & Make10(folder)\n    out = out & Make11(folder)\n    out = out & Make12(folder)\n    out = out & Make13(folder)\n    out = out & Make14(folder)\n    out = out & Make15(folder)\n    out = out & Make16(folder)\n    out = out & Make17(folder)\n    out = out & Make18(folder)\n    out = out & Make19(folder)\n    out = out & Make20(folder)\n    out = out & Make21(folder)\n    out = out & Make22(folder)\n    out = out & Make23(folder)\n    out = out & Make24(folder)\n    out = out & Make25(folder)\n    out = out & Make26(folder)\n    out = out & Make27(folder)\n    out = out & Make28(folder)\n    out = out & Make29(folder)\n    out = out & Make30(folder)\n    out = out & Make31(folder)\n    out = out & Make32(folder)\n    out = out & Make33(folder)\n    out = out & Make34(folder)\n    out = out & Make35(folder)\n    out = out & Make36(folder)\n    out = out & Make37(folder)\n    out = out & Make38(folder)\n    Build = out\nEnd Function\n",
+ "cases": [
+  {
+   "name": "refers_column_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_column\", \"=Sales[Qty]\""
+   ],
+   "notes": "E1004:There's a problem with this formula.\n\nNot trying to type a formula?\nWhen the first character is an equal (\"=\") or minus (\"-\") sign, Excel thinks it's a formula:\n\n• you type:   =1+1, cell shows:   2\n\nTo get around this, type an apostrophe ( ' ) first:\n\n• you type:   '=1+1, cell shows:   =1+1 ",
+   "names": "",
+   "reopened": ""
+  },
+  {
+   "name": "refers_column_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_column\", \"=Sales[Qty]\""
+   ],
+   "notes": "",
+   "names": "N_column==Sales[Qty]|=Sales[Qty]|True;",
+   "reopened": "N_column==Sales[Qty]|=Sales[Qty]|True;"
+  },
+  {
+   "name": "refers_table_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_table\", \"=Sales\""
+   ],
+   "notes": "",
+   "names": "N_table==Sales|=Sales|True;",
+   "reopened": "N_table==Sales|=Sales|True;"
+  },
+  {
+   "name": "refers_table_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_table\", \"=Sales\""
+   ],
+   "notes": "",
+   "names": "N_table==Sales|=Sales|True;",
+   "reopened": "N_table==Sales|=Sales|True;"
+  },
+  {
+   "name": "refers_all_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_all\", \"=Sales[#All]\""
+   ],
+   "notes": "",
+   "names": "N_all==Sales[#All]|=Sales[#All]|True;",
+   "reopened": "N_all==Sales[#All]|=Sales[#All]|True;"
+  },
+  {
+   "name": "refers_all_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_all\", \"=Sales[#All]\""
+   ],
+   "notes": "",
+   "names": "N_all==Sales[#All]|=Sales[#All]|True;",
+   "reopened": "N_all==Sales[#All]|=Sales[#All]|True;"
+  },
+  {
+   "name": "refers_headers_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_headers\", \"=Sales[[#Headers],[Qty]]\""
+   ],
+   "notes": "",
+   "names": "N_headers==Sales[[#Headers],[Qty]]|=Sales[[#Headers],[Qty]]|True;",
+   "reopened": "N_headers==Sales[[#Headers],[Qty]]|=Sales[[#Headers],[Qty]]|True;"
+  },
+  {
+   "name": "refers_headers_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_headers\", \"=Sales[[#Headers],[Qty]]\""
+   ],
+   "notes": "",
+   "names": "N_headers==Sales[[#Headers],[Qty]]|=Sales[[#Headers],[Qty]]|True;",
+   "reopened": "N_headers==Sales[[#Headers],[Qty]]|=Sales[[#Headers],[Qty]]|True;"
+  },
+  {
+   "name": "refers_data_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_data\", \"=Sales[#Data]\""
+   ],
+   "notes": "",
+   "names": "N_data==Sales[#Data]|=Sales[#Data]|True;",
+   "reopened": "N_data==Sales[#Data]|=Sales[#Data]|True;"
+  },
+  {
+   "name": "refers_data_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_data\", \"=Sales[#Data]\""
+   ],
+   "notes": "",
+   "names": "N_data==Sales[#Data]|=Sales[#Data]|True;",
+   "reopened": "N_data==Sales[#Data]|=Sales[#Data]|True;"
+  },
+  {
+   "name": "refers_this_row_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_this_row\", \"=Sales[@Qty]\""
+   ],
+   "notes": "E1004:The syntax of this name isn't correct.\n\nVerify that the name:\n\t-Starts with a letter or underscore (_)\n\t-Doesn't include a space or character that isn't allowed\n\t-Doesn't conflict with an existing name in the workbook. ",
+   "names": "",
+   "reopened": ""
+  },
+  {
+   "name": "refers_this_row_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_this_row\", \"=Sales[@Qty]\""
+   ],
+   "notes": "",
+   "names": "N_this_row==Sales[@Qty]|=Sales[@Qty]|True;",
+   "reopened": "N_this_row==Sales[@Qty]|=Sales[@Qty]|True;"
+  },
+  {
+   "name": "refers_sum_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_sum\", \"=SUM(Sales[Qty])\""
+   ],
+   "notes": "E1004:There's a problem with this formula.\n\nNot trying to type a formula?\nWhen the first character is an equal (\"=\") or minus (\"-\") sign, Excel thinks it's a formula:\n\n• you type:   =1+1, cell shows:   2\n\nTo get around this, type an apostrophe ( ' ) first:\n\n• you type:   '=1+1, cell shows:   =1+1 ",
+   "names": "",
+   "reopened": ""
+  },
+  {
+   "name": "refers_sum_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_sum\", \"=SUM(Sales[Qty])\""
+   ],
+   "notes": "",
+   "names": "N_sum==SUM(Sales[Qty])|=SUM(Sales[Qty])|True;",
+   "reopened": "N_sum==SUM(Sales[Qty])|=SUM(Sales[Qty])|True;"
+  },
+  {
+   "name": "refers_two_columns_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_two_columns\", \"=Sales[[Qty]:[Price]]\""
+   ],
+   "notes": "",
+   "names": "N_two_columns==Sales[[Qty]:[Price]]|=Sales[[Qty]:[Price]]|True;",
+   "reopened": "N_two_columns==Sales[[Qty]:[Price]]|=Sales[[Qty]:[Price]]|True;"
+  },
+  {
+   "name": "refers_two_columns_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_two_columns\", \"=Sales[[Qty]:[Price]]\""
+   ],
+   "notes": "",
+   "names": "N_two_columns==Sales[[Qty]:[Price]]|=Sales[[Qty]:[Price]]|True;",
+   "reopened": "N_two_columns==Sales[[Qty]:[Price]]|=Sales[[Qty]:[Price]]|True;"
+  },
+  {
+   "name": "refers_cell_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"N_cell\", \"=Data!$D$4\""
+   ],
+   "notes": "",
+   "names": "N_cell==Data!$D$4|=Data!R4C4|True;",
+   "reopened": "N_cell==Data!$D$4|=Data!R4C4|True;"
+  },
+  {
+   "name": "refers_cell_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"N_cell\", \"=Data!$D$4\""
+   ],
+   "notes": "",
+   "names": "N_cell==Data!$D$4|=Data!R4C4|True;",
+   "reopened": "N_cell==Data!$D$4|=Data!R4C4|True;"
+  },
+  {
+   "name": "r1c1_column_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add Name:=\"N\", RefersToR1C1:=\"=Sales[Qty]\""
+   ],
+   "notes": "",
+   "names": "N==Sales[Qty]|=Sales[Qty]|True;",
+   "reopened": "N==Sales[Qty]|=Sales[Qty]|True;"
+  },
+  {
+   "name": "local_refers_column_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Worksheets(\"Data\").Names.Add \"N\", \"=Sales[Qty]\""
+   ],
+   "notes": "E1004:There's a problem with this formula.\n\nNot trying to type a formula?\nWhen the first character is an equal (\"=\") or minus (\"-\") sign, Excel thinks it's a formula:\n\n• you type:   =1+1, cell shows:   2\n\nTo get around this, type an apostrophe ( ' ) first:\n\n• you type:   '=1+1, cell shows:   =1+1 ",
+   "names": "",
+   "reopened": ""
+  },
+  {
+   "name": "local_refers_column_on_other_sheet",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Data\").Names.Add \"N\", \"=Sales[Qty]\""
+   ],
+   "notes": "E1004:There's a problem with this formula.\n\nNot trying to type a formula?\nWhen the first character is an equal (\"=\") or minus (\"-\") sign, Excel thinks it's a formula:\n\n• you type:   =1+1, cell shows:   2\n\nTo get around this, type an apostrophe ( ' ) first:\n\n• you type:   '=1+1, cell shows:   =1+1 ",
+   "names": "",
+   "reopened": ""
+  },
+  {
+   "name": "other_local_refers_column_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Worksheets(\"Other\").Names.Add \"N\", \"=Sales[Qty]\""
+   ],
+   "notes": "",
+   "names": "Other!N==Sales[Qty]|=Sales[Qty]|True;",
+   "reopened": "Other!N==Sales[Qty]|=Sales[Qty]|True;"
+  },
+  {
+   "name": "refers_local_column_on_table_sheet",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add Name:=\"N\", RefersToLocal:=\"=Sales[Qty]\""
+   ],
+   "notes": "E1004:There's a problem with this formula.\n\nNot trying to type a formula?\nWhen the first character is an equal (\"=\") or minus (\"-\") sign, Excel thinks it's a formula:\n\n• you type:   =1+1, cell shows:   2\n\nTo get around this, type an apostrophe ( ' ) first:\n\n• you type:   '=1+1, cell shows:   =1+1 ",
+   "names": "",
+   "reopened": ""
+  },
+  {
+   "name": "active_local_then_book",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "wb.Names.Add \"Twin\", \"=Data!$A$3\""
+   ],
+   "notes": "",
+   "names": "Other!Twin==Data!$A$3|=Data!R3C1|True;",
+   "reopened": "Other!Twin==Data!$A$3|=Data!R3C1|True;"
+  },
+  {
+   "name": "other_local_then_book",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"",
+    "wb.Names.Add \"Twin\", \"=Data!$A$3\""
+   ],
+   "notes": "",
+   "names": "Data!Twin==Data!$A$1|=Data!R1C1|True;Twin==Data!$A$3|=Data!R3C1|True;",
+   "reopened": "Data!Twin==Data!$A$1|=Data!R1C1|True;Twin==Data!$A$3|=Data!R3C1|True;"
+  },
+  {
+   "name": "book_then_active_local_then_book",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"Twin\", \"=Data!$A$2\"",
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "wb.Names.Add \"Twin\", \"=Data!$A$3\""
+   ],
+   "notes": "",
+   "names": "Other!Twin==Data!$A$3|=Data!R3C1|True;Twin==Data!$A$2|=Data!R2C1|True;",
+   "reopened": "Other!Twin==Data!$A$3|=Data!R3C1|True;Twin==Data!$A$2|=Data!R2C1|True;"
+  },
+  {
+   "name": "book_then_book",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"Twin\", \"=Data!$A$2\"",
+    "wb.Names.Add \"twin\", \"=Data!$A$3\""
+   ],
+   "notes": "",
+   "names": "twin==Data!$A$3|=Data!R3C1|True;",
+   "reopened": "twin==Data!$A$3|=Data!R3C1|True;"
+  },
+  {
+   "name": "qualified_inactive",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"Data!Twin\", \"=Data!$A$1\"",
+    "wb.Names.Add \"Data!Twin\", \"=Data!$A$2\""
+   ],
+   "notes": "",
+   "names": "Data!Twin==Data!$A$2|=Data!R2C1|True;",
+   "reopened": "Data!Twin==Data!$A$2|=Data!R2C1|True;"
+  },
+  {
+   "name": "qualified_quoted",
+   "active": "Data",
+   "steps": [
+    "wb.Names.Add \"'Other'!Twin\", \"=Other!$A$1\""
+   ],
+   "notes": "",
+   "names": "Other!Twin==Other!$A$1|=Other!R1C1|True;",
+   "reopened": "Other!Twin==Other!$A$1|=Other!R1C1|True;"
+  },
+  {
+   "name": "active_local_hidden_by_book",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "wb.Names.Add \"Twin\", \"=Data!$A$3\", False"
+   ],
+   "notes": "",
+   "names": "Other!Twin==Data!$A$3|=Data!R3C1|False;",
+   "reopened": "Other!Twin==Data!$A$3|=Data!R3C1|False;"
+  },
+  {
+   "name": "active_local_then_sheet_add",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$3\""
+   ],
+   "notes": "",
+   "names": "Data!Twin==Data!$A$3|=Data!R3C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;",
+   "reopened": "Data!Twin==Data!$A$3|=Data!R3C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;"
+  },
+  {
+   "name": "active_local_lookup",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"Twin\", \"=Data!$A$2\"",
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "notes = notes & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\""
+   ],
+   "notes": "=Data!$A$2:Workbook;",
+   "names": "Other!Twin==Other!$A$1|=Other!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;",
+   "reopened": "Other!Twin==Other!$A$1|=Other!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;"
+  },
+  {
+   "name": "lookup_active_local_only",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"",
+    "notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"",
+    "notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\""
+   ],
+   "notes": "E1004:Application-defined or object-defined error [other]=Other!$A$1;E1004:Application-defined or object-defined error E1004:Application-defined or object-defined error [count]1:1;",
+   "names": "Other!Twin==Other!$A$1|=Other!R1C1|True;",
+   "reopened": "Other!Twin==Other!$A$1|=Other!R1C1|True;"
+  },
+  {
+   "name": "lookup_other_local_only",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"",
+    "notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"",
+    "notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"",
+    "notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\""
+   ],
+   "notes": "[book]=Data!$A$1:Worksheet;E1004:Application-defined or object-defined error [data]=Data!$A$1;[qualified]=Data!$A$1;[count]1:0;",
+   "names": "Data!Twin==Data!$A$1|=Data!R1C1|True;",
+   "reopened": "Data!Twin==Data!$A$1|=Data!R1C1|True;"
+  },
+  {
+   "name": "lookup_book_and_other_local",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"Twin\", \"=Data!$A$2\"",
+    "wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"",
+    "notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"",
+    "notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"",
+    "notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\""
+   ],
+   "notes": "[book]=Data!$A$1:Worksheet;E1004:Application-defined or object-defined error [data]=Data!$A$1;[qualified]=Data!$A$1;[count]2:0;",
+   "names": "Data!Twin==Data!$A$1|=Data!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;",
+   "reopened": "Data!Twin==Data!$A$1|=Data!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;"
+  },
+  {
+   "name": "lookup_book_and_active_local",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"Twin\", \"=Data!$A$2\"",
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"",
+    "notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"",
+    "notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\""
+   ],
+   "notes": "[book]=Data!$A$2:Workbook;[other]=Other!$A$1;E1004:Application-defined or object-defined error E1004:Application-defined or object-defined error [count]2:1;",
+   "names": "Other!Twin==Other!$A$1|=Other!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;",
+   "reopened": "Other!Twin==Other!$A$1|=Other!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;"
+  },
+  {
+   "name": "lookup_all_three",
+   "active": "Other",
+   "steps": [
+    "wb.Names.Add \"Twin\", \"=Data!$A$2\"",
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"",
+    "notes = notes & \"[book]\" & wb.Names(\"Twin\").RefersTo & \":\" & TypeName(wb.Names(\"Twin\").Parent) & \";\"",
+    "notes = notes & \"[other]\" & wb.Worksheets(\"Other\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[data]\" & wb.Worksheets(\"Data\").Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[qualified]\" & wb.Names(\"Data!Twin\").RefersTo & \";\"",
+    "notes = notes & \"[count]\" & wb.Names.Count & \":\" & wb.Worksheets(\"Other\").Names.Count & \";\""
+   ],
+   "notes": "[book]=Data!$A$1:Worksheet;[other]=Other!$A$1;[data]=Data!$A$1;[qualified]=Data!$A$1;[count]3:1;",
+   "names": "Data!Twin==Data!$A$1|=Data!R1C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;",
+   "reopened": "Data!Twin==Data!$A$1|=Data!R1C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;Twin==Data!$A$2|=Data!R2C1|True;"
+  },
+  {
+   "name": "lookup_first_tab_last_by_name",
+   "active": "Data",
+   "steps": [
+    "wb.Worksheets(\"Zed\").Names.Add \"Twin\", \"=Zed!$A$1\"",
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "wb.Names.Add \"Lone\", \"=Data!$A$2\"",
+    "wb.Worksheets(\"Other\").Names.Add \"Lone\", \"=Other!$A$2\"",
+    "notes = notes & \"[twin]\" & wb.Names(\"Twin\").RefersTo & \";\"",
+    "notes = notes & \"[lone]\" & wb.Names(\"Lone\").RefersTo & \";\""
+   ],
+   "notes": "[twin]=Zed!$A$1;[lone]=Data!$A$2;",
+   "names": "Other!Lone==Other!$A$2|=Other!R2C1|True;Lone==Data!$A$2|=Data!R2C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;Zed!Twin==Zed!$A$1|=Zed!R1C1|True;",
+   "reopened": "Other!Lone==Other!$A$2|=Other!R2C1|True;Lone==Data!$A$2|=Data!R2C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;Zed!Twin==Zed!$A$1|=Zed!R1C1|True;"
+  },
+  {
+   "name": "lookup_first_tab_none",
+   "active": "Other",
+   "steps": [
+    "wb.Worksheets(\"Other\").Names.Add \"Twin\", \"=Other!$A$1\"",
+    "wb.Worksheets(\"Data\").Names.Add \"Twin\", \"=Data!$A$1\"",
+    "notes = notes & \"[twin]\" & wb.Names(\"Twin\").RefersTo & \";\"",
+    "wb.Worksheets(\"Zed\").Activate",
+    "notes = notes & \"[zed active]\" & wb.Names(\"Twin\").RefersTo & \";\""
+   ],
+   "notes": "E1004:Application-defined or object-defined error E1004:Application-defined or object-defined error ",
+   "names": "Data!Twin==Data!$A$1|=Data!R1C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;",
+   "reopened": "Data!Twin==Data!$A$1|=Data!R1C1|True;Other!Twin==Other!$A$1|=Other!R1C1|True;"
+  }
+ ]
+}

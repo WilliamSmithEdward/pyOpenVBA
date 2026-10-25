@@ -4520,11 +4520,31 @@ class Names(VBACollection, ExcelObject):
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
-            found = self.find(index)
+            found = self._item(index)
             if found is None:
-                raise error(1004, f"there is no name called {index}")
+                raise error(1004, "Application-defined or object-defined error")
             return found
         return super().vba_lookup(index, items)
+
+    def _item(self, name: str) -> DefinedName | None:
+        """A name as Names(...) finds it by its text: a sheet's Names only the sheet's own; the workbook's one
+        qualified with its sheet, or else the first sheet's own before the workbook's, whichever sheet is active,
+        and never another sheet's (tests/fixtures/names_add/, lookup_*)."""
+        from pyopenvba._a1 import split_sheet
+
+        owner, bare = split_sheet(name)
+        if self.sheet is not None:
+            scopes = [self.sheet.name] if not owner or owner.casefold() == self.sheet.name.casefold() else []
+        elif owner and owner.casefold() != self.book.name.casefold():
+            scopes = [owner]
+        else:
+            scopes = ([self.book.sheets_[0].name] if self.book.sheets_ and not owner else []) + [""]
+        for scope in scopes:
+            for entry in self.entries:
+                entry_scope, entry_bare = split_sheet(entry.name)
+                if entry_bare.casefold() == bare.casefold() and entry_scope.casefold() == scope.casefold():
+                    return DefinedName(entry)
+        return None
 
     def find(self, name: str, *, scope: Worksheet | None = None) -> DefinedName | None:
         from pyopenvba._a1 import split_sheet
@@ -4563,16 +4583,24 @@ class Names(VBACollection, ExcelObject):
         owner = self.sheet or self.book.active_sheet
         if owner is None:
             raise error(1004, "No worksheet is available for the name")
+        if self.sheet is None and "!" not in wanted:
+            from pyopenvba._a1 import quote_sheet
+
+            # The workbook's Names take a name the active sheet has one of its own of as that one
+            # (tests/fixtures/names_add/, active_local_then_book).
+            local = quote_sheet(owner.name) + "!" + wanted
+            if any(one.name.casefold() == local.casefold() for one in self.entries):
+                wanted = local
         refers = RefersTo if RefersTo is not MISSING else RefersToLocal
         if refers is MISSING:
             rc = RefersToR1C1 if RefersToR1C1 is not MISSING else RefersToR1C1Local
             if rc is MISSING:
                 raise error(449)
             refers = to_a1(to_text(rc), 1, 1)
-        elif not isinstance(refers, Range) and _names.structured(to_text(refers)):
-            # Measured (tests/fixtures/structured_references/): RefersTo will not take =Table1[Qty], though
-            # RefersToR1C1 does.
-            raise error(1004, "Application-defined or object-defined error")
+        elif not isinstance(refers, Range):
+            refused = _names.refused_structured(to_text(refers), owner)
+            if refused is not None:
+                raise error(1004, refused)
         if isinstance(refers, Range):
             from pyopenvba._a1 import quote_sheet
 
@@ -4661,7 +4689,12 @@ class DefinedName(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.entry.book
+        """The workbook, or for a sheet's own name the sheet (tests/fixtures/names_add/, lookup_*)."""
+        from pyopenvba._a1 import split_sheet
+
+        scope = split_sheet(self.entry.name)[0]
+        sheet = self.entry.book.sheet_named(scope) if scope else None
+        return sheet if sheet is not None else self.entry.book
 
     @member
     def RefersToR1C1(self) -> object:

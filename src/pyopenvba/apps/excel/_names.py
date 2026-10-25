@@ -1,13 +1,23 @@
 """Shared name validation, scope and reference rewriting."""
 from __future__ import annotations
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Final
 from pyopenvba._a1 import parse_area, quote_sheet
 from pyopenvba.formula._parse import tokenize, split_sheet, FormulaError
 from pyopenvba.interpreter._values import error
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook, NameEntry, Worksheet
+
+#: What Excel says of a name it will not take, a cell's address among them (live probe).
+SYNTAX: Final = ("The syntax of this name isn't correct.\n\nVerify that the name:\n\t-Starts with a letter or underscore "
+                 "(_)\n\t-Doesn't include a space or character that isn't allowed\n\t-Doesn't conflict with an existing "
+                 "name in the workbook.")
+#: And of a formula it will not take.
+FORMULA_PROBLEM: Final = (
+    "There's a problem with this formula.\n\nNot trying to type a formula?\nWhen the first character is an equal "
+    "(\"=\") or minus (\"-\") sign, Excel thinks it's a formula:\n\n\u2022 you type:   =1+1, cell shows:   2\n\nTo get "
+    "around this, type an apostrophe ( ' ) first:\n\n\u2022 you type:   '=1+1, cell shows:   =1+1")
 
 
 def canonical(book: Workbook, name: str, scope: Worksheet | None = None) -> str:
@@ -20,16 +30,33 @@ def canonical(book: Workbook, name: str, scope: Worksheet | None = None) -> str:
     if owner:
         owner = book.sheet_named(owner).name
     if not re.fullmatch(r"[A-Za-z_\\\u0080-\uffff][\w.\\]*", bare) or len(bare) > 255 or bare.upper() in {"R", "C"}:
-        raise error(1004, "Invalid defined name")
+        raise error(1004, SYNTAX)
     if re.fullmatch(r"R[0-9]*C[0-9]*", bare, re.I):
-        raise error(1004, "A name cannot be a cell reference")
+        raise error(1004, SYNTAX)
     try:
         parse_area(bare)
     except ValueError:
         pass
     else:
-        raise error(1004, "A name cannot be a cell reference")
+        raise error(1004, SYNTAX)
     return f"{quote_sheet(owner)}!{bare}" if owner else bare
+
+
+def refused_structured(formula: str, context: Worksheet) -> str | None:
+    """What Excel says of a name's A1 formula naming one column of a table on the sheet the name is read on, the
+    active sheet's for the workbook's Names and a sheet's own for its: Table[Qty] is a problem with the formula and
+    Table[@Qty] a name's syntax; None where Excel takes it, as it takes the whole table, its parts, a span of
+    columns, the same from any other sheet and any of them in R1C1 (tests/fixtures/names_add/)."""
+    tables = {table.name.casefold() for table in context.tables}
+    try:
+        tokens = tokenize(formula if formula.startswith("=") else "=" + formula)
+    except FormulaError:
+        return None
+    for token in tokens:
+        found = re.fullmatch(r"(?:[^!]*!)?([^\[]+)\[(@?)[^\[\]#@][^\[\]]*\]", token.text)
+        if token.kind == "structured" and found is not None and found.group(1).casefold() in tables:
+            return SYNTAX if found.group(2) else FORMULA_PROBLEM
+    return None
 
 
 def qualify(formula: str, sheet: str) -> str:
@@ -55,14 +82,6 @@ def qualify(formula: str, sheet: str) -> str:
             replacement = quote_sheet(owner) + "!" + reference
         text = text[:token.at] + replacement + text[token.at + len(token.text):]
     return text
-
-
-def structured(formula: str) -> bool:
-    """Whether a name's formula holds a structured reference, Table1[Qty]."""
-    try:
-        return any(token.kind == "structured" for token in tokenize(formula.removeprefix("=")))
-    except FormulaError:
-        return False
 
 
 def renamed_formula(formula: str, owner: Worksheet, entry: NameEntry, wanted: str) -> str:

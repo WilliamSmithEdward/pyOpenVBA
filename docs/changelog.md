@@ -874,6 +874,29 @@ All notable changes to pyOpenVBA are documented here. This project follows
   as Excel's own does. The macro-enabled template it starts from kept
   its vbaProject Default.
 
+- `Names.Add` takes a structured reference as Excel does. Excel
+  refuses a name's A1 formula that names one column of a table on the
+  sheet the name is read on: `=Sales[Qty]` or `=SUM(Sales[Qty])` is
+  "There's a problem with this formula", and `=Sales[@Qty]` is "The
+  syntax of this name isn't correct". That sheet is the active one for
+  the workbook's Names and the sheet itself for a sheet's. The whole
+  table, `[#All]`, `[#Data]`, `[[#Headers],[Qty]]` and a span of
+  columns go in, as does any of them from another sheet. The model
+  refused every structured reference in RefersTo.
+
+- An unqualified name added to the workbook's Names changes the active
+  sheet's own name of it where there is one, as in Excel. The model
+  added a workbook name beside it.
+
+- `Names("Twin")` finds a name as Excel does. A sheet's Names find only
+  the sheet's own. The workbook's find the first sheet's own before the
+  workbook's, whichever sheet is active, and never another sheet's.
+  Where there is none it is error 1004, Application-defined or
+  object-defined error. The model looked on the active sheet first.
+  `Name.Parent` is the sheet of a sheet's own name, and a name Excel
+  will not take, a cell's address among them, raises Excel's own
+  message.
+
 - `Names.Add` spells a sheet in RefersTo as Excel does, quoted only
   where it has to be: `='Data'!$C$2` reads back `=Data!$C$2`.
 

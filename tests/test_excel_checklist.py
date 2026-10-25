@@ -19,6 +19,7 @@ from pyopenvba.apps.excel import (
     _chart_axes,
     _colour_scales,
     _data_bars,
+    _document_properties,
     _formats,
     _hyperlinks,
     _icon_sets,
@@ -62,13 +63,14 @@ def _classes() -> dict[str, type[VBAObject]]:
     found: dict[str, type[VBAObject]] = {}
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
                    _hyperlinks, _chart_axes, _pivots, _pivot_criteria, _pivot_calculated, _pivot_cells, _sheet_tabs, _page_setup,
-                   _page_breaks, _outline, _colour_scales, _data_bars, _icon_sets):
+                   _page_breaks, _outline, _colour_scales, _data_bars, _icon_sets, _document_properties):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue
             if module is _pivots and cls.__name__ == '_Collection':
                 continue
-            if not issubclass(cls, VBAObject) or not _registered(cls):
+            if not issubclass(cls, VBAObject) or not _registered(cls) or not cls.vba_type_name:
+                # A class with no type name is a base the types share, not a type.
                 continue
             # Rows and Columns views share Range's type name; the class
             # with the most members is the one that stands for the type.

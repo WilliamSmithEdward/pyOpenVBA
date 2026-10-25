@@ -788,6 +788,22 @@ DisplayFormat,ShrinkToFit,"property, read-only",As Variant,,PARTIAL,tests/test_e
 DisplayFormat,Style,"property, read-only",As Variant,,MISSING,,
 DisplayFormat,VerticalAlignment,"property, read-only",As Variant,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,WrapText,"property, read-only",As Variant,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
+DocumentProperties,_NewEnum,"property, read-only",As HRESULT,,MISSING,,
+DocumentProperties,Add,method,"Add(Name As String, LinkToContent As Boolean, [Type As Variant], [Value As Variant], [LinkSource As Variant], lcid As Long, ppIDocProp As DocumentProperty)",,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"A custom property of a type, or linked to a named range: Type is required, the name cut to 255 characters and any case one name, each error as Excel raises it; the built-in properties' Add is Catastrophic failure."
+DocumentProperties,Application,"property, read-only",As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,The application.
+DocumentProperties,Count,"property, read-only",As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"The 34 built-in properties, or the custom ones in the order they were added."
+DocumentProperties,Creator,"property, read-only",As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
+DocumentProperties,Item,"property, read-only",As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"By name, any case one name, or by place; anything else is error 5."
+DocumentProperties,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,The workbook.
+DocumentProperty,Application,"property, read-only",As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,The application.
+DocumentProperty,Creator,"property, read-only",As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
+DocumentProperty,Delete,method,Delete(),,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"Takes a custom property out; a built-in one's fails, and a reference to a deleted one fails as Excel's does."
+DocumentProperty,LinkSource,property,As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,The named range a linked property takes its value from: setting it moves a linked property and leaves one that is not linked as it is.
+DocumentProperty,LinkToContent,property,As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"Whether the property is linked; setting it changes nothing, as in Excel."
+DocumentProperty,Name,property,As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"A custom property takes a name no other one has, cut to 255 characters; a built-in one keeps its own."
+DocumentProperty,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,The workbook.
+DocumentProperty,Type,property,As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"A custom property's value turned into the type, or the error Excel raises; a built-in one's fails."
+DocumentProperty,Value,property,As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"Turned into the property's type as Office turns a Variant; a date kept to its second in UTC by the machine's time zone, Excel's day early before day zero; a linked property's value and type come from its range when the workbook is saved."
 Filter,Application,"property, read-only",As Application,,MISSING,,
 Filter,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
 Filter,Creator,"property, read-only",As XlCreator,,MISSING,,
@@ -2327,7 +2343,7 @@ Workbook,BeforeSave,event,"BeforeSave(SaveAsUI As Boolean, Cancel As Boolean)",,
 Workbook,BeforeXmlExport,event,"BeforeXmlExport(Map As XmlMap, Url As String, Cancel As Boolean)",,MISSING,,
 Workbook,BeforeXmlImport,event,"BeforeXmlImport(Map As XmlMap, Url As String, IsRefresh As Boolean, Cancel As Boolean)",,MISSING,,
 Workbook,BreakLink,method,"BreakLink(Name As String, Type As XlLinkType)",,MISSING,,
-Workbook,BuiltinDocumentProperties,"property, read-only",As Object,,MISSING,,
+Workbook,BuiltinDocumentProperties,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"The 34 built-in properties, a file's or a new workbook's, saved to docProps core.xml and app.xml with the sheets and named ranges listed as Excel lists them; a chart sheet's heading is not written, the model holding none."
 Workbook,Calculate,not in the type library,,,UNASSESSED,,
 Workbook,CalculationVersion,"property, read-only",As Long,,MISSING,,
 Workbook,CanCheckIn,method,CanCheckIn() As Boolean,,MISSING,,
@@ -2354,7 +2370,7 @@ Workbook,ConvertComments,method,ConvertComments(),,MISSING,,
 Workbook,CreateBackup,"property, read-only",As Boolean,,MISSING,,
 Workbook,CreateForecastSheet,method,"CreateForecastSheet(Timeline As Range, Values As Range, [ForecastStart As Variant], [ForecastEnd As Variant], [ConfInt As Variant], [Seasonality As Variant], [DataCompletion As Variant], [Aggregation As Variant], [ChartType As Variant], [ShowStatsTable As Variant])",,MISSING,,
 Workbook,Creator,"property, read-only",As XlCreator,,MISSING,,
-Workbook,CustomDocumentProperties,"property, read-only",As Object,,MISSING,,
+Workbook,CustomDocumentProperties,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"The custom properties, saved to docProps custom.xml with its relationship and content type; a part holding a type Excel does not write reports itself unsupported and is kept as it is."
 Workbook,CustomViews,"property, read-only",As CustomViews,,MISSING,,
 Workbook,CustomXMLParts,"property, read-only",As CustomXMLParts,,MISSING,,
 Workbook,Date1904,property,As Boolean,,PARTIAL,tests/test_excel_date1904.py; tests/fixtures/date1904/native.json; tests/fixtures/date1904/paths.json,"Each workbook's calendar reaches cells, typing, Value/Value2/Text, formulas, Text cells, Find/Replace, AutoFill, TextToColumns, AutoFilter and validation criteria, Evaluate and WorksheetFunction, over 8 native controls and 14 path probes; native Excel reopens the model's files. Power Query dates follow the calendar unmeasured; PivotCaches holding dates in a 1904 workbook, mixed-calendar copies, chart date axes and events remain gaps."
@@ -3063,17 +3079,3 @@ WorksheetFunction,YieldDisc,method,"YieldDisc(Arg1 As Variant, Arg2 As Variant, 
 WorksheetFunction,YieldMat,method,"YieldMat(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, [Arg6 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,Z_Test,method,"Z_Test(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,ZTest,method,"ZTest(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
-_Break,Application,not in the type library,,,UNASSESSED,,
-_Break,Creator,not in the type library,,,UNASSESSED,,
-_Break,Delete,not in the type library,,,UNASSESSED,,
-_Break,DragOff,not in the type library,,,UNASSESSED,,
-_Break,Extent,not in the type library,,,UNASSESSED,,
-_Break,Location,not in the type library,,,UNASSESSED,,
-_Break,Parent,not in the type library,,,UNASSESSED,,
-_Break,Type,not in the type library,,,UNASSESSED,,
-_Breaks,Add,not in the type library,,,UNASSESSED,,
-_Breaks,Application,not in the type library,,,UNASSESSED,,
-_Breaks,Count,not in the type library,,,UNASSESSED,,
-_Breaks,Creator,not in the type library,,,UNASSESSED,,
-_Breaks,Item,not in the type library,,,UNASSESSED,,
-_Breaks,Parent,not in the type library,,,UNASSESSED,,

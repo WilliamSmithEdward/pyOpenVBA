@@ -1420,6 +1420,9 @@ def save_workbook(book: Workbook, target: Path) -> None:
                 rewritten = conditional_xml(original, sheet.conditional_formats, extension=not sheet.conditional_foreign)
                 if rewritten != original:
                     package.write(sheet.part_name, rewritten.encode('utf-8'))
+    from pyopenvba.apps.excel._document_properties import write as write_properties
+
+    write_properties(book, package)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
     book.package = package
@@ -1540,6 +1543,8 @@ def _make_macro_free(package: OpcFile) -> None:
     if package.has("[Content_Types].xml"):
         text = package.read("[Content_Types].xml").decode("utf-8")
         text = re.sub(r"<Override\b[^>]*vbaProject\.bin[^>]*/>", "", text)
+        # Excel's xlsx declares no bin parts; a project put in later declares them again (see _new_project).
+        text = text.replace('<Default Extension="bin" ContentType="application/vnd.ms-office.vbaProject"/>', "")
         text = text.replace(
             "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml",
@@ -2313,10 +2318,12 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
     written.sort(key=lambda pair: pair[0])
     keep = [element for _, element in written]
     block = f"<definedNames>{''.join(keep)}</definedNames>" if keep else ""
+    # The block goes in as it is: a name may hold a backslash, a\b, which a replacement template reads as an escape.
     if "<definedNames>" in text:
-        text = re.sub(r"<definedNames>.*?</definedNames>", block, text, count=1, flags=re.DOTALL)
+        text = re.sub(r"<definedNames>.*?</definedNames>", lambda _found: block, text, count=1, flags=re.DOTALL)
     elif "<definedNames/>" in text:
         text = text.replace("<definedNames/>", block, 1)
     elif block:
-        text = re.sub(r"(<sheets>.*?</sheets>)", rf"\1{block}", text, count=1, flags=re.DOTALL)
+        text = re.sub(r"(<sheets>.*?</sheets>)", lambda found: found.group(1) + block, text, count=1,
+                      flags=re.DOTALL)
     package.write("xl/workbook.xml", text.encode("utf-8"))

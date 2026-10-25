@@ -9,6 +9,7 @@ back.
 from __future__ import annotations
 
 import datetime as _dt
+import re
 import shutil
 from pathlib import Path
 
@@ -213,8 +214,15 @@ def test_a_query_formula_can_be_read_through_vba() -> None:
 # --- writing one back --------------------------------------------------------------------------
 
 
+def _saved_by_nobody(core: bytes) -> str:
+    """docProps/core.xml without what every save writes, the last author and the save time, as Excel's does."""
+    text = core.decode("utf-8")
+    return re.sub(r"<cp:lastModifiedBy>.*?</cp:lastModifiedBy>|<dcterms:modified\b.*?</dcterms:modified>", "", text)
+
+
 def test_a_workbook_nobody_changed_saves_byte_for_byte(tmp_path: Path) -> None:
-    """Nothing is rewritten unless the model changed it.
+    """Nothing is rewritten unless the model changed it, but for the last author and the save time every save
+    writes.
 
     A save that regenerated every sheet would quietly drop whatever the
     model has no field for, which for this fixture is the whole Power
@@ -225,7 +233,10 @@ def test_a_workbook_nobody_changed_saves_byte_for_byte(tmp_path: Path) -> None:
     app = ExcelApplication.open(copy)
     out = tmp_path / "out.xlsx"
     app.save(out)
-    assert out.read_bytes() == LOADED.read_bytes()
+    before, after = OpcFile.parse(LOADED.read_bytes()), OpcFile.parse(out.read_bytes())
+    assert after.names() == before.names()
+    assert [name for name in before.names() if before.read(name) != after.read(name)] == ["docProps/core.xml"]
+    assert _saved_by_nobody(after.read("docProps/core.xml")) == _saved_by_nobody(before.read("docProps/core.xml"))
 
 
 def test_a_saved_change_keeps_every_other_part(tmp_path: Path) -> None:
@@ -240,7 +251,8 @@ def test_a_saved_change_keeps_every_other_part(tmp_path: Path) -> None:
     after = OpcFile.parse(out.read_bytes())
     assert after.names() == before.names()
     changed = [name for name in before.names() if before.read(name) != after.read(name)]
-    assert changed == ["xl/worksheets/sheet1.xml"]
+    # The last author and the save time, which every save writes.
+    assert changed == ["xl/worksheets/sheet1.xml", "docProps/core.xml"]
 
 
 def test_what_was_written_reads_back_the_same(tmp_path: Path) -> None:

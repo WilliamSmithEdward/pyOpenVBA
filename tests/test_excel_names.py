@@ -41,6 +41,18 @@ def test_python_crud_scope_and_round_trip(tmp_path: Path) -> None:
     assert ExcelApplication.open(path, with_vba=False).named_ranges() == []
 
 
+def test_a_name_with_a_backslash_saves_as_it_is(tmp_path: Path) -> None:
+    """a\\b was written a and a backspace: the names went into the part as a replacement template."""
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_named_range("a\\b", "=Sheet1!$H$12")
+    app.add_named_range("c\\1", "=Sheet1!$H$13")
+    path = tmp_path / "names.xlsx"
+    app.save(path)
+    assert sorted(name.name for name in ExcelApplication.open(path, with_vba=False).named_ranges()) == \
+        ["a\\b", "c\\1"]
+
+
 def test_rename_updates_aliases_and_recalculates() -> None:
     app = ExcelApplication()
     app.add_workbook()

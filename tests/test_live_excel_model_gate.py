@@ -12,6 +12,7 @@ installed.  Skipped everywhere else, including CI.
 
 from __future__ import annotations
 
+import datetime
 import os
 import re
 import shutil
@@ -2592,6 +2593,58 @@ def test_excel_reads_the_page_breaks_this_wrote(tmp_path: Path) -> None:
     read = dict(one.split("^", 1) for one in str(result.value).split("~") if "^" in one)
     expected = {name: dump for name, dump in RECORD["reopened"].items() if name.split(" (")[0] in SUPPORTED}
     assert {name: read[name] for name in expected} == expected
+
+
+def test_excel_reads_the_document_properties_this_wrote(tmp_path: Path) -> None:
+    """Every case tests/fixtures/document_properties measured that the model makes, made by the model with Excel's
+    functions for them, this machine's time zone, clock and user, and saved, the workbook without docProps among
+    them: Excel opens each file and reads every property as it read its own."""
+    from test_excel_document_properties import CASES, FILE_GAPS, FIXTURES, MADE, ONE, RECORD, UNSUPPORTED
+
+    from pyopenvba.interpreter._values import VBADate
+
+    harness = pytest.importorskip("pyvbaharness")
+    reader = RECORD["build"].split("Private Function Make0", 1)[0] + (
+        "Public Function Read(paths As String, who As String) As String\n"
+        "Dim wb As Object, one As Variant, parts() As String, out As String\nApplication.DisplayAlerts = False\n"
+        'Author = who\nFor Each one In Split(paths, "~")\nparts = Split(one, "|")\nStarted = CDate(Val(parts(1)))\n'
+        'Set wb = Workbooks.Open(parts(0))\nout = out & Dump(wb) & "~"\nwb.Close False\nNext\nRead = out\n'
+        "End Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        who = excel.run_vba('Public Function Who() As String\nDim wb As Object\nSet wb = Workbooks.Add\n'
+                            'Who = wb.BuiltinDocumentProperties("Author").Value\nwb.Close False\nEnd Function\n',
+                            "Who", timeout=120.0)
+        assert who.ok, who.message
+        author = str(who.value)
+        files: list[tuple[str, Path, float]] = []
+        for index, name in enumerate(MADE):
+            if name in UNSUPPORTED or name in FILE_GAPS or name == "dates_overflow":
+                continue
+            app = ExcelApplication()
+            app.application.user_name = author
+            app.add_module(ONE, name="Cases")
+            started = VBADate.from_datetime(datetime.datetime.now()).serial
+            app.run("One", index, str(tmp_path))
+            files.append((name, tmp_path / f"{name}.xlsx", started))
+            if CASES[name]["again"] is not None:
+                files.append((name + " again", tmp_path / f"{name}_again.xlsx", started))
+        shutil.copy(FIXTURES / "no_docprops.xlsx", tmp_path / "no_docprops.xlsx")
+        app = ExcelApplication()
+        app.application.user_name = author
+        app.add_module(RECORD["opened"], name="Cases")
+        started = VBADate.from_datetime(datetime.datetime.now()).serial
+        app.run("Opened", str(tmp_path))
+        files.append(("no_docprops", tmp_path / "no_docprops_again.xlsx", started))
+        paths = "~".join(f"{path}|{started!r}" for _name, path, started in files)
+        result = excel.run_vba(reader, "Read", (paths, author), timeout=600.0)
+        assert result.ok, result.message
+    read = str(result.value).replace(author, "<author>").split("~")
+    assert len(files) == len(read) - 1 == len(MADE) - 4 + 3, "every case the model makes, read back"
+    found = {name: read[place] for place, (name, _path, _started) in enumerate(files)}
+    expected = {name: CASES[name.removesuffix(" again")]["again" if name.endswith(" again") else "reopened"]
+                for name, _path, _started in files}
+    assert found == expected
 
 
 def test_excel_reads_the_protection_this_wrote(tmp_path: Path) -> None:

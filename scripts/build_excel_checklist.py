@@ -19,6 +19,7 @@ from __future__ import annotations
 import csv
 import inspect
 import json
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -44,6 +45,7 @@ def bound_classes() -> dict[str, type]:
         _conditional,
         _conditional_display,
         _data_bars,
+        _document_properties,
         _formats,
         _hyperlinks,
         _icon_sets,
@@ -70,7 +72,8 @@ def bound_classes() -> dict[str, type]:
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
                    _cell_styles, _hyperlinks, _charts, _chart_axes, _pivots, _pivot_criteria, _pivot_calculated,
                    _pivot_cells, _sheet_tabs, _conditional,
-                   _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _page_breaks, _outline):
+                   _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _page_breaks, _outline,
+                   _document_properties):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue
@@ -94,11 +97,14 @@ def bound_classes() -> dict[str, type]:
 
 
 def reference_members(reference: Path, type_name: str) -> list[dict[str, object]]:
-    path = reference / "reference" / "excel" / "json" / f"{type_name}.json"
-    if not path.is_file():
-        return []
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return [*data.get("properties", []), *data.get("methods", []), *data.get("events", [])]
+    """A type's members as the type library has them: Excel's, or Office's for a type Excel takes from it, such as
+    DocumentProperty."""
+    for library in ("excel", "office"):
+        path = reference / "reference" / library / "json" / f"{type_name}.json"
+        if path.is_file():
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return [*data.get("properties", []), *data.get("methods", []), *data.get("events", [])]
+    return []
 
 
 def describe(entry: dict[str, object]) -> tuple[str, str]:
@@ -118,6 +124,10 @@ def interface_gaps(entry: dict[str, object] | None, spec: object | None) -> str:
     if kind == "property" and entry.get("access") != "read-only" and not getattr(spec, "settable", False):
         gaps.append("no setter")
     wanted = [str(one.get("name", "")) for one in entry.get("parameters", []) or []]  # type: ignore[union-attr]
+    # Office's library lists a method's raw COM signature: its locale and its [out, retval] pointer, ppIDocProp for
+    # DocumentProperties.Add, are arguments VBA never passes.
+    wanted = [name for place, name in enumerate(wanted)
+              if name != "lcid" and not (place == len(wanted) - 1 and re.fullmatch(r"pp[A-Z]\w*", name))]
     if wanted and not getattr(spec, "varargs", False):
         have = {name.lower() for name in getattr(spec, "parameters", ())}
         absent = [name for name in wanted if name.lower() not in have]

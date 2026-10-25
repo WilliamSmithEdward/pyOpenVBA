@@ -15,6 +15,7 @@ Font, Interior, Borders, alignment -- lives in
 
 from __future__ import annotations
 
+import datetime as _dt
 import re
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
@@ -59,6 +60,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._protection import BookProtection, Gate, SheetProtection
     from pyopenvba.apps.excel._clipboard import Clip
     from pyopenvba.apps.excel._data_tables import DataTable
+    from pyopenvba.apps.excel._document_properties import Properties
     from pyopenvba.apps.excel._external_links import LinkedBook
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
@@ -879,6 +881,13 @@ class Workbook(ExcelObject):
 
         #: The workbook's window: its tabs, scroll bars and caption (see _windows).
         self.view = BookViewState()
+        #: The workbook's document properties, read from its file or a new workbook's once something asks for them
+        #: (see _document_properties).
+        self.properties: Properties | None = None
+        #: When and by whom the workbook was made, a new workbook's creation date and author.
+        interpreter = application.interpreter
+        self.made_at = (interpreter.clock() if interpreter is not None else _dt.datetime.now()).replace(microsecond=0)
+        self.made_by = application.user_name
 
     @property
     def calculator(self) -> Any:
@@ -949,6 +958,20 @@ class Workbook(ExcelObject):
         return self.application
 
     # -- contents
+
+    @member
+    def BuiltinDocumentProperties(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._document_properties import DocumentProperties
+
+        found = DocumentProperties(self, builtin=True)
+        return found if Index is MISSING else found.Item(Index)
+
+    @member
+    def CustomDocumentProperties(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._document_properties import DocumentProperties
+
+        found = DocumentProperties(self, builtin=False)
+        return found if Index is MISSING else found.Item(Index)
 
     @member
     def PivotCaches(self, Index: object = MISSING) -> object:

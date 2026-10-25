@@ -24,7 +24,14 @@ tests/fixtures/autofit_sizes.json from 6 to 72pt):
 - Every cell of the column counts, those in hidden and filtered rows
   among them; a merged cell does not, nor one that shows nothing, and a
   column with no other keeps its width. A hidden column is shown. A file
-  keeps the width as the column's own, bestFit="1" beside it.
+  keeps the width as the column's own, bestFit="1" beside it; but a width
+  the column shows already changes nothing, so a standard column stays
+  standard (scripts/measure_autofit_unchanged.py).
+- Text in runs of fonts (Range.Characters) is as wide as each run in its
+  own font. Past it an italic first run reaches as its font does alone,
+  and every later run in italic a fifth of its font's ascent, whole; a big
+  first run adds its pad, a later one nothing
+  (scripts/measure_rich_text_fit.py, tests/fixtures/rich_text_fit.json).
 - Range.Columns.AutoFit fits each column to the range's own cells.
 - A number format or style a macro sets widens a column the same way
   wherever that makes it wider (see widen).
@@ -49,6 +56,7 @@ from pyopenvba.interpreter._values import EMPTY
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Worksheet
+    from pyopenvba.apps.excel._rich_text import Run
     from pyopenvba.apps.excel._styles import Font
     from pyopenvba.formula._display import Display
 
@@ -294,7 +302,10 @@ def fit(sheet: Worksheet, area: Area) -> None:
         if pixels is not None:
             widest[column] = max(widest.get(column, 0), pixels)
     for column, pixels in widest.items():
-        sheet.dims.fit_column(column, pixels)
+        # The width a column already shows changes nothing: a standard column stays standard, one of its own
+        # width takes no best fit (tests/fixtures/autofit_unchanged.json).
+        if pixels != sheet.dims.column_shown_pixels(column):
+            sheet.dims.fit_column(column, pixels)
     if widest:
         sheet.touched()
 
@@ -358,9 +369,37 @@ def _fitted(sheet: Worksheet, row: int, column: int, cell: Cell, *, formatted: b
     if any(char not in table for char in shown.text + shown.pads):
         raise VBAUnsupportedError("AutoFit of text holding characters past Latin-1 is not implemented: GDI's widths "
                                   "for them depend on the characters beside them")
+    from pyopenvba.apps.excel._rich_text import runs_of
+
+    runs = runs_of(cell)
+    if runs is not None:
+        return _rich_width(runs, font, table, shown)
     steps = _steps(font)
     reach = _ITALIC_STEP * steps + _ITALIC_BASE if steps else Fraction(0)
     return column_pixels(Fraction(measured_width(table, shown)) + reach, font_pad(table))
+
+
+def _rich_width(runs: tuple[Run, ...], own: Font, table: dict[str, int], shown: Display) -> int:
+    """How wide AutoFit makes a column for text in runs of fonts (tests/fixtures/rich_text_fit.json): each run as
+    wide as its characters in its own font; past them, an italic first run's reach, as the font's alone, and a
+    fifth of its ascent, whole, for every later run in italic; and what a big first run adds beside the text."""
+    if shown.text != "".join(run.text for run in runs) or shown.pads:
+        raise VBAUnsupportedError("AutoFit of rich text a number format adds to is not implemented")
+    total, reach = 0, Fraction(0)
+    for index, run in enumerate(runs):
+        font = run.font or own
+        found = table if run.font is None else _table(font)
+        if found is None:
+            raise VBAUnsupportedError(f"AutoFit of text in {font.name} {font.size:g} is not implemented: AutoFit "
+                                      f"measures Aptos Narrow and Calibri from 8 to 72pt")
+        if any(char not in found for char in run.text):
+            raise VBAUnsupportedError("AutoFit of text holding characters past Latin-1 is not implemented: GDI's "
+                                      "widths for them depend on the characters beside them")
+        total += _glyphs(found, run.text)
+        steps = _steps(font)
+        if steps:
+            reach += _ITALIC_STEP * steps + _ITALIC_BASE if index == 0 else steps
+    return column_pixels(Fraction(total) + reach, font_pad(table))
 
 
 def widen(sheet: Worksheet, areas: list[Area]) -> None:

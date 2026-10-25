@@ -190,14 +190,24 @@ class Font(ExcelObject):
     def after_set(self, member: str) -> None:
         self.target.note_formatted()
 
+    def _fonts(self) -> list[S.Font]:
+        """Every font the range shows: each position's format's, and that of each run of a cell's text in a font
+        of its own (see _rich_text)."""
+        from pyopenvba.apps.excel._rich_text import run_fonts
+
+        return [style.font for style in styles_of(self.target)] + run_fonts(self.target)
+
     def _read(self, get: Callable[[S.Font], object]) -> object:
-        return uniform(get(style.font) for style in styles_of(self.target))
+        return uniform(get(font) for font in self._fonts())
 
     def _write(self, change: Callable[[S.Font], S.Font]) -> None:
+        from pyopenvba.apps.excel._rich_text import refont
+
         restyle(self.target, lambda style: S.applying(style, "font", font=change(style.font)))
+        refont(self.target, change)
 
     def _color(self, what: str) -> object:
-        colors = {style.font.color for style in styles_of(self.target)}
+        colors = {font.color for font in self._fonts()}
         if len(colors) != 1:
             return NULL
         return _color_answer(_colors(self.target), next(iter(colors)), "000000", what)

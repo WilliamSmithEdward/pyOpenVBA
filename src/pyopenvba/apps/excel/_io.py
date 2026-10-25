@@ -42,6 +42,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._data_tables import DataTable
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
     from pyopenvba.apps.excel._refresh import LoadTarget
+    from pyopenvba.apps.excel._rich_text import Run
     from pyopenvba.apps.excel._styles import Stylesheet
     from pyopenvba.shapes._values import Shape as ShapeState
 
@@ -260,11 +261,42 @@ _OTHER_SHEETS: Final = {
 }
 
 
-def _shared_strings(package: OpcFile) -> list[str]:
+class _Strings(list[str]):
+    """A workbook's shared strings, and the runs of fonts each rich one is in, by its number (see _rich_text)."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.runs: dict[int, tuple[Run, ...]] = {}
+
+
+def _shared_strings(package: OpcFile) -> _Strings:
+    strings = _Strings()
     if not package.has("xl/sharedStrings.xml"):
-        return []
+        return strings
     text = package.read("xl/sharedStrings.xml").decode("utf-8", errors="replace")
-    return ["".join(_cell_text(piece) for piece in _TEXT.findall(item)) for item in _SHARED_ITEM.findall(text)]
+    for index, item in enumerate(_SHARED_ITEM.findall(text)):
+        strings.append("".join(_cell_text(piece) for piece in _TEXT.findall(item)))
+        if "<r>" in item:
+            from pyopenvba.apps.excel._rich_text import read_runs
+
+            runs = read_runs(item, _cell_text)
+            if runs is not None:
+                strings.runs[index] = runs
+    return strings
+
+
+def _runs(cell_xml: str, kind: str, strings: list[str]) -> tuple[Run, ...] | None:
+    """The runs of fonts a string cell's text is in, from the shared string it names or the one it holds."""
+    if kind == "s" and isinstance(strings, _Strings) and strings.runs:
+        raw = _VALUE.search(cell_xml)
+        index = (raw.group(1) or "").strip() if raw is not None else ""
+        return strings.runs.get(int(index)) if index.isdigit() else None
+    if kind == "inlineStr" and "<r>" in cell_xml:
+        from pyopenvba.apps.excel._rich_text import read_runs
+
+        inline = _INLINE.search(cell_xml)
+        return read_runs(inline.group(1), _cell_text) if inline is not None else None
+    return None
 
 
 @lru_cache(maxsize=1)
@@ -380,7 +412,8 @@ def _read_cells(sheet: Worksheet, rows: str, strings: list[str], stylesheet: Sty
                 style = stylesheet.default
             cell = Cell(value=value, formula=formula, stale=formula_match is not None and (value is EMPTY or calculate), style=style,
                         xf=xf if style is not None else -1, shared=shared,
-                        dynamic=bool(formula) and (row, column) in dynamic)
+                        dynamic=bool(formula) and (row, column) in dynamic,
+                        runs=_runs(cell_xml, kind, strings) if formula_match is None else None)
             sheet.cells_[(row, column)] = cell
             if shared is not None and not formula:
                 followers.append((row, column, cell))
@@ -2114,6 +2147,14 @@ def _cell_xml(reference: str, cell: Cell, style: str, formula: str | None = None
         kind, body = _formula_value(cell, keep_stale=keep_stale)
         return f'<c r="{reference}"{attributes}{kind}>{body}</c>' if body else f'<c r="{reference}"{attributes}/>'
     kind, body = _value_body(cell.value)
+    if cell.runs is not None:
+        from pyopenvba.apps.excel._rich_text import runs_of, runs_xml
+
+        runs = runs_of(cell)
+        if runs is not None:
+            # Text in more than its cell's font, each run with its own (see _rich_text).
+            kind = ' t="inlineStr"'
+            body = f"<is>{runs_xml(runs, lambda text: _escape_text(_encode_string(text)))}</is>"
     if dynamic is not None:
         extra, rich = dynamic
         attributes += extra

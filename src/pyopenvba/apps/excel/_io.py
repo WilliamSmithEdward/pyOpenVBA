@@ -1326,9 +1326,10 @@ def save_workbook(book: Workbook, target: Path) -> None:
         # Excel writes the rules of a workbook it read without a VBA project in its own order, joined where it
         # joined them (_conditional_joins), so a sheet keeps its bytes only where they are those.
         conditional_changes = not sheet.dirty and _plain_conditional(sheet)
+        breaks_changes = sheet.page_breaks is not None and sheet.page_breaks.changed
         if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes
                                        or outline_changes or sort_changes or conditional_changes
-                                       or sheet.tab_changed):
+                                       or sheet.tab_changed or breaks_changes):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
@@ -1351,6 +1352,10 @@ def save_workbook(book: Workbook, target: Path) -> None:
             from pyopenvba.apps.excel._sheet_tabs import with_tab
 
             patched = with_tab(sheet, patched)
+        if breaks_changes:
+            from pyopenvba.apps.excel._page_breaks import with_breaks
+
+            patched = with_breaks(sheet, patched)
         if conditional_changes:
             from pyopenvba.apps.excel._conditional import with_rules as with_conditional_rules
 

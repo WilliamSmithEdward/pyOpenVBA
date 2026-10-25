@@ -31,11 +31,6 @@ NAMES = [case["name"] for case in RECORD["cases"]]
 
 #: The cases the model reports unsupported, and why.
 UNSUPPORTED = {
-    **dict.fromkeys(("breaks_below", "breaks_above", "breaks_nested", "breaks_nested_inner", "breaks_remove",
-                     "breaks_replace", "breaks_inner_after_reset"),
-                    "Subtotal's page breaks between groups, which Excel keeps on the sheet and a later call reuses"),
-    **dict.fromkeys(("breaks_manual_kept", "breaks_default_after_manual"),
-                    "manual page breaks, HPageBreaks among them"),
     "filtered": "a filtered list, which Excel subtotals over its visible rows and leaves unoutlined",
 }
 SUPPORTED = [name for name in NAMES if name not in UNSUPPORTED]

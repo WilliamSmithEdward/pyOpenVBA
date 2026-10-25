@@ -174,9 +174,11 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
         sheet.dims.shift_rows(start, count, delete, below=below)
     else:
         sheet.dims.shift_columns(start, count, delete, below=below)
+    from pyopenvba.apps.excel import _page_breaks
     from pyopenvba.apps.excel._notes import lines_moved
 
     lines_moved(sheet, start, count, delete=delete, rows=rows)
+    _page_breaks.lines_moved(sheet, start, count, delete=delete, rows=rows)
     if not delete:
         _inherit_formats(sheet, rows=rows, start=start, count=count, below=below)
     from pyopenvba.apps.excel._autofilter import filter_edited

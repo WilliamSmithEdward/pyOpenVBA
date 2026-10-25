@@ -1,0 +1,1045 @@
+{
+ "build": "Private Sub Fill(ws As Object, rows As String)\n    Dim r As Long, c As Long, line As Variant, part As Variant\n    If rows = \"\" Then\n        ws.Range(\"A1:C10\").Value = 1\n        Exit Sub\n    End If\n    For Each line In Split(rows, \"!\")\n        r = r + 1\n        c = 0\n        For Each part In Split(line, \",\")\n            c = c + 1\n            If part <> \"\" Then ws.Cells(r, c).Formula = part\n        Next\n    Next\nEnd Sub\n\nPrivate Function Try(target As Object) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    v = target.PageBreak\n    Try = target.Address(False, False) & \"=\" & v & \" \"\n    Exit Function\nFailed:\n    Try = target.Address(False, False) & \"=E\" & Err.Number & \" \"\nEnd Function\n\nPrivate Function List(ws As Object) As String\n    Dim out As String, i As Long, b As Object\n    On Error GoTo Failed\n    out = \"H\" & ws.HPageBreaks.Count & \"[\"\n    For i = 1 To ws.HPageBreaks.Count\n        Set b = ws.HPageBreaks(i)\n        out = out & b.Location.Address(False, False) & \"/\" & b.Type & \"/\" & b.Extent & \" \"\n    Next\n    out = out & \"]V\" & ws.VPageBreaks.Count & \"[\"\n    For i = 1 To ws.VPageBreaks.Count\n        Set b = ws.VPageBreaks(i)\n        out = out & b.Location.Address(False, False) & \"/\" & b.Type & \"/\" & b.Extent & \" \"\n    Next\n    List = out & \"]\"\n    Exit Function\nFailed:\n    List = out & \"E\" & Err.Number\nEnd Function\n\nPrivate Function Dump(ws As Object) As String\n    Dim out As String, i As Long\n    out = List(ws) & \"#\"\n    For i = 1 To 15\n        out = out & ws.Rows(i).PageBreak & \",\"\n    Next\n    out = out & \"#\"\n    For i = 1 To 6\n        out = out & ws.Columns(i).PageBreak & \",\"\n    Next\n    Dump = out\nEnd Function\nPrivate Function Make0(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"none\"\n    Fill ws, \"\"\n    On Error Resume Next\n    On Error GoTo 0\n    Make0 = \"none^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make1(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_row\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    Set b = ws.HPageBreaks.Add(Before:=ws.Range(\"A5\"))\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & TypeName(b) & \":\" & b.Location.Address & \":\" & b.Type & \":\" & b.Extent & \":\" & TypeName(b.Parent) & \" \"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make1 = \"add_row^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make2(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_col\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    Set b = ws.VPageBreaks.Add(Before:=ws.Range(\"C1\"))\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & TypeName(b) & \":\" & b.Location.Address & \":\" & TypeName(b.Parent) & \" \"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make2 = \"add_col^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make3(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_cell_both\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"C7\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C7\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make3 = \"add_cell_both^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make4(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_block\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"B5:C7\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"B5:C7\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make4 = \"add_block^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make5(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_twice\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make5 = \"add_twice^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make6(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_order\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A9\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A6\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"D1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"B1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make6 = \"add_order^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make7(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_first_row\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make7 = \"add_first_row^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make8(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_first_col\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make8 = \"add_first_col^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make9(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_other_sheet\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=scratch.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make9 = \"add_other_sheet^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make10(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_beyond\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A50\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"K1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make10 = \"add_beyond^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make11(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_edge\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A10\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A11\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A12\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"D1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"E1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make11 = \"add_edge^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make12(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_formatted_beyond\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A20\").Interior.Color = RGB(1, 2, 3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A15\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make12 = \"add_formatted_beyond^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make13(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_print_area\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.PageSetup.PrintArea = \"A1:B6\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A8\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"B1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make13 = \"add_print_area^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make14(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"add_print_area_edge\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.PageSetup.PrintArea = \"B3:C8\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A4\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A9\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"B1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make14 = \"add_print_area_edge^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make15(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_first\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A6\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks(1).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make15 = \"delete_first^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make16(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_vertical\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"B1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks(2).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make16 = \"delete_vertical^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make17(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_beyond\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A50\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks(1).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make17 = \"delete_beyond^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make18(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"item_bad\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    v = ws.HPageBreaks(2).Type\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make18 = \"item_bad^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make19(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"item_zero\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    v = ws.HPageBreaks(0).Type\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make19 = \"item_zero^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make20(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"location_set\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    Set ws.HPageBreaks(1).Location = ws.Range(\"A8\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make20 = \"location_set^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make21(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"foreach\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A7\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    For Each b In ws.HPageBreaks: notes = notes & b.Location.Row & \",\": Next\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & TypeName(ws.HPageBreaks) & \":\" & TypeName(ws.HPageBreaks.Parent) & \":\" & TypeName(ws.VPageBreaks) & \" \"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make21 = \"foreach^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make22(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_cell\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"B5\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make22 = \"pagebreak_cell^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make23(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_lines\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Rows(5).PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Columns(3).PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make23 = \"pagebreak_lines^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make24(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_block\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"B5:C7\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make24 = \"pagebreak_block^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make25(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_entire_row\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"B5\").EntireRow.PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make25 = \"pagebreak_entire_row^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make26(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_none_cell\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"B5\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"B5\").PageBreak = xlPageBreakNone\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make26 = \"pagebreak_none_cell^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make27(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_none_row\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"B5\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(5).PageBreak = xlPageBreakNone\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make27 = \"pagebreak_none_row^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make28(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_none_col\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"B5\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Columns(2).PageBreak = xlPageBreakNone\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make28 = \"pagebreak_none_col^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make29(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_none_unbroken\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Rows(5).PageBreak = xlPageBreakNone\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make29 = \"pagebreak_none_unbroken^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make30(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_column_a_cell\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A5\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make30 = \"pagebreak_column_a_cell^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make31(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_row_1_cell\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"C1\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make31 = \"pagebreak_row_1_cell^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make32(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_a1\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make32 = \"pagebreak_a1^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make33(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_row_1\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Rows(1).PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make33 = \"pagebreak_row_1^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make34(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_column_a\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Columns(1).PageBreak = xlPageBreakManual\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make34 = \"pagebreak_column_a^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make35(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_automatic\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Rows(5).PageBreak = xlPageBreakAutomatic\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make35 = \"pagebreak_automatic^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make36(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_other\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.Rows(5).PageBreak = 5\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make36 = \"pagebreak_other^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make37(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"pagebreak_reads\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & Try(ws.Range(\"A5\")) & Try(ws.Range(\"B5:C6\")) & Try(ws.Rows(\"5:6\")) & Try(ws.Rows(\"4:5\")) & Try(ws.Columns(\"C:D\")) & Try(ws.Range(\"A:A\")) & Try(ws.Range(\"5:5\"))\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make37 = \"pagebreak_reads^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make38(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"reset\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.ResetAllPageBreaks\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make38 = \"reset^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make39(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"reset_none\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.ResetAllPageBreaks\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make39 = \"reset_none^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make40(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"insert_above\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(3).Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make40 = \"insert_above^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make41(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"insert_at\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(5).Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make41 = \"insert_at^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make42(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"insert_below\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(7).Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make42 = \"insert_below^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make43(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"insert_before_at\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(4).Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make43 = \"insert_before_at^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make44(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"insert_many\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(\"2:4\").Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make44 = \"insert_many^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make45(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_at\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(5).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make45 = \"delete_at^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make46(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_before_at\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(4).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make46 = \"delete_before_at^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make47(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_below\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(7).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make47 = \"delete_below^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make48(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_span\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(\"3:6\").Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make48 = \"delete_span^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make49(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_many_above\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(\"2:3\").Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make49 = \"delete_many_above^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make50(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"delete_two_breaks\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A4\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(4).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make50 = \"delete_two_breaks^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make51(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"columns_insert_at\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Columns(3).Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make51 = \"columns_insert_at^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make52(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"columns_insert_left\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Columns(2).Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make52 = \"columns_insert_left^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make53(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"columns_delete_at\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Columns(3).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make53 = \"columns_delete_at^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make54(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"columns_delete_left\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Columns(2).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make54 = \"columns_delete_left^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make55(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"rows_leave_columns\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"C1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(3).Insert\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Rows(6).Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make55 = \"rows_leave_columns^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make56(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"cells_insert_down\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A3:C3\").Insert Shift:=xlDown\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make56 = \"cells_insert_down^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make57(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"cells_delete_up\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A3:C3\").Delete Shift:=xlUp\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make57 = \"cells_delete_up^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make58(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"copied\"\n    Fill ws, \"\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A4\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.VPageBreaks.Add Before:=ws.Range(\"B1\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Copy After:=ws\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"copy=\" & List(wb.Worksheets(ws.Index + 1)) & \" \"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make58 = \"copied^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make59(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_below\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make59 = \"sub_below^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make60(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_above\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True, SummaryBelowData:=xlSummaryAbove\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make60 = \"sub_above^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make61(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_remove\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").RemoveSubtotal\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make61 = \"sub_remove^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make62(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_remove_keeps_outside\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A20\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").RemoveSubtotal\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make62 = \"sub_remove_keeps_outside^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make63(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_remove_inside_manual\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A4\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").RemoveSubtotal\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make63 = \"sub_remove_inside_manual^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make64(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_replace_default\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make64 = \"sub_replace_default^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make65(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_replace_false\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), PageBreaks:=False\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make65 = \"sub_replace_false^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make66(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_false_then_default\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), PageBreaks:=False\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make66 = \"sub_false_then_default^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make67(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_remove_then_default\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").RemoveSubtotal\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make67 = \"sub_remove_then_default^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make68(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_nested_default\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make68 = \"sub_nested_default^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make69(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_nested_false\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False, PageBreaks:=False\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make69 = \"sub_nested_false^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make70(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_reset_then_nested\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.ResetAllPageBreaks\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make70 = \"sub_reset_then_nested^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make71(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_other_sheet\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    Set other = wb.Worksheets.Add(After:=ws)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    Fill other, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    other.Range(\"A1\").Subtotal 1, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    notes = notes & \"other=\" & List(other) & \" \"\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    other.Delete\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make71 = \"sub_other_sheet^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make72(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_manual_inside\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A4\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make72 = \"sub_manual_inside^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make73(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_manual_inside_replace\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A4\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make73 = \"sub_manual_inside_replace^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make74(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_blank_group\"\n    Fill ws, \"Key,Sales!a,1!a,2!,3!b,4\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(2), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make74 = \"sub_blank_group^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make75(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_single_group\"\n    Fill ws, \"Key,Sales!a,1!a,2\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(2), PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make75 = \"sub_single_group^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make76(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_above_nested\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True, SummaryBelowData:=xlSummaryAbove\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make76 = \"sub_above_nested^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make77(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_remove_manual_in_data\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").RemoveSubtotal\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make77 = \"sub_remove_manual_in_data^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make78(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_remove_manual_after_total\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A5\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").RemoveSubtotal\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make78 = \"sub_remove_manual_after_total^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\nPrivate Function Make79(wb As Object, scratch As Object) As String\n    Dim ws As Object, other As Object, b As Object, notes As String, v As Variant\n    Set ws = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    ws.Name = \"sub_nested_true_manual\"\n    Fill ws, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"\n    On Error Resume Next\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.HPageBreaks.Add Before:=ws.Range(\"A3\")\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    Err.Clear\n    ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False, PageBreaks:=True\n    If Err.Number <> 0 Then notes = notes & \"E\" & Err.Number & \":\" & Err.Description & \" \"\n    On Error GoTo 0\n    Make79 = \"sub_nested_true_manual^\" & notes & \"@\" & Dump(ws) & \"~\"\nEnd Function\n\nPublic Function Build(folder As String) As String\n    Dim wb As Object, ws As Object, scratch As Object, out As String, name As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set scratch = wb.Worksheets(1)\n    scratch.Name = \"scratch\"\n    out = out & Make0(wb, scratch)\n    out = out & Make1(wb, scratch)\n    out = out & Make2(wb, scratch)\n    out = out & Make3(wb, scratch)\n    out = out & Make4(wb, scratch)\n    out = out & Make5(wb, scratch)\n    out = out & Make6(wb, scratch)\n    out = out & Make7(wb, scratch)\n    out = out & Make8(wb, scratch)\n    out = out & Make9(wb, scratch)\n    out = out & Make10(wb, scratch)\n    out = out & Make11(wb, scratch)\n    out = out & Make12(wb, scratch)\n    out = out & Make13(wb, scratch)\n    out = out & Make14(wb, scratch)\n    out = out & Make15(wb, scratch)\n    out = out & Make16(wb, scratch)\n    out = out & Make17(wb, scratch)\n    out = out & Make18(wb, scratch)\n    out = out & Make19(wb, scratch)\n    out = out & Make20(wb, scratch)\n    out = out & Make21(wb, scratch)\n    out = out & Make22(wb, scratch)\n    out = out & Make23(wb, scratch)\n    out = out & Make24(wb, scratch)\n    out = out & Make25(wb, scratch)\n    out = out & Make26(wb, scratch)\n    out = out & Make27(wb, scratch)\n    out = out & Make28(wb, scratch)\n    out = out & Make29(wb, scratch)\n    out = out & Make30(wb, scratch)\n    out = out & Make31(wb, scratch)\n    out = out & Make32(wb, scratch)\n    out = out & Make33(wb, scratch)\n    out = out & Make34(wb, scratch)\n    out = out & Make35(wb, scratch)\n    out = out & Make36(wb, scratch)\n    out = out & Make37(wb, scratch)\n    out = out & Make38(wb, scratch)\n    out = out & Make39(wb, scratch)\n    out = out & Make40(wb, scratch)\n    out = out & Make41(wb, scratch)\n    out = out & Make42(wb, scratch)\n    out = out & Make43(wb, scratch)\n    out = out & Make44(wb, scratch)\n    out = out & Make45(wb, scratch)\n    out = out & Make46(wb, scratch)\n    out = out & Make47(wb, scratch)\n    out = out & Make48(wb, scratch)\n    out = out & Make49(wb, scratch)\n    out = out & Make50(wb, scratch)\n    out = out & Make51(wb, scratch)\n    out = out & Make52(wb, scratch)\n    out = out & Make53(wb, scratch)\n    out = out & Make54(wb, scratch)\n    out = out & Make55(wb, scratch)\n    out = out & Make56(wb, scratch)\n    out = out & Make57(wb, scratch)\n    out = out & Make58(wb, scratch)\n    out = out & Make59(wb, scratch)\n    out = out & Make60(wb, scratch)\n    out = out & Make61(wb, scratch)\n    out = out & Make62(wb, scratch)\n    out = out & Make63(wb, scratch)\n    out = out & Make64(wb, scratch)\n    out = out & Make65(wb, scratch)\n    out = out & Make66(wb, scratch)\n    out = out & Make67(wb, scratch)\n    out = out & Make68(wb, scratch)\n    out = out & Make69(wb, scratch)\n    out = out & Make70(wb, scratch)\n    out = out & Make71(wb, scratch)\n    out = out & Make72(wb, scratch)\n    out = out & Make73(wb, scratch)\n    out = out & Make74(wb, scratch)\n    out = out & Make75(wb, scratch)\n    out = out & Make76(wb, scratch)\n    out = out & Make77(wb, scratch)\n    out = out & Make78(wb, scratch)\n    out = out & Make79(wb, scratch)\n\n    wb.Worksheets(1).Activate\n    name = \"page_breaks.xlsx\"\n    wb.SaveAs folder & \"\\\" & name, 51\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\\" & name)\n    out = out & \"@@\"\n    For Each ws In wb.Worksheets\n        out = out & ws.Name & \"^\" & Dump(ws) & \"~\"\n    Next\n    wb.Close False\n    Build = out\nEnd Function\n",
+ "cases": [
+  {
+   "name": "none",
+   "rows": "",
+   "steps": []
+  },
+  {
+   "name": "add_row",
+   "rows": "",
+   "steps": [
+    "Set b = ws.HPageBreaks.Add(Before:=ws.Range(\"A5\"))",
+    "notes = notes & TypeName(b) & \":\" & b.Location.Address & \":\" & b.Type & \":\" & b.Extent & \":\" & TypeName(b.Parent) & \" \""
+   ]
+  },
+  {
+   "name": "add_col",
+   "rows": "",
+   "steps": [
+    "Set b = ws.VPageBreaks.Add(Before:=ws.Range(\"C1\"))",
+    "notes = notes & TypeName(b) & \":\" & b.Location.Address & \":\" & TypeName(b.Parent) & \" \""
+   ]
+  },
+  {
+   "name": "add_cell_both",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"C7\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C7\")"
+   ]
+  },
+  {
+   "name": "add_block",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"B5:C7\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"B5:C7\")"
+   ]
+  },
+  {
+   "name": "add_twice",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")"
+   ]
+  },
+  {
+   "name": "add_order",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A9\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A6\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"D1\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"B1\")"
+   ]
+  },
+  {
+   "name": "add_first_row",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A1\")"
+   ]
+  },
+  {
+   "name": "add_first_col",
+   "rows": "",
+   "steps": [
+    "ws.VPageBreaks.Add Before:=ws.Range(\"A3\")"
+   ]
+  },
+  {
+   "name": "add_other_sheet",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=scratch.Range(\"A5\")"
+   ]
+  },
+  {
+   "name": "add_beyond",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A50\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"K1\")"
+   ]
+  },
+  {
+   "name": "add_edge",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A10\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A11\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A12\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"D1\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"E1\")"
+   ]
+  },
+  {
+   "name": "add_formatted_beyond",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"A20\").Interior.Color = RGB(1, 2, 3)",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A15\")"
+   ]
+  },
+  {
+   "name": "add_print_area",
+   "rows": "",
+   "steps": [
+    "ws.PageSetup.PrintArea = \"A1:B6\"",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A8\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"B1\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")"
+   ]
+  },
+  {
+   "name": "add_print_area_edge",
+   "rows": "",
+   "steps": [
+    "ws.PageSetup.PrintArea = \"B3:C8\"",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A4\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A9\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"B1\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")"
+   ]
+  },
+  {
+   "name": "delete_first",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A6\")",
+    "ws.HPageBreaks(1).Delete"
+   ]
+  },
+  {
+   "name": "delete_vertical",
+   "rows": "",
+   "steps": [
+    "ws.VPageBreaks.Add Before:=ws.Range(\"B1\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.VPageBreaks(2).Delete"
+   ]
+  },
+  {
+   "name": "delete_beyond",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A50\")",
+    "ws.HPageBreaks(1).Delete"
+   ]
+  },
+  {
+   "name": "item_bad",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "v = ws.HPageBreaks(2).Type"
+   ]
+  },
+  {
+   "name": "item_zero",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "v = ws.HPageBreaks(0).Type"
+   ]
+  },
+  {
+   "name": "location_set",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "Set ws.HPageBreaks(1).Location = ws.Range(\"A8\")"
+   ]
+  },
+  {
+   "name": "foreach",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A7\")",
+    "For Each b In ws.HPageBreaks: notes = notes & b.Location.Row & \",\": Next",
+    "notes = notes & TypeName(ws.HPageBreaks) & \":\" & TypeName(ws.HPageBreaks.Parent) & \":\" & TypeName(ws.VPageBreaks) & \" \""
+   ]
+  },
+  {
+   "name": "pagebreak_cell",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"B5\").PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_lines",
+   "rows": "",
+   "steps": [
+    "ws.Rows(5).PageBreak = xlPageBreakManual",
+    "ws.Columns(3).PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_block",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"B5:C7\").PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_entire_row",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"B5\").EntireRow.PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_none_cell",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"B5\").PageBreak = xlPageBreakManual",
+    "ws.Range(\"B5\").PageBreak = xlPageBreakNone"
+   ]
+  },
+  {
+   "name": "pagebreak_none_row",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"B5\").PageBreak = xlPageBreakManual",
+    "ws.Rows(5).PageBreak = xlPageBreakNone"
+   ]
+  },
+  {
+   "name": "pagebreak_none_col",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"B5\").PageBreak = xlPageBreakManual",
+    "ws.Columns(2).PageBreak = xlPageBreakNone"
+   ]
+  },
+  {
+   "name": "pagebreak_none_unbroken",
+   "rows": "",
+   "steps": [
+    "ws.Rows(5).PageBreak = xlPageBreakNone"
+   ]
+  },
+  {
+   "name": "pagebreak_column_a_cell",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"A5\").PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_row_1_cell",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"C1\").PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_a1",
+   "rows": "",
+   "steps": [
+    "ws.Range(\"A1\").PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_row_1",
+   "rows": "",
+   "steps": [
+    "ws.Rows(1).PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_column_a",
+   "rows": "",
+   "steps": [
+    "ws.Columns(1).PageBreak = xlPageBreakManual"
+   ]
+  },
+  {
+   "name": "pagebreak_automatic",
+   "rows": "",
+   "steps": [
+    "ws.Rows(5).PageBreak = xlPageBreakAutomatic"
+   ]
+  },
+  {
+   "name": "pagebreak_other",
+   "rows": "",
+   "steps": [
+    "ws.Rows(5).PageBreak = 5"
+   ]
+  },
+  {
+   "name": "pagebreak_reads",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "notes = notes & Try(ws.Range(\"A5\")) & Try(ws.Range(\"B5:C6\")) & Try(ws.Rows(\"5:6\")) & Try(ws.Rows(\"4:5\")) & Try(ws.Columns(\"C:D\")) & Try(ws.Range(\"A:A\")) & Try(ws.Range(\"5:5\"))"
+   ]
+  },
+  {
+   "name": "reset",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.ResetAllPageBreaks"
+   ]
+  },
+  {
+   "name": "reset_none",
+   "rows": "",
+   "steps": [
+    "ws.ResetAllPageBreaks"
+   ]
+  },
+  {
+   "name": "insert_above",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(3).Insert"
+   ]
+  },
+  {
+   "name": "insert_at",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(5).Insert"
+   ]
+  },
+  {
+   "name": "insert_below",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(7).Insert"
+   ]
+  },
+  {
+   "name": "insert_before_at",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(4).Insert"
+   ]
+  },
+  {
+   "name": "insert_many",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(\"2:4\").Insert"
+   ]
+  },
+  {
+   "name": "delete_at",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(5).Delete"
+   ]
+  },
+  {
+   "name": "delete_before_at",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(4).Delete"
+   ]
+  },
+  {
+   "name": "delete_below",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(7).Delete"
+   ]
+  },
+  {
+   "name": "delete_span",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(\"3:6\").Delete"
+   ]
+  },
+  {
+   "name": "delete_many_above",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(\"2:3\").Delete"
+   ]
+  },
+  {
+   "name": "delete_two_breaks",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A4\")",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Rows(4).Delete"
+   ]
+  },
+  {
+   "name": "columns_insert_at",
+   "rows": "",
+   "steps": [
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.Columns(3).Insert"
+   ]
+  },
+  {
+   "name": "columns_insert_left",
+   "rows": "",
+   "steps": [
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.Columns(2).Insert"
+   ]
+  },
+  {
+   "name": "columns_delete_at",
+   "rows": "",
+   "steps": [
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.Columns(3).Delete"
+   ]
+  },
+  {
+   "name": "columns_delete_left",
+   "rows": "",
+   "steps": [
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.Columns(2).Delete"
+   ]
+  },
+  {
+   "name": "rows_leave_columns",
+   "rows": "",
+   "steps": [
+    "ws.VPageBreaks.Add Before:=ws.Range(\"C1\")",
+    "ws.Rows(3).Insert",
+    "ws.Rows(6).Delete"
+   ]
+  },
+  {
+   "name": "cells_insert_down",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Range(\"A3:C3\").Insert Shift:=xlDown"
+   ]
+  },
+  {
+   "name": "cells_delete_up",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Range(\"A3:C3\").Delete Shift:=xlUp"
+   ]
+  },
+  {
+   "name": "copied",
+   "rows": "",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A4\")",
+    "ws.VPageBreaks.Add Before:=ws.Range(\"B1\")",
+    "ws.Copy After:=ws",
+    "notes = notes & \"copy=\" & List(wb.Worksheets(ws.Index + 1)) & \" \""
+   ]
+  },
+  {
+   "name": "sub_below",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True"
+   ]
+  },
+  {
+   "name": "sub_above",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True, SummaryBelowData:=xlSummaryAbove"
+   ]
+  },
+  {
+   "name": "sub_remove",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").RemoveSubtotal"
+   ]
+  },
+  {
+   "name": "sub_remove_keeps_outside",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A20\")",
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").RemoveSubtotal"
+   ]
+  },
+  {
+   "name": "sub_remove_inside_manual",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A4\")",
+    "ws.Range(\"A1\").RemoveSubtotal"
+   ]
+  },
+  {
+   "name": "sub_replace_default",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3)"
+   ]
+  },
+  {
+   "name": "sub_replace_false",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), PageBreaks:=False"
+   ]
+  },
+  {
+   "name": "sub_false_then_default",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), PageBreaks:=False",
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)"
+   ]
+  },
+  {
+   "name": "sub_remove_then_default",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").RemoveSubtotal",
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)"
+   ]
+  },
+  {
+   "name": "sub_nested_default",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False"
+   ]
+  },
+  {
+   "name": "sub_nested_false",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False, PageBreaks:=False"
+   ]
+  },
+  {
+   "name": "sub_reset_then_nested",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "ws.ResetAllPageBreaks",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False"
+   ]
+  },
+  {
+   "name": "sub_other_sheet",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True",
+    "Set other = wb.Worksheets.Add(After:=ws)",
+    "Fill other, \"Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5\"",
+    "other.Range(\"A1\").Subtotal 1, xlSum, Array(3)",
+    "notes = notes & \"other=\" & List(other) & \" \"",
+    "other.Delete"
+   ]
+  },
+  {
+   "name": "sub_manual_inside",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A4\")",
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True"
+   ]
+  },
+  {
+   "name": "sub_manual_inside_replace",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A4\")",
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)"
+   ]
+  },
+  {
+   "name": "sub_blank_group",
+   "rows": "Key,Sales!a,1!a,2!,3!b,4",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(2), PageBreaks:=True"
+   ]
+  },
+  {
+   "name": "sub_single_group",
+   "rows": "Key,Sales!a,1!a,2",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(2), PageBreaks:=True"
+   ]
+  },
+  {
+   "name": "sub_above_nested",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3), PageBreaks:=True, SummaryBelowData:=xlSummaryAbove",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False"
+   ]
+  },
+  {
+   "name": "sub_remove_manual_in_data",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "ws.Range(\"A1\").RemoveSubtotal"
+   ]
+  },
+  {
+   "name": "sub_remove_manual_after_total",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A5\")",
+    "ws.Range(\"A1\").RemoveSubtotal"
+   ]
+  },
+  {
+   "name": "sub_nested_true_manual",
+   "rows": "Region,Product,Sales!East,A,10!East,B,20!West,A,30!West,C,40!North,A,5",
+   "steps": [
+    "ws.Range(\"A1\").Subtotal 1, xlSum, Array(3)",
+    "ws.HPageBreaks.Add Before:=ws.Range(\"A3\")",
+    "ws.Range(\"A1\").Subtotal 2, xlSum, Array(3), Replace:=False, PageBreaks:=True"
+   ]
+  }
+ ],
+ "session": {
+  "none": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_row": "HPageBreak:$A$5:-4135:1:Worksheet @H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_col": "VPageBreak:$C$1:Worksheet @H0[]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "add_cell_both": "@H1[A7/-4135/1 ]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "add_block": "@H1[A5/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "add_twice": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_order": "@H3[A3/-4135/1 A6/-4135/1 A9/-4135/1 ]V2[B1/-4135/1 D1/-4135/1 ]#-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4135,-4142,-4142,",
+  "add_first_row": "E1004:Application-defined or object-defined error @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_first_col": "E1004:Application-defined or object-defined error @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_other_sheet": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_beyond": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_edge": "@H2[A10/-4135/1 A11/-4135/1 ]V2[C1/-4135/1 D1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4135,-4135,-4142,-4142,-4142,#-4142,-4142,-4135,-4135,-4135,-4142,",
+  "add_formatted_beyond": "@H1[A15/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4135,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_print_area": "@H2[A5/-4135/2 A8/-4135/1 ]V2[B1/-4135/2 C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4105,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4135,-4142,-4142,-4142,",
+  "add_print_area_edge": "@H3[A3/-4135/1 A4/-4135/1 A9/-4135/1 ]V2[B1/-4135/1 C1/-4135/1 ]#-4142,-4142,-4135,-4135,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4135,-4105,-4142,-4142,",
+  "delete_first": "@H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_vertical": "@H0[]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "delete_beyond": "E9:Subscript out of range @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "item_bad": "E9:Subscript out of range @H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "item_zero": "E9:Subscript out of range @H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "location_set": "E1004:Application-defined or object-defined error @H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "foreach": "3,7,HPageBreaks:Worksheet:VPageBreaks @H2[A3/-4135/1 A7/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_cell": "@H1[A5/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "pagebreak_lines": "@H1[A5/-4135/1 ]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "pagebreak_block": "@H1[A5/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "pagebreak_entire_row": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_cell": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_row": "@H0[]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_col": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_unbroken": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_column_a_cell": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_row_1_cell": "@H0[]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "pagebreak_a1": "E1004:Unable to set the PageBreak property of the Range class @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_row_1": "E1004:Unable to set the PageBreak property of the Range class @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_column_a": "E1004:Unable to set the PageBreak property of the Range class @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_automatic": "E1004:Unable to set the PageBreak property of the Range class @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_other": "E1004:Unable to set the PageBreak property of the Range class @H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_reads": "A5=E1004 B5:C6=E1004 5:6=-4135 4:5=-4142 C:D=-4135 A:A=E1004 5:5=E1004 @H1[A5/-4135/1 ]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "reset": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "reset_none": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_above": "@H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_at": "@H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_below": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_before_at": "@H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_many": "@H1[A8/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_at": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_before_at": "@H1[A4/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_below": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_span": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_many_above": "@H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_two_breaks": "@H1[A4/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "columns_insert_at": "@H0[]V1[D1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4135,-4142,-4142,",
+  "columns_insert_left": "@H0[]V1[D1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4135,-4142,-4142,",
+  "columns_delete_at": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "columns_delete_left": "@H0[]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "rows_leave_columns": "@H0[]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "cells_insert_down": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "cells_delete_up": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "copied": "copy=H1[A4/-4135/1 ]V1[B1/-4135/1 ] @H1[A4/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "sub_below": "@H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_above": "@H2[A6/-4135/1 A9/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_keeps_outside": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_inside_manual": "@H1[A4/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_replace_default": "@H5[A4/-4135/1 A6/-4135/1 A8/-4135/1 A10/-4135/1 A13/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_replace_false": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_false_then_default": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_then_default": "@H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_nested_default": "@H7[A4/-4135/1 A6/-4135/1 A7/-4135/1 A9/-4135/1 A11/-4135/1 A12/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4135,-4142,-4135,-4142,-4135,-4135,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_nested_false": "@H3[A7/-4135/1 A12/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_reset_then_nested": "@H5[A4/-4135/1 A6/-4135/1 A9/-4135/1 A11/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_other_sheet": "other=H0[]V0[] @H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_manual_inside": "@H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_manual_inside_replace": "@H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_blank_group": "@H2[A5/-4135/1 A9/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_single_group": "@H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_above_nested": "@H4[A6/-4135/1 A8/-4135/1 A11/-4135/1 A13/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4135,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_manual_in_data": "@H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_manual_after_total": "@H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_nested_true_manual": "@H5[A4/-4135/1 A6/-4135/1 A9/-4135/1 A11/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,"
+ },
+ "reopened": {
+  "scratch": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "none": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_row": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_col": "H0[]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "add_cell_both": "H1[A7/-4135/1 ]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "add_block": "H1[A5/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "add_twice": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_order": "H3[A3/-4135/1 A6/-4135/1 A9/-4135/1 ]V2[B1/-4135/1 D1/-4135/1 ]#-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4135,-4142,-4142,",
+  "add_first_row": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_first_col": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_other_sheet": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_beyond": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_edge": "H2[A10/-4135/1 A11/-4135/1 ]V2[C1/-4135/1 D1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4135,-4135,-4142,-4142,-4142,#-4142,-4142,-4135,-4135,-4135,-4142,",
+  "add_formatted_beyond": "H1[A15/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4135,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "add_print_area": "H2[A5/-4135/2 A8/-4135/1 ]V2[B1/-4135/2 C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4105,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4135,-4142,-4142,-4142,",
+  "add_print_area_edge": "H3[A3/-4135/1 A4/-4135/1 A9/-4135/1 ]V2[B1/-4135/1 C1/-4135/1 ]#-4142,-4142,-4135,-4135,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4135,-4105,-4142,-4142,",
+  "delete_first": "H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_vertical": "H0[]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "delete_beyond": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "item_bad": "H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "item_zero": "H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "location_set": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "foreach": "H2[A3/-4135/1 A7/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_cell": "H1[A5/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "pagebreak_lines": "H1[A5/-4135/1 ]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "pagebreak_block": "H1[A5/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "pagebreak_entire_row": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_cell": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_row": "H0[]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_col": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_none_unbroken": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_column_a_cell": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_row_1_cell": "H0[]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "pagebreak_a1": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_row_1": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_column_a": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_automatic": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_other": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "pagebreak_reads": "H1[A5/-4135/1 ]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "reset": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "reset_none": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_above": "H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_at": "H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_below": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_before_at": "H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "insert_many": "H1[A8/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_at": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_before_at": "H1[A4/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_below": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_span": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_many_above": "H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "delete_two_breaks": "H1[A4/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "columns_insert_at": "H0[]V1[D1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4135,-4142,-4142,",
+  "columns_insert_left": "H0[]V1[D1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4135,-4142,-4142,",
+  "columns_delete_at": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "columns_delete_left": "H0[]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "rows_leave_columns": "H0[]V1[C1/-4135/1 ]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4135,-4142,-4142,-4142,",
+  "cells_insert_down": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "cells_delete_up": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "copied": "H1[A4/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "copied (2)": "H1[A4/-4135/1 ]V1[B1/-4135/1 ]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4135,-4142,-4142,-4142,-4142,",
+  "sub_below": "H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_above": "H2[A6/-4135/1 A9/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_keeps_outside": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_inside_manual": "H1[A4/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_replace_default": "H5[A4/-4135/1 A6/-4135/1 A8/-4135/1 A10/-4135/1 A13/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_replace_false": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_false_then_default": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_then_default": "H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_nested_default": "H7[A4/-4135/1 A6/-4135/1 A7/-4135/1 A9/-4135/1 A11/-4135/1 A12/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4135,-4142,-4135,-4142,-4135,-4135,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_nested_false": "H3[A7/-4135/1 A12/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_reset_then_nested": "H5[A4/-4135/1 A6/-4135/1 A9/-4135/1 A11/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_other_sheet": "H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_manual_inside": "H3[A5/-4135/1 A8/-4135/1 A11/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_manual_inside_replace": "H1[A5/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_blank_group": "H2[A5/-4135/1 A9/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_single_group": "H1[A6/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_above_nested": "H4[A6/-4135/1 A8/-4135/1 A11/-4135/1 A13/-4135/1 ]V0[]#-4142,-4142,-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4135,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_manual_in_data": "H1[A3/-4135/1 ]V0[]#-4142,-4142,-4135,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_remove_manual_after_total": "H0[]V0[]#-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,",
+  "sub_nested_true_manual": "H5[A4/-4135/1 A6/-4135/1 A9/-4135/1 A11/-4135/1 A16/-4135/1 ]V0[]#-4142,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4135,-4142,-4135,-4142,-4142,-4142,-4142,#-4142,-4142,-4142,-4142,-4142,-4142,"
+ },
+ "breaks": {
+  "scratch": [],
+  "none": [],
+  "add_row": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "add_col": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "add_cell_both": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"6\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "add_block": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "add_twice": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "add_order": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"2\" max=\"16383\" man=\"1\"/><brk id=\"5\" max=\"16383\" man=\"1\"/><brk id=\"8\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"2\" manualBreakCount=\"2\"><brk id=\"1\" max=\"1048575\" man=\"1\"/><brk id=\"3\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "add_first_row": [],
+  "add_first_col": [],
+  "add_other_sheet": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "add_beyond": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"49\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"10\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "add_edge": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"9\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/><brk id=\"11\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"2\" max=\"1048575\" man=\"1\"/><brk id=\"3\" max=\"1048575\" man=\"1\"/><brk id=\"4\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "add_formatted_beyond": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"14\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "add_print_area": [
+   "<rowBreaks count=\"2\" manualBreakCount=\"2\"><brk id=\"4\" max=\"1\" man=\"1\"/><brk id=\"7\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"2\" manualBreakCount=\"2\"><brk id=\"1\" max=\"5\" man=\"1\"/><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "add_print_area_edge": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"2\" max=\"16383\" man=\"1\"/><brk id=\"3\" max=\"16383\" man=\"1\"/><brk id=\"8\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"2\" manualBreakCount=\"2\"><brk id=\"1\" max=\"1048575\" man=\"1\"/><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "delete_first": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"5\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "delete_vertical": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "delete_beyond": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"49\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "item_bad": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "item_zero": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "location_set": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "foreach": [
+   "<rowBreaks count=\"2\" manualBreakCount=\"2\"><brk id=\"2\" max=\"16383\" man=\"1\"/><brk id=\"6\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "pagebreak_cell": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "pagebreak_lines": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "pagebreak_block": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "pagebreak_entire_row": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "pagebreak_none_cell": [],
+  "pagebreak_none_row": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "pagebreak_none_col": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "pagebreak_none_unbroken": [],
+  "pagebreak_column_a_cell": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "pagebreak_row_1_cell": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "pagebreak_a1": [],
+  "pagebreak_row_1": [],
+  "pagebreak_column_a": [],
+  "pagebreak_automatic": [],
+  "pagebreak_other": [],
+  "pagebreak_reads": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "reset": [],
+  "reset_none": [],
+  "insert_above": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"5\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "insert_at": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"5\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "insert_below": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "insert_before_at": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"5\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "insert_many": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"7\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "delete_at": [],
+  "delete_before_at": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"3\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "delete_below": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "delete_span": [],
+  "delete_many_above": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "delete_two_breaks": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"3\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "columns_insert_at": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"3\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "columns_insert_left": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"3\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "columns_delete_at": [],
+  "columns_delete_left": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "rows_leave_columns": [
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "cells_insert_down": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "cells_delete_up": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "copied": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"3\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "copied (2)": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"3\" max=\"16383\" man=\"1\"/></rowBreaks>",
+   "<colBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"1\" max=\"1048575\" man=\"1\"/></colBreaks>"
+  ],
+  "sub_below": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"4\" max=\"16383\" man=\"1\"/><brk id=\"7\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_above": [
+   "<rowBreaks count=\"2\" manualBreakCount=\"2\"><brk id=\"5\" max=\"16383\" man=\"1\"/><brk id=\"8\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_remove": [],
+  "sub_remove_keeps_outside": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"19\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_remove_inside_manual": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"3\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_replace_default": [
+   "<rowBreaks count=\"5\" manualBreakCount=\"5\"><brk id=\"3\" max=\"16383\" man=\"1\"/><brk id=\"5\" max=\"16383\" man=\"1\"/><brk id=\"7\" max=\"16383\" man=\"1\"/><brk id=\"9\" max=\"16383\" man=\"1\"/><brk id=\"12\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_replace_false": [],
+  "sub_false_then_default": [],
+  "sub_remove_then_default": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"4\" max=\"16383\" man=\"1\"/><brk id=\"7\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_nested_default": [
+   "<rowBreaks count=\"7\" manualBreakCount=\"7\"><brk id=\"3\" max=\"16383\" man=\"1\"/><brk id=\"5\" max=\"16383\" man=\"1\"/><brk id=\"6\" max=\"16383\" man=\"1\"/><brk id=\"8\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/><brk id=\"11\" max=\"16383\" man=\"1\"/><brk id=\"15\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_nested_false": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"6\" max=\"16383\" man=\"1\"/><brk id=\"11\" max=\"16383\" man=\"1\"/><brk id=\"15\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_reset_then_nested": [
+   "<rowBreaks count=\"5\" manualBreakCount=\"5\"><brk id=\"3\" max=\"16383\" man=\"1\"/><brk id=\"5\" max=\"16383\" man=\"1\"/><brk id=\"8\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/><brk id=\"15\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_other_sheet": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"4\" max=\"16383\" man=\"1\"/><brk id=\"7\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_manual_inside": [
+   "<rowBreaks count=\"3\" manualBreakCount=\"3\"><brk id=\"4\" max=\"16383\" man=\"1\"/><brk id=\"7\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_manual_inside_replace": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"4\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_blank_group": [
+   "<rowBreaks count=\"2\" manualBreakCount=\"2\"><brk id=\"4\" max=\"16383\" man=\"1\"/><brk id=\"8\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_single_group": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"5\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_above_nested": [
+   "<rowBreaks count=\"4\" manualBreakCount=\"4\"><brk id=\"5\" max=\"16383\" man=\"1\"/><brk id=\"7\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/><brk id=\"12\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_remove_manual_in_data": [
+   "<rowBreaks count=\"1\" manualBreakCount=\"1\"><brk id=\"2\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ],
+  "sub_remove_manual_after_total": [],
+  "sub_nested_true_manual": [
+   "<rowBreaks count=\"5\" manualBreakCount=\"5\"><brk id=\"3\" max=\"16383\" man=\"1\"/><brk id=\"5\" max=\"16383\" man=\"1\"/><brk id=\"8\" max=\"16383\" man=\"1\"/><brk id=\"10\" max=\"16383\" man=\"1\"/><brk id=\"15\" max=\"16383\" man=\"1\"/></rowBreaks>"
+  ]
+ }
+}

@@ -1,0 +1,18 @@
+{
+"file": "pivots/native-simple.xlsx",
+"dump": "Private Function Got(target As Object, name As String) As String\n    On Error GoTo Failed\n    Got = CStr(CallByName(target, name, VbGet))\n    Exit Function\nFailed:\n    Got = \"E\" & Err.Number\nEnd Function\n\nPrivate Function NameOf(target As Object, name As String) As String\n    Dim found As Object\n    On Error GoTo Failed\n    Set found = CallByName(target, name, VbGet)\n    NameOf = found.Name\n    Exit Function\nFailed:\n    NameOf = \"E\" & Err.Number\nEnd Function\n\nPrivate Function ListOf(target As Object, name As String) As String\n    Dim found As Object, one As Object, out As String\n    On Error GoTo Failed\n    Set found = CallByName(target, name, VbGet)\n    out = found.Count & \":\"\n    For Each one In found\n        out = out & one.Name & \";\"\n    Next\n    ListOf = out\n    Exit Function\nFailed:\n    ListOf = out & \"E\" & Err.Number\nEnd Function\n\nPrivate Function PlaceOf(pc As Object) As String\n    On Error GoTo Failed\n    PlaceOf = pc.Range.Address(False, False)\n    Exit Function\nFailed:\n    PlaceOf = \"E\" & Err.Number\nEnd Function\n\nPrivate Function CellOf(c As Object) As String\n    Dim pc As Object, own As String\n    own = NameOf(c, \"PivotField\") & \"|\" & NameOf(c, \"PivotItem\") & \"|\" & NameOf(c, \"PivotTable\")\n    On Error Resume Next\n    Set pc = c.PivotCell\n    If Err.Number <> 0 Then\n        CellOf = \"E\" & Err.Number & \"|\" & own\n        Exit Function\n    End If\n    On Error GoTo 0\n    CellOf = Got(pc, \"PivotCellType\") & \"|\" & NameOf(pc, \"PivotTable\") & \"|\" & NameOf(pc, \"PivotField\") & \"|\" & _\n        NameOf(pc, \"PivotItem\") & \"|\" & NameOf(pc, \"DataField\") & \"|\" & ListOf(pc, \"RowItems\") & \"|\" & _\n        ListOf(pc, \"ColumnItems\") & \"|\" & Got(pc, \"CustomSubtotalFunction\") & \"|\" & PlaceOf(pc) & \"|\" & own\nEnd Function\n\nPublic Function Dump(path As String) As String\n    Dim wb As Object, ws As Object, pt As Object, c As Object, whole As Object\n    Dim tables() As String, cells() As String, n As Long, k As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path)\n    ReDim tables(0 To 0)\n    For Each ws In wb.Worksheets\n        For Each pt In ws.PivotTables\n            Set whole = pt.TableRange2\n            ReDim cells(0 To whole.Cells.Count + 1)\n            k = 0\n            For Each c In whole.Cells\n                cells(k) = c.Address(False, False) & \"=\" & CellOf(c)\n                k = k + 1\n            Next\n            cells(k) = \"whole=\" & CellOf(pt.TableRange1)\n            cells(k + 1) = \"beside=\" & CellOf(ws.Cells(whole.Row, whole.Column + whole.Columns.Count))\n            ReDim Preserve tables(0 To n)\n            tables(n) = ws.Name & \"!\" & pt.Name & \"^\" & Join(cells, \"~\")\n            n = n + 1\n        Next\n    Next\n    wb.Close False\n    Dump = Join(tables, \"`\")\nEnd Function\n",
+"tables": {
+"Sheet1!Summary": [
+"E3=9|Summary|Region|E1004|E1004|E1004|E1004|E1004|E3|Region|E1004|Summary",
+"F3=4|Summary|Total|E1004|Total|E1004|E1004|E1004|F3|Total|Total|Summary",
+"E4=1|Summary|Region|East|E1004|E1004|E1004|E1004|E4|Region|East|Summary",
+"F4=0|Summary|Total|E1004|Total|1:East;|0:|E1004|F4|Total|Total|Summary",
+"E5=1|Summary|Region|West|E1004|E1004|E1004|E1004|E5|Region|West|Summary",
+"F5=0|Summary|Total|E1004|Total|1:West;|0:|E1004|F5|Total|Total|Summary",
+"E6=3|Summary|Total|E1004|Total|E1004|E1004|E1004|E6|Total|Total|Summary",
+"F6=0|Summary|Total|E1004|Total|0:|0:|E1004|F6|Total|Total|Summary",
+"whole=9|Summary|Region|E1004|E1004|E1004|E1004|E1004|E3|Region|E1004|Summary",
+"beside=E1004|E1004|E1004|E1004"
+]
+}
+}

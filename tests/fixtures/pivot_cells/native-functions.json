@@ -1,0 +1,72 @@
+{
+"file": "pivots/native-functions.xlsx",
+"dump": "Private Function Got(target As Object, name As String) As String\n    On Error GoTo Failed\n    Got = CStr(CallByName(target, name, VbGet))\n    Exit Function\nFailed:\n    Got = \"E\" & Err.Number\nEnd Function\n\nPrivate Function NameOf(target As Object, name As String) As String\n    Dim found As Object\n    On Error GoTo Failed\n    Set found = CallByName(target, name, VbGet)\n    NameOf = found.Name\n    Exit Function\nFailed:\n    NameOf = \"E\" & Err.Number\nEnd Function\n\nPrivate Function ListOf(target As Object, name As String) As String\n    Dim found As Object, one As Object, out As String\n    On Error GoTo Failed\n    Set found = CallByName(target, name, VbGet)\n    out = found.Count & \":\"\n    For Each one In found\n        out = out & one.Name & \";\"\n    Next\n    ListOf = out\n    Exit Function\nFailed:\n    ListOf = out & \"E\" & Err.Number\nEnd Function\n\nPrivate Function PlaceOf(pc As Object) As String\n    On Error GoTo Failed\n    PlaceOf = pc.Range.Address(False, False)\n    Exit Function\nFailed:\n    PlaceOf = \"E\" & Err.Number\nEnd Function\n\nPrivate Function CellOf(c As Object) As String\n    Dim pc As Object, own As String\n    own = NameOf(c, \"PivotField\") & \"|\" & NameOf(c, \"PivotItem\") & \"|\" & NameOf(c, \"PivotTable\")\n    On Error Resume Next\n    Set pc = c.PivotCell\n    If Err.Number <> 0 Then\n        CellOf = \"E\" & Err.Number & \"|\" & own\n        Exit Function\n    End If\n    On Error GoTo 0\n    CellOf = Got(pc, \"PivotCellType\") & \"|\" & NameOf(pc, \"PivotTable\") & \"|\" & NameOf(pc, \"PivotField\") & \"|\" & _\n        NameOf(pc, \"PivotItem\") & \"|\" & NameOf(pc, \"DataField\") & \"|\" & ListOf(pc, \"RowItems\") & \"|\" & _\n        ListOf(pc, \"ColumnItems\") & \"|\" & Got(pc, \"CustomSubtotalFunction\") & \"|\" & PlaceOf(pc) & \"|\" & own\nEnd Function\n\nPublic Function Dump(path As String) As String\n    Dim wb As Object, ws As Object, pt As Object, c As Object, whole As Object\n    Dim tables() As String, cells() As String, n As Long, k As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path)\n    ReDim tables(0 To 0)\n    For Each ws In wb.Worksheets\n        For Each pt In ws.PivotTables\n            Set whole = pt.TableRange2\n            ReDim cells(0 To whole.Cells.Count + 1)\n            k = 0\n            For Each c In whole.Cells\n                cells(k) = c.Address(False, False) & \"=\" & CellOf(c)\n                k = k + 1\n            Next\n            cells(k) = \"whole=\" & CellOf(pt.TableRange1)\n            cells(k + 1) = \"beside=\" & CellOf(ws.Cells(whole.Row, whole.Column + whole.Columns.Count))\n            ReDim Preserve tables(0 To n)\n            tables(n) = ws.Name & \"!\" & pt.Name & \"^\" & Join(cells, \"~\")\n            n = n + 1\n        Next\n    Next\n    wb.Close False\n    Dump = Join(tables, \"`\")\nEnd Function\n",
+"tables": {
+"Sheet1!Function11": [
+"BC3=4|Function11|Varp of Amount|E1004|Varp of Amount|E1004|E1004|E1004|BC3|Varp of Amount|Varp of Amount|Function11",
+"BC4=0|Function11|Varp of Amount|E1004|Varp of Amount|0:|0:|E1004|BC4|Varp of Amount|Varp of Amount|Function11",
+"whole=4|Function11|Varp of Amount|E1004|Varp of Amount|E1004|E1004|E1004|BC3|Varp of Amount|Varp of Amount|Function11",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function10": [
+"AX3=4|Function10|Var of Amount|E1004|Var of Amount|E1004|E1004|E1004|AX3|Var of Amount|Var of Amount|Function10",
+"AX4=0|Function10|Var of Amount|E1004|Var of Amount|0:|0:|E1004|AX4|Var of Amount|Var of Amount|Function10",
+"whole=4|Function10|Var of Amount|E1004|Var of Amount|E1004|E1004|E1004|AX3|Var of Amount|Var of Amount|Function10",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function5": [
+"Y3=4|Function5|Min of Amount|E1004|Min of Amount|E1004|E1004|E1004|Y3|Min of Amount|Min of Amount|Function5",
+"Y4=0|Function5|Min of Amount|E1004|Min of Amount|0:|0:|E1004|Y4|Min of Amount|Min of Amount|Function5",
+"whole=4|Function5|Min of Amount|E1004|Min of Amount|E1004|E1004|E1004|Y3|Min of Amount|Min of Amount|Function5",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function9": [
+"AS3=4|Function9|StdDevp of Amount|E1004|StdDevp of Amount|E1004|E1004|E1004|AS3|StdDevp of Amount|StdDevp of Amount|Function9",
+"AS4=0|Function9|StdDevp of Amount|E1004|StdDevp of Amount|0:|0:|E1004|AS4|StdDevp of Amount|StdDevp of Amount|Function9",
+"whole=4|Function9|StdDevp of Amount|E1004|StdDevp of Amount|E1004|E1004|E1004|AS3|StdDevp of Amount|StdDevp of Amount|Function9",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function4": [
+"T3=4|Function4|Average of Amount|E1004|Average of Amount|E1004|E1004|E1004|T3|Average of Amount|Average of Amount|Function4",
+"T4=0|Function4|Average of Amount|E1004|Average of Amount|0:|0:|E1004|T4|Average of Amount|Average of Amount|Function4",
+"whole=4|Function4|Average of Amount|E1004|Average of Amount|E1004|E1004|E1004|T3|Average of Amount|Average of Amount|Function4",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function3": [
+"O3=4|Function3|Count of Amount|E1004|Count of Amount|E1004|E1004|E1004|O3|Count of Amount|Count of Amount|Function3",
+"O4=0|Function3|Count of Amount|E1004|Count of Amount|0:|0:|E1004|O4|Count of Amount|Count of Amount|Function3",
+"whole=4|Function3|Count of Amount|E1004|Count of Amount|E1004|E1004|E1004|O3|Count of Amount|Count of Amount|Function3",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function8": [
+"AN3=4|Function8|StdDev of Amount|E1004|StdDev of Amount|E1004|E1004|E1004|AN3|StdDev of Amount|StdDev of Amount|Function8",
+"AN4=0|Function8|StdDev of Amount|E1004|StdDev of Amount|0:|0:|E1004|AN4|StdDev of Amount|StdDev of Amount|Function8",
+"whole=4|Function8|StdDev of Amount|E1004|StdDev of Amount|E1004|E1004|E1004|AN3|StdDev of Amount|StdDev of Amount|Function8",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function2": [
+"J3=4|Function2|Count of Amount|E1004|Count of Amount|E1004|E1004|E1004|J3|Count of Amount|Count of Amount|Function2",
+"J4=0|Function2|Count of Amount|E1004|Count of Amount|0:|0:|E1004|J4|Count of Amount|Count of Amount|Function2",
+"whole=4|Function2|Count of Amount|E1004|Count of Amount|E1004|E1004|E1004|J3|Count of Amount|Count of Amount|Function2",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function7": [
+"AI3=4|Function7|Product of Amount|E1004|Product of Amount|E1004|E1004|E1004|AI3|Product of Amount|Product of Amount|Function7",
+"AI4=0|Function7|Product of Amount|E1004|Product of Amount|0:|0:|E1004|AI4|Product of Amount|Product of Amount|Function7",
+"whole=4|Function7|Product of Amount|E1004|Product of Amount|E1004|E1004|E1004|AI3|Product of Amount|Product of Amount|Function7",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function1": [
+"E3=4|Function1|Sum of Amount|E1004|Sum of Amount|E1004|E1004|E1004|E3|Sum of Amount|Sum of Amount|Function1",
+"E4=0|Function1|Sum of Amount|E1004|Sum of Amount|0:|0:|E1004|E4|Sum of Amount|Sum of Amount|Function1",
+"whole=4|Function1|Sum of Amount|E1004|Sum of Amount|E1004|E1004|E1004|E3|Sum of Amount|Sum of Amount|Function1",
+"beside=E1004|E1004|E1004|E1004"
+],
+"Sheet1!Function6": [
+"AD3=4|Function6|Max of Amount|E1004|Max of Amount|E1004|E1004|E1004|AD3|Max of Amount|Max of Amount|Function6",
+"AD4=0|Function6|Max of Amount|E1004|Max of Amount|0:|0:|E1004|AD4|Max of Amount|Max of Amount|Function6",
+"whole=4|Function6|Max of Amount|E1004|Max of Amount|E1004|E1004|E1004|AD3|Max of Amount|Max of Amount|Function6",
+"beside=E1004|E1004|E1004|E1004"
+]
+}
+}

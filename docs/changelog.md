@@ -7,6 +7,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.PivotCell`, `Range.PivotTable`, `Range.PivotField` and
+  `Range.PivotItem` say what a cell of a pivot table stands for, as in
+  Excel. `PivotCellType` tells a value from an item, a subtotal, a custom
+  subtotal, a grand total, a data field's caption, a field's name, a page
+  field's item, the Values button and a blank. `PivotField`, `PivotItem`,
+  `DataField`, `RowItems`, `ColumnItems` and `CustomSubtotalFunction` name
+  what the cell stands at. A value names its data field and the items of
+  its row and column. A label names the field and item of the column or
+  row it sits in, and an outline field's cell on a subtotal's line names
+  the subtotal. A cell outside every table, the row under the page fields
+  and the column between two page fields are error 1004, as in Excel.
+  Every cell of 595 tables Excel saved for the other fixtures agrees:
+  compact, outline and tabular layouts, subtotals at the top or bottom,
+  custom subtotals, blank lines, collapsed items, the Values field on
+  either axis and page fields. The tables the model makes itself agree
+  too.
+
 - Pivot tables that share a cache refresh together on every sheet, as
   in Excel. `RefreshTable` on one of them, or `PivotCache.Refresh`, lays
   out every table made from the cache, sheet by sheet in their order and

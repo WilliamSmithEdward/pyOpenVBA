@@ -172,6 +172,12 @@ class PivotTables(_Collection):
     vba_type_name = 'PivotTables'
 
 
+class PivotItemList(_Collection):
+    """The items a pivot cell's row or column stands at, PivotCell.RowItems and ColumnItems (see _pivot_cells)."""
+
+    vba_type_name = 'PivotItemList'
+
+
 class PivotFields(_Collection):
     vba_type_name = 'PivotFields'
 
@@ -882,6 +888,14 @@ class PivotTable(ExcelObject):
         if axis is not None:
             field.set('axis', 'axisRow' if axis == 'rowFields' else 'axisCol')
         return PivotField(self, -2, field)
+
+    def values_field(self) -> PivotField:
+        """The Values field, on the axis that shows it or on none, which a table names even without data fields
+        (tests/fixtures/pivot_cells/)."""
+        for axis in ('rowFields', 'colFields'):
+            if any(field.get('x') == '-2' for field in self.root.findall(f'{NS}{axis}/{NS}field')):
+                return self._data_pivot_field(axis)
+        return self._data_pivot_field(None)
 
     @member
     def DataPivotField(self) -> object:

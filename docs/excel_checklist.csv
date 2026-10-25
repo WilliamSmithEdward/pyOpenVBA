@@ -875,6 +875,22 @@ GroupShapes,Creator,"property, read-only",As XlCreator,,MISSING,,
 GroupShapes,Item,method,Item(Index As Variant) As Shape,,UNASSESSED,,
 GroupShapes,Parent,"property, read-only",As Object,,MISSING,,
 GroupShapes,Range,"property, read-only",As ShapeRange,,MISSING,,
+HPageBreak,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The application.
+HPageBreak,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
+HPageBreak,Delete,method,Delete(),,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,Takes the break away.
+HPageBreak,DragOff,method,"DragOff(Direction As XlDirection, RegionIndex As Long)",,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,Reports itself unsupported.
+HPageBreak,Extent,"property, read-only",As XlPageBreakExtent,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlPageBreakFull; a print area's partial breaks report themselves unsupported.
+HPageBreak,Location,property,As Range,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The cell in column A the break stands before; Set is error 1004.
+HPageBreak,Parent,"property, read-only",As Worksheet,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The worksheet.
+HPageBreak,Type,property,As XlPageBreak,no setter,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlPageBreakManual.
+HPageBreaks,_Default,"property, read-only",As HPageBreak,,MISSING,,
+HPageBreaks,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+HPageBreaks,Add,method,Add(Before As Object) As HPageBreak,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"A manual break before the range's first row; row 1 is error 1004, a break there already stays one. Saved as the sheet's rowBreaks."
+HPageBreaks,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The application.
+HPageBreaks,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted."
+HPageBreaks,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
+HPageBreaks,Item,"property, read-only",As HPageBreak,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted. Beyond the count is error 9."
+HPageBreaks,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The worksheet.
 Hyperlink,Address,property,As String,,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"Kept as Excel tidies it -- an http, https or ftp address's scheme and host in lower case, its path resolved, a # splitting off the subaddress -- for the kinds of address measured; saved with a DOS path relative to the workbook's folder. Setting it keeps the subaddress unless the new address has a # of its own."
 Hyperlink,AddToFavorites,method,AddToFavorites(),,EXCLUDED,,Adds the address to the browser's favourites.
 Hyperlink,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,
@@ -1663,7 +1679,7 @@ Range,NumberFormatLocal,property,As Variant,,PARTIAL,tests/fixtures/excel_model/
 Range,Offset,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Range,Orientation,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,OutlineLevel,property,As Variant,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
-Range,PageBreak,property,As Long,,MISSING,,
+Range,PageBreak,property,As Long,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Read on whole rows or columns as Rows and Columns make them, error 1004 elsewhere. Set xlPageBreakManual or xlPageBreakNone on a row's, a column's or a cell's row and column but the first; anything else is error 1004. Breaks move with rows and columns put in and go with the line after them."
 Range,Parent,"property, read-only",As Object,,UNASSESSED,,
 Range,Parse,method,"Parse([ParseLine As Variant], [Destination As Variant]) As Variant",,MISSING,,
 Range,PastePictureInCell,method,PastePictureInCell(),,MISSING,,
@@ -2167,6 +2183,22 @@ UniqueValues,SetFirstPriority,method,SetFirstPriority(),,PARTIAL,tests/test_exce
 UniqueValues,SetLastPriority,method,SetLastPriority(),,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Loaded child order and representative are captured independently of mutable priority; broader lifecycle interactions remain partial."
 UniqueValues,StopIfTrue,property,As Boolean,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 UniqueValues,Type,"property, read-only",As Long,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
+VPageBreak,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The application.
+VPageBreak,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
+VPageBreak,Delete,method,Delete(),,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,Takes the break away.
+VPageBreak,DragOff,method,"DragOff(Direction As XlDirection, RegionIndex As Long)",,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,Reports itself unsupported.
+VPageBreak,Extent,"property, read-only",As XlPageBreakExtent,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlPageBreakFull; a print area's partial breaks report themselves unsupported.
+VPageBreak,Location,property,As Range,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The cell in row 1 the break stands before; Set is error 1004.
+VPageBreak,Parent,"property, read-only",As Worksheet,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The worksheet.
+VPageBreak,Type,property,As XlPageBreak,no setter,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlPageBreakManual.
+VPageBreaks,_Default,"property, read-only",As VPageBreak,,MISSING,,
+VPageBreaks,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+VPageBreaks,Add,method,Add(Before As Object) As VPageBreak,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,A manual break before the range's first column; column A is error 1004. Saved as the sheet's colBreaks.
+VPageBreaks,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The application.
+VPageBreaks,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted."
+VPageBreaks,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
+VPageBreaks,Item,"property, read-only",As VPageBreak,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted. Beyond the count is error 9."
+VPageBreaks,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The worksheet.
 Validation,Add,method,"Add(Type As XlDVType, [AlertStyle As Variant], [Operator As Variant], [Formula1 As Variant], [Formula2 As Variant])",,PARTIAL,tests/fixtures/validation/validation.json,"Every type, alert style and operator, a list of items or cells, bounds as text, numbers or dates; over cells with a rule it is error 1004, and a rule like one the sheet has joins it. A list read from another sheet, which Excel keeps in the x14 extension, reports itself."
 Validation,AlertStyle,"property, read-only",As Long,,VERIFIED,tests/fixtures/validation/validation.json,
 Validation,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/validation/validation.json,
@@ -2563,7 +2595,7 @@ Worksheet,Evaluate,method,Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fi
 Worksheet,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Worksheet,FilterMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/test_excel_advanced_filter.py; tests/fixtures/advanced_filter/native.json; tests/fixtures/table_autofilter/table_autofilter.json,"The filter at the active cell's, as it was when the sheet was last activated, its selection moved or a filter changed: deleting a filtered table leaves it True, and a sheet read from a file answers for its own filter, which the file keeps as filterMode. AdvancedFilter has independently measured filtering without dropdowns, persisted list/criteria names and hidden rows; ShowAllData clears that list while preserving unrelated manually hidden rows."
 Worksheet,FollowHyperlink,event,FollowHyperlink(Target As Hyperlink),,MISSING,,
-Worksheet,HPageBreaks,"property, read-only",As HPageBreaks,,MISSING,,
+Worksheet,HPageBreaks,"property, read-only",As HPageBreaks,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted."
 Worksheet,Hyperlinks,"property, read-only",As Hyperlinks,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"In the order they were added, a link replaced keeping its place."
 Worksheet,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,LensGalleryRenderComplete,event,LensGalleryRenderComplete(),,MISSING,,
@@ -2600,7 +2632,7 @@ Worksheet,ProtectionMode,"property, read-only",As Boolean,,PARTIAL,tests/fixture
 Worksheet,ProtectScenarios,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,Saved and read as Excel saves and reads it.
 Worksheet,QueryTables,"property, read-only",As QueryTables,,MISSING,,
 Worksheet,Range,"property, read-only",As Range,,PARTIAL,tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,"A Range, a qualified reference or a defined name on another sheet is error 1004."
-Worksheet,ResetAllPageBreaks,method,ResetAllPageBreaks(),,MISSING,,
+Worksheet,ResetAllPageBreaks,method,ResetAllPageBreaks(),,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,Every manual break goes.
 Worksheet,Rows,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,SaveAs,method,"SaveAs(Filename As String, [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant])",,MISSING,,
 Worksheet,Scenarios,method,Scenarios([Index As Variant]) As Object,,MISSING,,
@@ -2622,7 +2654,7 @@ Worksheet,Type,"property, read-only",As XlSheetType,,UNASSESSED,,
 Worksheet,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"The password matched case and all, any opening a sheet that has none; given none where Excel would ask in a dialog, it reports itself unsupported. Saved and read as Excel saves and reads it."
 Worksheet,UsedRange,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,Visible,property,As XlSheetVisibility,,UNASSESSED,,
-Worksheet,VPageBreaks,"property, read-only",As VPageBreaks,,MISSING,,
+Worksheet,VPageBreaks,"property, read-only",As VPageBreaks,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted."
 Worksheet,XmlDataQuery,method,"XmlDataQuery(XPath As String, [SelectionNamespaces As Variant], [Map As Variant]) As Range",,MISSING,,
 Worksheet,XmlMapQuery,method,"XmlMapQuery(XPath As String, [SelectionNamespaces As Variant], [Map As Variant]) As Range",,MISSING,,
 WorksheetFunction,AccrInt,method,"AccrInt(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, Arg6 As Variant, [Arg7 As Variant]) As Double",,UNASSESSED,,
@@ -3031,3 +3063,17 @@ WorksheetFunction,YieldDisc,method,"YieldDisc(Arg1 As Variant, Arg2 As Variant, 
 WorksheetFunction,YieldMat,method,"YieldMat(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, [Arg6 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,Z_Test,method,"Z_Test(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,ZTest,method,"ZTest(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
+_Break,Application,not in the type library,,,UNASSESSED,,
+_Break,Creator,not in the type library,,,UNASSESSED,,
+_Break,Delete,not in the type library,,,UNASSESSED,,
+_Break,DragOff,not in the type library,,,UNASSESSED,,
+_Break,Extent,not in the type library,,,UNASSESSED,,
+_Break,Location,not in the type library,,,UNASSESSED,,
+_Break,Parent,not in the type library,,,UNASSESSED,,
+_Break,Type,not in the type library,,,UNASSESSED,,
+_Breaks,Add,not in the type library,,,UNASSESSED,,
+_Breaks,Application,not in the type library,,,UNASSESSED,,
+_Breaks,Count,not in the type library,,,UNASSESSED,,
+_Breaks,Creator,not in the type library,,,UNASSESSED,,
+_Breaks,Item,not in the type library,,,UNASSESSED,,
+_Breaks,Parent,not in the type library,,,UNASSESSED,,

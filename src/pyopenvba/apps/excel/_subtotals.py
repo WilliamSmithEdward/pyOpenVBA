@@ -17,9 +17,14 @@ the number format a macro last met in a cell (Application.recent_format, see Ran
 Excel's that the labels after it do not see. The list is outlined: its data and subtotal rows one level in, each group's data rows one level further, a
 Grand row at the header's level; and Outline.SummaryRow takes SummaryBelowData, which defaults to it.
 
+PageBreaks puts a manual break after each group's row and, for the last group, after the list; above the data after
+each group's data but the last group's. A call leaving PageBreaks out takes it from the sheet's last call, which
+Excel keeps on the sheet (see _page_breaks).
+
 Replace, the default, first takes the list's subtotals out as RemoveSubtotal does: every row of the list a cell of
-which holds one SUBTOTAL call and nothing else goes, and the list's rows and columns leave the outline, those in a
-group shown again. Replace:=False keeps them and subtotals each run of data rows between them, in the summary place
+which holds one SUBTOTAL call and nothing else goes, with the break after it, and the list's rows and columns leave
+the outline, those in a group shown again; a call that breaks between groups takes every break within the list out
+first. Replace:=False keeps them and subtotals each run of data rows between them, in the summary place
 the outline has whatever SummaryBelowData says, with each new row nearest its group. Under the data a Grand row
 goes in there only where the first one there totals another function, with a formula only in the columns where no
 Grand row totals its function; above the data none does.
@@ -32,7 +37,7 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter
-from pyopenvba.apps.excel import _events, _outline
+from pyopenvba.apps.excel import _events, _outline, _page_breaks
 from pyopenvba.apps.excel._model import Range
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -96,10 +101,6 @@ def _admitted(sheet: Worksheet) -> None:
     refuse(sheet, FILTERING)
     if filtering(sheet):
         raise VBAUnsupportedError("Subtotals on a filtered sheet are not implemented")
-    package = sheet.book.package
-    if package is not None and sheet.part_name and package.has(sheet.part_name) \
-            and b"<brk " in package.read(sheet.part_name):
-        raise VBAUnsupportedError("Subtotals on a sheet with manual page breaks are not implemented")
     _outline.admit_layout(sheet)
 
 
@@ -229,11 +230,16 @@ def _line(sheet: Worksheet, rows: bool, start: int, *, delete: bool, below: bool
     edit(Range(sheet, [area], whole="rows" if rows else "columns"), delete=delete, below=below, laid=True)
 
 
-def _remove(sheet: Worksheet, area: Area) -> Area:
-    """Take the list's subtotal rows out and its rows and columns out of the outline; the list that is left."""
+def _remove(sheet: Worksheet, area: Area, *, clear: bool) -> Area:
+    """Take the list's subtotal rows out, with the page break after each, and its rows and columns out of the
+    outline; with ``clear``, as a Subtotal that breaks between groups does, every break within the list goes first.
+    The list that is left."""
     gone = [row for row in range(area.top, area.bottom + 1) if _subtotal_row(sheet, row, area)]
     grouped = [row for row in range(area.top, area.bottom + 1) if _outline.depth(sheet, True, row)]
+    if clear:
+        _page_breaks.remove_within(sheet, area.top + 1, area.bottom)
     for row in reversed(gone):
+        _page_breaks.remove(sheet, True, row + 1)
         _line(sheet, True, row, delete=True)
 
     def now(row: int) -> int:
@@ -250,7 +256,7 @@ def remove_subtotal(target: Range) -> bool:
     """RemoveSubtotal: the subtotal rows out of the list around or in the range, and the list out of the outline."""
     sheet = target.sheet
     _admitted(sheet)
-    _remove(sheet, _list(target, REMOVE_FAILED))
+    _remove(sheet, _list(target, REMOVE_FAILED), clear=False)
     sheet.touched()
     _events.quietly_edited(sheet.book)
     return True
@@ -277,13 +283,16 @@ def subtotal(target: Range, group_by: object, function: object, total_list: obje
     if any(table.area.top <= area.bottom and area.top <= table.area.bottom and table.area.left <= area.right
            and area.left <= table.area.right for table in sheet.tables):
         raise error(1004, FAILED)
-    if page_breaks is not MISSING and to_bool(page_breaks):
-        raise VBAUnsupportedError("Subtotal's page breaks between groups are not implemented")
+    # A call leaving PageBreaks out breaks between groups as the sheet's last call did (tests/fixtures/page_breaks/).
+    breaks = _page_breaks.state(sheet)
+    breaking = breaks.subtotal if page_breaks is MISSING else to_bool(page_breaks)
+    if breaking:
+        _page_breaks.admitted(sheet)
     current = _outline.summary_below(sheet)
     nested = not replacing and any(_subtotal_row(sheet, row, area) for row in range(area.top + 1, area.bottom + 1))
     below = current if nested or wanted is None else wanted
     if replacing:
-        area = _remove(sheet, area)
+        area = _remove(sheet, area, clear=breaking)
     at = _label_column(column_of, set(totals))
     if at is None:
         # Every column left of the GroupBy column is totalled: the labels get a column of their own before the list.
@@ -296,6 +305,9 @@ def subtotal(target: Range, group_by: object, function: object, total_list: obje
     layout.grand_in()
     layout.written()
     layout.outlined()
+    if breaking:
+        layout.broken()
+    breaks.subtotal = breaking
     if not nested and below != current:
         _outline.set_summary_below(sheet, below)
     book.application.recent_format = "General"
@@ -310,8 +322,8 @@ class _Line:
 
     #: "header", "data", "old" for a subtotal row already there, "new" for a group's row put in, "grand".
     kind: str
-    #: For a data row, whether its group got a row.
-    grouped: bool = False
+    #: For a data row whose group got a row, and for that row, the group's place among them from the top; else -1.
+    group: int = -1
     #: For a group's row put in, the depth its group's data rows had.
     depth: int = 0
 
@@ -334,12 +346,12 @@ class _Layout:
     def _depth(self, row: int) -> int:
         return _outline.depth(self.sheet, True, row)
 
-    def _put(self, index: int, kind: str, *, depth: int = 0) -> int:
+    def _put(self, index: int, kind: str, *, depth: int = 0, group: int = -1) -> int:
         """A row put in at a line of the list, taking the formats of the row before it, or above the data of the one
         after it; its row."""
         row = self._row(index)
         _line(self.sheet, True, row, delete=False, below=not self.below)
-        self.lines.insert(index, _Line(kind, depth=depth))
+        self.lines.insert(index, _Line(kind, group=group, depth=depth))
         return row
 
     def _write_label(self, row: int, text: str) -> None:
@@ -397,17 +409,36 @@ class _Layout:
                 first, last = group.first + added, group.last + added
                 if not group.key:
                     continue
-                row = self._put(last + 1 - self.area.top, "new", depth=self._depth(last))
+                row = self._put(last + 1 - self.area.top, "new", depth=self._depth(last), group=added)
                 for data in range(first, last + 1):
-                    self.lines[data - self.area.top].grouped = True
+                    self.lines[data - self.area.top].group = added
                 self._write(row, f"{group.text} {self.word}", first, last)
                 added += 1
             return
-        for group in reversed(groups):
-            row = self._put(group.first - self.area.top, "new", depth=self._depth(group.first))
+        for place, group in reversed(list(enumerate(groups))):
+            row = self._put(group.first - self.area.top, "new", depth=self._depth(group.first), group=place)
             for data in range(group.first + 1, group.last + 2):
-                self.lines[data - self.area.top].grouped = True
+                self.lines[data - self.area.top].group = place
             self._write(row, f"{group.text} {self.word}", group.first + 1, group.last + 1)
+
+    def broken(self) -> None:
+        """Page breaks between the groups that got a row (tests/fixtures/page_breaks/, sub_*): under the data after
+        each group's row, the last group's after the list's last row; above it after each group's last data row but
+        the last group's."""
+        places = [line.group for line in self.lines if line.group >= 0]
+        if not places:
+            return
+        last = max(places)
+        if self.below:
+            for index, line in enumerate(self.lines):
+                if line.kind == "new" and line.group != last:
+                    _page_breaks.add(self.sheet, True, self._row(index) + 1)
+            _page_breaks.add(self.sheet, True, self._row(len(self.lines)))
+            return
+        ends = {line.group: index for index, line in enumerate(self.lines) if line.kind == "data" and line.group >= 0}
+        for group, index in ends.items():
+            if group != last:
+                _page_breaks.add(self.sheet, True, self._row(index) + 1)
 
     def _write(self, row: int, text: str, first: int, last: int, *, skip: frozenset[int] = frozenset()) -> None:
         self._write_label(row, text)
@@ -460,7 +491,7 @@ class _Layout:
             if line.kind == "header":
                 continue
             base = header if line.kind == "grand" else line.depth if line.kind == "new" else self._depth(row)
-            depth = base + (index in inner) + (line.kind == "data" and line.grouped)
+            depth = base + (index in inner) + (line.kind == "data" and line.group >= 0)
             if depth > _DEEPEST:
                 raise VBAUnsupportedError("Subtotals deeper than the outline's eight levels are not implemented")
             depths[row] = depth

@@ -178,9 +178,12 @@ def copy_sheet(source: Worksheet, before: object, after: object) -> object:
 
     # The copy has the sheet's links, in their order (tests/fixtures/hyperlinks/structure.xlsx).
     sheet_copied(source, copied)
-    # The copy's tab has the sheet's colour (tests/fixtures/sheet_tabs/).
+    # The copy's tab has the sheet's colour (tests/fixtures/sheet_tabs/), and its page breaks (page_breaks/).
     copied.tab_color = source.tab_color
     copied.tab_changed = source.tab_color is not None
+    from pyopenvba.apps.excel._page_breaks import copied as copied_breaks
+
+    copied_breaks(source, copied)
     # A protected sheet's copy is protected the same way (tests/fixtures/protection.json).
     copied.protection = source.protection
     copied.protection_allows = source.protection_allows

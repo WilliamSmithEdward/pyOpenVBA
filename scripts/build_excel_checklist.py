@@ -50,6 +50,7 @@ def bound_classes() -> dict[str, type]:
         _model,
         _notes,
         _outline,
+        _page_breaks,
         _page_setup,
         _pivot_calculated,
         _pivot_cells,
@@ -69,7 +70,7 @@ def bound_classes() -> dict[str, type]:
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
                    _cell_styles, _hyperlinks, _charts, _chart_axes, _pivots, _pivot_criteria, _pivot_calculated,
                    _pivot_cells, _sheet_tabs, _conditional,
-                   _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _outline):
+                   _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _page_breaks, _outline):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

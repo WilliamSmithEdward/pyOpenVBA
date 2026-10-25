@@ -30,10 +30,27 @@ All notable changes to pyOpenVBA are documented here. This project follows
   columns out of the outline, showing those in a group. The first label
   takes the number format a macro last read or formatted a cell with, as
   Excel's leftover state gives it. Neither call raises Change; Subtotal
-  raises Calculate. 157 measured cases agree cell by cell, in each saved
-  cell's xf and outline row, and Excel reads the model's file as its own.
-  Page breaks between groups, manual page breaks and a filtered list
-  report themselves unsupported.
+  raises Calculate. `PageBreaks` puts a break after each group, and a
+  call leaving it out takes the setting of the sheet's last call, which
+  Excel keeps on the sheet. 166 measured cases agree cell by cell, in
+  each saved cell's xf, outline row and page break, and Excel reads the
+  model's file as its own. A filtered list reports itself unsupported.
+
+- `HPageBreaks`, `VPageBreaks`, `Range.PageBreak` and
+  `Worksheet.ResetAllPageBreaks` add, read and take away manual page
+  breaks as Excel does. `Add` puts a break before a range's first row or
+  column, not the first; the collections count the breaks before the
+  rows or columns the sheet uses and the one after them, in order, and
+  each break answers its `Location`, `Type` and `Extent` and can
+  `Delete` itself. `PageBreak` reads on whole rows and columns and sets
+  `xlPageBreakManual` or `xlPageBreakNone` on them or on a cell's row
+  and column. Breaks move with rows and columns put in, go with the line
+  after them when it goes, stay through cell shifts and come with a
+  copied sheet. A save writes them as the sheet's `rowBreaks` and
+  `colBreaks`, and a file's breaks read back. 80 measured cases agree,
+  and Excel reads the model's file as its own. Automatic breaks, which
+  Excel works out only as it lays the pages out, are not modeled, and
+  breaks on a sheet with a print area report themselves unsupported.
 
 - `Worksheet.Tab` colours a sheet's tab as Excel does. `Color`,
   `ColorIndex`, `ThemeColor` and `TintAndShade` set the colour and read

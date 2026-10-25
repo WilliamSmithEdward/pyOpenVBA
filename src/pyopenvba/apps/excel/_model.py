@@ -68,6 +68,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._tables import Table
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._outline import OutlineState
+    from pyopenvba.apps.excel._page_breaks import SheetBreaks
     from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
@@ -1342,6 +1343,8 @@ class Worksheet(ExcelObject):
         #: The tab's colour, None for none, and whether a macro changed it, so a save writes it (see _sheet_tabs).
         self.tab_color: Color | None = None
         self.tab_changed = False
+        #: The sheet's manual page breaks, read from its file when first needed (see _page_breaks).
+        self.page_breaks: SheetBreaks | None = None
         #: An AdvancedFilter has no dropdowns but retains its filtered list.
         self.advanced_filter: Area | None = None
         self.advanced_filter_changed = False
@@ -1763,6 +1766,25 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._page_setup import PageSetup
 
         return PageSetup(self)
+
+    @member
+    def HPageBreaks(self) -> object:
+        from pyopenvba.apps.excel._page_breaks import HPageBreaks
+
+        return HPageBreaks(self)
+
+    @member
+    def VPageBreaks(self) -> object:
+        from pyopenvba.apps.excel._page_breaks import VPageBreaks
+
+        return VPageBreaks(self)
+
+    @method
+    def ResetAllPageBreaks(self) -> object:
+        from pyopenvba.apps.excel._page_breaks import reset
+
+        reset(self)
+        return EMPTY
 
     @method
     def ShowAllData(self) -> object:
@@ -3246,6 +3268,18 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._subtotals import remove_subtotal
 
         return remove_subtotal(self)
+
+    @member
+    def PageBreak(self) -> object:
+        from pyopenvba.apps.excel._page_breaks import page_break
+
+        return page_break(self)
+
+    @setter("PageBreak")
+    def _set_page_break(self, value: object) -> None:
+        from pyopenvba.apps.excel._page_breaks import set_page_break
+
+        set_page_break(self, value)
 
     @member
     def OutlineLevel(self) -> object:

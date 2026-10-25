@@ -1,0 +1,45 @@
+{
+ "build": "\nPublic Function Build() As String\nDim wb As Object, data As Object, cache As Object, pt As Object, r As Long, rows As Variant, parts As Variant\nApplication.DisplayAlerts = False\nSet wb = Workbooks.Add(xlWBATWorksheet)\nSet data = wb.Worksheets(1)\ndata.Name = \"data\"\ndata.Range(\"A1:B1\").Value = Array(\"Group\", \"Value\")\nrows = Array({rows})\nFor r = 0 To UBound(rows)\n    parts = Split(rows(r), \"|\")\n    data.Cells(r + 2, 1).Value = parts(0)\n    data.Cells(r + 2, 2).Value = CDbl(parts(1))\nNext\nSet cache = wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R\" & (UBound(rows) + 2) & \"C2\")\nSet pt = cache.CreatePivotTable(data.Range(\"E3\"), \"Spread\")\npt.PivotFields(\"Group\").Orientation = xlRowField\npt.AddDataField pt.PivotFields(\"Value\"), \"Sample deviation\", xlStDev\npt.AddDataField pt.PivotFields(\"Value\"), \"Whole deviation\", xlStDevP\npt.AddDataField pt.PivotFields(\"Value\"), \"Sample variance\", xlVar\npt.AddDataField pt.PivotFields(\"Value\"), \"Whole variance\", xlVarP\nwb.SaveAs \"{folder}\\pivot_variance.xlsx\", 51\nwb.Close False\nBuild = \"done\"\nEnd Function\n",
+ "groups": {
+  "Close": [
+   "100000001",
+   "100000002",
+   "100000003"
+  ],
+  "Closer": [
+   "1000000001",
+   "1000000004",
+   "1000000002",
+   "1000000007"
+  ],
+  "Decimals": [
+   "0.1",
+   "0.2",
+   "0.3",
+   "0.7"
+  ],
+  "Tiny": [
+   "1E-100",
+   "3E-100",
+   "2E-100"
+  ],
+  "Same": [
+   "1E-100",
+   "1E-100",
+   "1E-100"
+  ],
+  "Whole": [
+   "2",
+   "5",
+   "8",
+   "5",
+   "6"
+  ],
+  "Mixed": [
+   "1E+15",
+   "1",
+   "-1E+15",
+   "3"
+  ]
+ }
+}

@@ -147,17 +147,20 @@ def aggregate(values: list[XmlElement], function: str) -> object:
         sample = function in ('stdDev', 'var')
         if len(numbers) < (2 if sample else 1):
             return ExcelError('#DIV/0!')
-        # Two passes in record order, the mean first: what native pivots give bit for bit, where a running mean is
-        # an ulp off (tests/fixtures/pivot_layouts/ all_functions) and the sum of squares fails the underflow probe
-        # (tests/fixtures/pivots/aggregation.json).
-        total = 0.0
+        # From the sum and the sum of squares, in record order, none below 0: a sample's sum of squares less the
+        # square of the sum over the count, a whole population's the count times the sum of squares less the square
+        # of the sum, over the count squared. What native pivots give bit for bit, where two passes keep digits
+        # Excel loses (tests/fixtures/pivot_variance/, tests/fixtures/pivot_layouts/ all_functions,
+        # tests/fixtures/pivots/aggregation.json underflow).
+        total = squares = 0.0
         for value in numbers:
             total += value
-        mean = total / len(numbers)
-        squares = 0.0
-        for value in numbers:
-            squares += (value - mean) * (value - mean)
-        result = squares / (len(numbers) - int(sample))
+            squares += value * value
+        count = float(len(numbers))
+        if sample:
+            result = max(0.0, squares - total * total / count) / (count - 1)
+        else:
+            result = max(0.0, count * squares - total * total) / (count * count)
         if not math.isfinite(result):
             return ExcelError('#NUM!')
         if function in ('stdDev', 'stdDevp'):

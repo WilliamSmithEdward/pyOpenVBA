@@ -338,6 +338,11 @@ class Calculator:
         self.build()
         changed = {(sheet.lower(), row, column)}
         owner = self._sheet_named(sheet)
+        if owner is not None and not owner.enable_calculation:
+            written = owner.cells_.get((row, column))
+            if written is not None and written.formula:
+                # A formula written where nothing is worked out reads 0, whatever the cell held (over_constant).
+                written.value = 0.0
         if owner is not None and owner.spills:
             from pyopenvba.apps.excel._spills import block_cached, wanted
 
@@ -406,6 +411,18 @@ class Calculator:
                         following.update(self._members(key))
                     seen.add(key)
             changed = following
+
+    def thawed(self, sheet: Worksheet) -> None:
+        """EnableCalculation True again: every formula on the sheet and what reads it to work out, at once under
+        automatic calculation, at the next calculation under manual (calc_back_on, manual_back_on)."""
+        self.build()
+        keys = {(sheet.name.lower(), row, column) for (row, column), cell in sheet.cells_.items() if cell.formula}
+        for _name, row, column in keys:
+            sheet.cells_[(row, column)].stale = True
+        self._spoil(set(keys), set(keys))
+        if self.automatic:
+            for _name, row, column in sorted(keys):
+                self.value_of(sheet.name, row, column)
 
     def _cell(self, key: CellKey) -> Cell | None:
         for sheet in self.book.sheets_:
@@ -852,6 +869,11 @@ class Calculator:
                     if areas is not None or not self.compiled[caller].calls_user:
                         self._cached_inputs.add(caller)
                 return EMPTY if cell is None else cell.value
+        if owner is not None and not owner.enable_calculation:
+            # A sheet whose EnableCalculation is False keeps every formula as it is, through a full calculation too,
+            # and a sheet reading one reads what it keeps (tests/fixtures/worksheet_settings.json, calc_*).
+            frozen = self._cell(key)
+            return EMPTY if frozen is None else frozen.value
         if owner is not None and owner.array_formulas:
             found = array_at(owner, row, column)
             if found is not None and found[0] != (row, column):

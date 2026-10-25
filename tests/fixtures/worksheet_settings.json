@@ -1,0 +1,912 @@
+{
+ "helper": "Private Function Shown(value As Variant) As String\n    If IsNull(value) Then\n        Shown = \"Null\"\n    ElseIf IsObject(value) Then\n        Shown = \"Object:\" & TypeName(value)\n    Else\n        Shown = TypeName(value) & \":\" & CStr(value)\n    End If\nEnd Function\n\nPrivate Function Failure() As String\n    If Err.Number <> 0 Then Failure = \"E\" & Err.Number & \":\" & Err.Description\n    Err.Clear\nEnd Function\n\nPrivate Function Book() As Workbook\n    Dim wb As Workbook\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets.Add(After:=wb.Worksheets(1)).Name = \"Other\"\n    wb.Names.Add \"Spot\", \"=Sheet1!$E$5:$F$6\"\n    wb.Worksheets(1).Activate\n    Set Book = wb\nEnd Function\n",
+ "probe": "Private Function Shown(value As Variant) As String\n    If IsNull(value) Then\n        Shown = \"Null\"\n    ElseIf IsObject(value) Then\n        Shown = \"Object:\" & TypeName(value)\n    Else\n        Shown = TypeName(value) & \":\" & CStr(value)\n    End If\nEnd Function\n\nPrivate Function Failure() As String\n    If Err.Number <> 0 Then Failure = \"E\" & Err.Number & \":\" & Err.Description\n    Err.Clear\nEnd Function\n\nPrivate Function Book() As Workbook\n    Dim wb As Workbook\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets.Add(After:=wb.Worksheets(1)).Name = \"Other\"\n    wb.Names.Add \"Spot\", \"=Sheet1!$E$5:$F$6\"\n    wb.Worksheets(1).Activate\n    Set Book = wb\nEnd Function\nPrivate Function Setting0() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.ScrollArea\n    out = \"ScrollArea^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A1:D10\"\n    out = out & \"^\"\"A1:D10\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"a1:d10\"\n    out = out & \"^\"\"a1:d10\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A1\"\n    out = out & \"^\"\"A1\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"$A$1:$D$10\"\n    out = out & \"^\"\"$A$1:$D$10\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A1:B2,D4:E5\"\n    out = out & \"^\"\"A1:B2,D4:E5\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"1:5\"\n    out = out & \"^\"\"1:5\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A:C\"\n    out = out & \"^\"\"A:C\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"Sheet1!C3:D4\"\n    out = out & \"^\"\"Sheet1!C3:D4\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"Other!A1:B2\"\n    out = out & \"^\"\"Other!A1:B2\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"Spot\"\n    out = out & \"^\"\"Spot\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"foo\"\n    out = out & \"^\"\"foo\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = 5\n    out = out & \"^5=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = ws.Range(\"A1:B2\")\n    out = out & \"^ws.Range(\"\"A1:B2\"\")=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A1:XFD1048576\"\n    out = out & \"^\"\"A1:XFD1048576\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"R1C1:R2C2\"\n    out = out & \"^\"\"R1C1:R2C2\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \" A1:B2 \"\n    out = out & \"^\"\" A1:B2 \"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A1 B2\"\n    out = out & \"^\"\"A1 B2\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"B2:A1\"\n    out = out & \"^\"\"B2:A1\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A1:B2 B1:C2\"\n    out = out & \"^\"\"A1:B2 B1:C2\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"A1,A1\"\n    out = out & \"^\"\"A1,A1\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = \"G7\"\n    out = out & \"^\"\"G7\"\"=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    Err.Clear\n    ws.ScrollArea = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.ScrollArea)\n    On Error GoTo 0\n    wb.Close False\n    Setting0 = out & \"~\"\nEnd Function\nPrivate Function Setting1() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.EnableAutoFilter\n    out = \"EnableAutoFilter^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.EnableAutoFilter = Not start\n    out = out & \"^Not start=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = 0\n    out = out & \"^0=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = 1\n    out = out & \"^1=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = \"True\"\n    out = out & \"^\"\"True\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = \"False\"\n    out = out & \"^\"\"False\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = \"abc\"\n    out = out & \"^\"\"abc\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = \"1\"\n    out = out & \"^\"\"1\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = \"0\"\n    out = out & \"^\"\"0\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = \"yes\"\n    out = out & \"^\"\"yes\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = 0.4\n    out = out & \"^0.4=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = 2\n    out = out & \"^2=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    Err.Clear\n    ws.EnableAutoFilter = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableAutoFilter)\n    On Error GoTo 0\n    wb.Close False\n    Setting1 = out & \"~\"\nEnd Function\nPrivate Function Setting2() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.EnableOutlining\n    out = \"EnableOutlining^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.EnableOutlining = Not start\n    out = out & \"^Not start=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = 0\n    out = out & \"^0=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = 1\n    out = out & \"^1=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = \"True\"\n    out = out & \"^\"\"True\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = \"False\"\n    out = out & \"^\"\"False\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = \"abc\"\n    out = out & \"^\"\"abc\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = \"1\"\n    out = out & \"^\"\"1\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = \"0\"\n    out = out & \"^\"\"0\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = \"yes\"\n    out = out & \"^\"\"yes\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = 0.4\n    out = out & \"^0.4=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = 2\n    out = out & \"^2=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    Err.Clear\n    ws.EnableOutlining = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableOutlining)\n    On Error GoTo 0\n    wb.Close False\n    Setting2 = out & \"~\"\nEnd Function\nPrivate Function Setting3() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.EnablePivotTable\n    out = \"EnablePivotTable^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.EnablePivotTable = Not start\n    out = out & \"^Not start=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = 0\n    out = out & \"^0=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = 1\n    out = out & \"^1=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = \"True\"\n    out = out & \"^\"\"True\"\"=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = \"False\"\n    out = out & \"^\"\"False\"\"=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = \"abc\"\n    out = out & \"^\"\"abc\"\"=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = \"1\"\n    out = out & \"^\"\"1\"\"=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = \"0\"\n    out = out & \"^\"\"0\"\"=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = \"yes\"\n    out = out & \"^\"\"yes\"\"=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = 0.4\n    out = out & \"^0.4=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = 2\n    out = out & \"^2=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    Err.Clear\n    ws.EnablePivotTable = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.EnablePivotTable)\n    On Error GoTo 0\n    wb.Close False\n    Setting3 = out & \"~\"\nEnd Function\nPrivate Function Setting4() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.EnableCalculation\n    out = \"EnableCalculation^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.EnableCalculation = Not start\n    out = out & \"^Not start=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = 0\n    out = out & \"^0=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = 1\n    out = out & \"^1=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = \"True\"\n    out = out & \"^\"\"True\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = \"False\"\n    out = out & \"^\"\"False\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = \"abc\"\n    out = out & \"^\"\"abc\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = \"1\"\n    out = out & \"^\"\"1\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = \"0\"\n    out = out & \"^\"\"0\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = \"yes\"\n    out = out & \"^\"\"yes\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = 0.4\n    out = out & \"^0.4=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = 2\n    out = out & \"^2=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    Err.Clear\n    ws.EnableCalculation = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.EnableCalculation)\n    On Error GoTo 0\n    wb.Close False\n    Setting4 = out & \"~\"\nEnd Function\nPrivate Function Setting5() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.TransitionExpEval\n    out = \"TransitionExpEval^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.TransitionExpEval = Not start\n    out = out & \"^Not start=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = 0\n    out = out & \"^0=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = 1\n    out = out & \"^1=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = \"True\"\n    out = out & \"^\"\"True\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = \"False\"\n    out = out & \"^\"\"False\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = \"abc\"\n    out = out & \"^\"\"abc\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = \"1\"\n    out = out & \"^\"\"1\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = \"0\"\n    out = out & \"^\"\"0\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = \"yes\"\n    out = out & \"^\"\"yes\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = 0.4\n    out = out & \"^0.4=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = 2\n    out = out & \"^2=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    Err.Clear\n    ws.TransitionExpEval = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionExpEval)\n    On Error GoTo 0\n    wb.Close False\n    Setting5 = out & \"~\"\nEnd Function\nPrivate Function Setting6() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.TransitionFormEntry\n    out = \"TransitionFormEntry^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.TransitionFormEntry = Not start\n    out = out & \"^Not start=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = 0\n    out = out & \"^0=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = 1\n    out = out & \"^1=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = \"True\"\n    out = out & \"^\"\"True\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = \"False\"\n    out = out & \"^\"\"False\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = \"abc\"\n    out = out & \"^\"\"abc\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = \"1\"\n    out = out & \"^\"\"1\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = \"0\"\n    out = out & \"^\"\"0\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = \"yes\"\n    out = out & \"^\"\"yes\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = 0.4\n    out = out & \"^0.4=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = 2\n    out = out & \"^2=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    Err.Clear\n    ws.TransitionFormEntry = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.TransitionFormEntry)\n    On Error GoTo 0\n    wb.Close False\n    Setting6 = out & \"~\"\nEnd Function\nPrivate Function Setting7() As String\n    Dim wb As Workbook, ws As Worksheet, start As Variant, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    start = ws.DisplayRightToLeft\n    out = \"DisplayRightToLeft^\" & Shown(start)\n    On Error Resume Next\n    Err.Clear\n    ws.DisplayRightToLeft = Not start\n    out = out & \"^Not start=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = 0\n    out = out & \"^0=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = 1\n    out = out & \"^1=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = \"True\"\n    out = out & \"^\"\"True\"\"=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = \"False\"\n    out = out & \"^\"\"False\"\"=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = Null\n    out = out & \"^Null=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = \"abc\"\n    out = out & \"^\"\"abc\"\"=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = \"1\"\n    out = out & \"^\"\"1\"\"=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = \"0\"\n    out = out & \"^\"\"0\"\"=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = \"yes\"\n    out = out & \"^\"\"yes\"\"=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = 0.4\n    out = out & \"^0.4=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = 2\n    out = out & \"^2=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = True\n    out = out & \"^True=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = Empty\n    out = out & \"^Empty=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = False\n    out = out & \"^False=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    Err.Clear\n    ws.DisplayRightToLeft = \"\"\n    out = out & \"^\"\"\"\"=>\" & Failure() & \"|\" & Shown(ws.DisplayRightToLeft)\n    On Error GoTo 0\n    wb.Close False\n    Setting7 = out & \"~\"\nEnd Function\nPrivate Function Effect0() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"scroll_select^\"\n    Err.Clear\n    ws.ScrollArea = \"A1:D10\"\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"Z100\").Select\n    out = out & Failure()\n    out = out & \"^\" & Shown(ActiveCell.Address) & Failure()\n    out = out & \"^\" & Shown(Selection.Address) & Failure()\n    out = out & \"^\" & Shown(ws.ScrollArea) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect0 = out & \"~\"\nEnd Function\nPrivate Function Effect1() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"scroll_active^\"\n    Err.Clear\n    ws.Range(\"Z100\").Select\n    out = out & Failure()\n    Err.Clear\n    ws.ScrollArea = \"A1:D10\"\n    out = out & Failure()\n    out = out & \"^\" & Shown(ActiveCell.Address) & Failure()\n    out = out & \"^\" & Shown(Selection.Address) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect1 = out & \"~\"\nEnd Function\nPrivate Function Effect2() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"scroll_activate^\"\n    Err.Clear\n    ws.ScrollArea = \"A1:D10\"\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"Z100\").Activate\n    out = out & Failure()\n    out = out & \"^\" & Shown(ActiveCell.Address) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect2 = out & \"~\"\nEnd Function\nPrivate Function Effect3() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"scroll_goto^\"\n    Err.Clear\n    ws.ScrollArea = \"A1:D10\"\n    out = out & Failure()\n    Err.Clear\n    Application.Goto ws.Range(\"Z100\")\n    out = out & Failure()\n    out = out & \"^\" & Shown(ActiveCell.Address) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect3 = out & \"~\"\nEnd Function\nPrivate Function Effect4() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"scroll_write^\"\n    Err.Clear\n    ws.ScrollArea = \"A1:D10\"\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"Z100\").Value = 5\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"Z100\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect4 = out & \"~\"\nEnd Function\nPrivate Function Effect5() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_off^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    out = out & \"^\" & Shown(ws.EnableCalculation) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect5 = out & \"~\"\nEnd Function\nPrivate Function Effect6() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_off_calculate^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    ws.Calculate\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect6 = out & \"~\"\nEnd Function\nPrivate Function Effect7() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_off_application^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    Application.Calculate\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect7 = out & \"~\"\nEnd Function\nPrivate Function Effect8() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_off_full^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    Application.CalculateFull\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect8 = out & \"~\"\nEnd Function\nPrivate Function Effect9() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_back_on^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect9 = out & \"~\"\nEnd Function\nPrivate Function Effect10() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_new_formula^\"\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 3\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect10 = out & \"~\"\nEnd Function\nPrivate Function Effect11() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_range_calculate^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Calculate\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect11 = out & \"~\"\nEnd Function\nPrivate Function Effect12() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_other_sheet^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    wb.Worksheets(\"Other\").Range(\"C1\").Formula = \"=Sheet1!B1+Sheet1!A1\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    out = out & \"^\" & Shown(wb.Worksheets(\"Other\").Range(\"C1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect12 = out & \"~\"\nEnd Function\nPrivate Function Effect13() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_reads_other^\"\n    Err.Clear\n    wb.Worksheets(\"Other\").Range(\"A1\").Value = 1\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=Other!A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    wb.Worksheets(\"Other\").Range(\"A1\").Value = 5\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect13 = out & \"~\"\nEnd Function\nPrivate Function Effect14() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_volatile^\"\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=ROWS(A1:A3)+COUNTA(A1:A3)\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    Application.CalculateFull\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect14 = out & \"~\"\nEnd Function\nPrivate Function Effect15() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_over_constant^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 3\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Value = 7\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"D1\").Formula = \"=\"\"a\"\"\"\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"D1\").Value) & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Text) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect15 = out & \"~\"\nEnd Function\nPrivate Function Effect16() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_over_constant_back_on^\"\n    Err.Clear\n    ws.Range(\"A1\").Value = 3\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Value = 7\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"D1\").Formula = \"=\"\"a\"\"\"\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"D1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect16 = out & \"~\"\nEnd Function\nPrivate Function Effect17() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_manual_back_on^\"\n    Err.Clear\n    Application.Calculation = xlCalculationManual\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 3\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.Calculate\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect17 = out & \"~\"\nEnd Function\nPrivate Function Effect18() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"calc_manual_back_on_calculate^\"\n    Err.Clear\n    Application.Calculation = xlCalculationManual\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 3\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    out = out & Failure()\n    Err.Clear\n    ws.Calculate\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = False\n    out = out & Failure()\n    Err.Clear\n    ws.Range(\"A1\").Value = 5\n    out = out & Failure()\n    Err.Clear\n    ws.EnableCalculation = True\n    out = out & Failure()\n    Err.Clear\n    ws.Calculate\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Value) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect18 = out & \"~\"\nEnd Function\nPrivate Function Effect19() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"rtl_left^\"\n    Err.Clear\n    ws.DisplayRightToLeft = True\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Left) & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"B1\").Width) & Failure()\n    out = out & \"^\" & Shown(ws.Range(\"A2\").Top) & Failure()\n    out = out & \"^\" & Shown(ActiveWindow.DisplayRightToLeft) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect19 = out & \"~\"\nEnd Function\nPrivate Function Effect20() As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    On Error Resume Next\n    out = \"rtl_window^\"\n    Err.Clear\n    ActiveWindow.DisplayRightToLeft = True\n    out = out & Failure()\n    out = out & \"^\" & Shown(ws.DisplayRightToLeft) & Failure()\n    ActiveWindow.DisplayRightToLeft = False\n    Application.Calculation = xlCalculationAutomatic\n    On Error GoTo 0\n    wb.Close False\n    Effect20 = out & \"~\"\nEnd Function\nPublic Function Probe() As String\n    Dim out As String\n    Application.DisplayAlerts = False\n    out = out & Setting0()\n    out = out & Setting1()\n    out = out & Setting2()\n    out = out & Setting3()\n    out = out & Setting4()\n    out = out & Setting5()\n    out = out & Setting6()\n    out = out & Setting7()\n    out = out & Effect0()\n    out = out & Effect1()\n    out = out & Effect2()\n    out = out & Effect3()\n    out = out & Effect4()\n    out = out & Effect5()\n    out = out & Effect6()\n    out = out & Effect7()\n    out = out & Effect8()\n    out = out & Effect9()\n    out = out & Effect10()\n    out = out & Effect11()\n    out = out & Effect12()\n    out = out & Effect13()\n    out = out & Effect14()\n    out = out & Effect15()\n    out = out & Effect16()\n    out = out & Effect17()\n    out = out & Effect18()\n    out = out & Effect19()\n    out = out & Effect20()\n    Probe = out\nEnd Function\n",
+ "saved": "Private Function Shown(value As Variant) As String\n    If IsNull(value) Then\n        Shown = \"Null\"\n    ElseIf IsObject(value) Then\n        Shown = \"Object:\" & TypeName(value)\n    Else\n        Shown = TypeName(value) & \":\" & CStr(value)\n    End If\nEnd Function\n\nPrivate Function Failure() As String\n    If Err.Number <> 0 Then Failure = \"E\" & Err.Number & \":\" & Err.Description\n    Err.Clear\nEnd Function\n\nPrivate Function Book() As Workbook\n    Dim wb As Workbook\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets.Add(After:=wb.Worksheets(1)).Name = \"Other\"\n    wb.Names.Add \"Spot\", \"=Sheet1!$E$5:$F$6\"\n    wb.Worksheets(1).Activate\n    Set Book = wb\nEnd Function\nPublic Function Saved(folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, out As String\n    Application.DisplayAlerts = False\n    Set wb = Book()\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 1\n    ws.Range(\"B1\").Formula = \"=A1*2\"\n    ws.ScrollArea = \"A1:D10\"\n    ws.EnableAutoFilter = True\n    ws.EnableOutlining = True\n    ws.EnablePivotTable = True\n    ws.EnableCalculation = False\n    ws.TransitionExpEval = True\n    ws.TransitionFormEntry = True\n    ws.DisplayRightToLeft = True\n    ws.Range(\"A1\").Value = 5\n    ws.Range(\"C1\").Formula = \"=A1+1\"\n    ws.Copy After:=ws\n    out = \"set^^\" & Shown(ws.ScrollArea) & \"|\" & Shown(ws.EnableAutoFilter) & \"|\" & Shown(ws.EnableOutlining) & \"|\" & Shown(ws.EnablePivotTable) & \"|\" & Shown(ws.EnableCalculation) & \"|\" & Shown(ws.TransitionExpEval) & \"|\" & Shown(ws.TransitionFormEntry) & \"|\" & Shown(ws.DisplayRightToLeft) & \"~copy^^\" & Shown(wb.Worksheets(2).ScrollArea) & \"|\" & Shown(wb.Worksheets(2).EnableAutoFilter) & \"|\" & Shown(wb.Worksheets(2).EnableOutlining) & \"|\" & Shown(wb.Worksheets(2).EnablePivotTable) & \"|\" & Shown(wb.Worksheets(2).EnableCalculation) & \"|\" & Shown(wb.Worksheets(2).TransitionExpEval) & \"|\" & Shown(wb.Worksheets(2).TransitionFormEntry) & \"|\" & Shown(wb.Worksheets(2).DisplayRightToLeft)\n    wb.SaveAs folder & \"\\saved.xlsx\", 51\n    out = out & \"~after_save^^\" & Shown(ws.ScrollArea) & \"|\" & Shown(ws.EnableAutoFilter) & \"|\" & Shown(ws.EnableOutlining) & \"|\" & Shown(ws.EnablePivotTable) & \"|\" & Shown(ws.EnableCalculation) & \"|\" & Shown(ws.TransitionExpEval) & \"|\" & Shown(ws.TransitionFormEntry) & \"|\" & Shown(ws.DisplayRightToLeft)\n    out = out & \"~values_after_save^^\" & Shown(ws.Range(\"B1\").Value) & \"|\" & Shown(ws.Range(\"C1\").Value)\n    wb.Close False\n    Set wb = Workbooks.Open(folder & \"\\saved.xlsx\")\n    out = out & \"~reopened^^\" & Shown(wb.Worksheets(1).ScrollArea) & \"|\" & Shown(wb.Worksheets(1).EnableAutoFilter) & \"|\" & Shown(wb.Worksheets(1).EnableOutlining) & \"|\" & Shown(wb.Worksheets(1).EnablePivotTable) & \"|\" & Shown(wb.Worksheets(1).EnableCalculation) & \"|\" & Shown(wb.Worksheets(1).TransitionExpEval) & \"|\" & Shown(wb.Worksheets(1).TransitionFormEntry) & \"|\" & Shown(wb.Worksheets(1).DisplayRightToLeft) & \"~reopened_copy^^\" & Shown(wb.Worksheets(2).ScrollArea) & \"|\" & Shown(wb.Worksheets(2).EnableAutoFilter) & \"|\" & Shown(wb.Worksheets(2).EnableOutlining) & \"|\" & Shown(wb.Worksheets(2).EnablePivotTable) & \"|\" & Shown(wb.Worksheets(2).EnableCalculation) & \"|\" & Shown(wb.Worksheets(2).TransitionExpEval) & \"|\" & Shown(wb.Worksheets(2).TransitionFormEntry) & \"|\" & Shown(wb.Worksheets(2).DisplayRightToLeft)\n    out = out & \"~values_reopened^^\" & Shown(wb.Worksheets(1).Range(\"B1\").Value) & \"|\" & _\n        Shown(wb.Worksheets(1).Range(\"C1\").Value)\n    wb.Worksheets(1).Range(\"A1\").Value = 9\n    out = out & \"~values_edited^^\" & Shown(wb.Worksheets(1).Range(\"B1\").Value) & \"|\" & _\n        Shown(wb.Worksheets(1).Range(\"C1\").Value)\n    wb.Close False\n    Saved = out & \"~\"\nEnd Function\n",
+ "settings": {
+  "ScrollArea": [
+   "\"G7\"",
+   "\"A1:D10\"",
+   "\"G7\"",
+   "\"a1:d10\"",
+   "\"G7\"",
+   "\"A1\"",
+   "\"G7\"",
+   "\"$A$1:$D$10\"",
+   "\"G7\"",
+   "\"A1:B2,D4:E5\"",
+   "\"G7\"",
+   "\"1:5\"",
+   "\"G7\"",
+   "\"A:C\"",
+   "\"G7\"",
+   "\"Sheet1!C3:D4\"",
+   "\"G7\"",
+   "\"Other!A1:B2\"",
+   "\"G7\"",
+   "\"Spot\"",
+   "\"G7\"",
+   "\"foo\"",
+   "\"G7\"",
+   "\"\"",
+   "\"G7\"",
+   "Null",
+   "\"G7\"",
+   "5",
+   "\"G7\"",
+   "Empty",
+   "\"G7\"",
+   "ws.Range(\"A1:B2\")",
+   "\"G7\"",
+   "\"A1:XFD1048576\"",
+   "\"G7\"",
+   "\"R1C1:R2C2\"",
+   "\"G7\"",
+   "\" A1:B2 \"",
+   "\"G7\"",
+   "\"A1 B2\"",
+   "\"G7\"",
+   "\"B2:A1\"",
+   "\"G7\"",
+   "\"A1:B2 B1:C2\"",
+   "\"G7\"",
+   "\"A1,A1\"",
+   "\"G7\"",
+   "True"
+  ],
+  "EnableAutoFilter": [
+   "Not start",
+   "0",
+   "1",
+   "\"True\"",
+   "\"False\"",
+   "True",
+   "Null",
+   "True",
+   "\"abc\"",
+   "False",
+   "\"1\"",
+   "True",
+   "\"0\"",
+   "True",
+   "\"yes\"",
+   "False",
+   "0.4",
+   "False",
+   "2",
+   "True",
+   "Empty",
+   "False",
+   "\"\""
+  ],
+  "EnableOutlining": [
+   "Not start",
+   "0",
+   "1",
+   "\"True\"",
+   "\"False\"",
+   "True",
+   "Null",
+   "True",
+   "\"abc\"",
+   "False",
+   "\"1\"",
+   "True",
+   "\"0\"",
+   "True",
+   "\"yes\"",
+   "False",
+   "0.4",
+   "False",
+   "2",
+   "True",
+   "Empty",
+   "False",
+   "\"\""
+  ],
+  "EnablePivotTable": [
+   "Not start",
+   "0",
+   "1",
+   "\"True\"",
+   "\"False\"",
+   "True",
+   "Null",
+   "True",
+   "\"abc\"",
+   "False",
+   "\"1\"",
+   "True",
+   "\"0\"",
+   "True",
+   "\"yes\"",
+   "False",
+   "0.4",
+   "False",
+   "2",
+   "True",
+   "Empty",
+   "False",
+   "\"\""
+  ],
+  "EnableCalculation": [
+   "Not start",
+   "0",
+   "1",
+   "\"True\"",
+   "\"False\"",
+   "True",
+   "Null",
+   "True",
+   "\"abc\"",
+   "False",
+   "\"1\"",
+   "True",
+   "\"0\"",
+   "True",
+   "\"yes\"",
+   "False",
+   "0.4",
+   "False",
+   "2",
+   "True",
+   "Empty",
+   "False",
+   "\"\""
+  ],
+  "TransitionExpEval": [
+   "Not start",
+   "0",
+   "1",
+   "\"True\"",
+   "\"False\"",
+   "True",
+   "Null",
+   "True",
+   "\"abc\"",
+   "False",
+   "\"1\"",
+   "True",
+   "\"0\"",
+   "True",
+   "\"yes\"",
+   "False",
+   "0.4",
+   "False",
+   "2",
+   "True",
+   "Empty",
+   "False",
+   "\"\""
+  ],
+  "TransitionFormEntry": [
+   "Not start",
+   "0",
+   "1",
+   "\"True\"",
+   "\"False\"",
+   "True",
+   "Null",
+   "True",
+   "\"abc\"",
+   "False",
+   "\"1\"",
+   "True",
+   "\"0\"",
+   "True",
+   "\"yes\"",
+   "False",
+   "0.4",
+   "False",
+   "2",
+   "True",
+   "Empty",
+   "False",
+   "\"\""
+  ],
+  "DisplayRightToLeft": [
+   "Not start",
+   "0",
+   "1",
+   "\"True\"",
+   "\"False\"",
+   "True",
+   "Null",
+   "True",
+   "\"abc\"",
+   "False",
+   "\"1\"",
+   "True",
+   "\"0\"",
+   "True",
+   "\"yes\"",
+   "False",
+   "0.4",
+   "False",
+   "2",
+   "True",
+   "Empty",
+   "False",
+   "\"\""
+  ]
+ },
+ "effects": {
+  "scroll_select": [
+   [
+    "ws.ScrollArea = \"A1:D10\"",
+    "ws.Range(\"Z100\").Select"
+   ],
+   [
+    "ActiveCell.Address",
+    "Selection.Address",
+    "ws.ScrollArea"
+   ]
+  ],
+  "scroll_active": [
+   [
+    "ws.Range(\"Z100\").Select",
+    "ws.ScrollArea = \"A1:D10\""
+   ],
+   [
+    "ActiveCell.Address",
+    "Selection.Address"
+   ]
+  ],
+  "scroll_activate": [
+   [
+    "ws.ScrollArea = \"A1:D10\"",
+    "ws.Range(\"Z100\").Activate"
+   ],
+   [
+    "ActiveCell.Address"
+   ]
+  ],
+  "scroll_goto": [
+   [
+    "ws.ScrollArea = \"A1:D10\"",
+    "Application.Goto ws.Range(\"Z100\")"
+   ],
+   [
+    "ActiveCell.Address"
+   ]
+  ],
+  "scroll_write": [
+   [
+    "ws.ScrollArea = \"A1:D10\"",
+    "ws.Range(\"Z100\").Value = 5"
+   ],
+   [
+    "ws.Range(\"Z100\").Value"
+   ]
+  ],
+  "calc_off": [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5"
+   ],
+   [
+    "ws.Range(\"B1\").Value",
+    "ws.EnableCalculation"
+   ]
+  ],
+  "calc_off_calculate": [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "ws.Calculate"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_off_application": [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "Application.Calculate"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_off_full": [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "Application.CalculateFull"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_back_on": [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "ws.EnableCalculation = True"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_new_formula": [
+   [
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 3",
+    "ws.Range(\"B1\").Formula = \"=A1*2\""
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_range_calculate": [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "ws.Range(\"B1\").Calculate"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_other_sheet": [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "wb.Worksheets(\"Other\").Range(\"C1\").Formula = \"=Sheet1!B1+Sheet1!A1\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5"
+   ],
+   [
+    "ws.Range(\"B1\").Value",
+    "wb.Worksheets(\"Other\").Range(\"C1\").Value"
+   ]
+  ],
+  "calc_reads_other": [
+   [
+    "wb.Worksheets(\"Other\").Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Formula = \"=Other!A1*2\"",
+    "ws.EnableCalculation = False",
+    "wb.Worksheets(\"Other\").Range(\"A1\").Value = 5"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_volatile": [
+   [
+    "ws.Range(\"B1\").Formula = \"=ROWS(A1:A3)+COUNTA(A1:A3)\"",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "Application.CalculateFull"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_over_constant": [
+   [
+    "ws.Range(\"A1\").Value = 3",
+    "ws.Range(\"B1\").Value = 7",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"D1\").Formula = \"=\"\"a\"\"\""
+   ],
+   [
+    "ws.Range(\"B1\").Value",
+    "ws.Range(\"D1\").Value",
+    "ws.Range(\"B1\").Text"
+   ]
+  ],
+  "calc_over_constant_back_on": [
+   [
+    "ws.Range(\"A1\").Value = 3",
+    "ws.Range(\"B1\").Value = 7",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"D1\").Formula = \"=\"\"a\"\"\"",
+    "ws.EnableCalculation = True"
+   ],
+   [
+    "ws.Range(\"B1\").Value",
+    "ws.Range(\"D1\").Value"
+   ]
+  ],
+  "calc_manual_back_on": [
+   [
+    "Application.Calculation = xlCalculationManual",
+    "ws.Range(\"A1\").Value = 3",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Calculate",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "ws.EnableCalculation = True"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "calc_manual_back_on_calculate": [
+   [
+    "Application.Calculation = xlCalculationManual",
+    "ws.Range(\"A1\").Value = 3",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Calculate",
+    "ws.EnableCalculation = False",
+    "ws.Range(\"A1\").Value = 5",
+    "ws.EnableCalculation = True",
+    "ws.Calculate"
+   ],
+   [
+    "ws.Range(\"B1\").Value"
+   ]
+  ],
+  "rtl_left": [
+   [
+    "ws.DisplayRightToLeft = True"
+   ],
+   [
+    "ws.Range(\"B1\").Left",
+    "ws.Range(\"B1\").Width",
+    "ws.Range(\"A2\").Top",
+    "ActiveWindow.DisplayRightToLeft"
+   ]
+  ],
+  "rtl_window": [
+   [
+    "ActiveWindow.DisplayRightToLeft = True"
+   ],
+   [
+    "ws.DisplayRightToLeft"
+   ]
+  ]
+ },
+ "everything": [
+  "ws.ScrollArea = \"A1:D10\"",
+  "ws.EnableAutoFilter = True",
+  "ws.EnableOutlining = True",
+  "ws.EnablePivotTable = True",
+  "ws.EnableCalculation = False",
+  "ws.TransitionExpEval = True",
+  "ws.TransitionFormEntry = True",
+  "ws.DisplayRightToLeft = True"
+ ],
+ "readings": [
+  "ScrollArea",
+  "EnableAutoFilter",
+  "EnableOutlining",
+  "EnablePivotTable",
+  "EnableCalculation",
+  "TransitionExpEval",
+  "TransitionFormEntry",
+  "DisplayRightToLeft"
+ ],
+ "cases": [
+  [
+   "ScrollArea",
+   "String:",
+   "\"G7\"=>|String:$G$7",
+   "\"A1:D10\"=>|String:$A$1:$D$10",
+   "\"G7\"=>|String:$G$7",
+   "\"a1:d10\"=>|String:$A$1:$D$10",
+   "\"G7\"=>|String:$G$7",
+   "\"A1\"=>|String:$A$1",
+   "\"G7\"=>|String:$G$7",
+   "\"$A$1:$D$10\"=>|String:$A$1:$D$10",
+   "\"G7\"=>|String:$G$7",
+   "\"A1:B2,D4:E5\"=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "\"1:5\"=>|String:$1:$5",
+   "\"G7\"=>|String:$G$7",
+   "\"A:C\"=>|String:$A:$C",
+   "\"G7\"=>|String:$G$7",
+   "\"Sheet1!C3:D4\"=>|String:$C$3:$D$4",
+   "\"G7\"=>|String:$G$7",
+   "\"Other!A1:B2\"=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "\"Spot\"=>|String:$E$5:$F$6",
+   "\"G7\"=>|String:$G$7",
+   "\"foo\"=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "\"\"=>|String:",
+   "\"G7\"=>|String:$G$7",
+   "Null=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "5=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "Empty=>|String:",
+   "\"G7\"=>|String:$G$7",
+   "ws.Range(\"A1:B2\")=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "\"A1:XFD1048576\"=>|String:$1:$1048576",
+   "\"G7\"=>|String:$G$7",
+   "\"R1C1:R2C2\"=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "\" A1:B2 \"=>|String:$A$1:$B$2",
+   "\"G7\"=>|String:$G$7",
+   "\"A1 B2\"=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "\"B2:A1\"=>|String:$A$1:$B$2",
+   "\"G7\"=>|String:$G$7",
+   "\"A1:B2 B1:C2\"=>|String:$B$1:$B$2",
+   "\"G7\"=>|String:$G$7",
+   "\"A1,A1\"=>|String:$G$7",
+   "\"G7\"=>|String:$G$7",
+   "True=>|String:$G$7"
+  ],
+  [
+   "EnableAutoFilter",
+   "Boolean:False",
+   "Not start=>|Boolean:True",
+   "0=>|Boolean:False",
+   "1=>|Boolean:True",
+   "\"True\"=>|Boolean:True",
+   "\"False\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "Null=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"abc\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "\"1\"=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"0\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "\"yes\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "0.4=>|Boolean:True",
+   "False=>|Boolean:False",
+   "2=>|Boolean:True",
+   "True=>|Boolean:True",
+   "Empty=>|Boolean:False",
+   "False=>|Boolean:False",
+   "\"\"=>|Boolean:False"
+  ],
+  [
+   "EnableOutlining",
+   "Boolean:False",
+   "Not start=>|Boolean:True",
+   "0=>|Boolean:False",
+   "1=>|Boolean:True",
+   "\"True\"=>|Boolean:True",
+   "\"False\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "Null=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"abc\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "\"1\"=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"0\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "\"yes\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "0.4=>|Boolean:True",
+   "False=>|Boolean:False",
+   "2=>|Boolean:True",
+   "True=>|Boolean:True",
+   "Empty=>|Boolean:False",
+   "False=>|Boolean:False",
+   "\"\"=>|Boolean:False"
+  ],
+  [
+   "EnablePivotTable",
+   "Boolean:False",
+   "Not start=>|Boolean:True",
+   "0=>|Boolean:False",
+   "1=>|Boolean:True",
+   "\"True\"=>|Boolean:True",
+   "\"False\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "Null=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"abc\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "\"1\"=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"0\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "\"yes\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "0.4=>|Boolean:True",
+   "False=>|Boolean:False",
+   "2=>|Boolean:True",
+   "True=>|Boolean:True",
+   "Empty=>|Boolean:False",
+   "False=>|Boolean:False",
+   "\"\"=>|Boolean:False"
+  ],
+  [
+   "EnableCalculation",
+   "Boolean:True",
+   "Not start=>|Boolean:False",
+   "0=>|Boolean:False",
+   "1=>|Boolean:True",
+   "\"True\"=>|Boolean:True",
+   "\"False\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "Null=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"abc\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "\"1\"=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"0\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "\"yes\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "0.4=>|Boolean:True",
+   "False=>|Boolean:False",
+   "2=>|Boolean:True",
+   "True=>|Boolean:True",
+   "Empty=>|Boolean:False",
+   "False=>|Boolean:False",
+   "\"\"=>|Boolean:False"
+  ],
+  [
+   "TransitionExpEval",
+   "Boolean:False",
+   "Not start=>|Boolean:True",
+   "0=>|Boolean:False",
+   "1=>|Boolean:True",
+   "\"True\"=>|Boolean:True",
+   "\"False\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "Null=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"abc\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "\"1\"=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"0\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "\"yes\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "0.4=>|Boolean:True",
+   "False=>|Boolean:False",
+   "2=>|Boolean:True",
+   "True=>|Boolean:True",
+   "Empty=>|Boolean:False",
+   "False=>|Boolean:False",
+   "\"\"=>|Boolean:False"
+  ],
+  [
+   "TransitionFormEntry",
+   "Boolean:False",
+   "Not start=>|Boolean:True",
+   "0=>|Boolean:False",
+   "1=>|Boolean:True",
+   "\"True\"=>|Boolean:True",
+   "\"False\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "Null=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"abc\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "\"1\"=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"0\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "\"yes\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "0.4=>|Boolean:True",
+   "False=>|Boolean:False",
+   "2=>|Boolean:True",
+   "True=>|Boolean:True",
+   "Empty=>|Boolean:False",
+   "False=>|Boolean:False",
+   "\"\"=>|Boolean:False"
+  ],
+  [
+   "DisplayRightToLeft",
+   "Boolean:False",
+   "Not start=>|Boolean:True",
+   "0=>|Boolean:False",
+   "1=>|Boolean:True",
+   "\"True\"=>|Boolean:True",
+   "\"False\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "Null=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"abc\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "\"1\"=>|Boolean:True",
+   "True=>|Boolean:True",
+   "\"0\"=>|Boolean:False",
+   "True=>|Boolean:True",
+   "\"yes\"=>|Boolean:True",
+   "False=>|Boolean:False",
+   "0.4=>|Boolean:True",
+   "False=>|Boolean:False",
+   "2=>|Boolean:True",
+   "True=>|Boolean:True",
+   "Empty=>|Boolean:False",
+   "False=>|Boolean:False",
+   "\"\"=>|Boolean:False"
+  ],
+  [
+   "scroll_select",
+   "",
+   "String:$Z$100",
+   "String:$Z$100",
+   "String:$A$1:$D$10"
+  ],
+  [
+   "scroll_active",
+   "",
+   "String:$A$1",
+   "String:$A$1"
+  ],
+  [
+   "scroll_activate",
+   "",
+   "String:$Z$100"
+  ],
+  [
+   "scroll_goto",
+   "",
+   "String:$A$1"
+  ],
+  [
+   "scroll_write",
+   "",
+   "Double:5"
+  ],
+  [
+   "calc_off",
+   "",
+   "Double:2",
+   "Boolean:False"
+  ],
+  [
+   "calc_off_calculate",
+   "",
+   "Double:2"
+  ],
+  [
+   "calc_off_application",
+   "",
+   "Double:2"
+  ],
+  [
+   "calc_off_full",
+   "",
+   "Double:2"
+  ],
+  [
+   "calc_back_on",
+   "",
+   "Double:10"
+  ],
+  [
+   "calc_new_formula",
+   "",
+   "Double:0"
+  ],
+  [
+   "calc_range_calculate",
+   "",
+   "Double:2"
+  ],
+  [
+   "calc_other_sheet",
+   "",
+   "Double:2",
+   "Double:7"
+  ],
+  [
+   "calc_reads_other",
+   "",
+   "Double:2"
+  ],
+  [
+   "calc_volatile",
+   "",
+   "Double:3"
+  ],
+  [
+   "calc_over_constant",
+   "",
+   "Double:0",
+   "Double:0",
+   "String:0"
+  ],
+  [
+   "calc_over_constant_back_on",
+   "",
+   "Double:6",
+   "String:a"
+  ],
+  [
+   "calc_manual_back_on",
+   "",
+   "Double:6"
+  ],
+  [
+   "calc_manual_back_on_calculate",
+   "",
+   "Double:10"
+  ],
+  [
+   "rtl_left",
+   "",
+   "Double:48",
+   "Double:48",
+   "Double:15",
+   "Boolean:True"
+  ],
+  [
+   "rtl_window",
+   "",
+   "Boolean:True"
+  ],
+  [
+   "set",
+   "",
+   "String:$A$1:$D$10|Boolean:True|Boolean:True|Boolean:True|Boolean:False|Boolean:True|Boolean:True|Boolean:True"
+  ],
+  [
+   "copy",
+   "",
+   "String:|Boolean:True|Boolean:True|Boolean:True|Boolean:True|Boolean:True|Boolean:True|Boolean:True"
+  ],
+  [
+   "after_save",
+   "",
+   "String:$A$1:$D$10|Boolean:True|Boolean:True|Boolean:True|Boolean:False|Boolean:True|Boolean:True|Boolean:True"
+  ],
+  [
+   "values_after_save",
+   "",
+   "Double:2|Double:0"
+  ],
+  [
+   "reopened",
+   "",
+   "String:|Boolean:False|Boolean:False|Boolean:False|Boolean:True|Boolean:True|Boolean:True|Boolean:True"
+  ],
+  [
+   "reopened_copy",
+   "",
+   "String:|Boolean:False|Boolean:False|Boolean:False|Boolean:True|Boolean:True|Boolean:True|Boolean:True"
+  ],
+  [
+   "values_reopened",
+   "",
+   "Double:2|Double:0"
+  ],
+  [
+   "values_edited",
+   "",
+   "Double:18|Double:10"
+  ]
+ ],
+ "parts": {
+  "sheet1": [
+   "<sheetPr transitionEvaluation=\"1\" transitionEntry=\"1\"/>",
+   "<sheetView rightToLeft=\"1\" workbookViewId=\"0\"/>"
+  ],
+  "values1": [
+   "2",
+   "0"
+  ],
+  "sheet2": [
+   "<sheetPr transitionEvaluation=\"1\" transitionEntry=\"1\"/>",
+   "<sheetView rightToLeft=\"1\" tabSelected=\"1\" workbookViewId=\"0\"/>"
+  ],
+  "values2": [
+   "10",
+   "6"
+  ]
+ }
+}

@@ -1423,6 +1423,13 @@ class Worksheet(ExcelObject):
         self.page_setup_state: PageState | None = None
         #: Worksheet.DisplayPageBreaks, which is not saved (see _application_settings).
         self.display_page_breaks = False
+        #: The settings a sheet keeps for the session, by member name, ScrollArea's text among them; whether its
+        #: formulas are worked out; and its Transition settings, read when a macro first reaches them, and whether a
+        #: macro changed them (see _worksheet_settings).
+        self.settings: dict[str, object] = {}
+        self.enable_calculation = True
+        self.transitions: dict[str, bool] | None = None
+        self.transitions_changed = False
         self.page_print_names_owned: set[str] = set()
         #: The sheet's data validation rules, in the order its file lists them (see _validation).
         self.validations: list[ValidationRule] = []
@@ -5005,12 +5012,14 @@ _register_worksheet_functions()
 
 
 def _register_settings() -> None:
-    """A member for each setting that reads back what a macro set (see _application_settings)."""
+    """A member for each setting kept apart from the classes' own (see _application_settings and
+    _worksheet_settings)."""
     from pyopenvba.apps.excel._application_settings import application_members, worksheet_members
+    from pyopenvba.apps.excel._worksheet_settings import members as sheet_settings
 
     for spec in application_members():
         Application.vba_add_member(spec)
-    for spec in worksheet_members():
+    for spec in [*worksheet_members(), *sheet_settings()]:
         Worksheet.vba_add_member(spec)
 
 

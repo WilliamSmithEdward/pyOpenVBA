@@ -1350,7 +1350,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         breaks_changes = sheet.page_breaks is not None and sheet.page_breaks.changed
         if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes
                                        or outline_changes or sort_changes or conditional_changes
-                                       or sheet.tab_changed or breaks_changes):
+                                       or sheet.tab_changed or breaks_changes or sheet.transitions_changed):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
@@ -1373,6 +1373,10 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
             from pyopenvba.apps.excel._sheet_tabs import with_tab
 
             patched = with_tab(sheet, patched)
+        if sheet.transitions_changed:
+            from pyopenvba.apps.excel._worksheet_settings import with_transitions
+
+            patched = with_transitions(sheet, patched)
         if breaks_changes:
             from pyopenvba.apps.excel._page_breaks import with_breaks
 
@@ -1851,6 +1855,9 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
 
     formulas = formula_elements(sheet, spell, always) | elements(sheet, spell, always)
     automatic = sheet.book.calculator.automatic
+    #: Whether a formula keeps its last value in the file though it is to be worked out again, as in manual
+    #: calculation and on a sheet whose EnableCalculation is False (tests/fixtures/worksheet_settings.json).
+    keeping = not automatic or not sheet.enable_calculation
     #: The cells whose last value a save keeps though they are to be worked out again: every formula's in manual
     #: calculation, and a data table's in semi-automatic, which only a calculation asked for works out.
     kept: set[tuple[int, int]] = set()
@@ -1895,7 +1902,7 @@ def _patched_sheet(sheet: Worksheet, original: str, package: OpcFile, collector:
             formulas[position] = formulas[position].replace('<f', '<f ca="1"', 1)
     for row in set(rows) | set(by_row):
         rows[row] = _row_with_cells(rows.get(row, f'<row r="{row}"></row>'), row, by_row.get(row, []), stylesheet,
-                                    formulas, dynamic, keep_stale=not automatic, kept=kept)
+                                    formulas, dynamic, keep_stale=keeping, kept=kept)
     for row in set(sheet.dims.rows) | sheet.dims.shaped_rows() | {row for row, _ in sheet.notes}:
         rows.setdefault(row, f'<row r="{row}"/>')
     rebuilt = _rows_as_excel_writes_them(sheet, original, rows)

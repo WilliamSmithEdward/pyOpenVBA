@@ -2711,6 +2711,29 @@ def test_excel_reads_the_page_breaks_this_wrote(tmp_path: Path) -> None:
     assert {name: read[name] for name in expected} == expected
 
 
+def test_excel_reads_the_headers_this_wrote(tmp_path: Path) -> None:
+    """Every case tests/fixtures/page_headers.json set and saved, made by the model with Excel's functions for them:
+    Excel opens each file and reads its headers, footers and flags as it read its own before saving."""
+    from test_excel_page_headers import RECORD, portable, records
+
+    harness = pytest.importorskip("pyvbaharness")
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(portable(RECORD["build"]), name="Build")
+    names = [case[0] for case in records(str(app.run("Build.Build", str(tmp_path))))]
+    reader = RECORD["helper"] + (
+        "Public Function Read(folder As String, names As String) As String\n"
+        "Dim wb As Object, out As String, one As Variant\nApplication.DisplayAlerts = False\n"
+        'For Each one In Split(names, ",")\nSet wb = Workbooks.Open(folder & "\\" & one & ".xlsx")\n'
+        'out = out & one & "^^" & Dump(wb.Worksheets(1).PageSetup) & "~"\nwb.Close False\nNext\n'
+        "Read = out\nEnd Function\n")
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        excel.new_document()
+        result = excel.run_vba(reader, "Read", (str(tmp_path), ",".join(names)), timeout=600.0)
+        assert result.ok, result.message
+    assert records(str(result.value)) == [[case[0], "", *case[2:]] for case in RECORD["cases"][:len(names)]]
+
+
 def test_excel_reads_the_document_properties_this_wrote(tmp_path: Path) -> None:
     """Every case tests/fixtures/document_properties measured that the model makes, made by the model with Excel's
     functions for them, this machine's time zone, clock and user, and saved, the workbook without docProps among

@@ -2,7 +2,8 @@
 
 Attribute mappings and point/inch conversion follow William's pyOfficeEditor
 _pagesetup. Only owned attributes are patched; printer relationships, namespace
-bindings, unknown children and header/footer markup remain untouched.
+bindings and unknown children remain untouched. Headers and footers live in
+_page_headers; their element is written again only once a macro sets one.
 """
 from __future__ import annotations
 
@@ -17,9 +18,11 @@ from pyopenvba._opc_xml import opc_part
 from pyopenvba._xml import escape
 from pyopenvba.apps.excel._advanced_filter import attribute_values, patch_attribute
 from pyopenvba.apps.excel._model import ExcelObject
+from pyopenvba.apps.excel._page_headers import FLAGS as HEADER_FLAGS
+from pyopenvba.apps.excel._page_headers import LIMIT, Headers, read, section, with_headers, with_section
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, setter
-from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, error
+from pyopenvba.interpreter._values import EMPTY, NULL, VBAInt, error, to_bool, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import NameEntry, Worksheet
@@ -119,6 +122,8 @@ def patch_configuration(xml: str, root_name: str, path: tuple[str, ...],
 class PageState:
     attributes: dict[tuple[str, ...], dict[str, str]] = field(default_factory=lambda: {})
     changes: dict[tuple[str, ...], dict[str, str | None]] = field(default_factory=lambda: {})
+    #: The sheet's headers and footers, read when a macro first reaches them.
+    headers: Headers | None = None
 
 
 def state(sheet: Worksheet) -> PageState:
@@ -147,12 +152,56 @@ def state(sheet: Worksheet) -> PageState:
     return sheet.page_setup_state
 
 
+def headers(sheet: Worksheet) -> Headers:
+    """The sheet's headers and footers, read from its part the first time."""
+    current = state(sheet)
+    if current.headers is None:
+        package = sheet.book.package
+        current.headers = read(package.read(sheet.part_name)) if package is not None and sheet.part_name \
+            and package.has(sheet.part_name) else Headers()
+    return current.headers
+
+
+def pending(sheet: Worksheet) -> bool:
+    """Whether a save has PageSetup changes to write into the sheet."""
+    current = sheet.page_setup_state
+    return current is not None and (bool(current.changes) or (current.headers is not None
+                                                               and current.headers.changed))
+
+
 def with_setup(sheet: Worksheet, xml: str) -> str:
     current = sheet.page_setup_state
     if current is not None:
         for path, values in current.changes.items():
             xml = _patch(xml, 'worksheet', path, values)
+        if current.headers is not None and current.headers.changed:
+            xml = with_headers(xml, current.headers)
     return xml
+
+
+def copied(source: Worksheet, copy: Worksheet) -> None:
+    """A sheet's copy has its headers, footers and their flags, as Excel copies them
+    (tests/fixtures/page_headers.json, copied)."""
+    found = headers(source)
+    if found.texts or found.flags:
+        state(copy).headers = Headers(dict(found.texts), dict(found.flags), changed=True)
+
+
+def _set_header(sheet: Worksheet, child: str, code: str, value: object, message: str) -> None:
+    """Set one section of a header or footer string as Excel sets it, error 1004 with ``message`` where the string
+    would be longer than Excel keeps."""
+    if sheet.book.application.udf_callers:
+        raise unsupported('setting a header or footer from a worksheet function')
+    text = to_text(value)
+    found = headers(sheet)
+    if found.pictures:
+        raise unsupported('setting a header or footer on a sheet with header pictures')
+    updated = with_section(found.texts.get(child, ''), code, text)
+    if len(updated) > LIMIT:
+        raise error(1004, message)
+    found.texts[child] = updated
+    found.changed = True
+    sheet.book.saved = False
 
 
 def _change(sheet: Worksheet, updates: dict[tuple[str, ...], dict[str, str | None]]) -> None:
@@ -572,11 +621,190 @@ class PageSetup(ExcelObject):
     def set_printtitlecolumns(self, value: object) -> None:
         self._set('PrintTitleColumns', value)
 
+    # -- headers and footers (see _page_headers)
+
+    def _section(self, child: str, code: str) -> object:
+        return section(headers(self.sheet).texts.get(child, ''), code)
+
+    def _set_section(self, name: str, child: str, code: str, value: object) -> None:
+        _set_header(self.sheet, child, code, value, f'Unable to set the {name} property of the PageSetup class')
+
+    @member
+    def LeftHeader(self) -> object:
+        return self._section('oddHeader', 'L')
+
+    @setter('LeftHeader')
+    def set_leftheader(self, value: object) -> None:
+        self._set_section('LeftHeader', 'oddHeader', 'L', value)
+
+    @member
+    def CenterHeader(self) -> object:
+        return self._section('oddHeader', 'C')
+
+    @setter('CenterHeader')
+    def set_centerheader(self, value: object) -> None:
+        self._set_section('CenterHeader', 'oddHeader', 'C', value)
+
+    @member
+    def RightHeader(self) -> object:
+        return self._section('oddHeader', 'R')
+
+    @setter('RightHeader')
+    def set_rightheader(self, value: object) -> None:
+        self._set_section('RightHeader', 'oddHeader', 'R', value)
+
+    @member
+    def LeftFooter(self) -> object:
+        return self._section('oddFooter', 'L')
+
+    @setter('LeftFooter')
+    def set_leftfooter(self, value: object) -> None:
+        self._set_section('LeftFooter', 'oddFooter', 'L', value)
+
+    @member
+    def CenterFooter(self) -> object:
+        return self._section('oddFooter', 'C')
+
+    @setter('CenterFooter')
+    def set_centerfooter(self, value: object) -> None:
+        self._set_section('CenterFooter', 'oddFooter', 'C', value)
+
+    @member
+    def RightFooter(self) -> object:
+        return self._section('oddFooter', 'R')
+
+    @setter('RightFooter')
+    def set_rightfooter(self, value: object) -> None:
+        self._set_section('RightFooter', 'oddFooter', 'R', value)
+
+    def _flag(self, name: str) -> object:
+        attribute, default = HEADER_FLAGS[name]
+        return headers(self.sheet).flag(attribute, default)
+
+    def _set_flag(self, name: str, value: object) -> None:
+        if self.sheet.book.application.udf_callers:
+            raise unsupported('setting a header flag from a worksheet function')
+        attribute, default = HEADER_FLAGS[name]
+        flag = to_bool(value)
+        found = headers(self.sheet)
+        if flag == default:
+            found.flags.pop(attribute, None)
+        else:
+            found.flags[attribute] = flag
+        found.changed = True
+        self.sheet.book.saved = False
+
+    @member
+    def DifferentFirstPageHeaderFooter(self) -> object:
+        return self._flag('DifferentFirstPageHeaderFooter')
+
+    @setter('DifferentFirstPageHeaderFooter')
+    def set_differentfirstpageheaderfooter(self, value: object) -> None:
+        self._set_flag('DifferentFirstPageHeaderFooter', value)
+
+    @member
+    def OddAndEvenPagesHeaderFooter(self) -> object:
+        return self._flag('OddAndEvenPagesHeaderFooter')
+
+    @setter('OddAndEvenPagesHeaderFooter')
+    def set_oddandevenpagesheaderfooter(self, value: object) -> None:
+        self._set_flag('OddAndEvenPagesHeaderFooter', value)
+
+    @member
+    def ScaleWithDocHeaderFooter(self) -> object:
+        return self._flag('ScaleWithDocHeaderFooter')
+
+    @setter('ScaleWithDocHeaderFooter')
+    def set_scalewithdocheaderfooter(self, value: object) -> None:
+        self._set_flag('ScaleWithDocHeaderFooter', value)
+
+    @member
+    def AlignMarginsHeaderFooter(self) -> object:
+        return self._flag('AlignMarginsHeaderFooter')
+
+    @setter('AlignMarginsHeaderFooter')
+    def set_alignmarginsheaderfooter(self, value: object) -> None:
+        self._set_flag('AlignMarginsHeaderFooter', value)
+
+    @member
+    def FirstPage(self) -> object:
+        return Page(self.sheet, 'first')
+
+    @member
+    def EvenPage(self) -> object:
+        return Page(self.sheet, 'even')
+
+
+class Page(ExcelObject):
+    """PageSetup.FirstPage or EvenPage: the sections of that page's header and footer."""
+
+    vba_type_name = 'Page'
+
+    def __init__(self, sheet: Worksheet, kind: str) -> None:
+        self.sheet = sheet
+        self.kind = kind
+
+    def _check_alive(self) -> None:
+        super()._check_alive()
+        if self.sheet not in self.sheet.book.sheets_:
+            raise unsupported('on a removed worksheet')
+
+    @member
+    def LeftHeader(self) -> object:
+        return HeaderFooter(self.sheet, self.kind + 'Header', 'L')
+
+    @member
+    def CenterHeader(self) -> object:
+        return HeaderFooter(self.sheet, self.kind + 'Header', 'C')
+
+    @member
+    def RightHeader(self) -> object:
+        return HeaderFooter(self.sheet, self.kind + 'Header', 'R')
+
+    @member
+    def LeftFooter(self) -> object:
+        return HeaderFooter(self.sheet, self.kind + 'Footer', 'L')
+
+    @member
+    def CenterFooter(self) -> object:
+        return HeaderFooter(self.sheet, self.kind + 'Footer', 'C')
+
+    @member
+    def RightFooter(self) -> object:
+        return HeaderFooter(self.sheet, self.kind + 'Footer', 'R')
+
+
+class HeaderFooter(ExcelObject):
+    """One section of a first or even page's header or footer."""
+
+    vba_type_name = 'HeaderFooter'
+
+    def __init__(self, sheet: Worksheet, child: str, code: str) -> None:
+        self.sheet = sheet
+        self.child = child
+        self.code = code
+
+    def _check_alive(self) -> None:
+        super()._check_alive()
+        if self.sheet not in self.sheet.book.sheets_:
+            raise unsupported('on a removed worksheet')
+
+    @member
+    def Text(self) -> object:
+        return section(headers(self.sheet).texts.get(self.child, ''), self.code)
+
+    @setter('Text')
+    def set_text(self, value: object) -> None:
+        # Excel's message for this property gives no reason, measured (page_too_long).
+        _set_header(self.sheet, self.child, self.code, value, 'Application-defined or object-defined error')
+
 
 def guard_copy(sheet: Worksheet) -> None:
     """Refuse configured copies until printer/name-copy persistence is measured."""
     if _entry(sheet, 'Print_Area') is not None or _entry(sheet, 'Print_Titles') is not None:
         raise unsupported('copying a worksheet with print names')
+    if headers(sheet).pictures:
+        raise unsupported('copying a worksheet with header pictures')
     page = PageSetup(sheet)
     defaults: dict[str, object] = {name: value * 72 for name, value in
                                    ((name, DEFAULT_MARGINS[key]) for name, key in MARGINS.items())}

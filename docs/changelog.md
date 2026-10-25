@@ -7,6 +7,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- PageSetup's headers and footers read, set and save as Excel's do:
+  `LeftHeader`, `CenterHeader` and `RightHeader`, the three footers,
+  `DifferentFirstPageHeaderFooter`, `OddAndEvenPagesHeaderFooter`,
+  `ScaleWithDocHeaderFooter` and `AlignMarginsHeaderFooter`, and
+  `FirstPage` and `EvenPage` with each section's `Text`. Excel keeps a
+  header as one string, its sections marked `&L`, `&C` and `&R` in
+  either case, and text before the first mark is the center's. Setting
+  a section cuts its parts out and adds its mark and the new text at the
+  end, so sections come in the order they were set, and a mark in the
+  text set reads as another section. A string is at most 255
+  characters: a longer setting is error 1004, and a file holding a
+  longer one is one Excel will not open, which the model refuses to
+  read. A copied sheet keeps its headers. 40 live cases and 27 headers
+  read from files and saved again agree,
+  `tests/fixtures/page_headers.json`. Header pictures report themselves
+  unsupported.
+
 - `Workbook.SaveCopyAs` writes a copy as Excel does: the file a save
   would write at that moment, a workbook under manual calculation
   calculated first, in the workbook's own format whatever the name's

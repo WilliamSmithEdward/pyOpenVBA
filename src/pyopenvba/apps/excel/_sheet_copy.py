@@ -257,6 +257,10 @@ def _published(stage: _Staged, destination: Workbook, at: int | None, external: 
     from pyopenvba.apps.excel._page_breaks import copied as copied_breaks
 
     copied_breaks(source, copied)
+    from pyopenvba.apps.excel._page_setup import copied as copied_headers
+
+    # And its headers and footers (tests/fixtures/page_headers.json, copied).
+    copied_headers(source, copied)
     # A protected sheet's copy is protected the same way (tests/fixtures/protection.json).
     copied.protection = source.protection
     copied.protection_allows = source.protection_allows

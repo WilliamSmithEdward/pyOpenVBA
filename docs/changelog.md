@@ -878,6 +878,31 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Sheet names and defined names beyond ASCII are kept apart and found
+  as Excel does. Excel compares them by Windows' word sort, case aside,
+  in two ways. A sheet's name must differ from every other sheet's, and
+  a formula's sheet is found, where the two are as long as each other
+  and word sort cannot tell them apart: a Kelvin sign is a K and a final
+  sigma a sigma, while `aesop` can stand beside `Æsop`.
+  `Worksheets(...)` and `Sheets(...)` find the first sheet in tab order
+  that word sort alone cannot tell from the name, so
+  `Worksheets("AESOP")` is `Æsop` even beside `aesop`. Defined names
+  compare by word sort alone. `Names.Add "aesop"` redefines `Æsop` and
+  keeps its spelling, while `ÉCLAIR` replaces `éclair` and its spelling
+  too. `Names("AESOP")` and `=AESOP` in a formula both reach `Æsop`.
+  The model compared names by Python's lower case or casefold, which
+  keeps the ash apart from ae and joins a long s to an s. 25 sheets, 27
+  names and 17 pairs of spellings agree,
+  `tests/fixtures/name_equality.json`.
+
+- A formula may call a name that starts like a cell and goes on past
+  ASCII, such as `=f1é`, or a name holding the micro sign or an ordinal
+  indicator. The model read `f1é` as the cell F1 and a stray letter, and
+  refused the formula with error 1004.
+
+- A defined name may hold a combining accent after its first character,
+  as in Excel. The model refused one with error 1004.
+
 - Cell styles named beyond ASCII are told apart as Excel tells them. A
   name is another style's in any case, and in any spelling Windows' word
   sort cannot tell from it: `Styles("AESOP")` finds `Æsop`, and
@@ -887,6 +912,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Python's casefold, which keeps ae apart from the ligature, and a style
   named beyond ASCII stopped the collection being listed or added to.
   38 live names and 19 lookups agree, `tests/fixtures/style_order.json`.
+
+- Opening a workbook that holds a chart sheet, a dialog sheet or an
+  Excel 4 macro sheet reports itself unsupported. The model holds
+  worksheets alone. It read a chart sheet's part as a worksheet's and
+  stopped with a ValueError about its namespace.
 
 - A defined name beyond ASCII takes the place Excel gives it in the
   Names collection, in workbook.xml and among the named ranges app.xml

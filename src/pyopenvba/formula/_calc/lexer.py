@@ -109,8 +109,9 @@ _AREA = re.compile(r"(\$?)([A-Za-z]{1,3})(\$?)([0-9]{1,7}):(\$?)([A-Za-z]{1,3})(
 _COLUMNS = re.compile(r"(\$?)([A-Za-z]{1,3}):(\$?)([A-Za-z]{1,3})" + _END)
 _ROWS = re.compile(r"(\$?)([0-9]{1,7}):(\$?)([0-9]{1,7})" + _END)
 #: A defined name or a function: a letter, underscore or backslash, then
-#: letters, digits, full stops, underscores, backslashes and question marks.
-_NAME = re.compile(r"(?:[^\W\d]|\\)[\w.\\?]*")
+#: letters, digits, full stops, underscores, backslashes, question marks and
+#: combining accents (pyOpenVBA's tests/fixtures/name_equality.json, marks).
+_NAME = re.compile(r"(?:[^\W\d]|\\)[\w.\\?\u0300-\u036f]*")
 #: A sheet name that needs no quotes, and a 3D pair of them, before ``!``.
 #: Past ASCII any character may stand in one: Excel writes x–y!B3 and
 #: ＡＢ!B3 bare (pyOpenVBA's tests/fixtures/sheet_quoting.json).

@@ -124,7 +124,9 @@ class EngineBook:
         return found
 
     def sheet_key(self, name: str) -> str | None:
-        return next((sheet.name for sheet in self.book.sheets_ if sheet.name.casefold() == name.casefold()), None)
+        from pyopenvba.apps.excel._names import same_sheet_name
+
+        return next((sheet.name for sheet in self.book.sheets_ if same_sheet_name(sheet.name, name)), None)
 
     def sheet_order(self) -> list[str]:
         return [sheet.name for sheet in self.book.sheets_]
@@ -231,13 +233,14 @@ class EngineBook:
                 yield row, column, value
 
     def defined_name(self, name: str, sheet: str | None) -> Node | None:
-        """A name's formula, scoped to ``sheet`` or, with None, to the workbook: that scope and no other."""
+        """A name's formula, scoped to ``sheet`` or, with None, to the workbook: that scope and no other, and a name
+        word sort cannot tell from ``name`` (tests/fixtures/name_equality.json)."""
         from pyopenvba._a1 import split_sheet
+        from pyopenvba.apps.excel._names import same_name, same_sheet_name
 
-        wanted = (sheet or "").casefold()
         for entry in self.book.names_.entries:
             scope, bare = split_sheet(entry.name)
-            if bare.casefold() != name.casefold() or scope.casefold() != wanted:
+            if not same_name(bare, name) or not same_sheet_name(scope, sheet or ""):
                 continue
             text = entry.refers_to.lstrip("=")
             _check_absolute(text)

@@ -198,6 +198,13 @@ def test_opening_a_workbook_reads_its_names_and_queries() -> None:
     assert [entry.name for entry in book.queries_.entries] == ["Loaded"]
 
 
+def test_a_workbook_holding_a_chart_sheet_says_it_cannot_be_opened() -> None:
+    """The model holds worksheets alone: Excel's workbook with a chart sheet among two worksheets reports itself,
+    where the model read the chart sheet's part as a worksheet's and stopped on its namespace."""
+    with pytest.raises(VBAUnsupportedError, match="chart sheet"):
+        ExcelApplication.open(Path(__file__).parent / "fixtures" / "document_properties" / "chart_sheet.xlsx")
+
+
 def test_a_query_refresh_evaluates_its_m() -> None:
     """Refresh runs the query rather than reporting itself unsupported."""
     app = ExcelApplication.open(LOADED)

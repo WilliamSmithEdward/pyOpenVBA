@@ -392,7 +392,7 @@ class Styles(VBACollection, ExcelObject):
 
     @method
     def Add(self, Name: object = MISSING, BasedOn: object = MISSING) -> object:
-        from pyopenvba.apps.excel._sort import name_key
+        from pyopenvba.apps.excel._names import name_key
 
         if Name is MISSING:
             raise error(449)

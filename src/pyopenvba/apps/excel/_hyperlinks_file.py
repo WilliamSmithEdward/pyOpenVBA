@@ -145,6 +145,12 @@ def follows_folder(address: str) -> bool:
     return _DRIVE.match(address[7:] if _file_url(address) else address) is not None
 
 
+def names_file(address: str) -> bool:
+    """Whether an address names a file where the workbook is: a DOS path, or a path relative to its folder."""
+    return follows_folder(address) or (bool(address) and _SCHEME.match(address) is None
+                                       and not address.startswith("\\\\"))
+
+
 def target_of(address: str, folder: str) -> str:
     """The relationship target a link's address is saved as, for a workbook saved in ``folder``: a DOS path on
     another drive and a UNC path after file:///, the file://C:\\x form as it is."""

@@ -1292,13 +1292,14 @@ def _split_reference(reference: str) -> tuple[int, int]:
 # --- writing --------------------------------------------------------------------------
 
 
-def save_workbook(book: Workbook, target: Path) -> None:
-    """Write the workbook out, patching only the cells the model changed."""
+def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = None) -> None:
+    """Write the workbook out, patching only the cells the model changed. A workbook made here takes the package
+    of ``fresh_suffix``'s format, or else of the target's extension."""
     from pyopenvba.apps.excel._controls import refresh
     from pyopenvba.apps.excel._pivot_options import settle_manual
 
     settle_manual(book)
-    _calculated(book)
+    calculate_for_save(book)
     from pyopenvba.apps.excel._sort import preflight_save
 
     preflight_save(book)
@@ -1307,7 +1308,7 @@ def save_workbook(book: Workbook, target: Path) -> None:
             refresh(sheet, shape)
     package = book.package
     if package is None:
-        package = _fresh_package(target.suffix.lower())
+        package = _fresh_package(fresh_suffix if fresh_suffix is not None else target.suffix.lower())
         book.package = package
         _match_sheets_to_package(book, package)
     else:
@@ -2134,7 +2135,7 @@ def _knows(book: Workbook) -> Callable[[str], bool]:
     return knows
 
 
-def _calculated(book: Workbook) -> None:
+def calculate_for_save(book: Workbook) -> None:
     """Work out each formula nothing has read since it changed, so that it is saved with its value as Excel saves
     it: under automatic calculation every cell is up to date. One the model cannot work out is saved without a
     value, and under manual calculation a cell keeps the value it last had."""

@@ -90,6 +90,12 @@ Save/close lifecycle work adds 22 native cases for BeforeSave, AfterSave
 and BeforeClose, and a live persistence gate for XLSX/XLSM conversion and
 VBA-project presence. Save prompts, omitted filenames, other SaveAs formats and parameters,
 additional event sources and complete signature validation remain gaps.
+`SaveCopyAs` writes what a save would, in the workbook's own format, with
+no event and the workbook's name and Saved flag kept, over 34 live copies
+(`tests/fixtures/save_copy_as.json`); a copy into another folder of a
+workbook linking to files is refused, since Excel then moves the
+workbook's own links to the copy's folder. A new workbook the model saves
+macro-enabled carries an empty VBA project, where Excel writes none.
 
 Runtime source persistence now writes added standard, class and document
 modules and edits to existing modules into the owning workbook's VBA

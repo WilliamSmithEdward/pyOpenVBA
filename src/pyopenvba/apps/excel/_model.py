@@ -46,6 +46,7 @@ from pyopenvba.interpreter._values import (
     VBAInt,
     error,
     to_bool,
+    to_date,
     to_integer,
     to_number,
     to_text,
@@ -673,6 +674,13 @@ class Application(ExcelObject):
 
     @method
     def Wait(self, Time: object = MISSING) -> object:
+        """True once Time has come. A frozen clock (ExcelApplication.freeze_clock) moves on to Time, as if the wait
+        had passed; under the real clock the model returns at once rather than block."""
+        interpreter = self.interpreter
+        if Time is not MISSING and interpreter is not None and interpreter.frozen_now is not None:
+            until = to_date(Time).to_datetime()
+            if until > interpreter.frozen_now:
+                interpreter.freeze(until)
         return True
 
     @method
@@ -1121,6 +1129,15 @@ class Workbook(ExcelObject):
             _events.after_save(self, False)
             raise error(1004, "SaveAs filename does not match FileFormat")
         return self.save_to(target, before=False, file_format=chosen)
+
+    @method
+    def SaveCopyAs(self, Filename: object = MISSING) -> object:
+        """The file a save would write, written to Filename; the workbook keeps its name and Saved flag, and no save
+        event is raised (see _save_copy)."""
+        from pyopenvba.apps.excel._save_copy import save_copy
+
+        save_copy(self, Filename)
+        return EMPTY
 
     def save_to(self, target: Path, *, before: bool = True, file_format: int | None = None, create_parents: bool = False) -> bool:
         from pyopenvba.apps.excel._io import prepare_format, save_workbook

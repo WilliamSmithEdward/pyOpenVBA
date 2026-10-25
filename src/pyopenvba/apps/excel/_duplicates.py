@@ -13,8 +13,8 @@ Measured in live Excel (scripts/measure_remove_duplicates.py):
   TRUE counts as a number 1 that shows TRUE. Text never matches a number
   however it shows. Formulas match by what they give.
 - Text compares as Windows compares words ignoring case, so æ matches ae
-  and ß ss; that is reproduced for printable ASCII, and other text
-  reports itself unsupported.
+  and ß ss while é is no e: by its word-sort key (_sort.text_key). Text
+  beyond Latin, Greek and Cyrillic reports itself unsupported.
 - Header is xlNo when left out; xlGuess takes the first row for a header
   as Sort's xlGuess does. A single cell works on its current region.
 - Columns counts from the range's first column. Left out, or 0, nothing
@@ -157,7 +157,10 @@ def _key(sheet: Worksheet, row: int, column: int) -> tuple[object, ...]:
         except UndisplayableError:
             text = "#"
         return ("number", float(value), text.lower())
-    text = str(value)
-    if any(not 32 <= ord(char) <= 126 for char in text):
-        raise VBAUnsupportedError("RemoveDuplicates on text beyond printable ASCII is not implemented")
-    return ("text", text.lower())
+    from pyopenvba.apps.excel._sort import text_key
+
+    try:
+        return ("text", text_key(str(value), False))
+    except VBAUnsupportedError:
+        raise VBAUnsupportedError("RemoveDuplicates on text beyond Latin, Greek and Cyrillic, their marks and "
+                                  "punctuation, or that begins with a combining mark, is not implemented") from None

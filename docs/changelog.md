@@ -21,6 +21,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and a live gate has Excel read the model's filters as its own. Letters
   past Latin, Greek and Cyrillic still report themselves unsupported.
 
+- `Range.RemoveDuplicates` compares text beyond ASCII as Excel does, by
+  Windows' word sort ignoring case: `ae` is a duplicate of `æ` and `ss`
+  of `ß`, `É` of `é`, while `e` stays beside `é`. It reported such text
+  unsupported before. The two measured cases that showed it,
+  `accents` and `ligature` in `tests/fixtures/remove_duplicates.json`,
+  now replay.
+
 - `Range.Sort` and the Sort object order text beyond ASCII as Excel
   does. Excel orders text by Windows' word sort, and the model builds
   Windows' own sort key for each string from the weights of Latin and

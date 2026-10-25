@@ -1333,6 +1333,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
             sheet.dirty = True
     # The save leaves out the file's xfs nothing uses any more, which moves the ones after them.
     moves = book.stylesheet.moved_from_file()
+    from pyopenvba.apps.excel._page_setup import pending as page_pending
     from pyopenvba.apps.excel._sort import changed as sort_changed
     from pyopenvba.apps.excel._sort import with_sort_state
 
@@ -1341,7 +1342,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
         outline_changes = sheet.outline_state is not None and bool(sheet.outline_state.changes
                                                                         or sheet.outline_state.changed_rows
                                                                         or sheet.outline_state.changed_columns)
-        page_changes = sheet.page_setup_state is not None and bool(sheet.page_setup_state.changes)
+        page_changes = page_pending(sheet)
         sort_changes = sort_changed(sheet)
         # Excel writes the rules of a workbook it read without a VBA project in its own order, joined where it
         # joined them (_conditional_joins), so a sheet keeps its bytes only where they are those.

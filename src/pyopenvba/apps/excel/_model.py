@@ -263,6 +263,8 @@ class Application(ExcelObject):
         #: The number format a macro last met in a cell, which the next Subtotal gives its first label in General's
         #: place (see Range.note_seen and _subtotals).
         self.recent_format = "General"
+        #: The spelling ConvertFormula first saw each name in, by the name in lower case (see _convert_formula).
+        self.convert_spellings: dict[str, str] = {}
         #: Application.CalculationInterruptKey, xlAnyKey until a macro sets it; and whether a workbook's
         #: ForceFullCalculation has held every workbook to full calculation, as it does until Excel quits (see
         #: _calculation_state).
@@ -617,6 +619,16 @@ class Application(ExcelObject):
     @method
     def Evaluate(self, Name: object = MISSING) -> object:
         return self.evaluate_text(to_text(Name))
+
+    @method
+    def ConvertFormula(self, Formula: object = MISSING, FromReferenceStyle: object = MISSING,
+                       ToReferenceStyle: object = MISSING, ToAbsolute: object = MISSING,
+                       RelativeTo: object = MISSING) -> object:
+        """A formula's references from A1 to R1C1 or back, made absolute or relative, as Excel converts them; the
+        error value #VALUE! for one it cannot (see _convert_formula)."""
+        from pyopenvba.apps.excel._convert_formula import convert_formula
+
+        return convert_formula(self, Formula, FromReferenceStyle, ToReferenceStyle, ToAbsolute, RelativeTo)
 
     @method
     def Run(self, Macro: object = MISSING, *args: object) -> object:

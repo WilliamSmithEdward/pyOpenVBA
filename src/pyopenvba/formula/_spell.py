@@ -208,7 +208,7 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
         # is every other cell written as A1 (tests/fixtures/bound_names.json).
         raise FormulaError("A1 cannot read a cell as a name a LET or a LAMBDA binds")
     tree = parse(formula)
-    _check(tree)
+    check_arguments(tree)
     one_value: set[int] = set()
     if not whole:
         _one_value(tree, one=True, whole=False, found=one_value)
@@ -273,9 +273,11 @@ def _spelled(formula: str, names: Names, *, whole: bool, at: bool, r1c1: bool) -
     return "=" + "".join(pieces)
 
 
-def _check(node: Node | None) -> None:
+def check_arguments(node: Node | None) -> None:
     """Refuse what Excel refuses in a formula past its syntax: a function given too few or too many arguments, a
-    value where a function reads cells, and LET's and LAMBDA's names badly named.
+    value where a function reads cells, LET's and LAMBDA's names badly named, and a function's name with no
+    bracket after it where a range, an intersection or a union wants cells, SUM (A1) or SUM:A1, though SUM alone
+    is a name (tests/fixtures/formula_spelling.json; tests/fixtures/convert_formula.json, bare_function_range).
 
     How many arguments each function takes is :func:`pyopenvba.formula._arity.takes`, and which arguments have to
     be cells :data:`_CELLS`, measured in tests/fixtures/formula/probes.txt and
@@ -295,15 +297,18 @@ def _check(node: Node | None) -> None:
         if places is not None and not all(_referring(node.args[index]) for index in places.within(count)):
             raise FormulaError(f"{node.name} takes references")
         for argument in node.args:
-            _check(argument)
+            check_arguments(argument)
     elif isinstance(node, Invoke):
         for argument in [node.target, *node.args]:
-            _check(argument)
+            check_arguments(argument)
     elif isinstance(node, Unary):
-        _check(node.operand)
+        check_arguments(node.operand)
     elif isinstance(node, Binary):
-        _check(node.left)
-        _check(node.right)
+        if node.op in REFERENCE_OPS and any(isinstance(side, NameNode) and not side.sheet
+                                            and is_excel_function(side.name) for side in (node.left, node.right)):
+            raise FormulaError("a function's name where cells are wanted")
+        check_arguments(node.left)
+        check_arguments(node.right)
 
 
 def _referring(node: Node | None) -> bool:
@@ -594,8 +599,8 @@ def _unquoted(bare: str) -> str:
 
 def _fixed(bare: str, called: bool) -> bool:
     """Whether a name is one of Excel's own, spelled in capitals: a function a sheet has, SIN and NORM.DIST as much
-    as SUM, or TRUE or FALSE (tests/fixtures/formula_spelling.json)."""
-    return is_excel_function(bare) if called else bare.upper() in ("TRUE", "FALSE")
+    as SUM, called or not, =sum being =SUM; or TRUE or FALSE (tests/fixtures/formula_spelling.json)."""
+    return is_excel_function(bare) or not called and bare.upper() in ("TRUE", "FALSE")
 
 
 def remembered_names(formula: str, names: Names) -> list[str]:

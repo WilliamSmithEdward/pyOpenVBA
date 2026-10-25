@@ -735,6 +735,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A pivot cache saves as Excel saves it. A field lists its shared items
+  only where a table of the cache lists items for it, a field it puts on
+  its rows, columns or page area; the other fields' values go in the
+  records themselves. A field's sharedItems carries only the attributes
+  that differ from the schema's defaults, in the schema's order, and its
+  count only where it lists items, and numbers are spelled as Excel
+  spells them, `1000` and not `1000.0`. The model listed every field's
+  values, wrote every attribute and spelled whole numbers with a point.
+  Every cache of 715 tables the fixtures replay, its fields and its
+  records, is now Excel's own, and Excel reads the model's caches as its
+  own.
+
 - A pivot table made without a name is `PivotTable` and the next number
   of one count through the session, as in Excel, whatever workbook it is
   in and whatever was closed or opened before, stepping past a name the

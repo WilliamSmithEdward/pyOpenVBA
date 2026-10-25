@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import posixpath
 import re
 import zipfile
 from pathlib import Path
@@ -142,6 +143,41 @@ def column_widths(path: Path, names: set[str]) -> dict[str, dict[int, tuple[str,
         return out
 
 
+#: What a save writes afresh in a cache: its refresh stamp and author, and the namespaces and ids Excel adds.
+CACHE_STAMPS = re.compile(r' refreshedDate="[^"]*"| refreshedBy="[^"]*"| r:id="[^"]*"| xr:uid="[^"]*"'
+                          r'| xmlns:\w+="[^"]*"| mc:Ignorable="[^"]*"')
+
+
+def caches(path: Path) -> dict[str, tuple[str, str]]:
+    """Each pivot table's cache as the file keeps it, by the table's name: its fields, their shared items among
+    them, and its records (tests/fixtures/pivot_grouping/ and the rest)."""
+    out: dict[str, tuple[str, str]] = {}
+    with zipfile.ZipFile(path) as package:
+        names = set(package.namelist())
+
+        def related(part: str, kind: str) -> str | None:
+            folder, name = part.rsplit("/", 1)
+            rels = f"{folder}/_rels/{name}.rels"
+            if rels not in names:
+                return None
+            target = re.search(rf'Target="([^"]*{kind}\d+\.xml)"', package.read(rels).decode("utf-8"))
+            return posixpath.normpath(posixpath.join(folder, target.group(1))) if target else None
+
+        for part in sorted(name for name in names if re.fullmatch(r"xl/pivotTables/pivotTable\d+\.xml", name)):
+            text = package.read(part).decode("utf-8")
+            table = re.search(r'<pivotTableDefinition\b[^>]*?\bname="([^"]*)"', text)
+            cache = related(part, "pivotCacheDefinition")
+            if table is None or cache is None:
+                continue
+            definition = package.read(cache).decode("utf-8").replace(" />", "/>")
+            fields = re.search(r"<cacheFields\b.*?</cacheFields>", definition, re.DOTALL)
+            records = related(cache, "pivotCacheRecords")
+            body = (re.sub(r"^<\?xml[^>]*\?>\s*", "", package.read(records).decode("utf-8")).replace(" />", "/>")
+                    if records else "")
+            out[table.group(1)] = (CACHE_STAMPS.sub("", fields.group() if fields else ""), CACHE_STAMPS.sub("", body))
+    return out
+
+
 def dumps(text: str) -> dict[str, str]:
     return dict(one.split("^", 1) for one in text.split("|") if "^" in one)
 
@@ -248,3 +284,12 @@ def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str]
     tests/test_excel_pivot_column_fit.py)."""
     names = {layout["name"] for layout in LAYOUTS}
     assert column_widths(made[2] / "pivot_layouts.xlsx", names) == column_widths(FIXTURES / "pivot_layouts.xlsx", names)
+
+
+def test_the_caches_are_excels(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's cache as Excel saves it: shared items listed for the fields a table lists items for, the
+    other fields' values in the records, the sharedItems' attributes and the numbers spelled as Excel's (see
+    src/pyopenvba/apps/excel/_pivot_cache_file.py)."""
+    names = {layout["name"] for layout in LAYOUTS}
+    mine, theirs = caches(made[2] / "pivot_layouts.xlsx"), caches(FIXTURES / "pivot_layouts.xlsx")
+    assert {name: mine.get(name) for name in names} == {name: theirs.get(name) for name in names}

@@ -159,10 +159,10 @@ def _moment(raw: str | None) -> dt.datetime | None:
 
 
 def number_spelling(value: float) -> str:
-    """A number as a grouping's attributes spell it: a whole one without a point."""
-    if value.is_integer() and abs(value) < 1e15:
-        return str(int(value))
-    return repr(value)
+    """A number as a grouping's attributes spell it, as a cache spells its numbers: a whole one without a point."""
+    from pyopenvba.apps.excel._pivot_cache_file import number_text
+
+    return number_text(value)
 
 
 def steps(start: float, end: float, interval: float) -> tuple[int, bool]:

@@ -24,7 +24,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from test_excel_pivot_layouts import column_widths, sheet_cells
+from test_excel_pivot_layouts import caches, column_widths, sheet_cells
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_calculated_items"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_calculated_items.json").read_text(encoding="utf-8"))
@@ -33,12 +33,6 @@ HELPER = RECORD["build"].split("Public Function Build")[0].replace("{steps}", RE
 #: What Excel writes afresh each time: revision ids, cache numbering and refresh stamps.
 REVISIONS = re.compile(r' xmlns:mc="[^"]*"| mc:Ignorable="[^"]*"| xmlns:xr="[^"]*"| xr:uid="[^"]*"| cacheId="\d+"'
                        r'| refreshedDate="[^"]*"| refreshedBy="[^"]*"| r:id="[^"]*"')
-#: A cache field's shared items but for its calculated items, which the model lists for every field where Excel
-#: lists only those a table shows (docs/host_completeness.md).
-SHARED = re.compile(r"<sharedItems\b[^>]*/>|<sharedItems\b[^>]*>.*?</sharedItems>", re.DOTALL)
-CALCULATED = re.compile(r'<s v="[^"]*" f="1"/>')
-
-
 def tables(path: Path) -> dict[str, str]:
     """Each pivot table's definition, its cache's fields and its calculated items, by the table's name."""
     with zipfile.ZipFile(path) as package:
@@ -61,11 +55,6 @@ def tables(path: Path) -> dict[str, str]:
 
 def recorded(layout: dict[str, Any]) -> str:
     return REVISIONS.sub("", layout["file"].replace(" />", "/>"))
-
-
-def kept(text: str) -> str:
-    """A table's parts with its cache fields' shared items left out, their calculated items kept."""
-    return SHARED.sub(lambda found: "".join(CALCULATED.findall(found.group())), text)
 
 
 def dumps(text: str) -> dict[str, str]:
@@ -117,9 +106,9 @@ def test_the_items_read_back_from_the_file_the_model_saved(made: tuple[dict[str,
 @pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_file_keeps_each_item_as_excels_does(made: tuple[dict[str, str], dict[str, str], Path],
                                                layout: dict[str, Any]) -> None:
-    """The table's definition whole, and its cache's fields and calculated items: each one's shared item, its
-    formula as the cache keeps it and the pivotArea naming it."""
-    assert kept(tables(made[2] / "pivot_calculated_items.xlsx")[layout["name"]]) == kept(recorded(layout))
+    """The table's definition whole, and its cache's fields and calculated items: each field's shared items, a
+    calculated item's among them, its formula as the cache keeps it and the pivotArea naming it."""
+    assert tables(made[2] / "pivot_calculated_items.xlsx")[layout["name"]] == recorded(layout)
 
 
 @pytest.fixture(scope="module")
@@ -158,3 +147,12 @@ def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str]
     tests/test_excel_pivot_column_fit.py)."""
     names = {layout["name"] for layout in LAYOUTS}
     assert column_widths(made[2] / "pivot_calculated_items.xlsx", names) == column_widths(FIXTURES / "pivot_calculated_items.xlsx", names)
+
+
+def test_the_caches_are_excels(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's cache as Excel saves it: shared items listed for the fields a table lists items for, the
+    other fields' values in the records, the sharedItems' attributes and the numbers spelled as Excel's (see
+    src/pyopenvba/apps/excel/_pivot_cache_file.py)."""
+    names = {layout["name"] for layout in LAYOUTS}
+    mine, theirs = caches(made[2] / "pivot_calculated_items.xlsx"), caches(FIXTURES / "pivot_calculated_items.xlsx")
+    assert {name: mine.get(name) for name in names} == {name: theirs.get(name) for name in names}

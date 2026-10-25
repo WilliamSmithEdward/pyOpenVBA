@@ -113,6 +113,35 @@ def sheet_cells(path: Path, names: set[str]) -> dict[str, dict[str, tuple[object
         return out
 
 
+def column_widths(path: Path, names: set[str]) -> dict[str, dict[int, tuple[str, bool]]]:
+    """Each named sheet's columns that have a width of their own: the width the file writes and whether it is the
+    one AutoFit gave the column, bestFit (tests/test_excel_pivot_column_fit.py)."""
+    with zipfile.ZipFile(path) as package:
+        book = package.read("xl/workbook.xml").decode("utf-8")
+        relations = package.read("xl/_rels/workbook.xml.rels").decode("utf-8")
+        targets: dict[str, str] = {}
+        for found in re.finditer(r"<Relationship\b[^>]*>", relations):
+            ident = re.search(r'Id="([^"]+)"', found.group())
+            target = re.search(r'Target="([^"]+)"', found.group())
+            if ident and target:
+                targets[ident.group(1)] = target.group(1)
+        out: dict[str, dict[int, tuple[str, bool]]] = {}
+        for sheet in re.finditer(r'<sheet\b[^>]*name="([^"]+)"[^>]*r:id="([^"]+)"', book):
+            if sheet.group(1) not in names:
+                continue
+            xml = package.read("xl/" + targets[sheet.group(2)].lstrip("/").removeprefix("xl/")).decode("utf-8")
+            columns: dict[int, tuple[str, bool]] = {}
+            for col in re.findall(r"<col\b[^>]*>", xml):
+                first = re.search(r'\bmin="(\d+)"', col)
+                last = re.search(r'\bmax="(\d+)"', col)
+                width = re.search(r'\bwidth="([^"]*)"', col)
+                if first and last and width and "customWidth=\"1\"" in col:
+                    for number in range(int(first.group(1)), min(int(last.group(1)), 16384) + 1):
+                        columns[number] = (width.group(1), 'bestFit="1"' in col)
+            out[sheet.group(1)] = columns
+        return out
+
+
 def dumps(text: str) -> dict[str, str]:
     return dict(one.split("^", 1) for one in text.split("|") if "^" in one)
 
@@ -212,3 +241,10 @@ def test_merging_the_labels_reports_itself_unsupported() -> None:
         'pt.PivotFields("Region").Orientation = 1\npt.MergeLabels = True\nEnd Sub\n', name="Merge")
     with pytest.raises(VBAUnsupportedError, match="MergeLabels"):
         app.run("Run")
+
+
+def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's columns as wide as Excel fits them each time it lays the table out, bestFit beside them (see
+    tests/test_excel_pivot_column_fit.py)."""
+    names = {layout["name"] for layout in LAYOUTS}
+    assert column_widths(made[2] / "pivot_layouts.xlsx", names) == column_widths(FIXTURES / "pivot_layouts.xlsx", names)

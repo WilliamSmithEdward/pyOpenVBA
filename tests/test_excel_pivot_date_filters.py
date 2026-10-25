@@ -25,6 +25,7 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from test_excel_pivot_layouts import column_widths
 
 FIXTURES = Path(__file__).parent / "fixtures" / "pivot_date_filters"
 RECORD: dict[str, Any] = json.loads((FIXTURES / "pivot_date_filters.json").read_text(encoding="utf-8"))
@@ -150,3 +151,10 @@ def excel_file_read() -> dict[str, str]:
 @pytest.mark.parametrize("layout", LAYOUTS, ids=lambda layout: layout["name"])
 def test_the_model_reads_excels_file_as_excel_does(excel_file_read: dict[str, str], layout: dict[str, Any]) -> None:
     assert excel_file_read[layout["name"]] == layout["reopened"]
+
+
+def test_the_columns_fit_as_excels_do(made: tuple[dict[str, str], dict[str, str], Path]) -> None:
+    """Every table's columns as wide as Excel fits them each time it lays the table out, bestFit beside them (see
+    tests/test_excel_pivot_column_fit.py)."""
+    names = {layout["name"] for layout in LAYOUTS}
+    assert column_widths(made[2] / "pivot_date_filters.xlsx", names) == column_widths(FIXTURES / "pivot_date_filters.xlsx", names)

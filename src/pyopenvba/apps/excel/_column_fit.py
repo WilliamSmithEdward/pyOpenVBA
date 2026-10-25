@@ -72,7 +72,7 @@ def _table(font: Font) -> dict[str, int] | None:
     return None if font.vert_align else widths(font.name, font.bold, font.italic, float(font.size))
 
 
-def _pad(table: dict[str, int]) -> int:
+def font_pad(table: dict[str, int]) -> int:
     """The pixels a big font adds to what a cell keeps beside its text: 2 for every 4 its digits are wider than
     5, none to 12pt (tests/fixtures/autofit_sizes.json)."""
     return 2 * max(0, (table["0"] - 5) // 4)
@@ -154,7 +154,7 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
         raise VBAUnsupportedError(f"Range.Text of a value in {font.name} {font.size:g}, which may not fit its column "
                                   f"or fills it, is not implemented: Excel measures Aptos Narrow and Calibri from "
                                   f"8 to 72pt")
-    room = pixels - 5 - _pad(table) - _steps(font)
+    room = pixels - 5 - font_pad(table) - _steps(font)
     space = room - _INDENT * alignment.indent
     hashes = "#" * max(0, room // table["#"])
     if shown is None:
@@ -299,7 +299,7 @@ def fit(sheet: Worksheet, area: Area) -> None:
         sheet.touched()
 
 
-def _shows(sheet: Worksheet, row: int, column: int, cell: Cell) -> tuple[object, Display] | None:
+def shown_value(sheet: Worksheet, row: int, column: int, cell: Cell) -> tuple[object, Display] | None:
     """A cell's value, a date as its serial, and how its format lays it out; None for a cell that shows nothing."""
     from pyopenvba.formula._display import Display
     from pyopenvba.formula._values import ExcelError
@@ -321,7 +321,7 @@ def _shows(sheet: Worksheet, row: int, column: int, cell: Cell) -> tuple[object,
     return (number, shown) if shown.text else None
 
 
-def _measured(table: dict[str, int], shown: Display) -> int:
+def measured_width(table: dict[str, int], shown: Display) -> int:
     """How wide AutoFit measures a text a format laid out: each space an _ leaves as wide as the character it
     stands for and a fill as nothing (tests/fixtures/narrow_text.json, cell_style), and what General shows of a
     number a digit wide for each digit, point and exponent sign, its sign and E as they are."""
@@ -338,7 +338,7 @@ def _fitted(sheet: Worksheet, row: int, column: int, cell: Cell, *, formatted: b
     """How wide AutoFit makes a column for the text a cell shows, in pixels; None for a cell that shows nothing.
     ``formatted`` measures only what a format set on the cell widens its column for: a number General does not
     show, wrapped or not, as numbers do not wrap."""
-    found = _shows(sheet, row, column, cell)
+    found = shown_value(sheet, row, column, cell)
     if found is None:
         return None
     number, shown = found
@@ -360,7 +360,7 @@ def _fitted(sheet: Worksheet, row: int, column: int, cell: Cell, *, formatted: b
                                   "for them depend on the characters beside them")
     steps = _steps(font)
     reach = _ITALIC_STEP * steps + _ITALIC_BASE if steps else Fraction(0)
-    return column_pixels(Fraction(_measured(table, shown)) + reach, _pad(table))
+    return column_pixels(Fraction(measured_width(table, shown)) + reach, font_pad(table))
 
 
 def widen(sheet: Worksheet, areas: list[Area]) -> None:

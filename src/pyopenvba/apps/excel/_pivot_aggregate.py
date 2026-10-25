@@ -350,7 +350,11 @@ def add_data_field(table: PivotTable, source: object, caption: object, function:
     table.report_metadata = None
     table.sheet.touched()
     from pyopenvba.apps.excel import _events
+    from pyopenvba.apps.excel._pivot_fit import refit
 
+    # Its columns fit its captions and totals as any table's do (tests/fixtures/pivot_column_fit/
+    # no_columns_no_rows).
+    refit(table)
     _events.after_edit(output)
     _events.pivot_updated(table)
     return PivotField(table, index, new, True)

@@ -194,6 +194,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
             initialize(sheet)
             read_view(sheet, sheet_xml)
+            from pyopenvba.apps.excel._sheet_tabs import read as read_tab
+
+            read_tab(sheet, sheet_xml)
     book.next_sheet_id = max((sheet.sheet_id for sheet in book.sheets_), default=0) + 1
     from pyopenvba.apps.excel._windows import read_book_view
 
@@ -1324,7 +1327,8 @@ def save_workbook(book: Workbook, target: Path) -> None:
         # joined them (_conditional_joins), so a sheet keeps its bytes only where they are those.
         conditional_changes = not sheet.dirty and _plain_conditional(sheet)
         if not sheet.part_name or not (sheet.dirty or sheet.view.changed or tabs or moves or page_changes
-                                       or outline_changes or sort_changes or conditional_changes):
+                                       or outline_changes or sort_changes or conditional_changes
+                                       or sheet.tab_changed):
             continue
         original = (
             package.read(sheet.part_name).decode("utf-8", errors="replace")
@@ -1343,6 +1347,10 @@ def save_workbook(book: Workbook, target: Path) -> None:
             patched = with_setup(sheet, patched)
         if sort_changes:
             patched = with_sort_state(sheet, patched)
+        if sheet.tab_changed:
+            from pyopenvba.apps.excel._sheet_tabs import with_tab
+
+            patched = with_tab(sheet, patched)
         if conditional_changes:
             from pyopenvba.apps.excel._conditional import with_rules as with_conditional_rules
 
@@ -1536,6 +1544,15 @@ def _make_macro_free(package: OpcFile) -> None:
         text = package.read("xl/workbook.xml").decode("utf-8")
         text = text.replace(' codeName="ThisWorkbook"', "")
         package.write("xl/workbook.xml", text.encode("utf-8"))
+    for part in package.names():
+        if re.fullmatch(r"xl/worksheets/sheet\d+\.xml", part):
+            # A new workbook's sheets have no code names in an xlsx, nor a sheetPr for one (tests/fixtures/
+            # sheet_tabs/ none).
+            text = package.read(part).decode("utf-8")
+            plain = re.sub(r'<sheetPr codeName="[^"]*"/>', "", text)
+            plain = re.sub(r'(<sheetPr\b[^>]*?) codeName="[^"]*"', r"\1", plain)
+            if plain != text:
+                package.write(part, plain.encode("utf-8"))
 
 
 def _match_sheets_to_package(book: Workbook, package: OpcFile) -> None:

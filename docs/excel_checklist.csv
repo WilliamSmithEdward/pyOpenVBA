@@ -2083,6 +2083,13 @@ Styles,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/cell_s
 Styles,Item,"property, read-only",As Style,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,By name in any case or by place in the sorted list.
 Styles,Merge,method,Merge(Workbook As Variant) As Variant,,PARTIAL,tests/fixtures/cell_styles/style_changes.json,"A style named as one here takes its place, keeping this workbook's spelling, and reaches the cells that follow it; the rest come in the order their names sort. A workbook with another theme, a Normal that differs and a built-in style this workbook deleted report unsupported."
 Styles,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
+Tab,Application,"property, read-only",As Application,,MISSING,,
+Tab,Color,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; any other value its low 24 bits, so xlNone is a pale blue; False takes the colour away."
+Tab,ColorIndex,property,As XlColorIndex,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"A palette slot, xlColorIndexNone taking the colour away, error 9 beyond 1 to 56. A colour off the palette reads the slot a tab finds, not a cell's: a near-grey's nearest grey, else the nearest in Windows' HLS (1,397 colours measured)."
+Tab,Creator,"property, read-only",As XlCreator,,MISSING,,
+Tab,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,The worksheet.
+Tab,ThemeColor,property,As XlThemeColor,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"xlThemeColorDark1 to xlThemeColorFollowedHyperlink, error 9 beyond; 0 for any other colour."
+Tab,TintAndShade,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; a tint cut toward zero to n / 32767 and kept in 16 bits, so 1.5 reads -0.5000763; a tab with no colour takes none."
 TextFrame,Application,"property, read-only",As Application,,MISSING,,
 TextFrame,AutoMargins,property,As Boolean,,MISSING,,
 TextFrame,AutoSize,property,As Boolean,no setter,UNASSESSED,,
@@ -2607,7 +2614,7 @@ Worksheet,ShowDataForm,method,ShowDataForm(),,MISSING,,
 Worksheet,Sort,"property, read-only",As Sort,,PARTIAL,tests/fixtures/sort.json,"SortFields with Add and Add2 by value, SetRange, Header, MatchCase, Orientation and Apply; sorting on colours or icons and custom orders report themselves unsupported."
 Worksheet,StandardHeight,"property, read-only",As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json; tests/fixtures/row_formats/row_formats.json,"Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display, and moved by the fonts of column formats; with another Normal font the file's own standard sizes stand."
 Worksheet,StandardWidth,property,As Double,,PARTIAL,tests/fixtures/dimensions.json; tests/fixtures/dimensions/dimensions_answers.json,Measured for Aptos Narrow 11 and Calibri 11 as the Normal font on a 96-DPI display; with another Normal font the file's own standard sizes stand.
-Worksheet,Tab,"property, read-only",As Tab,,MISSING,,
+Worksheet,Tab,"property, read-only",As Tab,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"The sheet's tab, whose colour a save keeps as the sheetPr's tabColor and a copied sheet carries."
 Worksheet,TableUpdate,event,TableUpdate(Target As TableObject),,MISSING,,
 Worksheet,TransitionExpEval,property,As Boolean,,MISSING,,
 Worksheet,TransitionFormEntry,property,As Boolean,,MISSING,,

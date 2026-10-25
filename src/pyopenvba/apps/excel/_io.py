@@ -18,7 +18,7 @@ import re
 from collections.abc import Callable, Collection
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, Final, NamedTuple
 
 from pyopenvba._a1 import Area, column_letter, column_number, parse_area, parse_reference, split_sheet
 from pyopenvba._relationships import in_office_order
@@ -139,7 +139,8 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
     read_date_system(book, workbook_part)
     read_links(book, package, xml_tree(workbook_part))
-    relationships = _relationship_map(package)
+    linked = _relationships(package)
+    relationships = {key: part for key, (part, _kind) in linked.items()}
     strings = _shared_strings(package)
     stylesheet = book.stylesheet
     from pyopenvba.apps.excel import _dynamic_file
@@ -158,6 +159,9 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             numbers[identifier] = int(attributes["sheetId"])
     for name, relationship_id in sheet_entries(workbook_xml):
         part = relationships.get(relationship_id, "")
+        other = _OTHER_SHEETS.get(linked.get(relationship_id, ("", ""))[1])
+        if other is not None:
+            raise VBAUnsupportedError(f"opening a workbook with {other} is not implemented")
         sheet = book.add_sheet(name)
         sheet.sheet_id = numbers.get(relationship_id, sheet.sheet_id)
         sheet.part_name = part
@@ -223,6 +227,11 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
 def _relationship_map(package: OpcFile) -> dict[str, str]:
     """Each workbook relationship id against the part it names."""
+    return {key: part for key, (part, _kind) in _relationships(package).items()}
+
+
+def _relationships(package: OpcFile) -> dict[str, tuple[str, str]]:
+    """Each workbook relationship id against the part it names and the relationship's type."""
     if not package.has("xl/_rels/workbook.xml.rels"):
         return {}
     from pyopenvba.apps.excel._charts_file import xml_tree
@@ -231,14 +240,24 @@ def _relationship_map(package: OpcFile) -> dict[str, str]:
     root = xml_tree(package.read("xl/_rels/workbook.xml.rels"))
     if root.tag != namespace + 'Relationships':
         raise WorkbookFileError('The workbook relationships use an unsupported root or namespace')
-    out: dict[str, str] = {}
+    out: dict[str, tuple[str, str]] = {}
     for element in root.findall(namespace + 'Relationship'):
         attributes = element.attrib
         target = attributes.get("Target", "")
         if not target:
             continue
-        out[attributes.get("Id", "")] = target[1:] if target.startswith("/") else f"xl/{target.lstrip('/')}"
+        part = target[1:] if target.startswith("/") else f"xl/{target.lstrip('/')}"
+        out[attributes.get("Id", "")] = part, attributes.get("Type", "")
     return out
+
+
+#: The sheets other than worksheets a workbook's relationships name, as the model reports them.
+_OTHER_SHEETS: Final = {
+    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet": "a chart sheet",
+    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/dialogsheet": "a dialog sheet",
+    "http://schemas.microsoft.com/office/2006/relationships/xlMacrosheet": "an Excel 4 macro sheet",
+    "http://schemas.microsoft.com/office/2006/relationships/xlIntlMacrosheet": "an Excel 4 macro sheet",
+}
 
 
 def _shared_strings(package: OpcFile) -> list[str]:

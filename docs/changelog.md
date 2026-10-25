@@ -874,6 +874,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   named beyond ASCII stopped the collection being listed or added to.
   38 live names and 19 lookups agree, `tests/fixtures/style_order.json`.
 
+- Opening a workbook that holds a chart sheet, a dialog sheet or an
+  Excel 4 macro sheet reports itself unsupported. The model holds
+  worksheets alone. It read a chart sheet's part as a worksheet's and
+  stopped with a ValueError about its namespace.
+
 - A defined name beyond ASCII takes the place Excel gives it in the
   Names collection, in workbook.xml and among the named ranges app.xml
   lists: `eclair` before `éclair`, beside it, by Windows' word sort. The

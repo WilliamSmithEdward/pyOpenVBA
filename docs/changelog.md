@@ -7,6 +7,30 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbook.BuiltinDocumentProperties` and `CustomDocumentProperties`
+  read, set, add, rename, retype, link and delete a workbook's
+  properties as Excel does. A new workbook's author is the user, its
+  company empty and its creation date the moment it was made; a file's
+  properties are what its docProps parts keep. A value set turns into
+  the property's type as Office turns a Variant, a Boolean -1 or 0 in
+  text, and each error is Excel's, its number and description.
+  Office keeps a date to the second in UTC, by the machine's time zone
+  as Windows gives it year by year, so a time in the hour the clock
+  skips reads back an hour early, a date before day zero is kept a day
+  early, and one before 1601 fails, as in Excel. A custom property
+  linked to a named range takes the range's first cell's value, and its
+  type, when the workbook is saved. A save writes the last author, the
+  save time, a creation date where there is none, and core.xml, app.xml
+  and custom.xml byte for byte: each property where Excel keeps it,
+  control characters escaped as Excel escapes them, and the sheets and
+  named ranges Excel lists, with custom.xml's relationship and content
+  type coming and going with the custom properties. The model wrote the
+  template's own parts before, its author, dates and one sheet's name.
+  38 live cases agree, each workbook saved and opened again, and a live
+  gate has Excel read the model's files as its own. A custom.xml with a
+  value type Excel does not write is kept as it is, and its properties
+  report themselves unsupported.
+
 - `Range.Subtotal` and `Range.RemoveSubtotal` put subtotal rows into a
   list and take them out as Excel's Data > Subtotal does. A single cell
   takes the region around it and a larger range is cut to the cells the
@@ -841,6 +865,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - A Date may fall on 100-01-01 after midnight: -657434.5 is
   `1/1/100 12:00:00 PM`, as in VBA, where the model raised error 6 for
   any serial below -657434.
+
+- A defined name holding a backslash saves as it is. `a\b` was written
+  as `a` and a backspace, which the model could not read back: the
+  names went into workbook.xml as a regular expression's replacement.
+
+- An xlsx the model makes declares no bin parts in [Content_Types].xml,
+  as Excel's own does. The macro-enabled template it starts from kept
+  its vbaProject Default.
 
 - `Names.Add` spells a sheet in RefersTo as Excel does, quoted only
   where it has to be: `='Data'!$C$2` reads back `=Data!$C$2`.

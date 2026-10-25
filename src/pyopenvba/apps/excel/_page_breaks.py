@@ -212,6 +212,8 @@ def _line_of(before: object, rows: bool) -> int:
 class _Breaks(VBACollection, ExcelObject):
     """A sheet's horizontal or vertical breaks, as the collection counts them."""
 
+    #: No type of its own: the base HPageBreaks and VPageBreaks share.
+    vba_type_name = ""
     rows = True
 
     def __init__(self, sheet: Worksheet) -> None:
@@ -255,6 +257,8 @@ class VPageBreaks(_Breaks):
 class _Break(ExcelObject):
     """One manual break, before its row or column."""
 
+    #: No type of its own: the base HPageBreak and VPageBreak share.
+    vba_type_name = ""
     rows = True
 
     def __init__(self, sheet: Worksheet, line: int) -> None:

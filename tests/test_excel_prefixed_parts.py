@@ -9,6 +9,7 @@ cache's records.
 """
 from __future__ import annotations
 
+import datetime
 import json
 import re
 import zipfile
@@ -73,12 +74,20 @@ def test_a_copy_reads_as_excel_reads_it(case: dict[str, Any]) -> None:
     assert app.run("Read", str(FOLDER / f"{case['name']}.xlsx"), "") == case["answer"]
 
 
+def _saved(path: Path, target: Path) -> Path:
+    """A workbook opened and saved, its clock held still, so its save time is the same however long the save
+    takes."""
+    app = ExcelApplication.open(path, with_vba=False)
+    app.freeze_clock(datetime.datetime(2026, 10, 25, 12))
+    return app.save(target)
+
+
 @pytest.mark.parametrize("case", CASES, ids=lambda case: case["name"])
 def test_a_copy_saves_as_the_workbook_it_was_made_from(case: dict[str, Any], tmp_path: Path) -> None:
     """Saved with nothing changed, a copy holds what the workbook it was made from holds saved the same way, each
     part spelled as Excel's save spells it: the namespace the default, but in a pivot cache's records."""
-    copy = ExcelApplication.open(FOLDER / f"{case['name']}.xlsx", with_vba=False).save(tmp_path / "copy.xlsx")
-    source = ExcelApplication.open(FIXTURES / case["source"], with_vba=False).save(tmp_path / "source.xlsx")
+    copy = _saved(FOLDER / f"{case['name']}.xlsx", tmp_path / "copy.xlsx")
+    source = _saved(FIXTURES / case["source"], tmp_path / "source.xlsx")
     assert roots(copy) == case["resaved"]
     held, expected = parts(copy), parts(source)
     for name in case["resaved"]:

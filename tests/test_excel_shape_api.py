@@ -99,7 +99,10 @@ def test_snapshots_do_not_mutate_the_workbook_or_nested_controls(tmp_path: Path)
     assert sheet.shape("Group1").children[0].name != group.children[0].name
     out = tmp_path / "untouched.xlsm"
     app.save(out)
-    assert out.read_bytes() == FIXTURE.read_bytes()
+    before, after = parts(FIXTURE), parts(out)
+    # Every part as it was but core.xml, where every save writes the last author and the save time.
+    assert {name for name in before if before[name] != after[name]} == {"docProps/core.xml"}
+    assert after.keys() == before.keys()
 
 
 @pytest.mark.parametrize("kind", ["shape", "textBox", "formControl"])
@@ -137,7 +140,9 @@ def test_control_edits_preserve_sibling_controls_and_unrelated_parts(tmp_path: P
     app.save(out)
     before, after = parts(FIXTURE), parts(out)
     changed = {name for name in before if before[name] != after[name]}
-    assert changed == {"xl/worksheets/sheet1.xml", "xl/drawings/drawing1.xml", "xl/drawings/vmlDrawing1.vml"}
+    # core.xml too, where every save writes the last author and the save time.
+    assert changed == {"xl/worksheets/sheet1.xml", "xl/drawings/drawing1.xml", "xl/drawings/vmlDrawing1.vml",
+                       "docProps/core.xml"}
     vml_before = before["xl/drawings/vmlDrawing1.vml"].decode()
     vml_after = after["xl/drawings/vmlDrawing1.vml"].decode()
     for name in ("Check1", "Drop1"):

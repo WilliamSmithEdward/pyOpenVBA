@@ -1563,6 +1563,38 @@ def test_excel_reads_the_filters_this_wrote(tmp_path: Path) -> None:
         assert read[case["name"]] == case["reopened"], case["name"]
 
 
+def test_excel_reads_the_renamed_table_workbooks_this_wrote(tmp_path: Path) -> None:
+    """Every case tests/fixtures/rename_tables.json measured, a sheet renamed in a workbook that holds a table, made by
+    the model and saved: Excel opens each file and reads the sheets, the table and every cell as it read its own."""
+    import json
+
+    harness = pytest.importorskip("pyvbaharness")
+    record = json.loads((Path(__file__).parent / "fixtures" / "rename_tables.json").read_text(encoding="utf-8"))
+    paths: dict[str, Path] = {}
+    for name, case in record["cases"].items():
+        paths[name] = tmp_path / f"{name}.xlsx"
+        app = ExcelApplication()
+        app.add_workbook()
+        app.add_module(case["code"], name="Probe")
+        assert app.run(f"Case_{name}", str(paths[name])) == case["answer"]
+    read: dict[str, str] = {}
+    with harness.ExcelSession(harness.HarnessConfig(lock_wait_s=45.0)) as excel:
+        for name, case in record["cases"].items():
+            reader = (record["helper"] + "Public Function Report() As String\n"
+                      "    Dim wb As Object, ws As Object, other As Object, t As Object, out As String\n"
+                      "    Set wb = ActiveWorkbook\n    Set ws = wb.Worksheets(1)\n    Set other = wb.Worksheets(2)\n"
+                      "    Set t = ws.ListObjects(1)\n"
+                      '    out = ws.Name & "|" & other.Name & "|" & t.Name & "|" & t.Range.Address\n'
+                      + "".join(f'    out = out & "|" & Shown({cell})\n' for cell in case["cells"])
+                      + "    Report = out\nEnd Function\n")
+            excel.open_document(paths[name])
+            result = excel.run_vba(reader, "Report", timeout=120.0)
+            assert result.ok, result.message
+            read[name] = str(result.value)
+    for name, case in record["cases"].items():
+        assert read[name] == case["answer"], name
+
+
 def test_excel_reads_the_text_filters_this_wrote(tmp_path: Path) -> None:
     """Filters over text beyond ASCII (tests/fixtures/filter_text.json), an =, a wildcard pattern and a list, made by
     the model and saved: Excel opens the file and reads the rows each hides and its criteria as the model has them."""

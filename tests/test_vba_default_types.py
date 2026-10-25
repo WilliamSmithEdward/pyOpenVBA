@@ -80,7 +80,7 @@ def test_native_excel_reads_default_type_project(tmp_path: Path) -> None:
         assert not any(event.get('dialogs') for event in excel.events)
 
 
-@pytest.mark.parametrize('name', ['demand_missing_label', 'demand_invalid_exit', 'demand_optional_default', 'demand_deftype_body'])
+@pytest.mark.parametrize('name', ['demand_missing_label', 'demand_invalid_exit', 'demand_deftype_body'])
 def test_deferred_procedure_error_still_fails_when_called(name: str) -> None:
     case = next(case for case in RECORD['probes'] if case['name'] == name)
     app = ExcelApplication()
@@ -89,4 +89,15 @@ def test_deferred_procedure_error_still_fails_when_called(name: str) -> None:
     assert app.run('Harness.Probe') == 'done'
     with pytest.raises(VBACompileError):
         app.run('Harness.Unused')
+    assert app.run('Harness.Probe') == 'done'
+
+
+def test_an_optional_integer_without_a_default_is_no_error_when_called() -> None:
+    # Native VBA compiles Optional value As Integer (tests/fixtures/vba_semantics/optional_types.json, integer).
+    case = next(case for case in RECORD['probes'] if case['name'] == 'demand_optional_default')
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(case['source'], name='Harness')
+    assert app.run('Harness.Probe') == 'done'
+    app.run('Harness.Unused')
     assert app.run('Harness.Probe') == 'done'

@@ -504,6 +504,7 @@ class Parser:
                 self.fail(f"expected a parameter name but found {token.text!r}")
             param.name = strip_suffix(token.text)
             param.declared = default_type(token.text, self.default_types)
+            param.deftyped = not token.declared
             if self.at_op("("):
                 self.advance()
                 self.expect_op(")")
@@ -512,6 +513,10 @@ class Parser:
                 if token.declared:
                     self.fail('A type character cannot be combined with an As clause')
                 param.declared = self._parse_type_name()
+                param.deftyped = False
+                if "*" in param.declared:
+                    # A fixed-length String is no parameter's type, native VBA's compiler says so this way.
+                    self.fail("Expected array")
             if self.accept_op("="):
                 param.default = self._parse_expression()
                 param.optional = True

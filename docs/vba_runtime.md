@@ -247,8 +247,15 @@ shapes, `For`, `For Each`, `Do` in all four, `While`, `Select Case`,
 `On Error` with `Resume`, `ReDim`,
 `Erase`, the `Mid` statement, `Type` and `Enum`, class modules with
 `Property Get/Let/Set` and `Class_Initialize`, `ByRef` and `ByVal`,
-`Optional` with defaults, `ParamArray`, named arguments, `Static`
-locals, and conditional compilation.
+`Optional` with and without defaults, `ParamArray`, named arguments,
+`Static` locals, and conditional compilation.
+
+An `Optional` parameter typed by `As` or a type character needs no
+default: left out, it holds its type's empty value, 0, False, "",
+12:00:00 AM or Nothing, and `IsMissing` is False. One a `DefType` types
+without a default, and an optional array, are compile errors, and a
+fixed-length String is no parameter's type, as native VBA's compiler
+says over 29 live declarations (`tests/fixtures/vba_semantics/optional_types.json`).
 
 `GoSub` uses the current procedure's variables and returns to the statement
 after its call, including inside a loop. Nested calls return in reverse

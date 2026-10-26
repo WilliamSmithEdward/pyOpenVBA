@@ -500,10 +500,11 @@ def text_writer(file_format: int) -> TextWriter | None:
     return _WRITERS.get(file_format)
 
 
-def save_text(book: Workbook, target: Path, file_format: int) -> None:
-    """The workbook's active sheet written to ``target`` as SaveAs writes ``file_format`` (see the module's notes)."""
+def save_text(book: Workbook, target: Path, file_format: int, sheet: Worksheet | None = None) -> None:
+    """A sheet written to ``target`` as SaveAs writes ``file_format`` (see the module's notes): the one whose
+    Worksheet.SaveAs runs, or the workbook's active sheet (tests/fixtures/sheet_save_as.json)."""
     writer = text_writer(file_format)
-    sheet = book.active_sheet
+    sheet = sheet or book.active_sheet
     if writer is None or sheet is None:
         raise VBAUnsupportedError(f"saving FileFormat {file_format} as text is not implemented")
     bounds = sheet.used_bounds()
@@ -520,17 +521,17 @@ def save_text(book: Workbook, target: Path, file_format: int) -> None:
     target.write_bytes(writer.bom + text.encode(writer.encoding, errors=errors))
 
 
-def saved_as_text(book: Workbook, file_format: int) -> None:
-    """What a SaveAs in a text format leaves of the workbook: the FileFormat Excel answers, and the active sheet
-    named after the file (tests/fixtures/text_saves.json)."""
+def saved_as_text(book: Workbook, file_format: int, sheet: Worksheet | None = None) -> None:
+    """What a SaveAs in a text format leaves of the workbook: the FileFormat Excel answers, and the sheet it wrote,
+    the active one or the one whose Worksheet.SaveAs ran, named after the file, active or not
+    (tests/fixtures/text_saves.json, tests/fixtures/sheet_save_as.json)."""
+    from pyopenvba.apps.excel import _names
     from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
     from pyopenvba.apps.excel._worksheet_rename import rename
 
-    from pyopenvba.apps.excel import _names
-
     writer = _WRITERS[file_format]
     book.format_code = writer.answers
-    sheet = book.active_sheet
+    sheet = sheet or book.active_sheet
     if writer.renames and sheet is not None:
         wanted = _parenthesized(Path(book.name).stem)[:_LONGEST_SHEET_NAME]
         # A name another sheet has already leaves the sheet its own.

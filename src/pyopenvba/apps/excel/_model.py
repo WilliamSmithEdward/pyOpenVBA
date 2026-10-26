@@ -867,6 +867,17 @@ class Application(ExcelObject):
         return "\n".join(lines)
 
 
+def refuse_save_options(password: object, reservation: object, recommended: object, backup: object) -> None:
+    """SaveAs's options the model does not save with: a password to open or to change the file, a recommendation
+    to open it read-only, and a backup."""
+    for name, value in (("Password", password), ("WriteResPassword", reservation)):
+        if value is not MISSING and to_text(value):
+            raise VBAUnsupportedError(f"SaveAs with a {name} is not implemented")
+    for name, value in (("ReadOnlyRecommended", recommended), ("CreateBackup", backup)):
+        if value is not MISSING and to_bool(value):
+            raise VBAUnsupportedError(f"SaveAs with {name} True is not implemented")
+
+
 def _measure(value: object) -> float:
     """A length InchesToPoints or CentimetersToPoints takes, converted as a Double argument converts it."""
     if value is MISSING:
@@ -1312,7 +1323,7 @@ class Workbook(ExcelObject):
         saving = SaveChanges is not MISSING and to_bool(SaveChanges) and not self.saved
         # Filename asks Excel to save first, before it raises BeforeClose.
         if saving and Filename is not MISSING:
-            if not self._save_as(Filename):
+            if not self.save_as(Filename):
                 return EMPTY
         if not _events.before_close(self):
             return EMPTY
@@ -1354,20 +1365,16 @@ class Workbook(ExcelObject):
         """SaveAs in a workbook format or a text one (see _text_files). ConflictResolution, AddToMru,
         TextCodepage, TextVisualLayout and Local change nothing in a file the model writes: it shares no workbook,
         and Local's list separator is a comma on its US English system (tests/fixtures/text_saves.json)."""
-        for name, value in (("Password", Password), ("WriteResPassword", WriteResPassword)):
-            if value is not MISSING and to_text(value):
-                raise VBAUnsupportedError(f"SaveAs with a {name} is not implemented")
-        for name, value in (("ReadOnlyRecommended", ReadOnlyRecommended), ("CreateBackup", CreateBackup)):
-            if value is not MISSING and to_bool(value):
-                raise VBAUnsupportedError(f"SaveAs with {name} True is not implemented")
+        refuse_save_options(Password, WriteResPassword, ReadOnlyRecommended, CreateBackup)
         if AccessMode is not MISSING and int(to_integer(AccessMode, "Long")) == 2:
             raise VBAUnsupportedError("SaveAs with AccessMode xlShared is not implemented")
         if WorkIdentity is not MISSING:
             raise VBAUnsupportedError("SaveAs with a WorkIdentity is not implemented")
-        self._save_as(Filename, FileFormat)
+        self.save_as(Filename, FileFormat)
         return EMPTY
 
-    def _save_as(self, Filename: object, FileFormat: object = MISSING) -> bool:
+    def save_as(self, Filename: object, FileFormat: object = MISSING, sheet: Worksheet | None = None) -> bool:
+        """SaveAs; ``sheet`` is the sheet a text format writes, the active one where it is None."""
         from pyopenvba.apps.excel._text_files import text_writer
 
         if Filename is MISSING:
@@ -1392,7 +1399,7 @@ class Workbook(ExcelObject):
         if writer is None and target.suffix.lower() != expected:
             _events.after_save(self, False)
             raise error(1004, "SaveAs filename does not match FileFormat")
-        return self.save_to(target, before=False, file_format=chosen)
+        return self.save_to(target, before=False, file_format=chosen, sheet=sheet)
 
     @method
     def SaveCopyAs(self, Filename: object = MISSING) -> object:
@@ -1406,14 +1413,16 @@ class Workbook(ExcelObject):
         save_copy(self, Filename)
         return EMPTY
 
-    def save_to(self, target: Path, *, before: bool = True, file_format: int | None = None, create_parents: bool = False) -> bool:
+    def save_to(self, target: Path, *, before: bool = True, file_format: int | None = None, create_parents: bool = False,
+                sheet: Worksheet | None = None) -> bool:
         from pyopenvba.apps.excel._io import prepare_format, save_workbook
         from pyopenvba.apps.excel._text_files import save_text, saved_as_text, text_writer
 
         if before and not _events.before_save(self):
             _events.after_save(self, False)
             return False
-        # A text format writes the active sheet as text; a SaveAs in one names the file's, Save keeps it.
+        # A text format writes one sheet as text, ``sheet`` or the active one; a SaveAs in one names it after the
+        # file, Save keeps its name.
         written = file_format if file_format is not None else self.format_code
         text = written is not None and text_writer(written) is not None
         if file_format is not None and not text:
@@ -1423,7 +1432,7 @@ class Workbook(ExcelObject):
         try:
             if text:
                 assert written is not None
-                save_text(self, target, written)
+                save_text(self, target, written, sheet)
             else:
                 save_workbook(self, target)
         except OSError as failure:
@@ -1431,7 +1440,7 @@ class Workbook(ExcelObject):
         self.path = str(target.resolve().parent)
         self.name = target.name
         if text and file_format is not None:
-            saved_as_text(self, file_format)
+            saved_as_text(self, file_format, sheet)
         # A text file holds one sheet, which leaves a workbook of more to save (tests/fixtures/text_saves.json).
         self.saved = not text or len(self.sheets_) == 1
         # A file of its own is the workbook's to change (tests/fixtures/text_files.json, readonly_saveas_other).
@@ -2261,6 +2270,17 @@ class Worksheet(ExcelObject):
 
         self.guard_structure(Before, After, COPYING, "Copying")
         return copy_sheet(self, Before, After)
+
+    @method
+    def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING, Password: object = MISSING,
+               WriteResPassword: object = MISSING, ReadOnlyRecommended: object = MISSING,
+               CreateBackup: object = MISSING, AddToMru: object = MISSING, TextCodepage: object = MISSING,
+               TextVisualLayout: object = MISSING, Local: object = MISSING) -> object:
+        """The workbook's SaveAs, but a text format writes this sheet, which takes the file's name, active or not
+        (see _text_files, tests/fixtures/sheet_save_as.json)."""
+        refuse_save_options(Password, WriteResPassword, ReadOnlyRecommended, CreateBackup)
+        self.book.save_as(Filename, FileFormat, sheet=self)
+        return EMPTY
 
     @method
     def Move(self, Before: object = MISSING, After: object = MISSING) -> object:

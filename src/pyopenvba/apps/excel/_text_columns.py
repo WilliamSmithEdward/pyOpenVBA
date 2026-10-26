@@ -28,7 +28,11 @@ tests/fixtures/text_to_columns.json):
   do not number the columns 1, 2, 3... in order do something else in
   Excel, not worked out.
 - Fixed width cuts each line where FieldInfo's pairs start, counted from
-  the line's first character.
+  the line's first character, and takes the spaces from round each field.
+- A delimiter, or ConsecutiveDelimiter, left out is the one the session
+  last split at, whether TextToColumns, Workbooks.OpenText or
+  Workbooks.Open's Format named it; one given is kept for the calls after
+  (see _text_files, tests/fixtures/open_text.json).
 """
 
 from __future__ import annotations
@@ -46,7 +50,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._typing import Typed
 
 DELIMITED, FIXED_WIDTH = 1, 2
-_QUALIFIERS = {1: '"', 2: "'", -4142: None}
+QUALIFIERS = {1: '"', 2: "'", -4142: None}
 GENERAL, TEXT, MDY, DMY, YMD, MYD, DYM, YDM, SKIP = 1, 2, 3, 4, 5, 6, 7, 8, 9
 #: The order of the day, month and year each date kind reads, by the letter each stands for.
 _ORDERS = {MDY: "mdy", DMY: "dmy", YMD: "ymd", MYD: "myd", DYM: "dym", YDM: "ydm"}
@@ -84,13 +88,14 @@ def text_to_columns(target: Range, destination: object, data_type: object, text_
     kind = DELIMITED if data_type is MISSING else int(to_integer(data_type, "Long"))
     if kind not in (DELIMITED, FIXED_WIDTH):
         raise error(1004, "Text to Columns has no such DataType")
-    info = _field_info(field_info, fixed=kind == FIXED_WIDTH)
-    delimiters = {mark for flag, mark in ((tab, "\t"), (semicolon, ";"), (comma, ","), (space, " "))
-                  if flag is not MISSING and to_bool(flag)}
-    if other is not MISSING and to_bool(other) and other_char is not MISSING and to_text(other_char):
-        delimiters.add(to_text(other_char)[0])
-    quote = _QUALIFIERS.get(1 if text_qualifier is MISSING else int(to_integer(text_qualifier, "Long")), '"')
-    merging = consecutive is not MISSING and to_bool(consecutive)
+    info = field_info_pairs(field_info, fixed=kind == FIXED_WIDTH)
+    # A delimiter or ConsecutiveDelimiter left out is the one the session last split at (see _text_files).
+    settings = sheet.book.application.text_import
+    settings.take(tab=tab, comma=comma, semicolon=semicolon, space=space, other=other, other_char=other_char,
+                  consecutive=consecutive)
+    delimiters = settings.delimiters()
+    quote = QUALIFIERS.get(1 if text_qualifier is MISSING else int(to_integer(text_qualifier, "Long")), '"')
+    merging = settings.consecutive
     separators = ("." if decimal is MISSING else to_text(decimal)[:1] or ".",
                   "," if thousands is MISSING else to_text(thousands)[:1] or ",")
     minus = trailing_minus is not MISSING and to_bool(trailing_minus)
@@ -107,11 +112,10 @@ def text_to_columns(target: Range, destination: object, data_type: object, text_
             # A number, a date or nothing is one field that stays as it is.
             rows.append((None, value))
             continue
-        fields = [value[start:end] for start, end in _cuts(value, info)] if kind == FIXED_WIDTH \
-            else _fields(value, delimiters, quote, merging)
+        fields = fixed_fields(value, info) if kind == FIXED_WIDTH else split_fields(value, delimiters, quote, merging)
         rows.append((fields, None))
     kinds = [one for _, one in info] if info else []
-    width = max((len(_kept(fields, kinds)) for fields, _ in rows if fields is not None), default=1)
+    width = max((len(kept_fields(fields, kinds)) for fields, _ in rows if fields is not None), default=1)
     corner_row, corner_column = top, area.left
     if isinstance(destination, Range):
         # The destination's sheet makes no difference: the block lands on the source's (tests/fixtures/).
@@ -139,12 +143,12 @@ def text_to_columns(target: Range, destination: object, data_type: object, text_
                     _clear(written, row, column, column)
                     continue
                 field, field_kind = kept[index]
-                _write(written, row, column, field, field_kind, separators, minus)
+                write_field(written, row, column, field, field_kind, separators, minus)
     _events.after_edit(written)
     return True
 
 
-def _field_info(value: object, *, fixed: bool) -> list[tuple[int, int]]:
+def field_info_pairs(value: object, *, fixed: bool) -> list[tuple[int, int]]:
     """FieldInfo's pairs, each a column's number, or where a fixed-width column starts, and its kind."""
     if value is MISSING:
         return []
@@ -173,14 +177,20 @@ def _field_info(value: object, *, fixed: bool) -> list[tuple[int, int]]:
     return pairs
 
 
-def _cuts(text: str, info: list[tuple[int, int]]) -> list[tuple[int, int]]:
+def cuts(text: str, info: list[tuple[int, int]]) -> list[tuple[int, int]]:
     """Where each fixed-width field of ``text`` starts and ends."""
     starts = [start for start, _ in info]
     return [(start, starts[index + 1] if index + 1 < len(starts) else len(text))
             for index, start in enumerate(starts) if start < len(text)]
 
 
-def _fields(text: str, delimiters: set[str], quote: str | None, merging: bool) -> list[str]:
+def fixed_fields(text: str, info: list[tuple[int, int]]) -> list[str]:
+    """A line cut into its fixed-width fields, each without the spaces round it, as Excel cuts one
+    (tests/fixtures/open_text.json)."""
+    return [text[start:end].strip(" ") for start, end in cuts(text, info)]
+
+
+def split_fields(text: str, delimiters: set[str], quote: str | None, merging: bool) -> list[str]:
     """A line split at its delimiters, a field in the qualifier kept whole."""
     fields: list[str] = []
     index, end = 0, len(text)
@@ -222,7 +232,7 @@ def _quoted(text: str, index: int, quote: str) -> tuple[str, int]:
     return value, index
 
 
-def _kept(fields: list[str], kinds: list[int]) -> list[str]:
+def kept_fields(fields: list[str], kinds: list[int]) -> list[str]:
     return [field for index, field in enumerate(fields) if (kinds[index] if index < len(kinds) else GENERAL) != SKIP]
 
 
@@ -244,7 +254,7 @@ def _put_value(target: Range, row: int, column: int, value: object) -> None:
     target.store_typed(row, column, Typed(value))
 
 
-def _write(target: Range, row: int, column: int, field: str, kind: int, separators: tuple[str, str],
+def write_field(target: Range, row: int, column: int, field: str, kind: int, separators: tuple[str, str],
            minus: bool) -> None:
     """One field written into its cell as a column of ``kind`` takes it.
 
@@ -287,9 +297,9 @@ def typed_field(field: str, current: str, separators: tuple[str, str] = (".", ",
     text = field
     decimal, thousands = separators
     if (decimal, thousands) != (".", ","):
-        swapped = field.replace(thousands, "\0").replace(decimal, ".").replace("\0", ",")
-        if not isinstance(typed_text(swapped).value, str):
-            text = swapped
+        # Read with the separators given alone: 234.5 is text where . separates thousands
+        # (tests/fixtures/open_text.json, separators).
+        text = field.replace(thousands, "\0").replace(decimal, ".").replace("\0", ",")
     trailing = _TRAILING_MINUS.fullmatch(text)
     if minus and trailing is not None:
         text = "-" + trailing.group(1)

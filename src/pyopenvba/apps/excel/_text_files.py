@@ -31,6 +31,29 @@ Measured in live Excel (scripts/measure_text_files.py, tests/fixtures/text_files
   and has one sheet, named after the file without its extension, cut to
   31 characters.
 
+Workbooks.OpenText reads a text file with the arguments it is given
+(scripts/measure_open_text.py, tests/fixtures/open_text.json):
+
+- A .csv file reads as Workbooks.Open reads one, whatever the arguments.
+- Each line of any other file is a record, a line end in quotes ending
+  it too, split at the delimiters in force or cut at FieldInfo's fixed
+  widths, each fixed-width field without the spaces round it; StartRow's
+  lines before it are left out. A field is typed as TextToColumns types
+  it, its FieldInfo kind and the separators and trailing minus given
+  taken as TextToColumns takes them. The workbook is saved.
+- The delimiters, ConsecutiveDelimiter and Origin left out are those the
+  session last used (see ImportSettings); TextQualifier is a double
+  quote, StartRow 1 and DataType delimited where they are left out.
+- Origin's code page reads the bytes, a UTF-8 byte order mark left out;
+  UTF-16 reads after its own whatever the code page. The workbook
+  answers xlCurrentPlatformText, xlUnicodeText for UTF-16, and after a
+  UTF-8 byte order mark xlCSVUTF8, or 65 where OpenText is given only
+  its Filename.
+- Not read here: DataType left out of text holding spaces and none of
+  the delimiters, and fixed widths with no FieldInfo, where Excel guesses
+  the columns; a field of 32,759 characters or more, which Excel cuts to
+  a length that varies with it; and the Macintosh code page past ASCII.
+
 Workbook.SaveAs in a text format writes the active sheet alone
 (scripts/measure_text_saves.py, tests/fixtures/text_saves.json):
 
@@ -67,7 +90,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import ExcelError
-from pyopenvba.interpreter._values import EMPTY, MISSING, to_integer, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Application, Workbook, Worksheet
@@ -86,9 +109,54 @@ _SHORTEST_CSV = 4
 _LONGEST_FIELD = 32759
 _TAB_STOP = 8
 _LONGEST_SHEET_NAME = 31
+#: The code page each of OpenText's Origins names: xlMacintosh, xlWindows and xlMSDOS; any other is a code page.
+_ORIGINS = {1: 10000, 2: 1252, 3: 437}
 #: Windows-1252's characters for the bytes 0x80 to 0x9F; the five it leaves out read as the control characters.
 _WINDOWS_1252 = {code: bytes([code]).decode("cp1252") for code in range(0x80, 0xA0)
                  if code not in (0x81, 0x8D, 0x8F, 0x90, 0x9D)}
+
+
+@dataclass(slots=True)
+class ImportSettings:
+    """What Excel remembers through a session of the text a macro last split: the delimiters, whether a run of
+    them is one, and OpenText's code page. Workbooks.OpenText and Range.TextToColumns use each one they are not
+    given and keep each one they are; Workbooks.Open's Format leaves its delimiter alone in force, and opening a
+    text file with Workbooks.Open puts the code page back to Windows-1252. TextQualifier, StartRow, FieldInfo, the
+    separators and TrailingMinusNumbers are not remembered (tests/fixtures/open_text.json)."""
+
+    tab: bool = True
+    comma: bool = False
+    semicolon: bool = False
+    space: bool = False
+    other: bool = False
+    other_char: str = ""
+    consecutive: bool = False
+    origin: int = 1252
+
+    def take(self, *, tab: object, comma: object, semicolon: object, space: object, other: object,
+             other_char: object, consecutive: object) -> None:
+        """The arguments a call gives, each kept for the calls after it."""
+        for name, value in (("tab", tab), ("comma", comma), ("semicolon", semicolon), ("space", space),
+                            ("other", other), ("consecutive", consecutive)):
+            if value is not MISSING:
+                setattr(self, name, to_bool(value))
+        if other_char is not MISSING:
+            self.other_char = to_text(other_char)[:1]
+
+    def delimiters(self) -> set[str]:
+        """The characters a line splits at."""
+        marks = {mark for flag, mark in ((self.tab, "\t"), (self.comma, ","), (self.semicolon, ";"),
+                                         (self.space, " ")) if flag}
+        if self.other and self.other_char:
+            marks.add(self.other_char)
+        return marks
+
+    def formatted(self, delimiter: str | None) -> None:
+        """What Workbooks.Open's Format leaves in force: its delimiter alone, or none."""
+        self.tab, self.comma, self.semicolon, self.space = (delimiter == mark for mark in ("\t", ",", ";", " "))
+        self.other = delimiter is not None and delimiter not in ("\t", ",", ";", " ")
+        if delimiter is not None and self.other:
+            self.other_char = delimiter
 
 
 def is_text(path: Path) -> bool:
@@ -97,8 +165,8 @@ def is_text(path: Path) -> bool:
 
 
 def remember_format(application: Application, format_: object, delimiter: object) -> int | None:
-    """Workbooks.Open's Format, which sets what later text files split at, whatever file this open reads; its
-    number, or None where it is left out."""
+    """Workbooks.Open's Format, which sets what later text files split at, whatever file this open reads, and what
+    OpenText and TextToColumns split at; its number, or None where it is left out."""
     if format_ is MISSING:
         return None
     code = int(to_integer(format_, "Long"))
@@ -111,6 +179,7 @@ def remember_format(application: Application, format_: object, delimiter: object
         application.text_delimiter = _FORMATS[code]
     else:
         raise VBAUnsupportedError(f"Workbooks.Open with Format {code} is not implemented: Format is 1 to 6")
+    application.text_import.formatted(application.text_delimiter)
     return code
 
 
@@ -158,6 +227,117 @@ def open_text(application: Application, path: Path, format_code: int | None) -> 
     # Formulas are worked out as the file opens, which leaves the workbook to save.
     book.saved = not formulas
     return book
+
+
+def open_text_with(application: Application, path: Path, *, origin: object, start_row: object, data_type: object,
+                   qualifier: object, consecutive: object, tab: object, semicolon: object, comma: object,
+                   space: object, other: object, other_char: object, field_info: object, decimal: object,
+                   thousands: object, trailing_minus: object, given: bool) -> Workbook:
+    """A workbook read from a text file as Workbooks.OpenText reads it (see the module's notes); ``given`` is whether
+    OpenText was given more than its Filename."""
+    from pyopenvba.apps.excel import _text_columns as columns
+    from pyopenvba.apps.excel._io import WorkbookFileError
+    from pyopenvba.apps.excel._model import Range, Workbook
+
+    settings = application.text_import
+    settings.take(tab=tab, comma=comma, semicolon=semicolon, space=space, other=other, other_char=other_char,
+                  consecutive=consecutive)
+    if origin is not MISSING:
+        code = int(to_integer(origin, "Long"))
+        settings.origin = _ORIGINS.get(code, code)
+    if not path.is_file():
+        raise WorkbookFileError(f"there is no file at {path}")
+    if path.suffix.lower() == ".csv":
+        # A .csv file reads as Workbooks.Open reads one, the arguments only remembered.
+        return open_text(application, path, None)
+    text, file_format = _imported(path.read_bytes(), settings.origin, given)
+    first = 1 if start_row is MISSING else int(to_integer(start_row, "Long"))
+    if first < 1:
+        raise VBAUnsupportedError("OpenText with a StartRow below 1 is not implemented")
+    lines = _lines(text)[first - 1:]
+    delimiters = settings.delimiters()
+    if data_type is MISSING:
+        if " " in text and not any(mark in text for mark in delimiters):
+            raise VBAUnsupportedError("OpenText without a DataType of text holding spaces and none of its delimiters "
+                                      "is not implemented: Excel may read it as fixed width, guessing the columns")
+        kind = columns.DELIMITED
+    else:
+        kind = int(to_integer(data_type, "Long"))
+        if kind not in (columns.DELIMITED, columns.FIXED_WIDTH):
+            raise VBAUnsupportedError(f"OpenText with DataType {kind} is not implemented")
+    if kind == columns.FIXED_WIDTH and field_info is MISSING:
+        raise VBAUnsupportedError("OpenText of fixed widths with no FieldInfo is not implemented: Excel guesses the "
+                                  "columns")
+    info = columns.field_info_pairs(field_info, fixed=kind == columns.FIXED_WIDTH)
+    quote = columns.QUALIFIERS.get(1 if qualifier is MISSING else int(to_integer(qualifier, "Long")), '"')
+    separators = ("." if decimal is MISSING else to_text(decimal)[:1] or ".",
+                  "," if thousands is MISSING else to_text(thousands)[:1] or ",")
+    minus = trailing_minus is not MISSING and to_bool(trailing_minus)
+    rows: list[list[str]] = []
+    for line in lines:
+        fields = columns.fixed_fields(line, info) if kind == columns.FIXED_WIDTH else \
+            columns.split_fields(line, delimiters, quote, settings.consecutive)
+        if any(len(field) >= _LONGEST_FIELD for field in fields):
+            raise VBAUnsupportedError("OpenText of a field of 32,759 characters or more is not implemented: Excel "
+                                      "cuts it to a length that varies with it and drops the rest of its line")
+        rows.append(fields)
+    if len(rows) > MAX_ROWS or any(len(fields) > MAX_COLUMNS for fields in rows):
+        raise VBAUnsupportedError("opening a text file past 1,048,576 lines or 16,384 fields is not implemented: "
+                                  "Excel loads part of it and warns")
+    book = Workbook(application, _parenthesized(path.name), str(path.parent))
+    sheet = book.add_sheet(_parenthesized(path.stem)[:_LONGEST_SHEET_NAME])
+    target = Range(sheet, [Area(1, 1, 1, 1, sheet.name)])
+    kinds = [one for _, one in info]
+    for row, fields in enumerate(rows, start=1):
+        kept = [(field, kinds[index] if index < len(kinds) else columns.GENERAL) for index, field in enumerate(fields)]
+        for column, (field, field_kind) in enumerate([one for one in kept if one[1] != columns.SKIP], start=1):
+            if field:
+                columns.write_field(target, row, column, field, field_kind, separators, minus)
+    book.format_code = file_format
+    # Unlike Workbooks.Open's, a workbook OpenText reads is saved, formulas and all.
+    book.saved = True
+    return book
+
+
+def _lines(text: str) -> list[str]:
+    """A text file's lines, which OpenText reads one record each, a line end in quotes ending its line too."""
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    if lines[-1] == "":
+        lines.pop()
+    return lines
+
+
+def _imported(data: bytes, code_page: int, given: bool) -> tuple[str, int]:
+    """A text file's text as OpenText reads it, and the FileFormat its workbook answers: UTF-16 after its byte order
+    mark, whatever the code page; anything else in the code page, a UTF-8 byte order mark left out, and the
+    workbook xlCSVUTF8 after one where OpenText is given more than its Filename, 65 where it is not."""
+    if data.startswith(_UTF16_BOM):
+        text, file_format = data[len(_UTF16_BOM):].decode("utf-16-le", errors="replace"), UNICODE_TEXT
+    else:
+        file_format = TEXT
+        if data.startswith(_UTF8_BOM):
+            data, file_format = data[len(_UTF8_BOM):], CSV_UTF8 if given else UTF8_TEXT
+        text = _in_code_page(data, code_page)
+    if "\0" in text:
+        raise VBAUnsupportedError("opening a text file that holds a NUL is not implemented: Excel refuses some such "
+                                  "files and drops the NULs of others")
+    return text, file_format
+
+
+def _in_code_page(data: bytes, code_page: int) -> str:
+    """Bytes read in a code page OpenText's Origin names."""
+    if code_page == 1252:
+        return data.decode("latin-1").translate(_WINDOWS_1252)
+    if code_page == 437:
+        return data.decode("cp437")
+    if code_page == 65001:
+        return data.decode("utf-8", errors="replace")
+    if code_page == 10000 and data.isascii():
+        return data.decode("ascii")
+    if code_page == 10000:
+        raise VBAUnsupportedError("OpenText of text past ASCII in the Macintosh code page is not implemented: Windows "
+                                  "reads some of its characters otherwise than the model can")
+    raise VBAUnsupportedError(f"OpenText of text in code page {code_page} is not implemented")
 
 
 def _parenthesized(name: str) -> str:

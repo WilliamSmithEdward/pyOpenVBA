@@ -276,6 +276,10 @@ class Application(ExcelObject):
         #: What a text file Workbooks.Open reads splits at, as the last Format it was given names, None for nothing
         #: (see _text_files.remember_format).
         self.text_delimiter: str | None = "\t"
+        from pyopenvba.apps.excel._text_files import ImportSettings
+
+        #: What OpenText and TextToColumns split at, and OpenText's code page, as the session last named them.
+        self.text_import = ImportSettings()
 
     # -- identity
 
@@ -864,7 +868,7 @@ class Workbooks(VBACollection, ExcelObject):
         """A workbook, or a CSV or text file read as Excel reads one (see _text_files). UpdateLinks, Password,
         WriteResPassword, IgnoreReadOnlyRecommended, Editable, Notify, AddToMru and Local change nothing for the
         files the model opens, which it neither updates links in nor decrypts (tests/fixtures/text_files.json)."""
-        from pyopenvba.apps.excel._text_files import remember_format
+        from pyopenvba.apps.excel._text_files import is_text, remember_format
 
         if Filename is MISSING:
             raise error(449)
@@ -882,6 +886,10 @@ class Workbooks(VBACollection, ExcelObject):
             raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
         format_code = remember_format(self.application, Format, Delimiter)
         read_only = ReadOnly is not MISSING and to_bool(ReadOnly)
+        if is_text(path):
+            # A text file Workbooks.Open reads puts OpenText's code page back to Windows-1252
+            # (tests/fixtures/open_text.json).
+            self.application.text_import.origin = 1252
         try:
             return self.open_file(path, read_only=read_only, format_code=format_code)
         except PowerQueryError:
@@ -893,10 +901,43 @@ class Workbooks(VBACollection, ExcelObject):
                               "is not valid. Verify that the file has not been corrupted and that the file extension "
                               "matches the format of the file.") from None
 
+    @method
+    def OpenText(self, Filename: object = MISSING, Origin: object = MISSING, StartRow: object = MISSING,
+                 DataType: object = MISSING, TextQualifier: object = MISSING, ConsecutiveDelimiter: object = MISSING,
+                 Tab: object = MISSING, Semicolon: object = MISSING, Comma: object = MISSING,
+                 Space: object = MISSING, Other: object = MISSING, OtherChar: object = MISSING,
+                 FieldInfo: object = MISSING, TextVisualLayout: object = MISSING, DecimalSeparator: object = MISSING,
+                 ThousandsSeparator: object = MISSING, TrailingMinusNumbers: object = MISSING,
+                 Local: object = MISSING) -> object:
+        """A text file read into a new workbook with the delimiters, start row, field kinds and code page given,
+        each one left out the session's as OpenText last read (see _text_files). TextVisualLayout and Local change
+        nothing on the model's US English system (tests/fixtures/open_text.json)."""
+        from pyopenvba.apps.excel._text_files import open_text_with
+
+        if Filename is MISSING:
+            raise error(449)
+        given = to_text(Filename)
+        arguments = (Origin, StartRow, DataType, TextQualifier, ConsecutiveDelimiter, Tab, Semicolon, Comma, Space,
+                     Other, OtherChar, FieldInfo, TextVisualLayout, DecimalSeparator, ThousandsSeparator,
+                     TrailingMinusNumbers, Local)
+
+        def read(path: Path) -> Workbook:
+            return open_text_with(
+                self.application, path, origin=Origin, start_row=StartRow, data_type=DataType,
+                qualifier=TextQualifier, consecutive=ConsecutiveDelimiter, tab=Tab, semicolon=Semicolon,
+                comma=Comma, space=Space, other=Other, other_char=OtherChar, field_info=FieldInfo,
+                decimal=DecimalSeparator, thousands=ThousandsSeparator, trailing_minus=TrailingMinusNumbers,
+                given=any(argument is not MISSING for argument in arguments))
+
+        if not Path(given).is_file():
+            raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
+        self.open_file(Path(given), reader=read)
+        return EMPTY
+
     def open_file(self, path: Path, *, with_vba: bool = True, read_only: bool = False,
-                  format_code: int | None = None) -> Workbook:
+                  format_code: int | None = None, reader: Callable[[Path], Workbook] | None = None) -> Workbook:
         """The workbook at ``path``, opened, or a CSV or text file read into one; ``format_code`` is the Format
-        Workbooks.Open was given (see _text_files)."""
+        Workbooks.Open was given, and ``reader`` reads the file in place of Open's way (see _text_files)."""
         from pyopenvba.apps.excel._io import load_workbook
         from pyopenvba.apps.excel._projects import attach_project, load_project
         from pyopenvba.apps.excel._text_files import is_text, open_text
@@ -908,8 +949,11 @@ class Workbooks(VBACollection, ExcelObject):
             return existing
         if any(book.name.casefold() == path.name.casefold() for book in self.books):
             raise error(1004, "A workbook with that name is already open")
-        text = is_text(path)
-        book = open_text(self.application, path, format_code) if text else load_workbook(self.application, path)
+        text = reader is not None or is_text(path)
+        if reader is not None:
+            book = reader(path)
+        else:
+            book = open_text(self.application, path, format_code) if text else load_workbook(self.application, path)
         book.read_only = read_only
         self.books.append(book)
         try:

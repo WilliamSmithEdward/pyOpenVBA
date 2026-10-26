@@ -57,13 +57,13 @@ Application,Calculation,property,As XlCalculation,,PARTIAL,tests/fixtures/full_c
 Application,CalculationInterruptKey,property,As XlCalculationInterruptKey,,PARTIAL,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"xlAnyKey until set; xlNoKey, xlEscKey and xlAnyKey read back, a value taken as a Long is and any other number error 1004, Null error 94 and other text error 13, over 17 live settings; the model is never interrupted"
 Application,CalculationState,"property, read-only",As XlCalculationState,,VERIFIED,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"xlCalculating while a formula's VBA Function runs; xlPending under manual calculation while a formula waits, after an edit a formula reads, a formula entered, a row put in, Range.Dirty or a file opened wanting a full calculation, but not a value nothing reads, a format, a name nothing names or a sheet added; xlPending for good once a ForceFullCalculation is True, over 24 live edits"
 Application,CalculationVersion,"property, read-only",As Long,,VERIFIED,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"191029, Excel 365's engine, as a Long"
-Application,Caller,"property, read-only",As Variant,,UNASSESSED,,
+Application,Caller,"property, read-only",As Variant,,PARTIAL,tests/fixtures/application_members.json,"The calling cell, or an array formula's whole block; #REF! from a macro. A shape's or a control's name is not measured."
 Application,CanPlaySounds,"property, read-only",As Boolean,,MISSING,,
 Application,CanRecordSounds,"property, read-only",As Boolean,,MISSING,,
 Application,Caption,property,As String,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads after the active window's caption and a dash, kept to 200 characters, an empty one Excel's own, over 11 live settings"
 Application,CellDragAndDrop,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Cells,"property, read-only",As Range,,UNASSESSED,,
-Application,CentimetersToPoints,method,CentimetersToPoints(Centimeters As Double) As Double,,MISSING,,
+Application,CentimetersToPoints,method,CentimetersToPoints(Centimeters As Double) As Double,,VERIFIED,tests/fixtures/application_members.json,"Centimeters * (72 / 2.54), the factor a Double first, to the bit over 32 values; text that is no number is error 13."
 Application,ChartDataPointTrack,property,As Boolean,,MISSING,,
 Application,Charts,"property, read-only",As Sheets,,MISSING,,
 Application,CheckAbort,method,CheckAbort([KeepAbort As Variant]),,MISSING,,
@@ -162,7 +162,7 @@ Application,Hinstance,"property, read-only",As Long,,MISSING,,
 Application,HinstancePtr,"property, read-only",As Variant,,MISSING,,
 Application,Hwnd,"property, read-only",As Long,,MISSING,,
 Application,IgnoreRemoteRequests,property,As Boolean,,MISSING,,
-Application,InchesToPoints,method,InchesToPoints(Inches As Double) As Double,,MISSING,,
+Application,InchesToPoints,method,InchesToPoints(Inches As Double) As Double,,VERIFIED,tests/fixtures/application_members.json,"Inches * 72 to the bit over 32 values; text that is no number is error 13, Null error 94."
 Application,InputBox,method,"InputBox(Prompt As String, [Title As Variant], [Default As Variant], [Left As Variant], [Top As Variant], [HelpFile As Variant], [HelpContextID As Variant], [Type As Variant]) As Variant",,MISSING,,
 Application,Interactive,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,International,"property, read-only",As Variant,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Every index 1 to 46 as en-US answers them, error 1004 outside; the model works in that locale only."
@@ -183,7 +183,7 @@ Application,MathCoprocessorAvailable,"property, read-only",As Boolean,,MISSING,,
 Application,MaxChange,property,As Double,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"Takes any number, 0 and negative ones among them, which stop no iteration early; text is error 13. An iteration stops once no number changes by it or more. calcPr iterateDelta saved where not 0.001, and brought by the first workbook opened."
 Application,MaxIterations,property,As Long,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"1 to 32767, rounded as a Long is; outside that error 1004, overflow error 6, the setting kept. calcPr iterateCount saved where not 100, and brought by the first workbook opened."
 Application,MaxSupportedCompatibilityVersion,"property, read-only",As Long,,MISSING,,
-Application,MeasurementUnit,property,As Long,,MISSING,,
+Application,MeasurementUnit,property,As Long,no setter,PARTIAL,tests/fixtures/application_members.json,"xlInches, as US English Windows has it; setting it is not implemented."
 Application,MergeInstances,property,As Boolean,,MISSING,,
 Application,MouseAvailable,"property, read-only",As Boolean,,MISSING,,
 Application,MoveAfterReturn,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
@@ -202,11 +202,11 @@ Application,OnRepeat,method,"OnRepeat(Text As String, Procedure As String)",,MIS
 Application,OnTime,method,"OnTime(EarliestTime As Variant, Procedure As String, [LatestTime As Variant], [Schedule As Variant])",,MISSING,,
 Application,OnUndo,method,"OnUndo(Text As String, Procedure As String)",,MISSING,,
 Application,OnWindow,property,As String,,MISSING,,
-Application,OperatingSystem,"property, read-only",As String,,MISSING,,
+Application,OperatingSystem,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,"Windows (64-bit) NT 10.00, as Excel answers on 64-bit Windows 10 and 11."
 Application,OrganizationName,"property, read-only",As String,,MISSING,,
 Application,Parent,"property, read-only",As Application,,UNASSESSED,,
 Application,Path,"property, read-only",As String,,UNASSESSED,,
-Application,PathSeparator,"property, read-only",As String,,MISSING,,
+Application,PathSeparator,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,"\, as Excel on Windows answers."
 Application,PivotTableSelection,property,As Boolean,,MISSING,,
 Application,PreviousSelections,"property, read-only",As Variant,,MISSING,,
 Application,PrintCommunication,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"False holds PageSetup settings back: they read as before and a save writes them as before, until True applies them in order, dropping any Excel refuses; the print names apply at once; over 17 live cases"
@@ -256,7 +256,7 @@ Application,SheetPivotTableBeforeDiscardChanges,event,"SheetPivotTableBeforeDisc
 Application,SheetPivotTableUpdate,event,"SheetPivotTableUpdate(Sh As Object, Target As PivotTable)",,MISSING,,
 Application,Sheets,"property, read-only",As Sheets,,UNASSESSED,,
 Application,SheetSelectionChange,event,"SheetSelectionChange(Sh As Object, Target As Range)",,MISSING,,
-Application,SheetsInNewWorkbook,property,As Long,,MISSING,,
+Application,SheetsInNewWorkbook,property,As Long,,VERIFIED,tests/fixtures/application_members.json,"1 to 255, rounded as a Long rounds, error 1004 past them and 13 for text; Workbooks.Add with no template makes that many sheets, Sheet1 on."
 Application,SheetTableUpdate,event,"SheetTableUpdate(Sh As Object, Target As TableObject)",,MISSING,,
 Application,ShowChartTipNames,property,As Boolean,,MISSING,,
 Application,ShowChartTipValues,property,As Boolean,,MISSING,,
@@ -277,7 +277,7 @@ Application,StandardFontSize,property,As Double,,PARTIAL,tests/fixtures/column_a
 Application,StartupPath,"property, read-only",As String,,MISSING,,
 Application,StatusBar,property,As Variant,,PARTIAL,tests/fixtures/excel_everyday_3.json; tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"False, a Boolean, until a macro sets it, then text: what a macro set as Excel spells it, FALSE once a macro gives the bar back"
 Application,TemplatesPath,"property, read-only",As String,,MISSING,,
-Application,ThisCell,"property, read-only",As Range,,MISSING,,
+Application,ThisCell,"property, read-only",As Range,,VERIFIED,tests/fixtures/application_members.json,"The cell whose formula runs the Function, an array formula's first cell; error 1004 from a macro."
 Application,ThisWorkbook,"property, read-only",As Workbook,,UNASSESSED,,
 Application,ThousandsSeparator,property,As String,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,Reads the en-US separator; setting another is refused as unsupported.
 Application,Top,property,As Double,,MISSING,,
@@ -294,7 +294,7 @@ Application,UserControl,property,As Boolean,,PARTIAL,tests/fixtures/application_
 Application,UserLibraryPath,"property, read-only",As String,,MISSING,,
 Application,UserName,property,As String,,UNASSESSED,,
 Application,UseSystemSeparators,property,As Boolean,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Reads True; turning it off changes nothing shown, since the custom separators are the system's."
-Application,Value,"property, read-only",As String,,MISSING,,
+Application,Value,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,Microsoft Excel.
 Application,VBE,"property, read-only",As VBE,,MISSING,,
 Application,Version,"property, read-only",As String,,UNASSESSED,,
 Application,Visible,property,As Boolean,,UNASSESSED,,

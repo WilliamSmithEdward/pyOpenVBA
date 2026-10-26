@@ -280,6 +280,8 @@ class Application(ExcelObject):
 
         #: What OpenText and TextToColumns split at, and OpenText's code page, as the session last named them.
         self.text_import = ImportSettings()
+        #: Application.SheetsInNewWorkbook, Excel's own default until a macro sets it.
+        self.sheets_in_new_workbook = 1
 
     # -- identity
 
@@ -624,6 +626,59 @@ class Application(ExcelObject):
     def Path(self) -> object:
         return str(Path.cwd())
 
+    @member
+    def PathSeparator(self) -> object:
+        """The separator of Windows paths, which the model's Excel runs on (tests/fixtures/application_members.json)."""
+        return "\\"
+
+    @member
+    def Value(self) -> object:
+        return "Microsoft Excel"
+
+    @member
+    def OperatingSystem(self) -> object:
+        """What Excel answers on 64-bit Windows 10 and 11 (tests/fixtures/application_members.json)."""
+        return "Windows (64-bit) NT 10.00"
+
+    @member
+    def MeasurementUnit(self) -> object:
+        """xlInches, as US English Windows has it."""
+        return VBAInt(0, "Long")
+
+    @method
+    def InchesToPoints(self, Inches: object = MISSING) -> object:
+        """Inches * 72 (tests/fixtures/application_members.json)."""
+        return _measure(Inches) * 72
+
+    @method
+    def CentimetersToPoints(self, Centimeters: object = MISSING) -> object:
+        """Centimeters * (72 / 2.54), the factor rounded to a Double first, to the bit over 32 live values
+        (tests/fixtures/application_members.json)."""
+        return _measure(Centimeters) * (72 / 2.54)
+
+    @member
+    def SheetsInNewWorkbook(self) -> object:
+        """How many sheets Workbooks.Add with no template makes."""
+        return VBAInt(self.sheets_in_new_workbook, "Long")
+
+    @setter("SheetsInNewWorkbook")
+    def _set_sheets_in_new_workbook(self, value: object) -> None:
+        """1 to 255, rounded as a Long rounds; anything else error 1004 (tests/fixtures/application_members.json)."""
+        count = int(to_integer(value, "Long"))
+        if not 1 <= count <= 255:
+            raise error(1004, "Method 'SheetsInNewWorkbook' of object '_Application' failed")
+        self.sheets_in_new_workbook = count
+
+    @member
+    def ThisCell(self) -> object:
+        """The cell whose formula is running the VBA Function that asks: an array formula's first cell, where Caller
+        is the whole array; from anything else error 1004 (tests/fixtures/application_members.json)."""
+        if not self.udf_callers:
+            raise error(1004, "Method 'ThisCell' of object '_Application' failed")
+        caller = self.udf_callers[-1]
+        area = caller.first
+        return Range(caller.sheet, [Area(area.top, area.left, area.top, area.left, caller.sheet.name)])
+
     # -- methods
 
     @method
@@ -812,6 +867,13 @@ class Application(ExcelObject):
         return "\n".join(lines)
 
 
+def _measure(value: object) -> float:
+    """A length InchesToPoints or CentimetersToPoints takes, converted as a Double argument converts it."""
+    if value is MISSING:
+        raise error(449)
+    return float(to_number(value))
+
+
 # --- workbooks -----------------------------------------------------------------------------
 
 
@@ -850,7 +912,9 @@ class Workbooks(VBACollection, ExcelObject):
         if Template is not MISSING and Template != -4167:
             raise VBAUnsupportedError("Only worksheet workbooks are supported by Workbooks.Add")
         book = Workbook(self.application, self.next_name("Book" if Template is MISSING else "Sheet"))
-        book.add_sheet("Sheet1")
+        # A workbook with no template has SheetsInNewWorkbook sheets, Sheet1 on (tests/fixtures/application_members.json).
+        for number in range(1, (self.application.sheets_in_new_workbook if Template is MISSING else 1) + 1):
+            book.add_sheet(f"Sheet{number}")
         book.saved = True
         self.books.append(book)
         from pyopenvba.apps.excel._projects import attach_project

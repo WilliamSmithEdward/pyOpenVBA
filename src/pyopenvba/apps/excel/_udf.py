@@ -128,10 +128,17 @@ def running(application: Application, caller: Range) -> Generator[None]:
 
 
 def _cell(book: Workbook, context: Context) -> Range:
+    """What Application.Caller answers: the cell whose formula calls, or an array formula's whole block, which
+    Excel works the function out for once (tests/fixtures/application_members.json)."""
     from pyopenvba._a1 import Area
     from pyopenvba.apps.excel._model import Range
 
     sheet = book.sheet_named(context.sheet)
+    if context.array:
+        block = next((area for area in sheet.array_formulas.values() if area.contains(context.row, context.column)),
+                     None)
+        if block is not None:
+            return Range(sheet, [Area(block.top, block.left, block.bottom, block.right, sheet.name)])
     return Range(sheet, [Area(context.row, context.column, context.row, context.column, sheet.name)])
 
 

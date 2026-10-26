@@ -1,9 +1,9 @@
 {
   "yara_forge": {
-    "release": "20261018",
+    "release": "20261026",
     "asset": "yara-forge-rules-full.zip",
-    "url": "https://github.com/YARAHQ/yara-forge/releases/download/20261018/yara-forge-rules-full.zip",
-    "sha256": "c6a860533194d8c1209bc066c6dc6df9ecb0a2f9b7fc4104a5d87d0d3a651b73"
+    "url": "https://github.com/YARAHQ/yara-forge/releases/download/20261026/yara-forge-rules-full.zip",
+    "sha256": "9d47f293c03171f0cfaba783961d46b12ed26dad22a9519b58fa11cc64582595"
   },
   "yara_x": {
     "release": "v1.21.0",

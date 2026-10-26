@@ -22,6 +22,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
   its own file is error 1004. 76 live files and 12 opens in sequence
   agree, `tests/fixtures/text_files.json`.
 
+- `Range.Characters` reads and changes part of a cell's text and its
+  font as Excel's does: `Text`, `Caption`, `Count`, `Insert`, `Delete`
+  and `Font`, with Start and Length taken as Excel takes them. A cell's
+  own font is its first character's, and the rest of its text keeps runs
+  in fonts of their own, which files read and write, copies and sorts
+  keep and a value written drops. A run's font makes its row as tall as
+  a cell in that font would, and AutoFit measures each run in its own
+  font, an italic first run reaching as its font does alone and each
+  later italic run a fifth of its font's ascent. Any font or text set
+  leaves the workbook unsaved, one that changes nothing too. 99 live
+  answers and 68 layouts in Aptos Narrow and Calibri from 8 to 72pt
+  agree, `tests/fixtures/characters.json` and
+  `tests/fixtures/rich_text_fit.json`.
+
 - How far calculation has got, and the settings that steer it, follow
   Excel: `Application.CalculationState`, `CalculationVersion`,
   `CalculationInterruptKey` and `CalculateUntilAsyncQueriesDone`,
@@ -1077,6 +1091,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   workbook, raises Excel's error 1004 with Excel's message, which
   `On Error` traps. The model raised an error of its own that VBA could
   not trap.
+
+- A cell's rich text survives a save of its sheet. The model read only
+  the text of a string Excel saved in runs of fonts, so a sheet it wrote
+  again kept the cell in its first font alone.
+
+- AutoFit that finds the width a column already shows changes nothing,
+  as in Excel. The model gave the column that width as its own with best
+  fit, so a standard column stopped following the sheet's StandardWidth
+  and a file kept a column record Excel leaves out. 20 live answers and
+  the columns Excel saved agree, `tests/fixtures/autofit_unchanged.json`.
 
 - A file whose calcId is below 191028, or that has none or asks for
   fullCalcOnLoad, is worked out in full as it opens, as Excel works it

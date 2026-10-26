@@ -32,7 +32,7 @@ import copy
 import math
 import re
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
@@ -546,9 +546,14 @@ class SheetDimensions:
         lines: dict[int, tuple[int, int]] = {}
         for row in special:
             cells = sorted(by_row.get(row, []), key=lambda found: found[0])
-            entries = [_font_entry(cell.style or default, cell.value is not EMPTY or bool(cell.formula))
-                       for column, cell in cells
-                       if not (tall and any(area.contains(row, column) for area in tall))]
+            entries: list[tuple[int, int] | str | None] = []
+            for column, cell in cells:
+                if tall and any(area.contains(row, column) for area in tall):
+                    continue
+                style = cell.style or default
+                entries.append(_font_entry(style, cell.value is not EMPTY or bool(cell.formula)))
+                if cell.runs is not None:
+                    entries.extend(_run_entries(cell, style))
             record = self.rows.get(row)
             own = record.style if record is not None and record.style is not None else None
             if len(cells) < MAX_COLUMNS:
@@ -1182,6 +1187,14 @@ def _font_entry(style: Style, text: bool) -> tuple[int, int] | str | None:
     if table is None or not 1 <= pixels <= _font_rows.MOST_PIXELS:
         return f"the font {font.name}"
     return table, pixels
+
+
+def _run_entries(cell: Cell, style: Style) -> list[tuple[int, int] | str | None]:
+    """What the runs of a cell's text in fonts of their own add to its row's height: each what a cell in its font
+    would (tests/fixtures/rich_text_fit.json)."""
+    from pyopenvba.apps.excel._rich_text import runs_of
+
+    return [_font_entry(replace(style, font=run.font), True) for run in runs_of(cell) or () if run.font is not None]
 
 
 def _row_fonts(entries: Iterable[tuple[int, int] | str | None], normal: tuple[int | None, int],

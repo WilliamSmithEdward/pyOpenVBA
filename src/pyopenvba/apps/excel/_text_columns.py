@@ -273,14 +273,15 @@ def _write(target: Range, row: int, column: int, field: str, kind: int, separato
             raise VBAUnsupportedError(f"TextToColumns of {field!r}, which Excel cannot read as a formula, is not "
                                       "implemented") from exc
         return
-    found = _typed(field, current, separators, minus)
+    found = typed_field(field, current, separators, minus)
     if sheet.book.epoch_1904:
         found = on_1904(found, field)
     target.store_typed(row, column, Typed(found.value, format_after(current, found.number_format)))
 
 
-def _typed(field: str, current: str, separators: tuple[str, str], minus: bool) -> Typed:
-    """A general field typed as a cell types it, read with the separators given and a trailing minus if asked."""
+def typed_field(field: str, current: str, separators: tuple[str, str] = (".", ","), minus: bool = False) -> Typed:
+    """A general field typed as a cell types it, read with the separators given and a trailing minus if asked; a
+    euro amount brings the format a file's does (see _typing), and an apostrophe stays in the text."""
     from pyopenvba.apps.excel._typing import Typed, reads_fractions, typed_text
 
     text = field
@@ -292,7 +293,7 @@ def _typed(field: str, current: str, separators: tuple[str, str], minus: bool) -
     trailing = _TRAILING_MINUS.fullmatch(text)
     if minus and trailing is not None:
         text = "-" + trailing.group(1)
-    found = typed_text(text, fractions=reads_fractions(current))
+    found = typed_text(text, fractions=reads_fractions(current), imported=True)
     if isinstance(found.value, str):
         return Typed(field, found.number_format)
     if isinstance(found.value, float):

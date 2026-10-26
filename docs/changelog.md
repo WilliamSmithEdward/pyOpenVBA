@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbooks.OpenText` reads a text file as Excel does: every
+  delimiter, runs of them, qualifiers, StartRow, FieldInfo's kinds and
+  fixed widths, separators, a trailing minus, and the code pages Origin
+  names, xlWindows, xlMSDOS, 1252 and 65001 among them. Each line is a
+  record, a fixed-width field loses the spaces round it, and a .csv file
+  reads as `Workbooks.Open` reads one. The delimiters,
+  ConsecutiveDelimiter and Origin it is not given are those the session
+  last used. Excel shares them with `TextToColumns` and resets them with
+  `Workbooks.Open`'s Format, and the model does the same. 44 live files and
+  18 opens and splits in sequence agree, `tests/fixtures/open_text.json`.
+
 - `Workbook.SaveAs` writes CSV and text files as Excel does: xlCSV,
   xlCSVWindows, xlCSVMSDOS, xlCSVUTF8, xlUnicodeText,
   xlCurrentPlatformText, xlTextWindows and xlTextMSDOS. The active sheet
@@ -1090,6 +1101,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Range.TextToColumns` splits at the delimiters the session last used
+  where a macro leaves them out, as Excel does: a tab in a new session,
+  or what an earlier TextToColumns or OpenText named. The model split at
+  none. A fixed-width field also loses the spaces round it now. Given
+  other separators, a field that does not read with them stays text:
+  `234.5` where `.` separates thousands. Before, the model read such a
+  field with `.` as the decimal point.
 
 - Typing reads a percent sign before a number, `%5` as 5%, and a euro
   sign before or after one, `€5` and `5 €` as 5, as Excel does; a

@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Worksheet.SaveAs` saves as Excel's does. In a text format it writes
+  that sheet, hidden or not, rather than the active one, and that sheet
+  takes the file's name (but in the MS-DOS formats) while the active
+  sheet stays as it was; in a workbook format it saves the workbook, as
+  `Workbook.SaveAs` does. 9 live saves agree,
+  `tests/fixtures/sheet_save_as.json`.
+
 - Application members everyday macros use answer as Excel's do:
   `PathSeparator`, `Value`, `OperatingSystem` and `MeasurementUnit`;
   `InchesToPoints` and `CentimetersToPoints`, to the bit, the second

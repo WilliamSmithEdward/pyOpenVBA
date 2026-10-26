@@ -1,0 +1,109 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-10-26T03:46:44.724143+00:00",
+  "probe": "Private events As String\n\nPrivate Function Book(wb As Workbook) As String\n    Dim ws As Worksheet, s As String\n    For Each ws In wb.Worksheets\n        s = s & \",\" & ws.Name & IIf(ws.Visible = xlSheetVisible, \"\", \"(hidden)\")\n    Next\n    Book = wb.Name & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.Worksheets.Count & \"|\" & Mid$(s, 2) & \"|\" & _\n        wb.ActiveSheet.Name & \"|\" & ActiveWorkbook.Name\nEnd Function\n\nPublic Function Probe(name As String, path As String) As String\n    Dim wb As Workbook, s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.Worksheets(1).Name = \"Data\"\n    wb.Worksheets(1).Range(\"A1\").Value = \"data\": wb.Worksheets(1).Range(\"B1\").Value = 1\n    wb.Worksheets.Add(After:=wb.Worksheets(1)).Name = \"Other\"\n    wb.Worksheets(\"Other\").Range(\"A1\").Value = \"other\"\n    wb.Worksheets.Add(After:=wb.Worksheets(2)).Name = \"Third\"\n    wb.Worksheets(\"Third\").Range(\"A1\").Value = \"third\"\n    wb.Worksheets(\"Other\").Activate\n    On Error Resume Next\n    Select Case name\n        Case \"first_csv\": wb.Worksheets(\"Data\").SaveAs path, xlCSV\n        Case \"active_csv\": wb.Worksheets(\"Other\").SaveAs path, xlCSV\n        Case \"third_text\": wb.Worksheets(\"Third\").SaveAs Filename:=path, FileFormat:=xlUnicodeText\n        Case \"first_xlsx\": wb.Worksheets(\"Data\").SaveAs path, xlOpenXMLWorkbook\n        Case \"no_format\": wb.Worksheets(\"Data\").SaveAs path\n        Case \"named_args\": wb.Worksheets(\"Data\").SaveAs Filename:=path, FileFormat:=xlCSV, Local:=True, AddToMru:=False, CreateBackup:=False\n        Case \"utf8\": wb.Worksheets(\"Third\").SaveAs path, xlCSVUTF8\n        Case \"msdos\": wb.Worksheets(\"Data\").SaveAs path, xlCSVMSDOS\n        Case \"hidden_sheet\": wb.Worksheets(\"Third\").Visible = xlSheetHidden: wb.Worksheets(\"Third\").SaveAs path, xlCSV\n    End Select\n    If Err.Number <> 0 Then s = \"error=\" & Err.Number & \":\" & Err.Description & \"|\"\n    On Error GoTo 0\n    s = s & Book(wb)\n    wb.Close False\n    Application.DisplayAlerts = True\n    Probe = s\nEnd Function\n",
+  "cases": [
+    [
+      "first_csv",
+      "first.csv",
+      "wb.Worksheets(\"Data\").SaveAs path, xlCSV"
+    ],
+    [
+      "active_csv",
+      "active.csv",
+      "wb.Worksheets(\"Other\").SaveAs path, xlCSV"
+    ],
+    [
+      "third_text",
+      "third.txt",
+      "wb.Worksheets(\"Third\").SaveAs Filename:=path, FileFormat:=xlUnicodeText"
+    ],
+    [
+      "first_xlsx",
+      "first.xlsx",
+      "wb.Worksheets(\"Data\").SaveAs path, xlOpenXMLWorkbook"
+    ],
+    [
+      "no_format",
+      "noformat",
+      "wb.Worksheets(\"Data\").SaveAs path"
+    ],
+    [
+      "named_args",
+      "named.csv",
+      "wb.Worksheets(\"Data\").SaveAs Filename:=path, FileFormat:=xlCSV, Local:=True, AddToMru:=False, CreateBackup:=False"
+    ],
+    [
+      "utf8",
+      "utf8.csv",
+      "wb.Worksheets(\"Third\").SaveAs path, xlCSVUTF8"
+    ],
+    [
+      "msdos",
+      "msdos.csv",
+      "wb.Worksheets(\"Data\").SaveAs path, xlCSVMSDOS"
+    ],
+    [
+      "hidden_sheet",
+      "hidden.csv",
+      "wb.Worksheets(\"Third\").Visible = xlSheetHidden: wb.Worksheets(\"Third\").SaveAs path, xlCSV"
+    ]
+  ],
+  "answers": {
+    "first_csv": "first.csv|6|False|3|first,Other,Third|Other|first.csv",
+    "active_csv": "active.csv|6|False|3|Data,active,Third|active|active.csv",
+    "third_text": "third.txt|42|False|3|Data,Other,third|Other|third.txt",
+    "first_xlsx": "first.xlsx|51|True|3|Data,Other,Third|Other|first.xlsx",
+    "no_format": "noformat.xlsx|51|True|3|Data,Other,Third|Other|noformat.xlsx",
+    "named_args": "named.csv|6|False|3|named,Other,Third|Other|named.csv",
+    "utf8": "utf8.csv|62|False|3|Data,Other,utf8|Other|utf8.csv",
+    "msdos": "msdos.csv|24|False|3|Data,Other,Third|Other|msdos.csv",
+    "hidden_sheet": "hidden.csv|6|False|3|Data,Other,hidden(hidden)|Other|hidden.csv"
+  },
+  "files": {
+    "first_csv": {
+      "file": "first.csv",
+      "data": "ZGF0YSwxDQo="
+    },
+    "active_csv": {
+      "file": "active.csv",
+      "data": "b3RoZXINCg=="
+    },
+    "third_text": {
+      "file": "third.txt",
+      "data": "//50AGgAaQByAGQADQAKAA=="
+    },
+    "first_xlsx": {
+      "file": "first.xlsx",
+      "sheets": [
+        "Data",
+        "Other",
+        "Third"
+      ]
+    },
+    "no_format": {
+      "file": "noformat.xlsx",
+      "sheets": [
+        "Data",
+        "Other",
+        "Third"
+      ]
+    },
+    "named_args": {
+      "file": "named.csv",
+      "data": "ZGF0YSwxDQo="
+    },
+    "utf8": {
+      "file": "utf8.csv",
+      "data": "77u/dGhpcmQNCg=="
+    },
+    "msdos": {
+      "file": "msdos.csv",
+      "data": "ZGF0YSwxDQo="
+    },
+    "hidden_sheet": {
+      "file": "hidden.csv",
+      "data": "dGhpcmQNCg=="
+    }
+  }
+}

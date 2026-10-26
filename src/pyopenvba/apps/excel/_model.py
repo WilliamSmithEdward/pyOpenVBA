@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
-from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
+from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
@@ -273,6 +273,9 @@ class Application(ExcelObject):
         #: _calculation_state).
         self.calculation_interrupt_key = 2
         self.full_calculation = False
+        #: What a text file Workbooks.Open reads splits at, as the last Format it was given names, None for nothing
+        #: (see _text_files.remember_format).
+        self.text_delimiter: str | None = "\t"
 
     # -- identity
 
@@ -853,14 +856,50 @@ class Workbooks(VBACollection, ExcelObject):
         return book
 
     @method
-    def Open(self, Filename: object = MISSING) -> object:
+    def Open(self, Filename: object = MISSING, UpdateLinks: object = MISSING, ReadOnly: object = MISSING,
+             Format: object = MISSING, Password: object = MISSING, WriteResPassword: object = MISSING,
+             IgnoreReadOnlyRecommended: object = MISSING, Origin: object = MISSING, Delimiter: object = MISSING,
+             Editable: object = MISSING, Notify: object = MISSING, Converter: object = MISSING,
+             AddToMru: object = MISSING, Local: object = MISSING, CorruptLoad: object = MISSING) -> object:
+        """A workbook, or a CSV or text file read as Excel reads one (see _text_files). UpdateLinks, Password,
+        WriteResPassword, IgnoreReadOnlyRecommended, Editable, Notify, AddToMru and Local change nothing for the
+        files the model opens, which it neither updates links in nor decrypts (tests/fixtures/text_files.json)."""
+        from pyopenvba.apps.excel._text_files import remember_format
+
         if Filename is MISSING:
             raise error(449)
-        return self.open_file(Path(to_text(Filename)))
+        if Origin is not MISSING and int(to_integer(Origin, "Long")) != 2:
+            raise VBAUnsupportedError("Workbooks.Open with an Origin other than xlWindows is not implemented")
+        if CorruptLoad is not MISSING and int(to_integer(CorruptLoad, "Long")) != 0:
+            raise VBAUnsupportedError("Workbooks.Open with a CorruptLoad other than xlNormalLoad is not implemented")
+        if Converter is not MISSING:
+            raise VBAUnsupportedError("Workbooks.Open with a Converter is not implemented")
+        given = to_text(Filename)
+        path = Path(given)
+        if not path.is_file():
+            raise error(1004, f"Sorry, we couldn't find {given}. Is it possible it was moved, renamed or deleted?")
+        if path.suffix.lower() in (".xls", ".xla", ".xlt"):
+            raise VBAUnsupportedError("opening an Excel 97-2003 workbook is not implemented")
+        format_code = remember_format(self.application, Format, Delimiter)
+        read_only = ReadOnly is not MISSING and to_bool(ReadOnly)
+        try:
+            return self.open_file(path, read_only=read_only, format_code=format_code)
+        except PowerQueryError:
+            import zipfile
 
-    def open_file(self, path: Path, *, with_vba: bool = True) -> Workbook:
+            if zipfile.is_zipfile(path):
+                raise
+            raise error(1004, f"Excel cannot open the file '{path.name}' because the file format or file extension "
+                              "is not valid. Verify that the file has not been corrupted and that the file extension "
+                              "matches the format of the file.") from None
+
+    def open_file(self, path: Path, *, with_vba: bool = True, read_only: bool = False,
+                  format_code: int | None = None) -> Workbook:
+        """The workbook at ``path``, opened, or a CSV or text file read into one; ``format_code`` is the Format
+        Workbooks.Open was given (see _text_files)."""
         from pyopenvba.apps.excel._io import load_workbook
         from pyopenvba.apps.excel._projects import attach_project, load_project
+        from pyopenvba.apps.excel._text_files import is_text, open_text
 
         path = path.resolve()
         existing = next((book for book in self.books if book.path and (Path(book.path) / book.name).resolve() == path), None)
@@ -869,10 +908,12 @@ class Workbooks(VBACollection, ExcelObject):
             return existing
         if any(book.name.casefold() == path.name.casefold() for book in self.books):
             raise error(1004, "A workbook with that name is already open")
-        book = load_workbook(self.application, path)
+        text = is_text(path)
+        book = open_text(self.application, path, format_code) if text else load_workbook(self.application, path)
+        book.read_only = read_only
         self.books.append(book)
         try:
-            if with_vba:
+            if with_vba and not text:
                 load_project(book)
             else:
                 attach_project(book)
@@ -921,6 +962,8 @@ class Workbook(ExcelObject):
         self.name = name
         self.path = path
         self.saved = True
+        #: Opened with Workbooks.Open's ReadOnly, until a SaveAs gives the workbook a file of its own.
+        self.read_only = False
         self.epoch_1904 = False
         self.date_system_changed = False
         self.project_runtime: Interpreter | None = None
@@ -1184,6 +1227,14 @@ class Workbook(ExcelObject):
                 _events.after_save(self, False)
                 return False
             raise VBAUnsupportedError("Saving an unnamed workbook requires a save dialog; use SaveAs with a filename")
+        from pyopenvba.apps.excel._text_files import TEXT_FORMATS
+
+        if self.read_only:
+            # Excel, its alerts off, saves a copy into its default file path and keeps the file as it was.
+            raise VBAUnsupportedError("Save of a workbook opened read-only is not implemented; use SaveAs")
+        if self.format_code in TEXT_FORMATS:
+            raise VBAUnsupportedError("saving a workbook as CSV or text is not implemented; use SaveAs with xlsx or "
+                                      "xlsm")
         return self.save_to(Path(self.path) / self.name)
 
     @method
@@ -1204,6 +1255,8 @@ class Workbook(ExcelObject):
             raise VBAUnsupportedError(f"SaveAs FileFormat {chosen} is not implemented by the Excel cell model")
         if not target.suffix:
             target = target.with_suffix(expected)
+        if self.read_only and self.path and target.resolve() == (Path(self.path) / self.name).resolve():
+            raise error(1004, "Cannot save as that name. Document was opened as read-only.")
         if not _events.before_save(self):
             _events.after_save(self, False)
             return False
@@ -1238,6 +1291,8 @@ class Workbook(ExcelObject):
         self.path = str(target.resolve().parent)
         self.name = target.name
         self.saved = True
+        # A file of its own is the workbook's to change (tests/fixtures/text_files.json, readonly_saveas_other).
+        self.read_only = False
         _events.after_save(self, True)
         return True
 
@@ -1246,6 +1301,11 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._io import workbook_format
 
         return VBAInt(workbook_format(self), "Long")
+
+    @member
+    def ReadOnly(self) -> object:
+        """Whether Workbooks.Open opened the workbook read-only, until a SaveAs gives it a file of its own."""
+        return self.read_only
 
     @method
     def Calculate(self) -> object:

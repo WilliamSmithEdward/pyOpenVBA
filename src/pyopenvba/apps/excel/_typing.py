@@ -16,6 +16,12 @@ scripts/measure_typing_formats.py and scripts/measure_typed_dates.py):
   thousands separators (three or more digits after each), a percent sign,
   an exponent, or a whole part and a fraction; each brings its own format.
   Digits past the fifteenth significant one are cut off, not rounded.
+  A percent sign may lead the number as well, and a euro sign lead or
+  trail it, one sign of the three at most; a percent of an exponent keeps
+  the scientific format, and of a whole part and a fraction shows as a
+  percent with decimals. A euro amount typed into a cell brings no
+  format; read from a file or by TextToColumns it brings a euro format
+  (scripts/measure_text_files.py).
 - Dates read month first, with two-digit years before 30 in this century
   and years from 1900 to 9999 on Excel's calendar, which has a 29 February
   1900; a month, by its number or its name, and a number that cannot be
@@ -92,6 +98,15 @@ _READ_PAST = re.compile(r"[/-]?\d+(?:[/ -]\d+)*[/-]?|[/-]")
 #: The formats typing gives a dollar amount, and the one a Currency value brings.
 TYPED_CURRENCY = ("$#,##0_);[Red]($#,##0)", "$#,##0.00_);[Red]($#,##0.00)")
 CURRENCY_VALUE = "$#,##0.00_);($#,##0.00)"
+EURO = "\u20ac"
+#: The formats a euro amount brings where a file or TextToColumns reads it, by whether the sign leads or trails the
+#: number and whether the number has a point; typed into a cell it brings none (tests/fixtures/text_files.json).
+_EURO_FORMATS = {
+    ("lead", False): f"[${EURO}-2] #,##0;[Red]-[${EURO}-2] #,##0",
+    ("lead", True): f"[${EURO}-2] #,##0.00;[Red]-[${EURO}-2] #,##0.00",
+    ("trail", False): f"#,##0 [${EURO}-1];[Red]-#,##0 [${EURO}-1]",
+    ("trail", True): f"#,##0.00 [${EURO}-1];[Red]-#,##0.00 [${EURO}-1]",
+}
 
 #: Excel's built-in formats that typing may replace, by kind; every other format stays.
 _REPLACEABLE = {
@@ -278,8 +293,9 @@ def month_number(name: str) -> int | None:
     return _MONTHS.get(name.lower())
 
 
-def typed_text(text: str, *, fractions: bool = False) -> Typed:
-    """A string written to a cell, read as Excel reads typing; ``fractions`` reads ``1/2`` as a half."""
+def typed_text(text: str, *, fractions: bool = False, imported: bool = False) -> Typed:
+    """A string written to a cell, read as Excel reads typing; ``fractions`` reads ``1/2`` as a half, and
+    ``imported`` is text a file or TextToColumns reads, where a euro amount brings a format of its own."""
     if text == "":
         return Typed(EMPTY)
     if text.startswith("'"):
@@ -292,7 +308,8 @@ def typed_text(text: str, *, fractions: bool = False) -> Typed:
     body = text.strip(" ")
     if not body:
         return Typed(text)
-    found = _number(body, fractions=fractions) or (_after_space(body) if text[0] == " " else _moment(body))
+    found = _number(body, fractions=fractions, imported=imported) or (
+        _after_space(body) if text[0] == " " else _moment(body))
     if found is None:
         return Typed(text)
     return found if found.value is not None else Typed(text, found.number_format)
@@ -307,41 +324,57 @@ def _fraction_format(denominator: str) -> str:
     return f"# {'?' * width}/{'?' * width}"
 
 
-def _number(body: str, *, fractions: bool) -> Typed | None:
-    """A typed number, or None. A value of None is text that still brings a format."""
-    text, negative, percent, currency = body, False, False, False
+def _number(body: str, *, fractions: bool, imported: bool = False) -> Typed | None:
+    """A typed number, or None. A value of None is text that still brings a format.
+
+    A percent sign may lead or trail the number, and a euro sign too, a sign or brackets on either side of it; one
+    of a dollar, a percent and a euro sign, not two (tests/fixtures/text_files.json).
+    """
+    text, negative, percent, currency, euro = body, False, False, False, ""
     if text.startswith("(") and text.endswith(")"):
         text, negative = text[1:-1].strip(" "), True
     if text.endswith("%"):
         text, percent = text[:-1].rstrip(" "), True
+    elif text.endswith(EURO):
+        text, euro = text[:-1].rstrip(" "), "trail"
     sign = ""
-    for _ in range(2):
+    for _ in range(3):
         if text[:1] in ("+", "-") and not sign and not negative:
             sign, text = text[0], text[1:].lstrip(" ")
         elif text[:1] == "$" and not currency:
             currency, text = True, text[1:].lstrip(" ")
-    if not text or (currency and percent):
+        elif text[:1] == EURO and not euro:
+            euro, text = "lead", text[1:].lstrip(" ")
+        elif text[:1] == "%" and not percent:
+            percent, text = True, text[1:].lstrip(" ")
+        elif text[:1] == "(" and text.endswith(")") and (euro or percent) and not negative and not sign:
+            text, negative = text[1:-1].strip(" "), True
+    if not text or currency + percent + bool(euro) > 1:
         return None
     negative = negative or sign == "-"
     if _EXPONENT.fullmatch(text):
-        if percent:
-            return None
         value = literal(text)
         if math.isinf(value):
             # Excel keeps a number too large as text, and still gives the cell the scientific format.
             return Typed(None, "0.00E+00")
+        if percent:
+            value /= 100
         return Typed(-value if negative else value, "0.00E+00")
     mixed = _MIXED.fullmatch(text)
     if mixed is not None:
         whole, numerator, denominator = (int(part) for part in mixed.groups())
-        if not denominator or currency or percent:
+        if not denominator or currency:
             return None
         value = whole + numerator / denominator
+        if percent:
+            # A percent of a fraction shows as a percent with its decimals.
+            value /= 100
+            return Typed(-value if negative else value, "0.00%")
         return Typed(-value if negative else value, _fraction_format(mixed.group(3)))
     alone = _FRACTION.fullmatch(text) if fractions else None
     if alone is not None:
         numerator, denominator = int(alone.group(1)), int(alone.group(2))
-        if not numerator or not denominator or currency or percent:
+        if not numerator or not denominator or currency or percent or euro:
             return None
         value = numerator / denominator
         return Typed(-value if negative else value, _fraction_format(alone.group(2)))
@@ -355,6 +388,8 @@ def _number(body: str, *, fractions: bool) -> Typed | None:
     decimals = plain.group("point") is not None
     if currency:
         return Typed(value, TYPED_CURRENCY[decimals])
+    if euro:
+        return Typed(value, _EURO_FORMATS[euro, decimals] if imported else None)
     if percent:
         return Typed(value, "0.00%" if decimals else "0%")
     if "," in text:

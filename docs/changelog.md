@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbooks.Open` reads CSV and text files as Excel does. A .csv file
+  splits at commas, or at the character a first line of `sep=` names; a
+  text file, and a .csv of three bytes or fewer or in UTF-16, splits at
+  the delimiter the session's last Format named, a tab until one does.
+  Quotes keep delimiters and line ends, a field holds 32,759 characters
+  and the rest starts a new line, and each field is typed as
+  TextToColumns types it, a formula worked out as the file opens. Bytes
+  are Windows-1252 unless a byte order mark says UTF-8 or UTF-16. The
+  workbook takes the file's name, its sheet the name without the
+  extension, and FileFormat answers xlCSV, xlCSVUTF8, xlUnicodeText or
+  xlCurrentPlatformText. Open takes all of its arguments: ReadOnly makes
+  `Workbook.ReadOnly` True until a SaveAs to another file, and SaveAs to
+  its own file is error 1004. 76 live files and 12 opens in sequence
+  agree, `tests/fixtures/text_files.json`.
+
 - `Range.Characters` reads and changes part of a cell's text and its
   font as Excel's does: `Text`, `Caption`, `Count`, `Insert`, `Delete`
   and `Font`, with Start and Length taken as Excel takes them. A cell's
@@ -1062,6 +1077,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- Typing reads a percent sign before a number, `%5` as 5%, and a euro
+  sign before or after one, `€5` and `5 €` as 5, as Excel does; a
+  percent of an exponent, `1e2%`, keeps the scientific format, and of a
+  whole part and a fraction, `1 1/2%`, shows as 1.50%. The model left
+  all of them text. Typed into a cell a euro amount brings no format;
+  read from a file or by TextToColumns it brings Excel's euro format.
+  60 amounts typed into cells, read by TextToColumns and read from a
+  file agree, `tests/fixtures/text_files.json`.
+
+- `Workbooks.Open` of a file that is not there, or of one that is no
+  workbook, raises Excel's error 1004 with Excel's message, which
+  `On Error` traps. The model raised an error of its own that VBA could
+  not trap.
 
 - A cell's rich text survives a save of its sheet. The model read only
   the text of a string Excel saved in runs of fonts, so a sheet it wrote

@@ -1227,22 +1227,41 @@ class Workbook(ExcelObject):
                 _events.after_save(self, False)
                 return False
             raise VBAUnsupportedError("Saving an unnamed workbook requires a save dialog; use SaveAs with a filename")
-        from pyopenvba.apps.excel._text_files import TEXT_FORMATS
+        from pyopenvba.apps.excel._text_files import text_writer
 
         if self.read_only:
             # Excel, its alerts off, saves a copy into its default file path and keeps the file as it was.
             raise VBAUnsupportedError("Save of a workbook opened read-only is not implemented; use SaveAs")
-        if self.format_code in TEXT_FORMATS:
-            raise VBAUnsupportedError("saving a workbook as CSV or text is not implemented; use SaveAs with xlsx or "
-                                      "xlsm")
+        if self.format_code is not None:
+            # A text format the model does not write reports itself before any event.
+            text_writer(self.format_code)
         return self.save_to(Path(self.path) / self.name)
 
     @method
-    def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING) -> object:
+    def SaveAs(self, Filename: object = MISSING, FileFormat: object = MISSING, Password: object = MISSING,
+               WriteResPassword: object = MISSING, ReadOnlyRecommended: object = MISSING,
+               CreateBackup: object = MISSING, AccessMode: object = MISSING, ConflictResolution: object = MISSING,
+               AddToMru: object = MISSING, TextCodepage: object = MISSING, TextVisualLayout: object = MISSING,
+               Local: object = MISSING, WorkIdentity: object = MISSING) -> object:
+        """SaveAs in a workbook format or a text one (see _text_files). ConflictResolution, AddToMru,
+        TextCodepage, TextVisualLayout and Local change nothing in a file the model writes: it shares no workbook,
+        and Local's list separator is a comma on its US English system (tests/fixtures/text_saves.json)."""
+        for name, value in (("Password", Password), ("WriteResPassword", WriteResPassword)):
+            if value is not MISSING and to_text(value):
+                raise VBAUnsupportedError(f"SaveAs with a {name} is not implemented")
+        for name, value in (("ReadOnlyRecommended", ReadOnlyRecommended), ("CreateBackup", CreateBackup)):
+            if value is not MISSING and to_bool(value):
+                raise VBAUnsupportedError(f"SaveAs with {name} True is not implemented")
+        if AccessMode is not MISSING and int(to_integer(AccessMode, "Long")) == 2:
+            raise VBAUnsupportedError("SaveAs with AccessMode xlShared is not implemented")
+        if WorkIdentity is not MISSING:
+            raise VBAUnsupportedError("SaveAs with a WorkIdentity is not implemented")
         self._save_as(Filename, FileFormat)
         return EMPTY
 
     def _save_as(self, Filename: object, FileFormat: object = MISSING) -> bool:
+        from pyopenvba.apps.excel._text_files import text_writer
+
         if Filename is MISSING:
             if not _events.before_save(self):
                 _events.after_save(self, False)
@@ -1250,7 +1269,8 @@ class Workbook(ExcelObject):
             raise VBAUnsupportedError("SaveAs without a filename is not implemented; supply Filename")
         target = Path(to_text(Filename))
         chosen = int(to_integer(FileFormat if FileFormat is not MISSING else self.FileFormat(), "Long"))
-        expected = {51: ".xlsx", 52: ".xlsm"}.get(chosen)
+        writer = text_writer(chosen)
+        expected = writer.extension if writer is not None else {51: ".xlsx", 52: ".xlsm"}.get(chosen)
         if expected is None:
             raise VBAUnsupportedError(f"SaveAs FileFormat {chosen} is not implemented by the Excel cell model")
         if not target.suffix:
@@ -1260,7 +1280,8 @@ class Workbook(ExcelObject):
         if not _events.before_save(self):
             _events.after_save(self, False)
             return False
-        if target.suffix.lower() != expected:
+        # A text format takes any extension (tests/fixtures/text_saves.json, txt_extension).
+        if writer is None and target.suffix.lower() != expected:
             _events.after_save(self, False)
             raise error(1004, "SaveAs filename does not match FileFormat")
         return self.save_to(target, before=False, file_format=chosen)
@@ -1270,27 +1291,41 @@ class Workbook(ExcelObject):
         """The file a save would write, written to Filename; the workbook keeps its name and Saved flag, and no save
         event is raised (see _save_copy)."""
         from pyopenvba.apps.excel._save_copy import save_copy
+        from pyopenvba.apps.excel._text_files import TEXT_FORMATS
 
+        if self.format_code in TEXT_FORMATS:
+            raise VBAUnsupportedError("SaveCopyAs of a workbook in a CSV or text format is not implemented")
         save_copy(self, Filename)
         return EMPTY
 
     def save_to(self, target: Path, *, before: bool = True, file_format: int | None = None, create_parents: bool = False) -> bool:
         from pyopenvba.apps.excel._io import prepare_format, save_workbook
+        from pyopenvba.apps.excel._text_files import save_text, saved_as_text, text_writer
 
         if before and not _events.before_save(self):
             _events.after_save(self, False)
             return False
-        if file_format is not None:
+        # A text format writes the active sheet as text; a SaveAs in one names the file's, Save keeps it.
+        written = file_format if file_format is not None else self.format_code
+        text = written is not None and text_writer(written) is not None
+        if file_format is not None and not text:
             prepare_format(self, file_format)
         if not create_parents and not target.parent.is_dir():
             raise error(1004, "the save directory does not exist")
         try:
-            save_workbook(self, target)
+            if text:
+                assert written is not None
+                save_text(self, target, written)
+            else:
+                save_workbook(self, target)
         except OSError as failure:
             raise error(1004, str(failure)) from failure
         self.path = str(target.resolve().parent)
         self.name = target.name
-        self.saved = True
+        if text and file_format is not None:
+            saved_as_text(self, file_format)
+        # A text file holds one sheet, which leaves a workbook of more to save (tests/fixtures/text_saves.json).
+        self.saved = not text or len(self.sheets_) == 1
         # A file of its own is the workbook's to change (tests/fixtures/text_files.json, readonly_saveas_other).
         self.read_only = False
         _events.after_save(self, True)

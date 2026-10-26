@@ -30,23 +30,51 @@ Measured in live Excel (scripts/measure_text_files.py, tests/fixtures/text_files
 - The workbook is named after the file, its brackets made parentheses,
   and has one sheet, named after the file without its extension, cut to
   31 characters.
+
+Workbook.SaveAs in a text format writes the active sheet alone
+(scripts/measure_text_saves.py, tests/fixtures/text_saves.json):
+
+- Its used block, from the block's first row and column, every line as
+  wide as the block, empty fields included, and an empty sheet as one
+  empty line; hidden rows and columns are written too, a merged cell's
+  value once.
+- Each cell as its own format shows it whatever its column's width, a
+  number in General in at most eleven characters, a fill left out, a
+  formula as its value; a conditional format's number format is not
+  used, and a value its format cannot show is 255 #. A field holding a
+  comma, a double quote, a tab, a CR or an LF is quoted, its quotes
+  doubled, whatever the delimiter.
+- xlCSV, xlCSVWindows and xlCSVMSDOS split at commas, the text formats
+  at tabs; xlCSVMSDOS and xlTextMSDOS in code page 437, xlCSVUTF8 in
+  UTF-8 and xlUnicodeText in UTF-16, each after its byte order mark, the
+  rest in Windows-1252, a character a code page lacks written as ?. Every
+  line ends with CR LF.
+- The workbook takes the file's name, .csv or .txt added where it has
+  none but in xlUnicodeText, and the FileFormat Excel answers for it; the
+  active sheet takes the file's name, unless another sheet has it or the
+  format is an MS-DOS one; and a workbook of more than one sheet is left
+  unsaved. A later Save writes the same way. The Mac formats and
+  xlTextPrinter are not written here.
 """
 
 from __future__ import annotations
 
+import codecs
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._values import MISSING, to_integer, to_text
+from pyopenvba.formula._values import ExcelError
+from pyopenvba.interpreter._values import EMPTY, MISSING, to_integer, to_text
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._model import Application, Workbook
+    from pyopenvba.apps.excel._model import Application, Workbook, Worksheet
 
-CSV, CSV_UTF8, UNICODE_TEXT, UTF8_TEXT, TEXT = 6, 62, 42, 65, -4158
-#: The FileFormats of a workbook read from text, which the model does not save.
-TEXT_FORMATS = frozenset({CSV, CSV_UTF8, UNICODE_TEXT, UTF8_TEXT, TEXT})
+CSV, CSV_UTF8, UNICODE_TEXT, UTF8_TEXT, TEXT, TEXT_MSDOS, CSV_MSDOS = 6, 62, 42, 65, -4158, 21, 24
+#: The FileFormats a workbook read from text, or saved as text, answers.
+TEXT_FORMATS = frozenset({CSV, CSV_UTF8, UNICODE_TEXT, UTF8_TEXT, TEXT, TEXT_MSDOS, CSV_MSDOS})
 #: The extensions of workbooks; any other file opens as text.
 WORKBOOK_EXTENSIONS = frozenset({".xlsx", ".xlsm", ".xltx", ".xltm", ".xlam", ".xlsb", ".xls", ".xlt", ".xla"})
 #: What each Format of Workbooks.Open splits a text file at; 6 takes Delimiter's first character.
@@ -230,3 +258,130 @@ def _expanded(text: str) -> str:
             out.append(char)
             width += 1
     return "".join(out)
+
+
+# --- writing ------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class TextWriter:
+    """How a text FileFormat writes: what splits its fields, its code page and byte order mark, the FileFormat the
+    workbook answers after it, whether the active sheet takes the file's name, and the extension a name without
+    one takes."""
+
+    delimiter: str
+    encoding: str
+    bom: bytes
+    answers: int
+    renames: bool
+    extension: str
+
+
+_WRITERS = {
+    CSV: TextWriter(",", "cp1252", b"", CSV, True, ".csv"),
+    23: TextWriter(",", "cp1252", b"", CSV, True, ".csv"),  # xlCSVWindows
+    CSV_MSDOS: TextWriter(",", "cp437", b"", CSV_MSDOS, False, ".csv"),
+    CSV_UTF8: TextWriter(",", "utf-8", _UTF8_BOM, CSV_UTF8, True, ".csv"),
+    # xlUnicodeText adds no extension to a name without one.
+    UNICODE_TEXT: TextWriter("\t", "utf-16-le", _UTF16_BOM, UNICODE_TEXT, True, ""),
+    TEXT: TextWriter("\t", "cp1252", b"", TEXT, True, ".txt"),
+    20: TextWriter("\t", "cp1252", b"", TEXT, True, ".txt"),  # xlTextWindows
+    TEXT_MSDOS: TextWriter("\t", "cp437", b"", TEXT_MSDOS, False, ".txt"),
+}
+#: Text formats Excel writes that the model does not: the Mac ones, whose line ends and characters were measured
+#: once each, the printer's fixed columns, and the UTF-8 text a file of that kind opens as.
+_UNWRITTEN = {19: "xlTextMac", 22: "xlCSVMac", 36: "xlTextPrinter", UTF8_TEXT: "UTF-8 text"}
+#: What makes a field quoted, whatever the delimiter.
+_QUOTED = frozenset(',"\t\r\n')
+#: How many # a text file holds for a value its format cannot show.
+_UNSHOWN = 255
+#: The bytes Windows-1252 leaves out, which Windows writes for the control characters of the same number.
+_CONTROL_BYTES = frozenset((0x81, 0x8D, 0x8F, 0x90, 0x9D))
+
+
+def _question_marks(problem: UnicodeError) -> tuple[bytes, int]:
+    """A character a code page lacks written as ?, as Excel writes it, but Windows-1252's five control characters
+    as their bytes."""
+    assert isinstance(problem, UnicodeEncodeError)
+    piece = problem.object[problem.start:problem.end]
+    kept = problem.encoding == "cp1252"
+    return bytes(ord(char) if kept and ord(char) in _CONTROL_BYTES else ord("?") for char in piece), problem.end
+
+
+codecs.register_error("pyopenvba.question_marks", _question_marks)
+
+
+def text_writer(file_format: int) -> TextWriter | None:
+    """How SaveAs writes ``file_format``, or None for a workbook's format; the text formats the model does not write
+    report themselves unsupported."""
+    if file_format in _UNWRITTEN:
+        raise VBAUnsupportedError(f"saving a workbook as {_UNWRITTEN[file_format]} (FileFormat {file_format}) is not "
+                                  "implemented")
+    return _WRITERS.get(file_format)
+
+
+def save_text(book: Workbook, target: Path, file_format: int) -> None:
+    """The workbook's active sheet written to ``target`` as SaveAs writes ``file_format`` (see the module's notes)."""
+    writer = text_writer(file_format)
+    sheet = book.active_sheet
+    if writer is None or sheet is None:
+        raise VBAUnsupportedError(f"saving FileFormat {file_format} as text is not implemented")
+    bounds = sheet.used_bounds()
+    lines: list[str] = []
+    if bounds is None:
+        lines.append("")
+    else:
+        top, left, bottom, right = bounds
+        for row in range(top, bottom + 1):
+            lines.append(writer.delimiter.join(_quoted(_shown(sheet, row, column))
+                                               for column in range(left, right + 1)))
+    text = "".join(f"{line}\r\n" for line in lines)
+    errors = "surrogatepass" if writer.encoding == "utf-16-le" else "pyopenvba.question_marks"
+    target.write_bytes(writer.bom + text.encode(writer.encoding, errors=errors))
+
+
+def saved_as_text(book: Workbook, file_format: int) -> None:
+    """What a SaveAs in a text format leaves of the workbook: the FileFormat Excel answers, and the active sheet
+    named after the file (tests/fixtures/text_saves.json)."""
+    from pyopenvba.apps.excel._protection import APPLICATION_DEFINED, refuse_structure
+    from pyopenvba.apps.excel._worksheet_rename import rename
+
+    from pyopenvba.apps.excel import _names
+
+    writer = _WRITERS[file_format]
+    book.format_code = writer.answers
+    sheet = book.active_sheet
+    if writer.renames and sheet is not None:
+        wanted = _parenthesized(Path(book.name).stem)[:_LONGEST_SHEET_NAME]
+        # A name another sheet has already leaves the sheet its own.
+        taken = any(other is not sheet and _names.same_sheet_name(other.name, wanted) for other in book.sheets_)
+        if wanted != sheet.name and not taken:
+            refuse_structure(book, APPLICATION_DEFINED)
+            rename(sheet, wanted)
+
+
+def _shown(sheet: Worksheet, row: int, column: int) -> str:
+    """A cell's field: what its own format shows whatever its column's width, its fill left out and a conditional
+    format's number format not used; a value the format cannot show, a negative date, as 255 #
+    (see formula._display.shown)."""
+    from pyopenvba.formula._display import UndisplayableError, shown
+
+    cell = sheet.cells_.get((row, column))
+    if cell is None:
+        return ""
+    value = sheet.book.calculator.value_of(sheet.name, row, column) if cell.formula else cell.value
+    if value is EMPTY:
+        return ""
+    if isinstance(value, ExcelError):
+        return value.name
+    try:
+        return shown(value, sheet.style_at(row, column).number_format, epoch_1904=sheet.book.epoch_1904)[0]
+    except UndisplayableError:
+        return "#" * _UNSHOWN
+
+
+def _quoted(text: str) -> str:
+    """A field as a text file holds it: in quotes, its own doubled, where it holds a delimiter or a line end."""
+    if any(char in _QUOTED for char in text):
+        return '"' + text.replace('"', '""') + '"'
+    return text

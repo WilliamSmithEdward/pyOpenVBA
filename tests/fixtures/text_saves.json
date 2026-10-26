@@ -1,0 +1,312 @@
+{
+  "excel_version_build": "16.0|20527",
+  "measured_at": "2026-10-26T00:22:46.718647+00:00",
+  "probe": "Private Function Esc(ByVal s As String) As String\n    Dim i As Long, ch As String, code As Long, out As String\n    For i = 1 To Len(s)\n        ch = Mid$(s, i, 1)\n        code = AscW(ch)\n        If code < 0 Then code = code + 65536\n        If code < 32 Or code > 126 Or ch = \"|\" Then out = out & \"<\" & code & \">\" Else out = out & ch\n    Next\n    Esc = out\nEnd Function\n\nPrivate Sub Mixed(ws As Worksheet)\n    ws.Range(\"A1\").Value = \"caf\" & ChrW(233)\n    ws.Range(\"B1\").Value = \"omega \" & ChrW(937)\n    ws.Range(\"C1\").Value = \"a,b\"\n    ws.Range(\"D1\").Value = \"say \"\"hi\"\"\"\n    ws.Range(\"A2\").Value = \"tab\" & Chr(9) & \"in\"\n    ws.Range(\"B2\").Value = \"two\" & Chr(10) & \"lines\"\n    ws.Range(\"C2\").Value = 1234.5\n    ws.Range(\"C2\").NumberFormat = \"#,##0.00\"\n    ws.Range(\"D2\").Value = 7\n    ws.Range(\"A3\").Value = \"a;b\"\n    ws.Range(\"B3\").Value = \" pad \"\n    ws.Range(\"C3\").Value = \"euro \" & ChrW(8364)\nEnd Sub\n\nPublic Function Probe(name As String, path As String, fileFormat As Long) As String\n    Dim wb As Workbook, ws As Worksheet, s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Select Case name\n        Case \"basic\", \"resave\", \"no_extension\", \"txt_extension\", \"local\"\n            ws.Range(\"A1\").Value = \"name\": ws.Range(\"B1\").Value = \"amount\"\n            ws.Range(\"A2\").Value = \"alpha\": ws.Range(\"B2\").Value = 1\n            ws.Range(\"A3\").Value = \"beta\": ws.Range(\"B3\").Value = 2.5\n        Case \"formats\"\n            ws.Range(\"A1\").Value = 1234.5: ws.Range(\"A1\").NumberFormat = \"#,##0.00\"\n            ws.Range(\"B1\").Value = DateSerial(2026, 1, 2): ws.Range(\"B1\").NumberFormat = \"m/d/yyyy\"\n            ws.Range(\"C1\").Value = 0.125: ws.Range(\"C1\").NumberFormat = \"0.00%\"\n            ws.Range(\"D1\").Value = 5: ws.Range(\"D1\").NumberFormat = \"$#,##0.00\"\n            ws.Range(\"E1\").Value = DateSerial(2026, 1, 2) + TimeSerial(10, 30, 0)\n            ws.Range(\"F1\").Value = 0.5: ws.Range(\"F1\").NumberFormat = \"h:mm AM/PM\"\n            ws.Range(\"G1\").Value = -5: ws.Range(\"G1\").NumberFormat = \"0.00_);(0.00)\"\n            ws.Range(\"H1\").Value = 42: ws.Range(\"H1\").NumberFormat = \"@\"\n            ws.Range(\"I1\").Value = 3.14159: ws.Range(\"I1\").NumberFormat = \"0.0\"\n            ws.Range(\"J1\").Value = 1.5: ws.Range(\"J1\").NumberFormat = \"# ?/?\"\n            ws.Range(\"K1\").Value = 12345: ws.Range(\"K1\").NumberFormat = \"0.00E+00\"\n            ws.Range(\"L1\").Value = 7: ws.Range(\"L1\").NumberFormat = \"\"\"N\"\"0\"\n        Case \"general_numbers\"\n            ws.Range(\"A1\").Value = 1 / 3: ws.Range(\"B1\").Value = 0.1 + 0.2: ws.Range(\"C1\").Value = 123456789012345#\n            ws.Range(\"D1\").Value = 1.23456789012346E+17: ws.Range(\"E1\").Value = 0.000001234\n            ws.Range(\"F1\").Value = -2.5: ws.Range(\"G1\").Value = 1E+20: ws.Range(\"H1\").Value = 12345678901#\n            ws.Range(\"A2\").Value = 1 / 3: ws.Columns(1).ColumnWidth = 40\n        Case \"narrow_column\"\n            ws.Range(\"A1\").Value = 123456789: ws.Columns(1).ColumnWidth = 2\n            ws.Range(\"B1\").Value = 1 / 3: ws.Columns(2).ColumnWidth = 3\n            ws.Range(\"C1\").Value = DateSerial(2026, 1, 2): ws.Columns(3).ColumnWidth = 2\n            ws.Range(\"D1\").Value = \"long text here\": ws.Columns(4).ColumnWidth = 2\n            ws.Range(\"E1\").Value = 1234.5: ws.Range(\"E1\").NumberFormat = \"#,##0.00\": ws.Columns(5).ColumnWidth = 2\n        Case \"quoting\"\n            ws.Range(\"A1\").Value = \"a,b\": ws.Range(\"B1\").Value = \"say \"\"hi\"\"\"\n            ws.Range(\"C1\").Value = \"two\" & Chr(10) & \"lines\": ws.Range(\"D1\").Value = \"cr\" & Chr(13) & \"only\"\n            ws.Range(\"E1\").Value = \" lead\": ws.Range(\"F1\").Value = \"trail \": ws.Range(\"G1\").Value = \"tab\" & Chr(9) & \"x\"\n            ws.Range(\"H1\").Value = \"semi;colon\": ws.Range(\"I1\").Value = \"'quoted'\": ws.Range(\"J1\").Value = \"\"\"\"\n            ws.Range(\"K1\").Value = \"a\"\"\": ws.Range(\"L1\").NumberFormat = \"@\": ws.Range(\"L1\").Value = \"=not formula\"\n        Case \"formulas\"\n            ws.Range(\"A1\").Formula = \"=1+2\": ws.Range(\"B1\").Formula = \"=\"\"x\"\"\"\n            ws.Range(\"C1\").Formula = \"=1/0\": ws.Range(\"D1\").Value = True: ws.Range(\"E1\").Value = False\n            ws.Range(\"F1\").Formula = \"=A1>2\": ws.Range(\"G1\").Formula = \"=NA()\"\n            ws.Range(\"H1\").Formula = \"=\"\"a,b\"\"\"\n        Case \"offset\"\n            ws.Range(\"C3\").Value = \"x\": ws.Range(\"D4\").Value = \"y\"\n        Case \"ragged\"\n            ws.Range(\"A1\").Value = \"a\": ws.Range(\"B2\").Value = \"b\": ws.Range(\"D2\").Value = \"d\"\n            ws.Range(\"A4\").Value = \"e\"\n        Case \"ragged_long\"\n            ws.Range(\"A1\").Value = 1: ws.Range(\"E1\").Value = 5\n            For i = 2 To 25: ws.Cells(i, 1).Value = i: Next\n        Case \"empty_sheet\"\n        Case \"second_sheet\"\n            ws.Range(\"A1\").Value = \"first\"\n            Set ws = wb.Worksheets.Add(After:=ws)\n            ws.Name = \"Data\"\n            ws.Range(\"A1\").Value = \"second\"\n            ws.Activate\n        Case \"hidden\"\n            ws.Range(\"A1\").Value = \"a\": ws.Range(\"B1\").Value = \"b\": ws.Range(\"C1\").Value = \"c\"\n            ws.Range(\"A2\").Value = \"d\": ws.Range(\"B2\").Value = \"e\": ws.Range(\"C2\").Value = \"f\"\n            ws.Rows(2).Hidden = True: ws.Columns(2).Hidden = True\n        Case \"merged\"\n            ws.Range(\"A1\").Value = \"m\": ws.Range(\"A1:B2\").Merge: ws.Range(\"C1\").Value = \"c\"\n        Case \"prefixed\"\n            ws.Range(\"A1\").Value = \"'007\": ws.Range(\"B1\").Value = \"'=1+1\": ws.Range(\"C1\").Value = \"'\"\n        Case \"accounting\"\n            ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").NumberFormat = \"_($* #,##0.00_);_($* (#,##0.00);_($* \"\"-\"\"??_);_(@_)\"\n            ws.Range(\"B1\").Value = -5: ws.Range(\"B1\").NumberFormat = ws.Range(\"A1\").NumberFormat\n            ws.Range(\"C1\").Value = 0: ws.Range(\"C1\").NumberFormat = ws.Range(\"A1\").NumberFormat\n            ws.Range(\"D1\").Value = \"x\": ws.Range(\"D1\").NumberFormat = ws.Range(\"A1\").NumberFormat\n            ws.Range(\"E1\").Value = 1234.5: ws.Range(\"E1\").NumberFormat = \"_(* #,##0_);_(* (#,##0);_(* \"\"-\"\"_);_(@_)\"\n            ws.Columns(1).ColumnWidth = 20\n        Case \"fills\"\n            ws.Range(\"A1\").Value = 5: ws.Range(\"A1\").NumberFormat = \"0* \"\n            ws.Range(\"B1\").Value = \"ab\": ws.Range(\"B1\").NumberFormat = \"@*-\"\n            ws.Range(\"C1\").Value = 7: ws.Range(\"C1\").NumberFormat = \"*x0\"\n            ws.Columns(2).ColumnWidth = 20\n        Case \"formatted_edge\"\n            ws.Range(\"A1\").Value = \"a\": ws.Range(\"B2\").Value = \"b\"\n            ws.Range(\"D4\").Interior.Color = RGB(255, 0, 0): ws.Range(\"E1\").Font.Bold = True\n        Case \"resave_two_sheets\"\n            ws.Range(\"A1\").Value = \"first\"\n            wb.Worksheets.Add(After:=ws).Range(\"A1\").Value = \"second\"\n            ws.Activate\n        Case \"unicode_no_extension\", \"msdos_no_extension\", \"utf8_no_extension\", \"text_no_extension\", _\n             \"windows_text_no_extension\", \"msdos_text_no_extension\", \"windows_csv_no_extension\"\n            ws.Range(\"A1\").Value = \"a\": ws.Range(\"B1\").Value = 1\n        Case \"name_clash\"\n            ws.Range(\"A1\").Value = \"a\"\n            wb.Worksheets.Add(After:=ws).Name = \"clash\"\n            ws.Activate\n        Case \"negative_date\"\n            ws.Range(\"A1\").Value = -1: ws.Range(\"A1\").NumberFormat = \"m/d/yyyy\": ws.Range(\"B1\").Value = \"after\"\n        Case \"conditional_format\"\n            ws.Range(\"A1\").Value = 5\n            ws.Range(\"A1\").FormatConditions.Add(xlCellValue, xlGreater, \"0\").NumberFormat = \"0.000\"\n            ws.Range(\"B1\").Value = -5\n            ws.Range(\"B1\").FormatConditions.Add(xlCellValue, xlGreater, \"0\").NumberFormat = \"0.000\"\n        Case \"text_section\"\n            ws.Range(\"A1\").Value = \"x\": ws.Range(\"A1\").NumberFormat = \"General;General;General;\"\"Name: \"\"@\"\n            ws.Range(\"B1\").Value = 5: ws.Range(\"B1\").NumberFormat = \"0;-0;\"\"zero\"\";\"\"T:\"\"@\"\n            ws.Range(\"C1\").Value = 0: ws.Range(\"C1\").NumberFormat = \"0;-0;\"\"zero\"\";\"\"T:\"\"@\"\n        Case Else\n            Mixed ws\n    End Select\n    If name = \"local\" Then\n        wb.SaveAs Filename:=path, FileFormat:=fileFormat, Local:=True\n    Else\n        wb.SaveAs Filename:=path, FileFormat:=fileFormat\n    End If\n    s = Esc(wb.Name) & \"|\" & wb.FileFormat & \"|\" & wb.Saved & \"|\" & wb.ReadOnly & \"|\" & wb.Worksheets.Count & \"|\" & _\n        Esc(wb.ActiveSheet.Name) & \"|\" & wb.ActiveSheet.Range(\"A1\").HasFormula\n    If name = \"resave\" Or name = \"resave_two_sheets\" Then\n        wb.ActiveSheet.Range(\"C1\").Value = \"added\"\n        s = s & \"|dirty=\" & wb.Saved\n        wb.Save\n        s = s & \"|after save=\" & wb.Saved & \" \" & wb.FileFormat & \" \" & Esc(wb.Name) & \" \" & Esc(wb.ActiveSheet.Name)\n    End If\n    If name = \"name_clash\" Then s = s & \"|sheets=\" & Esc(wb.Worksheets(1).Name) & \",\" & Esc(wb.Worksheets(2).Name)\n    wb.Close False\n    Application.DisplayAlerts = True\n    Probe = s\nEnd Function\n",
+  "cases": [
+    [
+      "basic",
+      "basic.csv",
+      6
+    ],
+    [
+      "formats",
+      "formats.csv",
+      6
+    ],
+    [
+      "general_numbers",
+      "general.csv",
+      6
+    ],
+    [
+      "narrow_column",
+      "narrow.csv",
+      6
+    ],
+    [
+      "quoting",
+      "quoting.csv",
+      6
+    ],
+    [
+      "formulas",
+      "formulas.csv",
+      6
+    ],
+    [
+      "offset",
+      "offset.csv",
+      6
+    ],
+    [
+      "ragged",
+      "ragged.csv",
+      6
+    ],
+    [
+      "ragged_long",
+      "ragged_long.csv",
+      6
+    ],
+    [
+      "empty_sheet",
+      "empty.csv",
+      6
+    ],
+    [
+      "second_sheet",
+      "second.csv",
+      6
+    ],
+    [
+      "hidden",
+      "hidden.csv",
+      6
+    ],
+    [
+      "merged",
+      "merged.csv",
+      6
+    ],
+    [
+      "prefixed",
+      "prefixed.csv",
+      6
+    ],
+    [
+      "resave",
+      "resave.csv",
+      6
+    ],
+    [
+      "no_extension",
+      "noext",
+      6
+    ],
+    [
+      "txt_extension",
+      "csv_as.txt",
+      6
+    ],
+    [
+      "utf8",
+      "utf8.csv",
+      62
+    ],
+    [
+      "unicode_text",
+      "unicode.txt",
+      42
+    ],
+    [
+      "text",
+      "text.txt",
+      -4158
+    ],
+    [
+      "text_windows",
+      "windows.txt",
+      20
+    ],
+    [
+      "text_msdos",
+      "msdos.txt",
+      21
+    ],
+    [
+      "csv_mac",
+      "mac.csv",
+      22
+    ],
+    [
+      "csv_windows",
+      "windows.csv",
+      23
+    ],
+    [
+      "csv_msdos",
+      "msdos.csv",
+      24
+    ],
+    [
+      "text_mac",
+      "mac.txt",
+      19
+    ],
+    [
+      "printer",
+      "printer.prn",
+      36
+    ],
+    [
+      "local",
+      "local.csv",
+      6
+    ],
+    [
+      "accounting",
+      "accounting.csv",
+      6
+    ],
+    [
+      "fills",
+      "fills.csv",
+      6
+    ],
+    [
+      "formatted_edge",
+      "edge.csv",
+      6
+    ],
+    [
+      "resave_two_sheets",
+      "twosheets.csv",
+      6
+    ],
+    [
+      "unicode_no_extension",
+      "unicode_noext",
+      42
+    ],
+    [
+      "msdos_no_extension",
+      "msdos_noext",
+      24
+    ],
+    [
+      "utf8_no_extension",
+      "utf8_noext",
+      62
+    ],
+    [
+      "text_no_extension",
+      "text_noext",
+      -4158
+    ],
+    [
+      "windows_text_no_extension",
+      "wintext_noext",
+      20
+    ],
+    [
+      "msdos_text_no_extension",
+      "dostext_noext",
+      21
+    ],
+    [
+      "windows_csv_no_extension",
+      "wincsv_noext",
+      23
+    ],
+    [
+      "name_clash",
+      "clash.csv",
+      6
+    ],
+    [
+      "negative_date",
+      "negdate.csv",
+      6
+    ],
+    [
+      "conditional_format",
+      "conditional.csv",
+      6
+    ],
+    [
+      "text_section",
+      "section.csv",
+      6
+    ]
+  ],
+  "answers": {
+    "basic": "basic.csv|6|True|False|1|basic|False",
+    "formats": "formats.csv|6|True|False|1|formats|False",
+    "general_numbers": "general.csv|6|True|False|1|general|False",
+    "narrow_column": "narrow.csv|6|True|False|1|narrow|False",
+    "quoting": "quoting.csv|6|True|False|1|quoting|False",
+    "formulas": "formulas.csv|6|True|False|1|formulas|True",
+    "offset": "offset.csv|6|True|False|1|offset|False",
+    "ragged": "ragged.csv|6|True|False|1|ragged|False",
+    "ragged_long": "ragged_long.csv|6|True|False|1|ragged_long|False",
+    "empty_sheet": "empty.csv|6|True|False|1|empty|False",
+    "second_sheet": "second.csv|6|False|False|2|second|False",
+    "hidden": "hidden.csv|6|True|False|1|hidden|False",
+    "merged": "merged.csv|6|True|False|1|merged|False",
+    "prefixed": "prefixed.csv|6|True|False|1|prefixed|False",
+    "resave": "resave.csv|6|True|False|1|resave|False|dirty=False|after save=True 6 resave.csv resave",
+    "no_extension": "noext.csv|6|True|False|1|noext|False",
+    "txt_extension": "csv_as.txt|6|True|False|1|csv_as|False",
+    "utf8": "utf8.csv|62|True|False|1|utf8|False",
+    "unicode_text": "unicode.txt|42|True|False|1|unicode|False",
+    "text": "text.txt|-4158|True|False|1|text|False",
+    "text_windows": "windows.txt|-4158|True|False|1|windows|False",
+    "text_msdos": "msdos.txt|21|True|False|1|Sheet1|False",
+    "csv_mac": "mac.csv|22|True|False|1|Sheet1|False",
+    "csv_windows": "windows.csv|6|True|False|1|windows|False",
+    "csv_msdos": "msdos.csv|24|True|False|1|Sheet1|False",
+    "text_mac": "mac.txt|19|True|False|1|Sheet1|False",
+    "printer": "printer.prn|36|True|False|1|printer|False",
+    "local": "local.csv|6|True|False|1|local|False",
+    "accounting": "accounting.csv|6|True|False|1|accounting|False",
+    "fills": "fills.csv|6|True|False|1|fills|False",
+    "formatted_edge": "edge.csv|6|True|False|1|edge|False",
+    "resave_two_sheets": "twosheets.csv|6|False|False|2|twosheets|False|dirty=False|after save=False 6 twosheets.csv twosheets",
+    "unicode_no_extension": "unicode_noext|42|True|False|1|unicode_noext|False",
+    "msdos_no_extension": "msdos_noext.csv|24|True|False|1|Sheet1|False",
+    "utf8_no_extension": "utf8_noext.csv|62|True|False|1|utf8_noext|False",
+    "text_no_extension": "text_noext.txt|-4158|True|False|1|text_noext|False",
+    "windows_text_no_extension": "wintext_noext.txt|-4158|True|False|1|wintext_noext|False",
+    "msdos_text_no_extension": "dostext_noext.txt|21|True|False|1|Sheet1|False",
+    "windows_csv_no_extension": "wincsv_noext.csv|6|True|False|1|wincsv_noext|False",
+    "name_clash": "clash.csv|6|False|False|2|Sheet1|False|sheets=Sheet1,clash",
+    "negative_date": "negdate.csv|6|True|False|1|negdate|False",
+    "conditional_format": "conditional.csv|6|True|False|1|conditional|False",
+    "text_section": "section.csv|6|True|False|1|section|False"
+  },
+  "files": {
+    "basic": "bmFtZSxhbW91bnQNCmFscGhhLDENCmJldGEsMi41DQo=",
+    "formats": "IjEsMjM0LjUwIiwxLzIvMjAyNiwxMi41MCUsJDUuMDAsMS8yLzIwMjYgMTA6MzAsMTI6MDAgUE0sKDUuMDApLDQyLDMuMSwxIDEvMiwxLjIzRSswNCxONw0K",
+    "general_numbers": "MC4zMzMzMzMzMzMsMC4zLDEuMjM0NTdFKzE0LDEuMjM0NTdFKzE3LDAuMDAwMDAxMjM0LC0yLjUsMUUrMjAsMTIzNDU2Nzg5MDENCjAuMzMzMzMzMzMzLCwsLCwsLA0K",
+    "narrow_column": "MTIzNDU2Nzg5LDAuMzMzMzMzMzMzLDEvMi8yMDI2LGxvbmcgdGV4dCBoZXJlLCIxLDIzNC41MCINCg==",
+    "quoting": "ImEsYiIsInNheSAiImhpIiIiLCJ0d28KbGluZXMiLCJjcg1vbmx5IiwgbGVhZCx0cmFpbCAsInRhYgl4IixzZW1pO2NvbG9uLHF1b3RlZCcsIiIiIiwiYSIiIiw9bm90IGZvcm11bGENCg==",
+    "formulas": "Myx4LCNESVYvMCEsVFJVRSxGQUxTRSxUUlVFLCNOL0EsImEsYiINCg==",
+    "offset": "eCwNCix5DQo=",
+    "ragged": "YSwsLA0KLGIsLGQNCiwsLA0KZSwsLA0K",
+    "ragged_long": "MSwsLCw1DQoyLCwsLA0KMywsLCwNCjQsLCwsDQo1LCwsLA0KNiwsLCwNCjcsLCwsDQo4LCwsLA0KOSwsLCwNCjEwLCwsLA0KMTEsLCwsDQoxMiwsLCwNCjEzLCwsLA0KMTQsLCwsDQoxNSwsLCwNCjE2LCwsLA0KMTcsLCwsDQoxOCwsLCwNCjE5LCwsLA0KMjAsLCwsDQoyMSwsLCwNCjIyLCwsLA0KMjMsLCwsDQoyNCwsLCwNCjI1LCwsLA0K",
+    "empty_sheet": "DQo=",
+    "second_sheet": "c2Vjb25kDQo=",
+    "hidden": "YSxiLGMNCmQsZSxmDQo=",
+    "merged": "bSwsYw0KLCwNCg==",
+    "prefixed": "MDA3LD0xKzEsDQo=",
+    "resave": "bmFtZSxhbW91bnQsYWRkZWQNCmFscGhhLDEsDQpiZXRhLDIuNSwNCg==",
+    "no_extension": "bmFtZSxhbW91bnQNCmFscGhhLDENCmJldGEsMi41DQo=",
+    "txt_extension": "bmFtZSxhbW91bnQNCmFscGhhLDENCmJldGEsMi41DQo=",
+    "utf8": "77u/Y2Fmw6ksb21lZ2EgzqksImEsYiIsInNheSAiImhpIiIiDQoidGFiCWluIiwidHdvCmxpbmVzIiwiMSwyMzQuNTAiLDcNCmE7YiwgcGFkICxldXJvIOKCrCwNCg==",
+    "unicode_text": "//5jAGEAZgDpAAkAbwBtAGUAZwBhACAAqQMJACIAYQAsAGIAIgAJACIAcwBhAHkAIAAiACIAaABpACIAIgAiAA0ACgAiAHQAYQBiAAkAaQBuACIACQAiAHQAdwBvAAoAbABpAG4AZQBzACIACQAiADEALAAyADMANAAuADUAMAAiAAkANwANAAoAYQA7AGIACQAgAHAAYQBkACAACQBlAHUAcgBvACAArCAJAA0ACgA=",
+    "text": "Y2Fm6QlvbWVnYSA/CSJhLGIiCSJzYXkgIiJoaSIiIg0KInRhYglpbiIJInR3bwpsaW5lcyIJIjEsMjM0LjUwIgk3DQphO2IJIHBhZCAJZXVybyCACQ0K",
+    "text_windows": "Y2Fm6QlvbWVnYSA/CSJhLGIiCSJzYXkgIiJoaSIiIg0KInRhYglpbiIJInR3bwpsaW5lcyIJIjEsMjM0LjUwIgk3DQphO2IJIHBhZCAJZXVybyCACQ0K",
+    "text_msdos": "Y2FmgglvbWVnYSDqCSJhLGIiCSJzYXkgIiJoaSIiIg0KInRhYglpbiIJInR3bwpsaW5lcyIJIjEsMjM0LjUwIgk3DQphO2IJIHBhZCAJZXVybyA/CQ0K",
+    "csv_mac": "Y2FmjixvbWVnYSA/LCJhLGIiLCJzYXkgIiJoaSIiIg0idGFiCWluIiwidHdvCmxpbmVzIiwiMSwyMzQuNTAiLDcNYTtiLCBwYWQgLGV1cm8g2ywNCg==",
+    "csv_windows": "Y2Fm6SxvbWVnYSA/LCJhLGIiLCJzYXkgIiJoaSIiIg0KInRhYglpbiIsInR3bwpsaW5lcyIsIjEsMjM0LjUwIiw3DQphO2IsIHBhZCAsZXVybyCALA0K",
+    "csv_msdos": "Y2FmgixvbWVnYSDqLCJhLGIiLCJzYXkgIiJoaSIiIg0KInRhYglpbiIsInR3bwpsaW5lcyIsIjEsMjM0LjUwIiw3DQphO2IsIHBhZCAsZXVybyA/LA0K",
+    "text_mac": "Y2FmjglvbWVnYSA/CSJhLGIiCSJzYXkgIiJoaSIiIg0idGFiCWluIgkidHdvCmxpbmVzIgkiMSwyMzQuNTAiCTcNYTtiCSBwYWQgCWV1cm8g2wk=",
+    "printer": "Y2Fm6SAgICBvbWVnYSA/IGEsYiAgICAgc2F5ICJoaSINCnRhYglpbiAgdHdvCmxpbmUxLDIzNC41MCAgICAgICA3DQphO2IgICAgICBwYWQgICAgZXVybyCADQo=",
+    "local": "bmFtZSxhbW91bnQNCmFscGhhLDENCmJldGEsMi41DQo=",
+    "accounting": "ICQ1LjAwICwgJCg1LjAwKSwgJC0gICAsIHggLCIgMSwyMzUgIg0K",
+    "fills": "NSxhYiw3DQo=",
+    "formatted_edge": "YSwsLCwNCixiLCwsDQosLCwsDQosLCwsDQo=",
+    "resave_two_sheets": "Zmlyc3QsLGFkZGVkDQo=",
+    "unicode_no_extension": "//5hAAkAMQANAAoA",
+    "msdos_no_extension": "YSwxDQo=",
+    "utf8_no_extension": "77u/YSwxDQo=",
+    "text_no_extension": "YQkxDQo=",
+    "windows_text_no_extension": "YQkxDQo=",
+    "msdos_text_no_extension": "YQkxDQo=",
+    "windows_csv_no_extension": "YSwxDQo=",
+    "name_clash": "YQ0K",
+    "negative_date": "IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjLGFmdGVyDQo=",
+    "conditional_format": "NSwtNQ0K",
+    "text_section": "TmFtZTogeCw1LHplcm8NCg=="
+  }
+}

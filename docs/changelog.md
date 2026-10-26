@@ -7,6 +7,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbook.SaveAs` writes CSV and text files as Excel does: xlCSV,
+  xlCSVWindows, xlCSVMSDOS, xlCSVUTF8, xlUnicodeText,
+  xlCurrentPlatformText, xlTextWindows and xlTextMSDOS. The active sheet
+  is written alone, its used block from its first cell, every line as
+  wide as the block, each cell as its own format shows it whatever its
+  column's width, a fill left out. A field holding a comma, a quote, a
+  tab or a line end is quoted, a character the code page lacks is `?`,
+  and every line ends with CR LF. The workbook takes the file's name and
+  Excel's FileFormat for it, its active sheet the file's name too but in
+  the MS-DOS formats, and one of more than one sheet is left unsaved; a
+  later Save writes the same way. SaveAs takes all of its arguments. 40
+  live saves agree byte for byte, `tests/fixtures/text_saves.json`.
+
 - `Workbooks.Open` reads CSV and text files as Excel does. A .csv file
   splits at commas, or at the character a first line of `sep=` names; a
   text file, and a .csv of three bytes or fewer or in UTF-16, splits at

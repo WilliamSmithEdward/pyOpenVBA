@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Application members everyday macros use answer as Excel's do:
+  `PathSeparator`, `Value`, `OperatingSystem` and `MeasurementUnit`;
+  `InchesToPoints` and `CentimetersToPoints`, to the bit, the second
+  multiplying by 72 / 2.54 worked out first; `SheetsInNewWorkbook`, 1 to
+  255 and error 1004 past them, which sets how many sheets
+  `Workbooks.Add` makes with no template; and `ThisCell`, the cell
+  whose formula runs a VBA Function, error 1004 from a macro. 45 live
+  answers and 32 values converted agree,
+  `tests/fixtures/application_members.json`.
+
 - `Workbooks.OpenText` reads a text file as Excel does: every
   delimiter, runs of them, qualifiers, StartRow, FieldInfo's kinds and
   fixed widths, separators, a trailing minus, and the code pages Origin
@@ -1101,6 +1111,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Application.Caller` in a VBA Function an array formula calls answers
+  the array's whole block, as Excel's does. Excel works such a function
+  out once for the whole block; the model answered the block's first
+  cell.
 
 - `Range.TextToColumns` splits at the delimiters the session last used
   where a macro leaves them out, as Excel does: a tab in a new session,

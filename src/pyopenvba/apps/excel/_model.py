@@ -4580,6 +4580,13 @@ class Range(ExcelObject):
         return remove_duplicates(self, Columns, Header)
 
     @method
+    def DataSeries(self, Rowcol: object = MISSING, Type: object = MISSING, Date: object = MISSING,
+                   Step: object = MISSING, Stop: object = MISSING, Trend: object = MISSING) -> object:
+        from pyopenvba.apps.excel._data_series import data_series
+
+        return data_series(self, Rowcol, Type, Date, Step, Stop, Trend)
+
+    @method
     def InsertIndent(self, InsertAmount: object = MISSING) -> object:
         """Each cell's IndentLevel raised by a Long, as IndentLevel sets it, a centred cell made left; 0, or a level
         that would go outside 0 to 250, is error 1004 and changes nothing (tests/fixtures/small_members.json)."""

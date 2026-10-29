@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.DataSeries` fills a series as Edit > Fill > Series does, to the
+  bit. A linear value is first + k * Step in Doubles, with no rounding
+  to 15 digits, and growth is first * Step^k by repeated squaring.
+  Dates count in days, weekdays, months or years, months and years kept
+  on the first cell's day. AutoFill fills as AutoFill does. Stop ends a
+  line, the cells after it keeping what they held. The filled cells take
+  the first cell's format, and one Change event covers them. A Trend
+  over two or more numbers, which Excel fits by least squares, reports
+  itself unsupported. 48 live series agree,
+  `tests/fixtures/data_series.json`.
+
 - Small members everyday macros read answer as Excel's do. `Creator`
   is xlCreatorCode on every object. `Range.InsertIndent` raises each
   cell's indent, and is error 1004 for 0 or past 0 to 250.

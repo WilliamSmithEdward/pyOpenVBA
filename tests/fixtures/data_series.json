@@ -1,0 +1,451 @@
+{
+ "measured_at": "2026-10-29T13:41:43.768255+00:00",
+ "source": "Private Type DoubleBits\n    v As Double\nEnd Type\nPrivate Type ByteBits\n    b(7) As Byte\nEnd Type\n\nPrivate Function Bits(ByVal value As Variant) As String\n    Dim d As DoubleBits, e As ByteBits, i As Long, s As String\n    d.v = value\n    LSet e = d\n    For i = 7 To 0 Step -1\n        s = s & Right$(\"0\" & Hex$(e.b(i)), 2)\n    Next\n    Bits = s\nEnd Function\n\nPrivate Function Cells(ByVal r As Range) As String\n    Dim c As Range, s As String\n    For Each c In r\n        If TypeName(c.Value) = \"Double\" Then\n            s = s & \",\" & Bits(c.Value)\n        Else\n            s = s & \",\" & TypeName(c.Value) & \":\" & CStr(c.Value)\n        End If\n        s = s & \":\" & c.HasFormula & \":\" & c.Text & \":\" & c.Font.Bold & \":\" & c.Interior.Color\n    Next\n    Cells = Mid(s, 2)\nEnd Function\n\nPrivate Function Tried(ByVal ws As Worksheet, ByVal which As Long) As String\n    Dim v As Variant, target As String\n    ws.Cells.Clear\n    Select Case which\n    Case 0\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A10\"\n    Case 1\n        ws.Range(\"A1\").Value = 0\n        target = \"A1:A40\"\n    Case 2\n        ws.Range(\"A1\").Value = 0.3\n        target = \"A1:A40\"\n    Case 3\n        ws.Range(\"A1\").Value = 1 / 3\n        target = \"A1:A30\"\n    Case 4\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A10\"\n    Case 5\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2:A10\").Value = \"old\"\n        target = \"A1:A10\"\n    Case 6\n        ws.Range(\"A1\").Value = 10\n        target = \"A1:A10\"\n    Case 7\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A10\"\n    Case 8\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A12\"\n    Case 9\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A40\"\n    Case 10\n        ws.Range(\"A1\").Value = 3\n        target = \"A1:A10\"\n    Case 11\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:E1\"\n    Case 12\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"B1\").Value = 10\n        target = \"A1:B5\"\n    Case 13\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 100\n        target = \"A1:C2\"\n    Case 14\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 100\n        target = \"A1:C3\"\n    Case 15\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 5\n        target = \"A1:A8\"\n    Case 16\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 3\n        target = \"A1:A8\"\n    Case 17\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 3\n        target = \"A1:A8\"\n    Case 18\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 2\n        ws.Range(\"A3\").Value = 4\n        target = \"A1:A8\"\n    Case 19\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 3\n        target = \"A1:A8\"\n    Case 20\n        ws.Range(\"A1\").Value = \"Item 1\"\n        target = \"A1:A6\"\n    Case 21\n        ws.Range(\"A1\").Value = \"Item 1\"\n        target = \"A1:A6\"\n    Case 22\n        target = \"A1:A6\"\n    Case 23\n        ws.Range(\"A1\").Formula = \"=1+1\"\n        target = \"A1:A6\"\n    Case 24\n        ws.Range(\"A1\").Value = 5\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        target = \"A1:A4\"\n    Case 25\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)\n        target = \"A1:A6\"\n    Case 26\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 30)\n        target = \"A1:A8\"\n    Case 27\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)\n        target = \"A1:A6\"\n    Case 28\n        ws.Range(\"A1\").Value = DateSerial(2024, 2, 29)\n        target = \"A1:A6\"\n    Case 29\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)\n        target = \"A1:A6\"\n    Case 30\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 1)\n        target = \"A1:A6\"\n    Case 31\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 1) + TimeSerial(6, 0, 0)\n        target = \"A1:A4\"\n    Case 32\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A6\"\n    Case 33\n        ws.Range(\"A1\").Value = 1\n        target = \"A1\"\n    Case 34\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"C1\").Value = 1\n        target = \"A1:A3,C1:C3\"\n    Case 35\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A6\"\n    Case 36\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A6\"\n    Case 37\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A6\"\n    Case 38\n        ws.Range(\"A1\").Value = True\n        target = \"A1:A4\"\n    Case 39\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = \"x\"\n        target = \"A1:A4\"\n    Case 40\n        ws.Range(\"A1\").Value = 0.1\n        ws.Range(\"A2\").Value = 0.3\n        target = \"A1:A12\"\n    Case 41\n        ws.Range(\"A1\").Value = 0.1\n        ws.Range(\"A2\").Value = 0.3\n        target = \"A1:A12\"\n    Case 42\n        ws.Range(\"A1\").Value = 0.1\n        target = \"A1:A12\"\n    Case 43\n        ws.Range(\"A1\").Value = 0.1\n        ws.Range(\"A2\").Value = 0.3\n        ws.Range(\"A3\").Value = 0.5\n        target = \"A1:A8\"\n    Case 44\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)\n        target = \"A1:A6\"\n    Case 45\n        ws.Range(\"A1\").Value = DateSerial(2026, 1, 31) + TimeSerial(9, 30, 0)\n        target = \"A1:A4\"\n    Case 46\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A2\").Value = 10\n        target = \"A1:B2\"\n    Case 47\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A6\"\n    Case 48\n        ws.Range(\"A1\").Value = 0\n        target = \"A1:A4\"\n    Case 49\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A6\"\n    Case 50\n        ws.Range(\"A1\").Value = 7\n        target = \"A1:A6\"\n    Case 51\n        ws.Range(\"A1\").Value = 1\n        target = \"A1:A6\"\n    Case 52\n        ws.Range(\"A1\").Value = 1\n        ws.Range(\"A1\").Font.Bold = True\n        ws.Range(\"A3\").Interior.Color = 255\n        target = \"A1:A4\"\n    End Select\n    On Error GoTo Failed\n    Select Case which\n    Case 0: v = ws.Range(\"A1:A10\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=2)\n    Case 1: v = ws.Range(\"A1:A40\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=0.1)\n    Case 2: v = ws.Range(\"A1:A40\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=0.7)\n    Case 3: v = ws.Range(\"A1:A30\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=1 / 7)\n    Case 4: v = ws.Range(\"A1:A10\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear)\n    Case 5: v = ws.Range(\"A1:A10\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=3, Stop:=10)\n    Case 6: v = ws.Range(\"A1:A10\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=-3, Stop:=0)\n    Case 7: v = ws.Range(\"A1:A10\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=0)\n    Case 8: v = ws.Range(\"A1:A12\").DataSeries(Rowcol:=xlColumns, Type:=xlGrowth, Step:=2)\n    Case 9: v = ws.Range(\"A1:A40\").DataSeries(Rowcol:=xlColumns, Type:=xlGrowth, Step:=1.1)\n    Case 10: v = ws.Range(\"A1:A10\").DataSeries(Rowcol:=xlColumns, Type:=xlGrowth, Step:=2, Stop:=50)\n    Case 11: v = ws.Range(\"A1:E1\").DataSeries()\n    Case 12: v = ws.Range(\"A1:B5\").DataSeries(Type:=xlLinear, Step:=5)\n    Case 13: v = ws.Range(\"A1:C2\").DataSeries(Type:=xlLinear, Step:=5)\n    Case 14: v = ws.Range(\"A1:C3\").DataSeries(Rowcol:=xlRows, Step:=5)\n    Case 15: v = ws.Range(\"A1:A8\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear)\n    Case 16: v = ws.Range(\"A1:A8\").DataSeries(Rowcol:=xlColumns, Trend:=True)\n    Case 17: v = ws.Range(\"A1:A8\").DataSeries(Rowcol:=xlColumns, Type:=xlGrowth, Trend:=True)\n    Case 18: v = ws.Range(\"A1:A8\").DataSeries(Rowcol:=xlColumns, Trend:=True)\n    Case 19: v = ws.Range(\"A1:A8\").DataSeries(Rowcol:=xlColumns, Type:=xlAutoFill)\n    Case 20: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlAutoFill)\n    Case 21: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear)\n    Case 22: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=1)\n    Case 23: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlLinear, Step:=1)\n    Case 24: v = ws.Range(\"A1:A4\").DataSeries(Rowcol:=xlColumns, Step:=1)\n    Case 25: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay)\n    Case 26: v = ws.Range(\"A1:A8\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlWeekday)\n    Case 27: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlMonth)\n    Case 28: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlYear)\n    Case 29: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlMonth, Step:=2)\n    Case 30: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay, Step:=7, Stop:=DateSerial(2026, 1, 25))\n    Case 31: v = ws.Range(\"A1:A4\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay, Step:=0.5)\n    Case 32: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay)\n    Case 33: v = ws.Range(\"A1\").DataSeries(Rowcol:=xlColumns, Step:=1)\n    Case 34: v = ws.Range(\"A1:A3,C1:C3\").DataSeries(Rowcol:=xlColumns, Step:=1)\n    Case 35: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=3, Step:=1)\n    Case 36: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=9, Step:=1)\n    Case 37: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Step:=\"x\")\n    Case 38: v = ws.Range(\"A1:A4\").DataSeries(Rowcol:=xlColumns, Step:=1)\n    Case 39: v = ws.Range(\"A1:A4\").DataSeries(Rowcol:=xlColumns, Trend:=True)\n    Case 40: v = ws.Range(\"A1:A12\").DataSeries(Rowcol:=xlColumns, Trend:=True)\n    Case 41: v = ws.Range(\"A1:A12\").DataSeries(Rowcol:=xlColumns, Type:=xlAutoFill)\n    Case 42: v = ws.Range(\"A1:A12\").DataSeries(Rowcol:=xlColumns, Step:=0.2)\n    Case 43: v = ws.Range(\"A1:A8\").DataSeries(Rowcol:=xlColumns, Trend:=True)\n    Case 44: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlWeekday)\n    Case 45: v = ws.Range(\"A1:A4\").DataSeries(Rowcol:=xlColumns, Type:=xlChronological, Date:=xlMonth)\n    Case 46: v = ws.Range(\"A1:B2\").DataSeries(Step:=5)\n    Case 47: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlGrowth, Step:=-2)\n    Case 48: v = ws.Range(\"A1:A4\").DataSeries(Rowcol:=xlColumns, Type:=xlGrowth, Step:=3)\n    Case 49: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Step:=2, Stop:=6)\n    Case 50: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Step:=2, Stop:=3)\n    Case 51: v = ws.Range(\"A1:A6\").DataSeries(Rowcol:=xlColumns, Type:=xlGrowth, Step:=0.5, Stop:=0.2)\n    Case 52: v = ws.Range(\"A1:A4\").DataSeries(Rowcol:=xlColumns, Step:=1)\n    End Select\n    Tried = TypeName(v) & \":\" & CStr(v) & \"=\" & Cells(ws.Range(target).Areas(1).Resize(, 1).Parent.Range(target))\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description & \"=\" & Cells(ws.Range(target))\nEnd Function\n\nPublic Function Probe() As String\n    Dim ws As Worksheet, s As String, i As Long\n    Set ws = ThisWorkbook.Worksheets.Add\n    For i = 0 To 52\n        s = s & vbLf & Tried(ws, i)\n    Next\n    Application.DisplayAlerts = False\n    ws.Delete\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 2)\nEnd Function\n",
+ "sink": "Public WithEvents App As Application\nPublic Log As String\n\nPrivate Sub App_SheetChange(ByVal Sh As Object, ByVal Target As Range)\n    Log = Log & \"|change \" & Target.Address(False, False)\nEnd Sub\n",
+ "events_source": "Private sink As SeriesSink\n\nPublic Function Events() As String\n    Dim ws As Worksheet, s As String, wasOn As Boolean\n    wasOn = Application.EnableEvents\n    Application.EnableEvents = True\n    Set ws = ThisWorkbook.Worksheets.Add\n    ws.Range(\"A1\").Value = 1\n    ws.Range(\"C1\").Value = 1\n    ws.Range(\"E5\").Select\n    Set sink = New SeriesSink\n    Set sink.App = Application\n    ws.Range(\"A1:A5\").DataSeries Rowcol:=xlColumns, Step:=1\n    s = \"column:\" & sink.Log & \"#selection \" & Selection.Address(False, False)\n    sink.Log = \"\"\n    ws.Range(\"C1:C3,A7:A8\").DataSeries Rowcol:=xlColumns, Step:=1\n    s = s & \"#areas:\" & sink.Log\n    sink.Log = \"\"\n    ws.Range(\"G1:G3\").DataSeries Rowcol:=xlColumns, Step:=1\n    s = s & \"#empty:\" & sink.Log\n    Set sink.App = Nothing\n    Set sink = Nothing\n    Application.DisplayAlerts = False\n    ws.Delete\n    Application.DisplayAlerts = True\n    Application.EnableEvents = wasOn\n    Events = s\nEnd Function\n",
+ "events": "column:|change A2:A5#selection E5#areas:|change C2:C3#empty:",
+ "cases": [
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A10",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=2",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4008000000000000:False:3:False:16777215,4014000000000000:False:5:False:16777215,401C000000000000:False:7:False:16777215,4022000000000000:False:9:False:16777215,4026000000000000:False:11:False:16777215,402A000000000000:False:13:False:16777215,402E000000000000:False:15:False:16777215,4031000000000000:False:17:False:16777215,4033000000000000:False:19:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0"
+   ],
+   "A1:A40",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=0.1",
+   "Boolean:True=0000000000000000:False:0:False:16777215,3FB999999999999A:False:0.1:False:16777215,3FC999999999999A:False:0.2:False:16777215,3FD3333333333334:False:0.3:False:16777215,3FD999999999999A:False:0.4:False:16777215,3FE0000000000000:False:0.5:False:16777215,3FE3333333333334:False:0.6:False:16777215,3FE6666666666667:False:0.7:False:16777215,3FE999999999999A:False:0.8:False:16777215,3FECCCCCCCCCCCCD:False:0.9:False:16777215,3FF0000000000000:False:1:False:16777215,3FF199999999999A:False:1.1:False:16777215,3FF3333333333334:False:1.2:False:16777215,3FF4CCCCCCCCCCCD:False:1.3:False:16777215,3FF6666666666667:False:1.4:False:16777215,3FF8000000000000:False:1.5:False:16777215,3FF999999999999A:False:1.6:False:16777215,3FFB333333333334:False:1.7:False:16777215,3FFCCCCCCCCCCCCD:False:1.8:False:16777215,3FFE666666666667:False:1.9:False:16777215,4000000000000000:False:2:False:16777215,4000CCCCCCCCCCCD:False:2.1:False:16777215,400199999999999A:False:2.2:False:16777215,4002666666666667:False:2.3:False:16777215,4003333333333334:False:2.4:False:16777215,4004000000000000:False:2.5:False:16777215,4004CCCCCCCCCCCD:False:2.6:False:16777215,400599999999999A:False:2.7:False:16777215,4006666666666667:False:2.8:False:16777215,4007333333333334:False:2.9:False:16777215,4008000000000000:False:3:False:16777215,4008CCCCCCCCCCCD:False:3.1:False:16777215,400999999999999A:False:3.2:False:16777215,400A666666666667:False:3.3:False:16777215,400B333333333334:False:3.4:False:16777215,400C000000000000:False:3.5:False:16777215,400CCCCCCCCCCCCD:False:3.6:False:16777215,400D99999999999A:False:3.7:False:16777215,400E666666666667:False:3.8:False:16777215,400F333333333334:False:3.9:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0.3"
+   ],
+   "A1:A40",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=0.7",
+   "Boolean:True=3FD3333333333333:False:0.3:False:16777215,3FF0000000000000:False:1:False:16777215,3FFB333333333333:False:1.7:False:16777215,4003333333333332:False:2.4:False:16777215,4008CCCCCCCCCCCC:False:3.1:False:16777215,400E666666666666:False:3.8:False:16777215,4011FFFFFFFFFFFF:False:4.5:False:16777215,4014CCCCCCCCCCCC:False:5.2:False:16777215,4017999999999999:False:5.9:False:16777215,401A666666666666:False:6.6:False:16777215,401D333333333333:False:7.3:False:16777215,401FFFFFFFFFFFFF:False:8:False:16777215,4021666666666666:False:8.7:False:16777215,4022CCCCCCCCCCCD:False:9.4:False:16777215,4024333333333333:False:10.1:False:16777215,402599999999999A:False:10.8:False:16777215,4027000000000000:False:11.5:False:16777215,4028666666666666:False:12.2:False:16777215,4029CCCCCCCCCCCD:False:12.9:False:16777215,402B333333333333:False:13.6:False:16777215,402C99999999999A:False:14.3:False:16777215,402E000000000000:False:15:False:16777215,402F666666666666:False:15.7:False:16777215,4030666666666666:False:16.4:False:16777215,4031199999999999:False:17.1:False:16777215,4031CCCCCCCCCCCD:False:17.8:False:16777215,4032800000000000:False:18.5:False:16777215,4033333333333333:False:19.2:False:16777215,4033E66666666666:False:19.9:False:16777215,4034999999999999:False:20.6:False:16777215,40354CCCCCCCCCCD:False:21.3:False:16777215,4036000000000000:False:22:False:16777215,4036B33333333333:False:22.7:False:16777215,4037666666666666:False:23.4:False:16777215,4038199999999999:False:24.1:False:16777215,4038CCCCCCCCCCCD:False:24.8:False:16777215,4039800000000000:False:25.5:False:16777215,403A333333333333:False:26.2:False:16777215,403AE66666666666:False:26.9:False:16777215,403B999999999999:False:27.6:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1 / 3"
+   ],
+   "A1:A30",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=1 / 7",
+   "Boolean:True=3FD5555555555555:False:0.333333:False:16777215,3FDE79E79E79E79E:False:0.47619:False:16777215,3FE3CF3CF3CF3CF4:False:0.619048:False:16777215,3FE8618618618618:False:0.761905:False:16777215,3FECF3CF3CF3CF3C:False:0.904762:False:16777215,3FF0C30C30C30C30:False:1.047619:False:16777215,3FF30C30C30C30C3:False:1.190476:False:16777215,3FF5555555555555:False:1.333333:False:16777215,3FF79E79E79E79E7:False:1.47619:False:16777215,3FF9E79E79E79E79:False:1.619048:False:16777215,3FFC30C30C30C30B:False:1.761905:False:16777215,3FFE79E79E79E79E:False:1.904762:False:16777215,4000618618618618:False:2.047619:False:16777215,4001861861861861:False:2.190476:False:16777215,4002AAAAAAAAAAAB:False:2.333333:False:16777215,4003CF3CF3CF3CF4:False:2.47619:False:16777215,4004F3CF3CF3CF3D:False:2.619048:False:16777215,4006186186186186:False:2.761905:False:16777215,40073CF3CF3CF3CF:False:2.904762:False:16777215,4008618618618618:False:3.047619:False:16777215,4009861861861861:False:3.190476:False:16777215,400AAAAAAAAAAAAB:False:3.333333:False:16777215,400BCF3CF3CF3CF4:False:3.47619:False:16777215,400CF3CF3CF3CF3D:False:3.619048:False:16777215,400E186186186186:False:3.761905:False:16777215,400F3CF3CF3CF3CF:False:3.904762:False:16777215,401030C30C30C30C:False:4.047619:False:16777215,4010C30C30C30C30:False:4.190476:False:16777215,4011555555555555:False:4.333333:False:16777215,4011E79E79E79E79:False:4.47619:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A10",
+   "Rowcol:=xlColumns, Type:=xlLinear",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4008000000000000:False:3:False:16777215,4010000000000000:False:4:False:16777215,4014000000000000:False:5:False:16777215,4018000000000000:False:6:False:16777215,401C000000000000:False:7:False:16777215,4020000000000000:False:8:False:16777215,4022000000000000:False:9:False:16777215,4024000000000000:False:10:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2:A10\").Value = \"old\""
+   ],
+   "A1:A10",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=3, Stop:=10",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4010000000000000:False:4:False:16777215,401C000000000000:False:7:False:16777215,4024000000000000:False:10:False:16777215,String:old:False:old:False:16777215,String:old:False:old:False:16777215,String:old:False:old:False:16777215,String:old:False:old:False:16777215,String:old:False:old:False:16777215,String:old:False:old:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 10"
+   ],
+   "A1:A10",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=-3, Stop:=0",
+   "Boolean:True=4024000000000000:False:10:False:16777215,401C000000000000:False:7:False:16777215,4010000000000000:False:4:False:16777215,3FF0000000000000:False:1:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A10",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=0",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215,3FF0000000000000:False:1:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A12",
+   "Rowcol:=xlColumns, Type:=xlGrowth, Step:=2",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4010000000000000:False:4:False:16777215,4020000000000000:False:8:False:16777215,4030000000000000:False:16:False:16777215,4040000000000000:False:32:False:16777215,4050000000000000:False:64:False:16777215,4060000000000000:False:128:False:16777215,4070000000000000:False:256:False:16777215,4080000000000000:False:512:False:16777215,4090000000000000:False:1024:False:16777215,40A0000000000000:False:2048:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A40",
+   "Rowcol:=xlColumns, Type:=xlGrowth, Step:=1.1",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,3FF199999999999A:False:1.1:False:16777215,3FF35C28F5C28F5D:False:1.21:False:16777215,3FF54BC6A7EF9DB4:False:1.331:False:16777215,3FF76CF41F212D79:False:1.4641:False:16777215,3FF9C4A6223E186C:False:1.61051:False:16777215,3FFC585058DDE7AB:False:1.771561:False:16777215,3FFF2DF1FB5A7ED7:False:1.948717:False:16777215,40012611E3D82C29:False:2.143589:False:16777215,4002DD13ADD43094:False:2.357948:False:16777215,4004BFFC0C03023D:False:2.593742:False:16777215,4006D32EDA034F44:False:2.853117:False:16777215,40091B805636D731:False:3.138428:False:16777215,400B9E405ED5ECB6:False:3.452271:False:16777215,400E6146CEB81DFD:False:3.797498:False:16777215,4010B5808B4BAA18:False:4.177248:False:16777215,401261409939A181:False:4.594973:False:16777215,401437C70EF2980E:False:5.05447:False:16777215,40163D5AF6D7A743:False:5.559917:False:16777215,401876B0DC539E65:False:6.115909:False:16777215,401AE8F5BF28C7D5:False:6.7275:False:16777215,401D99DB1F134238:False:7.40025:False:16777215,402047D21DE43139:False:8.140275:False:16777215,4021E89A54149C8C:False:8.954302:False:16777215,4023B3102949DF66:False:9.849733:False:16777215,4025AB5E93D1428B:False:10.83471:False:16777215,4027D61B3C32FC66:False:11.91818:False:16777215,402A3851289E7C0B:False:13.10999:False:16777215,402CD78C797B220C:False:14.42099:False:16777215,402FB9E7526DD8A7:False:15.86309:False:16777215,4031730C06EF9D90:False:17.4494:False:16777215,403331C06E0793B8:False:19.19434:False:16777215,40351D20790855B1:False:21.11378:False:16777215,403739A3B855F7DD:False:23.22515:False:16777215,40398C341791C3DA:False:25.54767:False:16777215,403C1A394D205771:False:28.10244:False:16777215,403EE9A56E70602F:False:30.91268:False:16777215,40410081632434E7:False:34.00395:False:16777215,4042B3C186A7D3CC:False:37.40434:False:16777215,40449288141F0294:False:41.14478:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 3"
+   ],
+   "A1:A10",
+   "Rowcol:=xlColumns, Type:=xlGrowth, Step:=2, Stop:=50",
+   "Boolean:True=4008000000000000:False:3:False:16777215,4018000000000000:False:6:False:16777215,4028000000000000:False:12:False:16777215,4038000000000000:False:24:False:16777215,4048000000000000:False:48:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:E1",
+   "",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4008000000000000:False:3:False:16777215,4010000000000000:False:4:False:16777215,4014000000000000:False:5:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"B1\").Value = 10"
+   ],
+   "A1:B5",
+   "Type:=xlLinear, Step:=5",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4024000000000000:False:10:False:16777215,4018000000000000:False:6:False:16777215,402E000000000000:False:15:False:16777215,4026000000000000:False:11:False:16777215,4034000000000000:False:20:False:16777215,4030000000000000:False:16:False:16777215,4039000000000000:False:25:False:16777215,4035000000000000:False:21:False:16777215,403E000000000000:False:30:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 100"
+   ],
+   "A1:C2",
+   "Type:=xlLinear, Step:=5",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4018000000000000:False:6:False:16777215,4026000000000000:False:11:False:16777215,4059000000000000:False:100:False:16777215,405A400000000000:False:105:False:16777215,405B800000000000:False:110:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 100"
+   ],
+   "A1:C3",
+   "Rowcol:=xlRows, Step:=5",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4018000000000000:False:6:False:16777215,4026000000000000:False:11:False:16777215,4059000000000000:False:100:False:16777215,405A400000000000:False:105:False:16777215,405B800000000000:False:110:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 5"
+   ],
+   "A1:A8",
+   "Rowcol:=xlColumns, Type:=xlLinear",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4008000000000000:False:3:False:16777215,4010000000000000:False:4:False:16777215,4014000000000000:False:5:False:16777215,4018000000000000:False:6:False:16777215,401C000000000000:False:7:False:16777215,4020000000000000:False:8:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 3"
+   ],
+   "A1:A8",
+   "Rowcol:=xlColumns, Trend:=True",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4008000000000000:False:3:False:16777215,4014000000000000:False:5:False:16777215,401C000000000000:False:7:False:16777215,4022000000000000:False:9:False:16777215,4026000000000000:False:11:False:16777215,402A000000000000:False:13:False:16777215,402E000000000000:False:15:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 3"
+   ],
+   "A1:A8",
+   "Rowcol:=xlColumns, Type:=xlGrowth, Trend:=True",
+   "Boolean:True=3FEFFFFFFFFFFFFF:False:1:False:16777215,4008000000000001:False:3:False:16777215,4022000000000003:False:9:False:16777215,403B000000000006:False:27:False:16777215,4054400000000006:False:81:False:16777215,406E60000000000D:False:243:False:16777215,4086C8000000000B:False:729:False:16777215,40A116000000000A:False:2187:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 2",
+    "ws.Range(\"A3\").Value = 4"
+   ],
+   "A1:A8",
+   "Rowcol:=xlColumns, Trend:=True",
+   "Boolean:True=3FEAAAAAAAAAAAAE:False:0.833333:False:16777215,4002AAAAAAAAAAAB:False:2.333333:False:16777215,400EAAAAAAAAAAAA:False:3.833333:False:16777215,4015555555555555:False:5.333333:False:16777215,401B555555555555:False:6.833333:False:16777215,4020AAAAAAAAAAAA:False:8.333333:False:16777215,4023AAAAAAAAAAAA:False:9.833333:False:16777215,4026AAAAAAAAAAAA:False:11.33333:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 3"
+   ],
+   "A1:A8",
+   "Rowcol:=xlColumns, Type:=xlAutoFill",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4008000000000000:False:3:False:16777215,4014000000000000:False:5:False:16777215,401C000000000000:False:7:False:16777215,4022000000000000:False:9:False:16777215,4026000000000000:False:11:False:16777215,402A000000000000:False:13:False:16777215,402E000000000000:False:15:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Item 1\""
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlAutoFill",
+   "Boolean:True=String:Item 1:False:Item 1:False:16777215,String:Item 2:False:Item 2:False:16777215,String:Item 3:False:Item 3:False:16777215,String:Item 4:False:Item 4:False:16777215,String:Item 5:False:Item 5:False:16777215,String:Item 6:False:Item 6:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Item 1\""
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlLinear",
+   "Boolean:True=String:Item 1:False:Item 1:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=1",
+   "Boolean:True=Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=1+1\""
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlLinear, Step:=1",
+   "Boolean:True=4000000000000000:True:2:False:16777215,4008000000000000:False:3:False:16777215,4010000000000000:False:4:False:16777215,4014000000000000:False:5:False:16777215,4018000000000000:False:6:False:16777215,401C000000000000:False:7:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 5",
+    "ws.Range(\"A1\").NumberFormat = \"0.00\""
+   ],
+   "A1:A4",
+   "Rowcol:=xlColumns, Step:=1",
+   "Boolean:True=4014000000000000:False:5.00:False:16777215,4018000000000000:False:6.00:False:16777215,401C000000000000:False:7.00:False:16777215,4020000000000000:False:8.00:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay",
+   "Boolean:True=Date:1/31/2026:False:1/31/2026:False:16777215,Date:2/1/2026:False:2/1/2026:False:16777215,Date:2/2/2026:False:2/2/2026:False:16777215,Date:2/3/2026:False:2/3/2026:False:16777215,Date:2/4/2026:False:2/4/2026:False:16777215,Date:2/5/2026:False:2/5/2026:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 30)"
+   ],
+   "A1:A8",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlWeekday",
+   "Boolean:True=Date:1/30/2026:False:1/30/2026:False:16777215,Date:2/2/2026:False:2/2/2026:False:16777215,Date:2/3/2026:False:2/3/2026:False:16777215,Date:2/4/2026:False:2/4/2026:False:16777215,Date:2/5/2026:False:2/5/2026:False:16777215,Date:2/6/2026:False:2/6/2026:False:16777215,Date:2/9/2026:False:2/9/2026:False:16777215,Date:2/10/2026:False:2/10/2026:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlMonth",
+   "Boolean:True=Date:1/31/2026:False:1/31/2026:False:16777215,Date:2/28/2026:False:2/28/2026:False:16777215,Date:3/31/2026:False:3/31/2026:False:16777215,Date:4/30/2026:False:4/30/2026:False:16777215,Date:5/31/2026:False:5/31/2026:False:16777215,Date:6/30/2026:False:6/30/2026:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2024, 2, 29)"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlYear",
+   "Boolean:True=Date:2/29/2024:False:2/29/2024:False:16777215,Date:2/28/2025:False:2/28/2025:False:16777215,Date:2/28/2026:False:2/28/2026:False:16777215,Date:2/28/2027:False:2/28/2027:False:16777215,Date:2/29/2028:False:2/29/2028:False:16777215,Date:2/28/2029:False:2/28/2029:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlMonth, Step:=2",
+   "Boolean:True=Date:1/31/2026:False:1/31/2026:False:16777215,Date:3/31/2026:False:3/31/2026:False:16777215,Date:5/31/2026:False:5/31/2026:False:16777215,Date:7/31/2026:False:7/31/2026:False:16777215,Date:9/30/2026:False:9/30/2026:False:16777215,Date:11/30/2026:False:########:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 1)"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay, Step:=7, Stop:=DateSerial(2026, 1, 25)",
+   "Boolean:True=Date:1/1/2026:False:1/1/2026:False:16777215,Date:1/8/2026:False:1/8/2026:False:16777215,Date:1/15/2026:False:1/15/2026:False:16777215,Date:1/22/2026:False:1/22/2026:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 1) + TimeSerial(6, 0, 0)"
+   ],
+   "A1:A4",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay, Step:=0.5",
+   "Boolean:True=Date:1/1/2026 6:00:00 AM:False:########:False:16777215,Date:1/1/2026 6:00:00 PM:False:########:False:16777215,Date:1/2/2026 6:00:00 AM:False:########:False:16777215,Date:1/2/2026 6:00:00 PM:False:########:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlDay",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4008000000000000:False:3:False:16777215,4010000000000000:False:4:False:16777215,4014000000000000:False:5:False:16777215,4018000000000000:False:6:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1",
+   "Rowcol:=xlColumns, Step:=1",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"C1\").Value = 1"
+   ],
+   "A1:A3,C1:C3",
+   "Rowcol:=xlColumns, Step:=1",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4008000000000000:False:3:False:16777215,3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4008000000000000:False:3:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A6",
+   "Rowcol:=3, Step:=1",
+   "Err 1004 Unable to get the DataSeries property of the Range class=3FF0000000000000:False:1:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=9, Step:=1",
+   "Err 1004 Unable to get the DataSeries property of the Range class=3FF0000000000000:False:1:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Step:=\"x\"",
+   "Err 1004 Unable to get the DataSeries property of the Range class=3FF0000000000000:False:1:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = True"
+   ],
+   "A1:A4",
+   "Rowcol:=xlColumns, Step:=1",
+   "Boolean:True=Boolean:True:False:TRUE:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = \"x\""
+   ],
+   "A1:A4",
+   "Rowcol:=xlColumns, Trend:=True",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4000000000000000:False:2:False:16777215,4008000000000000:False:3:False:16777215,4010000000000000:False:4:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0.1",
+    "ws.Range(\"A2\").Value = 0.3"
+   ],
+   "A1:A12",
+   "Rowcol:=xlColumns, Trend:=True",
+   "Boolean:True=3FB9999999999996:False:0.1:False:16777215,3FD3333333333334:False:0.3:False:16777215,3FE0000000000002:False:0.5:False:16777215,3FE6666666666668:False:0.7:False:16777215,3FECCCCCCCCCCCD0:False:0.9:False:16777215,3FF199999999999C:False:1.1:False:16777215,3FF4CCCCCCCCCCCF:False:1.3:False:16777215,3FF8000000000003:False:1.5:False:16777215,3FFB333333333337:False:1.7:False:16777215,3FFE66666666666A:False:1.9:False:16777215,4000CCCCCCCCCCCF:False:2.1:False:16777215,4002666666666669:False:2.3:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0.1",
+    "ws.Range(\"A2\").Value = 0.3"
+   ],
+   "A1:A12",
+   "Rowcol:=xlColumns, Type:=xlAutoFill",
+   "Boolean:True=3FB999999999999A:False:0.1:False:16777215,3FD3333333333333:False:0.3:False:16777215,3FE0000000000000:False:0.5:False:16777215,3FE6666666666666:False:0.7:False:16777215,3FECCCCCCCCCCCCD:False:0.9:False:16777215,3FF199999999999A:False:1.1:False:16777215,3FF4CCCCCCCCCCCD:False:1.3:False:16777215,3FF8000000000000:False:1.5:False:16777215,3FFB333333333333:False:1.7:False:16777215,3FFE666666666666:False:1.9:False:16777215,4000CCCCCCCCCCCD:False:2.1:False:16777215,4002666666666666:False:2.3:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0.1"
+   ],
+   "A1:A12",
+   "Rowcol:=xlColumns, Step:=0.2",
+   "Boolean:True=3FB999999999999A:False:0.1:False:16777215,3FD3333333333334:False:0.3:False:16777215,3FE0000000000000:False:0.5:False:16777215,3FE6666666666667:False:0.7:False:16777215,3FECCCCCCCCCCCCD:False:0.9:False:16777215,3FF199999999999A:False:1.1:False:16777215,3FF4CCCCCCCCCCCE:False:1.3:False:16777215,3FF8000000000001:False:1.5:False:16777215,3FFB333333333334:False:1.7:False:16777215,3FFE666666666667:False:1.9:False:16777215,4000CCCCCCCCCCCD:False:2.1:False:16777215,4002666666666667:False:2.3:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0.1",
+    "ws.Range(\"A2\").Value = 0.3",
+    "ws.Range(\"A3\").Value = 0.5"
+   ],
+   "A1:A8",
+   "Rowcol:=xlColumns, Trend:=True",
+   "Boolean:True=3FB999999999999A:False:0.1:False:16777215,3FD3333333333333:False:0.3:False:16777215,3FE0000000000000:False:0.5:False:16777215,3FE6666666666666:False:0.7:False:16777215,3FECCCCCCCCCCCCC:False:0.9:False:16777215,3FF199999999999A:False:1.1:False:16777215,3FF4CCCCCCCCCCCC:False:1.3:False:16777215,3FF8000000000000:False:1.5:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 31)"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlWeekday",
+   "Boolean:True=Date:1/31/2026:False:1/31/2026:False:16777215,Date:2/2/2026:False:2/2/2026:False:16777215,Date:2/3/2026:False:2/3/2026:False:16777215,Date:2/4/2026:False:2/4/2026:False:16777215,Date:2/5/2026:False:2/5/2026:False:16777215,Date:2/6/2026:False:2/6/2026:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = DateSerial(2026, 1, 31) + TimeSerial(9, 30, 0)"
+   ],
+   "A1:A4",
+   "Rowcol:=xlColumns, Type:=xlChronological, Date:=xlMonth",
+   "Boolean:True=Date:1/31/2026 9:30:00 AM:False:########:False:16777215,Date:2/28/2026 9:30:00 AM:False:########:False:16777215,Date:3/31/2026 9:30:00 AM:False:########:False:16777215,Date:4/30/2026 9:30:00 AM:False:########:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A2\").Value = 10"
+   ],
+   "A1:B2",
+   "Step:=5",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4018000000000000:False:6:False:16777215,4024000000000000:False:10:False:16777215,402E000000000000:False:15:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlGrowth, Step:=-2",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,C000000000000000:False:-2:False:16777215,4010000000000000:False:4:False:16777215,C020000000000000:False:-8:False:16777215,4030000000000000:False:16:False:16777215,C040000000000000:False:-32:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0"
+   ],
+   "A1:A4",
+   "Rowcol:=xlColumns, Type:=xlGrowth, Step:=3",
+   "Boolean:True=0000000000000000:False:0:False:16777215,0000000000000000:False:0:False:16777215,0000000000000000:False:0:False:16777215,0000000000000000:False:0:False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Step:=2, Stop:=6",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,4008000000000000:False:3:False:16777215,4014000000000000:False:5:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 7"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Step:=2, Stop:=3",
+   "Boolean:True=401C000000000000:False:7:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1"
+   ],
+   "A1:A6",
+   "Rowcol:=xlColumns, Type:=xlGrowth, Step:=0.5, Stop:=0.2",
+   "Boolean:True=3FF0000000000000:False:1:False:16777215,3FE0000000000000:False:0.5:False:16777215,3FD0000000000000:False:0.25:False:16777215,Empty::False::False:16777215,Empty::False::False:16777215,Empty::False::False:16777215"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1",
+    "ws.Range(\"A1\").Font.Bold = True",
+    "ws.Range(\"A3\").Interior.Color = 255"
+   ],
+   "A1:A4",
+   "Rowcol:=xlColumns, Step:=1",
+   "Boolean:True=3FF0000000000000:False:1:True:16777215,4000000000000000:False:2:True:16777215,4008000000000000:False:3:True:16777215,4010000000000000:False:4:True:16777215"
+  ]
+ ]
+}

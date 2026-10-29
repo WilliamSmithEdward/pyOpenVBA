@@ -12,7 +12,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
   as text. AutoComplete finishes a beginning from the text above and
   below the cell, and gives "" where more than one entry fits. Parse
   cuts a column at the fields a bracket pattern marks and types each as
-  TextToColumns does. 22 live cases agree,
+  TextToColumns does. 27 live cases agree,
   `tests/fixtures/range_text_helpers.json`.
 
 - `Sheets.FillAcrossSheets` copies a range to the same cells of every

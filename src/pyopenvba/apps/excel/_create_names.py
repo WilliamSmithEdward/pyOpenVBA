@@ -31,8 +31,7 @@ import re
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area
-from pyopenvba.apps.excel._names import valid
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.apps.excel._names import same_entry, same_sheet_name, valid
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBADate, error
 
 if TYPE_CHECKING:
@@ -127,12 +126,12 @@ def _name(sheet: Worksheet, row: int, column: int, cells: Area) -> None:
 
 
 def list_names(target: Range) -> object:
-    """Range.ListNames: the workbook's visible names pasted from the range's first cell down, in the Names
-    collection's order, each beside its RefersTo as text; a sheet's own name bare, and hidden names left out. Only
-    the cells it writes change, whatever the range's size; several areas are error 1004
+    """Range.ListNames: the visible names the range's sheet sees pasted from its first cell down, in the Names
+    collection's order, each beside its RefersTo as text: the workbook's and the sheet's own, bare, which hides the
+    workbook's of its spelling; another sheet's own and hidden names left out. Only the cells it writes change,
+    whatever the range's size, and no Change event is raised; several areas are error 1004
     (tests/fixtures/range_text_helpers.json)."""
     from pyopenvba._a1 import split_sheet
-    from pyopenvba.apps.excel import _events
     from pyopenvba.apps.excel._model import DefinedName
     from pyopenvba.apps.excel._model import Range as Cells
     from pyopenvba.apps.excel._protection import writing
@@ -142,13 +141,15 @@ def list_names(target: Range) -> object:
         raise error(1004, "This can't be done on a multiple range selection.\n\nSelect a single range and try again.")
     sheet = target.sheet
     shown: list[tuple[str, str]] = []
+    # The collection puts a sheet's own name ahead of the workbook's of its spelling, so the first of a bare name
+    # is the one the sheet sees.
     for item in sheet.book.names_.vba_items():
         assert isinstance(item, DefinedName)
-        if not item.entry.visible:
-            continue
         scope, bare = split_sheet(item.entry.name)
-        if scope and scope.casefold() != sheet.name.casefold():
-            raise VBAUnsupportedError("ListNames in a workbook with another sheet's own names is not implemented")
+        if not item.entry.visible or scope and not same_sheet_name(scope, sheet.name):
+            continue
+        if any(same_entry(bare, name) for name, _ in shown):
+            continue
         shown.append((bare, item.shown_refers_to()))
     if not shown:
         return EMPTY
@@ -158,5 +159,4 @@ def list_names(target: Range) -> object:
         for offset, (name, refers_to) in enumerate(shown):
             written.store_typed(top + offset, left, Typed(name))
             written.store_typed(top + offset, left + 1, Typed(refers_to))
-    _events.after_edit(written)
     return EMPTY

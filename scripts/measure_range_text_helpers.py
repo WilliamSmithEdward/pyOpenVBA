@@ -60,6 +60,17 @@ CASES = [
     (['ws.Range("A1").Value = 12345678', 'ws.Range("A1").Parse "[xxxx][xxxx]"'], 'A1:C1'),
     (['ws.Range("A1").Value = "ab"', 'ws.Range("A1").Parse "[xxxx][xxxx]"'], 'A1:C1'),
     (['ws.Range("A1").Value = "abcdefgh"', 'ws.Range("A1").Parse "[xx]  [xx]"'], 'A1:C1'),
+    (['wb.Worksheets.Add(After:=ws).Name = "Sheet2"', 'wb.Worksheets("Sheet2").Names.Add "Other", "=Sheet2!$A$1"',
+      'wb.Names.Add "alpha", "=10"', 'ws.Activate', 'ws.Range("D2").ListNames'], 'D1:E4'),
+    (['wb.Names.Add "Same", "=1"', 'ws.Names.Add "Same", "=2"', 'ws.Range("D2").ListNames'], 'D1:E4'),
+    (['wb.Worksheets.Add(After:=ws).Name = "Sheet2"', 'wb.Worksheets("Sheet2").Names.Add "Two", "=2"',
+      'ws.Names.Add "One", "=1"', 'ws.Activate', 'wb.Worksheets("Sheet2").Range("D2").ListNames',
+      'ws.Range("A1").Value = wb.Worksheets("Sheet2").Range("D2").Formula & "/" & '
+      'wb.Worksheets("Sheet2").Range("D3").Formula'], 'A1:A1'),
+    (['ws.Range("A1").Value = "Apple"', 'ws.Range("A2").Formula = "=""Apricot"""', 'ws.Range("A3").Value = "Banana"'],
+     'ws.Range("A4").AutoComplete("apr") & "|" & ws.Range("A4").AutoComplete("app") & "|" & '
+     'ws.Range("A4").AutoComplete("ban")'),
+    (['ws.Range("A1").Formula = "=1+1"', 'ws.Range("A2").Value = "Apple"'], 'ws.Range("A3").AutoComplete("app")'),
 ]
 
 
@@ -86,6 +97,38 @@ def _probe() -> str:
     return '\n'.join(lines) + '\n'
 
 
+#: A sink for the Change events ListNames raises; the harness runs with events off, so the macro turns them on and
+#: puts the setting back.
+SINK = '''Public WithEvents App As Application
+Public Log As String
+
+Private Sub App_SheetChange(ByVal Sh As Object, ByVal Target As Range)
+    Log = Log & "|change " & Sh.Name & "!" & Target.Address(False, False)
+End Sub
+'''
+
+EVENTS = '''Private sink As NamesSink
+
+Public Function Events() As String
+    Dim wb As Workbook, wasOn As Boolean
+    wasOn = Application.EnableEvents
+    Application.EnableEvents = True
+    Set wb = Workbooks.Add(xlWBATWorksheet)
+    wb.Worksheets(1).Name = "Sheet1"
+    wb.Names.Add "One", "=1"
+    wb.Names.Add "Two", "=2"
+    Set sink = New NamesSink
+    Set sink.App = Application
+    wb.Worksheets(1).Range("D2").ListNames
+    Events = Mid(sink.Log, 2)
+    Set sink.App = Nothing
+    Set sink = Nothing
+    wb.Close False
+    Application.EnableEvents = wasOn
+End Function
+'''
+
+
 def main() -> None:
     source = _probe()
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
@@ -93,7 +136,11 @@ def main() -> None:
         result = excel.run_vba(source, 'Probe', timeout=300.0)
         assert result.ok and not result.dialogs, result
         answers = str(result.value).split('@@@')
-    record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': source,
+        excel.add_module('NamesSink', SINK, kind='class')
+        events = excel.run_vba(EVENTS, 'Events', timeout=120.0, module_name='NamesEvents')
+        assert events.ok and not events.dialogs, events
+    record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': source, 'sink': SINK,
+              'events_source': EVENTS, 'events': str(events.value),
               'cases': [[statements, read, answer] for (statements, read), answer in zip(CASES, answers, strict=True)]}
     OUT.write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8')
     for statements, read, answer in record['cases']:

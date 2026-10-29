@@ -31,3 +31,11 @@ def test_as_excel_answered(app: ExcelApplication, index: int) -> None:
     want = RECORD['cases'][index][2]
     got = str(app.run('Probe.Tried', index)).replace('\r\n', '\n').replace('\r', '\n')
     assert got == want
+
+
+def test_list_names_raises_no_change() -> None:
+    made = ExcelApplication()
+    made.add_workbook()
+    made.add_module(RECORD['sink'], name='NamesSink', kind='class')
+    made.add_module(RECORD['events_source'], name='NamesEvents')
+    assert made.run('NamesEvents.Events') == RECORD['events']

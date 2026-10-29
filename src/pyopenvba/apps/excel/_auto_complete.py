@@ -4,8 +4,9 @@ Measured in live Excel (scripts/measure_range_text_helpers.py,
 tests/fixtures/range_text_helpers.json).
 
 - The candidates are the text in the cells of the cell's column that run
-  without a gap from just above it and from just below it, top to bottom;
-  numbers are none, and an empty cell ends a run.
+  without a gap from just above it and from just below it, top to bottom,
+  a formula's text result among them; numbers are none, and an empty cell
+  ends a run.
 - A candidate matches where it begins with the text given, case aside.
   One match, or several that differ only in case, gives the first's text;
   none, several, or "" given, gives "".
@@ -17,7 +18,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_ROWS
-from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._values import EMPTY, error, to_text
 
 if TYPE_CHECKING:
@@ -46,8 +46,7 @@ def _run(sheet: Worksheet, rows: range, column: int) -> list[str]:
         cell = sheet.cell(row, column)
         if cell is None or cell.value is EMPTY and not cell.formula:
             break
-        if cell.formula:
-            raise VBAUnsupportedError("AutoComplete beside a formula is not implemented")
-        if isinstance(cell.value, str):
-            found.append(cell.value)
+        value = sheet.book.calculator.value_of(sheet.name, row, column)
+        if isinstance(value, str):
+            found.append(value)
     return found

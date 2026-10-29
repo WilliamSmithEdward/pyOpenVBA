@@ -536,8 +536,11 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
             if name in ("Print_Area", "Print_Titles") and attributes.get("name") == "_xlnm." + name:
                 owner.page_print_names_owned.add(name)
             name = quote_sheet(owner.name) + "!" + name
+        from pyopenvba.apps.excel._workbook_links import read_name
+
+        refers = read_name(_formula_read(body.strip()))
         book.names_.entries.append(
-            NameEntry(name, _formula_read(body.strip()), book, attributes=attributes_text.strip(),
+            NameEntry(name, refers, book, attributes=attributes_text.strip(),
                       visible=attributes.get("hidden", "0") not in ("1", "true"), comment=attributes.get("comment", ""))
         )
 
@@ -1452,6 +1455,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     _write_shapes(book, package)
     _write_notes(book, package)
     _write_links(book, package, str(target.resolve().parent))
+    from pyopenvba.apps.excel._workbook_links import write as write_workbook_links
+
+    write_workbook_links(book, package)
     from pyopenvba.apps.excel._dxf_table import number_dxfs
 
     number_dxfs(book, package)
@@ -2340,6 +2346,7 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         return
     text = package.read("xl/workbook.xml").decode("utf-8", errors="replace")
     from pyopenvba.apps.excel._advanced_filter import attribute_values, patch_attribute
+    from pyopenvba.apps.excel._workbook_links import saved_name
 
     written: list[tuple[tuple[object, ...], str]] = []
     tables = [table.name for sheet in book.sheets_ for table in sheet.tables]
@@ -2380,9 +2387,9 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         for key in ("name", "localSheetId", "hidden", "comment"):
             attributes = patch_attribute(attributes, key, owned.get(key))
         attributes = attributes.strip()
-        refers_to = prefixes.in_file(in_file(entry.refers_to, tables))
+        refers_to = saved_name(prefixes.in_file(in_file(entry.refers_to, tables)).lstrip("="))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),
-                        f"<definedName {attributes}>{_escape(refers_to.lstrip('='))}</definedName>"))
+                        f"<definedName {attributes}>{_escape(refers_to)}</definedName>"))
     # Excel writes its names in the Name Manager's order: by name as it shows there, ignoring case, and
     # a name on a sheet before the workbook's of the same name, sheets in the order of their names.
     written.sort(key=lambda pair: pair[0])

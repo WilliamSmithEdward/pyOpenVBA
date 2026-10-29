@@ -82,8 +82,14 @@ def test_saving_keeps_the_link(tmp_path: Path) -> None:
     app.sheet(1).set_value('B1', 30)
     saved = app.save(tmp_path / 'Saved.xlsx')
     with zipfile.ZipFile(source) as before, zipfile.ZipFile(saved) as after:
-        for name in ('xl/externalLinks/externalLink1.xml', 'xl/externalLinks/_rels/externalLink1.xml.rels'):
-            assert after.read(name) == before.read(name)
+        link = before.read('xl/externalLinks/externalLink1.xml').decode('utf-8')
+        # A formula reads one of Source's names, =Source.xlsx!Rate*100, so the link gains the sheet Excel adds on
+        # saving it closed, named after Source (tests/fixtures/workbook_links.json, NamedAgain.xlsx).
+        assert after.read('xl/externalLinks/externalLink1.xml').decode('utf-8') == link.replace(
+            '</sheetNames>', '<sheetName val="Source"/></sheetNames>').replace(
+            '</sheetDataSet>', '<sheetData sheetId="2" refreshError="1"/></sheetDataSet>')
+        name = 'xl/externalLinks/_rels/externalLink1.xml.rels'
+        assert after.read(name) == before.read(name)
         assert b'<f>[1]Sheet1!A2*B1</f>' in after.read('xl/worksheets/sheet1.xml')
     reopened = ExcelApplication.open(saved)
     assert reopened.sheet(1).value('A2') == 60

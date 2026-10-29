@@ -477,8 +477,10 @@ End Sub''', name='DeleteNamesSetup')
         'WorkbookValue', 'WorkbookReference', 'Survivor!OtherLocalValue'}
     saved = app.save(tmp_path / 'deleted-owner.xlsm')
     reopened = ExcelApplication.open(saved, with_vba=False)
+    # Saved as #REF!, the reference reads back #REF!#REF! (tests/fixtures/workbook_links.json, deleted_sheet).
+    read_back = [(name, '=#REF!#REF!' if name == 'WorkbookReference' else refers) for name, refers in preserved]
     assert [(entry.name, entry.refers_to) for entry in reopened.workbook.names_.entries] == sorted(
-        preserved, key=lambda pair: pair[0].split('!')[-1].casefold())
+        read_back, key=lambda pair: pair[0].split('!')[-1].casefold())
     with ZipFile(saved) as package:
         root = xml_tree(package.read('xl/workbook.xml'))
     names = root.findall('.//{http://schemas.openxmlformats.org/spreadsheetml/2006/main}definedName')

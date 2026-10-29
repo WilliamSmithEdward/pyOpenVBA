@@ -44,7 +44,8 @@ from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba._xml import attributes, tag_attributes
 from pyopenvba.apps.excel import _dimensions
 from pyopenvba.apps.excel._model import ExcelObject, Range
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.apps.excel._styles import XL_AUTOMATIC
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._r1c1 import to_a1
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
@@ -103,6 +104,13 @@ class SheetViewState:
     formulas: bool = False
     #: rightToLeft, Worksheet.DisplayRightToLeft and the window's (tests/fixtures/worksheet_settings.json).
     right_to_left: bool = False
+    #: showOutlineSymbols, showRuler and showWhiteSpace: DisplayOutline, DisplayRuler and DisplayWhitespace.
+    outline: bool = True
+    ruler: bool = True
+    whitespace: bool = True
+    #: The gridlines' palette slot, GridlineColorIndex, 0 while they are automatic; the file keeps it as colorId,
+    #: seven past it, with defaultGridColor="0".
+    grid_color: int = 0
     top_left: tuple[int, int] = (1, 1)
     #: The pane's state: "" with no panes, "split", "frozen" or "frozenSplit".
     state: str = ""
@@ -131,6 +139,8 @@ class BookViewState:
     tab_ratio: float = 0.6
     horizontal_scroll: bool = True
     vertical_scroll: bool = True
+    #: AutoFilterDateGrouping, the workbook's, which its workbookView keeps.
+    date_grouping: bool = True
     #: What Caption was set to; the workbook's name until it is.
     caption: str | None = None
     #: WindowState, Width and Height once a macro sets them; before, they are the screen's.
@@ -166,6 +176,11 @@ def read_view(sheet: Worksheet, xml: str) -> None:
     view.headings = _flag(head.get("showRowColHeaders"), True)
     view.zeros = _flag(head.get("showZeros"), True)
     view.right_to_left = _flag(head.get("rightToLeft"), False)
+    view.outline = _flag(head.get("showOutlineSymbols"), True)
+    view.ruler = _flag(head.get("showRuler"), True)
+    view.whitespace = _flag(head.get("showWhiteSpace"), True)
+    color = _number(head.get("colorId"), 64)
+    view.grid_color = color - 7 if not _flag(head.get("defaultGridColor"), True) and 8 <= color < 64 else 0
     view.tab_selected = _flag(head.get("tabSelected"), False)
     view.top_left = _cell(head.get("topLeftCell", "")) or (1, 1)
     pane = _PANE.search(element)
@@ -302,8 +317,13 @@ def _rewritten(sheet: Worksheet, element: str, active: bool) -> str:
                         ("showZeros", "" if view.zeros else "0"),
                         ("rightToLeft", "1" if view.right_to_left else ""),
                         ("tabSelected", "1" if active else ""),
+                        ("showRuler", "" if view.ruler else "0"),
+                        ("showOutlineSymbols", "" if view.outline else "0"),
+                        ("defaultGridColor", "0" if view.grid_color else ""),
+                        ("showWhiteSpace", "" if view.whitespace else "0"),
                         ("view", "" if view.view == 1 else VIEWS[view.view]),
                         ("topLeftCell", "" if view.top_left == (1, 1) else _spelled_cell(*view.top_left)),
+                        ("colorId", str(view.grid_color + 7) if view.grid_color else ""),
                         *zooms):
         opening = with_attribute(opening, name, value, _SHEET_VIEW_ORDER)
     kept = "".join(found.group(0) for found in _KEPT.finditer(inside))
@@ -355,6 +375,7 @@ def read_book_view(book: Workbook, xml: str) -> None:
         view.horizontal_scroll = _flag(head.get("showHorizontalScroll"), True)
         view.vertical_scroll = _flag(head.get("showVerticalScroll"), True)
         view.tab_ratio = _number(head.get("tabRatio"), 600) / 1000
+        view.date_grouping = _flag(head.get("autoFilterDateGrouping"), True)
         if book.sheets_:
             book.active_sheet_index = min(_number(head.get("activeTab"), 0), len(book.sheets_) - 1)
     # A group the file keeps selected, its active tab among them, stays selected.
@@ -378,7 +399,8 @@ def with_book_view(book: Workbook, xml: str) -> str:
                         ("showVerticalScroll", "" if view.vertical_scroll else "0"),
                         ("showSheetTabs", "" if view.tabs else "0"),
                         ("tabRatio", "" if ratio == 600 else str(ratio)),
-                        ("activeTab", str(active) if active else "")):
+                        ("activeTab", str(active) if active else ""),
+                        ("autoFilterDateGrouping", "" if view.date_grouping else "0")):
         opening = with_attribute(opening, name, value, _BOOK_VIEW_ORDER)
     return xml[:found.start()] + opening + closing + xml[found.end():]
 
@@ -821,7 +843,113 @@ class Window(ExcelObject):
     def _set_right_to_left(self, value: object) -> None:
         self._flag("right_to_left", value)
 
+    @member
+    def DisplayOutline(self) -> object:
+        """The active sheet's outline symbols, which the file keeps in its sheetView and its outlinePr
+        (tests/fixtures/window_settings.json)."""
+        return self.view().outline
+
+    @setter("DisplayOutline")
+    def _set_outline(self, value: object) -> None:
+        from pyopenvba.apps.excel._outline import state
+
+        self._flag("outline", value)
+        outline = state(self.sheet())
+        if not self.view().outline:
+            outline.attributes["showOutlineSymbols"] = outline.changes["showOutlineSymbols"] = "0"
+        elif outline.attributes.pop("showOutlineSymbols", None) is not None:
+            outline.changes["showOutlineSymbols"] = None
+
+    @member
+    def DisplayRuler(self) -> object:
+        return self.view().ruler
+
+    @setter("DisplayRuler")
+    def _set_ruler(self, value: object) -> None:
+        self._flag("ruler", value)
+
+    @member
+    def DisplayWhitespace(self) -> object:
+        return self.view().whitespace
+
+    @setter("DisplayWhitespace")
+    def _set_whitespace(self, value: object) -> None:
+        self._flag("whitespace", value)
+
+    @member
+    def GridlineColorIndex(self) -> object:
+        """The active sheet's gridlines' palette slot, xlColorIndexAutomatic while they are automatic."""
+        slot = self.view().grid_color
+        return VBAInt(slot if slot else XL_AUTOMATIC, "Long")
+
+    @setter("GridlineColorIndex")
+    def _set_gridline_color_index(self, value: object) -> None:
+        """1 to 56; 0 and xlColorIndexAutomatic make them automatic, anything else error 1004
+        (tests/fixtures/window_settings.json)."""
+        slot = int(to_integer(value, "Long"))
+        if slot == XL_AUTOMATIC:
+            slot = 0
+        if not 0 <= slot <= 56:
+            raise error(1004, "Unable to set the GridlineColorIndex property of the Window class")
+        self._changing().grid_color = slot
+
+    @member
+    def GridlineColor(self) -> object:
+        """The colour of the gridlines' palette slot, 0 while they are automatic."""
+        slot = self.view().grid_color
+        if not slot:
+            return VBAInt(0, "Long")
+        rrggbb = self.book.stylesheet.colors.indexed[slot + 7]
+        return VBAInt(int(rrggbb[4:6], 16) << 16 | int(rrggbb[2:4], 16) << 8 | int(rrggbb[0:2], 16), "Long")
+
+    @setter("GridlineColor")
+    def _set_gridline_color(self, value: object) -> None:
+        """The palette slot nearest the colour, its low 24 bits (tests/fixtures/window_settings.json)."""
+        color = int(to_integer(value, "Long")) & 0xFFFFFF
+        rrggbb = f"{color & 0xFF:02X}{color >> 8 & 0xFF:02X}{color >> 16:02X}"
+        self._changing().grid_color = self.book.stylesheet.colors.nearest(rrggbb)
+
+    @member
+    def AutoFilterDateGrouping(self) -> object:
+        """The workbook's, which its workbookView keeps (tests/fixtures/window_settings.json)."""
+        return self.book.view.date_grouping
+
+    @setter("AutoFilterDateGrouping")
+    def _set_date_grouping(self, value: object) -> None:
+        self._book_changing().date_grouping = to_bool(value)
+
+    @member
+    def WindowNumber(self) -> object:
+        """1: the model keeps one window a workbook."""
+        return VBAInt(1, "Long")
+
+    @member
+    def Type(self) -> object:
+        """xlWorkbook."""
+        return VBAInt(1, "Long")
+
     # -- scrolling
+
+    @method
+    def SmallScroll(self, Down: object = MISSING, Up: object = MISSING, ToRight: object = MISSING,
+                    ToLeft: object = MISSING) -> object:
+        """ScrollRow moved by Down less Up and ScrollColumn by ToRight less ToLeft, each a whole number of rows and
+        columns cut toward zero, and kept on the sheet; text is error 1004 (tests/fixtures/window_settings.json)."""
+        def amount(value: object) -> int:
+            if value is MISSING:
+                return 0
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                try:
+                    value = to_number(value)
+                except VBARuntimeError:
+                    raise error(1004, "SmallScroll method of Window class failed") from None
+            return int(value)
+
+        rows, columns = amount(Down) - amount(Up), amount(ToRight) - amount(ToLeft)
+        for axis, moved, last in ((0, rows, MAX_ROWS), (1, columns, MAX_COLUMNS)):
+            if moved:
+                _scroll_to(self._changing(), axis, min(max(self._scrolled(axis) + moved, 1), last))
+        return True
 
     def _scrolled(self, axis: int) -> int:
         view = self.view()

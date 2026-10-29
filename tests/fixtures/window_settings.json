@@ -1,0 +1,286 @@
+{
+ "measured_at": "2026-10-29T13:58:52.080052+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, w As Window\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set w = ActiveWindow\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Tried = w.DisplayOutline & \" \" & w.DisplayRuler & \" \" & w.DisplayWhitespace & \" \" & w.GridlineColor & \" \" & w.GridlineColorIndex & \" \" & w.WindowNumber & \" \" & w.Type & \" \" & w.AutoFilterDateGrouping\n    Case 1\n        w.DisplayOutline = False\n        w.DisplayRuler = False\n        w.DisplayWhitespace = False\n        Tried = w.DisplayOutline & \" \" & w.DisplayRuler & \" \" & w.DisplayWhitespace\n        wb.SaveAs folder & \"\\flags.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        w.GridlineColor = RGB(255, 0, 0)\n        Tried = w.GridlineColor & \" \" & w.GridlineColorIndex\n        wb.SaveAs folder & \"\\red.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        w.GridlineColor = RGB(10, 200, 30)\n        Tried = w.GridlineColor & \" \" & w.GridlineColorIndex\n        wb.SaveAs folder & \"\\green.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        w.GridlineColorIndex = 5\n        Tried = w.GridlineColor & \" \" & w.GridlineColorIndex\n        wb.SaveAs folder & \"\\index.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        w.GridlineColorIndex = 5\n        w.GridlineColorIndex = xlColorIndexAutomatic\n        Tried = w.GridlineColor & \" \" & w.GridlineColorIndex\n        wb.SaveAs folder & \"\\automatic.xlsx\", xlOpenXMLWorkbook\n    Case 6\n        w.GridlineColorIndex = 0\n        Tried = w.GridlineColorIndex\n    Case 7\n        w.GridlineColorIndex = 57\n        Tried = w.GridlineColorIndex\n    Case 8\n        w.GridlineColorIndex = xlColorIndexNone\n        Tried = w.GridlineColorIndex\n    Case 9\n        w.GridlineColor = -1\n        Tried = w.GridlineColor\n    Case 10\n        w.GridlineColor = 16777216\n        Tried = w.GridlineColor\n    Case 11\n        w.DisplayOutline = \"x\"\n        Tried = w.DisplayOutline\n    Case 12\n        w.SmallScroll Down:=3\n        Tried = w.ScrollRow & \" \" & w.ScrollColumn\n    Case 13\n        w.SmallScroll Down:=3\n        w.SmallScroll Up:=10\n        Tried = w.ScrollRow & \" \" & w.ScrollColumn\n    Case 14\n        w.SmallScroll ToRight:=2\n        Tried = w.ScrollRow & \" \" & w.ScrollColumn\n    Case 15\n        w.SmallScroll Down:=5, Up:=2, ToRight:=4, ToLeft:=1\n        Tried = w.ScrollRow & \" \" & w.ScrollColumn\n    Case 16\n        w.SmallScroll Down:=-2\n        Tried = w.ScrollRow\n    Case 17\n        w.SmallScroll Down:=2.6\n        Tried = w.ScrollRow\n    Case 18\n        w.SmallScroll Down:=\"x\"\n        Tried = w.ScrollRow\n    Case 19\n        w.ScrollRow = 1048575\n        w.SmallScroll Down:=5\n        Tried = w.ScrollRow\n    Case 20\n        w.SmallScroll\n        Tried = w.ScrollRow & \" \" & w.ScrollColumn\n    Case 21\n        Dim v As Variant\n        v = w.SmallScroll(Down:=1)\n        Tried = TypeName(v)\n    Case 22\n        ActiveSheet.Range(\"A1:A3\").Rows.Group\n        w.DisplayOutline = False\n        Tried = w.DisplayOutline\n        wb.SaveAs folder & \"\\grouped.xlsx\", xlOpenXMLWorkbook\n    Case 23\n        w.DisplayOutline = False\n        ActiveWorkbook.Worksheets.Add\n        Set w = ActiveWindow\n        Tried = w.DisplayOutline\n    Case 24\n        w.DisplayOutline = False\n        ActiveWorkbook.Worksheets.Add\n        ActiveWorkbook.Worksheets(2).Activate\n        Tried = w.DisplayOutline\n    Case 25\n        w.GridlineColorIndex = 3\n        ActiveWorkbook.Worksheets.Add\n        Tried = w.GridlineColorIndex\n    Case 26\n        w.AutoFilterDateGrouping = False\n        Tried = w.AutoFilterDateGrouping\n        wb.SaveAs folder & \"\\dates.xlsx\", xlOpenXMLWorkbook\n    Case 27\n        w.AutoFilterDateGrouping = False\n        ActiveWorkbook.Worksheets.Add\n        Tried = ActiveWindow.AutoFilterDateGrouping\n    Case 28\n        w.AutoFilterDateGrouping = \"x\"\n        Tried = w.AutoFilterDateGrouping\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 28\n        s = s & \"|\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 2)\nEnd Function\n",
+ "cases": [
+  [
+   [],
+   "w.DisplayOutline & \" \" & w.DisplayRuler & \" \" & w.DisplayWhitespace & \" \" & w.GridlineColor & \" \" & w.GridlineColorIndex & \" \" & w.WindowNumber & \" \" & w.Type & \" \" & w.AutoFilterDateGrouping",
+   "",
+   "True True True 0 -4105 1 1 True"
+  ],
+  [
+   [
+    "w.DisplayOutline = False",
+    "w.DisplayRuler = False",
+    "w.DisplayWhitespace = False"
+   ],
+   "w.DisplayOutline & \" \" & w.DisplayRuler & \" \" & w.DisplayWhitespace",
+   "flags.xlsx",
+   "False False False"
+  ],
+  [
+   [
+    "w.GridlineColor = RGB(255, 0, 0)"
+   ],
+   "w.GridlineColor & \" \" & w.GridlineColorIndex",
+   "red.xlsx",
+   "255 3"
+  ],
+  [
+   [
+    "w.GridlineColor = RGB(10, 200, 30)"
+   ],
+   "w.GridlineColor & \" \" & w.GridlineColorIndex",
+   "green.xlsx",
+   "65280 4"
+  ],
+  [
+   [
+    "w.GridlineColorIndex = 5"
+   ],
+   "w.GridlineColor & \" \" & w.GridlineColorIndex",
+   "index.xlsx",
+   "16711680 5"
+  ],
+  [
+   [
+    "w.GridlineColorIndex = 5",
+    "w.GridlineColorIndex = xlColorIndexAutomatic"
+   ],
+   "w.GridlineColor & \" \" & w.GridlineColorIndex",
+   "automatic.xlsx",
+   "0 -4105"
+  ],
+  [
+   [
+    "w.GridlineColorIndex = 0"
+   ],
+   "w.GridlineColorIndex",
+   "",
+   "-4105"
+  ],
+  [
+   [
+    "w.GridlineColorIndex = 57"
+   ],
+   "w.GridlineColorIndex",
+   "",
+   "Err 1004 Unable to set the GridlineColorIndex property of the Window class"
+  ],
+  [
+   [
+    "w.GridlineColorIndex = xlColorIndexNone"
+   ],
+   "w.GridlineColorIndex",
+   "",
+   "Err 1004 Unable to set the GridlineColorIndex property of the Window class"
+  ],
+  [
+   [
+    "w.GridlineColor = -1"
+   ],
+   "w.GridlineColor",
+   "",
+   "16777215"
+  ],
+  [
+   [
+    "w.GridlineColor = 16777216"
+   ],
+   "w.GridlineColor",
+   "",
+   "0"
+  ],
+  [
+   [
+    "w.DisplayOutline = \"x\""
+   ],
+   "w.DisplayOutline",
+   "",
+   "Err 13 Type mismatch"
+  ],
+  [
+   [
+    "w.SmallScroll Down:=3"
+   ],
+   "w.ScrollRow & \" \" & w.ScrollColumn",
+   "",
+   "4 1"
+  ],
+  [
+   [
+    "w.SmallScroll Down:=3",
+    "w.SmallScroll Up:=10"
+   ],
+   "w.ScrollRow & \" \" & w.ScrollColumn",
+   "",
+   "1 1"
+  ],
+  [
+   [
+    "w.SmallScroll ToRight:=2"
+   ],
+   "w.ScrollRow & \" \" & w.ScrollColumn",
+   "",
+   "1 3"
+  ],
+  [
+   [
+    "w.SmallScroll Down:=5, Up:=2, ToRight:=4, ToLeft:=1"
+   ],
+   "w.ScrollRow & \" \" & w.ScrollColumn",
+   "",
+   "4 4"
+  ],
+  [
+   [
+    "w.SmallScroll Down:=-2"
+   ],
+   "w.ScrollRow",
+   "",
+   "1"
+  ],
+  [
+   [
+    "w.SmallScroll Down:=2.6"
+   ],
+   "w.ScrollRow",
+   "",
+   "3"
+  ],
+  [
+   [
+    "w.SmallScroll Down:=\"x\""
+   ],
+   "w.ScrollRow",
+   "",
+   "Err 1004 SmallScroll method of Window class failed"
+  ],
+  [
+   [
+    "w.ScrollRow = 1048575",
+    "w.SmallScroll Down:=5"
+   ],
+   "w.ScrollRow",
+   "",
+   "1048576"
+  ],
+  [
+   [
+    "w.SmallScroll"
+   ],
+   "w.ScrollRow & \" \" & w.ScrollColumn",
+   "",
+   "1 1"
+  ],
+  [
+   [
+    "Dim v As Variant",
+    "v = w.SmallScroll(Down:=1)"
+   ],
+   "TypeName(v)",
+   "",
+   "Boolean"
+  ],
+  [
+   [
+    "ActiveSheet.Range(\"A1:A3\").Rows.Group",
+    "w.DisplayOutline = False"
+   ],
+   "w.DisplayOutline",
+   "grouped.xlsx",
+   "False"
+  ],
+  [
+   [
+    "w.DisplayOutline = False",
+    "ActiveWorkbook.Worksheets.Add",
+    "Set w = ActiveWindow"
+   ],
+   "w.DisplayOutline",
+   "",
+   "True"
+  ],
+  [
+   [
+    "w.DisplayOutline = False",
+    "ActiveWorkbook.Worksheets.Add",
+    "ActiveWorkbook.Worksheets(2).Activate"
+   ],
+   "w.DisplayOutline",
+   "",
+   "False"
+  ],
+  [
+   [
+    "w.GridlineColorIndex = 3",
+    "ActiveWorkbook.Worksheets.Add"
+   ],
+   "w.GridlineColorIndex",
+   "",
+   "-4105"
+  ],
+  [
+   [
+    "w.AutoFilterDateGrouping = False"
+   ],
+   "w.AutoFilterDateGrouping",
+   "dates.xlsx",
+   "False"
+  ],
+  [
+   [
+    "w.AutoFilterDateGrouping = False",
+    "ActiveWorkbook.Worksheets.Add"
+   ],
+   "ActiveWindow.AutoFilterDateGrouping",
+   "",
+   "False"
+  ],
+  [
+   [
+    "w.AutoFilterDateGrouping = \"x\""
+   ],
+   "w.AutoFilterDateGrouping",
+   "",
+   "Err 13 Type mismatch"
+  ]
+ ],
+ "views": {
+  "flags.xlsx": {
+   "sheetView": "<sheetView tabSelected=\"1\" showRuler=\"0\" showOutlineSymbols=\"0\" showWhiteSpace=\"0\" workbookViewId=\"0\"/>",
+   "sheetPr": "<sheetPr><outlinePr showOutlineSymbols=\"0\"/>",
+   "autoFilterDateGrouping": false
+  },
+  "red.xlsx": {
+   "sheetView": "<sheetView tabSelected=\"1\" defaultGridColor=\"0\" colorId=\"10\" workbookViewId=\"0\"/>",
+   "sheetPr": "",
+   "autoFilterDateGrouping": false
+  },
+  "green.xlsx": {
+   "sheetView": "<sheetView tabSelected=\"1\" defaultGridColor=\"0\" colorId=\"11\" workbookViewId=\"0\"/>",
+   "sheetPr": "",
+   "autoFilterDateGrouping": false
+  },
+  "index.xlsx": {
+   "sheetView": "<sheetView tabSelected=\"1\" defaultGridColor=\"0\" colorId=\"12\" workbookViewId=\"0\"/>",
+   "sheetPr": "",
+   "autoFilterDateGrouping": false
+  },
+  "automatic.xlsx": {
+   "sheetView": "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+   "sheetPr": "",
+   "autoFilterDateGrouping": false
+  },
+  "grouped.xlsx": {
+   "sheetView": "<sheetView tabSelected=\"1\" showOutlineSymbols=\"0\" workbookViewId=\"0\"/>",
+   "sheetPr": "<sheetPr><outlinePr showOutlineSymbols=\"0\"/>",
+   "autoFilterDateGrouping": false
+  },
+  "dates.xlsx": {
+   "sheetView": "<sheetView tabSelected=\"1\" workbookViewId=\"0\"/>",
+   "sheetPr": "",
+   "autoFilterDateGrouping": true
+  }
+ }
+}

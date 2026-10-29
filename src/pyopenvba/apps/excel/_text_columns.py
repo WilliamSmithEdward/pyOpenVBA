@@ -177,6 +177,33 @@ def field_info_pairs(value: object, *, fixed: bool) -> list[tuple[int, int]]:
     return pairs
 
 
+def parse(target: Range, line: object, destination: object) -> object:
+    """Range.Parse: the column's text cut where the brackets of ``line`` mark its fields, as TextToColumns cuts
+    fixed widths -- [xx][xxx] two fields of two and three characters, a character outside the brackets a column
+    left out, as is the rest of the text past the last one; each field trimmed and typed, a number left whole; at
+    Destination, the column kept, where it is given. A line with no brackets changes nothing
+    (tests/fixtures/range_text_helpers.json)."""
+    if len(target.areas) != 1 or target.first.columns != 1:
+        raise error(1004, "Microsoft Excel can convert only one column at a time. The range can be many rows tall "
+                          "but no more than one column wide. Try again by selecting cells in one column only.")
+    pattern = "" if line is MISSING else to_text(line)
+    if "[" not in pattern:
+        return True
+    # A field starts at each [ and a skipped column at each ]; of two starting at one place the later stands.
+    starts: dict[int, int] = {0: SKIP}
+    at = 0
+    for character in pattern:
+        if character in "[]":
+            starts[at] = GENERAL if character == "[" else SKIP
+        else:
+            at += 1
+    pairs = sorted(starts.items())
+    field_info = VBAArray([(0, len(pairs) - 1)],
+                          items=[VBAArray([(0, 1)], items=[start, kind]) for start, kind in pairs])
+    return text_to_columns(target, destination, FIXED_WIDTH, MISSING, MISSING, MISSING, MISSING, MISSING, MISSING,
+                           MISSING, MISSING, field_info, MISSING, MISSING, MISSING)
+
+
 def cuts(text: str, info: list[tuple[int, int]]) -> list[tuple[int, int]]:
     """Where each fixed-width field of ``text`` starts and ends."""
     starts = [start for start, _ in info]

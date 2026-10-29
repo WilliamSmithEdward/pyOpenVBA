@@ -1,0 +1,193 @@
+{
+ "measured_at": "2026-10-29T14:21:30.854269+00:00",
+ "source": "Private Function Cells(ByVal ws As Worksheet, ByVal address As String) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(address)\n        s = s & \";\" & c.Address(False, False) & \"=\" & TypeName(c.Value) & \":\" & c.Formula\n    Next\n    Cells = Mid(s, 2)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, answer As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Sheet1\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        wb.Names.Add \"Zed\", \"=Sheet1!$A$1\"\n        wb.Names.Add \"alpha\", \"=10\"\n        ws.Names.Add \"Local\", \"=Sheet1!$B$2\"\n        wb.Names.Add \"Hidden\", \"=5\", Visible:=False\n        wb.Names.Add \"Mid\", \"=SUM(Sheet1!$A$1:$A$3)\"\n        ws.Range(\"D2\").ListNames\n        answer = Cells(ws, \"D1:F7\")\n    Case 1\n        ws.Range(\"D2:E3\").ListNames\n        answer = Cells(ws, \"D1:E3\")\n    Case 2\n        wb.Names.Add \"One\", \"=1\"\n        ws.Range(\"D2:E3\").ListNames\n        answer = Cells(ws, \"D1:E3\")\n    Case 3\n        wb.Names.Add \"One\", \"=1\"\n        ws.Range(\"D2\").Value = \"keep\"\n        ws.Range(\"E2\").Value = \"keep\"\n        ws.Range(\"D3\").Value = \"keep\"\n        ws.Range(\"D2\").ListNames\n        answer = Cells(ws, \"D1:E3\")\n    Case 4\n        wb.Names.Add \"One\", \"=1\"\n        ws.Range(\"D2,G2\").ListNames\n        answer = Cells(ws, \"D1:H3\")\n    Case 5\n        ws.Range(\"A1\").Value = \"Apple\"\n        ws.Range(\"A2\").Value = \"Apricot\"\n        ws.Range(\"A3\").Value = \"Banana\"\n        ws.Range(\"A5\").Value = \"blueberry\"\n        ws.Range(\"A6\").Value = 123\n        answer = ws.Range(\"A4\").AutoComplete(\"b\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"ap\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"app\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"Ban\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"x\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"1\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"BLUE\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"apple\") & \"|\" & ws.Range(\"B4\").AutoComplete(\"ap\")\n    Case 6\n        ws.Range(\"A1\").Value = \"Apple\"\n        ws.Range(\"A3\").Value = \"Apple pie\"\n        answer = ws.Range(\"A2\").AutoComplete(\"app\") & \"|\" & ws.Range(\"A10\").AutoComplete(\"app\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"Apple \")\n    Case 7\n        ws.Range(\"A1\").Value = \"Apple\"\n        ws.Range(\"A2\").Value = \"apple\"\n        answer = ws.Range(\"A3\").AutoComplete(\"a\")\n    Case 8\n        ws.Range(\"A1\").Value = \"Apple\"\n        ws.Range(\"A2\").Value = \"Apricot\"\n        Application.EnableAutoComplete = False\n        answer = ws.Range(\"A3\").AutoComplete(\"app\")\n    Case 9\n        ws.Range(\"A1\").Value = \"Apple\"\n        ws.Range(\"A2\").Value = \"\"\n        ws.Range(\"A4\").Value = \"Apricot\"\n        answer = ws.Range(\"A3\").AutoComplete(\"apr\") & \"|\" & ws.Range(\"A3\").AutoComplete(\"appl\")\n    Case 10\n        ws.Range(\"A1\").Value = \"Apple\"\n        answer = ws.Range(\"A1:A2\").AutoComplete(\"ap\")\n    Case 11\n        ws.Range(\"A1\").Value = \"20261029 Smith   0042\"\n        ws.Range(\"A1\").Parse \"[xxxxxxxx] [xxxxxxxx][xxxx]\"\n        answer = Cells(ws, \"A1:E1\")\n    Case 12\n        ws.Range(\"A1\").Value = \"20261029 Smith   0042\"\n        ws.Range(\"A1\").Parse \"[xxxxxxxx][xxxxxxxxx][xxxx]\"\n        answer = Cells(ws, \"A1:E1\")\n    Case 13\n        ws.Range(\"A1\").Value = \"abcdefgh\"\n        ws.Range(\"A2\").Value = \"ijklmnop\"\n        ws.Range(\"A1:A2\").Parse \"[xx][xxx]\"\n        answer = Cells(ws, \"A1:D2\")\n    Case 14\n        ws.Range(\"A1\").Value = \"abcdefgh\"\n        ws.Range(\"A1\").Parse \"[xx][xxx]\", ws.Range(\"C5\")\n        answer = Cells(ws, \"A1:F5\")\n    Case 15\n        ws.Range(\"A1\").Value = \"abcdefgh\"\n        ws.Range(\"A1\").Parse\n        answer = Cells(ws, \"A1:D1\")\n    Case 16\n        ws.Range(\"A1\").Value = \"abcdefgh\"\n        ws.Range(\"A1\").Parse \"xx\"\n        answer = Cells(ws, \"A1:D1\")\n    Case 17\n        ws.Range(\"A1\").Value = \"abcdefgh\"\n        ws.Range(\"A1:B1\").Parse \"[xx][xx]\"\n        answer = Cells(ws, \"A1:D1\")\n    Case 18\n        ws.Range(\"A1\").Value = \"0042abc\"\n        ws.Range(\"A1\").Parse \"[xxxx][xxx]\"\n        answer = Cells(ws, \"A1:C1\")\n    Case 19\n        ws.Range(\"A1\").Value = 12345678\n        ws.Range(\"A1\").Parse \"[xxxx][xxxx]\"\n        answer = Cells(ws, \"A1:C1\")\n    Case 20\n        ws.Range(\"A1\").Value = \"ab\"\n        ws.Range(\"A1\").Parse \"[xxxx][xxxx]\"\n        answer = Cells(ws, \"A1:C1\")\n    Case 21\n        ws.Range(\"A1\").Value = \"abcdefgh\"\n        ws.Range(\"A1\").Parse \"[xx]  [xx]\"\n        answer = Cells(ws, \"A1:C1\")\n    End Select\n    Tried = answer\nDone:\n    Application.EnableAutoComplete = True\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 21\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "wb.Names.Add \"Zed\", \"=Sheet1!$A$1\"",
+    "wb.Names.Add \"alpha\", \"=10\"",
+    "ws.Names.Add \"Local\", \"=Sheet1!$B$2\"",
+    "wb.Names.Add \"Hidden\", \"=5\", Visible:=False",
+    "wb.Names.Add \"Mid\", \"=SUM(Sheet1!$A$1:$A$3)\"",
+    "ws.Range(\"D2\").ListNames"
+   ],
+   "D1:F7",
+   "D1=Empty:;E1=Empty:;F1=Empty:;D2=String:alpha;E2=String:=10;F2=Empty:;D3=String:Local;E3=String:=Sheet1!$B$2;F3=Empty:;D4=String:Mid;E4=String:=SUM(Sheet1!$A$1:$A$3);F4=Empty:;D5=String:Zed;E5=String:=Sheet1!$A$1;F5=Empty:;D6=Empty:;E6=Empty:;F6=Empty:;D7=Empty:;E7=Empty:;F7=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"D2:E3\").ListNames"
+   ],
+   "D1:E3",
+   "D1=Empty:;E1=Empty:;D2=Empty:;E2=Empty:;D3=Empty:;E3=Empty:"
+  ],
+  [
+   [
+    "wb.Names.Add \"One\", \"=1\"",
+    "ws.Range(\"D2:E3\").ListNames"
+   ],
+   "D1:E3",
+   "D1=Empty:;E1=Empty:;D2=String:One;E2=String:=1;D3=Empty:;E3=Empty:"
+  ],
+  [
+   [
+    "wb.Names.Add \"One\", \"=1\"",
+    "ws.Range(\"D2\").Value = \"keep\"",
+    "ws.Range(\"E2\").Value = \"keep\"",
+    "ws.Range(\"D3\").Value = \"keep\"",
+    "ws.Range(\"D2\").ListNames"
+   ],
+   "D1:E3",
+   "D1=Empty:;E1=Empty:;D2=String:One;E2=String:=1;D3=String:keep;E3=Empty:"
+  ],
+  [
+   [
+    "wb.Names.Add \"One\", \"=1\"",
+    "ws.Range(\"D2,G2\").ListNames"
+   ],
+   "D1:H3",
+   "Err 1004 This can't be done on a multiple range selection.\n\nSelect a single range and try again."
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Apple\"",
+    "ws.Range(\"A2\").Value = \"Apricot\"",
+    "ws.Range(\"A3\").Value = \"Banana\"",
+    "ws.Range(\"A5\").Value = \"blueberry\"",
+    "ws.Range(\"A6\").Value = 123"
+   ],
+   "ws.Range(\"A4\").AutoComplete(\"b\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"ap\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"app\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"Ban\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"x\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"1\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"BLUE\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"apple\") & \"|\" & ws.Range(\"B4\").AutoComplete(\"ap\")",
+   "||Apple|Banana||||blueberry|Apple|"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Apple\"",
+    "ws.Range(\"A3\").Value = \"Apple pie\""
+   ],
+   "ws.Range(\"A2\").AutoComplete(\"app\") & \"|\" & ws.Range(\"A10\").AutoComplete(\"app\") & \"|\" & ws.Range(\"A4\").AutoComplete(\"Apple \")",
+   "||Apple pie"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Apple\"",
+    "ws.Range(\"A2\").Value = \"apple\""
+   ],
+   "ws.Range(\"A3\").AutoComplete(\"a\")",
+   "Apple"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Apple\"",
+    "ws.Range(\"A2\").Value = \"Apricot\"",
+    "Application.EnableAutoComplete = False"
+   ],
+   "ws.Range(\"A3\").AutoComplete(\"app\")",
+   "Apple"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Apple\"",
+    "ws.Range(\"A2\").Value = \"\"",
+    "ws.Range(\"A4\").Value = \"Apricot\""
+   ],
+   "ws.Range(\"A3\").AutoComplete(\"apr\") & \"|\" & ws.Range(\"A3\").AutoComplete(\"appl\")",
+   "Apricot|"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"Apple\""
+   ],
+   "ws.Range(\"A1:A2\").AutoComplete(\"ap\")",
+   "Err 1004 Unable to get the AutoComplete property of the Range class"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"20261029 Smith   0042\"",
+    "ws.Range(\"A1\").Parse \"[xxxxxxxx] [xxxxxxxx][xxxx]\""
+   ],
+   "A1:E1",
+   "A1=Double:20261029;B1=String:Smith;C1=Double:42;D1=Empty:;E1=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"20261029 Smith   0042\"",
+    "ws.Range(\"A1\").Parse \"[xxxxxxxx][xxxxxxxxx][xxxx]\""
+   ],
+   "A1:E1",
+   "A1=Double:20261029;B1=String:Smith;C1=Double:42;D1=Empty:;E1=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"abcdefgh\"",
+    "ws.Range(\"A2\").Value = \"ijklmnop\"",
+    "ws.Range(\"A1:A2\").Parse \"[xx][xxx]\""
+   ],
+   "A1:D2",
+   "A1=String:ab;B1=String:cde;C1=Empty:;D1=Empty:;A2=String:ij;B2=String:klm;C2=Empty:;D2=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"abcdefgh\"",
+    "ws.Range(\"A1\").Parse \"[xx][xxx]\", ws.Range(\"C5\")"
+   ],
+   "A1:F5",
+   "A1=String:abcdefgh;B1=Empty:;C1=Empty:;D1=Empty:;E1=Empty:;F1=Empty:;A2=Empty:;B2=Empty:;C2=Empty:;D2=Empty:;E2=Empty:;F2=Empty:;A3=Empty:;B3=Empty:;C3=Empty:;D3=Empty:;E3=Empty:;F3=Empty:;A4=Empty:;B4=Empty:;C4=Empty:;D4=Empty:;E4=Empty:;F4=Empty:;A5=Empty:;B5=Empty:;C5=String:ab;D5=String:cde;E5=Empty:;F5=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"abcdefgh\"",
+    "ws.Range(\"A1\").Parse"
+   ],
+   "A1:D1",
+   "A1=String:abcdefgh;B1=Empty:;C1=Empty:;D1=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"abcdefgh\"",
+    "ws.Range(\"A1\").Parse \"xx\""
+   ],
+   "A1:D1",
+   "A1=String:abcdefgh;B1=Empty:;C1=Empty:;D1=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"abcdefgh\"",
+    "ws.Range(\"A1:B1\").Parse \"[xx][xx]\""
+   ],
+   "A1:D1",
+   "Err 1004 Microsoft Excel can convert only one column at a time. The range can be many rows tall but no more than one column wide. Try again by selecting cells in one column only."
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"0042abc\"",
+    "ws.Range(\"A1\").Parse \"[xxxx][xxx]\""
+   ],
+   "A1:C1",
+   "A1=Double:42;B1=String:abc;C1=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 12345678",
+    "ws.Range(\"A1\").Parse \"[xxxx][xxxx]\""
+   ],
+   "A1:C1",
+   "A1=Double:12345678;B1=Empty:;C1=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"ab\"",
+    "ws.Range(\"A1\").Parse \"[xxxx][xxxx]\""
+   ],
+   "A1:C1",
+   "A1=String:ab;B1=Empty:;C1=Empty:"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"abcdefgh\"",
+    "ws.Range(\"A1\").Parse \"[xx]  [xx]\""
+   ],
+   "A1:C1",
+   "A1=String:ab;B1=String:ef;C1=Empty:"
+  ]
+ ]
+}

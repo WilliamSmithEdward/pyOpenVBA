@@ -4700,6 +4700,24 @@ class Range(ExcelObject):
         return create_names(self, Top, Left, Bottom, Right)
 
     @method
+    def ListNames(self) -> object:
+        from pyopenvba.apps.excel._create_names import list_names
+
+        return list_names(self)
+
+    @member
+    def AutoComplete(self, String: object = MISSING) -> object:
+        from pyopenvba.apps.excel._auto_complete import auto_complete
+
+        return auto_complete(self, String)
+
+    @method
+    def Parse(self, ParseLine: object = MISSING, Destination: object = MISSING) -> object:
+        from pyopenvba.apps.excel._text_columns import parse
+
+        return parse(self, ParseLine, Destination)
+
+    @method
     def RowDifferences(self, Comparison: object = MISSING) -> object:
         from pyopenvba.apps.excel._special_cells import differences
 

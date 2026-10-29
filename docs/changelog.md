@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.RowDifferences` and `ColumnDifferences` find the cells Go To
+  Special's row and column differences find. Each cell's `FormulaR1C1`
+  is compared with the comparison cell's in its row or column, without
+  regard to case: `=A1` and `=B1` in one row are alike, and so are 1,
+  1.0 and the text "1". A blank and 0 differ, and so do `=A1+1` and
+  `=A1 + 1`. The comparison must be one row high and inside the range,
+  or the call is error 1004. 34 live cases agree,
+  `tests/fixtures/row_differences.json`.
+
 - A workbook's links to other, closed workbooks are managed as Excel
   manages them. `LinkSources` lists the linked workbooks' full names in
   the file's order. `LinkInfo` answers a link's status: its file gone,

@@ -1759,6 +1759,14 @@ class Sheets(VBACollection, ExcelObject):
         return super().vba_lookup(index, items)
 
     @method
+    def FillAcrossSheets(self, Range: object = MISSING, Type: object = MISSING) -> object:
+        """Every sheet of the workbook's, as a group's (see _sheet_groups)."""
+        from pyopenvba.apps.excel._sheet_groups import fill_across
+
+        fill_across(list(self.book.sheets_), Range, Type)
+        return EMPTY
+
+    @method
     def Add(
         self,
         Before: object = MISSING,

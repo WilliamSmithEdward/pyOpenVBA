@@ -81,6 +81,60 @@ def special_cells(target: Range, kind_value: object, which: object) -> Range:
     return Range(sheet, [Area(top, left, bottom, right, sheet.name) for top, left, bottom, right in areas_of(found)])
 
 
+def differences(target: Range, comparison: object, rows: bool) -> Range:
+    """Range.RowDifferences, or with ``rows`` False ColumnDifferences: the cells of the range whose FormulaR1C1,
+    read without regard to case, differs from that of the comparison's cell in their row, or column. So =A1 and =B1
+    in a row are alike, as are 1, 1.0 and text "1", a date and its serial, and text ="a" and the formula ="a"; a
+    blank and 0 are not, nor =A1+1 and =A1 + 1 (tests/fixtures/row_differences.json).
+
+    The comparison is its first area's last cell, one row high, inside the range; else error 1004. A range of one
+    cell compares only that cell, a larger one its cells up to the used range's last, as SpecialCells searches."""
+    from pyopenvba.apps.excel._model import Range
+
+    method = "RowDifferences" if rows else "ColumnDifferences"
+    failed = f"Unable to get the {method} property of the Range class"
+    if comparison is MISSING:
+        raise error(449)
+    if not isinstance(comparison, Range):
+        raise VBAUnsupportedError(f"{method} with a comparison that is not a Range is not implemented")
+    sheet = target.sheet
+    if comparison.sheet is not sheet:
+        raise VBAUnsupportedError(f"{method} with a comparison on another sheet is not implemented")
+    first = comparison.areas[0]
+    row, column = first.top, first.right
+    if first.rows != 1 or not any(area.contains(row, column) for area in target.areas):
+        raise error(1004, failed)
+    bounds = sheet.used_bounds()
+    if target.single:
+        domains: list[Area | None] = [target.first]
+    elif bounds is None:
+        domains = []
+    else:
+        searched = Area(1, 1, bounds[2], bounds[3], sheet.name)
+        domains = [_clipped(area, searched) for area in target.areas]
+
+    def text(at_row: int, at_column: int) -> str:
+        return str(Range(sheet, [Area(at_row, at_column, at_row, at_column, sheet.name)]).FormulaR1C1()).casefold()
+
+    found: list[tuple[int, int]] = []
+    seen: set[tuple[int, int]] = set()
+    compared: dict[int, str] = {}
+    for domain in domains:
+        if domain is None:
+            continue
+        for at_row in range(domain.top, domain.bottom + 1):
+            for at_column in range(domain.left, domain.right + 1):
+                line = at_row if rows else at_column
+                if line not in compared:
+                    compared[line] = text(at_row, column) if rows else text(row, at_column)
+                if (at_row, at_column) not in seen and text(at_row, at_column) != compared[line]:
+                    seen.add((at_row, at_column))
+                    found.append((at_row, at_column))
+    if not found:
+        raise error(1004, "No cells were found.")
+    return Range(sheet, [Area(top, left, bottom, right, sheet.name) for top, left, bottom, right in areas_of(found)])
+
+
 def _clipped(area: Area, used: Area) -> Area | None:
     top, left = max(area.top, used.top), max(area.left, used.left)
     bottom, right = min(area.bottom, used.bottom), min(area.right, used.right)

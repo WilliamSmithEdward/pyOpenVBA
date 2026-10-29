@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.CreateNames` makes names from a range's labels as Excel does.
+  A label on a top or bottom edge names its column's data, one on a
+  left or right edge its row's, and a corner where two used edges meet
+  names all of it. A side left out is guessed from the cell beside its
+  corner. A label is text, or a date as it shows. It is cut to 255
+  characters and cleaned: `South East` makes `South_East`, `A1` makes
+  `A1_`, `R1C1` makes `_R1C1` and `3rd` makes `_3rd`. 16 side
+  combinations, 20 guesses and 57 labels agree,
+  `tests/fixtures/create_names.json`.
+
 - `Range.RowDifferences` and `ColumnDifferences` find the cells Go To
   Special's row and column differences find. Each cell's `FormulaR1C1`
   is compared with the comparison cell's in its row or column, without
@@ -1144,6 +1154,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Names.Add` takes and refuses the names Excel does. It refused `a?b`,
+  and took `R1C1_`, `C1R1`, `R1x` and `RC1C`, which Excel refuses as
+  names that start like an R1C1 reference. 324 live names agree,
+  `tests/fixtures/name_validity.json`.
 
 - `Range.Formula2` no longer puts an @ before a reference to one cell of
   another workbook. The colon of the path's drive, `C:\`, was read as a

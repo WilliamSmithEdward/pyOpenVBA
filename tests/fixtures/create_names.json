@@ -1,0 +1,266 @@
+{
+  "measured_at": "2026-10-29T12:12:46.936852+00:00",
+  "labels": [
+    "North",
+    "South East",
+    "R1C1",
+    "A1",
+    "123",
+    "Total %",
+    "O'Neil",
+    "TRUE",
+    "",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "_ok",
+    "\\back",
+    "r",
+    "C",
+    "XFD1",
+    "XFE1",
+    "  lead",
+    "end  ",
+    "a%b",
+    "a  b",
+    "%x",
+    "x%",
+    "1.5",
+    "a?b",
+    "a$b",
+    "a.b-c",
+    "Feb",
+    "feb",
+    "3rd",
+    ".dot",
+    "a,b",
+    "\"q\"",
+    "a_",
+    "RC",
+    "R",
+    "rc1",
+    "C1R1",
+    "tab\tx",
+    "k&l",
+    "#N/A",
+    "a(b)",
+    "ab12",
+    "AB12",
+    "name ",
+    "=x"
+  ],
+  "grid": {
+    "B1": "TopA",
+    "C1": "TopB",
+    "D1": "TopC",
+    "A2": "LeftA",
+    "A3": "LeftB",
+    "A4": "LeftC",
+    "B5": "BottomA",
+    "C5": "BottomB",
+    "D5": "BottomC",
+    "E2": "RightA",
+    "E3": "RightB",
+    "E4": "RightC",
+    "A1": "CornerTL",
+    "E1": "CornerTR",
+    "A5": "CornerBL",
+    "E5": "CornerBR"
+  },
+  "guesses": {
+    "labels both ways": {
+      "A1": "",
+      "B1": "Jan",
+      "C1": "Feb",
+      "A2": "North",
+      "A3": "South",
+      "B2": "1",
+      "C2": "2",
+      "B3": "3",
+      "C3": "4"
+    },
+    "labels on top": {
+      "A1": "Jan",
+      "B1": "Feb",
+      "A2": "1",
+      "B2": "2",
+      "A3": "3",
+      "B3": "4"
+    },
+    "labels on the left": {
+      "A1": "North",
+      "A2": "South",
+      "B1": "1",
+      "B2": "2",
+      "C1": "3",
+      "C2": "4"
+    },
+    "text everywhere": {
+      "A1": "a",
+      "B1": "b",
+      "A2": "c",
+      "B2": "d"
+    },
+    "numbers everywhere": {
+      "A1": "1",
+      "B1": "2",
+      "A2": "3",
+      "B2": "4"
+    },
+    "corner label": {
+      "A1": "Corner",
+      "B1": "Jan",
+      "A2": "North",
+      "B2": "1"
+    },
+    "top row text left numbers": {
+      "A1": "Jan",
+      "B1": "Feb",
+      "A2": "5",
+      "B2": "6",
+      "A3": "7",
+      "B3": "8"
+    }
+  },
+  "source": "Private Function Named(ByVal wb As Workbook) As String\n    Dim n As Name, s As String\n    For Each n In wb.Names\n        s = s & \"|\" & n.Name & \"=\" & n.RefersTo\n    Next\n    Named = s\nEnd Function\n\nPrivate Sub Clear(ByVal ws As Worksheet)\n    Do While ws.Parent.Names.Count > 0\n        ws.Parent.Names(1).Delete\n    Loop\nEnd Sub\n\nPublic Function Cleaning() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Cells(1, 1).Value = \"North\"\n    ws.Cells(1, 2).Value = 1\n    ws.Cells(2, 1).Value = \"South East\"\n    ws.Cells(2, 2).Value = 2\n    ws.Cells(3, 1).Value = \"R1C1\"\n    ws.Cells(3, 2).Value = 3\n    ws.Cells(4, 1).Value = \"A1\"\n    ws.Cells(4, 2).Value = 4\n    ws.Cells(5, 1).Value = \"123\"\n    ws.Cells(5, 2).Value = 5\n    ws.Cells(6, 1).Value = \"Total %\"\n    ws.Cells(6, 2).Value = 6\n    ws.Cells(7, 1).Value = \"O'Neil\"\n    ws.Cells(7, 2).Value = 7\n    ws.Cells(8, 1).Value = \"TRUE\"\n    ws.Cells(8, 2).Value = 8\n    ws.Cells(9, 2).Value = 9\n    ws.Cells(10, 1).Value = \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n    ws.Cells(10, 2).Value = 10\n    ws.Cells(11, 1).Value = \"_ok\"\n    ws.Cells(11, 2).Value = 11\n    ws.Cells(12, 1).Value = \"\\back\"\n    ws.Cells(12, 2).Value = 12\n    ws.Cells(13, 1).Value = \"r\"\n    ws.Cells(13, 2).Value = 13\n    ws.Cells(14, 1).Value = \"C\"\n    ws.Cells(14, 2).Value = 14\n    ws.Cells(15, 1).Value = \"XFD1\"\n    ws.Cells(15, 2).Value = 15\n    ws.Cells(16, 1).Value = \"XFE1\"\n    ws.Cells(16, 2).Value = 16\n    ws.Cells(17, 1).Value = \"  lead\"\n    ws.Cells(17, 2).Value = 17\n    ws.Cells(18, 1).Value = \"end  \"\n    ws.Cells(18, 2).Value = 18\n    ws.Cells(19, 1).Value = \"a%b\"\n    ws.Cells(19, 2).Value = 19\n    ws.Cells(20, 1).Value = \"a  b\"\n    ws.Cells(20, 2).Value = 20\n    ws.Cells(21, 1).Value = \"%x\"\n    ws.Cells(21, 2).Value = 21\n    ws.Cells(22, 1).Value = \"x%\"\n    ws.Cells(22, 2).Value = 22\n    ws.Cells(23, 1).Value = \"1.5\"\n    ws.Cells(23, 2).Value = 23\n    ws.Cells(24, 1).Value = \"a?b\"\n    ws.Cells(24, 2).Value = 24\n    ws.Cells(25, 1).Value = \"a$b\"\n    ws.Cells(25, 2).Value = 25\n    ws.Cells(26, 1).Value = \"a.b-c\"\n    ws.Cells(26, 2).Value = 26\n    ws.Cells(27, 1).Value = \"Feb\"\n    ws.Cells(27, 2).Value = 27\n    ws.Cells(28, 1).Value = \"feb\"\n    ws.Cells(28, 2).Value = 28\n    ws.Cells(29, 1).Value = \"3rd\"\n    ws.Cells(29, 2).Value = 29\n    ws.Cells(30, 1).Value = \".dot\"\n    ws.Cells(30, 2).Value = 30\n    ws.Cells(31, 1).Value = \"a,b\"\n    ws.Cells(31, 2).Value = 31\n    ws.Cells(32, 1).Value = \"\"\"q\"\"\"\n    ws.Cells(32, 2).Value = 32\n    ws.Cells(33, 1).Value = \"a_\"\n    ws.Cells(33, 2).Value = 33\n    ws.Cells(34, 1).Value = \"RC\"\n    ws.Cells(34, 2).Value = 34\n    ws.Cells(35, 1).Value = \"R\"\n    ws.Cells(35, 2).Value = 35\n    ws.Cells(36, 1).Value = \"rc1\"\n    ws.Cells(36, 2).Value = 36\n    ws.Cells(37, 1).Value = \"C1R1\"\n    ws.Cells(37, 2).Value = 37\n    ws.Cells(38, 1).Value = \"tab\" & vbTab & \"x\"\n    ws.Cells(38, 2).Value = 38\n    ws.Cells(39, 1).Value = \"k&l\"\n    ws.Cells(39, 2).Value = 39\n    ws.Cells(40, 1).Value = \"#N/A\"\n    ws.Cells(40, 2).Value = 40\n    ws.Cells(41, 1).Value = \"a(b)\"\n    ws.Cells(41, 2).Value = 41\n    ws.Cells(42, 1).Value = \"ab12\"\n    ws.Cells(42, 2).Value = 42\n    ws.Cells(43, 1).Value = \"AB12\"\n    ws.Cells(43, 2).Value = 43\n    ws.Cells(44, 1).Value = \"name \"\n    ws.Cells(44, 2).Value = 44\n    ws.Cells(45, 1).Value = \"=x\"\n    ws.Cells(45, 2).Value = 45\n    v = ws.Range(\"A1:B45\").CreateNames(Top:=False, Left:=True, Bottom:=False, Right:=False)\n    Cleaning = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\nEnd Function\n\nPublic Function Sides(ByVal t As Boolean, ByVal l As Boolean, ByVal b As Boolean, ByVal r As Boolean) As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"TopA\"\n    ws.Range(\"C1\").Value = \"TopB\"\n    ws.Range(\"D1\").Value = \"TopC\"\n    ws.Range(\"A2\").Value = \"LeftA\"\n    ws.Range(\"A3\").Value = \"LeftB\"\n    ws.Range(\"A4\").Value = \"LeftC\"\n    ws.Range(\"B5\").Value = \"BottomA\"\n    ws.Range(\"C5\").Value = \"BottomB\"\n    ws.Range(\"D5\").Value = \"BottomC\"\n    ws.Range(\"E2\").Value = \"RightA\"\n    ws.Range(\"E3\").Value = \"RightB\"\n    ws.Range(\"E4\").Value = \"RightC\"\n    ws.Range(\"A1\").Value = \"CornerTL\"\n    ws.Range(\"E1\").Value = \"CornerTR\"\n    ws.Range(\"A5\").Value = \"CornerBL\"\n    ws.Range(\"E5\").Value = \"CornerBR\"\n    ws.Range(\"B2:D4\").Value = 7\n    On Error GoTo Failed\n    v = ws.Range(\"A1:E5\").CreateNames(Top:=t, Left:=l, Bottom:=b, Right:=r)\n    Sides = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Sides = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess0() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames()\n    Guess0 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess0 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess1() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"Jan\"\n    ws.Range(\"B1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = 1\n    ws.Range(\"B2\").Value = 2\n    ws.Range(\"A3\").Value = 3\n    ws.Range(\"B3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames()\n    Guess1 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess1 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess2() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"North\"\n    ws.Range(\"A2\").Value = \"South\"\n    ws.Range(\"B1\").Value = 1\n    ws.Range(\"B2\").Value = 2\n    ws.Range(\"C1\").Value = 3\n    ws.Range(\"C2\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames()\n    Guess2 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess2 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess3() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"a\"\n    ws.Range(\"B1\").Value = \"b\"\n    ws.Range(\"A2\").Value = \"c\"\n    ws.Range(\"B2\").Value = \"d\"\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames()\n    Guess3 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess3 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess4() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = 1\n    ws.Range(\"B1\").Value = 2\n    ws.Range(\"A2\").Value = 3\n    ws.Range(\"B2\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames()\n    Guess4 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess4 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess5() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"Corner\"\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"B2\").Value = 1\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames()\n    Guess5 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess5 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess6() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"Jan\"\n    ws.Range(\"B1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = 5\n    ws.Range(\"B2\").Value = 6\n    ws.Range(\"A3\").Value = 7\n    ws.Range(\"B3\").Value = 8\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames()\n    Guess6 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess6 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess7() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"Jan\"\n    ws.Range(\"B1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = 1\n    ws.Range(\"B2\").Value = 2\n    ws.Range(\"A3\").Value = 3\n    ws.Range(\"B3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Top:=True)\n    Guess7 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess7 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess8() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"Jan\"\n    ws.Range(\"B1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = 1\n    ws.Range(\"B2\").Value = 2\n    ws.Range(\"A3\").Value = 3\n    ws.Range(\"B3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Left:=True)\n    Guess8 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess8 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess9() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"Jan\"\n    ws.Range(\"B1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = 1\n    ws.Range(\"B2\").Value = 2\n    ws.Range(\"A3\").Value = 3\n    ws.Range(\"B3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Top:=False)\n    Guess9 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess9 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess10() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Bottom:=True)\n    Guess10 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess10 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess11() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Top:=True, Left:=False)\n    Guess11 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess11 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess12() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Value = \"North\"\n    ws.Range(\"A2\").Value = \"South\"\n    ws.Range(\"B1\").Value = 1\n    ws.Range(\"B2\").Value = 2\n    ws.Range(\"C1\").Value = 3\n    ws.Range(\"C2\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Right:=False)\n    Guess12 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess12 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess13() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Top:=\"x\")\n    Guess13 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess13 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess14() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Top:=1)\n    Guess14 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess14 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess15() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Top:=Null)\n    Guess15 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess15 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess16() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"B1\").CreateNames(Top:=True)\n    Guess16 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess16 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess17() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:A3\").CreateNames(Top:=True)\n    Guess17 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess17 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess18() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C3\").CreateNames(Top:=xlNo)\n    Guess18 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess18 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Guess19() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"B1\").Value = \"Jan\"\n    ws.Range(\"C1\").Value = \"Feb\"\n    ws.Range(\"A2\").Value = \"North\"\n    ws.Range(\"A3\").Value = \"South\"\n    ws.Range(\"B2\").Value = 1\n    ws.Range(\"C2\").Value = 2\n    ws.Range(\"B3\").Value = 3\n    ws.Range(\"C3\").Value = 4\n    On Error GoTo Failed\n    v = ws.Range(\"A1:C1,A3:C3\").CreateNames(Top:=True)\n    Guess19 = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\n    Exit Function\nFailed:\n    Guess19 = \"Err \" & Err.Number & \" \" & Split(Err.Description, vbLf)(0) & Named(ws.Parent)\nEnd Function\n\nPublic Function Kinds() As String\n    Dim ws As Worksheet, v As Variant\n    Set ws = ActiveSheet\n    Clear ws\n    ws.Cells.Clear\n    ws.Range(\"A1\").Formula = \"=\"\"Calc\"\" & \"\"ulated\"\"\"\n    ws.Range(\"A2\").Value = DateSerial(2026, 1, 1)\n    ws.Range(\"A3\").Value = DateSerial(2026, 2, 3)\n    ws.Range(\"A3\").NumberFormat = \"yyyy-mm-dd\"\n    ws.Range(\"A4\").Formula = \"=NA()\"\n    ws.Range(\"A5\").NumberFormat = \"@\"\n    ws.Range(\"A5\").Value = 5\n    ws.Range(\"A6\").Value = \"   \"\n    ws.Range(\"A7\").Value = \"Kept\"\n    ws.Range(\"A8\").Value = \"Twice\"\n    ws.Range(\"A9\").Value = \"twice\"\n    ws.Range(\"A10\").Formula = \"=1+1\"\n    ws.Range(\"A11\").Value = \"kept\"\n    ws.Range(\"A12\").Value = \"x\" & String(250, \"y\") & \" %%%%%z\"\n    ws.Range(\"B1:B12\").Value = 1\n    ActiveWorkbook.Names.Add Name:=\"Kept\", RefersTo:=\"=99\"\n    v = ws.Range(\"A1:B12\").CreateNames(Top:=False, Left:=True, Bottom:=False, Right:=False)\n    Kinds = TypeName(v) & \" \" & CStr(v) & Named(ws.Parent)\nEnd Function\n",
+  "sides": {
+    "0000": "Boolean True",
+    "0001": "Boolean True|CornerBR==Sheet1!$A$5:$D$5|CornerTR==Sheet1!$A$1:$D$1|RightA==Sheet1!$A$2:$D$2|RightB==Sheet1!$A$3:$D$3|RightC==Sheet1!$A$4:$D$4",
+    "0010": "Boolean True|BottomA==Sheet1!$B$1:$B$4|BottomB==Sheet1!$C$1:$C$4|BottomC==Sheet1!$D$1:$D$4|CornerBL==Sheet1!$A$1:$A$4|CornerBR==Sheet1!$E$1:$E$4",
+    "0011": "Boolean True|BottomA==Sheet1!$B$1:$B$4|BottomB==Sheet1!$C$1:$C$4|BottomC==Sheet1!$D$1:$D$4|CornerBL==Sheet1!$A$1:$A$4|CornerBR==Sheet1!$A$1:$D$4|CornerTR==Sheet1!$A$1:$D$1|RightA==Sheet1!$A$2:$D$2|RightB==Sheet1!$A$3:$D$3|RightC==Sheet1!$A$4:$D$4",
+    "0100": "Boolean True|CornerBL==Sheet1!$B$5:$E$5|CornerTL==Sheet1!$B$1:$E$1|LeftA==Sheet1!$B$2:$E$2|LeftB==Sheet1!$B$3:$E$3|LeftC==Sheet1!$B$4:$E$4",
+    "0101": "Boolean True|CornerBL==Sheet1!$B$5:$D$5|CornerBR==Sheet1!$B$5:$D$5|CornerTL==Sheet1!$B$1:$D$1|CornerTR==Sheet1!$B$1:$D$1|LeftA==Sheet1!$B$2:$D$2|LeftB==Sheet1!$B$3:$D$3|LeftC==Sheet1!$B$4:$D$4|RightA==Sheet1!$B$2:$D$2|RightB==Sheet1!$B$3:$D$3|RightC==Sheet1!$B$4:$D$4",
+    "0110": "Boolean True|BottomA==Sheet1!$B$1:$B$4|BottomB==Sheet1!$C$1:$C$4|BottomC==Sheet1!$D$1:$D$4|CornerBL==Sheet1!$B$1:$E$4|CornerBR==Sheet1!$E$1:$E$4|CornerTL==Sheet1!$B$1:$E$1|LeftA==Sheet1!$B$2:$E$2|LeftB==Sheet1!$B$3:$E$3|LeftC==Sheet1!$B$4:$E$4",
+    "0111": "Boolean True|BottomA==Sheet1!$B$1:$B$4|BottomB==Sheet1!$C$1:$C$4|BottomC==Sheet1!$D$1:$D$4|CornerBL==Sheet1!$B$1:$D$4|CornerBR==Sheet1!$B$1:$D$4|CornerTL==Sheet1!$B$1:$D$1|CornerTR==Sheet1!$B$1:$D$1|LeftA==Sheet1!$B$2:$D$2|LeftB==Sheet1!$B$3:$D$3|LeftC==Sheet1!$B$4:$D$4|RightA==Sheet1!$B$2:$D$2|RightB==Sheet1!$B$3:$D$3|RightC==Sheet1!$B$4:$D$4",
+    "1000": "Boolean True|CornerTL==Sheet1!$A$2:$A$5|CornerTR==Sheet1!$E$2:$E$5|TopA==Sheet1!$B$2:$B$5|TopB==Sheet1!$C$2:$C$5|TopC==Sheet1!$D$2:$D$5",
+    "1001": "Boolean True|CornerBR==Sheet1!$A$5:$D$5|CornerTL==Sheet1!$A$2:$A$5|CornerTR==Sheet1!$A$2:$D$5|RightA==Sheet1!$A$2:$D$2|RightB==Sheet1!$A$3:$D$3|RightC==Sheet1!$A$4:$D$4|TopA==Sheet1!$B$2:$B$5|TopB==Sheet1!$C$2:$C$5|TopC==Sheet1!$D$2:$D$5",
+    "1010": "Boolean True|BottomA==Sheet1!$B$2:$B$4|BottomB==Sheet1!$C$2:$C$4|BottomC==Sheet1!$D$2:$D$4|CornerBL==Sheet1!$A$2:$A$4|CornerBR==Sheet1!$E$2:$E$4|CornerTL==Sheet1!$A$2:$A$4|CornerTR==Sheet1!$E$2:$E$4|TopA==Sheet1!$B$2:$B$4|TopB==Sheet1!$C$2:$C$4|TopC==Sheet1!$D$2:$D$4",
+    "1011": "Boolean True|BottomA==Sheet1!$B$2:$B$4|BottomB==Sheet1!$C$2:$C$4|BottomC==Sheet1!$D$2:$D$4|CornerBL==Sheet1!$A$2:$A$4|CornerBR==Sheet1!$A$2:$D$4|CornerTL==Sheet1!$A$2:$A$4|CornerTR==Sheet1!$A$2:$D$4|RightA==Sheet1!$A$2:$D$2|RightB==Sheet1!$A$3:$D$3|RightC==Sheet1!$A$4:$D$4|TopA==Sheet1!$B$2:$B$4|TopB==Sheet1!$C$2:$C$4|TopC==Sheet1!$D$2:$D$4",
+    "1100": "Boolean True|CornerBL==Sheet1!$B$5:$E$5|CornerTL==Sheet1!$B$2:$E$5|CornerTR==Sheet1!$E$2:$E$5|LeftA==Sheet1!$B$2:$E$2|LeftB==Sheet1!$B$3:$E$3|LeftC==Sheet1!$B$4:$E$4|TopA==Sheet1!$B$2:$B$5|TopB==Sheet1!$C$2:$C$5|TopC==Sheet1!$D$2:$D$5",
+    "1101": "Boolean True|CornerBL==Sheet1!$B$5:$D$5|CornerBR==Sheet1!$B$5:$D$5|CornerTL==Sheet1!$B$2:$D$5|CornerTR==Sheet1!$B$2:$D$5|LeftA==Sheet1!$B$2:$D$2|LeftB==Sheet1!$B$3:$D$3|LeftC==Sheet1!$B$4:$D$4|RightA==Sheet1!$B$2:$D$2|RightB==Sheet1!$B$3:$D$3|RightC==Sheet1!$B$4:$D$4|TopA==Sheet1!$B$2:$B$5|TopB==Sheet1!$C$2:$C$5|TopC==Sheet1!$D$2:$D$5",
+    "1110": "Boolean True|BottomA==Sheet1!$B$2:$B$4|BottomB==Sheet1!$C$2:$C$4|BottomC==Sheet1!$D$2:$D$4|CornerBL==Sheet1!$B$2:$E$4|CornerBR==Sheet1!$E$2:$E$4|CornerTL==Sheet1!$B$2:$E$4|CornerTR==Sheet1!$E$2:$E$4|LeftA==Sheet1!$B$2:$E$2|LeftB==Sheet1!$B$3:$E$3|LeftC==Sheet1!$B$4:$E$4|TopA==Sheet1!$B$2:$B$4|TopB==Sheet1!$C$2:$C$4|TopC==Sheet1!$D$2:$D$4",
+    "1111": "Boolean True|BottomA==Sheet1!$B$2:$B$4|BottomB==Sheet1!$C$2:$C$4|BottomC==Sheet1!$D$2:$D$4|CornerBL==Sheet1!$B$2:$D$4|CornerBR==Sheet1!$B$2:$D$4|CornerTL==Sheet1!$B$2:$D$4|CornerTR==Sheet1!$B$2:$D$4|LeftA==Sheet1!$B$2:$D$2|LeftB==Sheet1!$B$3:$D$3|LeftC==Sheet1!$B$4:$D$4|RightA==Sheet1!$B$2:$D$2|RightB==Sheet1!$B$3:$D$3|RightC==Sheet1!$B$4:$D$4|TopA==Sheet1!$B$2:$B$4|TopB==Sheet1!$C$2:$C$4|TopC==Sheet1!$D$2:$D$4"
+  },
+  "guess_cases": [
+    [
+      "labels both ways",
+      "A1:C3",
+      "",
+      "Boolean True|Feb==Sheet1!$C$2:$C$3|Jan==Sheet1!$B$2:$B$3|North==Sheet1!$B$2:$C$2|South==Sheet1!$B$3:$C$3"
+    ],
+    [
+      "labels on top",
+      "A1:C3",
+      "",
+      "Boolean True|Feb==Sheet1!$B$2:$B$3|Jan==Sheet1!$A$2:$A$3"
+    ],
+    [
+      "labels on the left",
+      "A1:C3",
+      "",
+      "Boolean True|North==Sheet1!$B$1:$C$1|South==Sheet1!$B$2:$C$2"
+    ],
+    [
+      "text everywhere",
+      "A1:C3",
+      "",
+      "Boolean True|a==Sheet1!$B$2:$C$3|b==Sheet1!$B$2:$B$3|c_==Sheet1!$B$2:$C$2"
+    ],
+    [
+      "numbers everywhere",
+      "A1:C3",
+      "",
+      "Boolean True"
+    ],
+    [
+      "corner label",
+      "A1:C3",
+      "",
+      "Boolean True|Corner==Sheet1!$B$2:$C$3|Jan==Sheet1!$B$2:$B$3|North==Sheet1!$B$2:$C$2"
+    ],
+    [
+      "top row text left numbers",
+      "A1:C3",
+      "",
+      "Boolean True|Feb==Sheet1!$B$2:$B$3|Jan==Sheet1!$A$2:$A$3"
+    ],
+    [
+      "labels on top",
+      "A1:C3",
+      "Top:=True",
+      "Boolean True|Feb==Sheet1!$B$2:$B$3|Jan==Sheet1!$A$2:$A$3"
+    ],
+    [
+      "labels on top",
+      "A1:C3",
+      "Left:=True",
+      "Boolean True|Feb==Sheet1!$B$2:$B$3|Jan==Sheet1!$B$2:$C$3"
+    ],
+    [
+      "labels on top",
+      "A1:C3",
+      "Top:=False",
+      "Boolean True"
+    ],
+    [
+      "labels both ways",
+      "A1:C3",
+      "Bottom:=True",
+      "Boolean True|Feb==Sheet1!$C$2|Jan==Sheet1!$B$2|North==Sheet1!$B$2:$C$2|South==Sheet1!$B$2:$C$2"
+    ],
+    [
+      "labels both ways",
+      "A1:C3",
+      "Top:=True, Left:=False",
+      "Boolean True|Feb==Sheet1!$C$2:$C$3|Jan==Sheet1!$B$2:$B$3"
+    ],
+    [
+      "labels on the left",
+      "A1:C3",
+      "Right:=False",
+      "Boolean True|North==Sheet1!$B$1:$C$1|South==Sheet1!$B$2:$C$2"
+    ],
+    [
+      "labels both ways",
+      "A1:C3",
+      "Top:=\"x\"",
+      "Err 1004 Unable to get the CreateNames property of the Range class"
+    ],
+    [
+      "labels both ways",
+      "A1:C3",
+      "Top:=1",
+      "Boolean True|Feb==Sheet1!$C$2:$C$3|Jan==Sheet1!$B$2:$B$3|North==Sheet1!$B$2:$C$2|South==Sheet1!$B$3:$C$3"
+    ],
+    [
+      "labels both ways",
+      "A1:C3",
+      "Top:=Null",
+      "Boolean True|Feb==Sheet1!$C$2:$C$3|Jan==Sheet1!$B$2:$B$3|North==Sheet1!$B$2:$C$2|South==Sheet1!$B$3:$C$3"
+    ],
+    [
+      "labels both ways",
+      "B1",
+      "Top:=True",
+      "Err 1004 This selection isn't valid. Make sure the copy and paste areas don't overlap unless they are the same size and shape."
+    ],
+    [
+      "labels both ways",
+      "A1:A3",
+      "Top:=True",
+      "Boolean True|South==Sheet1!$A$2"
+    ],
+    [
+      "labels both ways",
+      "A1:C3",
+      "Top:=xlNo",
+      "Boolean True|Feb==Sheet1!$C$2:$C$3|Jan==Sheet1!$B$2:$B$3|North==Sheet1!$B$2:$C$2|South==Sheet1!$B$3:$C$3"
+    ],
+    [
+      "labels both ways",
+      "A1:C1,A3:C3",
+      "Top:=True",
+      "Err 1004 This selection isn't valid. Make sure the copy and paste areas don't overlap unless they are the same size and shape."
+    ]
+  ],
+  "kinds": "Boolean True|_1_1_2026==Sheet1!$B$2|_2026_02_03==Sheet1!$B$3|Calculated==Sheet1!$B$1|kept==Sheet1!$B$11|twice==Sheet1!$B$9|xyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy==Sheet1!$B$12",
+  "cleaning": "Boolean True|\\back==Sheet1!$B$12|_.dot==Sheet1!$B$30|_3rd==Sheet1!$B$29|_C1R1==Sheet1!$B$37|_ok==Sheet1!$B$11|_R1C1==Sheet1!$B$3|_rc1==Sheet1!$B$36|_xlfn.SINGLE==#NAME?|a.b_c==Sheet1!$B$26|a?b==Sheet1!$B$24|a_==Sheet1!$B$33|a__b==Sheet1!$B$20|a_b==Sheet1!$B$41|A1_==Sheet1!$B$4|AB12_==Sheet1!$B$43|C_==Sheet1!$B$14|end==Sheet1!$B$18|feb==Sheet1!$B$28|k_l==Sheet1!$B$39|lead==Sheet1!$B$17|name==Sheet1!$B$44|North==Sheet1!$B$1|O_Neil==Sheet1!$B$7|q==Sheet1!$B$32|R_==Sheet1!$B$35|RC_==Sheet1!$B$34|South_East==Sheet1!$B$2|tab_x==Sheet1!$B$38|Total==Sheet1!$B$6|x==Sheet1!$B$22|XFD1_==Sheet1!$B$15|XFE1==Sheet1!$B$16|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==Sheet1!$B$10"
+}

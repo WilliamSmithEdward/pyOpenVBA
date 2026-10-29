@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Window settings everyday macros set work as Excel's do:
+  `DisplayOutline`, `DisplayRuler` and `DisplayWhitespace`, each the
+  active sheet's; `GridlineColor` and `GridlineColorIndex`, a colour
+  taking the nearest palette slot; and `AutoFilterDateGrouping`, the
+  workbook's. A save writes each where Excel does, and opening reads it
+  back. `SmallScroll` moves `ScrollRow` and `ScrollColumn`, kept on the
+  sheet. `WindowNumber` and `Type` answer too. 29 live cases and 7
+  saved files agree, `tests/fixtures/window_settings.json`.
+
 - `Range.DataSeries` fills a series as Edit > Fill > Series does, to the
   bit. A linear value is first + k * Step in Doubles, with no rounding
   to 15 digits, and growth is first * Step^k by repeated squaring.

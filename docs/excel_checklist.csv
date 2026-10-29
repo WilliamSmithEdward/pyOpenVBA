@@ -2262,7 +2262,7 @@ Window,ActivePane,"property, read-only",As Pane,,MISSING,,
 Window,ActiveSheet,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,ActiveSheetView,"property, read-only",As Object,,MISSING,,
 Window,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,AutoFilterDateGrouping,property,As Boolean,,MISSING,,
+Window,AutoFilterDateGrouping,property,As Boolean,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"The workbook's, saved in its workbookView and read back; it changes no filter."
 Window,Caption,property,As Variant,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant]) As Boolean",,MISSING,,
 Window,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -2271,17 +2271,17 @@ Window,DisplayFormulas,property,As Boolean,,VERIFIED,tests/fixtures/windows/wind
 Window,DisplayGridlines,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,DisplayHeadings,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,DisplayHorizontalScrollBar,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,DisplayOutline,property,As Boolean,,MISSING,,
+Window,DisplayOutline,property,As Boolean,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"The active sheet's, saved in its sheetView and outlinePr and read back."
 Window,DisplayRightToLeft,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,The active sheet's view's rightToLeft (rtl_window)
-Window,DisplayRuler,property,As Boolean,,MISSING,,
+Window,DisplayRuler,property,As Boolean,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"The active sheet's, saved as its sheetView's showRuler and read back."
 Window,DisplayVerticalScrollBar,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,DisplayWhitespace,property,As Boolean,,MISSING,,
+Window,DisplayWhitespace,property,As Boolean,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"The active sheet's, saved as its sheetView's showWhiteSpace and read back."
 Window,DisplayWorkbookTabs,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,DisplayZeros,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,EnableResize,property,As Boolean,,MISSING,,
 Window,FreezePanes,property,As Boolean,,PARTIAL,tests/fixtures/windows/windows.json,"With the active cell out of view or at the window's top left, Excel freezes the middle of the window, which reports itself."
-Window,GridlineColor,property,As Long,,MISSING,,
-Window,GridlineColorIndex,property,As XlColorIndex,,MISSING,,
+Window,GridlineColor,property,As Long,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"The colour of the gridlines' palette slot, 0 while automatic; set, the slot nearest the colour's low 24 bits; saved as colorId with defaultGridColor."
+Window,GridlineColorIndex,property,As XlColorIndex,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"1 to 56, 0 or xlColorIndexAutomatic for automatic, else error 1004; the active sheet's."
 Window,Height,property,As Double,,PARTIAL,tests/fixtures/windows/windows.json,"Kept as a macro sets it; before that it is the screen's, which the model does not have, and reading it reports itself."
 Window,Hwnd,"property, read-only",As Long,,MISSING,,
 Window,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/windows/windows.json,
@@ -2304,7 +2304,7 @@ Window,ScrollWorkbookTabs,method,"ScrollWorkbookTabs([Sheets As Variant], [Posit
 Window,SelectedSheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"The selected sheets in tab order, a group's or the active sheet alone; each tab's tabSelected in the file, read again when the file opens."
 Window,Selection,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,SheetViews,"property, read-only",As SheetViews,,MISSING,,
-Window,SmallScroll,method,"SmallScroll([Down As Variant], [Up As Variant], [ToRight As Variant], [ToLeft As Variant]) As Variant",,MISSING,,
+Window,SmallScroll,method,"SmallScroll([Down As Variant], [Up As Variant], [ToRight As Variant], [ToLeft As Variant]) As Variant",,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"ScrollRow by Down less Up and ScrollColumn by ToRight less ToLeft, cut toward zero and kept on the sheet; text is error 1004; True."
 Window,Split,property,As Boolean,,PARTIAL,tests/fixtures/windows/windows.json,"Split = True on a window with no split, which Excel splits at the active cell, reports itself. A split that is not frozen is answered for and not saved: Excel keeps it in twips of what the window shows."
 Window,SplitColumn,property,As Long,,PARTIAL,tests/fixtures/windows/windows.json,A split that is not frozen is answered for and not saved: Excel keeps it in twips of what the window shows.
 Window,SplitHorizontal,property,As Double,no setter,PARTIAL,tests/fixtures/windows/windows.json,Read only here.
@@ -2312,14 +2312,14 @@ Window,SplitRow,property,As Long,,PARTIAL,tests/fixtures/windows/windows.json,A 
 Window,SplitVertical,property,As Double,no setter,PARTIAL,tests/fixtures/windows/windows.json,Read only here.
 Window,TabRatio,property,As Double,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,Top,property,As Double,,MISSING,,
-Window,Type,"property, read-only",As XlWindowType,,MISSING,,
+Window,Type,"property, read-only",As XlWindowType,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,xlWorkbook.
 Window,UsableHeight,"property, read-only",As Double,,MISSING,,
 Window,UsableWidth,"property, read-only",As Double,,MISSING,,
 Window,View,property,As XlWindowView,,PARTIAL,tests/fixtures/windows/windows.json,Changing the view of a window with panes reports itself.
 Window,Visible,property,As Boolean,,PARTIAL,tests/fixtures/windows/windows.json,True; hiding a workbook's window reports itself.
 Window,VisibleRange,"property, read-only",As Range,,MISSING,,
 Window,Width,property,As Double,,PARTIAL,tests/fixtures/windows/windows.json,"Kept as a macro sets it; before that it is the screen's, which the model does not have, and reading it reports itself."
-Window,WindowNumber,"property, read-only",As Long,,MISSING,,
+Window,WindowNumber,"property, read-only",As Long,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,1: the model keeps one window a workbook.
 Window,WindowState,property,As XlWindowState,,PARTIAL,tests/fixtures/windows/windows.json,"Kept as a macro sets it; before that it is the screen's, which the model does not have, and reading it reports itself."
 Window,Zoom,property,As Variant,,PARTIAL,tests/fixtures/windows/windows.json,"Zoom = True, which fits the selection to the window, reports itself."
 Windows,_Default,"property, read-only",As Window,,MISSING,,

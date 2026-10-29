@@ -21,7 +21,7 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference
 from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntimeError
@@ -219,6 +219,12 @@ class Application(ExcelObject):
     """The Excel instance: the root of everything a macro can reach."""
 
     vba_type_name = "Application"
+    #: The events the model raises in an application sink, which the member inventory counts
+    #: (see _events).
+    raised_events: ClassVar[frozenset[str]] = frozenset({
+        "WorkbookOpen", "WorkbookBeforeSave", "WorkbookAfterSave", "WorkbookBeforeClose",
+        "WorkbookActivate", "WorkbookDeactivate", "WorkbookNewSheet", "SheetChange", "SheetCalculate",
+        "SheetSelectionChange", "SheetActivate", "SheetDeactivate", "SheetPivotTableUpdate"})
 
     def vba_information_value(self) -> object:
         return self.Name()
@@ -1076,6 +1082,11 @@ class Workbook(ExcelObject):
     """One workbook: its sheets, its names, and where it came from."""
 
     vba_type_name = "Workbook"
+    #: The events the model raises in the workbook's module and sinks (see _events).
+    raised_events: ClassVar[frozenset[str]] = frozenset({
+        "Open", "BeforeSave", "AfterSave", "BeforeClose", "Activate", "Deactivate", "NewSheet",
+        "SheetChange", "SheetCalculate", "SheetSelectionChange", "SheetActivate", "SheetDeactivate",
+        "SheetPivotTableUpdate"})
 
     def __init__(self, application: Application, name: str, path: str = "") -> None:
         self.application = application
@@ -1775,6 +1786,9 @@ class Worksheet(ExcelObject):
     """One worksheet and its cells."""
 
     vba_type_name = "Worksheet"
+    #: The events the model raises in the sheet's module and sinks (see _events).
+    raised_events: ClassVar[frozenset[str]] = frozenset({
+        "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate"})
 
     def __init__(self, book: Workbook, name: str) -> None:
         self.book = book

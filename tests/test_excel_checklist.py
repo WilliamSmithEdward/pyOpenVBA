@@ -60,6 +60,12 @@ def _registered(cls: type[VBAObject]) -> dict[str, MemberSpec]:
     return members
 
 
+def _implemented(cls: type[VBAObject]) -> set[str]:
+    """The members a class registers and the events the model raises for it (see _events)."""
+    raised: frozenset[str] = getattr(cls, "raised_events", frozenset())
+    return set(_registered(cls)) | {name.lower() for name in raised}
+
+
 def _classes() -> dict[str, type[VBAObject]]:
     found: dict[str, type[VBAObject]] = {}
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
@@ -94,7 +100,7 @@ def test_every_row_has_a_known_status_and_no_duplicates() -> None:
 
 @pytest.mark.parametrize("type_name", sorted(CLASSES))
 def test_the_status_matches_the_registration(type_name: str) -> None:
-    registered = _registered(CLASSES[type_name])
+    registered = _implemented(CLASSES[type_name])
     wrong = [
         f"{row['member']}: {row['status']}"
         for row in ROWS

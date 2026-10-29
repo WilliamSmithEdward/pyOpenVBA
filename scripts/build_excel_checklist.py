@@ -149,6 +149,8 @@ def build(reference: Path) -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     for type_name, cls in bound_classes().items():
         registered = cls._vba_members  # type: ignore[attr-defined]
+        # The events the model raises count as implemented, though no member holds them (see _events).
+        raised: set[str] = {str(name).lower() for name in getattr(cls, "raised_events", ())}
         entries = {str(entry["name"]).lower(): entry for entry in reference_members(reference, type_name)}
         for key in sorted(set(entries) | set(registered)):
             entry = entries.get(key)
@@ -160,11 +162,11 @@ def build(reference: Path) -> list[dict[str, str]]:
                 name, kind, signature = spec.name, "not in the type library", ""
             previous = kept.get((type_name, key), {})
             status = previous.get("status", "")
-            if spec is not None and status not in IMPLEMENTED:
+            if (spec is not None or key in raised) and status not in IMPLEMENTED:
                 if status:
                     print(f"note: {type_name}.{name} is registered; {status} becomes UNASSESSED")
                 status = "UNASSESSED"
-            elif spec is None and status not in NOT_IMPLEMENTED:
+            elif spec is None and key not in raised and status not in NOT_IMPLEMENTED:
                 if status:
                     print(f"note: {type_name}.{name} is not registered; {status} becomes MISSING")
                 status = "MISSING"

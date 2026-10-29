@@ -75,10 +75,6 @@ def read(book: Workbook, package: OpcFile, workbook: XmlElement) -> None:
 
     book.linked_books = {}
     book.foreign_links = False
-    properties = workbook.find(_MAIN + "workbookPr")
-    if properties is not None:
-        book.update_links = {"never": 2, "always": 3}.get(properties.get("updateLinks", ""), 1)
-        book.save_link_values = properties.get("saveExternalLinkValues", "1") not in ("0", "false")
     references = workbook.find(_MAIN + "externalReferences")
     if references is None:
         return

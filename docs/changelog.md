@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Small members everyday macros read answer as Excel's do. `Creator`
+  is xlCreatorCode on every object. `Range.InsertIndent` raises each
+  cell's indent, and is error 1004 for 0 or past 0 to 250.
+  `Workbook.HasVBProject` says whether the project holds code.
+  `CheckCompatibility` is saved in the file. `Name.Index` and the
+  `Parent` and `Application` of `Names` complete the set. 34 objects
+  and 25 cases agree, `tests/fixtures/small_members.json`.
+
 - `Range.CreateNames` makes names from a range's labels as Excel does.
   A label on a top or bottom edge names its column's data, one on a
   left or right edge its row's, and a corner where two used edges meet

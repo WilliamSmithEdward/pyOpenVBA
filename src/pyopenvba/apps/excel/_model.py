@@ -28,6 +28,7 @@ from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntim
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
+from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names
 from pyopenvba.apps.excel._styles import applying
@@ -89,7 +90,7 @@ LONGEST_FORMULA = 8192
 LONGEST_ARRAY_FORMULA = 255
 
 
-class ExcelObject(VBAObject):
+class ExcelObject(Created):
     """Every Excel class, so the member inventory knows where to look."""
 
     vba_library = _LIBRARY
@@ -1105,6 +1106,8 @@ class Workbook(ExcelObject):
         #: Workbook.UpdateLinks, xlUpdateLinksUserSetting unless the file says otherwise, and SaveLinkValues.
         self.update_links = 1
         self.save_link_values = True
+        #: Workbook.CheckCompatibility, False unless the file says otherwise (see _workbook_options).
+        self.check_compatibility = False
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
         self.sheet_name_counter = 1
@@ -1511,6 +1514,29 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._workbook_links import set_save_link_values
 
         set_save_link_values(self, value)
+
+    @member
+    def CheckCompatibility(self) -> object:
+        return self.check_compatibility
+
+    @setter("CheckCompatibility")
+    def _set_check_compatibility(self, value: object) -> None:
+        """A Boolean as VBA passes it, saved in the workbookPr; the workbook is no longer saved
+        (tests/fixtures/small_members.json)."""
+        self.check_compatibility = to_bool(value)
+        self.saved = False
+
+    @member
+    def HasVBProject(self) -> object:
+        """Whether the workbook's project holds code: a module, or a document module with a line of code; a new
+        workbook's holds none (tests/fixtures/small_members.json)."""
+        interpreter = self.project_runtime
+        sources = [] if interpreter is None else [(runtime.parsed.kind, runtime.parsed.source)
+                                                  for runtime in interpreter.modules.values()]
+        sources += [("document", source) for source in self.pending_document_sources.values()]
+        return any(kind != "document" or any(line.strip() and not re.match(r"\s*(Attribute|Option)\b|\s*'", line,
+                                                                              re.I) for line in source.splitlines())
+                   for kind, source in sources)
 
     @method
     def Calculate(self) -> object:
@@ -4554,6 +4580,34 @@ class Range(ExcelObject):
         return remove_duplicates(self, Columns, Header)
 
     @method
+    def InsertIndent(self, InsertAmount: object = MISSING) -> object:
+        """Each cell's IndentLevel raised by a Long, as IndentLevel sets it, a centred cell made left; 0, or a level
+        that would go outside 0 to 250, is error 1004 and changes nothing (tests/fixtures/small_members.json)."""
+        if InsertAmount is MISSING:
+            raise error(449)
+        amount = int(to_integer(InsertAmount, "Long"))
+        failed = error(1004, "Application-defined or object-defined error")
+        if amount == 0:
+            raise failed
+        level = self.IndentLevel()
+        if level is not NULL:
+            if not 0 <= int(to_integer(level, "Long")) + amount <= 250:
+                raise failed
+            self.vba_set("IndentLevel", int(to_integer(level, "Long")) + amount)
+            return EMPTY
+        cells = [(row, column) for area in self.areas for row in range(area.top, area.bottom + 1)
+                 for column in range(area.left, area.right + 1)]
+        if len(cells) > 100_000:
+            raise VBAUnsupportedError("InsertIndent over more than 100,000 cells of mixed indents is not implemented")
+        levels = [int(to_integer(Range(self.sheet, [Area(row, column, row, column)]).IndentLevel(), "Long"))
+                  for row, column in cells]
+        if any(not 0 <= one + amount <= 250 for one in levels):
+            raise failed
+        for (row, column), one in zip(cells, levels, strict=True):
+            Range(self.sheet, [Area(row, column, row, column)]).vba_set("IndentLevel", one + amount)
+        return EMPTY
+
+    @method
     def CreateNames(self, Top: object = MISSING, Left: object = MISSING, Bottom: object = MISSING,
                     Right: object = MISSING) -> object:
         from pyopenvba.apps.excel._create_names import create_names
@@ -5048,6 +5102,15 @@ class Names(VBACollection, ExcelObject):
         else:
             self._entries = entries
 
+    @member
+    def Parent(self) -> object:
+        """The workbook, or for a sheet's Names the sheet (tests/fixtures/small_members.json)."""
+        return self.sheet if self.sheet is not None else self.book
+
+    @member
+    def Application(self) -> object:
+        return self.book.application
+
     def vba_items(self) -> list[object]:
         from pyopenvba._a1 import split_sheet
 
@@ -5245,6 +5308,18 @@ class DefinedName(ExcelObject):
         scope = split_sheet(self.entry.name)[0]
         sheet = self.entry.book.sheet_named(scope) if scope else None
         return sheet if sheet is not None else self.entry.book
+
+    @member
+    def Application(self) -> object:
+        return self.entry.book.application
+
+    @member
+    def Index(self) -> object:
+        """The name's place among the workbook's names in their order, read through a sheet's Names too
+        (tests/fixtures/small_members.json)."""
+        items = self.entry.book.names_.vba_items()
+        return VBAInt(next(at for at, item in enumerate(items, start=1)
+                           if isinstance(item, DefinedName) and item.entry is self.entry), "Long")
 
     def shown_refers_to(self) -> str:
         """The name's formula as RefersTo shows it: another workbook by its path (see _external_links)."""

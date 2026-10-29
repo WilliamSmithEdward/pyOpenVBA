@@ -1,0 +1,167 @@
+{
+ "measured_at": "2026-10-29T12:24:54.182345+00:00",
+ "source": "Private wb As Workbook\nPrivate ws As Worksheet\n\nPrivate Function Shown(ByVal v As Variant) As String\n    If IsNull(v) Then Shown = \"Null\" Else Shown = TypeName(v) & \":\" & CStr(v)\nEnd Function\n\nPublic Function Creators() As String\n    Dim s As String\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    wb.Names.Add \"First\", \"=1\"\n    ws.Range(\"A1\").Value = \"x\"\n    ws.Range(\"A1\").AddComment \"note\"\n    On Error Resume Next\n    Err.Clear\n    s = s & \"|\" & Shown(Application.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").Font.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").Interior.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").Borders.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").Borders(xlEdgeTop).Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.Names.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.Names(1).Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(Application.Windows.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ActiveWindow.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Hyperlinks.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.Sheets.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.Worksheets.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(Application.Workbooks.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Shapes.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Comments.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.ListObjects.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").Validation.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").FormatConditions.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.PageSetup.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1:B2,D4\").Areas.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").Characters.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.Styles.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.Styles(1).Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(Application.WorksheetFunction.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Sort.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Outline.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.VPageBreaks.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Cells.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Rows.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(ws.Range(\"A1\").EntireColumn.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    Err.Clear\n    s = s & \"|\" & Shown(wb.BuiltinDocumentProperties.Creator)\n    If Err.Number <> 0 Then s = s & \"Err \" & Err.Number\n    On Error GoTo 0\n    wb.Close False\n    Application.DisplayAlerts = True\n    Creators = Mid(s, 2)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long) As String\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A1\").InsertIndent 2\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 1\n        ws.Range(\"A1\").InsertIndent 3\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 2\n        ws.Range(\"A1\").InsertIndent -10\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 3\n        ws.Range(\"A1\").InsertIndent 250\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 4\n        ws.Range(\"A1\").InsertIndent 1\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 5\n        ws.Range(\"A1\").InsertIndent 2.6\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 6\n        ws.Range(\"A1\").InsertIndent \"1\"\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 7\n        ws.Range(\"A1\").InsertIndent \"x\"\n        Tried = Shown(ws.Range(\"A1\").IndentLevel)\n    Case 8\n        ws.Range(\"A1\").IndentLevel = 0\n        Tried = Shown(ws.Range(\"A1\").HorizontalAlignment)\n    Case 9\n        ws.Range(\"A1\").InsertIndent 1\n        Tried = Shown(ws.Range(\"A1\").HorizontalAlignment)\n    Case 10\n        ws.Range(\"B1\").HorizontalAlignment = xlCenter: ws.Range(\"B1\").InsertIndent 1\n        Tried = Shown(ws.Range(\"B1\").HorizontalAlignment & \" \" & ws.Range(\"B1\").IndentLevel)\n    Case 11\n        ws.Range(\"C1\").HorizontalAlignment = xlRight: ws.Range(\"C1\").InsertIndent 1\n        Tried = Shown(ws.Range(\"C1\").HorizontalAlignment & \" \" & ws.Range(\"C1\").IndentLevel)\n    Case 12\n        ws.Range(\"D1\").IndentLevel = 3: ws.Range(\"D2\").IndentLevel = 5: ws.Range(\"D1:D2\").InsertIndent 1\n        Tried = Shown(ws.Range(\"D1\").IndentLevel & \" \" & ws.Range(\"D2\").IndentLevel & \" \" & IsNull(ws.Range(\"D1:D2\").IndentLevel))\n    Case 13\n        ws.Range(\"E1\").InsertIndent 0\n        Tried = Shown(ws.Range(\"E1\").IndentLevel & \" \" & ws.Range(\"E1\").HorizontalAlignment)\n    Case 14\n        ws.Range(\"F1\").IndentLevel = 249: ws.Range(\"F1\").InsertIndent 2\n        Tried = Shown(ws.Range(\"F1\").IndentLevel)\n    Case 15\n        ws.Range(\"G1\").InsertIndent 251\n        Tried = Shown(ws.Range(\"G1\").IndentLevel)\n    Case 16\n        Tried = Shown(wb.HasVBProject)\n    Case 17\n        Tried = Shown(ThisWorkbook.HasVBProject)\n    Case 18\n        Tried = Shown(wb.CheckCompatibility)\n    Case 19\n        wb.CheckCompatibility = True\n        Tried = Shown(wb.CheckCompatibility & \" \" & wb.Saved)\n    Case 20\n        wb.CheckCompatibility = \"x\"\n        Tried = Shown(wb.CheckCompatibility)\n    Case 21\n        wb.Names.Add \"Zed\", \"=1\": wb.Names.Add \"Alpha\", \"=2\": wb.Names.Add \"mid\", \"=3\"\n        Tried = Shown(wb.Names(\"Zed\").Index & \" \" & wb.Names(\"Alpha\").Index & \" \" & wb.Names(\"mid\").Index & \" \" & wb.Names(1).Name)\n    Case 22\n        ws.Names.Add \"Local\", \"=4\"\n        Tried = Shown(wb.Names(\"Sheet1!Local\").Index & \" \" & ws.Names(\"Local\").Index)\n    Case 23\n        Tried = Shown(TypeName(wb.Names.Parent) & \" \" & TypeName(wb.Names.Application) & \" \" & TypeName(ws.Names.Parent))\n    Case 24\n        Tried = Shown(TypeName(wb.Names(1).Parent) & \" \" & TypeName(wb.Names(1).Application))\n    End Select\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\nEnd Function\n\nPublic Function Cases() As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:G1\").Value = \"x\"\n    For i = 0 To 24\n        s = s & \"|\" & Tried(i)\n    Next\n    wb.Close False\n    Application.DisplayAlerts = True\n    Cases = Mid(s, 2)\nEnd Function\n",
+ "creators": {
+  "Application": "Long:1480803660",
+  "wb": "Long:1480803660",
+  "ws": "Long:1480803660",
+  "ws.Range(\"A1\")": "Long:1480803660",
+  "ws.Range(\"A1\").Font": "Long:1480803660",
+  "ws.Range(\"A1\").Interior": "Long:1480803660",
+  "ws.Range(\"A1\").Borders": "Long:1480803660",
+  "ws.Range(\"A1\").Borders(xlEdgeTop)": "Long:1480803660",
+  "wb.Names": "Long:1480803660",
+  "wb.Names(1)": "Long:1480803660",
+  "Application.Windows": "Long:1480803660",
+  "ActiveWindow": "Long:1480803660",
+  "ws.Hyperlinks": "Long:1480803660",
+  "wb.Sheets": "Long:1480803660",
+  "wb.Worksheets": "Long:1480803660",
+  "Application.Workbooks": "Long:1480803660",
+  "ws.Shapes": "Long:1480803660",
+  "ws.Comments": "Long:1480803660",
+  "ws.ListObjects": "Long:1480803660",
+  "ws.Range(\"A1\").Validation": "Long:1480803660",
+  "ws.Range(\"A1\").FormatConditions": "Long:1480803660",
+  "ws.PageSetup": "Long:1480803660",
+  "ws.Range(\"A1:B2,D4\").Areas": "Long:1480803660",
+  "ws.Range(\"A1\").Characters": "Long:1480803660",
+  "wb.Styles": "Long:1480803660",
+  "wb.Styles(1)": "Long:1480803660",
+  "Application.WorksheetFunction": "Long:1480803660",
+  "ws.Sort": "Long:1480803660",
+  "ws.Outline": "Long:1480803660",
+  "ws.VPageBreaks": "Long:1480803660",
+  "ws.Cells": "Long:1480803660",
+  "ws.Rows": "Long:1480803660",
+  "ws.Range(\"A1\").EntireColumn": "Long:1480803660",
+  "wb.BuiltinDocumentProperties": "Long:1480803660"
+ },
+ "cases": [
+  [
+   "ws.Range(\"A1\").InsertIndent 2",
+   "ws.Range(\"A1\").IndentLevel",
+   "Long:2"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent 3",
+   "ws.Range(\"A1\").IndentLevel",
+   "Long:5"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent -10",
+   "ws.Range(\"A1\").IndentLevel",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent 250",
+   "ws.Range(\"A1\").IndentLevel",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent 1",
+   "ws.Range(\"A1\").IndentLevel",
+   "Long:6"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent 2.6",
+   "ws.Range(\"A1\").IndentLevel",
+   "Long:9"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent \"1\"",
+   "ws.Range(\"A1\").IndentLevel",
+   "Long:10"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent \"x\"",
+   "ws.Range(\"A1\").IndentLevel",
+   "Err 13 Type mismatch"
+  ],
+  [
+   "ws.Range(\"A1\").IndentLevel = 0",
+   "ws.Range(\"A1\").HorizontalAlignment",
+   "Long:-4131"
+  ],
+  [
+   "ws.Range(\"A1\").InsertIndent 1",
+   "ws.Range(\"A1\").HorizontalAlignment",
+   "Long:-4131"
+  ],
+  [
+   "ws.Range(\"B1\").HorizontalAlignment = xlCenter: ws.Range(\"B1\").InsertIndent 1",
+   "ws.Range(\"B1\").HorizontalAlignment & \" \" & ws.Range(\"B1\").IndentLevel",
+   "String:-4131 1"
+  ],
+  [
+   "ws.Range(\"C1\").HorizontalAlignment = xlRight: ws.Range(\"C1\").InsertIndent 1",
+   "ws.Range(\"C1\").HorizontalAlignment & \" \" & ws.Range(\"C1\").IndentLevel",
+   "String:-4152 1"
+  ],
+  [
+   "ws.Range(\"D1\").IndentLevel = 3: ws.Range(\"D2\").IndentLevel = 5: ws.Range(\"D1:D2\").InsertIndent 1",
+   "ws.Range(\"D1\").IndentLevel & \" \" & ws.Range(\"D2\").IndentLevel & \" \" & IsNull(ws.Range(\"D1:D2\").IndentLevel)",
+   "String:4 6 True"
+  ],
+  [
+   "ws.Range(\"E1\").InsertIndent 0",
+   "ws.Range(\"E1\").IndentLevel & \" \" & ws.Range(\"E1\").HorizontalAlignment",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Range(\"F1\").IndentLevel = 249: ws.Range(\"F1\").InsertIndent 2",
+   "ws.Range(\"F1\").IndentLevel",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "ws.Range(\"G1\").InsertIndent 251",
+   "ws.Range(\"G1\").IndentLevel",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   "",
+   "wb.HasVBProject",
+   "Boolean:False"
+  ],
+  [
+   "",
+   "ThisWorkbook.HasVBProject",
+   "Boolean:True"
+  ],
+  [
+   "",
+   "wb.CheckCompatibility",
+   "Boolean:False"
+  ],
+  [
+   "wb.CheckCompatibility = True",
+   "wb.CheckCompatibility & \" \" & wb.Saved",
+   "String:True False"
+  ],
+  [
+   "wb.CheckCompatibility = \"x\"",
+   "wb.CheckCompatibility",
+   "Err 13 Type mismatch"
+  ],
+  [
+   "wb.Names.Add \"Zed\", \"=1\": wb.Names.Add \"Alpha\", \"=2\": wb.Names.Add \"mid\", \"=3\"",
+   "wb.Names(\"Zed\").Index & \" \" & wb.Names(\"Alpha\").Index & \" \" & wb.Names(\"mid\").Index & \" \" & wb.Names(1).Name",
+   "String:3 1 2 Alpha"
+  ],
+  [
+   "ws.Names.Add \"Local\", \"=4\"",
+   "wb.Names(\"Sheet1!Local\").Index & \" \" & ws.Names(\"Local\").Index",
+   "String:2 2"
+  ],
+  [
+   "",
+   "TypeName(wb.Names.Parent) & \" \" & TypeName(wb.Names.Application) & \" \" & TypeName(ws.Names.Parent)",
+   "String:Workbook Application Worksheet"
+  ],
+  [
+   "",
+   "TypeName(wb.Names(1).Parent) & \" \" & TypeName(wb.Names(1).Application)",
+   "String:Workbook Application"
+  ]
+ ]
+}

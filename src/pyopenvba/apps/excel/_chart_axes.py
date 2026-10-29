@@ -12,7 +12,8 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
+from pyopenvba.apps.excel._creator import Created
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAInt, error, to_bool, to_integer, to_number, to_text
 
 if TYPE_CHECKING:
@@ -87,7 +88,7 @@ def axis(chart: Chart, kind: object, group: object = MISSING) -> Axis:
     return Axis(chart, states(chart)[kind_number], valid=chart.state.chart_type not in NO_AXES)
 
 
-class Axes(VBACollection):
+class Axes(VBACollection, Created):
     vba_type_name = "Axes"
 
     def __init__(self, chart: Chart) -> None:
@@ -106,7 +107,7 @@ class Axes(VBACollection):
         return self.chart
 
 
-class Axis(VBAObject):
+class Axis(Created):
     vba_type_name = "Axis"
 
     def __init__(self, chart: Chart, entry: AxisState, *, valid: bool = True) -> None:
@@ -269,7 +270,7 @@ class Axis(VBAObject):
         self.set_automatic("major", value)
 
 
-class AxisTitle(VBAObject):
+class AxisTitle(Created):
     vba_type_name = "AxisTitle"
 
     def __init__(self, axis: Axis, entry: TitleState | None) -> None:

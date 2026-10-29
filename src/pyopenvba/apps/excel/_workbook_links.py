@@ -8,7 +8,7 @@ into the value it shows, and points each name that reads the link itself at
 #REF!; the link goes, the ones after it move up, and nothing is raised or
 worked out again. A broken link is still known by its name to LinkInfo and
 BreakLink until the workbook closes. UpdateLinks and SaveLinkValues are the
-workbook's two link settings, kept in its workbookPr. Measured in live
+workbook's two link settings, kept in its workbookPr (see _workbook_options). Measured in live
 Excel with every linked workbook closed, as the model keeps them
 (scripts/measure_workbook_links.py, tests/fixtures/workbook_links.json).
 
@@ -520,9 +520,7 @@ def set_save_link_values(book: Workbook, value: object) -> None:
 
 
 def write(book: Workbook, package: OpcFile) -> None:
-    """The links' parts as Excel saves them where they differ from those read (see the module's docstring), and
-    the workbook's link settings in its workbookPr."""
-    _write_settings(book, package)
+    """The links' parts as Excel saves them where they differ from those read (see the module's docstring)."""
     changes = book.link_changes
     if book.save_link_values:
         for part, text in changes.values.items():
@@ -553,42 +551,6 @@ def write(book: Workbook, package: OpcFile) -> None:
     _number_parts(book, package)
     changes.broken.clear()
     changes.pruned.clear()
-
-
-def _write_settings(book: Workbook, package: OpcFile) -> None:
-    """UpdateLinks and SaveLinkValues in the workbookPr, in the schema's order, where they differ from the file's."""
-    if not package.has("xl/workbook.xml"):
-        return
-    text = package.read("xl/workbook.xml").decode("utf-8")
-    found = re.search(r"<workbookPr\b[^>]*?/?>", text)
-    tag = found.group(0) if found is not None else "<workbookPr/>"
-    wanted = {"saveExternalLinkValues": None if book.save_link_values else "0",
-              "updateLinks": {2: "never", 3: "always"}.get(book.update_links)}
-    attributes = re.findall(r'\s([\w:]+)="([^"]*)"', tag)
-    have = dict(attributes)
-    if all(have.get(key) == value or key not in have and value is None
-           or key == "updateLinks" and value is None and have.get(key) == "userSet" for key, value in wanted.items()):
-        return
-    order = ["date1904", "showObjects", "showBorderUnselectedTables", "filterPrivacy", "promptedSolutions",
-             "showInkAnnotation", "backupFile", "saveExternalLinkValues", "updateLinks", "codeName",
-             "hidePivotFieldList", "showPivotChartFilter", "allowRefreshQuery", "publishItems", "checkCompatibility",
-             "autoCompressPictures", "refreshAllConnections", "defaultThemeVersion"]
-    kept = [(key, value) for key, value in attributes if key not in wanted]
-    for key, value in wanted.items():
-        if value is None:
-            continue
-        rank = order.index(key)
-        at = next((index for index, (other, _) in enumerate(kept) if other in order and order.index(other) > rank),
-                  len(kept))
-        kept.insert(at, (key, value))
-    rebuilt = "<workbookPr" + "".join(f' {key}="{value}"' for key, value in kept) + "/>"
-    if found is not None:
-        text = text[:found.start()] + rebuilt + text[found.end():]
-    else:
-        place = re.search(r"<fileVersion\b[^>]*/>|<fileSharing\b[^>]*/>", text)
-        at = place.end() if place is not None else text.index(">", text.index("<workbook")) + 1
-        text = text[:at] + rebuilt + text[at:]
-    package.write("xl/workbook.xml", text.encode("utf-8"))
 
 
 def _reads_book_names(book: Workbook, number: int) -> bool:

@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Tables answer more of `ListObject` as Excel does. `Comment`,
+  `AlternativeText`, `Summary` and `ShowAutoFilterDropDown` save where
+  Excel saves them and read back. `Active`, `SourceType`,
+  `InsertRowRange`, `DisplayRightToLeft`, `Slicers` and `XmlMap`
+  answer, and `Refresh`, `QueryTable`, `TableObject` and
+  `SharePointURL` raise Excel's error. 33 live cases and 7 saved
+  table parts agree, `tests/fixtures/table_members.json`.
+
 - `Range.ListNames`, `Range.AutoComplete` and `Range.Parse` work as
   Excel's do. ListNames pastes the visible names beside their formulas
   as text. AutoComplete finishes a beginning from the text above and
@@ -1206,6 +1214,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `ListObjects.Add` over a header row alone reports itself unsupported.
+  It made a one-row table. Excel adds an empty insert row under the
+  header that ListRows does not count, which the model does not hold.
 
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,

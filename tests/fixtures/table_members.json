@@ -1,0 +1,283 @@
+{
+ "measured_at": "2026-10-29T14:39:08.122275+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, t As ListObject\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Sheet1\"\n    ws.Activate\n    ws.Range(\"A1:C1\").Value = Array(\"Name\", \"Qty\", \"Price\")\n    ws.Range(\"A2:C2\").Value = Array(\"a\", 1, 2.5)\n    ws.Range(\"A3:C3\").Value = Array(\"b\", 2, 3.5)\n    ws.Range(\"A4:C4\").Value = Array(\"c\", 3, 4.5)\n    Set t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C4\"), , xlYes)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 1\n        ws.Range(\"E1\").Select\n        Tried = t.Active\n    Case 2\n        ws.Range(\"B2\").Select\n        Tried = t.Active\n    Case 3\n        ws.Range(\"A1:E1\").Select\n        Tried = t.Active\n    Case 4\n        t.Comment = \"Note here\"\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n        wb.SaveAs folder & \"\\comment.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\comment.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 5\n        t.AlternativeText = \"Alt words\"\n        t.Summary = \"Longer summary\"\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n        wb.SaveAs folder & \"\\alt.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\alt.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 6\n        t.AlternativeText = \"Alt only\"\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n        wb.SaveAs folder & \"\\alt_only.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\alt_only.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 7\n        t.ShowAutoFilterDropDown = False\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n        wb.SaveAs folder & \"\\dropdown.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\dropdown.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 8\n        t.ShowAutoFilterDropDown = False\n        t.ShowAutoFilterDropDown = True\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n        wb.SaveAs folder & \"\\dropdown_back.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\dropdown_back.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 9\n        t.ShowAutoFilter = False\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 10\n        t.ShowAutoFilter = False\n        t.ShowAutoFilterDropDown = True\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 11\n        t.ShowAutoFilterDropDown = False\n        t.ShowAutoFilter = False\n        t.ShowAutoFilter = True\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 12\n        t.ShowAutoFilterDropDown = False\n        t.Range.AutoFilter 1, \"a\"\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n        wb.SaveAs folder & \"\\dropdown_filtered.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\dropdown_filtered.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 13\n        t.Comment = \"x\"\n        t.Comment = \"\"\n        Tried = t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n        wb.SaveAs folder & \"\\comment_cleared.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\comment_cleared.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)\n    Case 14\n        t.Comment = String(300, \"c\")\n        Tried = Len(t.Comment)\n    Case 15\n        t.Comment = 12\n        Tried = TypeName(t.Comment) & \"/\" & t.Comment\n    Case 16\n        t.Delete\n        Set t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C1\"), , xlYes)\n        Tried = TypeName(t.InsertRowRange) & \"/\" & t.InsertRowRange.Address & \"/\" & t.ListRows.Count & \"/\" & t.Range.Address\n    Case 17\n        t.Delete\n        Set t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C2\"), , xlYes)\n        Tried = TypeName(t.InsertRowRange) & \"/\" & t.ListRows.Count\n    Case 18\n        t.Refresh\n        Tried = \"done\"\n    Case 19\n        Tried = TypeName(t.QueryTable)\n    Case 20\n        t.Unlink\n        Tried = \"done\"\n    Case 21\n        Tried = t.SharePointURL\n    Case 22\n        Tried = TypeName(t.XmlMap)\n    Case 23\n        Tried = TypeName(t.TableObject)\n    Case 24\n        ws.DisplayRightToLeft = True\n        Tried = t.DisplayRightToLeft\n    Case 25\n        t.AlternativeText = 7\n        Tried = TypeName(t.AlternativeText) & \"/\" & t.AlternativeText\n    Case 26\n        t.Comment = String(255, \"c\")\n        Tried = Len(t.Comment)\n    Case 27\n        t.Comment = String(256, \"c\")\n        Tried = Len(t.Comment)\n    Case 28\n        t.AlternativeText = String(300, \"a\")\n        t.Summary = String(300, \"s\")\n        Tried = Len(t.AlternativeText) & \"/\" & Len(t.Summary)\n    Case 29\n        ws.Range(\"A1:E1\").Select\n        ws.Range(\"E1\").Activate\n        Tried = ActiveCell.Address & \"/\" & t.Active\n    Case 30\n        ws.Range(\"E1:F2\").Select\n        ws.Range(\"E1\").Activate\n        Tried = t.Active\n    Case 31\n        ws.Range(\"B2\").Select\n        wb.Worksheets.Add\n        Tried = t.Active\n    Case 32\n        t.Comment = \"a\" & vbLf & \"b\"\n        Tried = Len(t.Comment)\n        wb.SaveAs folder & \"\\comment_line.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\comment_line.xlsx\")\n        Set ws = wb.Worksheets(1)\n        Set t = ws.ListObjects(1)\n        Tried = Tried & \" @ \" & Len(t.Comment)\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = Tried & \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 32\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "",
+   "1////True/True/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "ws.Range(\"E1\").Select"
+   ],
+   "t.Active",
+   "",
+   "False"
+  ],
+  [
+   [
+    "ws.Range(\"B2\").Select"
+   ],
+   "t.Active",
+   "",
+   "True"
+  ],
+  [
+   [
+    "ws.Range(\"A1:E1\").Select"
+   ],
+   "t.Active",
+   "",
+   "True"
+  ],
+  [
+   [
+    "t.Comment = \"Note here\""
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "comment.xlsx",
+   "1/Note here///True/True/Nothing/False/0/Application/Slicers @ 1/Note here///True/True/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.AlternativeText = \"Alt words\"",
+    "t.Summary = \"Longer summary\""
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "alt.xlsx",
+   "1//Alt words/Longer summary/True/True/Nothing/False/0/Application/Slicers @ 1//Alt words/Longer summary/True/True/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.AlternativeText = \"Alt only\""
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "alt_only.xlsx",
+   "1//Alt only//True/True/Nothing/False/0/Application/Slicers @ 1//Alt only//True/True/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.ShowAutoFilterDropDown = False"
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "dropdown.xlsx",
+   "1////True/False/Nothing/False/0/Application/Slicers @ 1////True/False/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.ShowAutoFilterDropDown = False",
+    "t.ShowAutoFilterDropDown = True"
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "dropdown_back.xlsx",
+   "1////True/True/Nothing/False/0/Application/Slicers @ 1////True/True/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.ShowAutoFilter = False"
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "",
+   "1////False/False/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.ShowAutoFilter = False",
+    "t.ShowAutoFilterDropDown = True"
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "t.ShowAutoFilterDropDown = False",
+    "t.ShowAutoFilter = False",
+    "t.ShowAutoFilter = True"
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "",
+   "1////True/True/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.ShowAutoFilterDropDown = False",
+    "t.Range.AutoFilter 1, \"a\""
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "dropdown_filtered.xlsx",
+   "1////True/False/Nothing/False/0/Application/Slicers @ 1////True/False/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.Comment = \"x\"",
+    "t.Comment = \"\""
+   ],
+   "t.SourceType & \"/\" & t.Comment & \"/\" & t.AlternativeText & \"/\" & t.Summary & \"/\" & t.ShowAutoFilter & \"/\" & t.ShowAutoFilterDropDown & \"/\" & TypeName(t.InsertRowRange) & \"/\" & t.DisplayRightToLeft & \"/\" & t.Slicers.Count & \"/\" & TypeName(t.Application) & \"/\" & TypeName(t.Slicers)",
+   "comment_cleared.xlsx",
+   "1////True/True/Nothing/False/0/Application/Slicers @ 1////True/True/Nothing/False/0/Application/Slicers"
+  ],
+  [
+   [
+    "t.Comment = String(300, \"c\")"
+   ],
+   "Len(t.Comment)",
+   "",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "t.Comment = 12"
+   ],
+   "TypeName(t.Comment) & \"/\" & t.Comment",
+   "",
+   "String/12"
+  ],
+  [
+   [
+    "t.Delete",
+    "Set t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C1\"), , xlYes)"
+   ],
+   "TypeName(t.InsertRowRange) & \"/\" & t.InsertRowRange.Address & \"/\" & t.ListRows.Count & \"/\" & t.Range.Address",
+   "",
+   "Range/$A$2:$C$2/0/$A$1:$C$2"
+  ],
+  [
+   [
+    "t.Delete",
+    "Set t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:C2\"), , xlYes)"
+   ],
+   "TypeName(t.InsertRowRange) & \"/\" & t.ListRows.Count",
+   "",
+   "Nothing/1"
+  ],
+  [
+   [
+    "t.Refresh"
+   ],
+   "\"done\"",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [],
+   "TypeName(t.QueryTable)",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "t.Unlink"
+   ],
+   "\"done\"",
+   "",
+   "done"
+  ],
+  [
+   [],
+   "t.SharePointURL",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [],
+   "TypeName(t.XmlMap)",
+   "",
+   "Nothing"
+  ],
+  [
+   [],
+   "TypeName(t.TableObject)",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.DisplayRightToLeft = True"
+   ],
+   "t.DisplayRightToLeft",
+   "",
+   "True"
+  ],
+  [
+   [
+    "t.AlternativeText = 7"
+   ],
+   "TypeName(t.AlternativeText) & \"/\" & t.AlternativeText",
+   "",
+   "String/7"
+  ],
+  [
+   [
+    "t.Comment = String(255, \"c\")"
+   ],
+   "Len(t.Comment)",
+   "",
+   "255"
+  ],
+  [
+   [
+    "t.Comment = String(256, \"c\")"
+   ],
+   "Len(t.Comment)",
+   "",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "t.AlternativeText = String(300, \"a\")",
+    "t.Summary = String(300, \"s\")"
+   ],
+   "Len(t.AlternativeText) & \"/\" & Len(t.Summary)",
+   "",
+   "300/300"
+  ],
+  [
+   [
+    "ws.Range(\"A1:E1\").Select",
+    "ws.Range(\"E1\").Activate"
+   ],
+   "ActiveCell.Address & \"/\" & t.Active",
+   "",
+   "$E$1/False"
+  ],
+  [
+   [
+    "ws.Range(\"E1:F2\").Select",
+    "ws.Range(\"E1\").Activate"
+   ],
+   "t.Active",
+   "",
+   "False"
+  ],
+  [
+   [
+    "ws.Range(\"B2\").Select",
+    "wb.Worksheets.Add"
+   ],
+   "t.Active",
+   "",
+   "False"
+  ],
+  [
+   [
+    "t.Comment = \"a\" & vbLf & \"b\""
+   ],
+   "Len(t.Comment)",
+   "comment_line.xlsx",
+   "3 @ 3"
+  ]
+ ],
+ "parts": {
+  "comment.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{282D0801-DB26-46A1-BEF8-ACD656A60B66}\" name=\"Table1\" displayName=\"Table1\" comment=\"Note here\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{282D0801-DB26-46A1-BEF8-ACD656A60B66}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{1581A32A-0269-4FF2-9D0A-5B2B8CD3B64A}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{8663D94E-F873-4290-B9D0-9E93D356E2C2}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{B06473CF-B043-40C6-B213-025DC52AC8DA}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+  "alt.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{E2D5F94B-51A8-46FC-BC29-4FAB7C161EF4}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{E2D5F94B-51A8-46FC-BC29-4FAB7C161EF4}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{2EC5C7FB-885A-48DB-A60A-6F16EFA6F852}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{FC5D7446-B877-4BC9-B783-9BBA22F1A410}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{5E2DAD17-C391-4540-9A9C-9CC17DE23905}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/><extLst><ext uri=\"{504A1905-F514-4f6f-8877-14C23A59335A}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:table altText=\"Alt words\" altTextSummary=\"Longer summary\"/></ext></extLst></table>",
+  "alt_only.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{2AF75F9E-47B0-4E79-AED0-215FA918D449}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{2AF75F9E-47B0-4E79-AED0-215FA918D449}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{62DA2BCB-1DEB-4863-BAC1-A2DCA1EA72BB}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{0375A254-C1A5-48C7-AA95-27620F4BAC67}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{592369FA-51AC-42E7-98DB-29AA37BAE887}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/><extLst><ext uri=\"{504A1905-F514-4f6f-8877-14C23A59335A}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:table altText=\"Alt only\"/></ext></extLst></table>",
+  "dropdown.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{32429218-6BBF-412A-A053-41421A13DDFC}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{32429218-6BBF-412A-A053-41421A13DDFC}\"><filterColumn colId=\"0\" hiddenButton=\"1\"/><filterColumn colId=\"1\" hiddenButton=\"1\"/><filterColumn colId=\"2\" hiddenButton=\"1\"/></autoFilter><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{A83CE947-3F29-4EA0-ABAA-73312233990F}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{3668D354-ACEB-4FB3-A065-E16249A9085D}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{7DF762CF-5B2C-4724-8B7A-EAA274CC737C}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+  "dropdown_back.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{CB1FD410-DB42-43FB-B862-26DCD70C0703}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{CB1FD410-DB42-43FB-B862-26DCD70C0703}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{B30814D6-3B92-49F6-BE9C-21B1AB27F8CE}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{592C54A3-2554-4C83-A711-01ED45D73DD6}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{B3EE26EE-F7DF-44E8-B90C-0543D175CE6D}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+  "dropdown_filtered.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{7FE74702-61D9-40B8-A942-8F56C8F1D2D1}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{7FE74702-61D9-40B8-A942-8F56C8F1D2D1}\"><filterColumn colId=\"0\" hiddenButton=\"1\"><filters><filter val=\"a\"/></filters></filterColumn><filterColumn colId=\"1\" hiddenButton=\"1\"/><filterColumn colId=\"2\" hiddenButton=\"1\"/></autoFilter><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{4E4C8D5A-79B3-426B-B6AB-56FC35335432}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{C51A24EC-4091-4F3F-A976-C09015307E3A}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{33C19541-0E12-4FE2-8AF9-991D3AA277B8}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+  "comment_cleared.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{D6E7C448-3DE7-4C67-937B-5C7DA91BE51F}\" name=\"Table1\" displayName=\"Table1\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{D6E7C448-3DE7-4C67-937B-5C7DA91BE51F}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{284E14C1-870A-4F61-AFE5-792C3B10A129}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{0DF9C5C5-8D43-4378-9915-2A7113D65244}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{1C630DF3-8050-4370-9509-A9F19D58E7EB}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>",
+  "comment_line.xlsx": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"xr xr3\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" id=\"1\" xr:uid=\"{C3B52686-E845-4069-8A88-D60894D9FF9A}\" name=\"Table1\" displayName=\"Table1\" comment=\"a_x000a_b\" ref=\"A1:C4\" totalsRowShown=\"0\"><autoFilter ref=\"A1:C4\" xr:uid=\"{C3B52686-E845-4069-8A88-D60894D9FF9A}\"/><tableColumns count=\"3\"><tableColumn id=\"1\" xr3:uid=\"{3A3538C7-379F-437C-9F19-5F8B838A966C}\" name=\"Name\"/><tableColumn id=\"2\" xr3:uid=\"{FD95F679-FA29-4974-8512-AB49E27394E1}\" name=\"Qty\"/><tableColumn id=\"3\" xr3:uid=\"{F4FA0BCF-0370-4201-93F5-0DA5DE9B786A}\" name=\"Price\"/></tableColumns><tableStyleInfo name=\"TableStyleMedium2\" showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>"
+ }
+}

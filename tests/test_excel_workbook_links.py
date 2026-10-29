@@ -18,6 +18,7 @@ from __future__ import annotations
 import base64
 import json
 import re
+import sys
 import zipfile
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,8 @@ RECORD: dict[str, Any] = json.loads(
 FILES: dict[str, dict[str, str]] = RECORD['files']
 #: The hidden name Excel makes for Formula2's @, as the name lists show it.
 SINGLE = '_xlfn.SINGLE==#NAME?|'
+#: The tests whose macros, as Excel ran them, name files by Windows paths, folder & "\\Dest.xlsx".
+WINDOWS_PATHS = pytest.mark.skipif(sys.platform != 'win32', reason='the macros name files by Windows paths')
 #: Of a file Excel saved again, the parts the fixture keeps, and the file they were saved again from.
 RESAVED = {'PlainAgain.xlsx': 'Plain.xlsx', 'NamedAgain.xlsx': 'Named.xlsx', 'NamedThird.xlsx': 'NamedAgain.xlsx',
            'LocalAgain.xlsx': 'Local.xlsx', 'MixedAgain.xlsx': 'Mixed.xlsx', 'BlankAgain.xlsx': 'Blank.xlsx'}
@@ -127,6 +130,7 @@ def _link_parts(parts: dict[str, str]) -> dict[str, str]:
     return {name: text for name, text in parts.items() if name.startswith('xl/externalLinks/')}
 
 
+@WINDOWS_PATHS
 def test_link_sources_and_link_info(tmp_path: Path) -> None:
     """LinkSources lists the links' workbooks by their full names in the file's order, Beta's first as it was made
     first, and Empty for any other Type; LinkInfo answers xlLinkInfoStatus with 3, the status of a link whose
@@ -135,17 +139,20 @@ def test_link_sources_and_link_info(tmp_path: Path) -> None:
     assert got.split('|') == _excels('survey')
 
 
+@WINDOWS_PATHS
 @pytest.mark.xfail(strict=True, reason="Excel adds the hidden name _xlfn.SINGLE when it reads a formula Formula2 "
                                        "shows with an @; the model does not")
 def test_the_hidden_name_excel_adds_for_formula2s_at(tmp_path: Path) -> None:
     assert _run(_app(tmp_path), tmp_path, 'SurveyLinks') == RECORD['survey']
 
 
+@WINDOWS_PATHS
 def test_breaking_a_link_raises_no_event(tmp_path: Path) -> None:
     """BreakLink raises neither SheetChange nor SheetCalculate; CalculateFull and an edit after it do."""
     assert _run(_app(tmp_path), tmp_path, 'BreakEvents') == RECORD['events']
 
 
+@WINDOWS_PATHS
 @pytest.mark.parametrize('which', ['Alpha', 'Beta', 'All'])
 def test_breaking_a_link(which: str, tmp_path: Path) -> None:
     """Each formula that reads the link, itself or through names, is the value it showed, an array's and a spill's
@@ -169,6 +176,7 @@ def test_breaking_a_link(which: str, tmp_path: Path) -> None:
     assert sorted('xl/' + target for target in targets) == links
 
 
+@WINDOWS_PATHS
 def test_break_link_errors(tmp_path: Path) -> None:
     """A path to no link, an empty name, an OLE link's Type 1004; another Type error 5, text no number 13, Null 94,
     and a missing Type 450; the file's name alone, either case and / for \\ break the link; a link broken already is
@@ -178,6 +186,7 @@ def test_break_link_errors(tmp_path: Path) -> None:
     assert got.split('#', 1)[1] == listed
 
 
+@WINDOWS_PATHS
 @pytest.mark.xfail(strict=True, reason="Excel refuses BreakLink with 1004 on a workbook a macro has just opened "
                                        "until its links are listed; the model breaks the link at once")
 def test_break_link_before_the_links_are_listed(tmp_path: Path) -> None:
@@ -185,6 +194,7 @@ def test_break_link_before_the_links_are_listed(tmp_path: Path) -> None:
     assert got.split('#', 1)[0] == RECORD['errors'].split('#', 1)[0]
 
 
+@WINDOWS_PATHS
 def test_link_settings(tmp_path: Path) -> None:
     """UpdateLinks takes 1 to 3, rounded as a Long, else 1004, and leaves the workbook saved; SaveLinkValues takes
     a Boolean and leaves it unsaved. Saved, they are the workbookPr's updateLinks and saveExternalLinkValues, the
@@ -219,6 +229,7 @@ End Sub
 '''
 
 
+@WINDOWS_PATHS
 def test_link_statuses(tmp_path: Path) -> None:
     """A link whose workbook's file is there is 3, changed or not, 1 once the file is moved away, and 2 once a sheet
     a formula reads of it is renamed, a blank cell's sheet too, but not a sheet only listed, nor the one Excel adds
@@ -256,6 +267,7 @@ def test_a_save_writes_the_links_as_excel(file: str, tmp_path: Path) -> None:
     assert _cells(mine, 'xl/worksheets/sheet1.xml') == _cells(excels, 'xl/worksheets/sheet1.xml')
 
 
+@WINDOWS_PATHS
 def test_a_name_a_deleted_sheet_left(tmp_path: Path) -> None:
     """A name reading a deleted sheet is saved with #REF! for each reference it lost, and read back with #REF!#REF!
     there, as a broken link's name is."""
@@ -266,9 +278,9 @@ def test_a_name_a_deleted_sheet_left(tmp_path: Path) -> None:
         == re.findall(pattern, _parts('Gone.xlsx')['xl/workbook.xml'])
 
 
-#: Breaks Alpha's link in the workbook ActiveWorkbook is, its links listed first.
+#: Breaks Alpha's link in the workbook ActiveWorkbook is, by its file's name, its links listed first.
 BREAK = ('Sub Break()\nDim v As Variant\nv = ActiveWorkbook.LinkSources()\n'
-         'ActiveWorkbook.BreakLink ActiveWorkbook.Path & "\\Alpha.xlsx", xlLinkTypeExcelLinks\nEnd Sub\n')
+         'ActiveWorkbook.BreakLink "Alpha.xlsx", xlLinkTypeExcelLinks\nEnd Sub\n')
 
 
 def test_a_protected_sheets_formulas_are_refused(tmp_path: Path) -> None:
@@ -328,6 +340,7 @@ def test_a_workbook_with_a_dde_link(tmp_path: Path) -> None:
             app.run(macro)
 
 
+@WINDOWS_PATHS
 def test_a_link_to_a_workbook_the_application_has_open_is_refused(tmp_path: Path) -> None:
     app = _app(tmp_path)
     app.add_module('Function Open2() As String\nDim d As Workbook\n'

@@ -44,6 +44,10 @@ class LinkedBook:
     sheets: tuple[str, ...]
     cells: tuple[dict[tuple[int, int], object], ...]
     names: dict[str, str]
+    #: The package part the link was read from.
+    part: str = ""
+    #: Whether the link keeps the linked cells' values: a workbook saved with SaveLinkValues False keeps none.
+    kept: bool = True
 
     def folder(self, here: str) -> str:
         """The folder the linked workbook is in, ``here`` being this workbook's own."""
@@ -52,6 +56,11 @@ class LinkedBook:
         if re.match(r"[A-Za-z]:\\|\\\\", target) or not here:
             return head
         return ntpath.normpath(ntpath.join(here, head)) if head else here.rstrip("\\")
+
+    def path(self, here: str) -> str:
+        """The linked workbook's full name, as LinkSources gives it."""
+        folder = self.folder(here)
+        return f"{folder}\\{self.file}" if folder else self.file
 
     @property
     def file(self) -> str:
@@ -65,6 +74,11 @@ def read(book: Workbook, package: OpcFile, workbook: XmlElement) -> None:
     from pyopenvba.apps.excel._charts_file import rels_part, xml_tree
 
     book.linked_books = {}
+    book.foreign_links = False
+    properties = workbook.find(_MAIN + "workbookPr")
+    if properties is not None:
+        book.update_links = {"never": 2, "always": 3}.get(properties.get("updateLinks", ""), 1)
+        book.save_link_values = properties.get("saveExternalLinkValues", "1") not in ("0", "false")
     references = workbook.find(_MAIN + "externalReferences")
     if references is None:
         return
@@ -72,13 +86,15 @@ def read(book: Workbook, package: OpcFile, workbook: XmlElement) -> None:
     for number, reference in enumerate(references.findall(_MAIN + "externalReference"), start=1):
         part = relationships.get(reference.get(_RELATIONSHIPS + "id", ""), ("", ""))[1]
         if not part or not package.has(part):
+            book.foreign_links = True
             continue
         linked = xml_tree(package.read(part)).find(_MAIN + "externalBook")
         if linked is None:
+            book.foreign_links = True
             continue
         paths = _relationships(package, part) if package.has(rels_part(part)) else {}
         kind, target = paths.get(linked.get(_RELATIONSHIPS + "id", ""), ("", ""))
-        book.linked_books[number] = _linked(number, target if kind == _LINK_PATH else "", linked)
+        book.linked_books[number] = _linked(number, target if kind == _LINK_PATH else "", linked, part)
 
 
 def _relationships(package: OpcFile, part: str) -> dict[str, tuple[str, str]]:
@@ -100,7 +116,7 @@ def _children(parent: XmlElement, container: str, name: str) -> list[XmlElement]
     return [] if found is None else found.findall(_MAIN + name)
 
 
-def _linked(number: int, target: str, linked: XmlElement) -> LinkedBook:
+def _linked(number: int, target: str, linked: XmlElement, part: str) -> LinkedBook:
     from pyopenvba._a1 import column_number
     from pyopenvba.apps.excel._xstring import decode
 
@@ -118,7 +134,8 @@ def _linked(number: int, target: str, linked: XmlElement) -> LinkedBook:
                     cells[int(index)][(int(found.group(2)), column_number(found.group(1)))] = value
     names = {decode(entry.get("name", "")): decode(entry.get("refersTo", ""))
              for entry in _children(linked, "definedNames", "definedName") if entry.get("sheetId") is None}
-    return LinkedBook(number, target, sheets, tuple(cells), names)
+    kept = linked.find(_MAIN + "sheetDataSet") is not None
+    return LinkedBook(number, target, sheets, tuple(cells), names, part, kept)
 
 
 def _value(cell: XmlElement) -> object | None:

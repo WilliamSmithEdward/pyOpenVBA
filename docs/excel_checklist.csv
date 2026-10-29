@@ -2350,7 +2350,7 @@ Workbook,BeforeRemoteChange,event,BeforeRemoteChange(),,MISSING,,
 Workbook,BeforeSave,event,"BeforeSave(SaveAsUI As Boolean, Cancel As Boolean)",,MISSING,,
 Workbook,BeforeXmlExport,event,"BeforeXmlExport(Map As XmlMap, Url As String, Cancel As Boolean)",,MISSING,,
 Workbook,BeforeXmlImport,event,"BeforeXmlImport(Map As XmlMap, Url As String, IsRefresh As Boolean, Cancel As Boolean)",,MISSING,,
-Workbook,BreakLink,method,"BreakLink(Name As String, Type As XlLinkType)",,MISSING,,
+Workbook,BreakLink,method,"BreakLink(Name As String, Type As XlLinkType)",,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"Each formula that reads the link, itself or through names, becomes the value it shows, array formulas and spills too, formats kept, nothing raised or worked out again; a name that reads it becomes #REF!; the link leaves LinkSources and the file and the later ones are renumbered, a link broken already is left as it is; by full name or file name in either case; the errors for another Type, an OLE link or a name that is no link, over a live workbook of 18 formulas and 15 error cases. Excel refuses it with 1004 on a workbook a macro just opened until its links are listed; the model breaks at once. A protected sheet's formulas, a validation, conditional format, chart, control or table column reading the link, an open source and OLE or DDE links report themselves."
 Workbook,BuiltinDocumentProperties,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"The 34 built-in properties, a file's or a new workbook's, saved to docProps core.xml and app.xml with the sheets and named ranges listed as Excel lists them; a chart sheet's heading is not written, the model holding none."
 Workbook,Calculate,not in the type library,,,UNASSESSED,,
 Workbook,CalculationVersion,"property, read-only",As Long,,VERIFIED,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"191029 for a new workbook; a file's calcId of 191028 or more as it is, kept and saved; a lower one, none or fullCalcOnLoad worked out in full as the file opens and 191029 from then on, or under manual calculation the file's calcId and values until the next Calculate, over 10 files opened each way"
@@ -2422,8 +2422,8 @@ Workbook,InactiveListBorderVisible,property,As Boolean,,MISSING,,
 Workbook,IsAddin,property,As Boolean,,MISSING,,
 Workbook,IsInplace,"property, read-only",As Boolean,,MISSING,,
 Workbook,KeepChangeHistory,property,As Boolean,,MISSING,,
-Workbook,LinkInfo,method,"LinkInfo(Name As String, LinkInfo As XlLinkInfo, [Type As Variant], [EditionRef As Variant]) As Variant",,MISSING,,
-Workbook,LinkSources,method,LinkSources([Type As Variant]) As Variant,,MISSING,,
+Workbook,LinkInfo,method,"LinkInfo(Name As String, LinkInfo As XlLinkInfo, [Type As Variant], [EditionRef As Variant]) As Variant",,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"xlLinkInfoStatus of a link whose workbook is closed: 1 with its file gone, 2 with a sheet a formula reads gone, else 3; any other LinkInfo or Type #N/A, a name that is no link #VALUE!, an empty one #N/A, measured live. EditionRef and an open source report themselves."
+Workbook,LinkSources,method,LinkSources([Type As Variant]) As Variant,,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"The full names of the linked workbooks as an array from 1 in the file's order, or Empty; any other Type Empty, Type read as Excel reads a Variant, measured live. A workbook with OLE or DDE links reports the other Types unsupported."
 Workbook,ListChangesOnNewSheet,property,As Boolean,,MISSING,,
 Workbook,LockServerFile,method,LockServerFile(),,MISSING,,
 Workbook,Mailer,"property, read-only",As Mailer,,MISSING,,
@@ -2485,7 +2485,7 @@ Workbook,SaveAs,method,"SaveAs([Filename As Variant], [FileFormat As Variant], [
 Workbook,SaveAsXMLData,method,"SaveAsXMLData(Filename As String, Map As XmlMap)",,MISSING,,
 Workbook,SaveCopyAs,method,SaveCopyAs([Filename As Variant]),,PARTIAL,tests/fixtures/save_copy_as.json; tests/test_excel_save_copy_as.py,"Writes what Save would write, in the workbook's own format whatever the extension, with no save events, the workbook's name, path and Saved flag kept and its Last save time and Last author moved; replaces a file without a prompt; an empty name writes nothing; Null, a missing folder and an open workbook's file are error 1004, over 34 live copies; a copy into another folder of a workbook linking to files, and an omitted or non-text name, are refused"
 Workbook,Saved,property,As Boolean,,UNASSESSED,,
-Workbook,SaveLinkValues,property,As Boolean,,MISSING,,
+Workbook,SaveLinkValues,property,As Boolean,,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"Reads the file's saveExternalLinkValues and takes a Boolean, leaving the workbook unsaved; a save without values keeps the links' sheet names only, its formulas then #REF! once worked out in full, and the values come back with it True again, measured live."
 Workbook,SendFaxOverInternet,method,"SendFaxOverInternet([Recipients As Variant], [Subject As Variant], [ShowMessage As Variant])",,MISSING,,
 Workbook,SendForReview,method,"SendForReview([Recipients As Variant], [Subject As Variant], [ShowMessage As Variant], [IncludeAttachment As Variant])",,MISSING,,
 Workbook,SendMail,method,"SendMail(Recipients As Variant, [Subject As Variant], [ReturnReceipt As Variant])",,MISSING,,
@@ -2530,7 +2530,7 @@ Workbook,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtur
 Workbook,UnprotectSharing,method,UnprotectSharing([SharingPassword As Variant]),,MISSING,,
 Workbook,UpdateFromFile,method,UpdateFromFile(),,MISSING,,
 Workbook,UpdateLink,method,"UpdateLink([Name As Variant], [Type As Variant])",,MISSING,,
-Workbook,UpdateLinks,property,As XlUpdateLinks,,MISSING,,
+Workbook,UpdateLinks,property,As XlUpdateLinks,,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"Reads the file's updateLinks and takes 1 to 3, rounded as a Long, else 1004, leaving the workbook saved; saved as never or always, measured live. It changes nothing the model opens."
 Workbook,UpdateRemoteReferences,property,As Boolean,,MISSING,,
 Workbook,UserStatus,"property, read-only",As Variant,,MISSING,,
 Workbook,UseWholeCellCriteria,"property, read-only",As Boolean,,MISSING,,

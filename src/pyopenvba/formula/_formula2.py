@@ -163,8 +163,10 @@ class _Walk:
         if node is None or isinstance(node, Literal):
             return False
         if isinstance(node, Reference):
-            # A sheet's name cannot hold a colon: one there is a 3D reference's, cells on several sheets.
-            return ":" in node.text or ":" in node.sheet
+            # A sheet's name cannot hold a colon: one there is a 3D reference's, cells on several sheets. Another
+            # workbook's path holds its drive's, C:\dir\[Book.xlsx]Sheet1, which is one sheet's
+            # (tests/fixtures/workbook_links.json).
+            return ":" in node.text or ":" in node.sheet.rpartition("]")[2]
         if isinstance(node, Structured):
             raise UnreadFormula2Error("Formula2 of a formula with a structured reference is not implemented")
         if isinstance(node, ArrayLiteral):

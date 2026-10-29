@@ -69,6 +69,9 @@ ERROR_NUMBERS: dict[str, int] = {"#NULL!": 2000, "#DIV/0!": 2007, "#VALUE!": 201
                                  "#CONNECT!": 2046, "#BLOCKED!": 2047, "#UNKNOWN!": 2048, "#FIELD!": 2049,
                                  "#CALC!": 2050}
 _ERROR_NAMES = {number: name for name, number in ERROR_NUMBERS.items()}
+#: The cells of a link saved with SaveLinkValues False, which keeps none: each reads #REF! once worked out, a
+#: reference keeping its shape (tests/fixtures/workbook_links.json, Never.xlsx).
+_NO_VALUES: dict[tuple[int, int], object] = {}
 
 
 def scalar(value: object) -> Scalar:
@@ -175,6 +178,8 @@ class EngineBook:
         linked = self.book.linked_books.get(int(number)) if number.isdigit() else None
         if linked is None:
             return {}
+        if not linked.kept:
+            return _NO_VALUES
         index = next((at for at, one in enumerate(linked.sheets) if one.casefold() == name.casefold()), None)
         return {} if index is None else linked.cells[index]
 
@@ -201,6 +206,8 @@ class EngineBook:
 
     def cell(self, sheet: str, row: int, column: int) -> Scalar:
         kept = self._kept(sheet)
+        if kept is _NO_VALUES:
+            return CellError("#REF!")
         if kept is not None:
             # A cell the link does not keep is blank.
             return scalar(kept.get((row, column), NOTHING_THERE))
@@ -217,6 +224,13 @@ class EngineBook:
         stops early reads no further, as Excel's does, and so closes no loop through the cells past its match
         (tests/fixtures/self_reference.json)."""
         kept = self._kept(area.sheet)
+        if kept is _NO_VALUES:
+            if (area.bottom - area.top + 1) * (area.right - area.left + 1) > MAX_ROWS:
+                raise UnsupportedFormulaError("more than a column's cells of a link that keeps no values")
+            for row in range(area.top, area.bottom + 1):
+                for column in range(area.left, area.right + 1):
+                    yield row, column, CellError("#REF!")
+            return
         if kept is not None:
             yield from [(row, column, scalar(kept[(row, column)]))
                         for row, column in sorted(key for key in kept if area.contains(*key))]

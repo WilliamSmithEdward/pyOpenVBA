@@ -1094,6 +1094,17 @@ class Workbook(ExcelObject):
         #: The other workbooks the file links to, by the number its formulas give each, with the cells it keeps of
         #: them (see _external_links).
         self.linked_books: dict[int, LinkedBook] = {}
+        #: Whether the file has links the model leaves out, to OLE or DDE sources.
+        self.foreign_links = False
+        from pyopenvba.apps.excel._workbook_links import LinkChanges
+
+        #: The links BreakLink broke, which LinkInfo and BreakLink know by name until the workbook closes, and what
+        #: the next save writes differently of the links (see _workbook_links).
+        self.broken_links: list[LinkedBook] = []
+        self.link_changes = LinkChanges()
+        #: Workbook.UpdateLinks, xlUpdateLinksUserSetting unless the file says otherwise, and SaveLinkValues.
+        self.update_links = 1
+        self.save_link_values = True
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
         self.sheet_name_counter = 1
@@ -1458,6 +1469,48 @@ class Workbook(ExcelObject):
     def ReadOnly(self) -> object:
         """Whether Workbooks.Open opened the workbook read-only, until a SaveAs gives it a file of its own."""
         return self.read_only
+
+    # -- links to other workbooks (see _workbook_links)
+
+    @method
+    def LinkSources(self, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_links import sources
+
+        return sources(self, Type)
+
+    @method
+    def LinkInfo(self, Name: object = MISSING, LinkInfo: object = MISSING, Type: object = MISSING,
+                 EditionRef: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_links import info
+
+        return info(self, Name, LinkInfo, Type, EditionRef)
+
+    @method
+    def BreakLink(self, Name: object = MISSING, Type: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_links import break_link
+
+        break_link(self, Name, Type)
+        return EMPTY
+
+    @member
+    def UpdateLinks(self) -> object:
+        return VBAInt(self.update_links, "Long")
+
+    @setter("UpdateLinks")
+    def _set_update_links(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_links import set_update_links
+
+        set_update_links(self, value)
+
+    @member
+    def SaveLinkValues(self) -> object:
+        return self.save_link_values
+
+    @setter("SaveLinkValues")
+    def _set_save_link_values(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_links import set_save_link_values
+
+        set_save_link_values(self, value)
 
     @method
     def Calculate(self) -> object:
@@ -5174,9 +5227,15 @@ class DefinedName(ExcelObject):
         sheet = self.entry.book.sheet_named(scope) if scope else None
         return sheet if sheet is not None else self.entry.book
 
+    def shown_refers_to(self) -> str:
+        """The name's formula as RefersTo shows it: another workbook by its path (see _external_links)."""
+        from pyopenvba.apps.excel._external_links import shown
+
+        return shown(self.entry.book, self.entry.refers_to)
+
     @member
     def RefersToR1C1(self) -> object:
-        return from_a1(self.entry.refers_to, 1, 1)
+        return from_a1(self.shown_refers_to(), 1, 1)
 
     @setter("RefersToR1C1")
     def _set_refers_r1c1(self, value: object) -> None:
@@ -5184,7 +5243,7 @@ class DefinedName(ExcelObject):
 
     @member
     def RefersTo(self) -> object:
-        return self.entry.refers_to
+        return self.shown_refers_to()
 
     @member
     def RefersToLocal(self) -> object:
@@ -5209,7 +5268,7 @@ class DefinedName(ExcelObject):
 
     @member(default=True)
     def Value(self) -> object:
-        return self.entry.refers_to
+        return self.shown_refers_to()
 
     @setter("Value")
     def _set_value(self, value: object) -> None:

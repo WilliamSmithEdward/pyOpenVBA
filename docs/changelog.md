@@ -7,6 +7,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A workbook's links to other, closed workbooks are managed as Excel
+  manages them. `LinkSources` lists the linked workbooks' full names in
+  the file's order. `LinkInfo` answers a link's status: its file gone,
+  a sheet a formula reads gone, or out of date. `BreakLink` turns each
+  formula that reads the link, itself or through names, into the value
+  it shows, array formulas and spills too, and points each name that
+  reads it at `#REF!`; the link leaves the file and the later ones are
+  renumbered, with no event raised. `UpdateLinks` and `SaveLinkValues`
+  read and set the workbook's two link settings, and a save without
+  link values keeps none. A save writes the links' parts as Excel's
+  does, adding the sheet Excel names after a linked workbook whose own
+  names a formula reads. A live workbook of two links, 15 error cases
+  and 10 saved files agree, `tests/fixtures/workbook_links.json`.
+  Excel refuses `BreakLink` with error 1004 on a workbook a macro has
+  just opened until its links are listed; the model breaks the link at
+  once.
+
 - `Worksheet.SaveAs` saves as Excel's does. In a text format it writes
   that sheet, hidden or not, rather than the active one, and that sheet
   takes the file's name (but in the MS-DOS formats) while the active
@@ -1118,6 +1135,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `Range.Formula2` no longer puts an @ before a reference to one cell of
+  another workbook. The colon of the path's drive, `C:\`, was read as a
+  reference across sheets.
+
+- A defined name that reads a deleted sheet or a broken link saves each
+  reference it lost as `#REF!`, and a name read from a file shows each
+  `#REF!` as `#REF!#REF!`, as Excel's do: `=#REF!$A$1:$B$3*2` saves as
+  `#REF!*2` and reads back `=#REF!#REF!*2`. `Name.RefersTo` shows a
+  name that reads a linked workbook by that workbook's path.
 
 - `Application.Caller` in a VBA Function an array formula calls answers
   the array's whole block, as Excel's does. Excel works such a function

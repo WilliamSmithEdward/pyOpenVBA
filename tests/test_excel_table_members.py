@@ -4,6 +4,7 @@ Slicers and the members a table of the sheet's own cells refuses, and the table 
 from __future__ import annotations
 
 import json
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -31,7 +32,8 @@ REFUSED = {index for index, case in enumerate(RECORD['cases']) if 'ws.Range("A1:
 def app() -> ExcelApplication:
     made = ExcelApplication()
     made.add_workbook()
-    made.add_module(RECORD['source'].replace('Private Function Tried', 'Public Function Tried'), name='TableProbe')
+    made.add_module(RECORD['source'].replace('Private Function Tried', 'Public Function Tried')
+                    .replace('folder & "\\', f'folder & "{os.sep}'), name='TableProbe')
     return made
 
 

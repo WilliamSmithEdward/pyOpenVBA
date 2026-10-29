@@ -2397,12 +2397,12 @@ Workbook,DefaultSlicerStyle,property,As Variant,,MISSING,,
 Workbook,DefaultTableStyle,property,As Variant,,MISSING,,
 Workbook,DefaultTimelineStyle,property,As Variant,,MISSING,,
 Workbook,DeleteNumberFormat,method,DeleteNumberFormat(NumberFormat As String),,MISSING,,
-Workbook,DisplayDrawingObjects,property,As XlDisplayDrawingObjects,,MISSING,,
-Workbook,DisplayInkComments,property,As Boolean,,MISSING,,
+Workbook,DisplayDrawingObjects,property,As XlDisplayDrawingObjects,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,"xlDisplayShapes, xlPlaceholders or xlHide, saved as the workbookPr's showObjects and read back; setting it leaves the workbook unsaved. It hides nothing the model draws."
+Workbook,DisplayInkComments,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as the workbookPr's showInkAnnotation and read back; the workbook stays saved.
 Workbook,DocumentInspectors,"property, read-only",As DocumentInspectors,,MISSING,,
 Workbook,DocumentLibraryVersions,"property, read-only",As DocumentLibraryVersions,,MISSING,,
 Workbook,DoNotPromptForConvert,property,As Boolean,,MISSING,,
-Workbook,EnableAutoRecover,property,As Boolean,,MISSING,,
+Workbook,EnableAutoRecover,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as fileRecoveryPr's autoRecover and read back; the workbook stays saved.
 Workbook,EnableConnections,method,EnableConnections(),,MISSING,,
 Workbook,EncryptionProvider,property,As String,,MISSING,,
 Workbook,EndReview,method,EndReview(),,MISSING,,
@@ -2474,12 +2474,12 @@ Workbook,PublishToPBI,method,"PublishToPBI([PublishType As Variant], [nameConfli
 Workbook,PurgeChangeHistoryNow,method,"PurgeChangeHistoryNow(Days As Long, [SharingPassword As Variant])",,MISSING,,
 Workbook,Queries,"property, read-only",As Queries,,UNASSESSED,,
 Workbook,ReadOnly,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/text_files.json,"True after Workbooks.Open's ReadOnly until a SaveAs to another file; SaveAs to its own file is error 1004. Save of a read-only workbook, which Excel turns into a copy in its default file path, reports itself unsupported."
-Workbook,ReadOnlyRecommended,property,As Boolean,,MISSING,,
+Workbook,ReadOnlyRecommended,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as fileSharing's readOnlyRecommended and read back; the workbook stays saved.
 Workbook,RefreshAll,method,RefreshAll(),,PARTIAL,tests/test_excel_pivot_shared_caches.py; tests/fixtures/pivot_shared_caches; tests/test_excel_calculate_order.py; tests/fixtures/calculate_order.json,"Refreshes the workbook's queries, then every pivot cache a table uses from the last to the first, passing over one whose EnableRefresh is off without an error, and calculates once after them all. Other connections, background refresh and the order of queries against pivot caches are unmeasured."
 Workbook,RejectAllChanges,method,"RejectAllChanges([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
 Workbook,ReloadAs,method,ReloadAs(Encoding As MsoEncoding),,MISSING,,
 Workbook,RemoveDocumentInformation,method,RemoveDocumentInformation(RemoveDocInfoType As XlRemoveDocInfoType),,MISSING,,
-Workbook,RemovePersonalInformation,property,As Boolean,,MISSING,,
+Workbook,RemovePersonalInformation,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as the workbookPr's filterPrivacy and read back; setting it leaves the workbook unsaved. The model's saves remove nothing for it.
 Workbook,RemoveUser,method,RemoveUser(Index As Long),,MISSING,,
 Workbook,Reply,method,Reply(),,MISSING,,
 Workbook,ReplyAll,method,ReplyAll(),,MISSING,,

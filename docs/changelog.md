@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Workbook settings the file keeps work as Excel's do:
+  `DisplayDrawingObjects`, `DisplayInkComments`,
+  `RemovePersonalInformation`, `ReadOnlyRecommended` and
+  `EnableAutoRecover`. Each saves where Excel saves it, in the
+  workbookPr, fileSharing or fileRecoveryPr, and reads back. Setting
+  the first and third leaves the workbook unsaved, as in Excel; the
+  others don't. 12 live cases and 7 saved files agree,
+  `tests/fixtures/workbook_options.json`.
+
 - Window settings everyday macros set work as Excel's do:
   `DisplayOutline`, `DisplayRuler` and `DisplayWhitespace`, each the
   active sheet's; `GridlineColor` and `GridlineColorIndex`, a colour

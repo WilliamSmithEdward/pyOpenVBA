@@ -1119,6 +1119,13 @@ class Workbook(ExcelObject):
         self.save_link_values = True
         #: Workbook.CheckCompatibility, False unless the file says otherwise (see _workbook_options).
         self.check_compatibility = False
+        #: DisplayDrawingObjects, DisplayInkComments, RemovePersonalInformation, ReadOnlyRecommended and
+        #: EnableAutoRecover, as the file has them (see _workbook_options).
+        self.drawing_objects = -4104
+        self.ink_comments = True
+        self.remove_personal = False
+        self.read_only_recommended = False
+        self.auto_recover = True
         #: The name the workbook's own module goes by in VBA, as ThisWorkbook.CodeName gives it.
         self.code_name = ""
         self.sheet_name_counter = 1
@@ -1536,6 +1543,55 @@ class Workbook(ExcelObject):
         (tests/fixtures/small_members.json)."""
         self.check_compatibility = to_bool(value)
         self.saved = False
+
+    # -- settings the workbook part keeps (see _workbook_options, tests/fixtures/workbook_options.json)
+
+    @member
+    def DisplayDrawingObjects(self) -> object:
+        return VBAInt(self.drawing_objects, "Long")
+
+    @setter("DisplayDrawingObjects")
+    def _set_drawing_objects(self, value: object) -> None:
+        """A Long as VBA passes it; the workbook is no longer saved."""
+        self.drawing_objects = int(to_integer(value, "Long"))
+        self.saved = False
+
+    @member
+    def DisplayInkComments(self) -> object:
+        return self.ink_comments
+
+    @setter("DisplayInkComments")
+    def _set_ink_comments(self, value: object) -> None:
+        """A Boolean as VBA passes it; the workbook stays saved."""
+        self.ink_comments = to_bool(value)
+
+    @member
+    def RemovePersonalInformation(self) -> object:
+        return self.remove_personal
+
+    @setter("RemovePersonalInformation")
+    def _set_remove_personal(self, value: object) -> None:
+        """A Boolean as VBA passes it; the workbook is no longer saved. The model's saves change nothing for it."""
+        self.remove_personal = to_bool(value)
+        self.saved = False
+
+    @member
+    def ReadOnlyRecommended(self) -> object:
+        return self.read_only_recommended
+
+    @setter("ReadOnlyRecommended")
+    def _set_read_only_recommended(self, value: object) -> None:
+        """A Boolean as VBA passes it; the workbook stays saved."""
+        self.read_only_recommended = to_bool(value)
+
+    @member
+    def EnableAutoRecover(self) -> object:
+        return self.auto_recover
+
+    @setter("EnableAutoRecover")
+    def _set_auto_recover(self, value: object) -> None:
+        """A Boolean as VBA passes it; the workbook stays saved."""
+        self.auto_recover = to_bool(value)
 
     @member
     def HasVBProject(self) -> object:

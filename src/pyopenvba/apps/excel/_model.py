@@ -4554,6 +4554,13 @@ class Range(ExcelObject):
         return remove_duplicates(self, Columns, Header)
 
     @method
+    def CreateNames(self, Top: object = MISSING, Left: object = MISSING, Bottom: object = MISSING,
+                    Right: object = MISSING) -> object:
+        from pyopenvba.apps.excel._create_names import create_names
+
+        return create_names(self, Top, Left, Bottom, Right)
+
+    @method
     def RowDifferences(self, Comparison: object = MISSING) -> object:
         from pyopenvba.apps.excel._special_cells import differences
 

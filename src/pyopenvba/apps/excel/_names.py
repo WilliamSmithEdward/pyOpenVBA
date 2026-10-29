@@ -30,20 +30,36 @@ def canonical(book: Workbook, name: str, scope: Worksheet | None = None) -> str:
         owner = scope.name
     if owner:
         owner = book.sheet_named(owner).name
+    if not valid(bare):
+        raise error(1004, SYNTAX)
+    return f"{quote_sheet(owner)}!{bare}" if owner else bare
+
+
+#: The start of a name read as an R1C1 reference: R, C, RC, R1, C1, R1C1 and the like.
+_R1C1_START = re.compile(r"(R([0-9]*))?(C([0-9]*))?", re.I)
+
+
+def valid(bare: str) -> bool:
+    """Whether Excel takes ``bare`` as a name (tests/fixtures/name_validity.json): a letter, _ or \\ first, then
+    letters, digits, _, ., \\ and ?, at most 255 of them; no cell's address, A1 or RX1; and nothing that starts as
+    an R1C1 reference -- R, C, RC or Rc alone, nor R1, C12 or RC1 with anything after it but a . -- though R_, Cx
+    and Rb12c are names."""
     # After its first character a name may hold a combining accent, e with U+0301
     # (tests/fixtures/name_equality.json, marks).
-    if (not re.fullmatch(r"[A-Za-z_\\\u0080-\uffff][\w.\\\u0300-\u036f]*", bare) or len(bare) > 255
-            or bare.upper() in {"R", "C"}):
-        raise error(1004, SYNTAX)
-    if re.fullmatch(r"R[0-9]*C[0-9]*", bare, re.I):
-        raise error(1004, SYNTAX)
+    if not re.fullmatch(r"[A-Za-z_\\\u0080-\uffff][\w.\\?\u0300-\u036f]*", bare) or len(bare) > 255:
+        return False
+    found = _R1C1_START.match(bare)
+    if found is not None and found.group(0):
+        if found.end() == len(bare):
+            return False
+        numbers = [number for number in (found.group(2), found.group(4)) if number]
+        if numbers and not (bare[found.end()] == "." and len(numbers) == 1 and found.group(0)[-1].isdigit()):
+            return False
     try:
         parse_area(bare)
     except ValueError:
-        pass
-    else:
-        raise error(1004, SYNTAX)
-    return f"{quote_sheet(owner)}!{bare}" if owner else bare
+        return True
+    return False
 
 
 def refused_structured(formula: str, context: Worksheet) -> str | None:

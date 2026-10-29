@@ -1174,6 +1174,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `docs/excel_checklist.csv` counts the events the model raises: 29 of
+  Application's, Workbook's and Worksheet's, Change, Calculate, Open,
+  BeforeSave and the rest, which it listed as missing because no member
+  holds an event. The model declares them as `raised_events`, which the
+  checklist builder and its test read.
+
 - `Names.Add` takes and refuses the names Excel does. It refused `a?b`,
   and took `R1C1_`, `C1R1`, `R1x` and `RC1C`, which Excel refuses as
   names that start like an R1C1 reference. 324 live names agree,

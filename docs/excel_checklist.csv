@@ -4,7 +4,7 @@ AboveAverage,Application,"property, read-only",As Application,,MISSING,,
 AboveAverage,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native conditional API projections preserve stored XML: measured escaped-space/hyphen number-format spelling and row-first generic applicability on plain loads (including measured FileFormat52 packages without VBA), raw statistical applicability, and serialized ordering on VBA-bearing macro-enabled imports. Native plain-load and VBA-bearing load controls cover family-specific area projection, full ordered population keys and loaded group identity; generic supplied union order is retained after ModifyAppliesToRange."
 AboveAverage,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Foreign statistical border-color lookups select the matching group and compact captured child position while every rule retains its own stored style. Worksheet.Copy initializes independent dense groups and recaptures child order by priority. Three initial copy-context snapshots, broader retained-proxy behavior and post-deletion contexts remain partial; foreign reads of absent group members report unsupported because native defaults are inconsistent. Missing group identities retain error 440. A worksheet-local group member/rank index is invalidated on successful mutations; repeated foreign reads and failed mutation staging have count-based/atomicity controls."
 AboveAverage,CalcFor,property,As XlCalcFor,,MISSING,,
-AboveAverage,Creator,"property, read-only",As XlCreator,,MISSING,,
+AboveAverage,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 AboveAverage,Delete,method,Delete(),,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native loaded-group controls cover individual deletion with target tombstone and one shared survivor group, versus bulk deletion retaining the prior group representative."
 AboveAverage,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 AboveAverage,Interior,"property, read-only",As Interior,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
@@ -78,7 +78,7 @@ Application,ConstrainNumeric,property,As Boolean,,MISSING,,
 Application,ControlCharacters,property,As Boolean,,MISSING,,
 Application,ConvertFormula,method,"ConvertFormula(Formula As Variant, FromReferenceStyle As XlReferenceStyle, [ToReferenceStyle As Variant], [ToAbsolute As Variant], [RelativeTo As Variant]) As Variant",,PARTIAL,tests/fixtures/convert_formula.json; tests/test_excel_convert_formula.py,"Converts between A1 and R1C1, absolute or relative, as Excel does over 784 live cases: the active workbook's sheets named with the workbook, names spelled as Excel first saw them, a range's cells one by one, #VALUE! where Excel cannot convert, and the 254 characters Excel writes within; an array or an object given as the formula, and no active cell, report themselves unsupported"
 Application,CopyObjectsWithCells,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
-Application,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+Application,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Application,Cursor,property,As XlMousePointer,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlDefault, xlNorthwestArrow, xlWait and xlIBeam read back; 0 is xlDefault and other values change nothing, over 28 live settings; the model shows no cursor"
 Application,CursorMovement,property,As Long,,MISSING,,
 Application,CustomListCount,"property, read-only",As Long,,MISSING,,
@@ -338,12 +338,12 @@ Areas,_Default,"property, read-only",As Range,,MISSING,,
 Areas,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Areas,Application,"property, read-only",As Application,,MISSING,,
 Areas,Count,"property, read-only",As Long,,UNASSESSED,,
-Areas,Creator,"property, read-only",As XlCreator,,MISSING,,
+Areas,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Areas,Item,"property, read-only",As Range,,UNASSESSED,,
 Areas,Parent,"property, read-only",As Object,,MISSING,,
 AutoFilter,Application,"property, read-only",As Application,,MISSING,,
 AutoFilter,ApplyFilter,method,ApplyFilter(),,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_autofilter_wildcards.py; tests/fixtures/table_autofilter/table_autofilter.json,"Filters again, taking in the rows of data that have grown on below the range. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts. Wildcard matching uses bounded state transitions while preserving prior literal, tilde, Unicode case, newline and type-admission behavior; no new criterion-length cap."
-AutoFilter,Creator,"property, read-only",As XlCreator,,MISSING,,
+AutoFilter,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 AutoFilter,FilterMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
 AutoFilter,Filters,"property, read-only",As Filters,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
 AutoFilter,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/table_autofilter/table_autofilter.json,"A table's filter answers its ListObject; the sheet's own answers the Worksheet, which was not measured."
@@ -354,7 +354,7 @@ Axes,_Default,method,"_Default(Type As XlAxisType, [AxisGroup As XlAxisGroup]) A
 Axes,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 Axes,Application,"property, read-only",As Application,,MISSING,,
 Axes,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
-Axes,Creator,"property, read-only",As XlCreator,,MISSING,,
+Axes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Axes,Item,method,"Item(Type As XlAxisType, [AxisGroup As XlAxisGroup]) As Axis",,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,Application,"property, read-only",As Application,,MISSING,,
@@ -367,7 +367,7 @@ Axis,Border,"property, read-only",As Border,,MISSING,,
 Axis,CategoryNames,property,As Variant,,MISSING,,
 Axis,CategorySortOrder,property,As XlCategorySortOrder,,MISSING,,
 Axis,CategoryType,property,As XlCategoryType,,MISSING,,
-Axis,Creator,"property, read-only",As XlCreator,,MISSING,,
+Axis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Axis,Crosses,property,As XlAxisCrosses,,MISSING,,
 Axis,CrossesAt,property,As Double,,MISSING,,
 Axis,Delete,method,Delete() As Variant,,MISSING,,
@@ -413,7 +413,7 @@ Axis,Width,"property, read-only",As Double,,MISSING,,
 AxisTitle,Application,"property, read-only",As Application,,MISSING,,
 AxisTitle,Caption,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 AxisTitle,Characters,"property, read-only",As Characters,,MISSING,,
-AxisTitle,Creator,"property, read-only",As XlCreator,,MISSING,,
+AxisTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 AxisTitle,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 AxisTitle,Format,"property, read-only",As ChartFormat,,MISSING,,
 AxisTitle,Formula,property,As String,,MISSING,,
@@ -440,7 +440,7 @@ AxisTitle,Width,"property, read-only",As Double,,MISSING,,
 Border,Application,"property, read-only",As Application,,UNASSESSED,,
 Border,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."
 Border,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,ColorIndex 0 is unmeasured and raises 9. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
-Border,Creator,"property, read-only",As XlCreator,,MISSING,,
+Border,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Border,LineStyle,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
 Border,Parent,"property, read-only",As Object,,UNASSESSED,,
 Border,ThemeColor,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."
@@ -452,7 +452,7 @@ Borders,Application,"property, read-only",As Application,,UNASSESSED,,
 Borders,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."
 Borders,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,Reads over edges of different colours are unmeasured. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
 Borders,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
-Borders,Creator,"property, read-only",As XlCreator,,MISSING,,
+Borders,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Borders,Item,"property, read-only",As Border,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
 Borders,LineStyle,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
 Borders,Parent,"property, read-only",As Object,,UNASSESSED,,
@@ -465,7 +465,7 @@ CalculatedFields,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 CalculatedFields,Add,method,"Add(Name As String, Formula As String, [UseStandardFormula As Variant]) As PivotField",,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,"A calculated field at the end of the cache's fields and of each table's, its formula over the fields by their captions, spelled back as Excel spells it; a name a field has is error 1004; a formula Excel refuses adds nothing with alerts off and reports itself unsupported with them on, where Excel shows a message. UseStandardFormula changes nothing in English."
 CalculatedFields,Application,"property, read-only",As Application,,MISSING,,
 CalculatedFields,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,How many calculated fields the table's cache has.
-CalculatedFields,Creator,"property, read-only",As XlCreator,,MISSING,,
+CalculatedFields,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 CalculatedFields,Item,method,Item(Index As Variant) As PivotField,,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,"A calculated field by its place or its name, else error 1004."
 CalculatedFields,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,The table.
 Characters,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/characters.json,
@@ -507,7 +507,7 @@ Chart,ClearToMatchStyle,method,ClearToMatchStyle(),,MISSING,,
 Chart,CodeName,"property, read-only",As String,,MISSING,,
 Chart,Copy,method,"Copy([Before As Variant], [After As Variant])",,MISSING,,
 Chart,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat], [Size As XlPictureAppearance])",,MISSING,,
-Chart,Creator,"property, read-only",As XlCreator,,MISSING,,
+Chart,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Chart,DataTable,"property, read-only",As DataTable,,MISSING,,
 Chart,Deactivate,event,Deactivate(),,MISSING,,
 Chart,Delete,method,Delete(),,MISSING,,
@@ -594,7 +594,7 @@ ChartObject,BringToFront,method,BringToFront() As Variant,,MISSING,,
 ChartObject,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Copy,method,Copy() As Variant,,MISSING,,
 ChartObject,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
-ChartObject,Creator,"property, read-only",As XlCreator,,MISSING,,
+ChartObject,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ChartObject,Cut,method,Cut() As Variant,,MISSING,,
 ChartObject,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Duplicate,method,Duplicate() As Object,,MISSING,,
@@ -624,7 +624,7 @@ ChartObjects,Application,"property, read-only",As Application,,MISSING,,
 ChartObjects,Copy,method,Copy() As Variant,,MISSING,,
 ChartObjects,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
 ChartObjects,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObjects,Creator,"property, read-only",As XlCreator,,MISSING,,
+ChartObjects,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ChartObjects,Cut,method,Cut() As Variant,,MISSING,,
 ChartObjects,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Duplicate,method,Duplicate() As Object,,MISSING,,
@@ -644,7 +644,7 @@ ChartObjects,Width,property,As Double,,MISSING,,
 ChartTitle,Application,"property, read-only",As Application,,MISSING,,
 ChartTitle,Caption,property,As String,,MISSING,,
 ChartTitle,Characters,"property, read-only",As Characters,,MISSING,,
-ChartTitle,Creator,"property, read-only",As XlCreator,,MISSING,,
+ChartTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ChartTitle,Delete,method,Delete() As Variant,,MISSING,,
 ChartTitle,Format,"property, read-only",As ChartFormat,,MISSING,,
 ChartTitle,Formula,property,As String,,MISSING,,
@@ -671,7 +671,7 @@ ChartTitle,Width,"property, read-only",As Double,,MISSING,,
 ColorScale,Application,"property, read-only",As Application,,MISSING,,
 ColorScale,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
 ColorScale,ColorScaleCriteria,"property, read-only",As ColorScaleCriteria,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"Two or three, as the scale was made."
-ColorScale,Creator,"property, read-only",As XlCreator,,MISSING,,
+ColorScale,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ColorScale,Delete,method,Delete(),,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
 ColorScale,Formula,property,As String,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 ColorScale,ModifyAppliesToRange,method,ModifyAppliesToRange(Range As Range),,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,The scale then colours the new range by its own numbers.
@@ -686,7 +686,9 @@ ColorScale,Type,"property, read-only",As Long,,PARTIAL,tests/fixtures/colour_sca
 ColorScaleCriteria,_Default,"property, read-only",As ColorScaleCriterion,,MISSING,,
 ColorScaleCriteria,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ColorScaleCriteria,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
+ColorScaleCriteria,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ColorScaleCriteria,Item,"property, read-only",As ColorScaleCriterion,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,From 1; any other index is error 9.
+ColorScaleCriterion,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ColorScaleCriterion,FormatColor,"property, read-only",As FormatColor,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
 ColorScaleCriterion,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
 ColorScaleCriterion,Type,property,As XlConditionValueTypes,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"Lowest or highest value, number, percent, percentile or formula."
@@ -705,11 +707,11 @@ Comments,_Default,"property, read-only",As Comment,,MISSING,,
 Comments,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Comments,Application,"property, read-only",As Application,,UNASSESSED,,
 Comments,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/excel_model/probes.txt,
-Comments,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+Comments,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Comments,Item,method,Item(Index As Long) As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt,Row by row; 0 is error 9 and past the last error 1004.
 Comments,Parent,"property, read-only",As Object,,UNASSESSED,,
 ConditionValue,Application,"property, read-only",As Application,,MISSING,,
-ConditionValue,Creator,"property, read-only",As XlCreator,,MISSING,,
+ConditionValue,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ConditionValue,Modify,method,"Modify(newtype As XlConditionValueTypes, [newvalue As Variant])",,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 ConditionValue,Parent,"property, read-only",As Object,,MISSING,,
 ConditionValue,Type,"property, read-only",As XlConditionValueTypes,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -717,7 +719,7 @@ ConditionValue,Value,"property, read-only",As Variant,,PARTIAL,tests/fixtures/da
 ControlFormat,_Default,property,As Long,,MISSING,,
 ControlFormat,AddItem,method,"AddItem(Text As String, [Index As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,Application,"property, read-only",As Application,,MISSING,,
-ControlFormat,Creator,"property, read-only",As XlCreator,,MISSING,,
+ControlFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ControlFormat,DropDownLines,property,As Long,,MISSING,,
 ControlFormat,Enabled,property,As Boolean,,MISSING,,
 ControlFormat,LargeChange,property,As Long,,PARTIAL,tests/fixtures/shapes/numeric_controls.json,
@@ -738,7 +740,7 @@ ControlFormat,SmallChange,property,As Long,,PARTIAL,tests/fixtures/shapes/numeri
 ControlFormat,Value,property,As Long,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
 DataBarBorder,Application,"property, read-only",As Application,,MISSING,,
 DataBarBorder,Color,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-DataBarBorder,Creator,"property, read-only",As XlCreator,,MISSING,,
+DataBarBorder,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 DataBarBorder,Parent,"property, read-only",As Object,,MISSING,,
 DataBarBorder,Type,property,As XlDataBarBorderType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,Application,"property, read-only",As Application,,MISSING,,
@@ -748,7 +750,7 @@ Databar,AxisPosition,property,As XlDataBarAxisPosition,,PARTIAL,tests/fixtures/d
 Databar,BarBorder,"property, read-only",As DataBarBorder,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,BarColor,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,BarFillType,property,As XlDataBarFillType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-Databar,Creator,"property, read-only",As XlCreator,,MISSING,,
+Databar,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Databar,Delete,method,Delete(),,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,Direction,property,As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,Formula,property,As String,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -771,7 +773,7 @@ DisplayFormat,AddIndent,"property, read-only",As Variant,,PARTIAL,tests/test_exc
 DisplayFormat,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,Characters,"property, read-only",As Characters,,MISSING,,
-DisplayFormat,Creator,"property, read-only",As XlCreator,,MISSING,,
+DisplayFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 DisplayFormat,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,FormulaHidden,"property, read-only",As Variant,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
 DisplayFormat,HorizontalAlignment,"property, read-only",As Variant,,PARTIAL,tests/test_excel_conditional.py; tests/test_excel_conditional_display.py; tests/test_excel_conditional_integration.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py,"Native controls cover ordinary cellIs/expression rules, priorities, relative formulas, differential styles, display evaluation, clear and sheet copy. Advanced rule families, range copy/paste and structural edits remain incomplete; displayed reads above 1,048,576 conditional cells are refused."
@@ -804,9 +806,10 @@ DocumentProperty,Name,property,As HRESULT,,PARTIAL,tests/test_excel_document_pro
 DocumentProperty,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,The workbook.
 DocumentProperty,Type,property,As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"A custom property's value turned into the type, or the error Excel raises; a built-in one's fails."
 DocumentProperty,Value,property,As HRESULT,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"Turned into the property's type as Office turns a Variant; a date kept to its second in UTC by the machine's time zone, Excel's day early before day zero; a linked property's value and type come from its range when the workbook is saved."
+ExcelObject,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Filter,Application,"property, read-only",As Application,,MISSING,,
 Filter,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
-Filter,Creator,"property, read-only",As XlCreator,,MISSING,,
+Filter,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Filter,Criteria1,"property, read-only",As Variant,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json; tests/fixtures/colour_filters/colour_filters.json; tests/fixtures/date_filters/date_filters.json; tests/fixtures/dynamic_filters/dynamic_filters.json; tests/fixtures/icon_filters/icon_filters.json,"A colour filter's is an Interior holding the colour, white with no pattern for no fill; a font colour filter's is the colour as a number; a filter on dates alone has none, error 1004; a dynamic filter's is its criteria; an icon filter's is the Icon, and one on no icon Empty."
 Filter,Criteria2,"property, read-only",As Variant,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json; tests/fixtures/date_filters/date_filters.json,"A filter on dates reads back as the values beside them alone do, error 1004 for the dates themselves, as Excel's does."
 Filter,On,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
@@ -816,7 +819,7 @@ Filters,_Default,"property, read-only",As Filter,,MISSING,,
 Filters,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Filters,Application,"property, read-only",As Application,,MISSING,,
 Filters,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py,
-Filters,Creator,"property, read-only",As XlCreator,,MISSING,,
+Filters,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Filters,Item,"property, read-only",As Filter,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py,
 Filters,Parent,"property, read-only",As Object,,MISSING,,
 Font,Application,"property, read-only",As Application,,UNASSESSED,,
@@ -824,7 +827,7 @@ Font,Background,property,As Variant,,MISSING,,
 Font,Bold,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,ColorIndex,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
-Font,Creator,"property, read-only",As XlCreator,,MISSING,,
+Font,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Font,FontStyle,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Italic,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Name,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,The family a new font is written with is Excel's for common fonts and the replaced font's otherwise.
@@ -840,14 +843,14 @@ Font,Underline,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; te
 FormatColor,Application,"property, read-only",As Application,,MISSING,,
 FormatColor,Color,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"The colour as it shows, a theme colour with its tint worked out."
 FormatColor,ColorIndex,property,As XlColorIndex,,MISSING,,
-FormatColor,Creator,"property, read-only",As XlCreator,,MISSING,,
+FormatColor,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 FormatColor,Parent,"property, read-only",As Object,,MISSING,,
 FormatColor,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,0 for an RGB colour.
 FormatColor,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"Kept in 32767ths, as Excel keeps it."
 FormatCondition,Application,"property, read-only",As Application,,MISSING,,
 FormatCondition,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Native conditional API projections preserve stored XML: measured escaped-space/hyphen number-format spelling and row-first generic applicability on plain loads (including measured FileFormat52 packages without VBA), raw statistical applicability, and serialized ordering on VBA-bearing macro-enabled imports. Native plain-load and VBA-bearing load controls cover family-specific area projection, full ordered population keys and loaded group identity; generic supplied union order is retained after ModifyAppliesToRange."
 FormatCondition,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Loaded foreign identity lookups use the captured group representative while every rule retains its own stored style; initial activation context, held-proxy rebinding and Worksheet.Copy identity behavior remain partial."
-FormatCondition,Creator,"property, read-only",As XlCreator,,MISSING,,
+FormatCondition,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 FormatCondition,DateOperator,property,As XlTimePeriods,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_api_projection.py,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch."
 FormatCondition,Delete,method,Delete(),,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Native loaded-group controls cover individual deletion with target tombstone and one shared survivor group, versus bulk deletion retaining the prior group representative."
 FormatCondition,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_api_projection.py,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch."
@@ -879,7 +882,7 @@ FormatConditions,AddTop10,method,AddTop10() As Object,,PARTIAL,tests/test_excel_
 FormatConditions,AddUniqueValues,method,AddUniqueValues() As Object,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch."
 FormatConditions,Application,"property, read-only",As Application,,MISSING,,
 FormatConditions,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Loaded group identities are separate from rule count: compatible equivalent populations can share one identity while each logical rule remains enumerable."
-FormatConditions,Creator,"property, read-only",As XlCreator,,MISSING,,
+FormatConditions,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 FormatConditions,Delete,method,Delete(),,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Native loaded-group controls cover individual deletion with target tombstone and one shared survivor group, versus bulk deletion retaining the prior group representative."
 FormatConditions,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch. Loaded identities can be shared by multiple rules without merging their object roots or owner styles; representative order follows captured load mode."
 FormatConditions,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_conditional_predicates.py; tests/test_excel_conditional_predicates_eval.py; tests/test_excel_conditional_predicates_copy.py; tests/fixtures/conditional; scripts/measure_conditional_formatting.py; tests/test_excel_conditional_transfer_native.py,"Ordinary, statistical and text/blank/error/time predicates support measured creation, coercions/errors, lifecycle, generated formulas, displayed styles, number formats and worksheet copy/save. Color scales, bars, icon sets, pivot scopes and range transfers outside the measured disjoint same-workbook copy/paste scope with distinct validated group identities and structural edits remain incomplete. Date-period rules use the supported 1900 workbook epoch."
@@ -887,7 +890,7 @@ GroupShapes,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 GroupShapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 GroupShapes,Application,"property, read-only",As Application,,MISSING,,
 GroupShapes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-GroupShapes,Creator,"property, read-only",As XlCreator,,MISSING,,
+GroupShapes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 GroupShapes,Item,method,Item(Index As Variant) As Shape,,UNASSESSED,,
 GroupShapes,Parent,"property, read-only",As Object,,MISSING,,
 GroupShapes,Range,"property, read-only",As ShapeRange,,MISSING,,
@@ -907,6 +910,7 @@ HPageBreaks,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_page_b
 HPageBreaks,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
 HPageBreaks,Item,"property, read-only",As HPageBreak,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Counts the manual breaks before the rows or columns the sheet uses and the one after them, in order, as a fresh Excel session does; automatic breaks, which Excel works out only as it lays pages out, and a sheet with a print area report themselves unsupported or are not counted. Beyond the count is error 9."
 HPageBreaks,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The worksheet.
+HeaderFooter,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 HeaderFooter,Picture,"property, read-only",As Graphic,,MISSING,,
 HeaderFooter,Text,property,As String,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,"Reads and sets its page's section as PageSetup's sections do, written whether or not its page's flag is on; past 255 characters error 1004 with Excel's message for it, Application-defined or object-defined error"
 Hyperlink,Address,property,As String,,PARTIAL,tests/fixtures/hyperlinks/hyperlinks.json; tests/test_live_excel_model_gate.py,"Kept as Excel tidies it -- an http, https or ftp address's scheme and host in lower case, its path resolved, a # splitting off the subaddress -- for the kinds of address measured; saved with a DOS path relative to the workbook's folder. Setting it keeps the subaddress unless the new address has a # of its own."
@@ -935,13 +939,15 @@ Hyperlinks,Delete,method,Delete(),,VERIFIED,tests/fixtures/hyperlinks/hyperlinks
 Hyperlinks,Item,"property, read-only",As Hyperlink,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"By place in the sheet's order or by name; 0, past the last and an unknown name are error 9."
 Hyperlinks,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/hyperlinks/hyperlinks.json,"The worksheet, a range's collection's too."
 Icon,Application,"property, read-only",As Application,,MISSING,,
-Icon,Creator,"property, read-only",As XlCreator,,MISSING,,
+Icon,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Icon,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Icon,Parent,"property, read-only",As IconSet,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconCriteria,_Default,"property, read-only",As IconCriterion,,MISSING,,
 IconCriteria,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 IconCriteria,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
+IconCriteria,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 IconCriteria,Item,"property, read-only",As IconCriterion,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
+IconCriterion,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 IconCriterion,Icon,property,As XlIcon,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconCriterion,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconCriterion,Operator,property,As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -951,13 +957,13 @@ IconSet,_Default,"property, read-only",As Icon,,MISSING,,
 IconSet,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 IconSet,Application,"property, read-only",As Application,,MISSING,,
 IconSet,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-IconSet,Creator,"property, read-only",As XlCreator,,MISSING,,
+IconSet,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 IconSet,ID,"property, read-only",As XlIconSet,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconSet,Item,"property, read-only",As Icon,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconSet,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconSetCondition,Application,"property, read-only",As Application,,MISSING,,
 IconSetCondition,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-IconSetCondition,Creator,"property, read-only",As XlCreator,,MISSING,,
+IconSetCondition,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 IconSetCondition,Delete,method,Delete(),,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconSetCondition,Formula,property,As String,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconSetCondition,IconCriteria,"property, read-only",As IconCriteria,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -978,13 +984,13 @@ IconSets,_Default,"property, read-only",As Object,,MISSING,,
 IconSets,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 IconSets,Application,"property, read-only",As Application,,MISSING,,
 IconSets,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-IconSets,Creator,"property, read-only",As XlCreator,,MISSING,,
+IconSets,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 IconSets,Item,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconSets,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Interior,Application,"property, read-only",As Application,,UNASSESSED,,
 Interior,Color,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
-Interior,Creator,"property, read-only",As XlCreator,,MISSING,,
+Interior,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Interior,Gradient,"property, read-only",As Object,,MISSING,,
 Interior,InvertIfNegative,property,As Variant,,MISSING,,
 Interior,Parent,"property, read-only",As Object,,UNASSESSED,,
@@ -997,7 +1003,7 @@ Interior,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.jso
 Interior,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic colour reports unsupported.
 ListColumn,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/tables/tables.json,The column's name.
 ListColumn,Application,"property, read-only",As Application,,MISSING,,
-ListColumn,Creator,"property, read-only",As XlCreator,,MISSING,,
+ListColumn,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListColumn,DataBodyRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumn,Delete,method,Delete(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"The column's cells deleted, those right of them moving across, and a structured reference to it #REF!; deleting the only column reports itself."
 ListColumn,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
@@ -1012,9 +1018,10 @@ ListColumns,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListColumns,Add,method,Add([Position As Variant]) As ListColumn,,VERIFIED,tests/fixtures/tables/edits/edits.json,"At the end or at a position, named the first free ColumnN, the cells right of it in the table's rows moving across."
 ListColumns,Application,"property, read-only",As Application,,MISSING,,
 ListColumns,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
-ListColumns,Creator,"property, read-only",As XlCreator,,MISSING,,
+ListColumns,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListColumns,Item,"property, read-only",As ListColumn,,VERIFIED,tests/fixtures/tables/tables.json,"By position or by name, error 9 for neither."
 ListColumns,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
+ListDrawingObject,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListDrawingObject,Selected,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
 ListObject,_Default,"property, read-only",As String,,VERIFIED,tests/fixtures/tables/tables.json,The table's name.
 ListObject,Active,"property, read-only",As Boolean,,MISSING,,
@@ -1022,7 +1029,7 @@ ListObject,AlternativeText,property,As String,,MISSING,,
 ListObject,Application,"property, read-only",As Application,,MISSING,,
 ListObject,AutoFilter,"property, read-only",As AutoFilter,,PARTIAL,tests/fixtures/table_autofilter/table_autofilter.json,"The table's own filter, Nothing while ShowAutoFilter is False: its criteria, Range, FilterMode, ApplyFilter and ShowAllData answer as Excel's over 75 live layouts, and are saved in the table's part. Filtering a table with no header row, and rows put in or taken out inside a filtered table, report themselves unsupported; a table resized smaller over data it leaves below reads a longer Range in Excel once its file is opened again, which the model does not."
 ListObject,Comment,property,As String,,MISSING,,
-ListObject,Creator,"property, read-only",As XlCreator,,MISSING,,
+ListObject,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListObject,DataBodyRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListObject,Delete,method,Delete(),,VERIFIED,tests/fixtures/tables/edits/edits.json,"The table's cells cleared, formats and all, and every reference to it #REF!."
 ListObject,DisplayName,property,As String,,PARTIAL,tests/fixtures/tables/tables.json,"The table's name, as Name."
@@ -1063,11 +1070,11 @@ ListObjects,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListObjects,Add,method,"Add([SourceType As XlListObjectSourceType], [Source As Variant], [LinkSource As Variant], [XlListObjectHasHeaders As XlYesNoGuess], [Destination As Variant], [TableStyleName As Variant]) As ListObject",,PARTIAL,tests/fixtures/tables/tables.json,"Over a range of the sheet: headers from its first row as text, a blank one ColumnN and a repeat numbered, or a header row put in above it; left to guess, text over data takes headers; the first free TableN, TableStyleMedium2; error 1004 over another table. Other sources, and a range over array formulas or merged cells, report themselves."
 ListObjects,Application,"property, read-only",As Application,,MISSING,,
 ListObjects,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
-ListObjects,Creator,"property, read-only",As XlCreator,,MISSING,,
+ListObjects,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListObjects,Item,"property, read-only",As ListObject,,VERIFIED,tests/fixtures/tables/tables.json,"By position or by name, error 9 for neither."
 ListObjects,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
 ListRow,Application,"property, read-only",As Application,,MISSING,,
-ListRow,Creator,"property, read-only",As XlCreator,,MISSING,,
+ListRow,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListRow,Delete,method,Delete(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"The row's cells deleted, those under them moving up; deleting the only row of data reports itself."
 ListRow,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListRow,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
@@ -1077,17 +1084,17 @@ ListRows,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListRows,Add,method,"Add([Position As Variant], [AlwaysInsert As Variant]) As ListRow",,VERIFIED,tests/fixtures/tables/edits/edits.json,"At the end, above a totals row, or at a position, the table's columns moving down; with AlwaysInsert False over an empty row the table takes the row. A calculated column fills the new row, and a reference to a column's rows stretches over it."
 ListRows,Application,"property, read-only",As Application,,MISSING,,
 ListRows,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
-ListRows,Creator,"property, read-only",As XlCreator,,MISSING,,
+ListRows,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListRows,Item,"property, read-only",As ListRow,,VERIFIED,tests/fixtures/tables/tables.json,Error 9 past the last row.
 ListRows,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
 Name,_Default,"property, read-only",As String,,MISSING,,
-Name,Application,"property, read-only",As Application,,MISSING,,
+Name,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,The application.
 Name,Category,property,As String,,MISSING,,
 Name,CategoryLocal,property,As String,,MISSING,,
 Name,Comment,property,As String,,PARTIAL,tests/fixtures/names_crud.json,
-Name,Creator,"property, read-only",As XlCreator,,MISSING,,
+Name,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Name,Delete,method,Delete(),,PARTIAL,tests/fixtures/names_crud.json,
-Name,Index,"property, read-only",As Long,,MISSING,,
+Name,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"Its place among the workbook's names in their order, read through a sheet's Names too."
 Name,MacroType,property,As XlXLMMacroType,,MISSING,,
 Name,Name,property,As String,,PARTIAL,tests/fixtures/names_crud.json; tests/test_excel_worksheet_rename.py; tests/fixtures/worksheet_rename," Ordinary names follow admitted Worksheet.Name changes with local scope, held identity, comment/visibility and RefersTo retained; native ordering clarifiers cover local/global enumeration. Broader Name.Add scope and mixed-feature behavior remain partial."
 Name,NameLocal,property,As String,,UNASSESSED,,
@@ -1105,17 +1112,17 @@ Name,WorkbookParameter,property,As Boolean,,MISSING,,
 Names,_Default,method,"_Default([Index As Variant], [IndexLocal As Variant], [RefersTo As Variant]) As Name",,MISSING,,
 Names,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Names,Add,method,"Add([Name As Variant], [RefersTo As Variant], [Visible As Variant], [MacroType As Variant], [ShortcutKey As Variant], [Category As Variant], [NameLocal As Variant], [RefersToLocal As Variant], [CategoryLocal As Variant], [RefersToR1C1 As Variant], [RefersToR1C1Local As Variant]) As Name",,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/structured_references/structured.json; tests/test_excel_names_add.py; tests/fixtures/names_add; scripts/measure_names_add.py; tests/fixtures/name_equality.json; tests/fixtures/name_validity.json,"MacroType, ShortcutKey and Category report unsupported. A structured reference naming one column of a table on the sheet the name is read on is refused with Excel's message, and taken from any other sheet and in RefersToR1C1; an unqualified name the active sheet has one of its own of changes that one. A name Windows' word sort cannot tell from one there is, case aside, redefines it: aesop redefines the name spelt with the ash. It takes the spelling given only where that is as long and word sort cannot tell them apart, ECLAIR for eclair or a Kelvin sign for K. A name may hold a combining accent after its first character. Which names it takes is Excel's over 324 live names: no cell's address, nothing that starts as an R1C1 reference, ? allowed after the first character."
-Names,Application,"property, read-only",As Application,,MISSING,,
+Names,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,The application.
 Names,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt,
-Names,Creator,"property, read-only",As XlCreator,,MISSING,,
+Names,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Names,Item,method,"Item([Index As Variant], [IndexLocal As Variant], [RefersTo As Variant]) As Name","no IndexLocal, RefersTo",PARTIAL,tests/test_excel_names_add.py; tests/fixtures/names_add; scripts/measure_names_add.py; tests/fixtures/name_equality.json,"By place, or by text: a sheet's Names its own; the workbook's a qualified name, or the first sheet's own before the workbook's, never another sheet's, else error 1004. The text finds a name Windows' word sort cannot tell from it, case aside: AESOP finds the name spelt with the ash."
-Names,Parent,"property, read-only",As Object,,MISSING,,
+Names,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"The workbook, or for a sheet's Names the sheet."
 NegativeBarFormat,Application,"property, read-only",As Application,,MISSING,,
 NegativeBarFormat,BorderColor,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 NegativeBarFormat,BorderColorType,property,As XlDataBarNegativeColorType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 NegativeBarFormat,Color,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 NegativeBarFormat,ColorType,property,As XlDataBarNegativeColorType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-NegativeBarFormat,Creator,"property, read-only",As XlCreator,,MISSING,,
+NegativeBarFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 NegativeBarFormat,Parent,"property, read-only",As Object,,MISSING,,
 Outline,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,AutomaticStyles,property,As Boolean,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
@@ -1126,6 +1133,7 @@ Outline,SummaryColumn,property,As XlSummaryColumn,,PARTIAL,tests/test_excel_outl
 Outline,SummaryRow,property,As XlSummaryRow,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Page,CenterFooter,"property, read-only",As HeaderFooter,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,The first or even page's section as a HeaderFooter object
 Page,CenterHeader,"property, read-only",As HeaderFooter,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,The first or even page's section as a HeaderFooter object
+Page,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Page,LeftFooter,"property, read-only",As HeaderFooter,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,The first or even page's section as a HeaderFooter object
 Page,LeftHeader,"property, read-only",As HeaderFooter,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,The first or even page's section as a HeaderFooter object
 Page,RightFooter,"property, read-only",As HeaderFooter,,PARTIAL,tests/fixtures/page_headers.json; tests/test_excel_page_headers.py,The first or even page's section as a HeaderFooter object
@@ -1181,7 +1189,7 @@ PageSetup,Zoom,property,As Variant,,PARTIAL,tests/test_excel_page_setup.py; test
 Panes,_Default,"property, read-only",As Pane,,MISSING,,
 Panes,Application,"property, read-only",As Application,,MISSING,,
 Panes,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/windows/windows.json,
-Panes,Creator,"property, read-only",As XlCreator,,MISSING,,
+Panes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Panes,Item,"property, read-only",As Pane,,PARTIAL,tests/fixtures/windows/windows.json,"A pane, scrolled on its own, reports itself as not implemented."
 Panes,Parent,"property, read-only",As Object,,MISSING,,
 PivotCache,ADOConnection,"property, read-only",As Object,,MISSING,,
@@ -1192,7 +1200,7 @@ PivotCache,CommandType,property,As XlCmdType,,MISSING,,
 PivotCache,Connection,property,As Variant,,MISSING,,
 PivotCache,CreatePivotChart,method,"CreatePivotChart(ChartDestination As Variant, [XlChartType As Variant], [Left As Variant], [Top As Variant], [Width As Variant], [Height As Variant]) As Shape",,MISSING,,
 PivotCache,CreatePivotTable,method,"CreatePivotTable(TableDestination As Variant, [TableName As Variant], [ReadData As Variant], [DefaultVersion As Variant]) As PivotTable",,PARTIAL,tests/test_excel_pivot_creation.py; tests/fixtures/pivots/creation.json; scripts/measure_pivot_creation.py; tests/test_excel_pivot_record_types.py; tests/fixtures/pivots/record_types.json; scripts/measure_pivot_record_types.py; tests/test_excel_pivot_show_pages.py,"Worksheet sources and empty reports, including pending/shared caches and persisted cache records. External/consolidated sources, aggregation, layout edits and full validation coverage remain incomplete. Native typed records cover date/time serials, Currency and modern-error rich snapshots; repeated-save source edits preserve cached records. General linked rich-data creation remains unsupported. A table made with no name takes PivotTable and the next number of one count through the session, whatever workbook it is in, stepping past names the sheet's own tables have in any case; one sheet's tables may not share a name, two sheets' may (tests/fixtures/pivot_show_pages/ default_names)."
-PivotCache,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotCache,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotCache,EnableRefresh,property,As Boolean,,PARTIAL,tests/test_excel_pivot_refresh_core.py; tests/test_excel_pivot_refresh_native.py; tests/fixtures/pivot_refresh,Reads and sets the refresh flag. Disabled populated caches reject Refresh and RefreshTable with native1004 before changing cached reports; re-enabling permits supported shared-cache refresh. A pending cache still raises standard1004 even when disabled. Setter argument coercion beyond measured Boolean controls remains unaudited.
 PivotCache,Index,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotCache,IsConnected,"property, read-only",As Boolean,,MISSING,,
@@ -1229,14 +1237,14 @@ PivotCaches,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotCaches,Application,"property, read-only",As Application,,MISSING,,
 PivotCaches,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotCaches,Create,method,"Create(SourceType As XlPivotTableSourceType, [SourceData As Variant], [Version As Variant]) As PivotCache",,PARTIAL,tests/test_excel_pivot_creation.py; tests/fixtures/pivots/creation.json; scripts/measure_pivot_creation.py; tests/test_excel_pivot_record_types.py; tests/fixtures/pivots/record_types.json; scripts/measure_pivot_record_types.py,"Worksheet sources and empty reports, including pending/shared caches and persisted cache records. External/consolidated sources, aggregation, layout edits and full validation coverage remain incomplete. Native typed records cover date/time serials, Currency and modern-error rich snapshots; repeated-save source edits preserve cached records. General linked rich-data creation remains unsupported."
-PivotCaches,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotCaches,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotCaches,Item,method,Item(Index As Variant) As PivotCache,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotCaches,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotCell,AllocateChange,method,AllocateChange(),,MISSING,,
 PivotCell,Application,"property, read-only",As Application,,MISSING,,
 PivotCell,CellChanged,"property, read-only",As XlCellChangedState,,MISSING,,
 PivotCell,ColumnItems,"property, read-only",As PivotItemList,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The items a value's column stands at, outer first; error 1004 on a label cell."
-PivotCell,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotCell,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotCell,CustomSubtotalFunction,"property, read-only",As XlConsolidationFunction,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"A custom subtotal's XlConsolidationFunction on its labels, and on its values where the Values field is on that axis."
 PivotCell,DataField,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"The data field a value, a data caption or a grand total shows; error 1004 elsewhere."
 PivotCell,DataSourceValue,"property, read-only",As Variant,,MISSING,,
@@ -1278,7 +1286,7 @@ PivotField,ClearAllFilters,method,ClearAllFilters(),,PARTIAL,tests/test_excel_pi
 PivotField,ClearLabelFilters,method,ClearLabelFilters(),,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,"Takes the field's label filter away, its value filter kept."
 PivotField,ClearManualFilter,method,ClearManualFilter(),,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,"Shows the items the field hides by hand and drops a page field's choice, its label and value filters kept."
 PivotField,ClearValueFilters,method,ClearValueFilters(),,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,"Takes the field's value or top 10 filter away, its label filter kept."
-PivotField,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotField,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotField,CubeField,"property, read-only",As CubeField,,MISSING,,
 PivotField,CurrentPage,property,As Variant,,PARTIAL,tests/test_excel_pivot_filters.py; tests/fixtures/pivot_filters/pivot_filters.json; scripts/measure_pivot_filters.py; tests/test_live_excel_model_gate.py,"Reads back the chosen item as a PivotItem, or one named (All); sets an item by its name or (All), turning off the choice of several and keeping hidden items. Error 1004 off a page field, for a name no item has, for a number and for a hidden item. Not measured: items that are numbers or dates."
 PivotField,CurrentPageList,property,As Variant,,MISSING,,
@@ -1345,12 +1353,12 @@ PivotField,VisibleItemsList,property,As Variant,,MISSING,,
 PivotFields,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotFields,Application,"property, read-only",As Application,,MISSING,,
 PivotFields,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
-PivotFields,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotFields,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotFields,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotFields,Parent,"property, read-only",As PivotTable,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotFilter,Active,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,True.
 PivotFilter,Application,"property, read-only",As Application,,MISSING,,
-PivotFilter,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotFilter,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotFilter,DataCubeField,"property, read-only",As CubeField,,MISSING,,
 PivotFilter,DataField,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,The data field a value or top 10 filter totals; error 1004 on a label filter.
 PivotFilter,Delete,method,Delete(),,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,Takes the filter away and lays the table out again.
@@ -1371,14 +1379,14 @@ PivotFilters,Add,not in the type library,,,PARTIAL,tests/test_excel_pivotfilters
 PivotFilters,Add2,method,"Add2(Type As XlPivotFilterType, [DataField As Variant], [Value1 As Variant], [Value2 As Variant], [Order As Variant], [Name As Variant], [Description As Variant], [MemberPropertyField As Variant], [WholeDayFilter As Variant]) As PivotFilter",,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py; tests/test_excel_pivot_date_filters.py; tests/fixtures/pivot_date_filters/pivot_date_filters.json; scripts/measure_pivot_date_filters.py,"Add, by the name the type library gives it. A label filter on an item's caption, any case and * and ? wild, a value filter on a data field's totals inside each outer item, or a top 10 filter by count, ties kept, percent or sum, the running total reaching the target; one label and one value filter a field, a second of either error 1004, beside its hidden items. Error 1004 on a page field or the Values field, error 5 for an unknown type, a value filter with no data field or text for a value, and a between with one value; a top count below 1 is E_INVALIDARG. Date filters, Order, Name, Description, MemberPropertyField and WholeDayFilter report themselves unsupported. Date filters on a date field: a specific date, before, after or between dates, compared as the moment each is unless Add2's WholeDayFilter has them compare days, a period counted from today with the days it kept as it was added, or a quarter or month of any year; a date filter takes the label filter's place, error 1004 on a field that is not of dates, where a label filter is 1004 too. Value1 may be a Date, a serial or text CDate reads."
 PivotFilters,Application,"property, read-only",As Application,,MISSING,,
 PivotFilters,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,The field's filters.
-PivotFilters,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotFilters,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotFilters,Item,"property, read-only",As PivotFilter,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,A filter by its place from 1; error 1004 past the end.
 PivotFilters,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,The field.
 PivotItem,_Default,property,As String,,MISSING,,
 PivotItem,Application,"property, read-only",As Application,,MISSING,,
 PivotItem,Caption,property,As String,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json; tests/test_excel_pivot_names.py; tests/fixtures/pivot_names/pivot_names.json; scripts/measure_pivot_names.py; tests/test_live_excel_model_gate.py,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations. Setting it gives the item a caption, its n, which it shows, sorts and is found by from then on, its SourceName still the value: error 1004 where another item of the field has it in any case; an empty one is a caption too."
 PivotItem,ChildItems,"property, read-only",As Variant,,PARTIAL,tests/test_excel_pivot_grouping.py; tests/fixtures/pivot_grouping/pivot_grouping.json; scripts/measure_pivot_grouping.py; tests/test_live_excel_model_gate.py,"The items a group gathers, in their field's order; none for an item standing alone or of any other field."
-PivotItem,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotItem,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotItem,DataRange,"property, read-only",As Range,,PARTIAL,tests/test_excel_pivot_grouping.py; tests/fixtures/pivot_grouping/pivot_grouping.json; scripts/measure_pivot_grouping.py; tests/test_live_excel_model_gate.py,"The value cells of every line the item stands at, across the other axis but its grand total; a page field's item has every value cell but the grand totals'. A hidden item, or one no line shows, is error 1004."
 PivotItem,Delete,method,Delete(),,PARTIAL,tests/test_excel_pivot_calculated_items.py; tests/fixtures/pivot_calculated_items/pivot_calculated_items.json; scripts/measure_pivot_calculated_items.py; tests/test_live_excel_model_gate.py,"Takes a calculated item away, #NAME? where another's formula names it; error 1004 for any other item."
 PivotItem,DrilledDown,property,As Boolean,,MISSING,,
@@ -1402,14 +1410,14 @@ PivotItemList,_Default,"property, read-only",As PivotItem,,MISSING,,
 PivotItemList,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotItemList,Application,"property, read-only",As Application,,MISSING,,
 PivotItemList,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,How many items a pivot cell's row or column stands at.
-PivotItemList,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotItemList,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotItemList,Item,method,Item(Index As Variant) As PivotItem,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"An item by its place from 1, or by name."
 PivotItemList,Parent,"property, read-only",As Object,,UNASSESSED,,
 PivotItems,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotItems,Add,method,Add(Name As String),,MISSING,,
 PivotItems,Application,"property, read-only",As Application,,MISSING,,
 PivotItems,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
-PivotItems,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotItems,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotItems,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotItems,Parent,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotTable,_Default,property,As String,,MISSING,,
@@ -1444,7 +1452,7 @@ PivotTable,CompactLayoutRowHeader,property,As String,,PARTIAL,tests/test_excel_p
 PivotTable,CompactRowIndent,property,As Long,,PARTIAL,tests/test_excel_pivot_layouts.py; tests/fixtures/pivot_layouts/pivot_layouts.json; scripts/measure_pivot_layouts.py; tests/test_live_excel_model_gate.py,"0 to 127, else error 5; each label cell is indented by it once for each depth where a row field is compact; the file keeps it less one, 0 as 127."
 PivotTable,ConvertToFormulas,method,ConvertToFormulas(ConvertFilters As Boolean),,MISSING,,
 PivotTable,CreateCubeFile,method,"CreateCubeFile(File As String, [Measures As Variant], [Levels As Variant], [Members As Variant], [Properties As Variant]) As String",,MISSING,,
-PivotTable,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotTable,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotTable,CubeFields,"property, read-only",As CubeFields,,MISSING,,
 PivotTable,DataBodyRange,"property, read-only",As Range,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json; tests/test_excel_pivot_axes.py; tests/fixtures/pivots/axis_layouts.json; tests/fixtures/pivots/axis_mixed.json; tests/fixtures/pivots/orientation_arguments.json; tests/fixtures/pivots/orientation_extra.json; scripts/measure_pivot_axes.py; tests/test_excel_pivot_layouts.py; tests/fixtures/pivot_layouts/pivot_layouts.json; scripts/measure_pivot_layouts.py; tests/test_live_excel_model_gate.py,"Imported OOXML reports and cached values only. See docs/host_completeness.md for remaining refresh, arbitrary layout edits, formatting, structural edits and other limitations. Native compact row/column/page layouts, nested subtotals, Values-axis moves, individual measure removal and argument coercions are covered by 55 controls; 45 successful saved reports open and recompute in Excel. Axis edits use the immutable cache snapshot. Refresh, arbitrary imported layouts, filtering/grouping, formatting and full event/error interaction coverage remain incomplete."
 PivotTable,DataFields,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
@@ -1552,7 +1560,7 @@ PivotTables,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 PivotTables,Add,method,"Add(PivotCache As PivotCache, TableDestination As Variant, [TableName As Variant], [ReadData As Variant], [DefaultVersion As Variant]) As PivotTable",,MISSING,,
 PivotTables,Application,"property, read-only",As Application,,MISSING,,
 PivotTables,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
-PivotTables,Creator,"property, read-only",As XlCreator,,MISSING,,
+PivotTables,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotTables,Item,method,Item(Index As Variant) As PivotTable,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotTables,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 Protection,AllowDeletingColumns,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
@@ -1567,12 +1575,13 @@ Protection,AllowInsertingHyperlinks,"property, read-only",As Boolean,,PARTIAL,te
 Protection,AllowInsertingRows,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
 Protection,AllowSorting,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
 Protection,AllowUsingPivotTables,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
+Protection,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Queries,_Default,"property, read-only",As WorkbookQuery,,MISSING,,
 Queries,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Queries,Add,method,"Add(Name As String, Formula As String, [Description As Variant]) As WorkbookQuery",,UNASSESSED,,
 Queries,Application,"property, read-only",As Application,,MISSING,,
 Queries,Count,"property, read-only",As Long,,UNASSESSED,,
-Queries,Creator,"property, read-only",As XlCreator,,MISSING,,
+Queries,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Queries,FastCombine,property,As Boolean,,MISSING,,
 Queries,Item,method,Item(NameOrIndex As Variant) As WorkbookQuery,no NameOrIndex,UNASSESSED,,
 Queries,Parent,"property, read-only",As Object,,MISSING,,
@@ -1625,7 +1634,7 @@ Range,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Form
 Range,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/range_lines.json,"The rows of whole rows (Rows.Count is 1048576) or of a range Rows made, the columns of whole columns or of a range Columns made, the first area's alone, else the cells; past a Long, error 6, as Cells.Count is."
 Range,CountLarge,"property, read-only",As Variant,,PARTIAL,tests/fixtures/excel_model/probes.txt,"Count as a LongLong: the rows of whole rows, the columns of whole columns, else the cells, Cells.CountLarge 17179869184."
 Range,CreateNames,method,"CreateNames([Top As Variant], [Left As Variant], [Bottom As Variant], [Right As Variant]) As Variant",,PARTIAL,tests/fixtures/create_names.json; tests/test_excel_create_names.py,"Workbook names from the labels on the edges Top, Left, Bottom and Right name, each side left out or Null guessed from the cell beside its corner, a corner naming all the data; labels are text or dates as they show, cut to 255, cleaned and given a _ after or before where still no name; a name already there or made twice takes the later spelling; True, or error 1004 for one cell, several areas or text for a side, over 16 side combinations, 20 guesses and 57 labels live."
-Range,Creator,"property, read-only",As XlCreator,,MISSING,,
+Range,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Range,CurrentArray,"property, read-only",As Range,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/cse_array_edits.json; tests/fixtures/data_tables.json,"The array formula block of the range's first cell, or a data table's whole block, error 1004 when it is part of none."
 Range,CurrentRegion,"property, read-only",As Range,,VERIFIED,tests/fixtures/current_region.json,"From the first area's top-left cell, grown while the ring around it holds a value or formula, corners included; merged areas count by their first cell and are taken in whole."
 Range,Cut,method,Cut([Destination As Variant]) As Variant,,PARTIAL,tests/fixtures/paste.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/autofilter_edits.json; tests/fixtures/cut_references.json; tests/fixtures/cse_array_edits.json,"Moves cells and every reference wholly inside them, names included, and a formula moved to another sheet keeps pointing where it did; a reference losing a whole edge to the block keeps the rest across sheets and takes the edge along on its own sheet. Merged cells, another workbook, and whole rows or columns with sizes or formats of their own report themselves unsupported. A cut of a filter's whole range moves the filter along its sheet with its criteria cleared, or takes it away to another."
@@ -1678,7 +1687,7 @@ Range,Hyperlinks,"property, read-only",As Hyperlinks,,VERIFIED,tests/fixtures/hy
 Range,ID,property,As String,,MISSING,,
 Range,IndentLevel,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,Insert,method,"Insert([Shift As Variant], [CopyOrigin As Variant]) As Variant",,PARTIAL,tests/fixtures/range_edit.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cell_shifts.json; tests/fixtures/cse_array_edits.json; tests/fixtures/excel_everyday_2.json,"Whole rows and columns rewrite references, and a new row or column takes the formats beside it. Cells shifted down or right rewrite references as Excel does and take the formats above or to the left; with no Shift a range taller than it is wide shifts right. Sheets with merges or shapes and several areas of cells report unsupported. Shifting cells on a sheet whose rows or columns carry formats reports unsupported. CopyOrigin:=xlFormatFromRightOrBelow takes the new lines' formats, row height or column width from the line after them, the top row included. On a filtered sheet whole rows go in as many as the range shows, at its top, and inserting cells is error 1004."
-Range,InsertIndent,method,InsertIndent(InsertAmount As Long),,MISSING,,
+Range,InsertIndent,method,InsertIndent(InsertAmount As Long),,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"Each cell's IndentLevel raised by a Long, a centred cell made left, a right one kept; 0, or a level outside 0 to 250, is error 1004 and changes nothing, over 16 live cases."
 Range,InsertPictureInCell,method,InsertPictureInCell(PictureURI As String),,MISSING,,
 Range,Interior,"property, read-only",As Interior,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/row_formats/row_formats.json,"Whole rows, whole columns and the whole sheet are formatted through their own formats, as Excel keeps them."
 Range,Item,property,As Variant,no setter,PARTIAL,tests/fixtures/range_lines.json,"One index walks a range's cells left to right, then down; on a range Rows or Columns made it is a row or a column, a second index error 1004."
@@ -1788,7 +1797,7 @@ Series,BubbleSizes,property,As Variant,,MISSING,,
 Series,ChartType,property,As XlChartType,,MISSING,,
 Series,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 Series,Copy,method,Copy() As Variant,,MISSING,,
-Series,Creator,"property, read-only",As XlCreator,,MISSING,,
+Series,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Series,DataLabels,method,DataLabels([Index As Variant]) As Object,,MISSING,,
 Series,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,ErrorBar,method,"ErrorBar(Direction As XlErrorBarDirection, Include As XlErrorBarInclude, Type As XlErrorBarType, [Amount As Variant], [MinusValues As Variant]) As Variant",,MISSING,,
@@ -1846,7 +1855,7 @@ SeriesCollection,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 SeriesCollection,Add,method,"Add(Source As Variant, [Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant]) As Series",,MISSING,,
 SeriesCollection,Application,"property, read-only",As Application,,MISSING,,
 SeriesCollection,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-SeriesCollection,Creator,"property, read-only",As XlCreator,,MISSING,,
+SeriesCollection,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 SeriesCollection,Extend,method,"Extend(Source As Variant, [Rowcol As Variant], [CategoryLabels As Variant]) As Variant",,MISSING,,
 SeriesCollection,Item,method,Item(Index As Variant) As Series,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 SeriesCollection,NewSeries,method,NewSeries() As Series,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete
@@ -1869,7 +1878,7 @@ Shape,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
 Shape,ControlFormat,"property, read-only",As ControlFormat,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
 Shape,Copy,method,Copy(),,UNASSESSED,,
 Shape,CopyPicture,method,"CopyPicture([Appearance As Variant], [Format As Variant])",,MISSING,,
-Shape,Creator,"property, read-only",As XlCreator,,MISSING,,
+Shape,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Shape,Cut,method,Cut(),,MISSING,,
 Shape,Decorative,property,As MsoTriState,,MISSING,,
 Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -1949,7 +1958,7 @@ ShapeRange,ConnectionSiteCount,"property, read-only",As Long,,MISSING,,
 ShapeRange,Connector,"property, read-only",As MsoTriState,,MISSING,,
 ShapeRange,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
 ShapeRange,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-ShapeRange,Creator,"property, read-only",As XlCreator,,MISSING,,
+ShapeRange,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ShapeRange,Decorative,property,As MsoTriState,,MISSING,,
 ShapeRange,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt,
 ShapeRange,Distribute,method,"Distribute(DistributeCmd As MsoDistributeCmd, RelativeTo As MsoTriState)",,MISSING,,
@@ -2024,7 +2033,7 @@ Shapes,AddTextEffect,method,"AddTextEffect(PresetTextEffect As MsoPresetTextEffe
 Shapes,Application,"property, read-only",As Application,,MISSING,,
 Shapes,BuildFreeform,method,"BuildFreeform(EditingType As MsoEditingType, X1 As Single, Y1 As Single) As FreeformBuilder",,MISSING,,
 Shapes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shapes,Creator,"property, read-only",As XlCreator,,MISSING,,
+Shapes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Shapes,Item,method,Item(Index As Variant) As Shape,,UNASSESSED,,
 Shapes,Parent,"property, read-only",As Object,,MISSING,,
 Shapes,Range,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2036,7 +2045,7 @@ Sheets,Add2,method,"Add2([Before As Variant], [After As Variant], [Count As Vari
 Sheets,Application,"property, read-only",As Application,,UNASSESSED,,
 Sheets,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"On Sheets(Array(...)), with no place a new workbook of the group's sheets in tab order, their references to one another kept; with Before or After the copies there in tab order, named as one sheet's copy is, their references to one another the copies'; the first copy active. A copy reading a sheet left behind, from another workbook, reports itself unsupported, as Worksheet.Copy's does. The whole collection copies as a group of every sheet: Worksheets.Copy makes a new workbook of them all."
 Sheets,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sheet_groups.json,"Of a group, its sheets as the array names them, one named twice twice."
-Sheets,Creator,"property, read-only",As XlCreator,,MISSING,,
+Sheets,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Sheets,Delete,method,Delete(),,PARTIAL,tests/fixtures/sheet_groups.json,"On a group, every sheet of it, error 1004 where no sheet would be left; the formulas and names that read them read #REF! in their place, and where the active sheet goes the next visible sheet after it is active, or the last visible one before it. A conditional format, validation, link, control or chart that reads a sheet deleted, and deleting every visible sheet, report themselves unsupported. The whole collection deletes as a group of every sheet, so error 1004."
 Sheets,FillAcrossSheets,method,"FillAcrossSheets(Range As Range, [Type As XlFillWith])",,MISSING,,
 Sheets,HPageBreaks,"property, read-only",As HPageBreaks,,MISSING,,
@@ -2060,7 +2069,7 @@ Sort,SetRange,method,SetRange(Rng As Range),,VERIFIED,tests/fixtures/sort.json; 
 Sort,SortFields,"property, read-only",As SortFields,,VERIFIED,tests/fixtures/sort.json,
 Sort,SortMethod,property,As XlSortMethod,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,"Table options 1/2 are retained; admitted Apply uses method 1, stroke Apply is explicitly unsupported."
 SortField,Application,"property, read-only",As Application,,MISSING,,
-SortField,Creator,"property, read-only",As XlCreator,,MISSING,,
+SortField,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 SortField,CustomOrder,property,As Variant,,MISSING,,
 SortField,DataOption,property,As XlSortDataOption,,UNASSESSED,,
 SortField,Delete,method,Delete(),,MISSING,,
@@ -2080,7 +2089,7 @@ SortFields,Add2,method,"Add2(Key As Range, [SortOn As Variant], [Order As Varian
 SortFields,Application,"property, read-only",As Application,,MISSING,,
 SortFields,Clear,method,Clear(),,VERIFIED,tests/fixtures/sort.json,
 SortFields,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/sort.json,Fields stay after Apply.
-SortFields,Creator,"property, read-only",As XlCreator,,MISSING,,
+SortFields,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 SortFields,Item,"property, read-only",As SortField,,UNASSESSED,,
 SortFields,Parent,"property, read-only",As Object,,MISSING,,
 Style,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
@@ -2126,7 +2135,7 @@ Styles,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/cell_style
 Tab,Application,"property, read-only",As Application,,MISSING,,
 Tab,Color,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; any other value its low 24 bits, so xlNone is a pale blue; False takes the colour away."
 Tab,ColorIndex,property,As XlColorIndex,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"A palette slot, xlColorIndexNone taking the colour away, error 9 beyond 1 to 56. A colour off the palette reads the slot a tab finds, not a cell's: a near-grey's nearest grey, else the nearest in Windows' HLS (1,397 colours measured)."
-Tab,Creator,"property, read-only",As XlCreator,,MISSING,,
+Tab,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Tab,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,The worksheet.
 Tab,ThemeColor,property,As XlThemeColor,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"xlThemeColorDark1 to xlThemeColorFollowedHyperlink, error 9 beyond; 0 for any other colour."
 Tab,TintAndShade,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; a tint cut toward zero to n / 32767 and kept in 16 bits, so 1.5 reads -0.5000763; a tab with no colour takes none."
@@ -2134,7 +2143,7 @@ TextFrame,Application,"property, read-only",As Application,,MISSING,,
 TextFrame,AutoMargins,property,As Boolean,,MISSING,,
 TextFrame,AutoSize,property,As Boolean,no setter,UNASSESSED,,
 TextFrame,Characters,method,"Characters([Start As Variant], [Length As Variant]) As Characters",,PARTIAL,tests/fixtures/excel_model/probes.txt,
-TextFrame,Creator,"property, read-only",As XlCreator,,MISSING,,
+TextFrame,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 TextFrame,HorizontalAlignment,property,As XlHAlign,,MISSING,,
 TextFrame,HorizontalOverflow,property,As XlOartHorizontalOverflow,,MISSING,,
 TextFrame,MarginBottom,property,As Single,,MISSING,,
@@ -2149,7 +2158,7 @@ TextFrame,VerticalOverflow,property,As XlOartVerticalOverflow,,MISSING,,
 TextFrame2,Application,"property, read-only",As Object,,MISSING,,
 TextFrame2,AutoSize,property,As MsoAutoSize,,MISSING,,
 TextFrame2,Column,"property, read-only",As TextColumn2,,MISSING,,
-TextFrame2,Creator,"property, read-only",As Long,,MISSING,,
+TextFrame2,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 TextFrame2,DeleteText,method,DeleteText(),,MISSING,,
 TextFrame2,HasText,"property, read-only",As MsoTriState,,UNASSESSED,,
 TextFrame2,HorizontalAnchor,property,As MsoHorizontalAnchor,,MISSING,,
@@ -2172,7 +2181,7 @@ Top10,Application,"property, read-only",As Application,,MISSING,,
 Top10,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native conditional API projections preserve stored XML: measured escaped-space/hyphen number-format spelling and row-first generic applicability on plain loads (including measured FileFormat52 packages without VBA), raw statistical applicability, and serialized ordering on VBA-bearing macro-enabled imports. Native plain-load and VBA-bearing load controls cover family-specific area projection, full ordered population keys and loaded group identity; generic supplied union order is retained after ModifyAppliesToRange."
 Top10,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Foreign statistical border-color lookups select the matching group and compact captured child position while every rule retains its own stored style. Worksheet.Copy initializes independent dense groups and recaptures child order by priority. Three initial copy-context snapshots, broader retained-proxy behavior and post-deletion contexts remain partial; foreign reads of absent group members report unsupported because native defaults are inconsistent. Missing group identities retain error 440. A worksheet-local group member/rank index is invalidated on successful mutations; repeated foreign reads and failed mutation staging have count-based/atomicity controls."
 Top10,CalcFor,property,As XlCalcFor,,MISSING,,
-Top10,Creator,"property, read-only",As XlCreator,,MISSING,,
+Top10,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Top10,Delete,method,Delete(),,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native loaded-group controls cover individual deletion with target tombstone and one shared survivor group, versus bulk deletion retaining the prior group representative."
 Top10,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 Top10,Interior,"property, read-only",As Interior,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
@@ -2192,7 +2201,7 @@ Top10,Type,"property, read-only",As Long,,PARTIAL,tests/test_excel_conditional_s
 UniqueValues,Application,"property, read-only",As Application,,MISSING,,
 UniqueValues,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native conditional API projections preserve stored XML: measured escaped-space/hyphen number-format spelling and row-first generic applicability on plain loads (including measured FileFormat52 packages without VBA), raw statistical applicability, and serialized ordering on VBA-bearing macro-enabled imports. Native plain-load and VBA-bearing load controls cover family-specific area projection, full ordered population keys and loaded group identity; generic supplied union order is retained after ModifyAppliesToRange."
 UniqueValues,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Foreign statistical border-color lookups select the matching group and compact captured child position while every rule retains its own stored style. Worksheet.Copy initializes independent dense groups and recaptures child order by priority. Three initial copy-context snapshots, broader retained-proxy behavior and post-deletion contexts remain partial; foreign reads of absent group members report unsupported because native defaults are inconsistent. Missing group identities retain error 440. A worksheet-local group member/rank index is invalidated on successful mutations; repeated foreign reads and failed mutation staging have count-based/atomicity controls."
-UniqueValues,Creator,"property, read-only",As XlCreator,,MISSING,,
+UniqueValues,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 UniqueValues,Delete,method,Delete(),,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native loaded-group controls cover individual deletion with target tombstone and one shared survivor group, versus bulk deletion retaining the prior group representative."
 UniqueValues,DupeUnique,property,As XlDupeUnique,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_multiple.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native active-sheet identity controls cover getter rebinding and error 440 on a missing identity; its setter remains owner-bound. Native loaded group and plain-load controls preserve distinct owner state and active-sheet representative lookup; initial activation and retained-proxy context gaps remain partial. A successful native copied-sheet control covers valid shared-group child-position getters with owner-bound setters. Missing child positions report unsupported; missing groups retain error 440. Broader post-deletion and retained-proxy contexts remain partial."
 UniqueValues,Font,"property, read-only",As Font,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
@@ -2226,7 +2235,7 @@ VPageBreaks,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pag
 Validation,Add,method,"Add(Type As XlDVType, [AlertStyle As Variant], [Operator As Variant], [Formula1 As Variant], [Formula2 As Variant])",,PARTIAL,tests/fixtures/validation/validation.json,"Every type, alert style and operator, a list of items or cells, bounds as text, numbers or dates; over cells with a rule it is error 1004, and a rule like one the sheet has joins it. A list read from another sheet, which Excel keeps in the x14 extension, reports itself."
 Validation,AlertStyle,"property, read-only",As Long,,VERIFIED,tests/fixtures/validation/validation.json,
 Validation,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/validation/validation.json,
-Validation,Creator,"property, read-only",As XlCreator,,MISSING,,
+Validation,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Validation,Delete,method,Delete(),,VERIFIED,tests/fixtures/validation/validation.json,"Takes the cells out of their rules, a rule splitting round them."
 Validation,ErrorMessage,property,As String,,VERIFIED,tests/fixtures/validation/validation.json,
 Validation,ErrorTitle,property,As String,,VERIFIED,tests/fixtures/validation/validation.json,"Reads """" where the cells have no rule."
@@ -2256,7 +2265,7 @@ Window,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures
 Window,AutoFilterDateGrouping,property,As Boolean,,MISSING,,
 Window,Caption,property,As Variant,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant]) As Boolean",,MISSING,,
-Window,Creator,"property, read-only",As XlCreator,,MISSING,,
+Window,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Window,DisplayDataTypeIcons,property,As Boolean,,MISSING,,
 Window,DisplayFormulas,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,DisplayGridlines,property,As Boolean,,VERIFIED,tests/fixtures/windows/windows.json,
@@ -2320,7 +2329,7 @@ Windows,Arrange,method,"Arrange([ArrangeStyle As XlArrangeStyle], [ActiveWorkboo
 Windows,BreakSideBySide,method,BreakSideBySide() As Boolean,,MISSING,,
 Windows,CompareSideBySideWith,method,CompareSideBySideWith(WindowName As Variant) As Boolean,,MISSING,,
 Windows,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/windows/windows.json,
-Windows,Creator,"property, read-only",As XlCreator,,MISSING,,
+Windows,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Windows,Item,"property, read-only",As Window,,VERIFIED,tests/fixtures/windows/windows.json,"By number front to back, or by caption."
 Windows,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
 Windows,ResetPositionsSideBySide,method,ResetPositionsSideBySide(),,MISSING,,
@@ -2361,7 +2370,7 @@ Workbook,ChangeHistoryDuration,property,As Long,,MISSING,,
 Workbook,ChangeLink,method,"ChangeLink(Name As String, NewName As String, [Type As XlLinkType])",,MISSING,,
 Workbook,ChartDataPointTrack,property,As Boolean,,MISSING,,
 Workbook,Charts,"property, read-only",As Sheets,,MISSING,,
-Workbook,CheckCompatibility,property,As Boolean,,MISSING,,
+Workbook,CheckCompatibility,property,As Boolean,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"False for a new workbook; takes a Boolean, leaving the workbook unsaved; saved as the workbookPr's checkCompatibility and read back. It checks nothing."
 Workbook,CheckIn,method,"CheckIn([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant])",,MISSING,,
 Workbook,CheckInWithVersion,method,"CheckInWithVersion([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant], [VersionType As Variant])",,MISSING,,
 Workbook,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant])",,PARTIAL,tests/fixtures/workbook_lifecycle.json,Cancellation and explicit saving order measured; omitted SaveChanges on a changed workbook requires an unimplemented prompt; RouteWorkbook unassessed
@@ -2377,7 +2386,7 @@ Workbook,ContentTypeProperties,"property, read-only",As MetaProperties,,MISSING,
 Workbook,ConvertComments,method,ConvertComments(),,MISSING,,
 Workbook,CreateBackup,"property, read-only",As Boolean,,MISSING,,
 Workbook,CreateForecastSheet,method,"CreateForecastSheet(Timeline As Range, Values As Range, [ForecastStart As Variant], [ForecastEnd As Variant], [ConfInt As Variant], [Seasonality As Variant], [DataCompletion As Variant], [Aggregation As Variant], [ChartType As Variant], [ShowStatsTable As Variant])",,MISSING,,
-Workbook,Creator,"property, read-only",As XlCreator,,MISSING,,
+Workbook,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Workbook,CustomDocumentProperties,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"The custom properties, saved to docProps custom.xml with its relationship and content type; a part holding a type Excel does not write reports itself unsupported and is kept as it is."
 Workbook,CustomViews,"property, read-only",As CustomViews,,MISSING,,
 Workbook,CustomXMLParts,"property, read-only",As CustomXMLParts,,MISSING,,
@@ -2414,7 +2423,7 @@ Workbook,FullNameURLEncoded,"property, read-only",As String,,MISSING,,
 Workbook,GetWorkflowTasks,method,GetWorkflowTasks() As WorkflowTasks,,MISSING,,
 Workbook,GetWorkflowTemplates,method,GetWorkflowTemplates() As WorkflowTemplates,,MISSING,,
 Workbook,HasPassword,"property, read-only",As Boolean,,MISSING,,
-Workbook,HasVBProject,"property, read-only",As Boolean,,MISSING,,
+Workbook,HasVBProject,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,Whether the workbook's project holds code: a new workbook's does not.
 Workbook,HighlightChangesOnScreen,property,As Boolean,,MISSING,,
 Workbook,HighlightChangesOptions,method,"HighlightChangesOptions([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
 Workbook,IconSets,"property, read-only",As IconSets,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -2554,7 +2563,7 @@ Workbook,XmlMaps,"property, read-only",As XmlMaps,,MISSING,,
 Workbook,XmlNamespaces,"property, read-only",As XmlNamespaces,,MISSING,,
 WorkbookQuery,_Default,property,As String,,MISSING,,
 WorkbookQuery,Application,"property, read-only",As Application,,MISSING,,
-WorkbookQuery,Creator,"property, read-only",As XlCreator,,MISSING,,
+WorkbookQuery,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 WorkbookQuery,Delete,method,Delete([DeleteConnection As Variant]),no DeleteConnection,UNASSESSED,,
 WorkbookQuery,Description,property,As String,no setter,UNASSESSED,,
 WorkbookQuery,Formula,property,As String,,UNASSESSED,,
@@ -2569,7 +2578,7 @@ Workbooks,CanCheckOut,method,CanCheckOut(Filename As String) As Boolean,,MISSING
 Workbooks,CheckOut,method,CheckOut(Filename As String),,MISSING,,
 Workbooks,Close,method,Close(),,MISSING,,
 Workbooks,Count,"property, read-only",As Long,,UNASSESSED,,
-Workbooks,Creator,"property, read-only",As XlCreator,,MISSING,,
+Workbooks,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Workbooks,Item,"property, read-only",As Workbook,,UNASSESSED,,
 Workbooks,Open,method,"Open(Filename As String, [UpdateLinks As Variant], [ReadOnly As Variant], [Format As Variant], [Password As Variant], [WriteResPassword As Variant], [IgnoreReadOnlyRecommended As Variant], [Origin As Variant], [Delimiter As Variant], [Editable As Variant], [Notify As Variant], [Converter As Variant], [AddToMru As Variant], [Local As Variant], [CorruptLoad As Variant]) As Workbook",,PARTIAL,tests/fixtures/workbook_open.json; tests/test_excel_projects.py; tests/test_excel_workbook.py; tests/fixtures/text_files.json,"Independent source import and 4 native open/activation traces; native gates execute persisted handlers. CSV and text files open as Excel reads them over 76 live files and 12 opens in sequence: splitting, quotes, sep= lines, typing, encodings, names, the delimiter Format leaves for later text files, ReadOnly, and the errors for a missing or invalid file. UpdateLinks, Password and the rest are taken and change nothing for the files the model opens. Origin other than xlWindows, CorruptLoad other than xlNormalLoad, a Converter, Excel 97-2003 workbooks, text files holding a NUL and a workbook holding a chart sheet, a dialog sheet or an Excel 4 macro sheet report themselves unsupported."
 Workbooks,OpenDatabase,method,"OpenDatabase(Filename As String, [CommandText As Variant], [CommandType As Variant], [BackgroundQuery As Variant], [ImportDataAs As Variant]) As Workbook",,MISSING,,
@@ -2602,7 +2611,7 @@ Worksheet,ConsolidationFunction,"property, read-only",As XlConsolidationFunction
 Worksheet,ConsolidationOptions,"property, read-only",As Variant,,MISSING,,
 Worksheet,ConsolidationSources,"property, read-only",As Variant,,MISSING,,
 Worksheet,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Transfers document source with fresh fields, including unloaded source, and persists executable code. Native persistence gate. Drawings, controls, tables, validation, unsupported conditional rule families, comments and name clashes remain unsupported. Eight fresh and four loaded native probes cover independent dense copied conditional-group identities, fresh counters and copied priority-based child order while source identities/tombstones/styles remain unchanged. Measured explicitly activated color contexts pass. Two additional narrow controls cover reversed-geometry creation order and a coalesced same-population copied group with its next fresh identity through a safe receiver. Three initial snapshots, fresh same-population original-source foreign lookups and broader retained-proxy behavior remain partial. Configured PageSetup and owned print names are refused before destination creation; default-equivalent loaded page settings remain transferable."
-Worksheet,Creator,"property, read-only",As XlCreator,,MISSING,,
+Worksheet,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Worksheet,CustomProperties,"property, read-only",As CustomProperties,,MISSING,,
 Worksheet,Deactivate,event,Deactivate(),,MISSING,,
 Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Removes worksheet runtime document and saved VBA module; native persistence gate. The formulas and names that read the sheet read #REF! in its place; the active sheet stays, or where it is the one deleted the next visible sheet after it is active, or the last visible one before it. Deleting every visible sheet, event/object lifetime and dialog conformance remain incomplete."
@@ -2764,7 +2773,7 @@ WorksheetFunction,CoupPcd,method,"CoupPcd(Arg1 As Variant, Arg2 As Variant, Arg3
 WorksheetFunction,Covar,method,"Covar(Arg1 As Variant, Arg2 As Variant) As Double",,UNASSESSED,,
 WorksheetFunction,Covariance_P,method,"Covariance_P(Arg1 As Variant, Arg2 As Variant) As Double",,UNASSESSED,,
 WorksheetFunction,Covariance_S,method,"Covariance_S(Arg1 As Variant, Arg2 As Variant) As Double",,UNASSESSED,,
-WorksheetFunction,Creator,"property, read-only",As XlCreator,,MISSING,,
+WorksheetFunction,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 WorksheetFunction,CritBinom,method,"CritBinom(Arg1 As Double, Arg2 As Double, Arg3 As Double) As Double",,UNASSESSED,,
 WorksheetFunction,Csc,method,Csc(Arg1 As Double) As Double,,UNASSESSED,,
 WorksheetFunction,Csch,method,Csch(Arg1 As Double) As Double,,UNASSESSED,,
@@ -3087,3 +3096,4 @@ WorksheetFunction,YieldDisc,method,"YieldDisc(Arg1 As Variant, Arg2 As Variant, 
 WorksheetFunction,YieldMat,method,"YieldMat(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, [Arg6 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,Z_Test,method,"Z_Test(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,ZTest,method,"ZTest(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,UNASSESSED,,
+_Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."

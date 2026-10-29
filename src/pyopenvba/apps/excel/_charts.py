@@ -12,7 +12,8 @@ from pyopenvba.apps.excel._chart_axes import AxisState
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
-from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
+from pyopenvba.apps.excel._creator import Created
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 from pyopenvba.shapes._values import Shape, emu, points
 
@@ -60,7 +61,7 @@ def state(sheet: Worksheet, shape: Shape) -> ChartState:
     return sheet.chart_states[shape.shape_id]
 
 
-class ChartObjects(VBACollection):
+class ChartObjects(VBACollection, Created):
     vba_type_name = 'ChartObjects'
 
     def __init__(self, sheet: Worksheet) -> None:
@@ -108,7 +109,7 @@ class ChartObjects(VBACollection):
         return EMPTY
 
 
-class ChartObject(VBAObject):
+class ChartObject(Created):
     vba_type_name = 'ChartObject'
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
@@ -186,7 +187,7 @@ class ChartObject(VBAObject):
         return ShapeObject(self.sheet, self.shape).Delete()
 
 
-class Chart(VBAObject):
+class Chart(Created):
     vba_type_name = 'Chart'
 
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
@@ -366,7 +367,7 @@ class Chart(VBAObject):
         return EMPTY
 
 
-class ChartTitle(VBAObject):
+class ChartTitle(Created):
     vba_type_name = 'ChartTitle'
 
     def __init__(self, chart: Chart) -> None:
@@ -384,7 +385,7 @@ class ChartTitle(VBAObject):
         self.chart.state.title = wanted
 
 
-class SeriesCollection(VBACollection):
+class SeriesCollection(VBACollection, Created):
     vba_type_name = 'SeriesCollection'
 
     def __init__(self, chart: Chart) -> None:
@@ -408,7 +409,7 @@ class SeriesCollection(VBACollection):
         return Series(self.chart, entry)
 
 
-class Series(VBAObject):
+class Series(Created):
     vba_type_name = 'Series'
 
     def __init__(self, chart: Chart, entry: SeriesState) -> None:

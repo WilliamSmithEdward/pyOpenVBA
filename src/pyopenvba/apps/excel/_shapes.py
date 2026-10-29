@@ -18,7 +18,8 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
+from pyopenvba.apps.excel._creator import Created
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
@@ -66,7 +67,7 @@ FORM_CONTROLS: dict[int, str] = {
 ERR_NO_SUCH_SHAPE = -2147024809
 
 
-class _Drawn(VBAObject):
+class _Drawn(Created):
     """A shape or a part of one, which a sheet protecting its drawing objects keeps a macro from changing."""
 
     sheet: Worksheet
@@ -79,7 +80,7 @@ class _Drawn(VBAObject):
         super().vba_set(name, value, args, named, by_ref=by_ref)
 
 
-class Shapes(VBACollection):
+class Shapes(VBACollection, Created):
     """The shapes on one worksheet."""
 
     vba_type_name = "Shapes"
@@ -285,7 +286,7 @@ class Shapes(VBACollection):
         return max((one.shape_id for one in self.sheet.shapes_), default=1) + 1
 
 
-class ShapeRange(VBACollection):
+class ShapeRange(VBACollection, Created):
     """Several shapes answered as one, which is what Range gives back."""
 
     vba_type_name = "ShapeRange"
@@ -497,7 +498,7 @@ class ShapeObject(_Drawn):
         return Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
 
 
-class GroupItems(VBACollection):
+class GroupItems(VBACollection, Created):
     """The shapes inside a group."""
 
     vba_type_name = "GroupShapes"
@@ -510,7 +511,7 @@ class GroupItems(VBACollection):
         return [ShapeObject(self.sheet, one) for one in self.group.children]
 
 
-class TextFrame(VBAObject):
+class TextFrame(Created):
     """A shape's text, reached the way a macro reaches it."""
 
     vba_type_name = "TextFrame"
@@ -527,7 +528,7 @@ class TextFrame(VBAObject):
         return VBAInt(0, "Long")
 
 
-class TextFrame2(VBAObject):
+class TextFrame2(Created):
     """The newer way to the same text."""
 
     vba_type_name = "TextFrame2"

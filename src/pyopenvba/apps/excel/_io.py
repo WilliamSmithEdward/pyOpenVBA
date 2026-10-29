@@ -138,8 +138,12 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     from pyopenvba.apps.excel._date_system import read as read_date_system
     from pyopenvba.apps.excel._external_links import read as read_links
 
+    from pyopenvba.apps.excel._workbook_options import read as read_options
+
     read_date_system(book, workbook_part)
-    read_links(book, package, xml_tree(workbook_part))
+    parsed = xml_tree(workbook_part)
+    read_options(book, parsed.find("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}workbookPr"))
+    read_links(book, package, parsed)
     linked = _relationships(package)
     relationships = {key: part for key, (part, _kind) in linked.items()}
     strings = _shared_strings(package)
@@ -1458,6 +1462,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._workbook_links import write as write_workbook_links
 
     write_workbook_links(book, package)
+    from pyopenvba.apps.excel._workbook_options import write as write_options
+
+    write_options(book, package)
     from pyopenvba.apps.excel._dxf_table import number_dxfs
 
     number_dxfs(book, package)

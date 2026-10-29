@@ -289,6 +289,42 @@ class Application(ExcelObject):
         self.text_import = ImportSettings()
         #: Application.SheetsInNewWorkbook, Excel's own default until a macro sets it.
         self.sheets_in_new_workbook = 1
+        #: The custom lists a macro added, after Excel's own four (see _custom_lists).
+        self.custom_lists: list[tuple[str, ...]] = []
+
+    # -- custom lists
+
+    @member
+    def CustomListCount(self) -> object:
+        from pyopenvba.apps.excel._custom_lists import lists
+
+        return VBAInt(len(lists(self)), "Long")
+
+    @member
+    def GetCustomListContents(self, ListNum: object = MISSING) -> object:
+        from pyopenvba.apps.excel._custom_lists import contents
+
+        return contents(self, ListNum)
+
+    @member
+    def GetCustomListNum(self, ListArray: object = MISSING) -> object:
+        from pyopenvba.apps.excel._custom_lists import find
+
+        return VBAInt(find(self, ListArray), "Long")
+
+    @method
+    def AddCustomList(self, ListArray: object = MISSING, ByRow: object = MISSING) -> object:
+        from pyopenvba.apps.excel._custom_lists import add
+
+        add(self, ListArray, ByRow)
+        return EMPTY
+
+    @method
+    def DeleteCustomList(self, ListNum: object = MISSING) -> object:
+        from pyopenvba.apps.excel._custom_lists import delete
+
+        delete(self, ListNum)
+        return EMPTY
 
     # -- identity
 

@@ -226,9 +226,11 @@ class _Item:
     names: str = ""
     case: str = ""
     number_format: str = ""
+    #: A custom list's items, for an item of one (see _custom_lists).
+    listed: tuple[str, ...] = ()
 
 
-def _read(cell: Cell | None, number_format: str) -> _Item:
+def _read(cell: Cell | None, number_format: str, custom: list[tuple[str, ...]]) -> _Item:
     if cell is None or (cell.value is EMPTY and not cell.formula):
         return _Item("blank")
     if cell.formula:
@@ -244,7 +246,7 @@ def _read(cell: Cell | None, number_format: str) -> _Item:
             return _Item("time", number, ("time",), number_format=number_format)
         return _Item("number", number, ("number",), family=_family(number_format), number_format=number_format)
     if isinstance(value, str):
-        return _text(value)
+        return _text(value, custom)
     return _Item("copy")
 
 
@@ -271,11 +273,20 @@ _ORDINAL = re.compile(r"(\d+)(st|nd|rd|th)((?: .*)?)\Z", re.IGNORECASE | re.DOTA
 _TRAILING = re.compile(r"(\d+)\Z")
 
 
-def _text(text: str) -> _Item:
+def _text(text: str, custom: list[tuple[str, ...]]) -> _Item:
     trimmed = text.rstrip(" ")
     name = _name(text, trimmed)
     if name is not None:
         return name
+    # A cell, without the spaces round it, that is an item of a list a macro added, case aside
+    # (tests/fixtures/custom_lists.json).
+    body = text.strip(" ")
+    for number, items in enumerate(custom):
+        lowered = [item.lower() for item in items]
+        if body.lower() in lowered:
+            case = "lower" if body[:1].islower() else "upper" if body[1:2].isupper() else "title"
+            return _Item("custom", float(lowered.index(body.lower())), ("custom", str(number)), case=case,
+                         listed=items)
     found = _LEADING.match(text)
     if found:
         if not found.group(3).strip(" "):
@@ -385,7 +396,10 @@ class _Plan:
     def item(self, row: int, column: int) -> _Item:
         if _arrays.array_at(self.sheet, row, column) is not None:
             return _Item("copy")
-        return _read(self.cells.get((row, column)), self.sheet.style_at(row, column).number_format)
+        from pyopenvba.apps.excel._custom_lists import added
+
+        return _read(self.cells.get((row, column)), self.sheet.style_at(row, column).number_format,
+                     added(self.sheet.book.application))
 
     def crossed(self) -> set[tuple[int, int]]:
         """The source cells that make a run with their neighbours across the fill."""
@@ -529,7 +543,29 @@ def _series(run: list[_Item], kind: int, single: bool, crossed: bool,
         return _dates_1904(run, kind) if epoch_1904 else _dates(run, kind)
     if first.kind in ("day", "month"):
         return _names(run, kind)
+    if first.kind == "custom":
+        return _listed(run, kind)
     return _texts(run, kind)
+
+
+def _listed(run: list[_Item], kind: int) -> Callable[[int], object] | None:
+    """A run of a custom list's items stepping along it evenly, round and round, in the first's case: small
+    letters, capitals, or else the list's own spelling."""
+    if kind not in (DEFAULT, VALUES, SERIES):
+        return None
+    first = run[0]
+    size = len(first.listed)
+    places = [int(item.value) for item in run]
+    steps = {(later - earlier) % size for earlier, later in zip(places, places[1:])}
+    if len(steps) > 1:
+        return None
+    step = steps.pop() if steps else 1
+
+    def item(along: int) -> object:
+        name = first.listed[(places[0] + along * step) % size]
+        return name.lower() if first.case == "lower" else name.upper() if first.case == "upper" else name
+
+    return item
 
 
 def _numbers(run: list[_Item], kind: int, single: bool) -> Callable[[int], object] | None:

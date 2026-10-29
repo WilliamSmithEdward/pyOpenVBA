@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Custom lists work as Excel's do: `AddCustomList`, `DeleteCustomList`,
+  `CustomListCount`, `GetCustomListContents` and `GetCustomListNum`.
+  AutoFill steps along a list a macro added, in the case the cell shows.
+  `Range.Sort` takes `OrderCustom` and puts a list's items first, in the
+  list's order. 50 live steps agree, `tests/fixtures/custom_lists.json`.
+
 - Tables answer more of `ListObject` as Excel does. `Comment`,
   `AlternativeText`, `Summary` and `ShowAutoFilterDropDown` save where
   Excel saves them and read back. `Active`, `SourceType`,

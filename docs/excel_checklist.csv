@@ -31,7 +31,7 @@ Application,ActiveProtectedViewWindow,"property, read-only",As ProtectedViewWind
 Application,ActiveSheet,"property, read-only",As Object,,UNASSESSED,,
 Application,ActiveWindow,"property, read-only",As Window,,VERIFIED,tests/fixtures/windows/windows.json,
 Application,ActiveWorkbook,"property, read-only",As Workbook,,UNASSESSED,,
-Application,AddCustomList,method,"AddCustomList(ListArray As Variant, [ByRow As Variant])",,MISSING,,
+Application,AddCustomList,method,"AddCustomList(ListArray As Variant, [ByRow As Variant])",,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"An array's text as given, numbers left out; a range's lines by ByRow, else along its longer side, blanks left out; no text is error 1004; a list there already, case aside, is skipped from an array and error 1004 from a range. AutoFill steps along the lists and Range.Sort's OrderCustom orders by them. A range mixing text and numbers reports itself unsupported."
 Application,AddIns,"property, read-only",As AddIns,,MISSING,,
 Application,AddIns2,"property, read-only",As AddIns2,,MISSING,,
 Application,AfterCalculate,event,AfterCalculate(),,MISSING,,
@@ -81,7 +81,7 @@ Application,CopyObjectsWithCells,property,As Boolean,,PARTIAL,tests/fixtures/app
 Application,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Application,Cursor,property,As XlMousePointer,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlDefault, xlNorthwestArrow, xlWait and xlIBeam read back; 0 is xlDefault and other values change nothing, over 28 live settings; the model shows no cursor"
 Application,CursorMovement,property,As Long,,MISSING,,
-Application,CustomListCount,"property, read-only",As Long,,MISSING,,
+Application,CustomListCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"Excel's four lists of day and month names, then those a macro added in the session."
 Application,CutCopyMode,property,As XlCutCopyMode,,VERIFIED,tests/fixtures/paste.json,"0, 1 after Copy and 2 after Cut; False clears the clipboard."
 Application,DataEntryMode,property,As Long,,MISSING,,
 Application,DDEAppReturnCode,"property, read-only",As Long,,MISSING,,
@@ -97,7 +97,7 @@ Application,DefaultSaveFormat,property,As XlFileFormat,,MISSING,,
 Application,DefaultSheetDirection,property,As Long,,MISSING,,
 Application,DefaultWebOptions,"property, read-only",As DefaultWebOptions,,MISSING,,
 Application,DeferAsyncQueries,property,As Boolean,,MISSING,,
-Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,MISSING,,
+Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,Excel's own lists error 1004; a number past the last does nothing.
 Application,Dialogs,"property, read-only",As Dialogs,,MISSING,,
 Application,DisplayAlerts,property,As Boolean,,UNASSESSED,,
 Application,DisplayClipboardWindow,property,As Boolean,,MISSING,,
@@ -149,8 +149,8 @@ Application,FormatStaleValues,property,As Boolean,,MISSING,,
 Application,FormulaBarHeight,property,As Long,,MISSING,,
 Application,GenerateGetPivotData,property,As Boolean,,MISSING,,
 Application,GenerateTableRefs,property,As XlGenerateTableRefs,,MISSING,,
-Application,GetCustomListContents,method,GetCustomListContents(ListNum As Long) As Variant,,MISSING,,
-Application,GetCustomListNum,method,GetCustomListNum(ListArray As Variant) As Long,,MISSING,,
+Application,GetCustomListContents,method,GetCustomListContents(ListNum As Long) As Variant,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,A list from 1; error 13 for a number naming none.
+Application,GetCustomListNum,method,GetCustomListNum(ListArray As Variant) As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"A whole list, case aside, or 0; a range is error 1004."
 Application,GetOpenFilename,method,"GetOpenFilename([FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant], [MultiSelect As Variant]) As Variant",,MISSING,,
 Application,GetPhonetic,method,GetPhonetic([Text As Variant]) As String,,MISSING,,
 Application,GetSaveAsFilename,method,"GetSaveAsFilename([InitialFilename As Variant], [FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant]) As Variant",,MISSING,,

@@ -1183,6 +1183,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `MsgBox` with no answer queued comes back with the button
+  `vbDefaultButton2`, `3` or `4` names, as Windows' message box answers
+  Enter. It always came back with the first button, so
+  `vbYesNo + vbDefaultButton2` answered Yes (#250).
+
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
   and a range or PageSetup taken from the sheet is error 424. It went on

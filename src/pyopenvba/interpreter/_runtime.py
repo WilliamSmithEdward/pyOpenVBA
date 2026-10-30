@@ -1083,7 +1083,6 @@ class Interpreter:
         self.console: list[str] = []
         self.assertions: list[str] = []
         self.frames: list[Frame] = []
-        self.option_compare_text = False
         #: Every MsgBox and InputBox the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
@@ -1095,6 +1094,12 @@ class Interpreter:
         self.event_sinks: list[tuple[ReferenceType[UserClassInstance], str]] = []
 
     # --- loading ---------------------------------------------------------------------
+
+    @property
+    def option_compare_text(self) -> bool:
+        """Whether the module running now says Option Compare Text, which makes =, Like, Select Case and a
+        comparison function's default compare as text."""
+        return bool(self.frames) and self.frames[-1].module.parsed.option_compare_text
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
         """Parse ``source`` and add it to the project."""
@@ -1748,6 +1753,9 @@ class Interpreter:
     def _do_redim(self, statement: A.ReDim, frame: Frame) -> None:
         for index, declaration in enumerate(statement.decls):
             bounds = self._bounds(declaration, frame)
+            if any(upper < lower for lower, upper in bounds):
+                # A dimension with no elements, a(1 To 0), is error 9, Preserve or not (tests/fixtures/redim_bounds.json).
+                raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
             field_ = statement.targets[index] if index < len(statement.targets) else None
             slot: Slot | None = None
             if field_ is None:
@@ -2133,6 +2141,10 @@ class Interpreter:
             return self.host.call_global(key, [], {})
         if key in self._intrinsics:
             return self.call_intrinsic(key, [], {})
+        form = self.modules.get(key)
+        if form is not None and form.parsed.kind == "form":
+            # A UserForm's default instance, which the interpreter does not run (issue #251).
+            raise VBAUnsupportedError(f"{form.parsed.name} is a UserForm, which pyOpenVBA does not run")
         return UNRESOLVED
 
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
@@ -2283,6 +2295,10 @@ class Interpreter:
         if constant is not UNRESOLVED:
             positional, named = self._arguments(args, frame)
             return _call_value(constant, positional, named)
+        if key in ("load", "unload"):
+            # The statements that load and unload a UserForm, which the interpreter does not run (issue #251).
+            raise VBAUnsupportedError(f"{callee.name}, which loads or unloads a UserForm, is not implemented: "
+                                      "UserForms do not run")
         raise VBARuntimeError(35, f"Sub or Function not defined: {callee.name}")
 
     def _len_of_declared(self, args: list[A.Argument], frame: Frame | None) -> object | None:
@@ -2897,9 +2913,16 @@ def _is_type(value: object, wanted: str) -> bool:
     return type_name(value).lower() == wanted.lower()
 
 
+#: Each MsgBox button set's buttons, by what each answers, in order: vbOKOnly to vbRetryCancel.
+_BUTTONS = {0: (1,), 1: (1, 2), 2: (3, 4, 5), 3: (6, 7, 2), 4: (6, 7), 5: (4, 2)}
+
+
 def _default_button(style: int) -> int:
-    """Which button MsgBox would come back with if nobody clicked."""
-    return {0: 1, 1: 1, 2: 3, 3: 6, 4: 6, 5: 4}.get(style & 0x0F, 1)
+    """Which button MsgBox comes back with if nobody clicks and Enter is pressed: the one vbDefaultButton2, 3 or 4
+    names, or the first where it names none or one past the last (tests/fixtures/msgbox_default.json)."""
+    buttons = _BUTTONS.get(style & 0x0F, (1,))
+    place = (style >> 8) & 0x0F
+    return buttons[place] if place < len(buttons) else buttons[0]
 
 
 def _exit_word(kind: str) -> str:

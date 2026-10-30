@@ -92,6 +92,7 @@ class Table:
 
     sheet: Worksheet
     id: int
+    #: DisplayName, which formulas name the table by.
     name: str
     #: The whole table, its header and totals rows included.
     area: Area
@@ -119,6 +120,8 @@ class Table:
     #: The block a file gave the filter, which leaves a totals row out, and the table's own block then.
     filter_ref: tuple[Area, Area] | None = dataclass_field(default=None, repr=False)
     uid: str = ""
+    #: ListObject.Name where it differs from DisplayName, as the part's name; "" while they agree.
+    own_name: str = ""
     #: The part the table was read from or written to, and the sheet relationship naming it; "" for a new table.
     part: str = ""
     relationship: str = ""
@@ -166,6 +169,7 @@ def read_table(sheet: Worksheet, part: str, relationship: str, xml: str) -> Tabl
     element = _FILTER.search(xml)
     table = Table(
         sheet=sheet, id=int(head.get("id", "0") or 0), name=head.get("displayName") or head.get("name", ""),
+        own_name="" if head.get("name", "") in ("", head.get("displayName")) else head.get("name", ""),
         area=parse_area(head.get("ref", "A1"), sheet=""), columns=columns,
         headers=head.get("headerRowCount", "1") != "0", totals=int(head.get("totalsRowCount", "0") or 0) > 0,
         totals_shown=head.get("totalsRowShown", "1") != "0",
@@ -250,7 +254,7 @@ def base_table_xml(table: Table) -> str:
              f'showColumnStripes="{int(table.column_stripes)}"/>')
     comment = f' comment="{_column_attribute(table.comment)}"' if table.comment else ""
     return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
-            f'<table {_NAMESPACES} id="{table.id}" xr:uid="{table.uid}" name="{escape(table.name)}" '
+            f'<table {_NAMESPACES} id="{table.id}" xr:uid="{table.uid}" name="{escape(table.own_name or table.name)}" '
             f'displayName="{escape(table.name)}"{comment} ref="{reference}"{header}{counts}>{auto_filter}'
             f'<tableColumns count="{len(table.columns)}">{columns}</tableColumns>{style}'
             f'{_described(table, "")}</table>')
@@ -279,7 +283,7 @@ def _patched_xml(table: Table) -> str:
     if found is None:
         return table_xml(table)
     head = found.group(0)
-    for attribute, value in (("name", escape(table.name)), ("displayName", escape(table.name)),
+    for attribute, value in (("name", escape(table.own_name or table.name)), ("displayName", escape(table.name)),
                              ("ref", table.area.address(absolute=False))):
         head = re.sub(rf'(\s{attribute}=")[^"]*(")', lambda match: match.group(1) + value + match.group(2), head,
                       count=1)
@@ -914,15 +918,25 @@ class ListObject(ExcelObject):
 
     @member
     def Name(self) -> object:
-        return self.table.name
+        return self.table.own_name or self.table.name
 
     @setter("Name")
     def _set_name(self, value: object) -> None:
+        """Any text, kept as the part's name; DisplayName becomes the name CreateNames would make of it, a b as a_b
+        and 1abc as _1abc. Another table's name is error 1004 (tests/fixtures/text_compare_names.json)."""
+        from pyopenvba.apps.excel._create_names import name_of
+
         wanted = to_text(value)
-        if not re.fullmatch(r"[A-Za-z_\\][A-Za-z0-9_.\\]*", wanted) or any(
-                one is not self.table and one.name.lower() == wanted.lower() for one in all_tables(self.sheet)):
-            raise error(1004, "That table name is not valid or is taken")
-        rename(self.table, wanted)
+        if self._taken(wanted):
+            raise error(1004, "Application-defined or object-defined error")
+        shown = name_of(wanted)
+        if shown is None or shown != wanted and self._taken(shown):
+            raise VBAUnsupportedError(f"naming a table {wanted!r}, which makes no free DisplayName, is not "
+                                      "implemented")
+        if shown != self.table.name:
+            rename(self.table, shown)
+        self.table.own_name = "" if shown == wanted else wanted
+        self._changed()
 
     @member
     def DisplayName(self) -> object:
@@ -930,7 +944,21 @@ class ListObject(ExcelObject):
 
     @setter("DisplayName")
     def _set_display_name(self, value: object) -> None:
-        self._set_name(value)
+        """A name as defined names take them, beyond ASCII too, and Name with it; any other, or another table's, is
+        error 1004 (tests/fixtures/text_compare_names.json)."""
+        from pyopenvba.apps.excel._names import valid
+
+        wanted = to_text(value)
+        if not valid(wanted) or self._taken(wanted):
+            raise error(1004, "Application-defined or object-defined error")
+        if wanted != self.table.name:
+            rename(self.table, wanted)
+        self.table.own_name = ""
+        self._changed()
+
+    def _taken(self, wanted: str) -> bool:
+        return any(one is not self.table and wanted.lower() in (one.name.lower(), one.own_name.lower())
+                   for one in all_tables(self.sheet))
 
     @member
     def Parent(self) -> object:

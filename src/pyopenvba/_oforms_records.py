@@ -467,12 +467,12 @@ class ParsedRecord:
             self.values.pop(name, None)
             return
         existing = self.strings.get(name)
-        # A new string is compressed when every character fits one byte,
+        # A string is compressed only when every character fits one byte,
         # the same choice the VBE makes; an existing one keeps its stored
-        # compression so nothing else in the record shifts.
-        compressed = (
-            existing.compressed if existing else all(ord(c) <= 0xFF for c in text)
-        )
+        # compression while the new text still fits. Text beyond U+00FF in
+        # a compressed string is what Excel shows garbled (issue #247).
+        fits = all(ord(c) <= 0xFF for c in text)
+        compressed = fits and (existing.compressed if existing else True)
         self._set_bit(extra.bit, True)
         self.strings[name] = StoredString(text, compressed, b"", edited=True)
 

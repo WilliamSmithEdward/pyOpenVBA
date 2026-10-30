@@ -50,6 +50,17 @@ with some properties, and a caller who wants their result sets those too:
   `NextEnabled` to 0.
 - `Min` above the `Position` moves the `Position` up to it.
 
+## A control's font
+
+`set_font(name, size, bold=..., italic=..., underline=..., strikethrough=...,
+charset=...)` gives a control a font of its own, as the designer's Font
+dialog does: the control's TextProps is written whole, as the designer
+writes it for a control it adds, with that font in place of the form's.
+`size` is in points and kept to the whole twip the control stores;
+`charset` is the Windows character set, 0 for Western and 128 for
+Japanese. Excel reads each font back as set. A control added and left
+alone shows the form's font, Tahoma 8.25 pt where the form stores none.
+
 A TextBox given `BorderStyle = 1` alone keeps its sunken effect, a state
 the designers never write. Excel and Word load it as it is: they report
 both at run time, draw only the sunken effect, and save both back when

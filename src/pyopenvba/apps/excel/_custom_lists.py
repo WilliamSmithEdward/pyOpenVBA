@@ -90,17 +90,15 @@ def _range_lists(target: object, by_row: object) -> list[tuple[str, ...]]:
     made: list[tuple[str, ...]] = []
     for line in lines:
         items: list[str] = []
-        others = False
         for row, column in line:
             value = sheet.book.calculator.value_of(sheet.name, row, column)
-            if value is EMPTY or value is None:
+            if value is EMPTY or value is None or isinstance(value, float | int) and not isinstance(value, bool):
+                # A number is left out of the list (tests/fixtures/custom_orders.json).
                 continue
-            if isinstance(value, str):
-                items.append(value)
-            else:
-                others = True
-        if others and items:
-            raise VBAUnsupportedError("AddCustomList of a range holding text and other values is not implemented")
+            if not isinstance(value, str):
+                raise VBAUnsupportedError("AddCustomList of a range holding logical values or errors is not "
+                                          "implemented")
+            items.append(value)
         # A line of numbers alone makes no list, which is error 1004 (tests/fixtures/custom_lists.json).
         made.append(tuple(items))
     return made
@@ -162,7 +160,7 @@ def delete(app: Application, number: object) -> None:
 
 
 def sort_order(app: Application, order_custom: object) -> tuple[str, ...] | None:
-    """The list Range.Sort's OrderCustom orders by, its items in small letters; None for a plain sort."""
+    """The list Range.Sort's OrderCustom orders by; None for a plain sort."""
     if order_custom is MISSING:
         return None
     index = int(to_integer(order_custom, "Long"))
@@ -171,4 +169,4 @@ def sort_order(app: Application, order_custom: object) -> tuple[str, ...] | None
     known = lists(app)
     if index == 1 or index - 1 > len(known):
         return None
-    return tuple(item.lower() for item in known[index - 2])
+    return known[index - 2]

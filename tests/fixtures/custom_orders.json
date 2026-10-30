@@ -1,0 +1,153 @@
+{
+ "measured_at": "2026-10-29T15:08:29.530330+00:00",
+ "source": "Private Function Column(ByVal ws As Worksheet, ByVal address As String) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(address)\n        s = s & \"|\" & c.Formula\n    Next\n    Column = Mid(s, 2)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String, ByVal n As Long) As String\n    Dim wb As Workbook, ws As Worksheet\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"High,Medium,Low\"\n        ws.Sort.SetRange ws.Range(\"A1:A7\")\n        ws.Sort.Header = xlNo\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A7\")\n        wb.SaveAs folder & \"\\text.xlsx\", xlOpenXMLWorkbook\n    Case 1\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlDescending, CustomOrder:=\"High,Medium,Low\"\n        ws.Sort.SetRange ws.Range(\"A1:A7\")\n        ws.Sort.Header = xlNo\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A7\")\n        wb.SaveAs folder & \"\\down.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"High, Medium,Low\"\n        ws.Sort.SetRange ws.Range(\"A1:A7\")\n        ws.Sort.Header = xlNo\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A7\")\n        wb.SaveAs folder & \"\\spaced.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=n + 1\n        ws.Sort.SetRange ws.Range(\"A1:A7\")\n        ws.Sort.Header = xlNo\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A7\")\n        wb.SaveAs folder & \"\\number.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        ws.Range(\"A1:A5\").Value = Application.Transpose(Array(\"Wed\", \"Sunday\", \"Mon\", \"sat\", \"Tue\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A5\"), Order:=xlAscending, CustomOrder:=1\n        ws.Sort.SetRange ws.Range(\"A1:A5\")\n        ws.Sort.Header = xlNo\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A5\")\n        wb.SaveAs folder & \"\\days.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"High,Medium,Low\"\n        ws.Sort.SetRange ws.Range(\"A1:A7\")\n        ws.Sort.Header = xlNo\n        ws.Sort.MatchCase = True\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A7\")\n        wb.SaveAs folder & \"\\case.xlsx\", xlOpenXMLWorkbook\n    Case 6\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Range(\"A1:A7\").Sort Key1:=ws.Range(\"A1\"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=n + 2, MatchCase:=True\n        Tried = Column(ws, \"A1:A7\")\n        wb.SaveAs folder & \"\\range_case.xlsx\", xlOpenXMLWorkbook\n    Case 7\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Range(\"A1:A7\").Sort Key1:=ws.Range(\"A1\"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=n + 2\n        Tried = Column(ws, \"A1:A7\")\n        wb.SaveAs folder & \"\\range.xlsx\", xlOpenXMLWorkbook\n    Case 8\n        ws.Range(\"A1:B3\").Value = Application.Transpose(Application.Transpose(Array(\"x\", \"y\", \"z\")))\n        ws.Range(\"A1\").Value = \"t1\"\n        ws.Range(\"A2\").Value = 7\n        ws.Range(\"A3\").Value = \"t3\"\n        Application.AddCustomList ws.Range(\"A1:A3\")\n        ws.Range(\"C1\").Value = Join(Application.GetCustomListContents(Application.CustomListCount), \"|\")\n        ws.Range(\"C2\").Value = Application.CustomListCount - n\n        Tried = Column(ws, \"C1:C2\")\n    Case 9\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"\"\n        ws.Sort.SetRange ws.Range(\"A1:A7\")\n        ws.Sort.Header = xlNo\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A7\")\n    Case 10\n        ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))\n        ws.Sort.SortFields.Clear\n        ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=n + 50\n        ws.Sort.SetRange ws.Range(\"A1:A7\")\n        ws.Sort.Header = xlNo\n        ws.Sort.Apply\n        Tried = Column(ws, \"A1:A7\")\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long, n As Long\n    Application.DisplayAlerts = False\n    n = Application.CustomListCount\n    Application.AddCustomList Array(\"Low\", \"Medium\", \"High\")\n    For i = 0 To 10\n        s = s & \"@@@\" & Tried(i, folder, n)\n    Next\n    For i = Application.CustomListCount To n + 1 Step -1\n        Application.DeleteCustomList i\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"High,Medium,Low\"",
+    "ws.Sort.SetRange ws.Range(\"A1:A7\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.Apply"
+   ],
+   "A1:A7",
+   "text.xlsx",
+   "High|high|Medium|low|5|Apple|Zeta"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlDescending, CustomOrder:=\"High,Medium,Low\"",
+    "ws.Sort.SetRange ws.Range(\"A1:A7\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.Apply"
+   ],
+   "A1:A7",
+   "down.xlsx",
+   "Zeta|Apple|5|low|Medium|High|high"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"High, Medium,Low\"",
+    "ws.Sort.SetRange ws.Range(\"A1:A7\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.Apply"
+   ],
+   "A1:A7",
+   "spaced.xlsx",
+   "High|high|Medium|low|5|Apple|Zeta"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=n + 1",
+    "ws.Sort.SetRange ws.Range(\"A1:A7\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.Apply"
+   ],
+   "A1:A7",
+   "number.xlsx",
+   "low|Medium|High|high|5|Apple|Zeta"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A5\").Value = Application.Transpose(Array(\"Wed\", \"Sunday\", \"Mon\", \"sat\", \"Tue\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A5\"), Order:=xlAscending, CustomOrder:=1",
+    "ws.Sort.SetRange ws.Range(\"A1:A5\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.Apply"
+   ],
+   "A1:A5",
+   "days.xlsx",
+   "Mon|Tue|Wed|sat|Sunday"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"High,Medium,Low\"",
+    "ws.Sort.SetRange ws.Range(\"A1:A7\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.MatchCase = True",
+    "ws.Sort.Apply"
+   ],
+   "A1:A7",
+   "case.xlsx",
+   "High|Medium|5|Apple|high|low|Zeta"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Range(\"A1:A7\").Sort Key1:=ws.Range(\"A1\"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=n + 2, MatchCase:=True"
+   ],
+   "A1:A7",
+   "range_case.xlsx",
+   "Medium|High|5|Apple|high|low|Zeta"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Range(\"A1:A7\").Sort Key1:=ws.Range(\"A1\"), Order1:=xlAscending, Header:=xlNo, OrderCustom:=n + 2"
+   ],
+   "A1:A7",
+   "range.xlsx",
+   "low|Medium|High|high|5|Apple|Zeta"
+  ],
+  [
+   [
+    "ws.Range(\"A1:B3\").Value = Application.Transpose(Application.Transpose(Array(\"x\", \"y\", \"z\")))",
+    "ws.Range(\"A1\").Value = \"t1\"",
+    "ws.Range(\"A2\").Value = 7",
+    "ws.Range(\"A3\").Value = \"t3\"",
+    "Application.AddCustomList ws.Range(\"A1:A3\")",
+    "ws.Range(\"C1\").Value = Join(Application.GetCustomListContents(Application.CustomListCount), \"|\")",
+    "ws.Range(\"C2\").Value = Application.CustomListCount - n"
+   ],
+   "C1:C2",
+   "",
+   "t1|t3|2"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=\"\"",
+    "ws.Sort.SetRange ws.Range(\"A1:A7\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.Apply"
+   ],
+   "A1:A7",
+   "",
+   "5|Apple|High|high|low|Medium|Zeta"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A7\").Value = Application.Transpose(Array(\"High\", \"low\", \"Zeta\", \"Medium\", 5, \"high\", \"Apple\"))",
+    "ws.Sort.SortFields.Clear",
+    "ws.Sort.SortFields.Add Key:=ws.Range(\"A1:A7\"), Order:=xlAscending, CustomOrder:=n + 50",
+    "ws.Sort.SetRange ws.Range(\"A1:A7\")",
+    "ws.Sort.Header = xlNo",
+    "ws.Sort.Apply"
+   ],
+   "A1:A7",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ]
+ ],
+ "parts": {
+  "text.xlsx": "<sortState ref=\"A1:A7\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A1:A7\" customList=\"High,Medium,Low\"/>",
+  "down.xlsx": "<sortState ref=\"A1:A7\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" ref=\"A1:A7\" customList=\"High,Medium,Low\"/>",
+  "spaced.xlsx": "<sortState ref=\"A1:A7\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A1:A7\" customList=\"High,Medium,Low\"/>",
+  "number.xlsx": "<sortState ref=\"A1:A7\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A1:A7\" customList=\"Low,Medium,High\"/>",
+  "days.xlsx": "<sortState ref=\"A1:A5\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A1:A5\" customList=\"Sun,Mon,Tue,Wed,Thu,Fri,Sat\"/>",
+  "case.xlsx": "<sortState caseSensitive=\"1\" ref=\"A1:A7\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A1:A7\" customList=\"High,Medium,Low\"/>",
+  "range_case.xlsx": "<sortState caseSensitive=\"1\" ref=\"A1:A7\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A1\" customList=\"Low,Medium,High\"/>",
+  "range.xlsx": "<sortState ref=\"A1:A7\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A1\" customList=\"Low,Medium,High\"/>"
+ }
+}

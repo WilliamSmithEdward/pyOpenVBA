@@ -1183,11 +1183,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
-- Clearing whole rows after `Cells.Font.Name` or another whole-sheet
-  format no longer runs out of memory. The model gave every position of
-  every cleared row a cell of its own. Excel gives each row a format of
-  the default when three columns or more carry a format, and clearing to
-  the last row moves the columns' formats onto the rows above (#256).
+- `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
+  bound is below its lower bound, with Preserve or without. It made an
+  empty array (#255).
 
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
@@ -1278,6 +1276,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   wants cells, Excel refuses one, `=SUM (A1)` or `=SUM:A1`, and so does
   the model now, with error 1004, over 7 live formulas in
   `tests/fixtures/formula_spelling.json`.
+
+- Clearing whole rows after `Cells.Font.Name` or another whole-sheet
+  format no longer runs out of memory. The model gave every position of
+  every cleared row a cell of its own. Excel gives each row a format of
+  the default when three columns or more carry a format, and clearing to
+  the last row moves the columns' formats onto the rows above (#256).
 
 - `Application.StatusBar` reads False, a Boolean, until a macro sets it,
   as Excel's does; the model read the text FALSE from the start. Once a

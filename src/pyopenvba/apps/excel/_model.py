@@ -180,6 +180,25 @@ def _coalesced(areas: list[Area]) -> list[Area]:
             return pending
 
 
+def _joined_in_place(areas: list[Area]) -> list[Area]:
+    """Intersect's pieces as Excel leaves them: two join as Union's do (see _merged), but the joined area takes the
+    earlier one's place, so A2, A2, C2 is A2,C2 (tests/fixtures/intersect_areas.json)."""
+    pending = list(areas)
+    while True:
+        for first in range(len(pending)):
+            for second in range(first + 1, len(pending)):
+                merged = _merged(pending[first], pending[second])
+                if merged is not None:
+                    pending = [merged if index == first else one for index, one in enumerate(pending)
+                               if index != second]
+                    break
+            else:
+                continue
+            break
+        else:
+            return pending
+
+
 def _merged(one: Area, other: Area) -> Area | None:
     def holds(outer: Area, inner: Area) -> bool:
         return (outer.top <= inner.top and inner.bottom <= outer.bottom
@@ -710,19 +729,24 @@ class Application(ExcelObject):
 
     @method
     def Intersect(self, Arg1: object = MISSING, Arg2: object = MISSING, *rest: object) -> object:
+        """The cells every range holds, area by area: each area of the ranges so far against each of the next, in
+        that order, the pieces then joined in place (see _joined_in_place); Nothing where none is left
+        (tests/fixtures/intersect_areas.json)."""
         ranges = [one for one in (Arg1, Arg2, *rest) if isinstance(one, Range)]
         if len(ranges) < 2:
             raise error(ERR_APPLICATION_DEFINED, "Intersect needs two ranges")
         if any(one.sheet is not ranges[0].sheet for one in ranges):
             raise error(1004, "Method 'Intersect' of object '_Application' failed")
         sheet = ranges[0].sheet
-        top = max(one.first.top for one in ranges)
-        left = max(one.first.left for one in ranges)
-        bottom = min(one.first.bottom for one in ranges)
-        right = min(one.first.right for one in ranges)
-        if top > bottom or left > right:
+        pieces = [Area(area.top, area.left, area.bottom, area.right) for area in ranges[0].areas]
+        for other in ranges[1:]:
+            met = [Area(max(one.top, two.top), max(one.left, two.left), min(one.bottom, two.bottom),
+                        min(one.right, two.right))
+                   for one in pieces for two in other.areas]
+            pieces = _joined_in_place([one for one in met if one.top <= one.bottom and one.left <= one.right])
+        if not pieces:
             return NOTHING
-        return Range(sheet, [Area(top, left, bottom, right, sheet.name)])
+        return Range(sheet, [Area(one.top, one.left, one.bottom, one.right, sheet.name) for one in pieces])
 
     @method
     def Union(self, Arg1: object = MISSING, Arg2: object = MISSING, *rest: object) -> object:

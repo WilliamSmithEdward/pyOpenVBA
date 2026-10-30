@@ -1183,6 +1183,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Application.Intersect` keeps every area. It read only the first area
+  of each range, so `A1:A3,C1:C3` with `A1:C10` gave `A1:A3`. Pieces
+  that make a rectangle together are joined, as in Excel (#257).
+
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,
   BeforeSave and the rest, which it listed as missing because no member

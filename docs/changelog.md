@@ -1204,6 +1204,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Sorting text with a combining mark after a hyphen, a control character
+  or a character Windows ignores, or with marks whose diacritic weights
+  pass 255, reports itself unsupported. Excel orders such text as
+  Windows' CompareString does, inconsistently in the first case, and the
+  model ordered it by sort key. A Windows test of 20,000 random pairs
+  found one now and then.
+
 - `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
   bound is below its lower bound, with Preserve or without. It made an
   empty array (#255).

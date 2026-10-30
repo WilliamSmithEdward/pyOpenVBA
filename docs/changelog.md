@@ -1183,6 +1183,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
+  bound is below its lower bound, with Preserve or without. It made an
+  empty array (#255).
+
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
   and a range or PageSetup taken from the sheet is error 424. It went on

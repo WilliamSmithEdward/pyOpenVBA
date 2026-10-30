@@ -1260,6 +1260,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and a file kept a column record Excel leaves out. 20 live answers and
   the columns Excel saved agree, `tests/fixtures/autofit_unchanged.json`.
 
+- A form or control caption beyond U+00FF, such as Japanese, set over a
+  caption already stored compressed now saves as UTF-16. It kept the
+  compression, so a new control's `Caption` of 実行 showed as `??` or
+  garbled text in Excel (#247).
+
 - A file whose calcId is below 191028, or that has none or asks for
   fullCalcOnLoad, is worked out in full as it opens, as Excel works it
   out; under manual calculation it keeps the file's values until the

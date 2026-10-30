@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `FormControl.set_font` gives a UserForm control a font of its own:
+  face, size in points, bold, italic, underline, strikethrough and the
+  Windows character set, 128 for Japanese. Excel reads each font back as
+  set. A control took only the form's font, Tahoma 8.25 pt (#248).
+
 - Window settings everyday macros set work as Excel's do:
   `DisplayOutline`, `DisplayRuler` and `DisplayWhitespace`, each the
   active sheet's; `GridlineColor` and `GridlineColorIndex`, a colour

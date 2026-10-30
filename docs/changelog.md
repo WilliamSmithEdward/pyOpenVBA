@@ -23,6 +23,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   others don't. 12 live cases and 7 saved files agree,
   `tests/fixtures/workbook_options.json`.
 
+- `FormControl.set_font` gives a UserForm control a font of its own:
+  face, size in points, bold, italic, underline, strikethrough and the
+  Windows character set, 128 for Japanese. Excel reads each font back as
+  set. A control took only the form's font, Tahoma 8.25 pt (#248).
+
 - Window settings everyday macros set work as Excel's do:
   `DisplayOutline`, `DisplayRuler` and `DisplayWhitespace`, each the
   active sheet's; `GridlineColor` and `GridlineColorIndex`, a colour
@@ -1199,6 +1204,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
+  bound is below its lower bound, with Preserve or without. It made an
+  empty array (#255).
+
+- A variable holding a deleted sheet fails as Excel's does. Each member
+  is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
+  and a range or PageSetup taken from the sheet is error 424. It went on
+  answering, and read a new sheet given the old name (#246).
+
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,
   BeforeSave and the rest, which it listed as missing because no member
@@ -1209,6 +1223,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and took `R1C1_`, `C1R1`, `R1x` and `RC1C`, which Excel refuses as
   names that start like an R1C1 reference. 324 live names agree,
   `tests/fixtures/name_validity.json`.
+
+- `Application.Intersect` keeps every area. It read only the first area
+  of each range, so `A1:A3,C1:C3` with `A1:C10` gave `A1:A3`. Pieces
+  that make a rectangle together are joined, as in Excel (#257).
 
 - `Range.Formula2` no longer puts an @ before a reference to one cell of
   another workbook. The colon of the path's drive, `C:\`, was read as a
@@ -1233,6 +1251,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `234.5` where `.` separates thousands. Before, the model read such a
   field with `.` as the decimal point.
 
+- A UserForm is reported with `VBAUnsupportedError`, as the README
+  promises for what the interpreter does not run. `Load frmTest` and
+  `Unload frmTest` were error 35, and `frmTest.Show` or a property of the
+  form error 424, both of which `On Error` could trap (#251).
+
 - Typing reads a percent sign before a number, `%5` as 5%, and a euro
   sign before or after one, `€5` and `5 €` as 5, as Excel does; a
   percent of an exponent, `1e2%`, keeps the scientific format, and of a
@@ -1256,6 +1279,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   fit, so a standard column stopped following the sheet's StandardWidth
   and a file kept a column record Excel leaves out. 20 live answers and
   the columns Excel saved agree, `tests/fixtures/autofit_unchanged.json`.
+
+- A form or control caption beyond U+00FF, such as Japanese, set over a
+  caption already stored compressed now saves as UTF-16. It kept the
+  compression, so a new control's `Caption` of 実行 showed as `??` or
+  garbled text in Excel (#247).
 
 - A file whose calcId is below 191028, or that has none or asks for
   fullCalcOnLoad, is worked out in full as it opens, as Excel works it
@@ -1283,6 +1311,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   wants cells, Excel refuses one, `=SUM (A1)` or `=SUM:A1`, and so does
   the model now, with error 1004, over 7 live formulas in
   `tests/fixtures/formula_spelling.json`.
+
+- Clearing whole rows after `Cells.Font.Name` or another whole-sheet
+  format no longer runs out of memory. The model gave every position of
+  every cleared row a cell of its own. Excel gives each row a format of
+  the default when three columns or more carry a format, and clearing to
+  the last row moves the columns' formats onto the rows above (#256).
 
 - `Application.StatusBar` reads False, a Boolean, until a macro sets it,
   as Excel's does; the model read the text FALSE from the start. Once a
@@ -1312,6 +1346,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   format, validation, link, control or chart that reads a deleted
   sheet reports itself unsupported. Measured in
   `tests/fixtures/sheet_groups.json`.
+
+- The VBA in issue reports #249, #253, #254, #258, #259, #260 and #261
+  answers as live Excel does, and a test now holds it so. Each was wrong
+  in 6.5.0: Variant comparisons of a number with text, a Function
+  `As Long()`, a `ByVal` array, `&HFF01&`, the `Mid` statement, `Value`
+  of a block past the used range, and a formula read under manual
+  calculation.
 
 - Sheet names and defined names beyond ASCII are kept apart and found
   as Excel does. Excel compares them by Windows' word sort, case aside,
@@ -1348,6 +1389,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   named beyond ASCII stopped the collection being listed or added to.
   38 live names and 19 lookups agree, `tests/fixtures/style_order.json`.
 
+- `Option Compare Text` takes effect. The model compared as binary
+  whatever a module said, so `"a" = "A"` was False there, and `Like`,
+  `Select Case` and `InStr` or `StrComp` without a Compare were too.
+
+- A text comparison ignores kana type and width, as VBA's does:
+  `StrComp` with `vbTextCompare`, and `=` or `<` under `Option Compare
+  Text`, take あ as ア, ａ as a and ｶﾞ as ガ. `InStr`, `Like`, `Replace`,
+  `Split` and a Dictionary still tell them apart, as in Excel (#252).
+
+- `Val` reads ASCII digits only, as VBA does. It read full-width digits,
+  `inf` and `1_000` as numbers (#252).
+
+- `ListObject.Name` takes any text, and `DisplayName` follows the
+  defined-name rules, beyond ASCII too, as in Excel. A non-ASCII name
+  such as 明細 was refused. Setting `Name` to `a b` keeps it as the
+  table's name and makes its DisplayName `a_b` (#252).
+
 - Opening a workbook that holds a chart sheet, a dialog sheet or an
   Excel 4 macro sheet reports itself unsupported. The model holds
   worksheets alone. It read a chart sheet's part as a worksheet's and
@@ -1374,6 +1432,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   last day of 9999 could show a second late. Measured against
   oleaut32 on 7,013 serials, `tests/fixtures/variant_time.json`; the
   last 11 of the 152 live time-rounding cases now agree.
+
+- `MsgBox` with no answer queued comes back with the button
+  `vbDefaultButton2`, `3` or `4` names, as Windows' message box answers
+  Enter. It always came back with the first button, so
+  `vbYesNo + vbDefaultButton2` answered Yes (#250).
 
 - A Date may fall on 100-01-01 after midnight: -657434.5 is
   `1/1/100 12:00:00 PM`, as in VBA, where the model raised error 6 for

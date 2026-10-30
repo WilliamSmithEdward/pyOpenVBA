@@ -4,6 +4,7 @@ GridlineColorIndex, SmallScroll, WindowNumber, Type and AutoFilterDateGrouping, 
 from __future__ import annotations
 
 import json
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -13,12 +14,14 @@ from pyopenvba.apps.excel import ExcelApplication
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/window_settings.json').read_text(encoding='utf-8'))
+#: The probe as recorded, its files joined to the folder with this platform's separator.
+SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 
 
 def test_each_case_as_excel_answered(tmp_path: Path) -> None:
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module(RECORD['source'], name='WindowProbe')
+    app.add_module(SOURCE, name='WindowProbe')
     got = str(app.run('WindowProbe.Probe', str(tmp_path))).split('|')
     assert got == [answer for _, _, _, answer in RECORD['cases']]
     for name, wanted in RECORD['views'].items():

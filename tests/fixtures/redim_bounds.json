@@ -1,0 +1,16 @@
+{
+ "measured_at": "2026-10-30T13:10:31.495077+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim a() As Long, v As Variant\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ReDim a(1 To 0)\n    Case 1\n        ReDim a(0 To -1)\n    Case 2\n        ReDim a(5 To 3)\n    Case 3\n        ReDim a(1 To 1)\n    Case 4\n        ReDim a(-1)\n    Case 5\n        ReDim a(1 To 2, 1 To 0)\n    Case 6\n        ReDim a(1 To 0, 1 To 2)\n    Case 7\n        ReDim a(1 To 2): ReDim Preserve a(1 To 0)\n    Case 8\n        ReDim v(1 To 0)\n    Case 9\n        ReDim a(0)\n    End Select\n    Tried = \"ok\"\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\nEnd Function\n\nPublic Function Probe() As String\n    Dim s As String, i As Long\n    For i = 0 To 9\n        s = s & \"|\" & Tried(i)\n    Next\n    Probe = Mid(s, 2)\nEnd Function\n",
+ "cases": {
+  "ReDim a(1 To 0)": "Err 9 Subscript out of range",
+  "ReDim a(0 To -1)": "Err 9 Subscript out of range",
+  "ReDim a(5 To 3)": "Err 9 Subscript out of range",
+  "ReDim a(1 To 1)": "ok",
+  "ReDim a(-1)": "Err 9 Subscript out of range",
+  "ReDim a(1 To 2, 1 To 0)": "Err 9 Subscript out of range",
+  "ReDim a(1 To 0, 1 To 2)": "Err 9 Subscript out of range",
+  "ReDim a(1 To 2): ReDim Preserve a(1 To 0)": "Err 9 Subscript out of range",
+  "ReDim v(1 To 0)": "Err 9 Subscript out of range",
+  "ReDim a(0)": "ok"
+ }
+}

@@ -1208,6 +1208,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   names that start like an R1C1 reference. 324 live names agree,
   `tests/fixtures/name_validity.json`.
 
+- `Application.Intersect` keeps every area. It read only the first area
+  of each range, so `A1:A3,C1:C3` with `A1:C10` gave `A1:A3`. Pieces
+  that make a rectangle together are joined, as in Excel (#257).
+
 - `Range.Formula2` no longer puts an @ before a reference to one cell of
   another workbook. The colon of the path's drive, `C:\`, was read as a
   reference across sheets.
@@ -1368,6 +1372,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   Python's casefold, which keeps ae apart from the ligature, and a style
   named beyond ASCII stopped the collection being listed or added to.
   38 live names and 19 lookups agree, `tests/fixtures/style_order.json`.
+
+- `Option Compare Text` takes effect. The model compared as binary
+  whatever a module said, so `"a" = "A"` was False there, and `Like`,
+  `Select Case` and `InStr` or `StrComp` without a Compare were too.
+
+- A text comparison ignores kana type and width, as VBA's does:
+  `StrComp` with `vbTextCompare`, and `=` or `<` under `Option Compare
+  Text`, take あ as ア, ａ as a and ｶﾞ as ガ. `InStr`, `Like`, `Replace`,
+  `Split` and a Dictionary still tell them apart, as in Excel (#252).
+
+- `Val` reads ASCII digits only, as VBA does. It read full-width digits,
+  `inf` and `1_000` as numbers (#252).
+
+- `ListObject.Name` takes any text, and `DisplayName` follows the
+  defined-name rules, beyond ASCII too, as in Excel. A non-ASCII name
+  such as 明細 was refused. Setting `Name` to `a b` keeps it as the
+  table's name and makes its DisplayName `a_b` (#252).
 
 - Opening a workbook that holds a chart sheet, a dialog sheet or an
   Excel 4 macro sheet reports itself unsupported. The model holds

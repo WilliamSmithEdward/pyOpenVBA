@@ -1183,9 +1183,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
-- `Application.Intersect` keeps every area. It read only the first area
-  of each range, so `A1:A3,C1:C3` with `A1:C10` gave `A1:A3`. Pieces
-  that make a rectangle together are joined, as in Excel (#257).
+- `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
+  bound is below its lower bound, with Preserve or without. It made an
+  empty array (#255).
 
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
@@ -1202,6 +1202,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   and took `R1C1_`, `C1R1`, `R1x` and `RC1C`, which Excel refuses as
   names that start like an R1C1 reference. 324 live names agree,
   `tests/fixtures/name_validity.json`.
+
+- `Application.Intersect` keeps every area. It read only the first area
+  of each range, so `A1:A3,C1:C3` with `A1:C10` gave `A1:A3`. Pieces
+  that make a rectangle together are joined, as in Excel (#257).
 
 - `Range.Formula2` no longer puts an @ before a reference to one cell of
   another workbook. The colon of the path's drive, `C:\`, was read as a

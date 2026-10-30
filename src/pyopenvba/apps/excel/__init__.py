@@ -323,21 +323,26 @@ class SheetView(NamedRangeAPI):
 class ExcelApplication(NamedRangeAPI):
     """Excel, in memory: workbooks, sheets, cells, and the macros that move them."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, locale: str = "en-US") -> None:
+        """``locale`` is the Windows Regional format the VBA runs under: "en-US", or "ja-JP" for what CStr,
+        Format, FormatCurrency, FormatDateTime, MonthName and WeekdayName write and what CDate, IsDate,
+        DateValue and the number conversions read under Japanese (Japan). Cells are not affected."""
         from pyopenvba.apps.excel._projects import ExcelInterpreter
+        from pyopenvba.interpreter._locale import locale_named
 
         self.application = Application()
+        self.application.locale = locale_named(locale)
         self.interpreter = ExcelInterpreter(self.application)
         self.application.interpreter = self.interpreter
 
     # --- state in -------------------------------------------------------------------
 
     @classmethod
-    def open(cls, path: str | Path, *, with_vba: bool = True) -> ExcelApplication:
+    def open(cls, path: str | Path, *, with_vba: bool = True, locale: str = "en-US") -> ExcelApplication:
         """Load a workbook, its sheets, its names, its queries and its macros."""
         from pyopenvba.apps.excel._io import load_workbook
 
-        app = cls()
+        app = cls(locale=locale)
         book = load_workbook(app.application, Path(path))
         app.application.workbooks_.books.append(book)
         from pyopenvba.apps.excel._projects import attach_project
@@ -431,12 +436,14 @@ class ExcelApplication(NamedRangeAPI):
 
     def evaluate(self, expression: str) -> object:
         """Evaluate one VBA expression against the current state."""
+        from pyopenvba.interpreter._locale import active
         from pyopenvba.interpreter._parse import parse_expression
 
         parsed = parse_expression(expression)
         self.interpreter.initialise()
         frame = _bare_frame(self.interpreter)
-        return _plain(self.interpreter.evaluate(parsed, frame))
+        with active(self.interpreter.locale):
+            return _plain(self.interpreter.evaluate(parsed, frame))
 
     def refresh_query(self, name: str) -> list[list[object]]:
         """Evaluate one query and give back its rows, headers first.

@@ -26,6 +26,7 @@ class ExcelInterpreter(Interpreter):
     def __init__(self, application: Application, workbook: Workbook | None = None) -> None:
         self.bridge = ExcelBridge(application, workbook)
         super().__init__(self.bridge)
+        self.locale = application.locale
         self.executed_modules: WeakSet[ModuleRuntime] = WeakSet()
         # Worksheet functions retain edited bindings for the running macro;
         # subsequent UDF calculation resets the project from its editable text.

@@ -44,7 +44,8 @@ from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Context, Decimal, InvalidOpe
 from typing import Any, Callable, Final
 from weakref import ReferenceType
 
-from pyopenvba.exceptions import VBARuntimeError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
+from pyopenvba.interpreter import _locale
 
 # --- error numbers ---------------------------------------------------------------
 
@@ -682,13 +683,14 @@ _NUMBER_TEXT = re.compile(
           | &[oO](?P<octal>[0-7]+)
           | (?P<plain>(?:\d+\.?\d*|\.\d+)(?:[eEdD][-+]?\d+)?)
         )[ \t]*$""",
-    re.VERBOSE,
+    re.VERBOSE | re.ASCII,
 )
 
 
 #: The digits of a number a US-English Office reads: commas anywhere after
-#: the first digit, even after the point, then an optional exponent.
-_DECORATED_BODY = re.compile(r"(?:\d[\d,]*(?:\.[\d,]*)?|\.\d[\d,]*)(?:[eEdD][-+]?\d+)?")
+#: the first digit, even after the point, then an optional exponent. Digits are
+#: ASCII: en-US VBA refuses CDbl("１２") (live probe, tests/fixtures/vba_locale_live.json).
+_DECORATED_BODY = re.compile(r"(?:\d[\d,]*(?:\.[\d,]*)?|\.\d[\d,]*)(?:[eEdD][-+]?\d+)?", re.ASCII)
 
 
 def _decorated_number(text: str) -> int | float | None:
@@ -701,22 +703,32 @@ def _decorated_number(text: str) -> int | float | None:
     negative, never with a sign; spaces and tabs between the parts but not
     inside the digits. ``,5``, ``$$5``, ``--5``, ``(-5)``, ``5%`` are not
     numbers. Returns None for text that is not one.
+
+    The currency sign is the locale's: ja-JP takes the yen sign, its
+    full-width form and the backslash, and not ``$``
+    (tests/fixtures/vba_locale.json).
     """
+    locale = _locale.current()
+    signs = locale.currency_signs
     rest = text.strip(" \t")
+    if locale is _locale.JA_JP:
+        # ja-JP takes the sign repeated at the end: 12¥¥ is 12.
+        while len(rest) >= 2 and rest[-1] in signs and rest[-2] in signs:
+            rest = rest[:-1]
     currency = sign = 0
     negative = parens = False
-    if rest[:1] == "$":
+    if rest[:1] and rest[:1] in signs:
         currency, rest = 1, rest[1:].strip(" \t")
-    elif rest[-1:] == "$" and rest[:1] == "(":
+    elif rest[-1:] and rest[-1:] in signs and rest[:1] == "(":
         currency, rest = 1, rest[:-1].strip(" \t")
     if len(rest) >= 2 and rest[0] == "(" and rest[-1] == ")":
         parens = negative = True
         rest = rest[1:-1].strip(" \t")
     for end in (0, -1):
-        while rest and rest[end] in "+-$":
+        while rest and (rest[end] in "+-" or rest[end] in signs):
             mark = rest[end]
             rest = (rest[1:] if end == 0 else rest[:-1]).strip(" \t")
-            if mark == "$":
+            if mark in signs:
                 currency += 1
             else:
                 sign += 1
@@ -763,8 +775,11 @@ def text_to_number(text: str) -> int | float:
     """A string as VBA reads it in an arithmetic context.
 
     Stricter than ``Val``: the whole string has to be a number, or VBA
-    raises 13 rather than taking the leading digits.
+    raises 13 rather than taking the leading digits. Under ja-JP, full-width
+    digits and signs read as their ASCII forms (``１２`` is 12).
     """
+    if _locale.current().folds_width:
+        text = _locale.fold_width(text)
     match = _NUMBER_TEXT.match(text)
     if not match:
         decorated = _decorated_number(text)
@@ -900,13 +915,22 @@ def date_text(value: VBADate) -> str:
     0, it prints as the time alone, midnight included, which is why a cell
     holding 0.5 shows only a clock; at midnight on any other day, as the
     date alone, so a time a hair short of midnight prints the next day.
+    Under ja-JP the date is year/MM/dd and the clock 24-hour, as
+    2026/01/05 9:07:07 (oleaut32's VarBstrFromDate, LCID 1041).
     """
     when = value.to_datetime()
+    japanese = _locale.current() is _locale.JA_JP
+    if japanese:
+        day = f"{when.year}/{when.month:02d}/{when.day:02d}"
+        clock = f"{when.hour}:{when.minute:02d}:{when.second:02d}"
+    else:
+        day = f"{when.month}/{when.day}/{when.year}"
+        clock = _time_text(when)
     if when.date() == VBADate.EPOCH.date():
-        return _time_text(when)
+        return clock
     if when.time() == _dt.time():
-        return f"{when.month}/{when.day}/{when.year}"
-    return f"{when.month}/{when.day}/{when.year} {_time_text(when)}"
+        return day
+    return f"{day} {clock}"
 
 
 def _time_text(when: _dt.datetime) -> str:
@@ -948,7 +972,7 @@ _AM_PM: Final = {"am": "am", "a": "am", "pm": "pm", "p": "pm"}
 _DateToken = tuple[str, object, bool]
 
 
-def _date_tokens(text: str) -> list[_DateToken] | None:
+def _date_tokens(text: str, japanese: bool = False) -> list[_DateToken] | None:
     tokens: list[_DateToken] = []
     at, spaced = 0, False
     while at < len(text):
@@ -956,9 +980,15 @@ def _date_tokens(text: str) -> list[_DateToken] | None:
         if char in " \t":
             at, spaced = at + 1, True
             continue
-        if char.isdigit():
+        if japanese and char in _UNITS:
+            tokens.append(("unit", char, spaced))
+            end = at + 1
+        elif japanese and text.startswith(("午前", "午後"), at):
+            tokens.append(("ampm", "am" if text[at + 1] == "前" else "pm", spaced))
+            end = at + 2
+        elif "0" <= char <= "9":
             end = at
-            while end < len(text) and text[end].isdigit():
+            while end < len(text) and "0" <= text[end] <= "9":
                 end += 1
             tokens.append(("num", text[at:end], spaced))
         elif char.isalpha():
@@ -966,6 +996,11 @@ def _date_tokens(text: str) -> list[_DateToken] | None:
             while end < len(text) and text[end].isalpha():
                 end += 1
             word = text[at:end].lower()
+            if japanese and (word in ("a", "p") or (word[:2] in ("am", "pm") and word not in _AM_PM)):
+                # ja-JP takes A and P after a number or a clock, and before one only with a space between,
+                # and reads PMOct as PM and Oct.
+                raise VBAUnsupportedError("reading A, P or a word joined to AM or PM in Japanese date text is "
+                                          "not implemented")
             if word in _AM_PM:
                 tokens.append(("ampm", _AM_PM[word], spaced))
             else:
@@ -990,7 +1025,7 @@ def _date_tokens(text: str) -> list[_DateToken] | None:
     return tokens
 
 
-def _date_from_tokens(tokens: list[_DateToken]) -> VBADate | None:
+def _date_from_tokens(tokens: list[_DateToken], japanese: bool = False) -> VBADate | None:
     # The time: numbers joined by colons, or one number beside AM/PM.
     times: list[tuple[int, int]] = []  # (start, end) token spans
     index = 0
@@ -1008,6 +1043,11 @@ def _date_from_tokens(tokens: list[_DateToken]) -> VBADate | None:
     marks = [at for at, token in enumerate(tokens) if token[0] == "ampm"]
     if len(marks) > 1 or len(times) > 1:
         return None
+    if marks and japanese and not times and not (marks[0] > 0 and tokens[marks[0] - 1][0] == "num"):
+        # ja-JP passes over AM or PM with no clock and no hour before it: 午後2019/10/28 is the date,
+        # 午後9 nothing; 9 午後 is 9 PM.
+        tokens = tokens[:marks[0]] + tokens[marks[0] + 1:]
+        marks = []
     if marks:
         mark = marks[0]
         if times and times[0][1] == mark:
@@ -1025,20 +1065,22 @@ def _date_from_tokens(tokens: list[_DateToken]) -> VBADate | None:
     if times:
         start, end = times[0]
         part = tokens[start:end]
-        # Set off by spaces from the date, never by a separator.
-        if (start > 0 and (tokens[start - 1][0] == "sep" or not part[0][2])) or \
-                (end < len(tokens) and (tokens[end][0] == "sep" or not tokens[end][2])):
+        # Set off by spaces from the date, never by a separator; ja-JP needs no space.
+        if (start > 0 and (tokens[start - 1][0] == "sep" or not (part[0][2] or japanese))) or \
+                (end < len(tokens) and (tokens[end][0] == "sep" or not (tokens[end][2] or japanese))):
             return None
         clock = _clock(part)
         if clock is None:
             return None
         rest = tokens[:start] + tokens[end:]
+        if japanese and start == 0 and rest:
+            raise VBAUnsupportedError("reading Japanese date text with the time before the date is not implemented")
     items = _date_items(rest)
     if items is None:
         return None
     if not items:
         return VBADate.from_datetime(clock) if clock is not None else None
-    day = _calendar_day(items)
+    day = _calendar_day(items, japanese)
     if day is None:
         return None
     if clock is None:
@@ -1094,10 +1136,15 @@ def _real_day(year: int, month: int, day: int) -> _dt.date | None:
         return None
 
 
-def _calendar_day(items: list[_DateToken]) -> _dt.date | None:
+def _this_year() -> int:
+    """The year text with none is read in."""
+    return _dt.date.today().year
+
+
+def _calendar_day(items: list[_DateToken], japanese: bool = False) -> _dt.date | None:
     months = [int(str(token[1])) for token in items if token[0] == "month"]
     numbers = [int(str(token[1])) for token in items if token[0] == "num"]
-    this_year = _dt.date.today().year
+    this_year = _this_year()
     if len(months) > 1 or len(items) > 3:
         return None
     if months:
@@ -1107,13 +1154,18 @@ def _calendar_day(items: list[_DateToken]) -> _dt.date | None:
             return _real_day(this_year, month, value) if value <= 31 else _real_day(_year(value), month, 1)
         if len(numbers) == 2:
             first, second = numbers
+            if japanese:
+                # ja-JP reads the year first, "Mar 4 5" as 5 March 2004, then the day: "Oct 28 2019".
+                return _real_day(_year(first), month, second) or _real_day(_year(second), month, first)
             if first > 31:
                 return _real_day(_year(first), month, second)
             return _real_day(_year(second), month, first)
         return None
     if len(numbers) == 3:
         a, b, c = numbers
-        for year, month, day in ((c, a, b), (a, b, c), (c, b, a)):
+        # en-US tries month-day-year first, ja-JP year-month-day.
+        orders = ((a, b, c), (c, a, b), (c, b, a)) if japanese else ((c, a, b), (a, b, c), (c, b, a))
+        for year, month, day in orders:
             found = _real_day(_year(year), month, day)
             if found is not None:
                 return found
@@ -1128,6 +1180,137 @@ def _calendar_day(items: list[_DateToken]) -> _dt.date | None:
     return None
 
 
+#: The marks that say which number of Japanese date text is which: year, month, day, hour, minute, second.
+_UNITS: Final = "年月日時分秒"
+#: An era before the year it counts: its name, its first character or its letter, then the year, or 元 (the
+#: first year) before 年.
+_ERA_YEAR: Final = re.compile(r"(?<![A-Za-z])(令和|平成|昭和|大正|明治|[令平昭大明RHSTMrhstm])[ \t]*(\d+|元(?=年))")
+
+
+def read_date_text(text: str) -> VBADate | None:
+    """``text`` as a Date as CDate, IsDate and DateValue read it under the
+    locale in force, or None. A date literal in code reads as en-US whatever
+    the locale (``parse_date_text``)."""
+    if _locale.current() is _locale.JA_JP:
+        return _japanese_date(text)
+    return parse_date_text(text)
+
+
+def _japanese_date(text: str) -> VBADate | None:
+    """Date text as ja-JP reads it, checked against oleaut32 with LCID 1041
+    over the strings in tests/fixtures/vba_locale.json.
+
+    Full-width letters and digits read as ASCII. Three numbers are
+    year-month-day first, then month-day-year, then day-month-year, and a
+    month name's first number is the year. An era before the first number
+    (令和8, 令8, R8, 平成元年) makes it the era's year, past the era's end too.
+    Numbers marked 年, 月 and 日 are the year, month and day in any order,
+    which needs the month and the year or the day; 時, 分 and 秒 mark the
+    hour, minute and second. 午前 and 午後 are AM and PM.
+    """
+    text = _locale.fold_width(text)
+    found = list(_ERA_YEAR.finditer(text))
+    if len(found) > 1:
+        return None
+    if found:
+        match = found[0]
+        name = match.group(1)
+        era = next(era for era in _locale.JA_JP.eras
+                   if name in (era.name, era.short) or name.upper() == era.letter)
+        count = 1 if match.group(2) == "元" else int(match.group(2))
+        # A space keeps the year apart from a number before it.
+        text = f"{text[:match.start()]} {era.start.year + count - 1}{text[match.end():]}"
+    tokens = _date_tokens(text, japanese=True)
+    if tokens is None:
+        return None
+    if any(token[0] == "unit" for token in tokens):
+        return _marked_date(tokens)
+    return _date_from_tokens(tokens, japanese=True)
+
+
+def _marked_date(tokens: list[_DateToken]) -> VBADate | None:
+    """Japanese date text whose numbers carry 年月日 or 時分秒."""
+    marked: dict[str, int] = {}
+    rest: list[_DateToken] = []
+    places: list[int] = []  # where each token of rest stood
+    first_date = first_time = len(tokens)
+    at = 0
+    while at < len(tokens):
+        kind, value, _spaced = tokens[at]
+        if kind == "num" and at + 1 < len(tokens) and tokens[at + 1][0] == "unit":
+            unit = str(tokens[at + 1][1])
+            if unit in marked:
+                return None
+            marked[unit] = int(str(value))
+            if unit in "年月日":
+                first_date = min(first_date, at)
+            else:
+                first_time = min(first_time, at)
+            at += 2
+            if unit in "時分" and at < len(tokens) and tokens[at][0] == "num" and \
+                    not (at + 1 < len(tokens) and tokens[at + 1][0] == "unit" and str(tokens[at + 1][1]) in "時分秒"):
+                # A number after 時 or 分 is another part of the time: 13時2019年 is nothing.
+                return None
+            continue
+        if kind == "unit":
+            return None
+        rest.append(tokens[at])
+        places.append(at)
+        at += 1
+    timed = any(unit in marked for unit in "時分秒")
+    dated = any(unit in marked for unit in "年月日")
+    marks = [index for index, token in enumerate(rest) if token[0] == "ampm"]
+    mark = str(rest[marks[0]][1]) if marks else None
+    if dated and not timed and len(rest) == 1 and marks:
+        # AM or PM with no time is passed over before the date and fails after it.
+        if places[0] > first_date:
+            return None
+        rest = []
+    plain = [place for place, token in zip(places, rest) if token[0] != "ampm"]
+    if (timed and plain and plain[0] > first_time) or (dated and plain and plain[0] < first_date) or \
+            (timed and dated and first_time < first_date):
+        raise VBAUnsupportedError("reading Japanese date text with the time before the date is not implemented")
+    day: _dt.date | None = None
+    clock: _dt.time | None = None
+    if dated:
+        if "月" not in marked or not ("年" in marked or "日" in marked):
+            return None
+        year = _year(marked["年"]) if "年" in marked else _this_year()
+        day = _real_day(year, marked["月"], marked.get("日", 1))
+        if day is None:
+            return None
+    if timed:
+        hour, minute, second = marked.get("時", 0), marked.get("分", 0), marked.get("秒", 0)
+        if not 0 <= hour <= 23 or not 0 <= minute <= 59 or not 0 <= second <= 59:
+            return None
+        if mark == "pm" and hour < 12:
+            hour += 12
+        elif mark == "am" and hour == 12:
+            hour = 0
+        clock = _dt.time(hour, minute, second)
+        rest = [token for token in rest if token[0] != "ampm"]
+    if rest:
+        # What is left is the other half: a plain date beside a marked time, a clock beside a marked date.
+        if dated and timed:
+            return None
+        found = _date_from_tokens(rest, japanese=True)
+        if found is None:
+            return None
+        if dated:
+            if not 0 <= found.serial < 1:
+                return None
+            clock = found.to_datetime().time()
+        else:
+            if found.serial != int(found.serial) or found.serial == 0:
+                return None
+            day = found.to_datetime().date()
+    if day is None:
+        return VBADate.from_datetime(clock) if clock is not None else None
+    if clock is None:
+        return VBADate.from_datetime(day)
+    return VBADate.from_datetime(_dt.datetime.combine(day, clock))
+
+
 def to_date(value: object) -> VBADate:
     """``value`` as a Date, as CDate reads one."""
     if isinstance(value, VBADate):
@@ -1137,7 +1320,7 @@ def to_date(value: object) -> VBADate:
     if value is EMPTY:
         return VBADate(0.0)
     if isinstance(value, str):
-        parsed = parse_date_text(value)
+        parsed = read_date_text(value)
         if parsed is None:
             try:
                 # CDate("2024") is the serial 2024, though IsDate says False (native probe).

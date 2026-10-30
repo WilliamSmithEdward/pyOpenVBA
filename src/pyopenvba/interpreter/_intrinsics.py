@@ -31,6 +31,7 @@ from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
+from pyopenvba.interpreter import _locale
 from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -51,7 +52,7 @@ from pyopenvba.interpreter._values import (
     VBASingle,
     error,
     number_text,
-    parse_date_text,
+    read_date_text,
     round_half_even,
     string_order,
     condition,
@@ -241,11 +242,13 @@ def vba_ccur(interpreter: Interpreter, value: object) -> object:
 @intrinsic("CDec", "Expression", minimum=1)
 def vba_cdec(interpreter: Interpreter, value: object) -> object:
     """Text is read as a Decimal directly, all 29 digits of it, not through a
-    Double (native probe: CDec("7.9228162514264337593543950335"))."""
+    Double (native probe: CDec("7.9228162514264337593543950335")). Its digits
+    are ASCII, or full-width under ja-JP (live probes)."""
     if isinstance(value, str):
-        plain = value.strip().replace(",", "")
+        text = _locale.fold_width(value) if _locale.current().folds_width else value
+        plain = text.strip().replace(",", "")
         try:
-            exact = Decimal(plain)
+            exact = Decimal(plain) if plain.isascii() else None
         except InvalidOperation:
             exact = None
         if exact is not None and exact.is_finite():
@@ -1006,10 +1009,13 @@ def _format_numeric(interpreter: Interpreter, value: object, digits: object, lea
     digits is the locale's 2, False leading digit drops the 0 before the
     point, parentheses wrap a negative and False grouping drops the
     thousands separator. Only the currency format puts negatives in
-    parentheses by default (native probes, en-US)."""
-    places = 2 if digits is MISSING else int(to_integer(digits, "Long"))
+    parentheses by default (native probes, en-US); ja-JP's currency has no
+    decimals and a minus sign, as ¥1,235 and -¥1,235 (live probe)."""
+    locale = _locale.current()
+    default_places = locale.currency_digits if prefix else 2
+    places = default_places if digits is MISSING else int(to_integer(digits, "Long"))
     if places == -1:
-        places = 2
+        places = default_places
     whole = "0" if _tristate(leading, True) else "#"
     body = prefix + ("#,##" + whole if _tristate(group, True) else whole) + ("." + "0" * places if places else "") + suffix
     pattern = f"{body};({body})" if _tristate(parens, parens_default) else body
@@ -1027,7 +1033,9 @@ def vba_format_number(interpreter: Interpreter, value: object, digits: object, l
            "UseParensForNegativeNumbers", "GroupDigits", minimum=1)
 def vba_format_currency(interpreter: Interpreter, value: object, digits: object, leading: object, parens: object,
                         group: object) -> object:
-    return _format_numeric(interpreter, value, digits, leading, parens, group, prefix="$", parens_default=True)
+    locale = _locale.current()
+    return _format_numeric(interpreter, value, digits, leading, parens, group, prefix=locale.currency_symbol,
+                           parens_default=locale.currency_parens)
 
 
 @intrinsic("FormatPercent", "Expression", "NumDigitsAfterDecimal", "IncludeLeadingDigit",
@@ -1040,12 +1048,13 @@ def vba_format_percent(interpreter: Interpreter, value: object, digits: object, 
 @intrinsic("FormatDateTime", "Date", "NamedFormat", minimum=1)
 def vba_format_datetime(interpreter: Interpreter, value: object, named: object) -> object:
     which = 0 if named is MISSING else int(to_integer(named, "Long"))
+    locale = _locale.current()
     patterns = {
         0: "",
-        1: "dddd, mmmm d, yyyy",
-        2: "m/d/yyyy",
-        3: "h:mm:ss AM/PM",
-        4: "hh:mm",
+        1: locale.long_date,
+        2: locale.short_date,
+        3: locale.long_time,
+        4: locale.short_time,
     }
     if which not in patterns:
         raise error(5)
@@ -1173,22 +1182,23 @@ def vba_weekday(interpreter: Interpreter, value: object, first: object) -> objec
 
 @intrinsic("WeekdayName", "Weekday", "Abbreviate", "FirstDayOfWeek", minimum=1)
 def vba_weekdayname(interpreter: Interpreter, number: object, short: object, first: object) -> object:
-    names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    locale = _locale.current()
     start = 1 if first is MISSING or int(to_integer(first, "Long")) == 0 else int(to_integer(first, "Long"))
     index = int(to_integer(number, "Long"))
     if not 1 <= index <= 7:
         raise error(5)
-    name = names[(index - 1 + start - 1) % 7]
-    return name[:3] if short is not MISSING and to_bool(short) else name
+    names = locale.day_abbreviations if short is not MISSING and to_bool(short) else locale.days
+    return names[(index - 1 + start - 1) % 7]
 
 
 @intrinsic("MonthName", "Month", "Abbreviate", minimum=1)
 def vba_monthname(interpreter: Interpreter, number: object, short: object) -> object:
+    locale = _locale.current()
     index = int(to_integer(number, "Long"))
     if not 1 <= index <= 12:
         raise error(5)
-    name = _dt.date(2000, index, 1).strftime("%B")
-    return name[:3] if short is not MISSING and to_bool(short) else name
+    names = locale.month_abbreviations if short is not MISSING and to_bool(short) else locale.months
+    return names[index - 1]
 
 
 _INTERVALS: Final = {"yyyy", "q", "m", "y", "d", "w", "ww", "h", "n", "s"}
@@ -1350,7 +1360,7 @@ def vba_isdate(interpreter: Interpreter, value: object) -> object:
     if isinstance(value, VBADate):
         return True
     if isinstance(value, str):
-        return parse_date_text(value) is not None
+        return read_date_text(value) is not None
     # A number is not a date, though CDate takes it: IsDate(45000) is False (native probes).
     return False
 

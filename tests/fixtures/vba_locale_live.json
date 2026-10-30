@@ -1,0 +1,7616 @@
+{
+ "en-US": {
+  "measured_at": "2026-10-30T22:56:46.010034+00:00",
+  "regional_format": "en-US",
+  "cases": [
+   [
+    "CStr(DateSerial(2026, 1, 5))",
+    "expr",
+    "CStr(DateSerial(2026, 1, 5))",
+    [
+     "String",
+     "1/5/2026"
+    ]
+   ],
+   [
+    "CStr(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5))",
+    "expr",
+    "CStr(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5))",
+    [
+     "String",
+     "10/28/2026 1:04:05 PM"
+    ]
+   ],
+   [
+    "CStr(TimeSerial(13, 4, 5))",
+    "expr",
+    "CStr(TimeSerial(13, 4, 5))",
+    [
+     "String",
+     "1:04:05 PM"
+    ]
+   ],
+   [
+    "CStr(1234.5)",
+    "expr",
+    "CStr(1234.5)",
+    [
+     "String",
+     "1234.5"
+    ]
+   ],
+   [
+    "CStr(CCur(1234.5))",
+    "expr",
+    "CStr(CCur(1234.5))",
+    [
+     "String",
+     "1234.5"
+    ]
+   ],
+   [
+    "CStr(True)",
+    "expr",
+    "CStr(True)",
+    [
+     "String",
+     "True"
+    ]
+   ],
+   [
+    "CStr(CVar(DateSerial(2026, 1, 5)))",
+    "expr",
+    "CStr(CVar(DateSerial(2026, 1, 5)))",
+    [
+     "String",
+     "1/5/2026"
+    ]
+   ],
+   [
+    "FormatDateTime(DateSerial(2026, 1, 5), vbLongDate)",
+    "expr",
+    "FormatDateTime(DateSerial(2026, 1, 5), vbLongDate)",
+    [
+     "String",
+     "Monday, January 5, 2026"
+    ]
+   ],
+   [
+    "FormatDateTime(DateSerial(2026, 1, 5), vbShortDate)",
+    "expr",
+    "FormatDateTime(DateSerial(2026, 1, 5), vbShortDate)",
+    [
+     "String",
+     "1/5/2026"
+    ]
+   ],
+   [
+    "FormatDateTime(TimeSerial(13, 4, 5), vbLongTime)",
+    "expr",
+    "FormatDateTime(TimeSerial(13, 4, 5), vbLongTime)",
+    [
+     "String",
+     "1:04:05 PM"
+    ]
+   ],
+   [
+    "FormatCurrency(1234.5)",
+    "expr",
+    "FormatCurrency(1234.5)",
+    [
+     "String",
+     "$1,234.50"
+    ]
+   ],
+   [
+    "FormatCurrency(-1234.5)",
+    "expr",
+    "FormatCurrency(-1234.5)",
+    [
+     "String",
+     "($1,234.50)"
+    ]
+   ],
+   [
+    "FormatNumber(1234.5)",
+    "expr",
+    "FormatNumber(1234.5)",
+    [
+     "String",
+     "1,234.50"
+    ]
+   ],
+   [
+    "FormatPercent(0.125)",
+    "expr",
+    "FormatPercent(0.125)",
+    [
+     "String",
+     "12.50%"
+    ]
+   ],
+   [
+    "MonthName(10)",
+    "expr",
+    "MonthName(10)",
+    [
+     "String",
+     "October"
+    ]
+   ],
+   [
+    "MonthName(10, True)",
+    "expr",
+    "MonthName(10, True)",
+    [
+     "String",
+     "Oct"
+    ]
+   ],
+   [
+    "WeekdayName(3)",
+    "expr",
+    "WeekdayName(3)",
+    [
+     "String",
+     "Tuesday"
+    ]
+   ],
+   [
+    "WeekdayName(3, True)",
+    "expr",
+    "WeekdayName(3, True)",
+    [
+     "String",
+     "Tue"
+    ]
+   ],
+   [
+    "Format(1234.5, \"Currency\")",
+    "expr",
+    "Format(1234.5, \"Currency\")",
+    [
+     "String",
+     "$1,234.50"
+    ]
+   ],
+   [
+    "Format(1234.5, \"Standard\")",
+    "expr",
+    "Format(1234.5, \"Standard\")",
+    [
+     "String",
+     "1,234.50"
+    ]
+   ],
+   [
+    "Format(-1234.5, \"Currency\")",
+    "expr",
+    "Format(-1234.5, \"Currency\")",
+    [
+     "String",
+     "($1,234.50)"
+    ]
+   ],
+   [
+    "Format(1234.5)",
+    "expr",
+    "Format(1234.5)",
+    [
+     "String",
+     "1234.5"
+    ]
+   ],
+   [
+    "Format(0.5, \"Percent\")",
+    "expr",
+    "Format(0.5, \"Percent\")",
+    [
+     "String",
+     "50.00%"
+    ]
+   ],
+   [
+    "Format(True, \"Yes/No\")",
+    "expr",
+    "Format(True, \"Yes/No\")",
+    [
+     "String",
+     "Yes"
+    ]
+   ],
+   [
+    "Format(DateSerial(2026, 1, 5))",
+    "expr",
+    "Format(DateSerial(2026, 1, 5))",
+    [
+     "String",
+     "1/5/2026"
+    ]
+   ],
+   [
+    "DatePart(\"ww\", DateSerial(2026, 1, 5))",
+    "expr",
+    "DatePart(\"ww\", DateSerial(2026, 1, 5))",
+    [
+     "Integer",
+     "2"
+    ]
+   ],
+   [
+    "Weekday(DateSerial(2026, 1, 5))",
+    "expr",
+    "Weekday(DateSerial(2026, 1, 5))",
+    [
+     "Integer",
+     "2"
+    ]
+   ],
+   [
+    "Year(DateSerial(2026, 10, 28))",
+    "expr",
+    "Year(DateSerial(2026, 10, 28))",
+    [
+     "Integer",
+     "2026"
+    ]
+   ],
+   [
+    "CStr(#10/28/2026#)",
+    "expr",
+    "CStr(#10/28/2026#)",
+    [
+     "String",
+     "10/28/2026"
+    ]
+   ],
+   [
+    "Format(D, 'ggge年m月d日')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ggge\" & ChrW(&H5E74) & \"m\" & ChrW(&H6708) & \"d\" & ChrW(&H65E5))",
+    [
+     "String",
+     "ggge年10月28日"
+    ]
+   ],
+   [
+    "Format(D, 'gge')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"gge\")",
+    [
+     "String",
+     "gge"
+    ]
+   ],
+   [
+    "Format(D, 'gg')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"gg\")",
+    [
+     "String",
+     "gg"
+    ]
+   ],
+   [
+    "Format(D, 'g')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"g\")",
+    [
+     "String",
+     "g"
+    ]
+   ],
+   [
+    "Format(D, 'e')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"e\")",
+    [
+     "String",
+     "e"
+    ]
+   ],
+   [
+    "Format(D, 'ee')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ee\")",
+    [
+     "String",
+     "ee"
+    ]
+   ],
+   [
+    "Format(D, 'yyyy/mm/dd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"yyyy/mm/dd\")",
+    [
+     "String",
+     "2026/10/28"
+    ]
+   ],
+   [
+    "Format(D, 'aaa')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"aaa\")",
+    [
+     "String",
+     "aaa"
+    ]
+   ],
+   [
+    "Format(D, 'aaaa')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"aaaa\")",
+    [
+     "String",
+     "aaaa"
+    ]
+   ],
+   [
+    "Format(D, 'ddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ddd\")",
+    [
+     "String",
+     "Wed"
+    ]
+   ],
+   [
+    "Format(D, 'dddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"dddd\")",
+    [
+     "String",
+     "Wednesday"
+    ]
+   ],
+   [
+    "Format(D, 'General Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"General Date\")",
+    [
+     "String",
+     "10/28/2026 1:04:05 PM"
+    ]
+   ],
+   [
+    "Format(D, 'Long Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Long Date\")",
+    [
+     "String",
+     "Wednesday, October 28, 2026"
+    ]
+   ],
+   [
+    "Format(D, 'Medium Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Medium Date\")",
+    [
+     "String",
+     "28-Oct-26"
+    ]
+   ],
+   [
+    "Format(D, 'Short Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Short Date\")",
+    [
+     "String",
+     "10/28/2026"
+    ]
+   ],
+   [
+    "Format(D, 'Long Time')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Long Time\")",
+    [
+     "String",
+     "1:04:05 PM"
+    ]
+   ],
+   [
+    "Format(D, 'Medium Time')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Medium Time\")",
+    [
+     "String",
+     "01:04 PM"
+    ]
+   ],
+   [
+    "Format(D, 'Short Time')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Short Time\")",
+    [
+     "String",
+     "13:04"
+    ]
+   ],
+   [
+    "Format(D, 'c')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"c\")",
+    [
+     "String",
+     "10/28/2026 1:04:05 PM"
+    ]
+   ],
+   [
+    "Format(D, 'ddddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ddddd\")",
+    [
+     "String",
+     "10/28/2026"
+    ]
+   ],
+   [
+    "Format(D, 'dddddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"dddddd\")",
+    [
+     "String",
+     "Wednesday, October 28, 2026"
+    ]
+   ],
+   [
+    "Format(D, 'ttttt')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ttttt\")",
+    [
+     "String",
+     "1:04:05 PM"
+    ]
+   ],
+   [
+    "Format(D, 'AM/PM')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"AM/PM\")",
+    [
+     "String",
+     "PM"
+    ]
+   ],
+   [
+    "Format(D, 'h:nn AMPM')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"h:nn AMPM\")",
+    [
+     "String",
+     "1:04 PM"
+    ]
+   ],
+   [
+    "Format(D, 'mmm')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"mmm\")",
+    [
+     "String",
+     "Oct"
+    ]
+   ],
+   [
+    "Format(D, 'mmmm')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"mmmm\")",
+    [
+     "String",
+     "October"
+    ]
+   ],
+   [
+    "Format(D, 'oooo')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"oooo\")",
+    [
+     "String",
+     "oooo"
+    ]
+   ],
+   [
+    "Format(D, 'w')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"w\")",
+    [
+     "String",
+     "4"
+    ]
+   ],
+   [
+    "Format(D, 'ww')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ww\")",
+    [
+     "String",
+     "44"
+    ]
+   ],
+   [
+    "Format(D, 'q')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"q\")",
+    [
+     "String",
+     "4"
+    ]
+   ],
+   [
+    "Format(D, 'y')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"y\")",
+    [
+     "String",
+     "301"
+    ]
+   ],
+   [
+    "Format(D, 'm/d/yy')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"m/d/yy\")",
+    [
+     "String",
+     "10/28/26"
+    ]
+   ],
+   [
+    "IsDate('令和8年10月28日')",
+    "expr",
+    "IsDate(ChrW(&H4EE4) & ChrW(&H548C) & \"8\" & ChrW(&H5E74) & \"10\" & ChrW(&H6708) & \"28\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('令和8年10月28日')",
+    "expr",
+    "CDbl(CDate(ChrW(&H4EE4) & ChrW(&H548C) & \"8\" & ChrW(&H5E74) & \"10\" & ChrW(&H6708) & \"28\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('令和8年10月28日')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H4EE4) & ChrW(&H548C) & \"8\" & ChrW(&H5E74) & \"10\" & ChrW(&H6708) & \"28\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('令和元年5月1日')",
+    "expr",
+    "IsDate(ChrW(&H4EE4) & ChrW(&H548C) & ChrW(&H5143) & ChrW(&H5E74) & \"5\" & ChrW(&H6708) & \"1\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('令和元年5月1日')",
+    "expr",
+    "CDbl(CDate(ChrW(&H4EE4) & ChrW(&H548C) & ChrW(&H5143) & ChrW(&H5E74) & \"5\" & ChrW(&H6708) & \"1\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('令和元年5月1日')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H4EE4) & ChrW(&H548C) & ChrW(&H5143) & ChrW(&H5E74) & \"5\" & ChrW(&H6708) & \"1\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('平成31年4月30日')",
+    "expr",
+    "IsDate(ChrW(&H5E73) & ChrW(&H6210) & \"31\" & ChrW(&H5E74) & \"4\" & ChrW(&H6708) & \"30\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('平成31年4月30日')",
+    "expr",
+    "CDbl(CDate(ChrW(&H5E73) & ChrW(&H6210) & \"31\" & ChrW(&H5E74) & \"4\" & ChrW(&H6708) & \"30\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('平成31年4月30日')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H5E73) & ChrW(&H6210) & \"31\" & ChrW(&H5E74) & \"4\" & ChrW(&H6708) & \"30\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('R8.10.28')",
+    "expr",
+    "IsDate(\"R8.10.28\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('R8.10.28')",
+    "expr",
+    "CDbl(CDate(\"R8.10.28\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('R8.10.28')",
+    "expr",
+    "CDbl(DateValue(\"R8.10.28\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('H31.4.30')",
+    "expr",
+    "IsDate(\"H31.4.30\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('H31.4.30')",
+    "expr",
+    "CDbl(CDate(\"H31.4.30\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('H31.4.30')",
+    "expr",
+    "CDbl(DateValue(\"H31.4.30\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('R8/10/28')",
+    "expr",
+    "IsDate(\"R8/10/28\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('R8/10/28')",
+    "expr",
+    "CDbl(CDate(\"R8/10/28\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('R8/10/28')",
+    "expr",
+    "CDbl(DateValue(\"R8/10/28\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('2026年1月5日')",
+    "expr",
+    "IsDate(\"2026\" & ChrW(&H5E74) & \"1\" & ChrW(&H6708) & \"5\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('2026年1月5日')",
+    "expr",
+    "CDbl(CDate(\"2026\" & ChrW(&H5E74) & \"1\" & ChrW(&H6708) & \"5\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('2026年1月5日')",
+    "expr",
+    "CDbl(DateValue(\"2026\" & ChrW(&H5E74) & \"1\" & ChrW(&H6708) & \"5\" & ChrW(&H65E5)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('2026/01/05')",
+    "expr",
+    "IsDate(\"2026/01/05\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('2026/01/05')",
+    "expr",
+    "CDbl(CDate(\"2026/01/05\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('2026/01/05')",
+    "expr",
+    "CDbl(DateValue(\"2026/01/05\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('2026/1/5')",
+    "expr",
+    "IsDate(\"2026/1/5\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('2026/1/5')",
+    "expr",
+    "CDbl(CDate(\"2026/1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('2026/1/5')",
+    "expr",
+    "CDbl(DateValue(\"2026/1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('1/5/2026')",
+    "expr",
+    "IsDate(\"1/5/2026\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('1/5/2026')",
+    "expr",
+    "CDbl(CDate(\"1/5/2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('1/5/2026')",
+    "expr",
+    "CDbl(DateValue(\"1/5/2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('1/5')",
+    "expr",
+    "IsDate(\"1/5\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('1/5')",
+    "expr",
+    "CDbl(CDate(\"1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('1/5')",
+    "expr",
+    "CDbl(DateValue(\"1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('5-Jan')",
+    "expr",
+    "IsDate(\"5-Jan\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('5-Jan')",
+    "expr",
+    "CDbl(CDate(\"5-Jan\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('5-Jan')",
+    "expr",
+    "CDbl(DateValue(\"5-Jan\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('Jan 5, 2026')",
+    "expr",
+    "IsDate(\"Jan 5, 2026\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('Jan 5, 2026')",
+    "expr",
+    "CDbl(CDate(\"Jan 5, 2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('Jan 5, 2026')",
+    "expr",
+    "CDbl(DateValue(\"Jan 5, 2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('13時4分')",
+    "expr",
+    "IsDate(\"13\" & ChrW(&H6642) & \"4\" & ChrW(&H5206))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('13時4分')",
+    "expr",
+    "CDbl(CDate(\"13\" & ChrW(&H6642) & \"4\" & ChrW(&H5206)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('13時4分')",
+    "expr",
+    "CDbl(DateValue(\"13\" & ChrW(&H6642) & \"4\" & ChrW(&H5206)))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('13:04')",
+    "expr",
+    "IsDate(\"13:04\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('13:04')",
+    "expr",
+    "CDbl(CDate(\"13:04\"))",
+    [
+     "Double",
+     "0.544444444444444"
+    ]
+   ],
+   [
+    "DateValue('13:04')",
+    "expr",
+    "CDbl(DateValue(\"13:04\"))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "IsDate('午後1:04')",
+    "expr",
+    "IsDate(ChrW(&H5348) & ChrW(&H5F8C) & \"1:04\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('午後1:04')",
+    "expr",
+    "CDbl(CDate(ChrW(&H5348) & ChrW(&H5F8C) & \"1:04\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('午後1:04')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H5348) & ChrW(&H5F8C) & \"1:04\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('1:04 PM')",
+    "expr",
+    "IsDate(\"1:04 PM\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('1:04 PM')",
+    "expr",
+    "CDbl(CDate(\"1:04 PM\"))",
+    [
+     "Double",
+     "0.544444444444444"
+    ]
+   ],
+   [
+    "DateValue('1:04 PM')",
+    "expr",
+    "CDbl(DateValue(\"1:04 PM\"))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "IsNumeric('\\\\1,200')",
+    "expr",
+    "IsNumeric(\"\\1,200\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('\\\\1,200')",
+    "expr",
+    "CDbl(\"\\1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('\\\\1,200')",
+    "expr",
+    "CCur(\"\\1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('\\\\1,200')",
+    "expr",
+    "CDec(\"\\1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('\\\\1,200')",
+    "expr",
+    "Val(\"\\1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('\\\\1,200')",
+    "expr",
+    "CLng(\"\\1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('￥1,200')",
+    "expr",
+    "IsNumeric(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('￥1,200')",
+    "expr",
+    "CDbl(ChrW(&HFFE5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('￥1,200')",
+    "expr",
+    "CCur(ChrW(&HFFE5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('￥1,200')",
+    "expr",
+    "CDec(ChrW(&HFFE5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('￥1,200')",
+    "expr",
+    "Val(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('￥1,200')",
+    "expr",
+    "CLng(ChrW(&HFFE5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('¥1,200')",
+    "expr",
+    "IsNumeric(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('¥1,200')",
+    "expr",
+    "CDbl(ChrW(&H00A5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('¥1,200')",
+    "expr",
+    "CCur(ChrW(&H00A5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('¥1,200')",
+    "expr",
+    "CDec(ChrW(&H00A5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('¥1,200')",
+    "expr",
+    "Val(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('¥1,200')",
+    "expr",
+    "CLng(ChrW(&H00A5) & \"1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('$1,200')",
+    "expr",
+    "IsNumeric(\"$1,200\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('$1,200')",
+    "expr",
+    "CDbl(\"$1,200\")",
+    [
+     "Double",
+     "1200"
+    ]
+   ],
+   [
+    "CCur('$1,200')",
+    "expr",
+    "CCur(\"$1,200\")",
+    [
+     "Currency",
+     "1200"
+    ]
+   ],
+   [
+    "CDec('$1,200')",
+    "expr",
+    "CDec(\"$1,200\")",
+    [
+     "Decimal",
+     "1200"
+    ]
+   ],
+   [
+    "Val('$1,200')",
+    "expr",
+    "Val(\"$1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('$1,200')",
+    "expr",
+    "CLng(\"$1,200\")",
+    [
+     "Long",
+     "1200"
+    ]
+   ],
+   [
+    "IsNumeric('(12)')",
+    "expr",
+    "IsNumeric(\"(12)\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('(12)')",
+    "expr",
+    "CDbl(\"(12)\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CCur('(12)')",
+    "expr",
+    "CCur(\"(12)\")",
+    [
+     "Currency",
+     "-12"
+    ]
+   ],
+   [
+    "CDec('(12)')",
+    "expr",
+    "CDec(\"(12)\")",
+    [
+     "Decimal",
+     "-12"
+    ]
+   ],
+   [
+    "Val('(12)')",
+    "expr",
+    "Val(\"(12)\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('(12)')",
+    "expr",
+    "CLng(\"(12)\")",
+    [
+     "Long",
+     "-12"
+    ]
+   ],
+   [
+    "IsNumeric('１２')",
+    "expr",
+    "IsNumeric(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('１２')",
+    "expr",
+    "CDbl(ChrW(&HFF11) & ChrW(&HFF12))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('１２')",
+    "expr",
+    "CCur(ChrW(&HFF11) & ChrW(&HFF12))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('１２')",
+    "expr",
+    "CDec(ChrW(&HFF11) & ChrW(&HFF12))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('１２')",
+    "expr",
+    "Val(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('１２')",
+    "expr",
+    "CLng(ChrW(&HFF11) & ChrW(&HFF12))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('1,200')",
+    "expr",
+    "IsNumeric(\"1,200\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('1,200')",
+    "expr",
+    "CDbl(\"1,200\")",
+    [
+     "Double",
+     "1200"
+    ]
+   ],
+   [
+    "CCur('1,200')",
+    "expr",
+    "CCur(\"1,200\")",
+    [
+     "Currency",
+     "1200"
+    ]
+   ],
+   [
+    "CDec('1,200')",
+    "expr",
+    "CDec(\"1,200\")",
+    [
+     "Decimal",
+     "1200"
+    ]
+   ],
+   [
+    "Val('1,200')",
+    "expr",
+    "Val(\"1,200\")",
+    [
+     "Double",
+     "1"
+    ]
+   ],
+   [
+    "CLng('1,200')",
+    "expr",
+    "CLng(\"1,200\")",
+    [
+     "Long",
+     "1200"
+    ]
+   ],
+   [
+    "IsNumeric('1.200,5')",
+    "expr",
+    "IsNumeric(\"1.200,5\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('1.200,5')",
+    "expr",
+    "CDbl(\"1.200,5\")",
+    [
+     "Double",
+     "1.2005"
+    ]
+   ],
+   [
+    "CCur('1.200,5')",
+    "expr",
+    "CCur(\"1.200,5\")",
+    [
+     "Currency",
+     "1.2005"
+    ]
+   ],
+   [
+    "CDec('1.200,5')",
+    "expr",
+    "CDec(\"1.200,5\")",
+    [
+     "Decimal",
+     "1.2005"
+    ]
+   ],
+   [
+    "Val('1.200,5')",
+    "expr",
+    "Val(\"1.200,5\")",
+    [
+     "Double",
+     "1.2"
+    ]
+   ],
+   [
+    "CLng('1.200,5')",
+    "expr",
+    "CLng(\"1.200,5\")",
+    [
+     "Long",
+     "1"
+    ]
+   ],
+   [
+    "IsNumeric('１２％')",
+    "expr",
+    "IsNumeric(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('１２％')",
+    "expr",
+    "CDbl(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('１２％')",
+    "expr",
+    "CCur(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('１２％')",
+    "expr",
+    "CDec(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('１２％')",
+    "expr",
+    "Val(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('１２％')",
+    "expr",
+    "CLng(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('12%')",
+    "expr",
+    "IsNumeric(\"12%\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('12%')",
+    "expr",
+    "CDbl(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('12%')",
+    "expr",
+    "CCur(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('12%')",
+    "expr",
+    "CDec(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('12%')",
+    "expr",
+    "Val(\"12%\")",
+    [
+     "Double",
+     "12"
+    ]
+   ],
+   [
+    "CLng('12%')",
+    "expr",
+    "CLng(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('-12')",
+    "expr",
+    "IsNumeric(\"-12\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('-12')",
+    "expr",
+    "CDbl(\"-12\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CCur('-12')",
+    "expr",
+    "CCur(\"-12\")",
+    [
+     "Currency",
+     "-12"
+    ]
+   ],
+   [
+    "CDec('-12')",
+    "expr",
+    "CDec(\"-12\")",
+    [
+     "Decimal",
+     "-12"
+    ]
+   ],
+   [
+    "Val('-12')",
+    "expr",
+    "Val(\"-12\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CLng('-12')",
+    "expr",
+    "CLng(\"-12\")",
+    [
+     "Long",
+     "-12"
+    ]
+   ],
+   [
+    "IsNumeric('12-')",
+    "expr",
+    "IsNumeric(\"12-\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('12-')",
+    "expr",
+    "CDbl(\"12-\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CCur('12-')",
+    "expr",
+    "CCur(\"12-\")",
+    [
+     "Currency",
+     "-12"
+    ]
+   ],
+   [
+    "CDec('12-')",
+    "expr",
+    "CDec(\"12-\")",
+    [
+     "Decimal",
+     "-12"
+    ]
+   ],
+   [
+    "Val('12-')",
+    "expr",
+    "Val(\"12-\")",
+    [
+     "Double",
+     "12"
+    ]
+   ],
+   [
+    "CLng('12-')",
+    "expr",
+    "CLng(\"12-\")",
+    [
+     "Long",
+     "-12"
+    ]
+   ],
+   [
+    "IsNumeric('1e3')",
+    "expr",
+    "IsNumeric(\"1e3\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('1e3')",
+    "expr",
+    "CDbl(\"1e3\")",
+    [
+     "Double",
+     "1000"
+    ]
+   ],
+   [
+    "CCur('1e3')",
+    "expr",
+    "CCur(\"1e3\")",
+    [
+     "Currency",
+     "1000"
+    ]
+   ],
+   [
+    "CDec('1e3')",
+    "expr",
+    "CDec(\"1e3\")",
+    [
+     "Decimal",
+     "1000"
+    ]
+   ],
+   [
+    "Val('1e3')",
+    "expr",
+    "Val(\"1e3\")",
+    [
+     "Double",
+     "1000"
+    ]
+   ],
+   [
+    "CLng('1e3')",
+    "expr",
+    "CLng(\"1e3\")",
+    [
+     "Long",
+     "1000"
+    ]
+   ],
+   [
+    "StrComp('あ', 'ア', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&H3042), ChrW(&H30A2), vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'あ' < 'ア'",
+    "expr",
+    "(ChrW(&H3042) < ChrW(&H30A2))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "StrComp('Ａ', 'a', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&HFF21), \"a\", vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'Ａ' < 'a'",
+    "expr",
+    "(ChrW(&HFF21) < \"a\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "StrComp('ｱ', 'ア', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&HFF71), ChrW(&H30A2), vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'ｱ' < 'ア'",
+    "expr",
+    "(ChrW(&HFF71) < ChrW(&H30A2))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "StrComp('が', 'か', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&H304C), ChrW(&H304B), vbTextCompare)",
+    [
+     "Integer",
+     "1"
+    ]
+   ],
+   [
+    "'が' < 'か'",
+    "expr",
+    "(ChrW(&H304C) < ChrW(&H304B))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "StrComp('１', '1', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&HFF11), \"1\", vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'１' < '1'",
+    "expr",
+    "(ChrW(&HFF11) < \"1\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "Range.Value = '令和8年10月28日'",
+    "cell",
+    "令和8年10月28日",
+    {
+     "Value": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Value2": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Text": "令和8年10月28日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "令和8年10月28日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '令和元年5月1日'",
+    "cell",
+    "令和元年5月1日",
+    {
+     "Value": [
+      "String",
+      "令和元年5月1日"
+     ],
+     "Value2": [
+      "String",
+      "令和元年5月1日"
+     ],
+     "Text": "令和元年5月1日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "令和元年5月1日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '平成31年4月30日'",
+    "cell",
+    "平成31年4月30日",
+    {
+     "Value": [
+      "String",
+      "平成31年4月30日"
+     ],
+     "Value2": [
+      "String",
+      "平成31年4月30日"
+     ],
+     "Text": "平成31年4月30日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "平成31年4月30日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'R8.10.28'",
+    "cell",
+    "R8.10.28",
+    {
+     "Value": [
+      "String",
+      "R8.10.28"
+     ],
+     "Value2": [
+      "String",
+      "R8.10.28"
+     ],
+     "Text": "R8.10.28",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "R8.10.28",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'H31.4.30'",
+    "cell",
+    "H31.4.30",
+    {
+     "Value": [
+      "String",
+      "H31.4.30"
+     ],
+     "Value2": [
+      "String",
+      "H31.4.30"
+     ],
+     "Text": "H31.4.30",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "H31.4.30",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'R8/10/28'",
+    "cell",
+    "R8/10/28",
+    {
+     "Value": [
+      "String",
+      "R8/10/28"
+     ],
+     "Value2": [
+      "String",
+      "R8/10/28"
+     ],
+     "Text": "R8/10/28",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "R8/10/28",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '2026年1月5日'",
+    "cell",
+    "2026年1月5日",
+    {
+     "Value": [
+      "String",
+      "2026年1月5日"
+     ],
+     "Value2": [
+      "String",
+      "2026年1月5日"
+     ],
+     "Text": "2026年1月5日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "2026年1月5日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '2026/01/05'",
+    "cell",
+    "2026/01/05",
+    {
+     "Value": [
+      "Date",
+      "1/5/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "1/5/2026",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "m/d/yyyy",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '2026/1/5'",
+    "cell",
+    "2026/1/5",
+    {
+     "Value": [
+      "Date",
+      "1/5/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "1/5/2026",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "m/d/yyyy",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1/5/2026'",
+    "cell",
+    "1/5/2026",
+    {
+     "Value": [
+      "Date",
+      "1/5/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "1/5/2026",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "m/d/yyyy",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1/5'",
+    "cell",
+    "1/5",
+    {
+     "Value": [
+      "Date",
+      "1/5/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "5-Jan",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "d-mmm",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '5-Jan'",
+    "cell",
+    "5-Jan",
+    {
+     "Value": [
+      "Date",
+      "1/5/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "5-Jan",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "d-mmm",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'Jan 5, 2026'",
+    "cell",
+    "Jan 5, 2026",
+    {
+     "Value": [
+      "Date",
+      "1/5/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "5-Jan-26",
+     "NumberFormat": "d-mmm-yy",
+     "NumberFormatLocal": "d-mmm-yy",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '13時4分'",
+    "cell",
+    "13時4分",
+    {
+     "Value": [
+      "String",
+      "13時4分"
+     ],
+     "Value2": [
+      "String",
+      "13時4分"
+     ],
+     "Text": "13時4分",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "13時4分",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '13:04'",
+    "cell",
+    "13:04",
+    {
+     "Value": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Value2": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Text": "13:04",
+     "NumberFormat": "h:mm",
+     "NumberFormatLocal": "h:mm",
+     "Formula": "0.544444444444444",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '午後1:04'",
+    "cell",
+    "午後1:04",
+    {
+     "Value": [
+      "String",
+      "午後1:04"
+     ],
+     "Value2": [
+      "String",
+      "午後1:04"
+     ],
+     "Text": "午後1:04",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "午後1:04",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1:04 PM'",
+    "cell",
+    "1:04 PM",
+    {
+     "Value": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Value2": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Text": "1:04 PM",
+     "NumberFormat": "h:mm AM/PM",
+     "NumberFormatLocal": "h:mm AM/PM",
+     "Formula": "0.544444444444444",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '\\\\1,200'",
+    "cell",
+    "\\1,200",
+    {
+     "Value": [
+      "String",
+      "\\1,200"
+     ],
+     "Value2": [
+      "String",
+      "\\1,200"
+     ],
+     "Text": "\\1,200",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "\\1,200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '￥1,200'",
+    "cell",
+    "￥1,200",
+    {
+     "Value": [
+      "String",
+      "￥1,200"
+     ],
+     "Value2": [
+      "String",
+      "￥1,200"
+     ],
+     "Text": "￥1,200",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "￥1,200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '¥1,200'",
+    "cell",
+    "¥1,200",
+    {
+     "Value": [
+      "String",
+      "¥1,200"
+     ],
+     "Value2": [
+      "String",
+      "¥1,200"
+     ],
+     "Text": "¥1,200",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "¥1,200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '$1,200'",
+    "cell",
+    "$1,200",
+    {
+     "Value": [
+      "Currency",
+      "1200"
+     ],
+     "Value2": [
+      "Double",
+      "1200"
+     ],
+     "Text": "$1,200 ",
+     "NumberFormat": "$#,##0_);[Red]($#,##0)",
+     "NumberFormatLocal": "$#,##0_);[Red]($#,##0)",
+     "Formula": "1200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '(12)'",
+    "cell",
+    "(12)",
+    {
+     "Value": [
+      "Double",
+      "-12"
+     ],
+     "Value2": [
+      "Double",
+      "-12"
+     ],
+     "Text": "-12",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "-12",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '１２'",
+    "cell",
+    "１２",
+    {
+     "Value": [
+      "String",
+      "１２"
+     ],
+     "Value2": [
+      "String",
+      "１２"
+     ],
+     "Text": "１２",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "１２",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1,200'",
+    "cell",
+    "1,200",
+    {
+     "Value": [
+      "Double",
+      "1200"
+     ],
+     "Value2": [
+      "Double",
+      "1200"
+     ],
+     "Text": "1,200",
+     "NumberFormat": "#,##0",
+     "NumberFormatLocal": "#,##0",
+     "Formula": "1200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1.200,5'",
+    "cell",
+    "1.200,5",
+    {
+     "Value": [
+      "String",
+      "1.200,5"
+     ],
+     "Value2": [
+      "String",
+      "1.200,5"
+     ],
+     "Text": "1.200,5",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "1.200,5",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '１２％'",
+    "cell",
+    "１２％",
+    {
+     "Value": [
+      "String",
+      "１２％"
+     ],
+     "Value2": [
+      "String",
+      "１２％"
+     ],
+     "Text": "１２％",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "１２％",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '12%'",
+    "cell",
+    "12%",
+    {
+     "Value": [
+      "Double",
+      "0.12"
+     ],
+     "Value2": [
+      "Double",
+      "0.12"
+     ],
+     "Text": "12%",
+     "NumberFormat": "0%",
+     "NumberFormatLocal": "0%",
+     "Formula": "0.12",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '-12'",
+    "cell",
+    "-12",
+    {
+     "Value": [
+      "Double",
+      "-12"
+     ],
+     "Value2": [
+      "Double",
+      "-12"
+     ],
+     "Text": "-12",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "-12",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '12-'",
+    "cell",
+    "12-",
+    {
+     "Value": [
+      "String",
+      "12-"
+     ],
+     "Value2": [
+      "String",
+      "12-"
+     ],
+     "Text": "12-",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "12-",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1e3'",
+    "cell",
+    "1e3",
+    {
+     "Value": [
+      "Double",
+      "1000"
+     ],
+     "Value2": [
+      "Double",
+      "1000"
+     ],
+     "Text": "1.00E+03",
+     "NumberFormat": "0.00E+00",
+     "NumberFormatLocal": "0.00E+00",
+     "Formula": "1000",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '（１２）'",
+    "cell",
+    "（１２）",
+    {
+     "Value": [
+      "String",
+      "（１２）"
+     ],
+     "Value2": [
+      "String",
+      "（１２）"
+     ],
+     "Text": "（１２）",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "（１２）",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'ＴＲＵＥ'",
+    "cell",
+    "ＴＲＵＥ",
+    {
+     "Value": [
+      "String",
+      "ＴＲＵＥ"
+     ],
+     "Value2": [
+      "String",
+      "ＴＲＵＥ"
+     ],
+     "Text": "ＴＲＵＥ",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "ＴＲＵＥ",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'TRUE'",
+    "cell",
+    "TRUE",
+    {
+     "Value": [
+      "Boolean",
+      "True"
+     ],
+     "Value2": [
+      "Boolean",
+      "True"
+     ],
+     "Text": "TRUE",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "TRUE",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '＄１２'",
+    "cell",
+    "＄１２",
+    {
+     "Value": [
+      "String",
+      "＄１２"
+     ],
+     "Value2": [
+      "String",
+      "＄１２"
+     ],
+     "Text": "＄１２",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "＄１２",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '１２：３０'",
+    "cell",
+    "１２：３０",
+    {
+     "Value": [
+      "String",
+      "１２：３０"
+     ],
+     "Value2": [
+      "String",
+      "１２：３０"
+     ],
+     "Text": "１２：３０",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "１２：３０",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '＇AB'",
+    "cell",
+    "＇AB",
+    {
+     "Value": [
+      "String",
+      "＇AB"
+     ],
+     "Value2": [
+      "String",
+      "＇AB"
+     ],
+     "Text": "＇AB",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "＇AB",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = \"'AB\"",
+    "cell",
+    "'AB",
+    {
+     "Value": [
+      "String",
+      "AB"
+     ],
+     "Value2": [
+      "String",
+      "AB"
+     ],
+     "Text": "AB",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "AB",
+     "PrefixCharacter": "'"
+    }
+   ],
+   [
+    "Range.Value = '’AB'",
+    "cell",
+    "’AB",
+    {
+     "Value": [
+      "String",
+      "’AB"
+     ],
+     "Value2": [
+      "String",
+      "’AB"
+     ],
+     "Text": "’AB",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "’AB",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1-2'",
+    "cell",
+    "1-2",
+    {
+     "Value": [
+      "Date",
+      "1/2/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46024"
+     ],
+     "Text": "2-Jan",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "d-mmm",
+     "Formula": "46024",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '3/4'",
+    "cell",
+    "3/4",
+    {
+     "Value": [
+      "Date",
+      "3/4/2026"
+     ],
+     "Value2": [
+      "Double",
+      "46085"
+     ],
+     "Text": "4-Mar",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "d-mmm",
+     "Formula": "46085",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1 1/2'",
+    "cell",
+    "1 1/2",
+    {
+     "Value": [
+      "Double",
+      "1.5"
+     ],
+     "Value2": [
+      "Double",
+      "1.5"
+     ],
+     "Text": "1 1/2",
+     "NumberFormat": "# ?/?",
+     "NumberFormatLocal": "# ?/?",
+     "Formula": "1.5",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '０．５'",
+    "cell",
+    "０．５",
+    {
+     "Value": [
+      "String",
+      "０．５"
+     ],
+     "Value2": [
+      "String",
+      "０．５"
+     ],
+     "Text": "０．５",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "０．５",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'General' on 2026-10-28 13:04:05",
+    "fmt",
+    "General",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "46323.5445",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'ggge\"年\"m\"月\"d\"日\"' on 2026-10-28 13:04:05",
+    "fmt",
+    "ggge\"年\"m\"月\"d\"日\"",
+    {
+     "Value": [
+      "Date",
+      "10/28/2026 1:04:05 PM"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "2026年10月28日",
+     "NumberFormat": "ggge\"年\"m\"月\"d\"日\"",
+     "NumberFormatLocal": "ggge\"年\"m\"月\"d\"日\"",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-ja-JP]ggge\"年\"m\"月\"d\"日\"' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-ja-JP]ggge\"年\"m\"月\"d\"日\"",
+    {
+     "Value": [
+      "Date",
+      "10/28/2026 1:04:05 PM"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "令和8年10月28日",
+     "NumberFormat": "[$-411]ggge\"年\"m\"月\"d\"日\"",
+     "NumberFormatLocal": "[$-411]ggge\"年\"m\"月\"d\"日\"",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-411]gge.m.d' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-411]gge.m.d",
+    {
+     "Value": [
+      "Date",
+      "10/28/2026 1:04:05 PM"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "令8.10.28",
+     "NumberFormat": "[$-411]gge.m.d",
+     "NumberFormatLocal": "[$-411]gge.m.d",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'm/d/yyyy' on 2026-10-28 13:04:05",
+    "fmt",
+    "m/d/yyyy",
+    {
+     "Value": [
+      "Date",
+      "10/28/2026 1:04:05 PM"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "10/28/2026",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "m/d/yyyy",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'yyyy/m/d' on 2026-10-28 13:04:05",
+    "fmt",
+    "yyyy/m/d",
+    {
+     "Value": [
+      "Date",
+      "10/28/2026 1:04:05 PM"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "2026/10/28",
+     "NumberFormat": "yyyy/m/d",
+     "NumberFormatLocal": "yyyy/m/d",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'mmm d' on 2026-10-28 13:04:05",
+    "fmt",
+    "mmm d",
+    {
+     "Value": [
+      "Date",
+      "10/28/2026 1:04:05 PM"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "Oct 28",
+     "NumberFormat": "mmm d",
+     "NumberFormatLocal": "mmm d",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-F800]dddd, mmmm dd, yyyy' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-F800]dddd, mmmm dd, yyyy",
+    {
+     "Value": [
+      "Date",
+      "10/28/2026 1:04:05 PM"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "Wednesday, October 28, 2026",
+     "NumberFormat": "[$-F800]dddd, mmmm dd, yyyy",
+     "NumberFormatLocal": "[$-F800]dddd, mmmm dd, yyyy",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-F400]h:mm:ss AM/PM' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-F400]h:mm:ss AM/PM",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "1:04:05 PM",
+     "NumberFormat": "[$-F400]h:mm:ss AM/PM",
+     "NumberFormatLocal": "[$-F400]h:mm:ss AM/PM",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "#,##0",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "46,324",
+     "NumberFormat": "#,##0",
+     "NumberFormatLocal": "#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '$#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "$#,##0",
+    {
+     "Value": [
+      "Currency",
+      "46323.5445"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "$46,324",
+     "NumberFormat": "$#,##0",
+     "NumberFormatLocal": "$#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$¥-411]#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$¥-411]#,##0",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "¥46,324",
+     "NumberFormat": "[$¥-411]#,##0",
+     "NumberFormatLocal": "[$¥-411]#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '\\\\#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "\\#,##0",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "#,46324",
+     "NumberFormat": "\\#,##0",
+     "NumberFormatLocal": "\\#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=TEXT(DATE(2026,10,28),\"ggge年m月d日\")",
+    "text",
+    "=TEXT(DATE(2026,10,28),\"ggge年m月d日\")",
+    {
+     "Value": [
+      "String",
+      "2026年10月28日"
+     ],
+     "Value2": [
+      "String",
+      "2026年10月28日"
+     ],
+     "Text": "2026年10月28日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=TEXT(DATE(2026,10,28),\"ggge年m月d日\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=TEXT(DATE(2026,10,28),\"[$-ja-JP]ggge年m月d日\")",
+    "text",
+    "=TEXT(DATE(2026,10,28),\"[$-ja-JP]ggge年m月d日\")",
+    {
+     "Value": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Value2": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Text": "令和8年10月28日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=TEXT(DATE(2026,10,28),\"[$-ja-JP]ggge年m月d日\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=TEXT(1234.5,\"$#,##0\")",
+    "text",
+    "=TEXT(1234.5,\"$#,##0\")",
+    {
+     "Value": [
+      "String",
+      "$1,235"
+     ],
+     "Value2": [
+      "String",
+      "$1,235"
+     ],
+     "Text": "$1,235",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=TEXT(1234.5,\"$#,##0\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATEVALUE(\"令和8年10月28日\")",
+    "text",
+    "=DATEVALUE(\"令和8年10月28日\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=DATEVALUE(\"令和8年10月28日\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATEVALUE(\"2026/1/5\")",
+    "text",
+    "=DATEVALUE(\"2026/1/5\")",
+    {
+     "Value": [
+      "Double",
+      "46027"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "46027",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=DATEVALUE(\"2026/1/5\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATEVALUE(\"1/5/2026\")",
+    "text",
+    "=DATEVALUE(\"1/5/2026\")",
+    {
+     "Value": [
+      "Double",
+      "46027"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "46027",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=DATEVALUE(\"1/5/2026\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=VALUE(\"１２\")",
+    "text",
+    "=VALUE(\"１２\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=VALUE(\"１２\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=VALUE(\"\\1,200\")",
+    "text",
+    "=VALUE(\"\\1,200\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=VALUE(\"\\1,200\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=VALUE(\"$1,200\")",
+    "text",
+    "=VALUE(\"$1,200\")",
+    {
+     "Value": [
+      "Double",
+      "1200"
+     ],
+     "Value2": [
+      "Double",
+      "1200"
+     ],
+     "Text": "1200",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=VALUE(\"$1,200\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=YEN(1234.5)",
+    "text",
+    "=YEN(1234.5)",
+    {
+     "Value": [
+      "Error",
+      "Error 2029"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2029"
+     ],
+     "Text": "#NAME?",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=YEN(1234.5)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DOLLAR(1234.5)",
+    "text",
+    "=DOLLAR(1234.5)",
+    {
+     "Value": [
+      "String",
+      "$1,234.50"
+     ],
+     "Value2": [
+      "String",
+      "$1,234.50"
+     ],
+     "Text": "$1,234.50",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=DOLLAR(1234.5)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=ASC(\"ＡＢ\")",
+    "text",
+    "=ASC(\"ＡＢ\")",
+    {
+     "Value": [
+      "String",
+      "ＡＢ"
+     ],
+     "Value2": [
+      "String",
+      "ＡＢ"
+     ],
+     "Text": "ＡＢ",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=ASC(\"ＡＢ\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=JIS(\"AB\")",
+    "text",
+    "=JIS(\"AB\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2029"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2029"
+     ],
+     "Text": "#NAME?",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=JIS(\"AB\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=PHONETIC(A1)",
+    "text",
+    "=PHONETIC(A1)",
+    {
+     "Value": [
+      "Error",
+      "Error 2042"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2042"
+     ],
+     "Text": "#N/A",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=PHONETIC(A1)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATESTRING(46323)",
+    "text",
+    "=DATESTRING(46323)",
+    {
+     "Value": [
+      "Error",
+      "Error 2042"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2042"
+     ],
+     "Text": "#N/A",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=DATESTRING(46323)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=NUMBERSTRING(123,1)",
+    "text",
+    "=NUMBERSTRING(123,1)",
+    {
+     "Value": [
+      "Error",
+      "Error 2042"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2042"
+     ],
+     "Text": "#N/A",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=NUMBERSTRING(123,1)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=LEN(\"あ\")",
+    "text",
+    "=LEN(\"あ\")",
+    {
+     "Value": [
+      "Double",
+      "1"
+     ],
+     "Value2": [
+      "Double",
+      "1"
+     ],
+     "Text": "1",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=LEN(\"あ\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=LENB(\"あ\")",
+    "text",
+    "=LENB(\"あ\")",
+    {
+     "Value": [
+      "Double",
+      "1"
+     ],
+     "Value2": [
+      "Double",
+      "1"
+     ],
+     "Text": "1",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=LENB(\"あ\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=FIXED(1234.5)",
+    "text",
+    "=FIXED(1234.5)",
+    {
+     "Value": [
+      "String",
+      "1,234.50"
+     ],
+     "Value2": [
+      "String",
+      "1,234.50"
+     ],
+     "Text": "1,234.50",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "General",
+     "Formula": "=FIXED(1234.5)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "International(1)",
+    "intl",
+    1,
+    [
+     "Double",
+     "1"
+    ]
+   ],
+   [
+    "International(2)",
+    "intl",
+    2,
+    [
+     "Double",
+     "1"
+    ]
+   ],
+   [
+    "International(3)",
+    "intl",
+    3,
+    [
+     "String",
+     "."
+    ]
+   ],
+   [
+    "International(4)",
+    "intl",
+    4,
+    [
+     "String",
+     ","
+    ]
+   ],
+   [
+    "International(5)",
+    "intl",
+    5,
+    [
+     "String",
+     ","
+    ]
+   ],
+   [
+    "International(6)",
+    "intl",
+    6,
+    [
+     "String",
+     "R"
+    ]
+   ],
+   [
+    "International(7)",
+    "intl",
+    7,
+    [
+     "String",
+     "C"
+    ]
+   ],
+   [
+    "International(8)",
+    "intl",
+    8,
+    [
+     "String",
+     "r"
+    ]
+   ],
+   [
+    "International(9)",
+    "intl",
+    9,
+    [
+     "String",
+     "c"
+    ]
+   ],
+   [
+    "International(10)",
+    "intl",
+    10,
+    [
+     "String",
+     "["
+    ]
+   ],
+   [
+    "International(11)",
+    "intl",
+    11,
+    [
+     "String",
+     "]"
+    ]
+   ],
+   [
+    "International(12)",
+    "intl",
+    12,
+    [
+     "String",
+     "{"
+    ]
+   ],
+   [
+    "International(13)",
+    "intl",
+    13,
+    [
+     "String",
+     "}"
+    ]
+   ],
+   [
+    "International(14)",
+    "intl",
+    14,
+    [
+     "String",
+     ","
+    ]
+   ],
+   [
+    "International(15)",
+    "intl",
+    15,
+    [
+     "String",
+     ";"
+    ]
+   ],
+   [
+    "International(16)",
+    "intl",
+    16,
+    [
+     "String",
+     "@"
+    ]
+   ],
+   [
+    "International(17)",
+    "intl",
+    17,
+    [
+     "String",
+     "/"
+    ]
+   ],
+   [
+    "International(18)",
+    "intl",
+    18,
+    [
+     "String",
+     ":"
+    ]
+   ],
+   [
+    "International(19)",
+    "intl",
+    19,
+    [
+     "String",
+     "y"
+    ]
+   ],
+   [
+    "International(20)",
+    "intl",
+    20,
+    [
+     "String",
+     "m"
+    ]
+   ],
+   [
+    "International(21)",
+    "intl",
+    21,
+    [
+     "String",
+     "d"
+    ]
+   ],
+   [
+    "International(22)",
+    "intl",
+    22,
+    [
+     "String",
+     "h"
+    ]
+   ],
+   [
+    "International(23)",
+    "intl",
+    23,
+    [
+     "String",
+     "m"
+    ]
+   ],
+   [
+    "International(24)",
+    "intl",
+    24,
+    [
+     "String",
+     "s"
+    ]
+   ],
+   [
+    "International(25)",
+    "intl",
+    25,
+    [
+     "String",
+     "$"
+    ]
+   ],
+   [
+    "International(26)",
+    "intl",
+    26,
+    [
+     "String",
+     "General"
+    ]
+   ],
+   [
+    "International(27)",
+    "intl",
+    27,
+    [
+     "Double",
+     "2"
+    ]
+   ],
+   [
+    "International(28)",
+    "intl",
+    28,
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "International(29)",
+    "intl",
+    29,
+    [
+     "Double",
+     "2"
+    ]
+   ],
+   [
+    "International(30)",
+    "intl",
+    30,
+    [
+     "Double",
+     "3"
+    ]
+   ],
+   [
+    "International(31)",
+    "intl",
+    31,
+    [
+     "Double",
+     "3"
+    ]
+   ],
+   [
+    "International(32)",
+    "intl",
+    32,
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "International(33)",
+    "intl",
+    33,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(34)",
+    "intl",
+    34,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(35)",
+    "intl",
+    35,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(36)",
+    "intl",
+    36,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(37)",
+    "intl",
+    37,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(38)",
+    "intl",
+    38,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(39)",
+    "intl",
+    39,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(40)",
+    "intl",
+    40,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(41)",
+    "intl",
+    41,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(42)",
+    "intl",
+    42,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(43)",
+    "intl",
+    43,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(44)",
+    "intl",
+    44,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(45)",
+    "intl",
+    45,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "Range.Sort of kana, kanji and widths",
+    "sort",
+    [
+     "あ",
+     "ア",
+     "ｱ",
+     "い",
+     "か",
+     "が",
+     "カ",
+     "亜",
+     "阿",
+     "一",
+     "Ａ",
+     "a",
+     "A",
+     "ａ",
+     "b",
+     "１",
+     "1",
+     "2",
+     "ー",
+     "ぁ",
+     "ゃ",
+     "や",
+     "ﾔ",
+     "漢",
+     "字"
+    ],
+    [
+     16,
+     17,
+     15,
+     11,
+     12,
+     10,
+     13,
+     14,
+     19,
+     2,
+     1,
+     0,
+     3,
+     6,
+     4,
+     5,
+     20,
+     22,
+     21,
+     9,
+     7,
+     24,
+     23,
+     8,
+     18
+    ]
+   ],
+   [
+    "Range.Sort of kana, kanji and widths, MatchCase",
+    "sort-case",
+    [
+     "あ",
+     "ア",
+     "ｱ",
+     "い",
+     "か",
+     "が",
+     "カ",
+     "亜",
+     "阿",
+     "一",
+     "Ａ",
+     "a",
+     "A",
+     "ａ",
+     "b",
+     "１",
+     "1",
+     "2",
+     "ー",
+     "ぁ",
+     "ゃ",
+     "や",
+     "ﾔ",
+     "漢",
+     "字"
+    ],
+    [
+     16,
+     17,
+     15,
+     11,
+     13,
+     12,
+     10,
+     14,
+     19,
+     2,
+     1,
+     0,
+     3,
+     6,
+     4,
+     5,
+     20,
+     22,
+     21,
+     9,
+     7,
+     24,
+     23,
+     8,
+     18
+    ]
+   ]
+  ]
+ },
+ "ja-JP": {
+  "measured_at": "2026-10-30T22:59:10.896034+00:00",
+  "regional_format": "ja-JP",
+  "cases": [
+   [
+    "CStr(DateSerial(2026, 1, 5))",
+    "expr",
+    "CStr(DateSerial(2026, 1, 5))",
+    [
+     "String",
+     "2026/01/05"
+    ]
+   ],
+   [
+    "CStr(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5))",
+    "expr",
+    "CStr(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5))",
+    [
+     "String",
+     "2026/10/28 13:04:05"
+    ]
+   ],
+   [
+    "CStr(TimeSerial(13, 4, 5))",
+    "expr",
+    "CStr(TimeSerial(13, 4, 5))",
+    [
+     "String",
+     "13:04:05"
+    ]
+   ],
+   [
+    "CStr(1234.5)",
+    "expr",
+    "CStr(1234.5)",
+    [
+     "String",
+     "1234.5"
+    ]
+   ],
+   [
+    "CStr(CCur(1234.5))",
+    "expr",
+    "CStr(CCur(1234.5))",
+    [
+     "String",
+     "1234.5"
+    ]
+   ],
+   [
+    "CStr(True)",
+    "expr",
+    "CStr(True)",
+    [
+     "String",
+     "True"
+    ]
+   ],
+   [
+    "CStr(CVar(DateSerial(2026, 1, 5)))",
+    "expr",
+    "CStr(CVar(DateSerial(2026, 1, 5)))",
+    [
+     "String",
+     "2026/01/05"
+    ]
+   ],
+   [
+    "FormatDateTime(DateSerial(2026, 1, 5), vbLongDate)",
+    "expr",
+    "FormatDateTime(DateSerial(2026, 1, 5), vbLongDate)",
+    [
+     "String",
+     "2026年1月5日"
+    ]
+   ],
+   [
+    "FormatDateTime(DateSerial(2026, 1, 5), vbShortDate)",
+    "expr",
+    "FormatDateTime(DateSerial(2026, 1, 5), vbShortDate)",
+    [
+     "String",
+     "2026/01/05"
+    ]
+   ],
+   [
+    "FormatDateTime(TimeSerial(13, 4, 5), vbLongTime)",
+    "expr",
+    "FormatDateTime(TimeSerial(13, 4, 5), vbLongTime)",
+    [
+     "String",
+     "13:04:05"
+    ]
+   ],
+   [
+    "FormatCurrency(1234.5)",
+    "expr",
+    "FormatCurrency(1234.5)",
+    [
+     "String",
+     "¥1,235"
+    ]
+   ],
+   [
+    "FormatCurrency(-1234.5)",
+    "expr",
+    "FormatCurrency(-1234.5)",
+    [
+     "String",
+     "-¥1,235"
+    ]
+   ],
+   [
+    "FormatNumber(1234.5)",
+    "expr",
+    "FormatNumber(1234.5)",
+    [
+     "String",
+     "1,234.50"
+    ]
+   ],
+   [
+    "FormatPercent(0.125)",
+    "expr",
+    "FormatPercent(0.125)",
+    [
+     "String",
+     "12.50%"
+    ]
+   ],
+   [
+    "MonthName(10)",
+    "expr",
+    "MonthName(10)",
+    [
+     "String",
+     "10月"
+    ]
+   ],
+   [
+    "MonthName(10, True)",
+    "expr",
+    "MonthName(10, True)",
+    [
+     "String",
+     "10"
+    ]
+   ],
+   [
+    "WeekdayName(3)",
+    "expr",
+    "WeekdayName(3)",
+    [
+     "String",
+     "火曜日"
+    ]
+   ],
+   [
+    "WeekdayName(3, True)",
+    "expr",
+    "WeekdayName(3, True)",
+    [
+     "String",
+     "火"
+    ]
+   ],
+   [
+    "Format(1234.5, \"Currency\")",
+    "expr",
+    "Format(1234.5, \"Currency\")",
+    [
+     "String",
+     "¥1,235"
+    ]
+   ],
+   [
+    "Format(1234.5, \"Standard\")",
+    "expr",
+    "Format(1234.5, \"Standard\")",
+    [
+     "String",
+     "1,234.50"
+    ]
+   ],
+   [
+    "Format(-1234.5, \"Currency\")",
+    "expr",
+    "Format(-1234.5, \"Currency\")",
+    [
+     "String",
+     "-¥1,235"
+    ]
+   ],
+   [
+    "Format(1234.5)",
+    "expr",
+    "Format(1234.5)",
+    [
+     "String",
+     "1234.5"
+    ]
+   ],
+   [
+    "Format(0.5, \"Percent\")",
+    "expr",
+    "Format(0.5, \"Percent\")",
+    [
+     "String",
+     "50.00%"
+    ]
+   ],
+   [
+    "Format(True, \"Yes/No\")",
+    "expr",
+    "Format(True, \"Yes/No\")",
+    [
+     "String",
+     "Yes"
+    ]
+   ],
+   [
+    "Format(DateSerial(2026, 1, 5))",
+    "expr",
+    "Format(DateSerial(2026, 1, 5))",
+    [
+     "String",
+     "2026/01/05"
+    ]
+   ],
+   [
+    "DatePart(\"ww\", DateSerial(2026, 1, 5))",
+    "expr",
+    "DatePart(\"ww\", DateSerial(2026, 1, 5))",
+    [
+     "Integer",
+     "2"
+    ]
+   ],
+   [
+    "Weekday(DateSerial(2026, 1, 5))",
+    "expr",
+    "Weekday(DateSerial(2026, 1, 5))",
+    [
+     "Integer",
+     "2"
+    ]
+   ],
+   [
+    "Year(DateSerial(2026, 10, 28))",
+    "expr",
+    "Year(DateSerial(2026, 10, 28))",
+    [
+     "Integer",
+     "2026"
+    ]
+   ],
+   [
+    "CStr(#10/28/2026#)",
+    "expr",
+    "CStr(#10/28/2026#)",
+    [
+     "String",
+     "2026/10/28"
+    ]
+   ],
+   [
+    "Format(D, 'ggge年m月d日')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ggge\" & ChrW(&H5E74) & \"m\" & ChrW(&H6708) & \"d\" & ChrW(&H65E5))",
+    [
+     "String",
+     "令和8年10月28日"
+    ]
+   ],
+   [
+    "Format(D, 'gge')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"gge\")",
+    [
+     "String",
+     "令8"
+    ]
+   ],
+   [
+    "Format(D, 'gg')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"gg\")",
+    [
+     "String",
+     "令"
+    ]
+   ],
+   [
+    "Format(D, 'g')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"g\")",
+    [
+     "String",
+     "R"
+    ]
+   ],
+   [
+    "Format(D, 'e')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"e\")",
+    [
+     "String",
+     "8"
+    ]
+   ],
+   [
+    "Format(D, 'ee')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ee\")",
+    [
+     "String",
+     "08"
+    ]
+   ],
+   [
+    "Format(D, 'yyyy/mm/dd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"yyyy/mm/dd\")",
+    [
+     "String",
+     "2026/10/28"
+    ]
+   ],
+   [
+    "Format(D, 'aaa')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"aaa\")",
+    [
+     "String",
+     "水"
+    ]
+   ],
+   [
+    "Format(D, 'aaaa')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"aaaa\")",
+    [
+     "String",
+     "水曜日"
+    ]
+   ],
+   [
+    "Format(D, 'ddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ddd\")",
+    [
+     "String",
+     "Wed"
+    ]
+   ],
+   [
+    "Format(D, 'dddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"dddd\")",
+    [
+     "String",
+     "Wednesday"
+    ]
+   ],
+   [
+    "Format(D, 'General Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"General Date\")",
+    [
+     "String",
+     "2026/10/28 13:04:05"
+    ]
+   ],
+   [
+    "Format(D, 'Long Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Long Date\")",
+    [
+     "String",
+     "2026年10月28日"
+    ]
+   ],
+   [
+    "Format(D, 'Medium Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Medium Date\")",
+    [
+     "String",
+     "26-10-28"
+    ]
+   ],
+   [
+    "Format(D, 'Short Date')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Short Date\")",
+    [
+     "String",
+     "2026/10/28"
+    ]
+   ],
+   [
+    "Format(D, 'Long Time')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Long Time\")",
+    [
+     "String",
+     "13:04:05"
+    ]
+   ],
+   [
+    "Format(D, 'Medium Time')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Medium Time\")",
+    [
+     "String",
+     "01:04 午後"
+    ]
+   ],
+   [
+    "Format(D, 'Short Time')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"Short Time\")",
+    [
+     "String",
+     "13:04"
+    ]
+   ],
+   [
+    "Format(D, 'c')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"c\")",
+    [
+     "String",
+     "2026/10/28 13:04:05"
+    ]
+   ],
+   [
+    "Format(D, 'ddddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ddddd\")",
+    [
+     "String",
+     "2026/10/28"
+    ]
+   ],
+   [
+    "Format(D, 'dddddd')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"dddddd\")",
+    [
+     "String",
+     "2026年10月28日"
+    ]
+   ],
+   [
+    "Format(D, 'ttttt')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ttttt\")",
+    [
+     "String",
+     "13:04:05"
+    ]
+   ],
+   [
+    "Format(D, 'AM/PM')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"AM/PM\")",
+    [
+     "String",
+     "PM"
+    ]
+   ],
+   [
+    "Format(D, 'h:nn AMPM')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"h:nn AMPM\")",
+    [
+     "String",
+     "1:04 午後"
+    ]
+   ],
+   [
+    "Format(D, 'mmm')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"mmm\")",
+    [
+     "String",
+     "Oct"
+    ]
+   ],
+   [
+    "Format(D, 'mmmm')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"mmmm\")",
+    [
+     "String",
+     "October"
+    ]
+   ],
+   [
+    "Format(D, 'oooo')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"oooo\")",
+    [
+     "String",
+     "10月"
+    ]
+   ],
+   [
+    "Format(D, 'w')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"w\")",
+    [
+     "String",
+     "4"
+    ]
+   ],
+   [
+    "Format(D, 'ww')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"ww\")",
+    [
+     "String",
+     "44"
+    ]
+   ],
+   [
+    "Format(D, 'q')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"q\")",
+    [
+     "String",
+     "4"
+    ]
+   ],
+   [
+    "Format(D, 'y')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"y\")",
+    [
+     "String",
+     "301"
+    ]
+   ],
+   [
+    "Format(D, 'm/d/yy')",
+    "expr",
+    "Format(DateSerial(2026, 10, 28) + TimeSerial(13, 4, 5), \"m/d/yy\")",
+    [
+     "String",
+     "10/28/26"
+    ]
+   ],
+   [
+    "IsDate('令和8年10月28日')",
+    "expr",
+    "IsDate(ChrW(&H4EE4) & ChrW(&H548C) & \"8\" & ChrW(&H5E74) & \"10\" & ChrW(&H6708) & \"28\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('令和8年10月28日')",
+    "expr",
+    "CDbl(CDate(ChrW(&H4EE4) & ChrW(&H548C) & \"8\" & ChrW(&H5E74) & \"10\" & ChrW(&H6708) & \"28\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "46323"
+    ]
+   ],
+   [
+    "DateValue('令和8年10月28日')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H4EE4) & ChrW(&H548C) & \"8\" & ChrW(&H5E74) & \"10\" & ChrW(&H6708) & \"28\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "46323"
+    ]
+   ],
+   [
+    "IsDate('令和元年5月1日')",
+    "expr",
+    "IsDate(ChrW(&H4EE4) & ChrW(&H548C) & ChrW(&H5143) & ChrW(&H5E74) & \"5\" & ChrW(&H6708) & \"1\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('令和元年5月1日')",
+    "expr",
+    "CDbl(CDate(ChrW(&H4EE4) & ChrW(&H548C) & ChrW(&H5143) & ChrW(&H5E74) & \"5\" & ChrW(&H6708) & \"1\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "43586"
+    ]
+   ],
+   [
+    "DateValue('令和元年5月1日')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H4EE4) & ChrW(&H548C) & ChrW(&H5143) & ChrW(&H5E74) & \"5\" & ChrW(&H6708) & \"1\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "43586"
+    ]
+   ],
+   [
+    "IsDate('平成31年4月30日')",
+    "expr",
+    "IsDate(ChrW(&H5E73) & ChrW(&H6210) & \"31\" & ChrW(&H5E74) & \"4\" & ChrW(&H6708) & \"30\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('平成31年4月30日')",
+    "expr",
+    "CDbl(CDate(ChrW(&H5E73) & ChrW(&H6210) & \"31\" & ChrW(&H5E74) & \"4\" & ChrW(&H6708) & \"30\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "43585"
+    ]
+   ],
+   [
+    "DateValue('平成31年4月30日')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H5E73) & ChrW(&H6210) & \"31\" & ChrW(&H5E74) & \"4\" & ChrW(&H6708) & \"30\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "43585"
+    ]
+   ],
+   [
+    "IsDate('R8.10.28')",
+    "expr",
+    "IsDate(\"R8.10.28\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('R8.10.28')",
+    "expr",
+    "CDbl(CDate(\"R8.10.28\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('R8.10.28')",
+    "expr",
+    "CDbl(DateValue(\"R8.10.28\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('H31.4.30')",
+    "expr",
+    "IsDate(\"H31.4.30\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDate('H31.4.30')",
+    "expr",
+    "CDbl(CDate(\"H31.4.30\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "DateValue('H31.4.30')",
+    "expr",
+    "CDbl(DateValue(\"H31.4.30\"))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsDate('R8/10/28')",
+    "expr",
+    "IsDate(\"R8/10/28\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('R8/10/28')",
+    "expr",
+    "CDbl(CDate(\"R8/10/28\"))",
+    [
+     "Double",
+     "46323"
+    ]
+   ],
+   [
+    "DateValue('R8/10/28')",
+    "expr",
+    "CDbl(DateValue(\"R8/10/28\"))",
+    [
+     "Double",
+     "46323"
+    ]
+   ],
+   [
+    "IsDate('2026年1月5日')",
+    "expr",
+    "IsDate(\"2026\" & ChrW(&H5E74) & \"1\" & ChrW(&H6708) & \"5\" & ChrW(&H65E5))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('2026年1月5日')",
+    "expr",
+    "CDbl(CDate(\"2026\" & ChrW(&H5E74) & \"1\" & ChrW(&H6708) & \"5\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('2026年1月5日')",
+    "expr",
+    "CDbl(DateValue(\"2026\" & ChrW(&H5E74) & \"1\" & ChrW(&H6708) & \"5\" & ChrW(&H65E5)))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('2026/01/05')",
+    "expr",
+    "IsDate(\"2026/01/05\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('2026/01/05')",
+    "expr",
+    "CDbl(CDate(\"2026/01/05\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('2026/01/05')",
+    "expr",
+    "CDbl(DateValue(\"2026/01/05\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('2026/1/5')",
+    "expr",
+    "IsDate(\"2026/1/5\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('2026/1/5')",
+    "expr",
+    "CDbl(CDate(\"2026/1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('2026/1/5')",
+    "expr",
+    "CDbl(DateValue(\"2026/1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('1/5/2026')",
+    "expr",
+    "IsDate(\"1/5/2026\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('1/5/2026')",
+    "expr",
+    "CDbl(CDate(\"1/5/2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('1/5/2026')",
+    "expr",
+    "CDbl(DateValue(\"1/5/2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('1/5')",
+    "expr",
+    "IsDate(\"1/5\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('1/5')",
+    "expr",
+    "CDbl(CDate(\"1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('1/5')",
+    "expr",
+    "CDbl(DateValue(\"1/5\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('5-Jan')",
+    "expr",
+    "IsDate(\"5-Jan\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('5-Jan')",
+    "expr",
+    "CDbl(CDate(\"5-Jan\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('5-Jan')",
+    "expr",
+    "CDbl(DateValue(\"5-Jan\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('Jan 5, 2026')",
+    "expr",
+    "IsDate(\"Jan 5, 2026\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('Jan 5, 2026')",
+    "expr",
+    "CDbl(CDate(\"Jan 5, 2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "DateValue('Jan 5, 2026')",
+    "expr",
+    "CDbl(DateValue(\"Jan 5, 2026\"))",
+    [
+     "Double",
+     "46027"
+    ]
+   ],
+   [
+    "IsDate('13時4分')",
+    "expr",
+    "IsDate(\"13\" & ChrW(&H6642) & \"4\" & ChrW(&H5206))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('13時4分')",
+    "expr",
+    "CDbl(CDate(\"13\" & ChrW(&H6642) & \"4\" & ChrW(&H5206)))",
+    [
+     "Double",
+     "0.544444444444444"
+    ]
+   ],
+   [
+    "DateValue('13時4分')",
+    "expr",
+    "CDbl(DateValue(\"13\" & ChrW(&H6642) & \"4\" & ChrW(&H5206)))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "IsDate('13:04')",
+    "expr",
+    "IsDate(\"13:04\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('13:04')",
+    "expr",
+    "CDbl(CDate(\"13:04\"))",
+    [
+     "Double",
+     "0.544444444444444"
+    ]
+   ],
+   [
+    "DateValue('13:04')",
+    "expr",
+    "CDbl(DateValue(\"13:04\"))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "IsDate('午後1:04')",
+    "expr",
+    "IsDate(ChrW(&H5348) & ChrW(&H5F8C) & \"1:04\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('午後1:04')",
+    "expr",
+    "CDbl(CDate(ChrW(&H5348) & ChrW(&H5F8C) & \"1:04\"))",
+    [
+     "Double",
+     "0.544444444444444"
+    ]
+   ],
+   [
+    "DateValue('午後1:04')",
+    "expr",
+    "CDbl(DateValue(ChrW(&H5348) & ChrW(&H5F8C) & \"1:04\"))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "IsDate('1:04 PM')",
+    "expr",
+    "IsDate(\"1:04 PM\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDate('1:04 PM')",
+    "expr",
+    "CDbl(CDate(\"1:04 PM\"))",
+    [
+     "Double",
+     "0.544444444444444"
+    ]
+   ],
+   [
+    "DateValue('1:04 PM')",
+    "expr",
+    "CDbl(DateValue(\"1:04 PM\"))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "IsNumeric('\\\\1,200')",
+    "expr",
+    "IsNumeric(\"\\1,200\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('\\\\1,200')",
+    "expr",
+    "CDbl(\"\\1,200\")",
+    [
+     "Double",
+     "1200"
+    ]
+   ],
+   [
+    "CCur('\\\\1,200')",
+    "expr",
+    "CCur(\"\\1,200\")",
+    [
+     "Currency",
+     "1200"
+    ]
+   ],
+   [
+    "CDec('\\\\1,200')",
+    "expr",
+    "CDec(\"\\1,200\")",
+    [
+     "Decimal",
+     "1200"
+    ]
+   ],
+   [
+    "Val('\\\\1,200')",
+    "expr",
+    "Val(\"\\1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('\\\\1,200')",
+    "expr",
+    "CLng(\"\\1,200\")",
+    [
+     "Long",
+     "1200"
+    ]
+   ],
+   [
+    "IsNumeric('￥1,200')",
+    "expr",
+    "IsNumeric(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('￥1,200')",
+    "expr",
+    "CDbl(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Double",
+     "1200"
+    ]
+   ],
+   [
+    "CCur('￥1,200')",
+    "expr",
+    "CCur(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Currency",
+     "1200"
+    ]
+   ],
+   [
+    "CDec('￥1,200')",
+    "expr",
+    "CDec(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Decimal",
+     "1200"
+    ]
+   ],
+   [
+    "Val('￥1,200')",
+    "expr",
+    "Val(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('￥1,200')",
+    "expr",
+    "CLng(ChrW(&HFFE5) & \"1,200\")",
+    [
+     "Long",
+     "1200"
+    ]
+   ],
+   [
+    "IsNumeric('¥1,200')",
+    "expr",
+    "IsNumeric(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('¥1,200')",
+    "expr",
+    "CDbl(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Double",
+     "1200"
+    ]
+   ],
+   [
+    "CCur('¥1,200')",
+    "expr",
+    "CCur(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Currency",
+     "1200"
+    ]
+   ],
+   [
+    "CDec('¥1,200')",
+    "expr",
+    "CDec(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Decimal",
+     "1200"
+    ]
+   ],
+   [
+    "Val('¥1,200')",
+    "expr",
+    "Val(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('¥1,200')",
+    "expr",
+    "CLng(ChrW(&H00A5) & \"1,200\")",
+    [
+     "Long",
+     "1200"
+    ]
+   ],
+   [
+    "IsNumeric('$1,200')",
+    "expr",
+    "IsNumeric(\"$1,200\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('$1,200')",
+    "expr",
+    "CDbl(\"$1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('$1,200')",
+    "expr",
+    "CCur(\"$1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('$1,200')",
+    "expr",
+    "CDec(\"$1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('$1,200')",
+    "expr",
+    "Val(\"$1,200\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('$1,200')",
+    "expr",
+    "CLng(\"$1,200\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('(12)')",
+    "expr",
+    "IsNumeric(\"(12)\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('(12)')",
+    "expr",
+    "CDbl(\"(12)\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CCur('(12)')",
+    "expr",
+    "CCur(\"(12)\")",
+    [
+     "Currency",
+     "-12"
+    ]
+   ],
+   [
+    "CDec('(12)')",
+    "expr",
+    "CDec(\"(12)\")",
+    [
+     "Decimal",
+     "-12"
+    ]
+   ],
+   [
+    "Val('(12)')",
+    "expr",
+    "Val(\"(12)\")",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('(12)')",
+    "expr",
+    "CLng(\"(12)\")",
+    [
+     "Long",
+     "-12"
+    ]
+   ],
+   [
+    "IsNumeric('１２')",
+    "expr",
+    "IsNumeric(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('１２')",
+    "expr",
+    "CDbl(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Double",
+     "12"
+    ]
+   ],
+   [
+    "CCur('１２')",
+    "expr",
+    "CCur(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Currency",
+     "12"
+    ]
+   ],
+   [
+    "CDec('１２')",
+    "expr",
+    "CDec(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Decimal",
+     "12"
+    ]
+   ],
+   [
+    "Val('１２')",
+    "expr",
+    "Val(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('１２')",
+    "expr",
+    "CLng(ChrW(&HFF11) & ChrW(&HFF12))",
+    [
+     "Long",
+     "12"
+    ]
+   ],
+   [
+    "IsNumeric('1,200')",
+    "expr",
+    "IsNumeric(\"1,200\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('1,200')",
+    "expr",
+    "CDbl(\"1,200\")",
+    [
+     "Double",
+     "1200"
+    ]
+   ],
+   [
+    "CCur('1,200')",
+    "expr",
+    "CCur(\"1,200\")",
+    [
+     "Currency",
+     "1200"
+    ]
+   ],
+   [
+    "CDec('1,200')",
+    "expr",
+    "CDec(\"1,200\")",
+    [
+     "Decimal",
+     "1200"
+    ]
+   ],
+   [
+    "Val('1,200')",
+    "expr",
+    "Val(\"1,200\")",
+    [
+     "Double",
+     "1"
+    ]
+   ],
+   [
+    "CLng('1,200')",
+    "expr",
+    "CLng(\"1,200\")",
+    [
+     "Long",
+     "1200"
+    ]
+   ],
+   [
+    "IsNumeric('1.200,5')",
+    "expr",
+    "IsNumeric(\"1.200,5\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('1.200,5')",
+    "expr",
+    "CDbl(\"1.200,5\")",
+    [
+     "Double",
+     "1.2005"
+    ]
+   ],
+   [
+    "CCur('1.200,5')",
+    "expr",
+    "CCur(\"1.200,5\")",
+    [
+     "Currency",
+     "1.2005"
+    ]
+   ],
+   [
+    "CDec('1.200,5')",
+    "expr",
+    "CDec(\"1.200,5\")",
+    [
+     "Decimal",
+     "1.2005"
+    ]
+   ],
+   [
+    "Val('1.200,5')",
+    "expr",
+    "Val(\"1.200,5\")",
+    [
+     "Double",
+     "1.2"
+    ]
+   ],
+   [
+    "CLng('1.200,5')",
+    "expr",
+    "CLng(\"1.200,5\")",
+    [
+     "Long",
+     "1"
+    ]
+   ],
+   [
+    "IsNumeric('１２％')",
+    "expr",
+    "IsNumeric(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('１２％')",
+    "expr",
+    "CDbl(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('１２％')",
+    "expr",
+    "CCur(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('１２％')",
+    "expr",
+    "CDec(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('１２％')",
+    "expr",
+    "Val(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "CLng('１２％')",
+    "expr",
+    "CLng(ChrW(&HFF11) & ChrW(&HFF12) & ChrW(&HFF05))",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('12%')",
+    "expr",
+    "IsNumeric(\"12%\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "CDbl('12%')",
+    "expr",
+    "CDbl(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CCur('12%')",
+    "expr",
+    "CCur(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "CDec('12%')",
+    "expr",
+    "CDec(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "Val('12%')",
+    "expr",
+    "Val(\"12%\")",
+    [
+     "Double",
+     "12"
+    ]
+   ],
+   [
+    "CLng('12%')",
+    "expr",
+    "CLng(\"12%\")",
+    {
+     "error": 13,
+     "description": "Type mismatch"
+    }
+   ],
+   [
+    "IsNumeric('-12')",
+    "expr",
+    "IsNumeric(\"-12\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('-12')",
+    "expr",
+    "CDbl(\"-12\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CCur('-12')",
+    "expr",
+    "CCur(\"-12\")",
+    [
+     "Currency",
+     "-12"
+    ]
+   ],
+   [
+    "CDec('-12')",
+    "expr",
+    "CDec(\"-12\")",
+    [
+     "Decimal",
+     "-12"
+    ]
+   ],
+   [
+    "Val('-12')",
+    "expr",
+    "Val(\"-12\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CLng('-12')",
+    "expr",
+    "CLng(\"-12\")",
+    [
+     "Long",
+     "-12"
+    ]
+   ],
+   [
+    "IsNumeric('12-')",
+    "expr",
+    "IsNumeric(\"12-\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('12-')",
+    "expr",
+    "CDbl(\"12-\")",
+    [
+     "Double",
+     "-12"
+    ]
+   ],
+   [
+    "CCur('12-')",
+    "expr",
+    "CCur(\"12-\")",
+    [
+     "Currency",
+     "-12"
+    ]
+   ],
+   [
+    "CDec('12-')",
+    "expr",
+    "CDec(\"12-\")",
+    [
+     "Decimal",
+     "-12"
+    ]
+   ],
+   [
+    "Val('12-')",
+    "expr",
+    "Val(\"12-\")",
+    [
+     "Double",
+     "12"
+    ]
+   ],
+   [
+    "CLng('12-')",
+    "expr",
+    "CLng(\"12-\")",
+    [
+     "Long",
+     "-12"
+    ]
+   ],
+   [
+    "IsNumeric('1e3')",
+    "expr",
+    "IsNumeric(\"1e3\")",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "CDbl('1e3')",
+    "expr",
+    "CDbl(\"1e3\")",
+    [
+     "Double",
+     "1000"
+    ]
+   ],
+   [
+    "CCur('1e3')",
+    "expr",
+    "CCur(\"1e3\")",
+    [
+     "Currency",
+     "1000"
+    ]
+   ],
+   [
+    "CDec('1e3')",
+    "expr",
+    "CDec(\"1e3\")",
+    [
+     "Decimal",
+     "1000"
+    ]
+   ],
+   [
+    "Val('1e3')",
+    "expr",
+    "Val(\"1e3\")",
+    [
+     "Double",
+     "1000"
+    ]
+   ],
+   [
+    "CLng('1e3')",
+    "expr",
+    "CLng(\"1e3\")",
+    [
+     "Long",
+     "1000"
+    ]
+   ],
+   [
+    "StrComp('あ', 'ア', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&H3042), ChrW(&H30A2), vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'あ' < 'ア'",
+    "expr",
+    "(ChrW(&H3042) < ChrW(&H30A2))",
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "StrComp('Ａ', 'a', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&HFF21), \"a\", vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'Ａ' < 'a'",
+    "expr",
+    "(ChrW(&HFF21) < \"a\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "StrComp('ｱ', 'ア', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&HFF71), ChrW(&H30A2), vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'ｱ' < 'ア'",
+    "expr",
+    "(ChrW(&HFF71) < ChrW(&H30A2))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "StrComp('が', 'か', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&H304C), ChrW(&H304B), vbTextCompare)",
+    [
+     "Integer",
+     "1"
+    ]
+   ],
+   [
+    "'が' < 'か'",
+    "expr",
+    "(ChrW(&H304C) < ChrW(&H304B))",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "StrComp('１', '1', vbTextCompare)",
+    "expr",
+    "StrComp(ChrW(&HFF11), \"1\", vbTextCompare)",
+    [
+     "Integer",
+     "0"
+    ]
+   ],
+   [
+    "'１' < '1'",
+    "expr",
+    "(ChrW(&HFF11) < \"1\")",
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "Range.Value = '令和8年10月28日'",
+    "cell",
+    "令和8年10月28日",
+    {
+     "Value": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Value2": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Text": "令和8年10月28日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "令和8年10月28日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '令和元年5月1日'",
+    "cell",
+    "令和元年5月1日",
+    {
+     "Value": [
+      "String",
+      "令和元年5月1日"
+     ],
+     "Value2": [
+      "String",
+      "令和元年5月1日"
+     ],
+     "Text": "令和元年5月1日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "令和元年5月1日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '平成31年4月30日'",
+    "cell",
+    "平成31年4月30日",
+    {
+     "Value": [
+      "String",
+      "平成31年4月30日"
+     ],
+     "Value2": [
+      "String",
+      "平成31年4月30日"
+     ],
+     "Text": "平成31年4月30日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "平成31年4月30日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'R8.10.28'",
+    "cell",
+    "R8.10.28",
+    {
+     "Value": [
+      "String",
+      "R8.10.28"
+     ],
+     "Value2": [
+      "String",
+      "R8.10.28"
+     ],
+     "Text": "R8.10.28",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "R8.10.28",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'H31.4.30'",
+    "cell",
+    "H31.4.30",
+    {
+     "Value": [
+      "String",
+      "H31.4.30"
+     ],
+     "Value2": [
+      "String",
+      "H31.4.30"
+     ],
+     "Text": "H31.4.30",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "H31.4.30",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'R8/10/28'",
+    "cell",
+    "R8/10/28",
+    {
+     "Value": [
+      "String",
+      "R8/10/28"
+     ],
+     "Value2": [
+      "String",
+      "R8/10/28"
+     ],
+     "Text": "R8/10/28",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "R8/10/28",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '2026年1月5日'",
+    "cell",
+    "2026年1月5日",
+    {
+     "Value": [
+      "String",
+      "2026年1月5日"
+     ],
+     "Value2": [
+      "String",
+      "2026年1月5日"
+     ],
+     "Text": "2026年1月5日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "2026年1月5日",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '2026/01/05'",
+    "cell",
+    "2026/01/05",
+    {
+     "Value": [
+      "Date",
+      "2026/01/05"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "2026/01/05",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "yyyy/mm/dd",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '2026/1/5'",
+    "cell",
+    "2026/1/5",
+    {
+     "Value": [
+      "Date",
+      "2026/01/05"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "2026/01/05",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "yyyy/mm/dd",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1/5/2026'",
+    "cell",
+    "1/5/2026",
+    {
+     "Value": [
+      "Date",
+      "2026/01/05"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "2026/01/05",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "yyyy/mm/dd",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1/5'",
+    "cell",
+    "1/5",
+    {
+     "Value": [
+      "Date",
+      "2026/01/05"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "05-1",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "dd-mmm",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '5-Jan'",
+    "cell",
+    "5-Jan",
+    {
+     "Value": [
+      "Date",
+      "2026/01/05"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "05-1",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "dd-mmm",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'Jan 5, 2026'",
+    "cell",
+    "Jan 5, 2026",
+    {
+     "Value": [
+      "Date",
+      "2026/01/05"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "05-1-26",
+     "NumberFormat": "d-mmm-yy",
+     "NumberFormatLocal": "dd-mmm-yy",
+     "Formula": "46027",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '13時4分'",
+    "cell",
+    "13時4分",
+    {
+     "Value": [
+      "String",
+      "13時4分"
+     ],
+     "Value2": [
+      "String",
+      "13時4分"
+     ],
+     "Text": "13時4分",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "13時4分",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '13:04'",
+    "cell",
+    "13:04",
+    {
+     "Value": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Value2": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Text": "13:04",
+     "NumberFormat": "h:mm",
+     "NumberFormatLocal": "h:mm",
+     "Formula": "0.544444444444444",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '午後1:04'",
+    "cell",
+    "午後1:04",
+    {
+     "Value": [
+      "String",
+      "午後1:04"
+     ],
+     "Value2": [
+      "String",
+      "午後1:04"
+     ],
+     "Text": "午後1:04",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "午後1:04",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1:04 PM'",
+    "cell",
+    "1:04 PM",
+    {
+     "Value": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Value2": [
+      "Double",
+      "0.544444444444444"
+     ],
+     "Text": "1:04 午後",
+     "NumberFormat": "h:mm AM/PM",
+     "NumberFormatLocal": "h:mm AM/PM",
+     "Formula": "0.544444444444444",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '\\\\1,200'",
+    "cell",
+    "\\1,200",
+    {
+     "Value": [
+      "String",
+      "\\1,200"
+     ],
+     "Value2": [
+      "String",
+      "\\1,200"
+     ],
+     "Text": "\\1,200",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "\\1,200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '￥1,200'",
+    "cell",
+    "￥1,200",
+    {
+     "Value": [
+      "String",
+      "￥1,200"
+     ],
+     "Value2": [
+      "String",
+      "￥1,200"
+     ],
+     "Text": "￥1,200",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "￥1,200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '¥1,200'",
+    "cell",
+    "¥1,200",
+    {
+     "Value": [
+      "String",
+      "¥1,200"
+     ],
+     "Value2": [
+      "String",
+      "¥1,200"
+     ],
+     "Text": "¥1,200",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "¥1,200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '$1,200'",
+    "cell",
+    "$1,200",
+    {
+     "Value": [
+      "Currency",
+      "1200"
+     ],
+     "Value2": [
+      "Double",
+      "1200"
+     ],
+     "Text": "¥1,200",
+     "NumberFormat": "$#,##0_);[Red]($#,##0)",
+     "NumberFormatLocal": "¥#,##0;[Red]-¥#,##0",
+     "Formula": "1200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '(12)'",
+    "cell",
+    "(12)",
+    {
+     "Value": [
+      "Double",
+      "-12"
+     ],
+     "Value2": [
+      "Double",
+      "-12"
+     ],
+     "Text": "-12",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "-12",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '１２'",
+    "cell",
+    "１２",
+    {
+     "Value": [
+      "String",
+      "１２"
+     ],
+     "Value2": [
+      "String",
+      "１２"
+     ],
+     "Text": "１２",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "１２",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1,200'",
+    "cell",
+    "1,200",
+    {
+     "Value": [
+      "Double",
+      "1200"
+     ],
+     "Value2": [
+      "Double",
+      "1200"
+     ],
+     "Text": "1,200",
+     "NumberFormat": "#,##0",
+     "NumberFormatLocal": "#,##0",
+     "Formula": "1200",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1.200,5'",
+    "cell",
+    "1.200,5",
+    {
+     "Value": [
+      "String",
+      "1.200,5"
+     ],
+     "Value2": [
+      "String",
+      "1.200,5"
+     ],
+     "Text": "1.200,5",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "1.200,5",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '１２％'",
+    "cell",
+    "１２％",
+    {
+     "Value": [
+      "String",
+      "１２％"
+     ],
+     "Value2": [
+      "String",
+      "１２％"
+     ],
+     "Text": "１２％",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "１２％",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '12%'",
+    "cell",
+    "12%",
+    {
+     "Value": [
+      "Double",
+      "0.12"
+     ],
+     "Value2": [
+      "Double",
+      "0.12"
+     ],
+     "Text": "12%",
+     "NumberFormat": "0%",
+     "NumberFormatLocal": "0%",
+     "Formula": "0.12",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '-12'",
+    "cell",
+    "-12",
+    {
+     "Value": [
+      "Double",
+      "-12"
+     ],
+     "Value2": [
+      "Double",
+      "-12"
+     ],
+     "Text": "-12",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "-12",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '12-'",
+    "cell",
+    "12-",
+    {
+     "Value": [
+      "String",
+      "12-"
+     ],
+     "Value2": [
+      "String",
+      "12-"
+     ],
+     "Text": "12-",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "12-",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1e3'",
+    "cell",
+    "1e3",
+    {
+     "Value": [
+      "Double",
+      "1000"
+     ],
+     "Value2": [
+      "Double",
+      "1000"
+     ],
+     "Text": "1.00E+03",
+     "NumberFormat": "0.00E+00",
+     "NumberFormatLocal": "0.00E+00",
+     "Formula": "1000",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '（１２）'",
+    "cell",
+    "（１２）",
+    {
+     "Value": [
+      "String",
+      "（１２）"
+     ],
+     "Value2": [
+      "String",
+      "（１２）"
+     ],
+     "Text": "（１２）",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "（１２）",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'ＴＲＵＥ'",
+    "cell",
+    "ＴＲＵＥ",
+    {
+     "Value": [
+      "String",
+      "ＴＲＵＥ"
+     ],
+     "Value2": [
+      "String",
+      "ＴＲＵＥ"
+     ],
+     "Text": "ＴＲＵＥ",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "ＴＲＵＥ",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = 'TRUE'",
+    "cell",
+    "TRUE",
+    {
+     "Value": [
+      "Boolean",
+      "True"
+     ],
+     "Value2": [
+      "Boolean",
+      "True"
+     ],
+     "Text": "TRUE",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "TRUE",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '＄１２'",
+    "cell",
+    "＄１２",
+    {
+     "Value": [
+      "String",
+      "＄１２"
+     ],
+     "Value2": [
+      "String",
+      "＄１２"
+     ],
+     "Text": "＄１２",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "＄１２",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '１２：３０'",
+    "cell",
+    "１２：３０",
+    {
+     "Value": [
+      "String",
+      "１２：３０"
+     ],
+     "Value2": [
+      "String",
+      "１２：３０"
+     ],
+     "Text": "１２：３０",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "１２：３０",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '＇AB'",
+    "cell",
+    "＇AB",
+    {
+     "Value": [
+      "String",
+      "＇AB"
+     ],
+     "Value2": [
+      "String",
+      "＇AB"
+     ],
+     "Text": "＇AB",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "＇AB",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = \"'AB\"",
+    "cell",
+    "'AB",
+    {
+     "Value": [
+      "String",
+      "AB"
+     ],
+     "Value2": [
+      "String",
+      "AB"
+     ],
+     "Text": "AB",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "AB",
+     "PrefixCharacter": "'"
+    }
+   ],
+   [
+    "Range.Value = '’AB'",
+    "cell",
+    "’AB",
+    {
+     "Value": [
+      "String",
+      "’AB"
+     ],
+     "Value2": [
+      "String",
+      "’AB"
+     ],
+     "Text": "’AB",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "’AB",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1-2'",
+    "cell",
+    "1-2",
+    {
+     "Value": [
+      "Date",
+      "2026/01/02"
+     ],
+     "Value2": [
+      "Double",
+      "46024"
+     ],
+     "Text": "02-1",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "dd-mmm",
+     "Formula": "46024",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '3/4'",
+    "cell",
+    "3/4",
+    {
+     "Value": [
+      "Date",
+      "2026/03/04"
+     ],
+     "Value2": [
+      "Double",
+      "46085"
+     ],
+     "Text": "04-3",
+     "NumberFormat": "d-mmm",
+     "NumberFormatLocal": "dd-mmm",
+     "Formula": "46085",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '1 1/2'",
+    "cell",
+    "1 1/2",
+    {
+     "Value": [
+      "Double",
+      "1.5"
+     ],
+     "Value2": [
+      "Double",
+      "1.5"
+     ],
+     "Text": "1 1/2",
+     "NumberFormat": "# ?/?",
+     "NumberFormatLocal": "# ?/?",
+     "Formula": "1.5",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "Range.Value = '０．５'",
+    "cell",
+    "０．５",
+    {
+     "Value": [
+      "String",
+      "０．５"
+     ],
+     "Value2": [
+      "String",
+      "０．５"
+     ],
+     "Text": "０．５",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "０．５",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'General' on 2026-10-28 13:04:05",
+    "fmt",
+    "General",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "46323.5445",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'ggge\"年\"m\"月\"d\"日\"' on 2026-10-28 13:04:05",
+    "fmt",
+    "ggge\"年\"m\"月\"d\"日\"",
+    {
+     "Value": [
+      "Date",
+      "2026/10/28 13:04:05"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "2026年10月28日",
+     "NumberFormat": "ggge\"年\"m\"月\"d\"日\"",
+     "NumberFormatLocal": "ggge\"年\"m\"月\"d\"日\"",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-ja-JP]ggge\"年\"m\"月\"d\"日\"' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-ja-JP]ggge\"年\"m\"月\"d\"日\"",
+    {
+     "Value": [
+      "Date",
+      "2026/10/28 13:04:05"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "令和8年10月28日",
+     "NumberFormat": "[$-411]ggge\"年\"m\"月\"d\"日\"",
+     "NumberFormatLocal": "[$-411]ggge\"年\"m\"月\"d\"日\"",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-411]gge.m.d' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-411]gge.m.d",
+    {
+     "Value": [
+      "Date",
+      "2026/10/28 13:04:05"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "令8.10.28",
+     "NumberFormat": "[$-411]gge.m.d",
+     "NumberFormatLocal": "[$-411]gge.m.d",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'm/d/yyyy' on 2026-10-28 13:04:05",
+    "fmt",
+    "m/d/yyyy",
+    {
+     "Value": [
+      "Date",
+      "2026/10/28 13:04:05"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "2026/10/28",
+     "NumberFormat": "m/d/yyyy",
+     "NumberFormatLocal": "yyyy/mm/dd",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'yyyy/m/d' on 2026-10-28 13:04:05",
+    "fmt",
+    "yyyy/m/d",
+    {
+     "Value": [
+      "Date",
+      "2026/10/28 13:04:05"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "2026/10/28",
+     "NumberFormat": "yyyy/m/d",
+     "NumberFormatLocal": "yyyy/m/d",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat 'mmm d' on 2026-10-28 13:04:05",
+    "fmt",
+    "mmm d",
+    {
+     "Value": [
+      "Date",
+      "2026/10/28 13:04:05"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "10 28",
+     "NumberFormat": "mmm d",
+     "NumberFormatLocal": "mmm d",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-F800]dddd, mmmm dd, yyyy' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-F800]dddd, mmmm dd, yyyy",
+    {
+     "Value": [
+      "Date",
+      "2026/10/28 13:04:05"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "2026年10月28日",
+     "NumberFormat": "[$-F800]dddd, mmmm dd, yyyy",
+     "NumberFormatLocal": "[$-F800]dddd, mmmm dd, yyyy",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$-F400]h:mm:ss AM/PM' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$-F400]h:mm:ss AM/PM",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "13:04:05",
+     "NumberFormat": "[$-F400]h:mm:ss AM/PM",
+     "NumberFormatLocal": "[$-F400]h:mm:ss AM/PM",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "#,##0",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "46,324",
+     "NumberFormat": "#,##0",
+     "NumberFormatLocal": "#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '$#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "$#,##0",
+    {
+     "Value": [
+      "Currency",
+      "46323.5445"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "¥46,324",
+     "NumberFormat": "$#,##0",
+     "NumberFormatLocal": "¥#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '[$¥-411]#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "[$¥-411]#,##0",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "¥46,324",
+     "NumberFormat": "[$¥-411]#,##0",
+     "NumberFormatLocal": "[$¥-411]#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "NumberFormat '\\\\#,##0' on 2026-10-28 13:04:05",
+    "fmt",
+    "\\#,##0",
+    {
+     "Value": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Value2": [
+      "Double",
+      "46323.5445023148"
+     ],
+     "Text": "#,46324",
+     "NumberFormat": "\\#,##0",
+     "NumberFormatLocal": "!#,##0",
+     "Formula": "46323.5445023148",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=TEXT(DATE(2026,10,28),\"ggge年m月d日\")",
+    "text",
+    "=TEXT(DATE(2026,10,28),\"ggge年m月d日\")",
+    {
+     "Value": [
+      "String",
+      "2026年10月28日"
+     ],
+     "Value2": [
+      "String",
+      "2026年10月28日"
+     ],
+     "Text": "2026年10月28日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=TEXT(DATE(2026,10,28),\"ggge年m月d日\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=TEXT(DATE(2026,10,28),\"[$-ja-JP]ggge年m月d日\")",
+    "text",
+    "=TEXT(DATE(2026,10,28),\"[$-ja-JP]ggge年m月d日\")",
+    {
+     "Value": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Value2": [
+      "String",
+      "令和8年10月28日"
+     ],
+     "Text": "令和8年10月28日",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=TEXT(DATE(2026,10,28),\"[$-ja-JP]ggge年m月d日\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=TEXT(1234.5,\"$#,##0\")",
+    "text",
+    "=TEXT(1234.5,\"$#,##0\")",
+    {
+     "Value": [
+      "String",
+      "$1,235"
+     ],
+     "Value2": [
+      "String",
+      "$1,235"
+     ],
+     "Text": "$1,235",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=TEXT(1234.5,\"$#,##0\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATEVALUE(\"令和8年10月28日\")",
+    "text",
+    "=DATEVALUE(\"令和8年10月28日\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=DATEVALUE(\"令和8年10月28日\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATEVALUE(\"2026/1/5\")",
+    "text",
+    "=DATEVALUE(\"2026/1/5\")",
+    {
+     "Value": [
+      "Double",
+      "46027"
+     ],
+     "Value2": [
+      "Double",
+      "46027"
+     ],
+     "Text": "46027",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=DATEVALUE(\"2026/1/5\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATEVALUE(\"1/5/2026\")",
+    "text",
+    "=DATEVALUE(\"1/5/2026\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=DATEVALUE(\"1/5/2026\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=VALUE(\"１２\")",
+    "text",
+    "=VALUE(\"１２\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=VALUE(\"１２\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=VALUE(\"\\1,200\")",
+    "text",
+    "=VALUE(\"\\1,200\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=VALUE(\"\\1,200\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=VALUE(\"$1,200\")",
+    "text",
+    "=VALUE(\"$1,200\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2015"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2015"
+     ],
+     "Text": "#VALUE!",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=VALUE(\"$1,200\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=YEN(1234.5)",
+    "text",
+    "=YEN(1234.5)",
+    {
+     "Value": [
+      "Error",
+      "Error 2029"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2029"
+     ],
+     "Text": "#NAME?",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=YEN(1234.5)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DOLLAR(1234.5)",
+    "text",
+    "=DOLLAR(1234.5)",
+    {
+     "Value": [
+      "String",
+      "¥1,234.50"
+     ],
+     "Value2": [
+      "String",
+      "¥1,234.50"
+     ],
+     "Text": "¥1,234.50",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=DOLLAR(1234.5)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=ASC(\"ＡＢ\")",
+    "text",
+    "=ASC(\"ＡＢ\")",
+    {
+     "Value": [
+      "String",
+      "ＡＢ"
+     ],
+     "Value2": [
+      "String",
+      "ＡＢ"
+     ],
+     "Text": "ＡＢ",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=ASC(\"ＡＢ\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=JIS(\"AB\")",
+    "text",
+    "=JIS(\"AB\")",
+    {
+     "Value": [
+      "Error",
+      "Error 2029"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2029"
+     ],
+     "Text": "#NAME?",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=JIS(\"AB\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=PHONETIC(A1)",
+    "text",
+    "=PHONETIC(A1)",
+    {
+     "Value": [
+      "Error",
+      "Error 2042"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2042"
+     ],
+     "Text": "#N/A",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=PHONETIC(A1)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=DATESTRING(46323)",
+    "text",
+    "=DATESTRING(46323)",
+    {
+     "Value": [
+      "Error",
+      "Error 2042"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2042"
+     ],
+     "Text": "#N/A",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=DATESTRING(46323)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=NUMBERSTRING(123,1)",
+    "text",
+    "=NUMBERSTRING(123,1)",
+    {
+     "Value": [
+      "Error",
+      "Error 2042"
+     ],
+     "Value2": [
+      "Error",
+      "Error 2042"
+     ],
+     "Text": "#N/A",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=NUMBERSTRING(123,1)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=LEN(\"あ\")",
+    "text",
+    "=LEN(\"あ\")",
+    {
+     "Value": [
+      "Double",
+      "1"
+     ],
+     "Value2": [
+      "Double",
+      "1"
+     ],
+     "Text": "1",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=LEN(\"あ\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=LENB(\"あ\")",
+    "text",
+    "=LENB(\"あ\")",
+    {
+     "Value": [
+      "Double",
+      "1"
+     ],
+     "Value2": [
+      "Double",
+      "1"
+     ],
+     "Text": "1",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=LENB(\"あ\")",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "=FIXED(1234.5)",
+    "text",
+    "=FIXED(1234.5)",
+    {
+     "Value": [
+      "String",
+      "1,234.50"
+     ],
+     "Value2": [
+      "String",
+      "1,234.50"
+     ],
+     "Text": "1,234.50",
+     "NumberFormat": "General",
+     "NumberFormatLocal": "G/標準",
+     "Formula": "=FIXED(1234.5)",
+     "PrefixCharacter": ""
+    }
+   ],
+   [
+    "International(1)",
+    "intl",
+    1,
+    [
+     "Double",
+     "1"
+    ]
+   ],
+   [
+    "International(2)",
+    "intl",
+    2,
+    [
+     "Double",
+     "81"
+    ]
+   ],
+   [
+    "International(3)",
+    "intl",
+    3,
+    [
+     "String",
+     "."
+    ]
+   ],
+   [
+    "International(4)",
+    "intl",
+    4,
+    [
+     "String",
+     ","
+    ]
+   ],
+   [
+    "International(5)",
+    "intl",
+    5,
+    [
+     "String",
+     ","
+    ]
+   ],
+   [
+    "International(6)",
+    "intl",
+    6,
+    [
+     "String",
+     "R"
+    ]
+   ],
+   [
+    "International(7)",
+    "intl",
+    7,
+    [
+     "String",
+     "C"
+    ]
+   ],
+   [
+    "International(8)",
+    "intl",
+    8,
+    [
+     "String",
+     "r"
+    ]
+   ],
+   [
+    "International(9)",
+    "intl",
+    9,
+    [
+     "String",
+     "c"
+    ]
+   ],
+   [
+    "International(10)",
+    "intl",
+    10,
+    [
+     "String",
+     "["
+    ]
+   ],
+   [
+    "International(11)",
+    "intl",
+    11,
+    [
+     "String",
+     "]"
+    ]
+   ],
+   [
+    "International(12)",
+    "intl",
+    12,
+    [
+     "String",
+     "{"
+    ]
+   ],
+   [
+    "International(13)",
+    "intl",
+    13,
+    [
+     "String",
+     "}"
+    ]
+   ],
+   [
+    "International(14)",
+    "intl",
+    14,
+    [
+     "String",
+     ","
+    ]
+   ],
+   [
+    "International(15)",
+    "intl",
+    15,
+    [
+     "String",
+     ";"
+    ]
+   ],
+   [
+    "International(16)",
+    "intl",
+    16,
+    [
+     "String",
+     "@"
+    ]
+   ],
+   [
+    "International(17)",
+    "intl",
+    17,
+    [
+     "String",
+     "/"
+    ]
+   ],
+   [
+    "International(18)",
+    "intl",
+    18,
+    [
+     "String",
+     ":"
+    ]
+   ],
+   [
+    "International(19)",
+    "intl",
+    19,
+    [
+     "String",
+     "y"
+    ]
+   ],
+   [
+    "International(20)",
+    "intl",
+    20,
+    [
+     "String",
+     "m"
+    ]
+   ],
+   [
+    "International(21)",
+    "intl",
+    21,
+    [
+     "String",
+     "d"
+    ]
+   ],
+   [
+    "International(22)",
+    "intl",
+    22,
+    [
+     "String",
+     "h"
+    ]
+   ],
+   [
+    "International(23)",
+    "intl",
+    23,
+    [
+     "String",
+     "m"
+    ]
+   ],
+   [
+    "International(24)",
+    "intl",
+    24,
+    [
+     "String",
+     "s"
+    ]
+   ],
+   [
+    "International(25)",
+    "intl",
+    25,
+    [
+     "String",
+     "¥"
+    ]
+   ],
+   [
+    "International(26)",
+    "intl",
+    26,
+    [
+     "String",
+     "G/標準"
+    ]
+   ],
+   [
+    "International(27)",
+    "intl",
+    27,
+    [
+     "Double",
+     "0"
+    ]
+   ],
+   [
+    "International(28)",
+    "intl",
+    28,
+    [
+     "Double",
+     "1"
+    ]
+   ],
+   [
+    "International(29)",
+    "intl",
+    29,
+    [
+     "Double",
+     "2"
+    ]
+   ],
+   [
+    "International(30)",
+    "intl",
+    30,
+    [
+     "Double",
+     "3"
+    ]
+   ],
+   [
+    "International(31)",
+    "intl",
+    31,
+    [
+     "Double",
+     "3"
+    ]
+   ],
+   [
+    "International(32)",
+    "intl",
+    32,
+    [
+     "Double",
+     "2"
+    ]
+   ],
+   [
+    "International(33)",
+    "intl",
+    33,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(34)",
+    "intl",
+    34,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(35)",
+    "intl",
+    35,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(36)",
+    "intl",
+    36,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "International(37)",
+    "intl",
+    37,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(38)",
+    "intl",
+    38,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(39)",
+    "intl",
+    39,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(40)",
+    "intl",
+    40,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(41)",
+    "intl",
+    41,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(42)",
+    "intl",
+    42,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(43)",
+    "intl",
+    43,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(44)",
+    "intl",
+    44,
+    [
+     "Boolean",
+     "True"
+    ]
+   ],
+   [
+    "International(45)",
+    "intl",
+    45,
+    [
+     "Boolean",
+     "False"
+    ]
+   ],
+   [
+    "Range.Sort of kana, kanji and widths",
+    "sort",
+    [
+     "あ",
+     "ア",
+     "ｱ",
+     "い",
+     "か",
+     "が",
+     "カ",
+     "亜",
+     "阿",
+     "一",
+     "Ａ",
+     "a",
+     "A",
+     "ａ",
+     "b",
+     "１",
+     "1",
+     "2",
+     "ー",
+     "ぁ",
+     "ゃ",
+     "や",
+     "ﾔ",
+     "漢",
+     "字"
+    ],
+    [
+     16,
+     17,
+     15,
+     11,
+     12,
+     10,
+     13,
+     14,
+     19,
+     2,
+     1,
+     0,
+     3,
+     6,
+     4,
+     5,
+     20,
+     22,
+     21,
+     7,
+     8,
+     9,
+     23,
+     24,
+     18
+    ]
+   ],
+   [
+    "Range.Sort of kana, kanji and widths, MatchCase",
+    "sort-case",
+    [
+     "あ",
+     "ア",
+     "ｱ",
+     "い",
+     "か",
+     "が",
+     "カ",
+     "亜",
+     "阿",
+     "一",
+     "Ａ",
+     "a",
+     "A",
+     "ａ",
+     "b",
+     "１",
+     "1",
+     "2",
+     "ー",
+     "ぁ",
+     "ゃ",
+     "や",
+     "ﾔ",
+     "漢",
+     "字"
+    ],
+    [
+     16,
+     17,
+     15,
+     11,
+     13,
+     12,
+     10,
+     14,
+     19,
+     2,
+     1,
+     0,
+     3,
+     6,
+     4,
+     5,
+     20,
+     22,
+     21,
+     7,
+     8,
+     9,
+     23,
+     24,
+     18
+    ]
+   ]
+  ]
+ }
+}

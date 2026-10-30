@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `ExcelApplication(locale="ja-JP")` runs VBA as it runs under the
+  Japanese (Japan) Regional format (#252). `CStr`, `Format` and its era
+  codes, `FormatCurrency`, `FormatDateTime`, `MonthName` and
+  `WeekdayName` write Japanese dates, names and yen. `CDate`, `IsDate`,
+  `DateValue` and the number conversions read eras, 年月日 and 時分秒,
+  午前 and 午後, the yen sign and full-width digits. Live VBA under each
+  format agrees on 400 cases, `tests/fixtures/vba_locale_live.json`.
+  oleaut32 with LCID 1041 agrees on 4,309 more,
+  `tests/fixtures/vba_locale.json`. Cells and their display stay en-US.
+
 - Custom lists work as Excel's do: `AddCustomList`, `DeleteCustomList`,
   `CustomListCount`, `GetCustomListContents` and `GetCustomListNum`.
   AutoFill steps along a list a macro added, in the case the cell shows.
@@ -1235,6 +1245,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   pivot report from changed source cells.
 
 ### Fixed
+
+- `CDbl`, `CDec`, `IsNumeric` and `CDate` refuse full-width and other
+  non-ASCII digits, as en-US VBA does. They read `CDbl("１２")` as 12.
 
 - `ListObjects.Add` over a header row alone reports itself unsupported.
   It made a one-row table. Excel adds an empty insert row under the

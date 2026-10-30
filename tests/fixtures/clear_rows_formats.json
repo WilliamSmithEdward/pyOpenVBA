@@ -1,0 +1,557 @@
+{
+ "measured_at": "2026-10-30T13:52:01.189614+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A10\").Value = 1\n        ws.Cells.Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(12)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\sheet_few.xlsx\", xlOpenXMLWorkbook\n    Case 1\n        ws.Range(\"A10\").Value = 1\n        ws.Cells.Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(ws.Rows.Count)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\sheet_all.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        ws.Range(\"A10\").Value = 1\n        ws.Cells.Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(12)).ClearFormats\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\sheet_formats.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        ws.Range(\"A10\").Value = 1\n        ws.Columns(\"B:C\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(12)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\columns_few.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        ws.Range(\"A10\").Value = 1\n        ws.Columns(\"B:C\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(ws.Rows.Count)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\columns_all.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        ws.Range(\"A10\").Value = 1\n        ws.Columns(\"A:XFC\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(12)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\nearly_all.xlsx\", xlOpenXMLWorkbook\n    Case 6\n        ws.Columns(\"A:A\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\a.xlsx\", xlOpenXMLWorkbook\n    Case 7\n        ws.Columns(\"A:B\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\ab.xlsx\", xlOpenXMLWorkbook\n    Case 8\n        ws.Columns(\"B:XFD\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\b_xfd.xlsx\", xlOpenXMLWorkbook\n    Case 9\n        ws.Columns(\"A:IU\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\a_iu.xlsx\", xlOpenXMLWorkbook\n    Case 10\n        ws.Columns(\"A:IV\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\a_iv.xlsx\", xlOpenXMLWorkbook\n    Case 11\n        ws.Columns(\"B:IW\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\b_iw.xlsx\", xlOpenXMLWorkbook\n    Case 12\n        ws.Columns(\"C:D\").Font.Name = \"Courier New\"\n        ws.Columns(\"F:G\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\two_blocks.xlsx\", xlOpenXMLWorkbook\n    Case 13\n        ws.Columns(\"A:Z\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\a_z.xlsx\", xlOpenXMLWorkbook\n    Case 14\n        ws.Columns(\"B:Z\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\b_z.xlsx\", xlOpenXMLWorkbook\n    Case 15\n        ws.Columns(\"A:C\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\a_c.xlsx\", xlOpenXMLWorkbook\n    Case 16\n        ws.Columns(\"B:D\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(8)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\b_d_one.xlsx\", xlOpenXMLWorkbook\n    Case 17\n        ws.Columns(\"B:C\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(57)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\b_c_fifty.xlsx\", xlOpenXMLWorkbook\n    Case 18\n        ws.Columns(\"B\").Font.Name = \"Courier New\"\n        ws.Columns(\"D\").Font.Name = \"Courier New\"\n        ws.Columns(\"F\").Font.Name = \"Courier New\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\three_apart.xlsx\", xlOpenXMLWorkbook\n    Case 19\n        ws.Columns(\"B:E\").Font.Name = \"Courier New\"\n        ws.Columns(\"C\").Font.Name = \"Arial\"\n        ws.Range(ws.Rows(8), ws.Rows(9)).Clear\n        Tried = ws.Range(\"A1\").Font.Name & \"|\" & ws.Range(\"B9\").Font.Name & \"|\" & ws.Range(\"XFD12\").Font.Name & \"|\" & ws.Range(\"C30\").Font.Name & \"|\" & ws.UsedRange.Address & \"|\" & ws.Cells.SpecialCells(xlCellTypeLastCell).Address\n        wb.SaveAs folder & \"\\two_styles.xlsx\", xlOpenXMLWorkbook\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = Tried & \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 19\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "ws.Range(\"A10\").Value = 1",
+    "ws.Cells.Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(12)).Clear"
+   ],
+   "sheet_few.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Courier New|$A$8:$A$12|$A$12"
+  ],
+  [
+   [
+    "ws.Range(\"A10\").Value = 1",
+    "ws.Cells.Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(ws.Rows.Count)).Clear"
+   ],
+   "sheet_all.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Aptos Narrow|$A$1:$A$7|$A$7"
+  ],
+  [
+   [
+    "ws.Range(\"A10\").Value = 1",
+    "ws.Cells.Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(12)).ClearFormats"
+   ],
+   "sheet_formats.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Courier New|$A$8:$A$12|$A$12"
+  ],
+  [
+   [
+    "ws.Range(\"A10\").Value = 1",
+    "ws.Columns(\"B:C\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(12)).Clear"
+   ],
+   "columns_few.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Courier New|$B$8:$C$12|$C$12"
+  ],
+  [
+   [
+    "ws.Range(\"A10\").Value = 1",
+    "ws.Columns(\"B:C\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(ws.Rows.Count)).Clear"
+   ],
+   "columns_all.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Aptos Narrow|$B$1:$C$7|$C$7"
+  ],
+  [
+   [
+    "ws.Range(\"A10\").Value = 1",
+    "ws.Columns(\"A:XFC\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(12)).Clear"
+   ],
+   "nearly_all.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Courier New|$A$8:$XFC$12|$XFC$12"
+  ],
+  [
+   [
+    "ws.Columns(\"A:A\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "a.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Aptos Narrow|$A$8:$A$9|$A$9"
+  ],
+  [
+   [
+    "ws.Columns(\"A:B\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "ab.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Aptos Narrow|$A$8:$B$9|$B$9"
+  ],
+  [
+   [
+    "ws.Columns(\"B:XFD\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "b_xfd.xlsx",
+   "Aptos Narrow|Aptos Narrow|Courier New|Courier New|$A$8:$A$9|$A$9"
+  ],
+  [
+   [
+    "ws.Columns(\"A:IU\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "a_iu.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Courier New|$A$8:$IU$9|$IU$9"
+  ],
+  [
+   [
+    "ws.Columns(\"A:IV\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "a_iv.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Courier New|$A$8:$IV$9|$IV$9"
+  ],
+  [
+   [
+    "ws.Columns(\"B:IW\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "b_iw.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Courier New|$B$8:$IW$9|$IW$9"
+  ],
+  [
+   [
+    "ws.Columns(\"C:D\").Font.Name = \"Courier New\"",
+    "ws.Columns(\"F:G\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "two_blocks.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Courier New|$C$8:$G$9|$G$9"
+  ],
+  [
+   [
+    "ws.Columns(\"A:Z\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "a_z.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Courier New|$A$8:$Z$9|$Z$9"
+  ],
+  [
+   [
+    "ws.Columns(\"B:Z\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "b_z.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Courier New|$B$8:$Z$9|$Z$9"
+  ],
+  [
+   [
+    "ws.Columns(\"A:C\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "a_c.xlsx",
+   "Courier New|Aptos Narrow|Aptos Narrow|Courier New|$A$8:$C$9|$C$9"
+  ],
+  [
+   [
+    "ws.Columns(\"B:D\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(8)).Clear"
+   ],
+   "b_d_one.xlsx",
+   "Aptos Narrow|Courier New|Aptos Narrow|Courier New|$B$8:$D$8|$D$8"
+  ],
+  [
+   [
+    "ws.Columns(\"B:C\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(57)).Clear"
+   ],
+   "b_c_fifty.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Aptos Narrow|$B$8:$C$57|$C$57"
+  ],
+  [
+   [
+    "ws.Columns(\"B\").Font.Name = \"Courier New\"",
+    "ws.Columns(\"D\").Font.Name = \"Courier New\"",
+    "ws.Columns(\"F\").Font.Name = \"Courier New\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "three_apart.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Aptos Narrow|$B$8:$F$9|$F$9"
+  ],
+  [
+   [
+    "ws.Columns(\"B:E\").Font.Name = \"Courier New\"",
+    "ws.Columns(\"C\").Font.Name = \"Arial\"",
+    "ws.Range(ws.Rows(8), ws.Rows(9)).Clear"
+   ],
+   "two_styles.xlsx",
+   "Aptos Narrow|Aptos Narrow|Aptos Narrow|Arial|$B$8:$E$9|$E$9"
+  ]
+ ],
+ "sheets": {
+  "sheet_few.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"16384\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"10\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"11\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"12\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 5,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A8:A12\"/>"
+   ]
+  },
+  "sheet_all.xlsx": {
+   "cols": [],
+   "rows": [
+    "<row r=\"1\" s=\"1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"2\" s=\"1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"3\" s=\"1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"4\" s=\"1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"5\" s=\"1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"6\" s=\"1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"7\" s=\"1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 7,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A1:A7\"/>"
+   ]
+  },
+  "sheet_formats.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"16384\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" spans=\"1:1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" spans=\"1:1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"10\" spans=\"1:1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"11\" spans=\"1:1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"12\" spans=\"1:1\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 5,
+   "cell_count": 1,
+   "cells": [
+    "<c r=\"A10\">"
+   ],
+   "dimension": [
+    "<dimension ref=\"A8:A12\"/>"
+   ]
+  },
+  "columns_few.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"3\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"9\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"10\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"11\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"12\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">"
+   ],
+   "row_count": 5,
+   "cell_count": 10,
+   "cells": [
+    "<c r=\"B8\"/>",
+    "<c r=\"C8\"/>",
+    "<c r=\"B9\"/>",
+    "<c r=\"C9\"/>",
+    "<c r=\"B10\"/>",
+    "<c r=\"C10\"/>",
+    "<c r=\"B11\"/>",
+    "<c r=\"C11\"/>",
+    "<c r=\"B12\"/>",
+    "<c r=\"C12\"/>"
+   ],
+   "dimension": [
+    "<dimension ref=\"B8:C12\"/>"
+   ]
+  },
+  "columns_all.xlsx": {
+   "cols": [],
+   "rows": [
+    "<row r=\"1\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"2\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"3\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"4\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"5\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"6\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"7\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">"
+   ],
+   "row_count": 7,
+   "cell_count": 14,
+   "cells": [
+    "<c r=\"B1\" s=\"1\"/>",
+    "<c r=\"C1\" s=\"1\"/>",
+    "<c r=\"B2\" s=\"1\"/>",
+    "<c r=\"C2\" s=\"1\"/>",
+    "<c r=\"B3\" s=\"1\"/>",
+    "<c r=\"C3\" s=\"1\"/>",
+    "<c r=\"B4\" s=\"1\"/>",
+    "<c r=\"C4\" s=\"1\"/>",
+    "<c r=\"B5\" s=\"1\"/>",
+    "<c r=\"C5\" s=\"1\"/>",
+    "<c r=\"B6\" s=\"1\"/>",
+    "<c r=\"C6\" s=\"1\"/>"
+   ],
+   "dimension": [
+    "<dimension ref=\"B1:C7\"/>"
+   ]
+  },
+  "nearly_all.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"16383\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"10\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"11\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"12\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 5,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A8:XFC12\"/>"
+   ]
+  },
+  "a.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"1\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"9\" spans=\"1:1\" x14ac:dyDescent=\"0.25\">"
+   ],
+   "row_count": 2,
+   "cell_count": 2,
+   "cells": [
+    "<c r=\"A8\"/>",
+    "<c r=\"A9\"/>"
+   ],
+   "dimension": [
+    "<dimension ref=\"A8:A9\"/>"
+   ]
+  },
+  "ab.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"2\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" spans=\"1:2\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"9\" spans=\"1:2\" x14ac:dyDescent=\"0.25\">"
+   ],
+   "row_count": 2,
+   "cell_count": 4,
+   "cells": [
+    "<c r=\"A8\"/>",
+    "<c r=\"B8\"/>",
+    "<c r=\"A9\"/>",
+    "<c r=\"B9\"/>"
+   ],
+   "dimension": [
+    "<dimension ref=\"A8:B9\"/>"
+   ]
+  },
+  "b_xfd.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"16384\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A8:A9\"/>"
+   ]
+  },
+  "a_iu.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"255\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A8:IU9\"/>"
+   ]
+  },
+  "a_iv.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"256\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A8:IV9\"/>"
+   ]
+  },
+  "b_iw.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"257\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"B8:IW9\"/>"
+   ]
+  },
+  "two_blocks.xlsx": {
+   "cols": [
+    "<col min=\"3\" max=\"4\" width=\"9.140625\" style=\"1\"/>",
+    "<col min=\"6\" max=\"7\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"C8:G9\"/>"
+   ]
+  },
+  "a_z.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"26\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A8:Z9\"/>"
+   ]
+  },
+  "b_z.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"26\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"B8:Z9\"/>"
+   ]
+  },
+  "a_c.xlsx": {
+   "cols": [
+    "<col min=\"1\" max=\"3\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"A8:C9\"/>"
+   ]
+  },
+  "b_d_one.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"4\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 1,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"B8:D8\"/>"
+   ]
+  },
+  "b_c_fifty.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"3\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"9\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"10\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"11\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"12\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"13\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"14\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"15\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"16\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"17\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"18\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">",
+    "<row r=\"19\" spans=\"2:3\" x14ac:dyDescent=\"0.25\">"
+   ],
+   "row_count": 50,
+   "cell_count": 100,
+   "cells": [
+    "<c r=\"B8\"/>",
+    "<c r=\"C8\"/>",
+    "<c r=\"B9\"/>",
+    "<c r=\"C9\"/>",
+    "<c r=\"B10\"/>",
+    "<c r=\"C10\"/>",
+    "<c r=\"B11\"/>",
+    "<c r=\"C11\"/>",
+    "<c r=\"B12\"/>",
+    "<c r=\"C12\"/>",
+    "<c r=\"B13\"/>",
+    "<c r=\"C13\"/>"
+   ],
+   "dimension": [
+    "<dimension ref=\"B8:C57\"/>"
+   ]
+  },
+  "three_apart.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"2\" width=\"9.140625\" style=\"1\"/>",
+    "<col min=\"4\" max=\"4\" width=\"9.140625\" style=\"1\"/>",
+    "<col min=\"6\" max=\"6\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"B8:F9\"/>"
+   ]
+  },
+  "two_styles.xlsx": {
+   "cols": [
+    "<col min=\"2\" max=\"2\" width=\"9.140625\" style=\"1\"/>",
+    "<col min=\"3\" max=\"3\" width=\"9.140625\" style=\"2\"/>",
+    "<col min=\"4\" max=\"5\" width=\"9.140625\" style=\"1\"/>"
+   ],
+   "rows": [
+    "<row r=\"8\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>",
+    "<row r=\"9\" customFormat=\"1\" x14ac:dyDescent=\"0.25\"/>"
+   ],
+   "row_count": 2,
+   "cell_count": 0,
+   "cells": [],
+   "dimension": [
+    "<dimension ref=\"B8:E9\"/>"
+   ]
+  }
+ }
+}

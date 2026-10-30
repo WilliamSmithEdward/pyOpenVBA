@@ -1183,6 +1183,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Clearing whole rows after `Cells.Font.Name` or another whole-sheet
+  format no longer runs out of memory. The model gave every position of
+  every cleared row a cell of its own. Excel gives each row a format of
+  the default when three columns or more carry a format, and clearing to
+  the last row moves the columns' formats onto the rows above (#256).
+
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,
   BeforeSave and the rest, which it listed as missing because no member

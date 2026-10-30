@@ -1789,6 +1789,17 @@ class Worksheet(ExcelObject):
     #: The events the model raises in the sheet's module and sinks (see _events).
     raised_events: ClassVar[frozenset[str]] = frozenset({
         "Change", "Calculate", "SelectionChange", "Activate", "Deactivate", "PivotTableUpdate"})
+    #: True once Delete took the sheet out of its workbook.
+    deleted = False
+
+    def vba_member(self, name: str) -> MemberSpec | None:
+        """A member of a deleted sheet fails with Excel's automation error, the member named; TypeName and Is still
+        answer (tests/fixtures/deleted_sheet.json)."""
+        if self.deleted:
+            spec = super(ExcelObject, self).vba_member(name)
+            raise error(-2147221080, f"Method '{spec.name if spec is not None else name}' of object '_Worksheet' "
+                                     "failed")
+        return super().vba_member(name)
 
     def __init__(self, book: Workbook, name: str) -> None:
         self.book = book

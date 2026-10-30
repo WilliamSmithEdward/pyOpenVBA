@@ -79,6 +79,8 @@ TEXT_AS_NUMBERS = 1
 #: XlSortOn: what a sort field orders by.
 ON_VALUES, ON_CELL_COLOR, ON_FONT_COLOR, ON_ICON = 0, 1, 2, 3
 _NUMBER, _TEXT, _LOGICAL, _ERROR, _BLANK = range(5)
+#: A custom list's item, ahead of every other class (see _custom_lists).
+_LISTED = -1
 
 
 @dataclass(frozen=True)
@@ -93,6 +95,8 @@ class Key:
     color: int | None = None
     #: The icon a key on icons orders the rows showing first, as its set and place there; None names none.
     icon: tuple[int, int] | None = None
+    #: A custom list's items in small letters, which order ahead of everything else in the list's order.
+    listed: tuple[str, ...] | None = None
 
 
 @cache
@@ -181,6 +185,8 @@ def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]
     if isinstance(value, ExcelError):
         return _ERROR, 0
     text = str(value)
+    if key.listed is not None and text.lower() in key.listed:
+        return _LISTED, key.listed.index(text.lower())
     if key.numbers:
         found = typed_text(text).value
         if isinstance(found, float):
@@ -426,8 +432,11 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
 
     if len(target.areas) != 1:
         raise VBAUnsupportedError("sorting several areas is not implemented")
-    if order_custom is not MISSING and int(to_integer(order_custom, "Long")) != 1:
-        raise VBAUnsupportedError("sorting by a custom list is not implemented")
+    from pyopenvba.apps.excel._custom_lists import sort_order
+
+    listed = sort_order(target.sheet.book.application, order_custom)
+    if listed is not None and match_case is not MISSING and to_bool(match_case):
+        raise VBAUnsupportedError("sorting by a custom list with MatchCase is not implemented")
     area = target.first
     if target.single:
         area = current_region(target.sheet, area.top, area.left)
@@ -439,6 +448,9 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
         if key is MISSING:
             continue
         resolved.append(_key(key, area, across, order, option))
+    if listed is not None:
+        # OrderCustom orders by the first key (tests/fixtures/custom_lists.json).
+        resolved[0] = replace(resolved[0], listed=listed)
     kept = NO if header is MISSING else int(to_integer(header, "Long"))
     has_header = kept == YES or (kept == GUESS and guessed_header(target.sheet, area, across))
     sort_area(target.sheet, area, resolved, header=has_header,

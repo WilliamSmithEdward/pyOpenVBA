@@ -1183,10 +1183,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
-- `MsgBox` with no answer queued comes back with the button
-  `vbDefaultButton2`, `3` or `4` names, as Windows' message box answers
-  Enter. It always came back with the first button, so
-  `vbYesNo + vbDefaultButton2` answered Yes (#250).
+- `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
+  bound is below its lower bound, with Preserve or without. It made an
+  empty array (#255).
 
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
@@ -1368,6 +1367,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   last day of 9999 could show a second late. Measured against
   oleaut32 on 7,013 serials, `tests/fixtures/variant_time.json`; the
   last 11 of the 152 live time-rounding cases now agree.
+
+- `MsgBox` with no answer queued comes back with the button
+  `vbDefaultButton2`, `3` or `4` names, as Windows' message box answers
+  Enter. It always came back with the first button, so
+  `vbYesNo + vbDefaultButton2` answered Yes (#250).
 
 - A Date may fall on 100-01-01 after midnight: -657434.5 is
   `1/1/100 12:00:00 PM`, as in VBA, where the model raised error 6 for

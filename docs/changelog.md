@@ -1188,6 +1188,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Unload frmTest` were error 35, and `frmTest.Show` or a property of the
   form error 424, both of which `On Error` could trap (#251).
 
+- A variable holding a deleted sheet fails as Excel's does. Each member
+  is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
+  and a range or PageSetup taken from the sheet is error 424. It went on
+  answering, and read a new sheet given the old name (#246).
+
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,
   BeforeSave and the rest, which it listed as missing because no member

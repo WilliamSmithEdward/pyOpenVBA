@@ -1183,6 +1183,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A UserForm is reported with `VBAUnsupportedError`, as the README
+  promises for what the interpreter does not run. `Load frmTest` and
+  `Unload frmTest` were error 35, and `frmTest.Show` or a property of the
+  form error 424, both of which `On Error` could trap (#251).
+
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,
   BeforeSave and the rest, which it listed as missing because no member

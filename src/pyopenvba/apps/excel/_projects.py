@@ -1,6 +1,7 @@
 """One interpreter per workbook, with nested Excel execution contexts."""
 from __future__ import annotations
 
+import re
 from collections.abc import Generator
 from contextlib import contextmanager
 from weakref import WeakSet
@@ -14,6 +15,9 @@ from pyopenvba.interpreter._parse import parse_module
 from pyopenvba.interpreter._runtime import Interpreter, MAX_DEPTH, ModuleRuntime, UserClassInstance
 from pyopenvba.interpreter._values import EMPTY, error
 from pyopenvba.vba import VBAModuleKind, VBAProject
+
+#: A UserForm module's VB_Base: its designer's class and its type library, two GUIDs after the 0.
+_DESIGNER_BASE = re.compile(r'^Attribute VB_Base = "0\{[^}]+\}\{[^}]+\}"', re.MULTILINE | re.IGNORECASE)
 
 
 class ExcelInterpreter(Interpreter):
@@ -153,6 +157,9 @@ class ExcelInterpreter(Interpreter):
             owner = self.bridge.global_object(module.name.lower())
             if kind == "class" and isinstance(owner, VBAObject) and owner is not self.bridge.application:
                 kind = "document"
+            elif kind == "class" and _DESIGNER_BASE.search(module.source):
+                # A UserForm, whose VB_Base names its designer and type library where a class names one base.
+                kind = "form"
             staged.append(ModuleRuntime(parse_module(module.source, name=module.name, kind=kind, retain_body_errors=True), self))
         # Parse every module first so a syntax error cannot silently leave a
         # half-imported project. Install all names before binding documents

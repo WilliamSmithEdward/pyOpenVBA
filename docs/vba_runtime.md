@@ -2316,6 +2316,8 @@ native probes, `scripts/measure_vba_builtins.py`):
 - Numeric text reads as a US-English Office reads it, the same for
   `IsNumeric`, `CDbl`, `CLng` and arithmetic: commas after the first digit,
   a `$` before or after, a sign before or after, parentheses for a negative.
+  Another Regional format reads its own currency sign (see The Regional
+  format).
 - A dynamic array is unallocated until a ReDim and after an Erase: `LBound`,
   `UBound` and an index are error 9, `For Each` over it is error 92, `Join`
   of it is "". `Split("")` and `Array()` are allocated and empty.
@@ -2352,7 +2354,41 @@ set off by spaces. A dot separates a time's parts as a colon does, so
 are no time (`"24.00"`, `"1.60"`) is read as a number
 (`tests/fixtures/vba_runtime_edges.json`). `CDate` of a number in text,
 `CDate("2024")`, is that serial, though `IsDate` says False, as it does
-for any number that is not a Date.
+for any number that is not a Date. Numbers and dates take ASCII digits
+only: `CDbl("１２")` is error 13.
+
+### The Regional format
+
+Everything above is VBA under the en-US Regional format, which is the
+default. `ExcelApplication(locale="ja-JP")` runs a project as it runs
+under Japanese (Japan). VBA takes the format from Windows' oleaut32, so
+oleaut32 called with LCID 1041 is the oracle:
+`tests/fixtures/vba_locale.json` holds its answers over 1,083 dates
+formatted, 126 numbers formatted, 1,928 date strings and 1,153 number
+strings (`scripts/measure_vba_locale.py`). A live run under each Regional
+format agrees, `tests/fixtures/vba_locale_live.json`
+(`scripts/measure_vba_locale_live.py`). Under ja-JP:
+
+- `CStr` and `Format`'s `c` write dates as `2026/01/05 13:04:05`. The
+  named formats and `ddddd`, `dddddd` and `ttttt` follow, so Long Date is
+  `2026年1月5日`. `AMPM` writes 午前 and 午後.
+- `g`, `gg` and `ggg` are the era as R, 令 and 令和, and `e` and `ee` are
+  the year in it, 元 for the first year before 年. Meiji starts on
+  23 October 1868. `aaa`, `aaaa`, `ooo` and `oooo` are the Japanese day and
+  month names. `ddd`, `dddd`, `mmm` and `mmmm` stay English.
+- `FormatCurrency` writes `¥1,235` and `-¥1,235`. `MonthName` and
+  `WeekdayName` give `10月` and `火曜日`, and `FormatDateTime` the locale's
+  formats.
+- `CDate`, `IsDate` and `DateValue` read years marked 年, months 月 and
+  days 日, times marked 時, 分 and 秒, 午前 and 午後, eras (`令和8`, `R8`,
+  `平成元年`) and full-width digits. Three plain numbers are
+  year-month-day first. A time written before the date, and the letters
+  A and P, report themselves unsupported.
+- The number conversions take `\`, `¥` and `￥` as the currency sign and
+  full-width digits and signs, and refuse `$`.
+
+A date literal in code, `#3/4/2026#`, reads as en-US under every locale.
+Cells, their formats and `Application.International` stay en-US.
 
 `Round` of a Double scales by ten to the digits in floating point, rounds
 half to even there and scales back, so `Round(2.345, 2)` is 2.35 (2.345 \* 100

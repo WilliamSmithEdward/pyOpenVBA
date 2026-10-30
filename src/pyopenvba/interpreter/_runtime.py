@@ -29,6 +29,7 @@ from weakref import ReferenceType, ref
 from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
+from pyopenvba.interpreter import _locale
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
@@ -1088,6 +1089,8 @@ class Interpreter:
         #: What the next dialog answers with, oldest first.
         self.answers: list[object] = []
         self.frozen_now: Any = None
+        #: The Regional format the project runs under: what CStr, Format and CDate write and read.
+        self.locale: _locale.Locale = _locale.EN_US
         self._rnd_state = 0x50000
         self._line_open = False
         self._intrinsics = _load_intrinsics()
@@ -1234,6 +1237,10 @@ class Interpreter:
         reset_error: bool = False,
     ) -> object:
         """Call one procedure and give back what it returns."""
+        if not self.frames and _locale.current() is not self.locale:
+            # The outermost call runs everything under the project's locale.
+            with _locale.active(self.locale):
+                return self.call(procedure, module, args, named, me=me, reset_error=reset_error)
         if len(self.frames) + sum(active.gosub_depth for active in self.frames) >= MAX_DEPTH:
             raise error(28)
         from pyopenvba.interpreter._compile import validate_numeric_loops, validate_record_arguments

@@ -1,8 +1,10 @@
-"""VBA's Format function, as a US-English Office runs it.
+"""VBA's Format function, as a US-English Office runs it, or a Japanese one.
 
 Measured over 245 calls in ``tests/fixtures/vba_format.json``
 (``scripts/measure_vba_format.py``) and the hour-token probes recorded with
-them. Access's field formats (``pyopenvba.access._format``) are a different
+them. The named formats, Currency, c, ddddd, dddddd, ttttt and AMPM are the
+locale's (``_locale``); ja-JP adds the era and Japanese name codes, checked
+against oleaut32 in ``tests/fixtures/vba_locale.json``. Access's field formats (``pyopenvba.access._format``) are a different
 engine: there ``#.##`` pads with zeros and ``\\x`` shows its backslash.
 
 A format is up to four sections split by ``;``. A section with a ``0`` or
@@ -17,6 +19,7 @@ import datetime as _dt
 from decimal import ROUND_HALF_UP, Decimal, localcontext
 from typing import Final
 
+from pyopenvba.interpreter import _locale
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
@@ -30,28 +33,38 @@ from pyopenvba.interpreter._values import (
     to_text,
 )
 
-#: Formats with a name, matched only when the name is the whole format.
+#: Formats with a name, matched only when the name is the whole format; Currency and the dates are the
+#: locale's (_named_number, _named_date).
 NAMED_NUMBER: Final = {
-    "currency": "$#,##0.00;($#,##0.00)",
     "fixed": "0.00",
     "standard": "#,##0.00",
     "percent": "0.00%",
     "scientific": "0.00E+00",
 }
-NAMED_DATE: Final = {
-    "general date": "c",
-    "long date": "dddd, mmmm d, yyyy",
-    "medium date": "dd-mmm-yy",
-    "short date": "m/d/yyyy",
-    "long time": "h:nn:ss AM/PM",
-    "medium time": "hh:nn AM/PM",
-    "short time": "hh:nn",
-}
 NAMED_BOOLEAN: Final = {"yes/no": ("Yes", "No"), "true/false": ("True", "False"), "on/off": ("On", "Off")}
 
-_MONTHS: Final = ("January", "February", "March", "April", "May", "June", "July", "August",
-                  "September", "October", "November", "December")
+#: ddd, dddd, mmm and mmmm are English under every locale; ja-JP's own names are aaa, aaaa, ooo and oooo.
+_MONTHS: Final = _locale.EN_US.months
 _DAYS: Final = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+
+def _named_number(name: str) -> str | None:
+    if name == "currency":
+        return _locale.current().currency
+    return NAMED_NUMBER.get(name)
+
+
+def _named_date(name: str) -> str | None:
+    locale = _locale.current()
+    return {
+        "general date": "c",
+        "long date": locale.long_date,
+        "medium date": locale.medium_date,
+        "short date": locale.short_date,
+        "long time": locale.long_time,
+        "medium time": locale.medium_time,
+        "short time": locale.short_time,
+    }.get(name)
 
 
 def vba_format(value: object, pattern: object = MISSING, first_day: int = 1, first_week: int = 1) -> object:
@@ -73,10 +86,11 @@ def vba_format(value: object, pattern: object = MISSING, first_day: int = 1, fir
             return to_text(value)
         true_text, false_text = NAMED_BOOLEAN[named]
         return true_text if number != 0 else false_text
-    if named in NAMED_NUMBER:
-        sections = _split_sections(NAMED_NUMBER[named])
-    elif named in NAMED_DATE:
-        sections = [NAMED_DATE[named]]
+    number_format, date_format = _named_number(named), _named_date(named)
+    if number_format is not None:
+        sections = _split_sections(number_format)
+    elif date_format is not None:
+        sections = [date_format]
     kind = _kind(sections[0])
     if kind == "text":
         return _format_text(value, sections)
@@ -390,6 +404,9 @@ def _format_text(value: object, sections: list[str]) -> str:
 
 _DATE_TOKENS: Final = ("dddddd", "ddddd", "dddd", "ddd", "dd", "d", "ww", "w", "mmmm", "mmm", "mm", "m", "q",
                        "yyyy", "yy", "y", "hh", "h", "nn", "n", "ss", "s", "ttttt", "c")
+#: ja-JP's own: the era (g, gg, ggg), the year in it (e, ee), and the Japanese day and month names (aaa,
+#: aaaa, ooo, oooo). Longer runs split greedily, so gggg is ggg then g (oleaut32, LCID 1041).
+_JAPANESE_TOKENS: Final = ("aaaa", "aaa", "oooo", "ooo", "ggg", "gg", "g", "ee", "e")
 _MARKERS: Final = ("am/pm", "a/p", "ampm")
 
 
@@ -452,7 +469,13 @@ def _format_date(value: VBADate, section: str, first_day: int, first_week: int) 
         if kind == "marker":
             out.append(_marker_text(text, when.hour))
             continue
-        out.append(_token_text(text, when, value, previous, twelve.get(index, False), first_day, first_week))
+        piece = _token_text(text, when, value, previous, twelve.get(index, False), first_day, first_week)
+        following = tokens[index + 1] if index + 1 < len(tokens) else ("", "")
+        if text in ("e", "ee") and piece in ("1", "01") and following[0] == "lit" and following[1].startswith("年") \
+                and _locale.era_of(_locale.current(), value.serial, when.year) is not None:
+            # An era's first year is 元 before 年, quoted or not, but not with a space between.
+            piece = "元"
+        out.append(piece)
         previous = text
     return "".join(out)
 
@@ -487,13 +510,14 @@ def _date_run(run: str) -> list[tuple[str, str]]:
     out: list[tuple[str, str]] = []
     at = 0
     lower = run.lower()
+    tokens = _DATE_TOKENS + _JAPANESE_TOKENS if _locale.current().eras else _DATE_TOKENS
     while at < len(run):
         marker = next((name for name in _MARKERS if lower.startswith(name, at)), None)
         if marker is not None:
             out.append(("marker", run[at:at + len(marker)]))
             at += len(marker)
             continue
-        token = next((name for name in _DATE_TOKENS if lower.startswith(name, at)), None)
+        token = next((name for name in tokens if lower.startswith(name, at)), None)
         if token is not None:
             out.append(("tok", token))
             at += len(token)
@@ -507,7 +531,8 @@ def _marker_text(marker: str, hour: int) -> str:
     morning = hour < 12
     lower = marker.lower()
     if lower == "ampm":
-        return "AM" if morning else "PM"
+        locale = _locale.current()
+        return locale.morning if morning else locale.afternoon
     first, _, second = marker.partition("/")
     return first if morning else second
 
@@ -522,10 +547,22 @@ def _token_text(token: str, when: _dt.datetime, value: VBADate, previous: str | 
         return _DAYS[when.weekday()][:3]
     if token == "dddd":
         return _DAYS[when.weekday()]
-    if token == "ddddd":
-        return f"{when.month}/{when.day}/{when.year:04d}"
-    if token == "dddddd":
-        return f"{_DAYS[when.weekday()]}, {_MONTHS[when.month - 1]} {when.day}, {when.year:04d}"
+    if token in ("ddddd", "dddddd"):
+        locale = _locale.current()
+        return _format_date(value, locale.short_date if token == "ddddd" else locale.long_date, first_day,
+                            first_week)
+    if token in ("g", "gg", "ggg", "e", "ee"):
+        found = _locale.era_of(_locale.current(), value.serial, when.year)
+        if found is None:
+            # Before the first era: no name, and the year as it is.
+            return "" if token.startswith("g") else str(when.year)
+        era, year = found
+        return {"g": era.letter, "gg": era.short, "ggg": era.name, "e": str(year), "ee": f"{year:02d}"}[token]
+    if token in ("aaa", "aaaa", "ooo", "oooo"):
+        locale = _locale.current()
+        sunday_based = (when.weekday() + 1) % 7
+        return {"aaa": locale.day_abbreviations[sunday_based], "aaaa": locale.days[sunday_based],
+                "ooo": locale.month_abbreviations[when.month - 1], "oooo": locale.months[when.month - 1]}[token]
     if token == "w":
         return str(weekday_number(when.date(), first_day))
     if token == "ww":
@@ -566,9 +603,19 @@ def _token_text(token: str, when: _dt.datetime, value: VBADate, previous: str | 
     if token == "ss":
         return f"{when.second:02d}"
     if token == "ttttt":
-        hour = when.hour % 12 or 12
-        return f"{hour}:{when.minute:02d}:{when.second:02d} {'AM' if when.hour < 12 else 'PM'}"
+        return _format_date(value, _locale.current().long_time, first_day, first_week)
     if token == "c":
-        return date_text(value)
+        locale = _locale.current()
+        if locale is _locale.EN_US:
+            return date_text(value)
+        # As CStr writes it, but with the locale's short date as Format writes it: ja-JP's year 100 is 0100.
+        date_part = _format_date(value, locale.short_date, first_day, first_week)
+        time_part = _format_date(value, locale.long_time, first_day, first_week)
+        rounded = VBADate(value.serial).to_datetime()
+        if rounded.date() == VBADate.EPOCH.date():
+            return time_part
+        if rounded.time() == _dt.time():
+            return date_part
+        return f"{date_part} {time_part}"
     return token
 

@@ -249,6 +249,10 @@ class Application(ExcelObject):
         return self.Name()
 
     def __init__(self) -> None:
+        from pyopenvba.interpreter._locale import EN_US
+
+        #: The Windows Regional format the VBA runs under (ExcelApplication's locale).
+        self.locale = EN_US
         self.workbooks_ = Workbooks(self)
         self.screen_updating = True
         self.display_alerts = True

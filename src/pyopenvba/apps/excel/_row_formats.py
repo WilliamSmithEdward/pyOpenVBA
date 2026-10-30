@@ -17,7 +17,11 @@ was measured in live Excel (scripts/measure_row_formats.py):
   moment its format is the one its row or column would give it.
 - ClearFormats takes the row's or column's format away and puts every
   cell in it back to the default, giving one to each position that would
-  otherwise show a column's or row's format.
+  otherwise show a column's or row's format. Clearing whole rows across
+  three formatted columns or more gives each row a format of the default
+  instead, and rows cleared to the sheet's last row take the columns'
+  formats away, the rows above keeping them by row formats or cells
+  (scripts/measure_clear_rows_formats.py).
 - Borders on whole rows go on the row format, except that the left edge
   goes on the cells of column A and the right edge only marks the format
   as setting borders; on whole columns the top and bottom edges only mark
@@ -225,11 +229,19 @@ def clear_area(sheet: Worksheet, area: Area) -> bool:
             _set_row(sheet, row, None)
         sheet.dims.column_fonts_changed()
     elif kind == "rows":
-        styled = [column for column, record in sheet.dims.columns.items() if record.style is not None]
+        styled = {column: record.style for column, record in sheet.dims.columns.items() if record.style is not None}
+        if area.bottom == MAX_ROWS and styled:
+            _lift_column_formats(sheet, area.top, styled)
+            styled = {}
         cells = _cells_by_row(sheet, area.top, area.bottom)
-        for row in range(area.top, area.bottom + 1):
-            _set_row(sheet, row, None)
-            for column in styled:
+        # Three formatted columns or more give each row a format of the default; fewer, a cell at each
+        # (tests/fixtures/clear_rows_formats.json).
+        by_row = len(styled) >= _ROWS_FROM
+        rows = range(area.top, area.bottom + 1) if by_row or styled else \
+            sorted(row for row in sheet.dims.rows if area.top <= row <= area.bottom)
+        for row in rows:
+            _set_row(sheet, row, default if by_row else None)
+            for column in () if by_row else styled:
                 if column not in cells.get(row, {}):
                     _put(sheet, row, column, default)
     else:
@@ -249,6 +261,38 @@ def clear_area(sheet: Worksheet, area: Area) -> bool:
             sheet.dims.fonts_changed(row)
     sheet.touched()
     return True
+
+
+#: How many formatted columns make Excel clear whole rows with a row format rather than a cell at each
+#: (tests/fixtures/clear_rows_formats.json: one and two make cells, three and more a row format).
+_ROWS_FROM = 3
+
+
+def _lift_column_formats(sheet: Worksheet, top: int, styled: dict[int, S.Style]) -> None:
+    """Rows cleared to the sheet's last row take the columns' formats away: the rows above keep showing them, by a
+    row format of each where three columns or more were formatted, else by a cell at each formatted column
+    (tests/fixtures/clear_rows_formats.json)."""
+    if len(styled) >= _ROWS_FROM:
+        formats = set(styled.values())
+        if len(formats) > 1:
+            raise VBAUnsupportedError("clearing rows to the last row under columns of different formats is not "
+                                      "implemented")
+        shown = formats.pop()
+        for row in range(1, top):
+            record = sheet.dims.rows.get(row)
+            if record is None or record.style is None:
+                _set_row(sheet, row, shown)
+    else:
+        for row in range(1, top):
+            record = sheet.dims.rows.get(row)
+            if record is not None and record.style is not None:
+                continue
+            for column, style in styled.items():
+                if (row, column) not in sheet.cells_:
+                    _put(sheet, row, column, style)
+    for column in styled:
+        _set_column(sheet, column, None)
+    sheet.dims.column_fonts_changed()
 
 
 # --- copying ----------------------------------------------------------------------------------------

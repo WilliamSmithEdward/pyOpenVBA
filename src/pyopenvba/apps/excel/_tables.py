@@ -65,6 +65,11 @@ _STYLE = re.compile(r"<tableStyleInfo\b[^>]*/>")
 _FILTER = re.compile(r"<autoFilter\b[^>]*?(?:/>|>.*?</autoFilter>)", re.DOTALL)
 _TOTALS_FORMULA = re.compile(r"<totalsRowFormula\b[^>]*>(.*?)</totalsRowFormula>", re.DOTALL)
 _CALCULATED = re.compile(r"<calculatedColumnFormula\b[^>]*>(.*?)</calculatedColumnFormula>", re.DOTALL)
+_ALT_TEXT_URI = "{504A1905-F514-4f6f-8877-14C23A59335A}"
+_ALT_TEXT = re.compile(r"<x14:table\b([^>]*?)/>")
+_EXTENSIONS = re.compile(r"<extLst>(.*?)</extLst>(?=</table>)", re.DOTALL)
+#: The most characters ListObject.Comment takes; more is error 5 (tests/fixtures/table_members.json).
+COMMENT_LIMIT = 255
 
 
 @dataclass
@@ -103,6 +108,14 @@ class Table:
     column_stripes: bool = False
     #: ShowAutoFilter, and the filter's criteria once it has had any (see _table_filters).
     auto_filter: bool = True
+    #: ShowAutoFilterDropDown: False writes a hidden button on every column of the filter.
+    drop_downs: bool = True
+    #: Comment, AlternativeText and Summary; the part keeps the first on the table, the others in an x14 extension.
+    comment: str = ""
+    alt_text: str = ""
+    summary: str = ""
+    #: The part's tableType, "" for a table of the sheet's own cells.
+    kind: str = ""
     filter: SheetFilter | None = dataclass_field(default=None, repr=False)
     #: The block a file gave the filter, which leaves a totals row out, and the table's own block then.
     filter_ref: tuple[Area, Area] | None = dataclass_field(default=None, repr=False)
@@ -163,7 +176,12 @@ def read_table(sheet: Worksheet, part: str, relationship: str, xml: str) -> Tabl
         style=shown.get("name", ""), first_column=shown.get("showFirstColumn") == "1",
         last_column=shown.get("showLastColumn") == "1", row_stripes=shown.get("showRowStripes") == "1",
         column_stripes=shown.get("showColumnStripes") == "1", auto_filter=element is not None,
+        comment=_column_name(head.get("comment", "")), kind=head.get("tableType", ""),
         uid=head.get("xr:uid", ""), part=part, relationship=relationship, xml=xml)
+    extension = _ALT_TEXT.search(xml)
+    if extension is not None:
+        described = attributes(extension.group(1))
+        table.alt_text, table.summary = described.get("altText", ""), described.get("altTextSummary", "")
     if element is not None:
         _read_filter(table, element.group(0))
     return table
@@ -179,6 +197,15 @@ def _read_filter(table: Table, element: str) -> None:
     block = Area(found.area.top, found.area.left, found.area.bottom, found.area.right)
     if block != table.area:
         table.filter_ref = (block, table.area)
+    hidden = ' hiddenButton="1"'
+    if found.fields and all(index in found.fields and hidden in found.fields[index].attributes
+                            for index in range(1, len(table.columns) + 1)):
+        # Every column's button hidden is ShowAutoFilterDropDown False; a column with no criteria then holds none.
+        table.drop_downs = False
+        for index, one in list(found.fields.items()):
+            one.attributes = one.attributes.replace(hidden, "")
+            if not one.xml and not one.attributes:
+                del found.fields[index]
     if found.fields or found.tail:
         table.filter = found
 
@@ -225,10 +252,27 @@ def base_table_xml(table: Table) -> str:
     style = (f'<tableStyleInfo name="{escape(table.style)}" showFirstColumn="{int(table.first_column)}" '
              f'showLastColumn="{int(table.last_column)}" showRowStripes="{int(table.row_stripes)}" '
              f'showColumnStripes="{int(table.column_stripes)}"/>')
+    comment = f' comment="{_column_attribute(table.comment)}"' if table.comment else ""
     return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
             f'<table {_NAMESPACES} id="{table.id}" xr:uid="{table.uid}" name="{escape(table.own_name or table.name)}" '
-            f'displayName="{escape(table.name)}" ref="{reference}"{header}{counts}>{auto_filter}'
-            f'<tableColumns count="{len(table.columns)}">{columns}</tableColumns>{style}</table>')
+            f'displayName="{escape(table.name)}"{comment} ref="{reference}"{header}{counts}>{auto_filter}'
+            f'<tableColumns count="{len(table.columns)}">{columns}</tableColumns>{style}'
+            f'{_described(table, "")}</table>')
+
+
+def _described(table: Table, extensions: str) -> str:
+    """The part's extLst, ``extensions`` holding what the file had there, with the x14 table extension that keeps
+    AlternativeText and Summary put first where either is set, and the extLst left out where it is empty
+    (tests/fixtures/table_members.json)."""
+    kept = re.sub(r'<ext\b[^>]*?\buri="\{504A1905-F514-4f6f-8877-14C23A59335A\}".*?</ext>', "", extensions,
+                  flags=re.DOTALL)
+    found = ""
+    if table.alt_text or table.summary:
+        alt = f' altText="{_column_attribute(table.alt_text)}"' if table.alt_text else ""
+        summary = f' altTextSummary="{_column_attribute(table.summary)}"' if table.summary else ""
+        found = (f'<ext uri="{_ALT_TEXT_URI}" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/'
+                 f'main"><x14:table{alt}{summary}/></ext>')
+    return f"<extLst>{found}{kept}</extLst>" if found or kept else ""
 
 
 def _patched_xml(table: Table) -> str:
@@ -243,7 +287,11 @@ def _patched_xml(table: Table) -> str:
                              ("ref", table.area.address(absolute=False))):
         head = re.sub(rf'(\s{attribute}=")[^"]*(")', lambda match: match.group(1) + value + match.group(2), head,
                       count=1)
-    head = re.sub(r'\s(?:totalsRowCount|totalsRowShown)="[^"]*"', "", head)
+    head = re.sub(r'\s(?:totalsRowCount|totalsRowShown|comment)="[^"]*"', "", head)
+    if table.comment:
+        named = re.search(r'\sdisplayName="[^"]*"', head)
+        at = named.end() if named is not None else len(head) - 1
+        head = head[:at] + f' comment="{_column_attribute(table.comment)}"' + head[at:]
     after = max((match.end() for name in ("ref", "tableType", "headerRowCount", "insertRow", "insertRowShift")
                  for match in re.finditer(rf'\s{name}="[^"]*"', head)), default=len(head) - 1)
     head = head[:after] + _totals_counts(table) + head[after:]
@@ -270,11 +318,46 @@ def _patched_xml(table: Table) -> str:
              f'showColumnStripes="{int(table.column_stripes)}"/>')
     shown = _STYLE.search(xml)
     if shown is not None:
-        return xml[: shown.start()] + style + xml[shown.end():]
-    return xml.replace("</table>", style + "</table>", 1)
+        xml = xml[: shown.start()] + style + xml[shown.end():]
+    else:
+        xml = xml.replace("</table>", style + "</table>", 1)
+    extensions = _EXTENSIONS.search(xml)
+    if extensions is not None:
+        return xml[: extensions.start()] + _described(table, extensions.group(1)) + xml[extensions.end():]
+    return xml.replace("</table>", _described(table, "") + "</table>", 1)
 
 
 def _filter_element(table: Table, filtered: str, existing: str | None) -> str:
+    """The table's autoFilter element, "" where it shows none, with every column's button hidden where
+    ShowAutoFilterDropDown is False (see _plain_filter_element)."""
+    element = _plain_filter_element(table, filtered, existing)
+    return element if table.drop_downs or not element else _hidden_buttons(element, len(table.columns))
+
+
+_FILTER_COLUMN = re.compile(r'<filterColumn colId="(\d+)"([^>]*?)(?:/>|>(.*?)</filterColumn>)', re.DOTALL)
+
+
+def _hidden_buttons(element: str, columns: int) -> str:
+    """An autoFilter element with a filterColumn for each column, hiddenButton="1" after its colId, criteria and
+    all, as Excel writes ShowAutoFilterDropDown False (tests/fixtures/table_members.json)."""
+    head = re.match(r"<autoFilter\b[^>]*?(?=/?>)", element)
+    assert head is not None
+    closed = element.endswith("/>") and "</autoFilter>" not in element
+    body = "" if closed else element[element.index(">") + 1: element.rindex("</autoFilter>")]
+    found: dict[int, tuple[str, str | None]] = {int(match.group(1)): (match.group(2), match.group(3))
+                                                for match in _FILTER_COLUMN.finditer(body)}
+    last = max((match.end() for match in _FILTER_COLUMN.finditer(body)), default=0)
+    written: list[str] = []
+    for index in range(columns):
+        others, inner = found.get(index, ("", None))
+        if "hiddenButton=" not in others:
+            others = ' hiddenButton="1"' + others
+        written.append(f'<filterColumn colId="{index}"{others}' + ("/>" if inner is None else
+                                                                  f">{inner}</filterColumn>"))
+    return f"{head.group(0)}>{''.join(written)}{body[last:]}</autoFilter>"
+
+
+def _plain_filter_element(table: Table, filtered: str, existing: str | None) -> str:
     """The table's autoFilter element, "" where it shows none: the block it covers, and the criteria on its
     columns once it has had any, written as a sheet's filter writes them (tests/fixtures/table_autofilter/)."""
     from pyopenvba.apps.excel._table_filters import table_filter
@@ -667,6 +750,11 @@ def add(sheet: Worksheet, source: Range, headers: int, style: str) -> Table:
                 for row in range(area.top + 1, area.bottom + 1) for column in range(area.left, area.right + 1)]
         headers = YES if all(isinstance(one, str) and one for one in first_row) \
             and not all(isinstance(one, str) for one in rest) else NO
+    if headers == YES and area.rows == 1:
+        # Excel gives it an empty row under the header that ListRows does not count, its InsertRowRange
+        # (tests/fixtures/table_members.json).
+        raise VBAUnsupportedError("a table over its header row alone, which Excel gives an insert row, is not "
+                                  "implemented")
     from pyopenvba.apps.excel._table_filters import take_over, taken_over
 
     taken = take_over(sheet, area)
@@ -981,9 +1069,117 @@ class ListObject(ExcelObject):
         if self.table.auto_filter and not wanted:
             # Its criteria go and its rows show (tests/fixtures/table_autofilter/).
             turn_off(self.table)
+        if wanted and not self.table.auto_filter:
+            # A filter turned on again shows its buttons (tests/fixtures/table_members.json).
+            self.table.drop_downs = True
         self.table.auto_filter = wanted
         self._changed()
         refocus(self.sheet)
+
+    @member
+    def ShowAutoFilterDropDown(self) -> object:
+        """Whether the filter's buttons show: False with no filter (tests/fixtures/table_members.json)."""
+        return self.table.auto_filter and self.table.drop_downs
+
+    @setter("ShowAutoFilterDropDown")
+    def _set_show_drop_down(self, value: object) -> None:
+        wanted = to_bool(value)
+        if not self.table.auto_filter:
+            if wanted:
+                raise error(1004, "Application-defined or object-defined error")
+            raise VBAUnsupportedError("hiding the buttons of a table with no filter is not implemented")
+        if wanted != self.table.drop_downs:
+            self.table.drop_downs = wanted
+            self._changed()
+
+    @member
+    def Comment(self) -> object:
+        return self.table.comment
+
+    @setter("Comment")
+    def _set_comment(self, value: object) -> None:
+        wanted = to_text(value)
+        if len(wanted) > COMMENT_LIMIT:
+            raise error(5)
+        self.table.comment = wanted
+        self._changed()
+
+    @member
+    def AlternativeText(self) -> object:
+        return self.table.alt_text
+
+    @setter("AlternativeText")
+    def _set_alternative_text(self, value: object) -> None:
+        self.table.alt_text = to_text(value)
+        self._changed()
+
+    @member
+    def Summary(self) -> object:
+        return self.table.summary
+
+    @setter("Summary")
+    def _set_summary(self, value: object) -> None:
+        self.table.summary = to_text(value)
+        self._changed()
+
+    @member
+    def SourceType(self) -> object:
+        """xlSrcRange for a table of the sheet's own cells."""
+        if self.table.kind:
+            raise VBAUnsupportedError(f"SourceType of a table of type {self.table.kind!r} is not implemented")
+        return VBAInt(SOURCE_RANGE, "Long")
+
+    @member
+    def InsertRowRange(self) -> object:
+        """Nothing for a table with data rows (tests/fixtures/table_members.json)."""
+        if not self.table.rows():
+            raise VBAUnsupportedError("the insert row of a table with no data rows is not implemented")
+        return NOTHING
+
+    @member
+    def Active(self) -> object:
+        """Whether the active cell is in the table, on the active sheet (tests/fixtures/table_members.json)."""
+        if self.sheet.book.active_sheet is not self.sheet:
+            return False
+        cell = self.sheet.active_cell
+        return isinstance(cell, Range) and self.table.area.contains(cell.first.top, cell.first.left)
+
+    @member
+    def DisplayRightToLeft(self) -> object:
+        return self.sheet.vba_get("DisplayRightToLeft")
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member
+    def Slicers(self) -> object:
+        return TableSlicers(self)
+
+    @method
+    def Refresh(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def QueryTable(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def TableObject(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def SharePointURL(self) -> object:
+        raise error(1004, "Application-defined or object-defined error")
+
+    @member
+    def XmlMap(self) -> object:
+        return NOTHING
+
+    @method
+    def Unlink(self) -> object:
+        """Nothing to do for a table of the sheet's own cells, which no list is linked to."""
+        return EMPTY
 
     @member
     def ShowTableStyleRowStripes(self) -> object:
@@ -1020,6 +1216,26 @@ class ListObject(ExcelObject):
     def _set_last_column(self, value: object) -> None:
         self.table.last_column = to_bool(value)
         self._changed()
+
+
+class TableSlicers(VBACollection, ExcelObject):
+    """ListObject.Slicers: the model's tables have none."""
+
+    vba_type_name = "Slicers"
+
+    def __init__(self, owner: ListObject) -> None:
+        self.owner = owner
+
+    def vba_items(self) -> list[object]:
+        return []
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
 
 class ListColumns(VBACollection, ExcelObject):

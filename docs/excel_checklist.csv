@@ -1024,47 +1024,47 @@ ListColumns,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/table
 ListDrawingObject,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListDrawingObject,Selected,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
 ListObject,_Default,"property, read-only",As String,,VERIFIED,tests/fixtures/tables/tables.json,The table's name.
-ListObject,Active,"property, read-only",As Boolean,,MISSING,,
-ListObject,AlternativeText,property,As String,,MISSING,,
-ListObject,Application,"property, read-only",As Application,,MISSING,,
+ListObject,Active,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,True while the table's sheet is active and its active cell is in the table.
+ListObject,AlternativeText,property,As String,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,Any length; saved as altText in the x14 table extension and read back.
+ListObject,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,The application.
 ListObject,AutoFilter,"property, read-only",As AutoFilter,,PARTIAL,tests/fixtures/table_autofilter/table_autofilter.json,"The table's own filter, Nothing while ShowAutoFilter is False: its criteria, Range, FilterMode, ApplyFilter and ShowAllData answer as Excel's over 75 live layouts, and are saved in the table's part. Filtering a table with no header row, and rows put in or taken out inside a filtered table, report themselves unsupported; a table resized smaller over data it leaves below reads a longer Range in Excel once its file is opened again, which the model does not."
-ListObject,Comment,property,As String,,MISSING,,
+ListObject,Comment,property,As String,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"Up to 255 characters, more error 5; saved as the table's comment attribute, a line feed _x000a_."
 ListObject,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListObject,DataBodyRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListObject,Delete,method,Delete(),,VERIFIED,tests/fixtures/tables/edits/edits.json,"The table's cells cleared, formats and all, and every reference to it #REF!."
 ListObject,DisplayName,property,As String,,PARTIAL,tests/fixtures/tables/tables.json,"The table's name, as Name."
-ListObject,DisplayRightToLeft,"property, read-only",As Boolean,,MISSING,,
+ListObject,DisplayRightToLeft,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,The sheet's DisplayRightToLeft.
 ListObject,ExportToVisio,method,ExportToVisio(),,MISSING,,
 ListObject,HeaderRowRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
-ListObject,InsertRowRange,"property, read-only",As Range,,MISSING,,
+ListObject,InsertRowRange,"property, read-only",As Range,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"Nothing for a table with data rows. A table over its header row alone, which Excel gives an insert row, reports itself unsupported at ListObjects.Add."
 ListObject,ListColumns,"property, read-only",As ListColumns,,VERIFIED,tests/fixtures/tables/tables.json,
 ListObject,ListRows,"property, read-only",As ListRows,,VERIFIED,tests/fixtures/tables/tables.json,
 ListObject,Name,property,As String,,PARTIAL,tests/fixtures/tables/tables.json; tests/fixtures/structured_references/structured.json,"Setting it renames the table and every formula naming it; a name that is taken or not a name is error 1004, which is not measured."
 ListObject,Parent,"property, read-only",As Object,,VERIFIED,tests/fixtures/tables/tables.json,The sheet.
 ListObject,Publish,method,"Publish(Target As Variant, LinkSource As Boolean) As String",,MISSING,,
-ListObject,QueryTable,"property, read-only",As QueryTable,,MISSING,,
+ListObject,QueryTable,"property, read-only",As QueryTable,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"error 1004 on a table of the sheet's own cells, as measured; tables of other sources are not modelled."
 ListObject,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
-ListObject,Refresh,method,Refresh(),,MISSING,,
+ListObject,Refresh,method,Refresh(),,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"error 1004 on a table of the sheet's own cells, as measured; tables of other sources are not modelled."
 ListObject,Resize,method,Resize(Range As Range),,PARTIAL,tests/fixtures/tables/edits/edits.json,"Over a block with the same top-left cell: a column left out is #REF! wherever named, a new one named from its header; a block on another header row is error 1004. Moving the left edge, or a table with a totals row or no header row, reports itself."
-ListObject,SharePointURL,"property, read-only",As String,,MISSING,,
+ListObject,SharePointURL,"property, read-only",As String,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"error 1004 on a table of the sheet's own cells, as measured; tables of other sources are not modelled."
 ListObject,ShowAutoFilter,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json; tests/fixtures/table_autofilter/table_autofilter.json,"Read and set, saved as Excel saves it. Turning it off takes the filter's criteria away and shows its rows."
-ListObject,ShowAutoFilterDropDown,property,As Boolean,,MISSING,,
+ListObject,ShowAutoFilterDropDown,property,As Boolean,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"False with no filter, where setting True is error 1004; False saves hiddenButton on every filterColumn, criteria kept, and is read back; turning the filter on again shows the buttons."
 ListObject,ShowHeaders,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,Read; showing or hiding the header row reports itself.
-ListObject,ShowTableStyleColumnStripes,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
-ListObject,ShowTableStyleFirstColumn,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
-ListObject,ShowTableStyleLastColumn,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
-ListObject,ShowTableStyleRowStripes,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
+ListObject,ShowTableStyleColumnStripes,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
+ListObject,ShowTableStyleFirstColumn,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
+ListObject,ShowTableStyleLastColumn,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
+ListObject,ShowTableStyleRowStripes,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,ShowTotals,property,As Boolean,,VERIFIED,tests/fixtures/tables/tables.json; tests/fixtures/tables/totals_row/totals_row.json,"Showing the row puts cells in under the table, those below moving down; the first time, the first column says Total and the last adds up, or counts when not all numbers; hiding deletes the cells and keeps what each column totals."
-ListObject,Slicers,"property, read-only",As Slicers,,MISSING,,
+ListObject,Slicers,"property, read-only",As Slicers,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,An empty Slicers collection; slicers are not modelled.
 ListObject,Sort,"property, read-only",As Sort,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,"Measured ordinary local table Sort with shared options/fields and fresh Sort views. Stable whole-data-row Apply excludes headers/totals; preserves row formulas/styles; stages moved formulas and metadata. Complex filters, unions, custom/stroke/rich sorts and configured structural changes remain unsupported."
-ListObject,SourceType,"property, read-only",As XlListObjectSourceType,,MISSING,,
-ListObject,Summary,property,As String,,MISSING,,
-ListObject,TableObject,"property, read-only",As TableObject,,MISSING,,
+ListObject,SourceType,"property, read-only",As XlListObjectSourceType,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,xlSrcRange for a table of the sheet's own cells; other table types report themselves unsupported.
+ListObject,Summary,property,As String,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,Any length; saved as altTextSummary in the x14 table extension and read back.
+ListObject,TableObject,"property, read-only",As TableObject,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"error 1004 on a table of the sheet's own cells, as measured; tables of other sources are not modelled."
 ListObject,TableStyle,property,As Variant,,PARTIAL,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
 ListObject,TotalsRowRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,Nothing with no totals row.
-ListObject,Unlink,method,Unlink(),,MISSING,,
+ListObject,Unlink,method,Unlink(),,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"Does nothing on a table of the sheet's own cells, as measured."
 ListObject,Unlist,method,Unlist(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"Reports itself: Excel turns the table's style into each cell's format, which the model does not."
-ListObject,XmlMap,"property, read-only",As XmlMap,,MISSING,,
+ListObject,XmlMap,"property, read-only",As XmlMap,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,Nothing for a table of the sheet's own cells.
 ListObjects,_Default,"property, read-only",As ListObject,,MISSING,,
 ListObjects,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListObjects,Add,method,"Add([SourceType As XlListObjectSourceType], [Source As Variant], [LinkSource As Variant], [XlListObjectHasHeaders As XlYesNoGuess], [Destination As Variant], [TableStyleName As Variant]) As ListObject",,PARTIAL,tests/fixtures/tables/tables.json,"Over a range of the sheet: headers from its first row as text, a blank one ColumnN and a repeat numbered, or a header row put in above it; left to guess, text over data takes headers; the first free TableN, TableStyleMedium2; error 1004 over another table. Other sources, and a range over array formulas or merged cells, report themselves."
@@ -2057,6 +2057,14 @@ Sheets,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
 Sheets,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/sheet_groups.json,"On a group, the array's first sheet active and the group selected; with Replace:=False the group joins the selection, the active sheet staying. A hidden sheet in it is error 1004. The whole collection selects every sheet, the first active."
 Sheets,Visible,property,As Variant,,PARTIAL,tests/fixtures/sheet_groups.json,"Setting it on a group selects the group, then hides or shows each sheet of it; hiding every sheet is error 1004, and reading it error 1004. On the whole collection it acts on every sheet, so setting it is error 1004 while one is hidden."
 Sheets,VPageBreaks,"property, read-only",As VPageBreaks,,MISSING,,
+Slicers,_Default,"property, read-only",As Slicer,,MISSING,,
+Slicers,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+Slicers,Add,method,"Add(SlicerDestination As Variant, [Level As Variant], [Name As Variant], [Caption As Variant], [Top As Variant], [Left As Variant], [Width As Variant], [Height As Variant]) As Slicer",,MISSING,,
+Slicers,Application,"property, read-only",As Application,,UNASSESSED,,
+Slicers,Count,"property, read-only",As Long,,UNASSESSED,,
+Slicers,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+Slicers,Item,"property, read-only",As Slicer,,UNASSESSED,,
+Slicers,Parent,"property, read-only",As Object,,UNASSESSED,,
 Sort,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Worksheet and table Sort expose their owning Application; native defaults and identity controls.
 Sort,Apply,method,Apply(),,PARTIAL,tests/fixtures/sort.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_array_edits.json; tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/; tests/fixtures/sort_colour/sort_colour.json,"Sorts the range by its fields in order, keeping them; a header only with xlYes. Several areas report themselves unsupported. On a filtered sheet the visible rows sort among themselves. Table Apply stages ordinary local rows, formulas and sort metadata; protected/UDF/event controls are native-measured. Filtered/rich table paths are refused before mutation. Worksheet metadata hydration streams unrelated data and bounds complete selected XML, including closing tags; UTF-8 declarations are required. Worksheet save preflight limits persisted fields to 64 as an engine metadata limit. With no range or no field it sorts nothing and raises no error, as Excel. The file keeps the rows sorted, under a header given xlYes."
 Sort,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,Returns native Long 1480803660 for worksheet and table Sort.

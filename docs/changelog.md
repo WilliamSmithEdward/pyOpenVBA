@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Range.ListNames`, `Range.AutoComplete` and `Range.Parse` work as
+  Excel's do. ListNames pastes the visible names beside their formulas
+  as text. AutoComplete finishes a beginning from the text above and
+  below the cell, and gives "" where more than one entry fits. Parse
+  cuts a column at the fields a bracket pattern marks and types each as
+  TextToColumns does. 27 live cases agree,
+  `tests/fixtures/range_text_helpers.json`.
+
 - `Sheets.FillAcrossSheets` copies a range to the same cells of every
   other sheet of a group, or of the workbook, as Excel does: values and
   formulas, formats or both. A formula is copied as it is spelled, and

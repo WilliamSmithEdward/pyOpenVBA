@@ -1753,6 +1753,9 @@ class Interpreter:
     def _do_redim(self, statement: A.ReDim, frame: Frame) -> None:
         for index, declaration in enumerate(statement.decls):
             bounds = self._bounds(declaration, frame)
+            if any(upper < lower for lower, upper in bounds):
+                # A dimension with no elements, a(1 To 0), is error 9, Preserve or not (tests/fixtures/redim_bounds.json).
+                raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
             field_ = statement.targets[index] if index < len(statement.targets) else None
             slot: Slot | None = None
             if field_ is None:

@@ -33,13 +33,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._model import ExcelObject, Worksheet
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._parse import FormulaError, split_sheet, tokenize
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (ERR_SUBSCRIPT_OUT_OF_RANGE, EMPTY, MISSING, VBAArray, VBAInt, error,
                                            to_bool, to_integer)
 
 if TYPE_CHECKING:
+    from pyopenvba._a1 import Area
     from pyopenvba.apps.excel._model import Workbook
 
 VISIBLE = -1
@@ -125,6 +126,11 @@ class SheetGroup(VBACollection, ExcelObject):
         select(self.book, self.sheets, True)
         set_visible(self.book, self.sheets, value, "Unable to set the Visible property of the Sheets class")
 
+    @method
+    def FillAcrossSheets(self, Range: object = MISSING, Type: object = MISSING) -> object:
+        fill_across(self.sheets, Range, Type)
+        return EMPTY
+
     @member
     def Application(self) -> object:
         return self.book.application
@@ -136,6 +142,79 @@ class SheetGroup(VBACollection, ExcelObject):
     @member
     def Parent(self) -> object:
         return self.book
+
+
+#: XlFillWith: xlFillWithAll, xlFillWithContents and xlFillWithFormats.
+FILL_ALL, FILL_CONTENTS, FILL_FORMATS = -4104, 2, -4122
+
+
+def fill_across(sheets: list[Worksheet], source: object, kind: object) -> None:
+    """Sheets.FillAcrossSheets: the range's cells, their values and formulas, their formats or both, written to the
+    same cells of every other sheet of the group, a formula as it is spelled and a blank cell clearing its place;
+    one Change for each sheet filled, the last first (tests/fixtures/fill_across_sheets.json). The range has to be
+    one area on a sheet of the group, and the group more than that sheet, else error 1004."""
+    from pyopenvba.apps.excel import _events
+    from pyopenvba.apps.excel._model import Range
+
+    failed = "FillAcrossSheets method of Sheets class failed"
+    if source is MISSING:
+        raise error(449)
+    if not isinstance(source, Range):
+        raise error(1004, failed)
+    if kind is MISSING:
+        chosen = FILL_ALL
+    else:
+        try:
+            chosen = int(to_integer(kind, "Long"))
+        except VBARuntimeError:
+            raise error(1004, failed) from None
+    if chosen not in (FILL_ALL, FILL_CONTENTS, FILL_FORMATS):
+        raise error(1004, failed)
+    if len(source.areas) != 1:
+        raise error(1004, "This can't be done on a multiple range selection.\n\nSelect a single range and try again.")
+    origin = source.sheet
+    targets = [sheet for sheet in sheets if sheet is not origin]
+    if not targets or not any(sheet is origin for sheet in sheets):
+        raise error(1004, failed)
+    area = source.first
+    for sheet in (origin, *targets):
+        _refuse_unmodelled(sheet, area)
+    contents, formats = chosen != FILL_FORMATS, chosen != FILL_CONTENTS
+    for target in reversed(targets):
+        for row in range(area.top, area.bottom + 1):
+            for column in range(area.left, area.right + 1):
+                held = origin.cells_.get((row, column))
+                cell = target.cell(row, column, create=True)
+                assert cell is not None
+                if contents:
+                    cell.formula = held.formula if held is not None else ""
+                    cell.value = EMPTY if held is None or held.formula else held.value
+                    cell.stale = bool(cell.formula)
+                    cell.shared, cell.dynamic, cell.spilled_from, cell.runs = None, False, None, None
+                if formats:
+                    target.restyle(row, column, origin.style_at(row, column))
+                target.settle(row, column)
+                target.cell_changed(row, column)
+        _events.after_edit(Range(target, [area]))
+
+
+def _refuse_unmodelled(sheet: Worksheet, area: Area) -> None:
+    """Report what a fill across sheets would carry that the model does not: merged cells, array formulas, spills,
+    rich text, notes, hyperlinks, conditional formats and validation."""
+    def meets(other: Area) -> bool:
+        return other.top <= area.bottom and area.top <= other.bottom and other.left <= area.right \
+            and area.left <= other.right
+
+    cells = [cell for (row, column), cell in sheet.cells_.items() if area.contains(row, column)]
+    if (any(meets(one) for one in sheet.merged_areas) or any(meets(one) for one in sheet.array_formulas.values())
+            or any(area.contains(*anchor) for anchor in sheet.spills)
+            or any(cell.runs or cell.dynamic or cell.spilled_from for cell in cells)
+            or any(area.contains(*position) for position in sheet.notes)
+            or any(meets(link.area) for link in sheet.hyperlinks)
+            or any(meets(one) for rule in sheet.conditional_formats for one in rule.areas)
+            or any(meets(one) for rule in sheet.validations for one in rule.areas)):
+        raise VBAUnsupportedError("FillAcrossSheets over merged cells, array formulas, spills, rich text, notes, "
+                                  "hyperlinks, conditional formats or validation is not implemented")
 
 
 def select(book: Workbook, sheets: list[Worksheet], replace: bool) -> None:

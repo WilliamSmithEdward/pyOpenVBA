@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Sheets.FillAcrossSheets` copies a range to the same cells of every
+  other sheet of a group, or of the workbook, as Excel does: values and
+  formulas, formats or both. A formula is copied as it is spelled, and
+  a blank cell clears its place. One Change event is raised for each
+  sheet filled, the last first. 15 live cases agree,
+  `tests/fixtures/fill_across_sheets.json`.
+
 - Workbook settings the file keeps work as Excel's do:
   `DisplayDrawingObjects`, `DisplayInkComments`,
   `RemovePersonalInformation`, `ReadOnlyRecommended` and

@@ -1187,6 +1187,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   of each range, so `A1:A3,C1:C3` with `A1:C10` gave `A1:A3`. Pieces
   that make a rectangle together are joined, as in Excel (#257).
 
+- A variable holding a deleted sheet fails as Excel's does. Each member
+  is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
+  and a range or PageSetup taken from the sheet is error 424. It went on
+  answering, and read a new sheet given the old name (#246).
+
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,
   BeforeSave and the rest, which it listed as missing because no member

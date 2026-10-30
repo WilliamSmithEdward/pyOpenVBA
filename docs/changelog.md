@@ -1183,6 +1183,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- The VBA in issue reports #249, #253, #254, #258, #259, #260 and #261
+  answers as live Excel does, and a test now holds it so. Each was wrong
+  in 6.5.0: Variant comparisons of a number with text, a Function
+  `As Long()`, a `ByVal` array, `&HFF01&`, the `Mid` statement, `Value`
+  of a block past the used range, and a formula read under manual
+  calculation.
+
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
   and a range or PageSetup taken from the sheet is error 424. It went on

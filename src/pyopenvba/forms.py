@@ -220,6 +220,33 @@ class FormControl:
             )
         _set_on_record(self.record, name, value, self.name)
 
+    def set_font(
+        self,
+        name: str,
+        size: float,
+        *,
+        bold: bool = False,
+        italic: bool = False,
+        underline: bool = False,
+        strikethrough: bool = False,
+        charset: int = 0,
+    ) -> None:
+        """Give the control a font, as the designer's Font dialog does.
+
+        ``size`` is in points, kept to the whole twip the control stores
+        (8.25 pt is 165 twips); ``charset`` is the Windows character set,
+        0 for Western and 128 for Japanese (Shift-JIS). The control's
+        TextProps is written whole, as the designer writes it for a control
+        it adds, with this font in place of the form's (issue #248).
+        """
+        if self.record is None or self.record.text_props is None:
+            raise FormParseError(f"{self.name!r} is a {self.kind} and keeps no font of its own here")
+        if not name or size <= 0:
+            raise ValueError("a font needs a name and a size above 0 points")
+        flags = (2 if italic else 0) | (4 if underline else 0) | (8 if strikethrough else 0)
+        font = _Font(name, round(size * 10000), charset, flags, 700 if bold else 400)
+        self.record.text_props = _text_props_for(self.kind.rpartition(".")[2], font)
+
 
 def _set_on_record(
     record: ParsedRecord, name: str, value: object, owner: str

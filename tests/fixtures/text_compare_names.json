@@ -1,0 +1,144 @@
+{
+ "measured_at": "2026-10-30T14:11:42.974172+00:00",
+ "compare_source": "Option Compare Text\n\nPrivate Function Keys() As String\n    Dim d As Object\n    Set d = CreateObject(\"Scripting.Dictionary\")\n    d.CompareMode = vbTextCompare\n    d.Add ChrW(&H3042), 1\n    Keys = CStr(d.Exists(ChrW(&H30A2))) & \" \" & CStr(d.Exists(ChrW(&HFF71))) & \" \" & CStr(d.Exists(ChrW(&H3042)))\nEnd Function\n\nPrivate Function Cased(ByVal text As String) As String\n    Select Case text\n    Case \"A\": Cased = \"case-blind\"\n    Case Else: Cased = \"case-kept\"\n    End Select\nEnd Function\n\nPublic Function Compare() As String\n    Dim s As String\n    s = s & \"|\" & CStr(ChrW(&H3042) = ChrW(&H30A2))\n    s = s & \"|\" & CStr(ChrW(&HFF41) = \"A\")\n    s = s & \"|\" & CStr(ChrW(&H3042) < ChrW(&H30A4))\n    s = s & \"|\" & CStr(ChrW(&HFF76) & ChrW(&HFF9E) = ChrW(&H30AC))\n    s = s & \"|\" & CStr(ChrW(&HFF41) Like \"a\")\n    s = s & \"|\" & CStr(ChrW(&H3042) Like ChrW(&H30A2))\n    s = s & \"|\" & CStr(InStr(ChrW(&HFF41) & \"b\", \"a\"))\n    s = s & \"|\" & CStr(InStrRev(\"b\" & ChrW(&HFF41), \"a\", -1, vbTextCompare))\n    s = s & \"|\" & Replace(\"x\" & ChrW(&HFF41) & \"y\", \"a\", \"-\", , , vbTextCompare)\n    s = s & \"|\" & CStr(UBound(Split(\"x\" & ChrW(&HFF41) & \"y\", \"a\", , vbTextCompare)))\n    s = s & \"|\" & Keys()\n    s = s & \"|\" & CStr(\"a\" = \"A\")\n    s = s & \"|\" & CStr(\"a\" < \"B\")\n    s = s & \"|\" & CStr(\"b\" > \"A\")\n    s = s & \"|\" & CStr(\"a\" Like \"A\")\n    s = s & \"|\" & CStr(\"aB\" Like \"A*\")\n    s = s & \"|\" & CStr(InStr(\"xAy\", \"a\"))\n    s = s & \"|\" & CStr(InStr(1, \"xAy\", \"a\", vbBinaryCompare))\n    s = s & \"|\" & CStr(StrComp(\"a\", \"A\"))\n    s = s & \"|\" & Replace(\"xAy\", \"a\", \"-\")\n    s = s & \"|\" & CStr(UBound(Split(\"xAy\", \"a\")))\n    s = s & \"|\" & Cased(\"a\")\n    Compare = Mid(s, 2)\nEnd Function\n",
+ "names_source": "Private Function Named(ByVal which As String, ByVal wanted As String, ByVal folder As String, _\n                       ByVal saved As String) As String\n    Dim wb As Workbook, ws As Worksheet, t As ListObject, other As ListObject\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = \"h1\": ws.Range(\"B1\").Value = \"h2\": ws.Range(\"A2:B2\").Value = 1\n    ws.Range(\"D1\").Value = \"k\": ws.Range(\"D2\").Value = 2\n    Set t = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B2\"), , xlYes)\n    Set other = ws.ListObjects.Add(xlSrcRange, ws.Range(\"D1:D2\"), , xlYes)\n    other.DisplayName = \"Other\"\n    On Error GoTo Failed\n    If which = \"Name\" Then t.Name = wanted Else t.DisplayName = wanted\n    Named = t.Name & \"/\" & t.DisplayName & \"/\" & ws.ListObjects(1).Name\n    wb.SaveAs folder & \"\\\" & saved, xlOpenXMLWorkbook\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Named = \"Err \" & Err.Number & \" \" & Err.Description & \" / \" & t.Name & \"/\" & t.DisplayName\n    Resume Done\nEnd Function\n\nPublic Function Names(ByVal folder As String) As String\n    Dim s As String\n    Application.DisplayAlerts = False\n    s = s & \"@@@\" & Named(\"Name\", ChrW(&H660E) & ChrW(&H7D30), folder, \"name0.xlsx\")\n    s = s & \"@@@\" & Named(\"Name\", \"a b\", folder, \"name1.xlsx\")\n    s = s & \"@@@\" & Named(\"Name\", \"1abc\", folder, \"name2.xlsx\")\n    s = s & \"@@@\" & Named(\"Name\", \"R1C1\", folder, \"name3.xlsx\")\n    s = s & \"@@@\" & Named(\"Name\", \"Table1\", folder, \"name4.xlsx\")\n    s = s & \"@@@\" & Named(\"Name\", \"Other\", folder, \"name5.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", ChrW(&H660E) & ChrW(&H7D30), folder, \"name6.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"a b\", folder, \"name7.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"1abc\", folder, \"name8.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"R1C1\", folder, \"name9.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"Tab.le\", folder, \"name10.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"_x\", folder, \"name11.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"A1\", folder, \"name12.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"Other\", folder, \"name13.xlsx\")\n    s = s & \"@@@\" & Named(\"DisplayName\", \"Caf\" & ChrW(&HE9), folder, \"name14.xlsx\")\n    Application.DisplayAlerts = True\n    Names = Mid(s, 4)\nEnd Function\n",
+ "compare": {
+  "CStr(ChrW(&H3042) = ChrW(&H30A2))": "True",
+  "CStr(ChrW(&HFF41) = \"A\")": "True",
+  "CStr(ChrW(&H3042) < ChrW(&H30A4))": "True",
+  "CStr(ChrW(&HFF76) & ChrW(&HFF9E) = ChrW(&H30AC))": "True",
+  "CStr(ChrW(&HFF41) Like \"a\")": "False",
+  "CStr(ChrW(&H3042) Like ChrW(&H30A2))": "False",
+  "CStr(InStr(ChrW(&HFF41) & \"b\", \"a\"))": "0",
+  "CStr(InStrRev(\"b\" & ChrW(&HFF41), \"a\", -1, vbTextCompare))": "0",
+  "Replace(\"x\" & ChrW(&HFF41) & \"y\", \"a\", \"-\", , , vbTextCompare)": "x\uff41y",
+  "CStr(UBound(Split(\"x\" & ChrW(&HFF41) & \"y\", \"a\", , vbTextCompare)))": "0",
+  "Keys()": "False False True",
+  "CStr(\"a\" = \"A\")": "True",
+  "CStr(\"a\" < \"B\")": "True",
+  "CStr(\"b\" > \"A\")": "True",
+  "CStr(\"a\" Like \"A\")": "True",
+  "CStr(\"aB\" Like \"A*\")": "True",
+  "CStr(InStr(\"xAy\", \"a\"))": "2",
+  "CStr(InStr(1, \"xAy\", \"a\", vbBinaryCompare))": "0",
+  "CStr(StrComp(\"a\", \"A\"))": "0",
+  "Replace(\"xAy\", \"a\", \"-\")": "x-y",
+  "CStr(UBound(Split(\"xAy\", \"a\")))": "1",
+  "Cased(\"a\")": "case-blind"
+ },
+ "names": [
+  [
+   "Name",
+   "ChrW(&H660E) & ChrW(&H7D30)",
+   "\u660e\u7d30/\u660e\u7d30/\u660e\u7d30"
+  ],
+  [
+   "Name",
+   "\"a b\"",
+   "a b/a_b/a b"
+  ],
+  [
+   "Name",
+   "\"1abc\"",
+   "1abc/_1abc/1abc"
+  ],
+  [
+   "Name",
+   "\"R1C1\"",
+   "R1C1/_R1C1/R1C1"
+  ],
+  [
+   "Name",
+   "\"Table1\"",
+   "Table1/Table1/Table1"
+  ],
+  [
+   "Name",
+   "\"Other\"",
+   "Err 1004 Application-defined or object-defined error / Table1/Table1"
+  ],
+  [
+   "DisplayName",
+   "ChrW(&H660E) & ChrW(&H7D30)",
+   "\u660e\u7d30/\u660e\u7d30/\u660e\u7d30"
+  ],
+  [
+   "DisplayName",
+   "\"a b\"",
+   "Err 1004 Application-defined or object-defined error / Table1/Table1"
+  ],
+  [
+   "DisplayName",
+   "\"1abc\"",
+   "Err 1004 Application-defined or object-defined error / Table1/Table1"
+  ],
+  [
+   "DisplayName",
+   "\"R1C1\"",
+   "Err 1004 Application-defined or object-defined error / Table1/Table1"
+  ],
+  [
+   "DisplayName",
+   "\"Tab.le\"",
+   "Tab.le/Tab.le/Tab.le"
+  ],
+  [
+   "DisplayName",
+   "\"_x\"",
+   "_x/_x/_x"
+  ],
+  [
+   "DisplayName",
+   "\"A1\"",
+   "Err 1004 Application-defined or object-defined error / Table1/Table1"
+  ],
+  [
+   "DisplayName",
+   "\"Other\"",
+   "Err 1004 Application-defined or object-defined error / Table1/Table1"
+  ],
+  [
+   "DisplayName",
+   "\"Caf\" & ChrW(&HE9)",
+   "Caf\u00e9/Caf\u00e9/Caf\u00e9"
+  ]
+ ],
+ "parts": {
+  "name0.xlsx": [
+   "name=\"\u660e\u7d30\"",
+   "displayName=\"\u660e\u7d30\""
+  ],
+  "name1.xlsx": [
+   "name=\"a b\"",
+   "displayName=\"a_b\""
+  ],
+  "name2.xlsx": [
+   "name=\"1abc\"",
+   "displayName=\"_1abc\""
+  ],
+  "name3.xlsx": [
+   "name=\"R1C1\"",
+   "displayName=\"_R1C1\""
+  ],
+  "name4.xlsx": [
+   "name=\"Table1\"",
+   "displayName=\"Table1\""
+  ],
+  "name6.xlsx": [
+   "name=\"\u660e\u7d30\"",
+   "displayName=\"\u660e\u7d30\""
+  ],
+  "name10.xlsx": [
+   "name=\"Tab.le\"",
+   "displayName=\"Tab.le\""
+  ],
+  "name11.xlsx": [
+   "name=\"_x\"",
+   "displayName=\"_x\""
+  ],
+  "name14.xlsx": [
+   "name=\"Caf\u00e9\"",
+   "displayName=\"Caf\u00e9\""
+  ]
+ }
+}

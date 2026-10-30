@@ -1,0 +1,28 @@
+{
+ "measured_at": "2026-10-30T13:18:38.902785+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim old As Worksheet, sh As Worksheet, held As Range, wb As Workbook, page As PageSetup\n    Set wb = ThisWorkbook\n    Set sh = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    sh.Name = \"Sum\"\n    sh.Range(\"A1\").Value = 1\n    Set old = wb.Worksheets(\"Sum\")\n    Set held = old.Range(\"A1\")\n    Set page = old.PageSetup\n    Application.DisplayAlerts = False\n    wb.Worksheets(\"Sum\").Delete\n    Application.DisplayAlerts = True\n    Set sh = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    sh.Name = \"Sum\"\n    sh.Range(\"A1\").Value = 5\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Tried = old.Rows.Count\n    Case 1\n        Tried = old.Name\n    Case 2\n        Tried = old.Index\n    Case 3\n        Tried = TypeName(old)\n    Case 4\n        Tried = CStr(old Is Nothing)\n    Case 5\n        Tried = old.Range(\"A1\").Value\n    Case 6\n        Tried = old.Cells(1, 1).Value\n    Case 7\n        Tried = old.Parent.Name\n    Case 8\n        Tried = old.Visible\n    Case 9\n        Tried = CStr(old Is ThisWorkbook.Worksheets(\"Sum\"))\n    Case 10\n        old.Name = \"Other\"\n        Tried = \"done\"\n    Case 11\n        old.Activate\n        Tried = \"done\"\n    Case 12\n        old.Delete\n        Tried = \"done\"\n    Case 13\n        Tried = old.CodeName\n    Case 14\n        Tried = old.UsedRange.Address\n    Case 15\n        Tried = held.Value\n    Case 16\n        Tried = held.Address\n    Case 17\n        Tried = TypeName(held)\n    Case 18\n        Tried = held.Worksheet.Name\n    Case 19\n        Tried = page.PrintArea\n    Case 20\n        page.PrintArea = \"$A$1:$C$9\"\n        Tried = \"done\"\n    End Select\nDone:\n    Application.DisplayAlerts = False\n    sh.Delete\n    Application.DisplayAlerts = True\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPrivate Function Renamed() As String\n    Dim a As Worksheet, b As Worksheet, wb As Workbook, s As String\n    Set wb = ThisWorkbook\n    Set a = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    a.Name = \"X\"\n    a.Names.Add Name:=\"mark\", RefersTo:=\"=\"\"owner\"\"\", Visible:=False\n    a.Name = \"Y\"\n    Set b = wb.Worksheets.Add(After:=wb.Worksheets(wb.Worksheets.Count))\n    b.Name = \"X\"\n    s = \"X:\" & b.Names.Count & \" Y:\" & a.Names.Count & \" \" & a.Names(1).Name\n    Application.DisplayAlerts = False\n    a.Delete\n    b.Delete\n    Application.DisplayAlerts = True\n    Renamed = s\nEnd Function\n\nPublic Function Probe() As String\n    Dim s As String, i As Long\n    For i = 0 To 20\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4) & \"@@@\" & Renamed()\nEnd Function\n",
+ "cases": {
+  "old.Rows.Count": "Err -2147221080 Method 'Rows' of object '_Worksheet' failed",
+  "old.Name": "Err -2147221080 Method 'Name' of object '_Worksheet' failed",
+  "old.Index": "Err -2147221080 Method 'Index' of object '_Worksheet' failed",
+  "TypeName(old)": "Worksheet",
+  "CStr(old Is Nothing)": "False",
+  "old.Range(\"A1\").Value": "Err -2147221080 Method 'Range' of object '_Worksheet' failed",
+  "old.Cells(1, 1).Value": "Err -2147221080 Method 'Cells' of object '_Worksheet' failed",
+  "old.Parent.Name": "Err -2147221080 Method 'Parent' of object '_Worksheet' failed",
+  "old.Visible": "Err -2147221080 Method 'Visible' of object '_Worksheet' failed",
+  "CStr(old Is ThisWorkbook.Worksheets(\"Sum\"))": "False",
+  "old.Name = \"Other\"": "Err -2147221080 Method 'Name' of object '_Worksheet' failed",
+  "old.Activate": "Err -2147221080 Method 'Activate' of object '_Worksheet' failed",
+  "old.Delete": "Err -2147221080 Method 'Delete' of object '_Worksheet' failed",
+  "old.CodeName": "Err -2147221080 Method 'CodeName' of object '_Worksheet' failed",
+  "old.UsedRange.Address": "Err -2147221080 Method 'UsedRange' of object '_Worksheet' failed",
+  "held.Value": "Err 424 Object required",
+  "held.Address": "Err 424 Object required",
+  "TypeName(held)": "Range",
+  "held.Worksheet.Name": "Err 424 Object required",
+  "page.PrintArea": "Err 424 Object required",
+  "page.PrintArea = \"$A$1:$C$9\"": "Err 424 Object required",
+  "renamed": "X:0 Y:1 Y!mark"
+ }
+}

@@ -1183,6 +1183,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Option Compare Text` takes effect. The model compared as binary
+  whatever a module said, so `"a" = "A"` was False there, and `Like`,
+  `Select Case` and `InStr` or `StrComp` without a Compare were too.
+
+- A text comparison ignores kana type and width, as VBA's does:
+  `StrComp` with `vbTextCompare`, and `=` or `<` under `Option Compare
+  Text`, take あ as ア, ａ as a and ｶﾞ as ガ. `InStr`, `Like`, `Replace`,
+  `Split` and a Dictionary still tell them apart, as in Excel (#252).
+
+- `Val` reads ASCII digits only, as VBA does. It read full-width digits,
+  `inf` and `1_000` as numbers (#252).
+
+- `ListObject.Name` takes any text, and `DisplayName` follows the
+  defined-name rules, beyond ASCII too, as in Excel. A non-ASCII name
+  such as 明細 was refused. Setting `Name` to `a b` keeps it as the
+  table's name and makes its DisplayName `a_b` (#252).
+
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
   and a range or PageSetup taken from the sheet is error 424. It went on

@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Workbook settings the file keeps work as Excel's do:
+  `DisplayDrawingObjects`, `DisplayInkComments`,
+  `RemovePersonalInformation`, `ReadOnlyRecommended` and
+  `EnableAutoRecover`. Each saves where Excel saves it, in the
+  workbookPr, fileSharing or fileRecoveryPr, and reads back. Setting
+  the first and third leaves the workbook unsaved, as in Excel; the
+  others don't. 12 live cases and 7 saved files agree,
+  `tests/fixtures/workbook_options.json`.
+
 - `FormControl.set_font` gives a UserForm control a font of its own:
   face, size in points, bold, italic, underline, strikethrough and the
   Windows character set, 128 for Japanese. Excel reads each font back as

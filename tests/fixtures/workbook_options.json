@@ -1,0 +1,135 @@
+{
+ "measured_at": "2026-10-29T14:06:04.501613+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 1\n        wb.DisplayDrawingObjects = xlPlaceholders\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n        wb.SaveAs folder & \"\\placeholders.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\placeholders.xlsx\", IgnoreReadOnlyRecommended:=True)\n        Tried = Tried & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 2\n        wb.DisplayDrawingObjects = xlHide\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n        wb.SaveAs folder & \"\\hide.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\hide.xlsx\", IgnoreReadOnlyRecommended:=True)\n        Tried = Tried & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 3\n        wb.DisplayDrawingObjects = xlHide\n        wb.DisplayDrawingObjects = xlDisplayShapes\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n        wb.SaveAs folder & \"\\shapes.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\shapes.xlsx\", IgnoreReadOnlyRecommended:=True)\n        Tried = Tried & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 4\n        wb.DisplayDrawingObjects = 0\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 5\n        wb.DisplayDrawingObjects = \"x\"\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 6\n        wb.DisplayInkComments = False\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n        wb.SaveAs folder & \"\\ink.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\ink.xlsx\", IgnoreReadOnlyRecommended:=True)\n        Tried = Tried & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 7\n        wb.RemovePersonalInformation = True\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n        wb.SaveAs folder & \"\\personal.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\personal.xlsx\", IgnoreReadOnlyRecommended:=True)\n        Tried = Tried & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 8\n        wb.EnableAutoRecover = False\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n        wb.SaveAs folder & \"\\recover.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\recover.xlsx\", IgnoreReadOnlyRecommended:=True)\n        Tried = Tried & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 9\n        wb.ReadOnlyRecommended = True\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n        wb.SaveAs folder & \"\\recommended.xlsx\", xlOpenXMLWorkbook\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\recommended.xlsx\", IgnoreReadOnlyRecommended:=True)\n        Tried = Tried & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 10\n        wb.ReadOnlyRecommended = \"x\"\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Case 11\n        wb.EnableAutoRecover = Null\n        Tried = wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description & \" / \" & wb.DisplayDrawingObjects & \" \" & wb.DisplayInkComments & \" \" & wb.RemovePersonalInformation & \" \" & wb.EnableAutoRecover & \" \" & wb.ReadOnlyRecommended & \" \" & wb.Saved\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 11\n        s = s & \"|\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 2)\nEnd Function\n",
+ "cases": [
+  [
+   [],
+   "",
+   "-4104 True False True False True"
+  ],
+  [
+   [
+    "wb.DisplayDrawingObjects = xlPlaceholders"
+   ],
+   "placeholders.xlsx",
+   "2 True False True False False / 2 True False True False True"
+  ],
+  [
+   [
+    "wb.DisplayDrawingObjects = xlHide"
+   ],
+   "hide.xlsx",
+   "3 True False True False False / 3 True False True False True"
+  ],
+  [
+   [
+    "wb.DisplayDrawingObjects = xlHide",
+    "wb.DisplayDrawingObjects = xlDisplayShapes"
+   ],
+   "shapes.xlsx",
+   "-4104 True False True False False / -4104 True False True False True"
+  ],
+  [
+   [
+    "wb.DisplayDrawingObjects = 0"
+   ],
+   "",
+   "0 True False True False False"
+  ],
+  [
+   [
+    "wb.DisplayDrawingObjects = \"x\""
+   ],
+   "",
+   "Err 13 Type mismatch / -4104 True False True False True"
+  ],
+  [
+   [
+    "wb.DisplayInkComments = False"
+   ],
+   "ink.xlsx",
+   "-4104 False False True False True / -4104 False False True False True"
+  ],
+  [
+   [
+    "wb.RemovePersonalInformation = True"
+   ],
+   "personal.xlsx",
+   "-4104 True True True False False / -4104 True True True False True"
+  ],
+  [
+   [
+    "wb.EnableAutoRecover = False"
+   ],
+   "recover.xlsx",
+   "-4104 True False False False True / -4104 True False False False True"
+  ],
+  [
+   [
+    "wb.ReadOnlyRecommended = True"
+   ],
+   "recommended.xlsx",
+   "-4104 True False True True True / -4104 True False True True True"
+  ],
+  [
+   [
+    "wb.ReadOnlyRecommended = \"x\""
+   ],
+   "",
+   "Err 13 Type mismatch / -4104 True False True False True"
+  ],
+  [
+   [
+    "wb.EnableAutoRecover = Null"
+   ],
+   "",
+   "Err 94 Invalid use of Null / -4104 True False True False True"
+  ]
+ ],
+ "parts": {
+  "placeholders.xlsx": [
+   "<workbookPr showObjects=\"placeholders\" defaultThemeVersion=\"202300\"/>",
+   "<bookViews>",
+   "<workbookView xWindow=\"1950\" yWindow=\"1950\" windowWidth=\"19440\" windowHeight=\"11220\" xr2:uid=\"{6356CB91-0F39-4D6C-AD6D-D761B42AF99E}\"/>",
+   "<calcPr calcId=\"191029\"/>"
+  ],
+  "hide.xlsx": [
+   "<workbookPr showObjects=\"none\" defaultThemeVersion=\"202300\"/>",
+   "<bookViews>",
+   "<workbookView xWindow=\"2730\" yWindow=\"2730\" windowWidth=\"19440\" windowHeight=\"11220\" xr2:uid=\"{B7DC279B-22C5-479E-91AF-FBBBE4E61E33}\"/>",
+   "<calcPr calcId=\"191029\"/>"
+  ],
+  "shapes.xlsx": [
+   "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "<bookViews>",
+   "<workbookView xWindow=\"3510\" yWindow=\"3510\" windowWidth=\"19440\" windowHeight=\"11220\" xr2:uid=\"{75814B63-CA7C-44E4-AF80-307FE014ECB7}\"/>",
+   "<calcPr calcId=\"191029\"/>"
+  ],
+  "ink.xlsx": [
+   "<workbookPr showInkAnnotation=\"0\" defaultThemeVersion=\"202300\"/>",
+   "<bookViews>",
+   "<workbookView xWindow=\"1170\" yWindow=\"1170\" windowWidth=\"19440\" windowHeight=\"11220\" xr2:uid=\"{645F6F21-21F7-40A4-B522-604692419D75}\"/>",
+   "<calcPr calcId=\"191029\"/>"
+  ],
+  "personal.xlsx": [
+   "<workbookPr filterPrivacy=\"1\" defaultThemeVersion=\"202300\"/>",
+   "<bookViews>",
+   "<workbookView xWindow=\"1950\" yWindow=\"1950\" windowWidth=\"19440\" windowHeight=\"11220\" xr2:uid=\"{CDA648ED-C5F5-41F1-960B-E8926667E84C}\"/>",
+   "<calcPr calcId=\"191029\"/>"
+  ],
+  "recover.xlsx": [
+   "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "<bookViews>",
+   "<workbookView xWindow=\"2730\" yWindow=\"2730\" windowWidth=\"19440\" windowHeight=\"11220\" xr2:uid=\"{1587BE1C-4DF5-4919-9624-FE7C0F52FD0B}\"/>",
+   "<calcPr calcId=\"191029\"/>",
+   "<fileRecoveryPr autoRecover=\"0\"/>"
+  ],
+  "recommended.xlsx": [
+   "<fileSharing readOnlyRecommended=\"1\"/>",
+   "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "<bookViews>",
+   "<workbookView xWindow=\"3510\" yWindow=\"3510\" windowWidth=\"19440\" windowHeight=\"11220\" xr2:uid=\"{1157A1D2-642B-408F-8C8B-C9487F02D10A}\"/>",
+   "<calcPr calcId=\"191029\"/>"
+  ]
+ }
+}

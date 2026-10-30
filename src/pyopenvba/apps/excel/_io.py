@@ -142,7 +142,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
     read_date_system(book, workbook_part)
     parsed = xml_tree(workbook_part)
-    read_options(book, parsed.find("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}workbookPr"))
+    read_options(book, parsed)
     read_links(book, package, parsed)
     linked = _relationships(package)
     relationships = {key: part for key, (part, _kind) in linked.items()}

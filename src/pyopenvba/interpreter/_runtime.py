@@ -1083,7 +1083,6 @@ class Interpreter:
         self.console: list[str] = []
         self.assertions: list[str] = []
         self.frames: list[Frame] = []
-        self.option_compare_text = False
         #: Every MsgBox and InputBox the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
@@ -1095,6 +1094,12 @@ class Interpreter:
         self.event_sinks: list[tuple[ReferenceType[UserClassInstance], str]] = []
 
     # --- loading ---------------------------------------------------------------------
+
+    @property
+    def option_compare_text(self) -> bool:
+        """Whether the module running now says Option Compare Text, which makes =, Like, Select Case and a
+        comparison function's default compare as text."""
+        return bool(self.frames) and self.frames[-1].module.parsed.option_compare_text
 
     def add_module(self, source: str, *, name: str = "", kind: str = "standard") -> ModuleRuntime:
         """Parse ``source`` and add it to the project."""

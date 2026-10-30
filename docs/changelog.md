@@ -1183,12 +1183,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
-- The VBA in issue reports #249, #253, #254, #258, #259, #260 and #261
-  answers as live Excel does, and a test now holds it so. Each was wrong
-  in 6.5.0: Variant comparisons of a number with text, a Function
-  `As Long()`, a `ByVal` array, `&HFF01&`, the `Mid` statement, `Value`
-  of a block past the used range, and a formula read under manual
-  calculation.
+- `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
+  bound is below its lower bound, with Preserve or without. It made an
+  empty array (#255).
 
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
@@ -1308,6 +1305,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   format, validation, link, control or chart that reads a deleted
   sheet reports itself unsupported. Measured in
   `tests/fixtures/sheet_groups.json`.
+
+- The VBA in issue reports #249, #253, #254, #258, #259, #260 and #261
+  answers as live Excel does, and a test now holds it so. Each was wrong
+  in 6.5.0: Variant comparisons of a number with text, a Function
+  `As Long()`, a `ByVal` array, `&HFF01&`, the `Mid` statement, `Value`
+  of a block past the used range, and a formula read under manual
+  calculation.
 
 - Sheet names and defined names beyond ASCII are kept apart and found
   as Excel does. Excel compares them by Windows' word sort, case aside,

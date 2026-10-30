@@ -1183,6 +1183,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- A form or control caption beyond U+00FF, such as Japanese, set over a
+  caption already stored compressed now saves as UTF-16. It kept the
+  compression, so a new control's `Caption` of 実行 showed as `??` or
+  garbled text in Excel (#247).
+
 - `docs/excel_checklist.csv` counts the events the model raises: 29 of
   Application's, Workbook's and Worksheet's, Change, Calculate, Open,
   BeforeSave and the rest, which it listed as missing because no member

@@ -17,11 +17,8 @@ back as hex UTF-16 units so nothing is lost on the way.
 from __future__ import annotations
 
 import json
-import winreg
 from datetime import datetime, timezone
 from pathlib import Path
-
-from pyvbaharness import ExcelSession, HarnessConfig
 
 OUT = Path(__file__).resolve().parents[1] / 'tests/fixtures/vba_locale_live.json'
 D = 'DateSerial(2026, 10, 28)'
@@ -104,7 +101,7 @@ CASES.append(('Range.Sort of kana, kanji and widths', 'sort', SORT_TEXTS))
 CASES.append(('Range.Sort of kana, kanji and widths, MatchCase', 'sort-case', SORT_TEXTS))
 
 
-def _probe() -> str:
+def probe(cases: list[tuple[str, str, object]]) -> str:
     lines = ['Private Function H(ByVal s As String) As String',
              '    Dim i As Long, r As String',
              '    For i = 1 To Len(s)',
@@ -129,7 +126,7 @@ def _probe() -> str:
              '    c.ColumnWidth = 60',
              '    On Error GoTo Failed',
              '    Select Case which']
-    for index, (_label, kind, payload) in enumerate(CASES):
+    for index, (_label, kind, payload) in enumerate(cases):
         lines.append(f'    Case {index}')
         if kind == 'expr':
             lines.append(f'        Tried = Shown({payload})')
@@ -139,6 +136,16 @@ def _probe() -> str:
         elif kind == 'fmt':
             lines.append(f'        c.Value = {D} + {T}')
             lines.append(f'        c.NumberFormat = {vb(str(payload))}')
+            lines.append('        Tried = Cell(c)')
+        elif kind == 'shown':
+            # payload: [format code, VBA expression for the value]
+            code, value = list(payload)  # type: ignore[call-overload]
+            lines.append(f'        c.Value = {value}')
+            lines.append(f'        c.NumberFormat = {vb(str(code))}')
+            lines.append('        Tried = Cell(c)')
+        elif kind == 'local':
+            lines.append(f'        c.Value = {D} + {T}')
+            lines.append(f'        c.NumberFormatLocal = {vb(str(payload))}')
             lines.append('        Tried = Cell(c)')
         elif kind == 'text':
             lines.append(f'        c.Formula = {vb(str(payload))}')
@@ -177,7 +184,7 @@ def _decoded(coded: str) -> str:
     return ''.join(chr(int(coded[place:place + 4], 16)) for place in range(0, len(coded), 4))
 
 
-def _readable(answer: str, kind: str) -> object:
+def readable(answer: str, kind: str) -> object:
     """Hex fields turned back into text, so the JSON reads plainly."""
     if answer.startswith('Err '):
         number, _, description = answer[4:].partition(' ')
@@ -189,7 +196,7 @@ def _readable(answer: str, kind: str) -> object:
         type_name, _, value = field.partition(':')
         return [type_name, _decoded(value)]
 
-    if kind in ('cell', 'fmt', 'text'):
+    if kind in ('cell', 'fmt', 'text', 'shown', 'local'):
         value, value2, text, number_format, local, formula, prefix = answer.split('|')
         return {'Value': shown(value), 'Value2': shown(value2), 'Text': _decoded(text),
                 'NumberFormat': _decoded(number_format), 'NumberFormatLocal': _decoded(local),
@@ -198,28 +205,38 @@ def _readable(answer: str, kind: str) -> object:
 
 
 def _regional_format() -> str:
+    import winreg
+
     with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Control Panel\International') as key:
         return str(winreg.QueryValueEx(key, 'LocaleName')[0])
 
 
-def main() -> None:
+def measure(cases: list[tuple[str, str, object]], out: Path) -> None:
+    """Run the cases in live Excel and record the answers in ``out`` under the Regional format in force."""
+    # Here and not at the top, so the tests can read the probe and the answers without the harness.
+    from pyvbaharness import ExcelSession, HarnessConfig
+
     locale = _regional_format()
-    source = _probe()
+    source = probe(cases)
     answers: list[str] = []
     with ExcelSession(HarnessConfig(lock_wait_s=1200.0)) as excel:
         excel.new_document()
-        for first in range(0, len(CASES), 60):
-            last = min(first + 59, len(CASES) - 1)
+        for first in range(0, len(cases), 60):
+            last = min(first + 59, len(cases) - 1)
             result = excel.run_vba(source, 'Probe', (first, last), timeout=300.0)
             assert result.ok and not result.dialogs, result
             answers += str(result.value).split('@@@')
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'regional_format': locale,
-              'cases': [[label, kind, payload, _readable(answer, kind)]
-                        for (label, kind, payload), answer in zip(CASES, answers, strict=True)]}
-    runs = json.loads(OUT.read_text(encoding='utf-8')) if OUT.exists() else {}
+              'cases': [[label, kind, payload, readable(answer, kind)]
+                        for (label, kind, payload), answer in zip(cases, answers, strict=True)]}
+    runs = json.loads(out.read_text(encoding='utf-8')) if out.exists() else {}
     runs[locale] = record
-    OUT.write_text(json.dumps(dict(sorted(runs.items())), indent=1, ensure_ascii=False) + '\n', encoding='utf-8')
-    print(locale, len(record['cases']), 'cases ->', OUT)
+    out.write_text(json.dumps(dict(sorted(runs.items())), indent=1, ensure_ascii=False) + '\n', encoding='utf-8')
+    print(locale, len(record['cases']), 'cases ->', out)
+
+
+def main() -> None:
+    measure(CASES, OUT)
 
 
 if __name__ == '__main__':

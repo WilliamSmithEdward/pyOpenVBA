@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area as ModelArea
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.interpreter._locale import Locale
 from pyopenvba.formula import _parse as P
 from pyopenvba.formula._calc import functions as functions  # imported to register every function
 from pyopenvba.formula._calc import registry
@@ -112,6 +113,11 @@ class EngineBook:
     @property
     def epoch_1904(self) -> bool:
         return self.book.epoch_1904
+
+    @property
+    def locale(self) -> Locale:
+        """The Regional format TEXT, DOLLAR and FIXED show values in."""
+        return self.book.application.locale
 
     @property
     def name(self) -> str:

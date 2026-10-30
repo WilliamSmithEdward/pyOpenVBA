@@ -158,3 +158,12 @@ name looking like a cell is not read as the cell.
     names hold one: `f2e` with U+0301 is a name
     (`tests/fixtures/name_equality.json`, marks), where pyOfficeEditor's
     stops before the accent.
+17. **The Regional format.** `Context.locale` is the workbook's
+    application's (`ExcelApplication(locale=...)`), en-US for a book that
+    has none. TEXT, DOLLAR and FIXED pass it to the display engine, TEXT
+    asking for its code as written. `values.text_to_number` and
+    `values.read_date_time`, which DATEVALUE and TIMEVALUE now call for
+    `dates.parse_date_time`, read text under it. Under ja-JP the currency
+    sign is ¥, three numbers are the year, the month and the day and
+    nothing else, and a month's name reports itself unsupported
+    (`tests/fixtures/excel_locale_live.json`).

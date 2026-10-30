@@ -2388,7 +2388,31 @@ format agrees, `tests/fixtures/vba_locale_live.json`
   full-width digits and signs, and refuse `$`.
 
 A date literal in code, `#3/4/2026#`, reads as en-US under every locale.
-Cells, their formats and `Application.International` stay en-US.
+Excel's cells follow the format too (`tests/test_excel_locale.py`,
+`tests/fixtures/excel_locale_live.json`, 591 live cases under each):
+
+- A built-in format keeps its number and shows as Japanese Excel's own
+  code for it: `m/d/yyyy` as `2026/01/05`, `$#,##0_);($#,##0)` as
+  `-¥1,235`. A bare `$` in any cell format is `¥`.
+- `mmm`, `mmmm`, `ddd`, `dddd`, `aaa` and `aaaa` show Japanese names,
+  and `AM/PM` beside minutes or seconds shows 午前 and 午後. A
+  `[$-411]` tag shows the era for `g` and `e`, under either format.
+- `NumberFormatLocal` reads and writes Japanese Excel's spelling:
+  G/標準, `¥` for the currency sign, `!` to escape.
+- `Application.International` answers as Japanese Excel does.
+- `TEXT` names and AM/PM follow the format, but its code is read as
+  written. `DOLLAR` writes `¥`. `VALUE`, `DATEVALUE` and arithmetic on
+  text read `¥` as the currency sign and three numbers as
+  year/month/day.
+
+Typing into a cell reads text as en-US does, as live Japanese Excel did
+without a Japanese editing language. Under ja-JP these report themselves
+unsupported:
+- a `*` fill, which Japanese Excel lays out with another font
+- a month's name read as a date by a formula
+- a local spelling that NumberFormat would spell as a built-in format
+
+Sorting kana and kanji is not implemented under either format.
 
 `Round` of a Double scales by ten to the digits in floating point, rounds
 half to even there and scales back, so `Round(2.345, 2)` is 2.35 (2.345 \* 100

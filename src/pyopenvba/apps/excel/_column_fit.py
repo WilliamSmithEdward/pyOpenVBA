@@ -128,6 +128,11 @@ def narrowed(sheet: Worksheet, row: int, column: int, cell: Cell) -> str:
     value, shown, undisplayable = _laid_out(sheet, cell.value, cell.number_format)
     if value is EMPTY:
         return ""
+    if shown is not None and shown.fill and sheet.book.application.locale.builtin_formats:
+        # Japanese Excel repeats a fill about two thirds as often in the same column (tests/fixtures/
+        # excel_locale_live.json): its default font, which the model has no widths for, is another.
+        raise VBAUnsupportedError("Range.Text of a format with a * fill under a Regional format other than en-US is "
+                                  "not implemented")
     if shown is not None:
         text = shown.text
     elif undisplayable:
@@ -198,7 +203,8 @@ def _laid_out(sheet: Worksheet, value: object, code: str) -> tuple[object, Displ
     if value is EMPTY or not isinstance(value, (bool, str, int, float)):
         return value, None, False
     try:
-        return value, displayed(value, code, epoch_1904=sheet.book.epoch_1904), False
+        return value, displayed(value, code, epoch_1904=sheet.book.epoch_1904,
+                                locale=sheet.book.application.locale), False
     except UndisplayableError:
         return value, None, True
 

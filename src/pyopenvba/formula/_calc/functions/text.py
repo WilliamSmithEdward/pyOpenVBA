@@ -317,11 +317,11 @@ def TEXT(context: Context, value: Scalar, code: Scalar) -> Value:
     fmt = context.text(code)
     subject: object = value
     if isinstance(value, str):
-        number = text_to_number(value, context.today, epoch_1904=context.epoch_1904)
+        number = text_to_number(value, context.today, epoch_1904=context.epoch_1904, locale=context.locale)
         subject = value if number is None else number
     elif isinstance(value, Empty):
         subject = 0.0
-    return format_value(subject, fmt, epoch_1904=context.epoch_1904)
+    return format_value(subject, fmt, epoch_1904=context.epoch_1904, locale=context.locale, cell=False)
 
 
 @function("VALUE", V)
@@ -435,7 +435,8 @@ def DOLLAR(context: Context, number: Scalar, decimals: Scalar | None = None) -> 
         return VALUE
     value = rounded(value, places, ROUND_HALF_UP)
     body = _fixed_code(max(places, 0), True)
-    return format_value(value, f"${body}_);(${body})", epoch_1904=context.epoch_1904).rstrip()
+    return format_value(value, f"${body}_);(${body})", epoch_1904=context.epoch_1904,
+                        locale=context.locale).rstrip()
 
 
 @function("FIXED", V, V, V, minimum=1)
@@ -446,7 +447,8 @@ def FIXED(context: Context, number: Scalar, decimals: Scalar | None = None, no_c
         return VALUE
     grouping = not (no_commas is not None and context.logical(no_commas))
     value = rounded(value, places, ROUND_HALF_UP)
-    return format_value(value, _fixed_code(max(places, 0), grouping), epoch_1904=context.epoch_1904)
+    return format_value(value, _fixed_code(max(places, 0), grouping), epoch_1904=context.epoch_1904,
+                        locale=context.locale)
 
 
 #: Thai digits, zero to nine, and the places within a million: ones, tens

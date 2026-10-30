@@ -136,7 +136,7 @@ class Criterion:
             if isinstance(cell, float):
                 return _holds(op, compare(cell, value))
             if op == "=" and isinstance(cell, str):
-                number = text_to_number(cell, context.today, epoch_1904=context.epoch_1904)
+                number = text_to_number(cell, context.today, epoch_1904=context.epoch_1904, locale=context.locale)
                 return number is not None and compare(number, value) == 0
             return False
         if isinstance(value, bool):
@@ -196,7 +196,7 @@ def criterion(context: Context, value: Scalar) -> Criterion:
         # Nothing after the operator. "" alone is the blank-or-empty test,
         # kept apart from "=" by an empty operator.
         return Criterion("" if value == "" else op if op in ("=", "<>") else "=", EMPTY)
-    number = text_to_number(rest, context.today, epoch_1904=context.epoch_1904)
+    number = text_to_number(rest, context.today, epoch_1904=context.epoch_1904, locale=context.locale)
     if number is not None:
         return Criterion(op, number)
     upper = rest.upper()

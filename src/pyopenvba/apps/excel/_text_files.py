@@ -556,7 +556,8 @@ def _shown(sheet: Worksheet, row: int, column: int) -> str:
     if isinstance(value, ExcelError):
         return value.name
     try:
-        return shown(value, sheet.style_at(row, column).number_format, epoch_1904=sheet.book.epoch_1904)[0]
+        return shown(value, sheet.style_at(row, column).number_format, epoch_1904=sheet.book.epoch_1904,
+                     locale=sheet.book.application.locale)[0]
     except UndisplayableError:
         return "#" * _UNSHOWN
 

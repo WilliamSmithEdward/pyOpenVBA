@@ -50,6 +50,8 @@ from functools import lru_cache
 from typing import Final
 
 from pyopenvba.formula._display import tokens
+from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.interpreter._locale import Locale
 from pyopenvba.interpreter._values import error
 
 _COLOURS = {name.lower(): name for name in ("Black", "Blue", "Cyan", "Green", "Magenta", "Red", "White", "Yellow")}
@@ -69,7 +71,7 @@ _NOT_DATE = frozenset("123456789#?%")
 #: Letters outside ASCII Excel reads as a letter of its own though Unicode gives them no parts to fold to.
 _FOLDED = {"Ð": "D", "ð": "D", "Đ": "D", "đ": "D", "Ħ": "H", "ħ": "H", "ŉ": "N"}
 #: Locale tags Excel spells by their LCID once it has read them.
-_LOCALES = {"x-sysdate": "F800", "x-systime": "F400", "en-US": "409", "x-euro2": "2"}
+_LOCALES = {"x-sysdate": "F800", "x-systime": "F400", "en-US": "409", "ja-JP": "411", "x-euro2": "2"}
 #: Words Excel reads as one piece: the General format, and the morning and afternoon markers.
 _WORDS = (("general", "general"), ("am/pm", "ampm"), ("a/p", "ampm"))
 
@@ -120,8 +122,8 @@ def _sections(code: str) -> list[tuple[str, list[tuple[str, str]]]]:
     for members in grouped:
         if ("char", "@") in members:
             kind = "text"
-        elif any(part == "ampm" or (part == "char" and _folded(text) in _DATE_LETTERS)
-                 or (part == "bracket" and _ELAPSED.fullmatch(text[1:-1])) for part, text in members):
+        elif any(part == "ampm" or (part == "char" and (_folded(text) in _DATE_LETTERS or _day_name(members, at)))
+                 or (part == "bracket" and _ELAPSED.fullmatch(text[1:-1])) for at, (part, text) in enumerate(members)):
             kind = "date"
         else:
             kind = "number"
@@ -146,6 +148,8 @@ def _parts(kind: str, members: list[tuple[str, str]]) -> list[tuple[str, str]]:
         elif kind == "date":
             if _folded(text) in _DATE_LETTERS:
                 text, role = _folded(text), "syntax"
+            elif _day_name(members, at):
+                role = "syntax"
             elif text in "/:":
                 role = "syntax"
             elif text == ".":
@@ -166,6 +170,23 @@ def _parts(kind: str, members: list[tuple[str, str]]) -> list[tuple[str, str]]:
             role = "literal"
         out.append((role, text))
     return out
+
+
+def _day_name(members: list[tuple[str, str]], at: int) -> bool:
+    """Whether the bare character at ``at`` is part of three or more a's, which Excel reads as the day's name, as it
+    reads ddd (tests/fixtures/excel_locale_live.json)."""
+    def is_a(index: int) -> bool:
+        return 0 <= index < len(members) and members[index][0] == "char" and members[index][1] in "aA"
+
+    if not is_a(at):
+        return False
+    start = at
+    while is_a(start - 1):
+        start -= 1
+    end = at
+    while is_a(end + 1):
+        end += 1
+    return end - start + 1 >= 3
 
 
 def _pieces(code: str) -> list[tuple[str, str]]:
@@ -358,6 +379,76 @@ def _escaped(char: str, after: str, digits: bool) -> str:
     if (char == "," and after in ("0", "#", "?")) or (char == "." and digits):
         return "\\" + char
     return char
+
+
+def to_local(code: str, locale: Locale) -> str:
+    """A code as NumberFormatLocal spells it under ``locale`` (tests/fixtures/excel_locale_live.json).
+
+    en-US spells it as NumberFormat does. ja-JP spells General G/標準 and a
+    built-in format as its own code for the number, the currency sign ¥
+    where NumberFormat has ``$``, and escapes with ``!``, so an escaped ``$``
+    is bare and a bare ¥ escaped.
+    """
+    if not locale.builtin_formats:
+        return code
+    if code == "General":
+        return locale.general
+    code = dict(locale.builtin_formats).get(code, code)
+    out: list[str] = []
+    for kind, text in tokens(code):
+        if kind == "char" and text == "$":
+            out.append(locale.currency_symbol)
+        elif kind == "char" and text == locale.currency_symbol:
+            out.append(locale.escape + text)
+        elif kind == "escaped":
+            out.append("$" if text[1] == "$" else locale.escape + text[1])
+        else:
+            out.append(text)
+    return "".join(out)
+
+
+def from_local(text: str, locale: Locale) -> str:
+    """NumberFormatLocal's spelling under ``locale`` as NumberFormat's: the reverse of :func:`to_local`. Under
+    ja-JP the English General is error 1004, and a backslash, the yen sign of Japanese code pages, is the currency
+    sign as ¥ is."""
+    if not locale.builtin_formats:
+        return text
+    if text.lower() == locale.general.lower():
+        return "General"
+    if text.lower() == "general":
+        raise error(1004, "Unable to set the NumberFormatLocal property of the Range class")
+    found = next((english for english, own in locale.builtin_formats if own == text), None)
+    if found is not None:
+        return found
+    out: list[str] = []
+    index = 0
+    while index < len(text):
+        char = text[index]
+        if char == '"':
+            end = text.find('"', index + 1)
+            end = len(text) - 1 if end < 0 else end
+            out.append(text[index:end + 1])
+            index = end + 1
+            continue
+        if char == "[":
+            end = text.find("]", index)
+            end = len(text) - 1 if end < 0 else end
+            out.append(text[index:end + 1])
+            index = end + 1
+            continue
+        if char == locale.escape and index + 1 < len(text):
+            out.append("\\" + text[index + 1])
+            index += 2
+            continue
+        out.append("$" if char in (locale.currency_symbol, "\\") else "\\$" if char == "$" else char)
+        index += 1
+    english = "".join(out)
+    if english in dict(locale.builtin_formats):
+        # Excel keeps it as a format of its own that shows as written, apart from the built-in one NumberFormat
+        # spells the same, which the model has no way to hold.
+        raise VBAUnsupportedError("NumberFormatLocal set to a format NumberFormat spells as a built-in one is not "
+                                  "implemented")
+    return english
 
 
 @lru_cache(maxsize=1024)

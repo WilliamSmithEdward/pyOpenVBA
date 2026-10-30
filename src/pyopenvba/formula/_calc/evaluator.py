@@ -84,6 +84,7 @@ from pyopenvba.formula._calc.values import (
 from pyopenvba.formula._calc.reference import MAX_COLUMN, MAX_ROW
 from pyopenvba.formula._calc.cells import CellError
 from pyopenvba.formula._calc.cells import UnsupportedFormulaError
+from pyopenvba.interpreter._locale import EN_US, Locale
 
 CellKey = tuple[str, int, int]
 
@@ -238,6 +239,13 @@ class Context:
     @property
     def epoch_1904(self) -> bool:
         return self.book.epoch_1904
+
+    @property
+    def locale(self) -> Locale:
+        """The Regional format TEXT, DOLLAR and FIXED show values in: the workbook's application's, en-US for a
+        book that has none."""
+        found: object = getattr(self.book, "locale", EN_US)
+        return found if isinstance(found, Locale) else EN_US
 
     # ------------------------------------------------------------------
     # Evaluation
@@ -732,7 +740,7 @@ class Context:
         if isinstance(value, float):
             return value
         if isinstance(value, str):
-            number = text_to_number(value, self.today, epoch_1904=self.epoch_1904)
+            number = text_to_number(value, self.today, epoch_1904=self.epoch_1904, locale=self.locale)
             return VALUE if number is None else number
         if isinstance(value, Empty):
             return 0.0

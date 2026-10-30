@@ -15,7 +15,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   午前 and 午後, the yen sign and full-width digits. Live VBA under each
   format agrees on 400 cases, `tests/fixtures/vba_locale_live.json`.
   oleaut32 with LCID 1041 agrees on 4,309 more,
-  `tests/fixtures/vba_locale.json`. Cells and their display stay en-US.
+  `tests/fixtures/vba_locale.json`.
+
+- Under `ExcelApplication(locale="ja-JP")` cells show and read as
+  Japanese Excel's do (#252). Built-in formats show Japanese Excel's
+  own codes, a bare `$` shows `¥`, and day and month names and AM/PM
+  are Japanese. `NumberFormatLocal` and `Application.International`
+  answer as Japanese Excel does. `DOLLAR` writes `¥`, and `VALUE` and
+  `DATEVALUE` read `¥` and year-first dates. 562 live cases agree,
+  `tests/fixtures/excel_locale_live.json`. A `*` fill and a formula
+  reading a month's name report themselves unsupported under ja-JP.
 
 - Custom lists work as Excel's do: `AddCustomList`, `DeleteCustomList`,
   `CustomListCount`, `GetCustomListContents` and `GetCustomListNum`.
@@ -1248,6 +1257,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 - `CDbl`, `CDec`, `IsNumeric` and `CDate` refuse full-width and other
   non-ASCII digits, as en-US VBA does. They read `CDbl("１２")` as 12.
+
+- Text with full-width digits typed into a cell stays text, as Excel
+  keeps `１２`. It became the number 12.
+
+- Cells show `aaa` and `aaaa` as the day's name, `[$-411]ggge` as the
+  Japanese era and year, and `ggge` without the tag as the year alone,
+  as en-US Excel does. `[$-F800]` and `[$-x-sysdate]` show the system's
+  long date, `Monday, January 5, 2026`. NumberFormat keeps `aaa` and
+  spells `[$-ja-JP]` as `[$-411]`. A cell formatted `\$#,##0` reads
+  back as a Double, not a Currency. The live cases are in
+  `tests/fixtures/excel_locale_live.json`.
 
 - `ListObjects.Add` over a header row alone reports itself unsupported.
   It made a one-row table. Excel adds an empty insert row under the

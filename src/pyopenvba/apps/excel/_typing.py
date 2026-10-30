@@ -73,27 +73,27 @@ _MONTHS = {name: index for index, names in enumerate(
      ("jul", "july"), ("aug", "august"), ("sep", "sept", "september"), ("oct", "october"), ("nov", "november"),
      ("dec", "december")), start=1) for name in names}
 
-_PLAIN = re.compile(r"(?P<whole>\d+(?:,\d{3,})*)?(?P<point>\.(?P<fraction>\d*))?")
-_EXPONENT = re.compile(r"(?:\d+\.?\d*|\.\d+)[eE][+-]?\d+")
-_MIXED = re.compile(r"(\d+) (\d+)/(\d+)")
-_FRACTION = re.compile(r"(\d+)/(\d+)")
+_PLAIN = re.compile(r"(?a)(?P<whole>\d+(?:,\d{3,})*)?(?P<point>\.(?P<fraction>\d*))?")
+_EXPONENT = re.compile(r"(?a)(?:\d+\.?\d*|\.\d+)[eE][+-]?\d+")
+_MIXED = re.compile(r"(?a)(\d+) (\d+)/(\d+)")
+_FRACTION = re.compile(r"(?a)(\d+)/(\d+)")
 # The two separators need not match, and spaces may stand round either (tests/fixtures/value_typing.json).
-_NUMERIC_DATE = re.compile(r"(\d{1,4}) ?[/-] ?(\d{1,4})(?: ?[/-] ?(\d{1,4}))?")
+_NUMERIC_DATE = re.compile(r"(?a)(\d{1,4}) ?[/-] ?(\d{1,4})(?: ?[/-] ?(\d{1,4}))?")
 # Beside a month's name a slash or a dash, a space round either, a space alone or nothing parts the numbers:
 # 2/Jan, Jan - 2, 5May2020 (tests/fixtures/typed_dates.json). Only a comma and a space part a year after a day.
 _APART = r"(?: ?[/-] ?| )?"
-_DAY_MONTH = re.compile(rf"(\d{{1,2}}){_APART}([A-Za-z]+)(?:{_APART}(\d{{1,2}}|\d{{4}}))?")
-_MONTH_DAY = re.compile(rf"([A-Za-z]+){_APART}(\d{{1,2}})(?: ?, (\d{{1,2}}|\d{{4}}))?")
-_MONTH_YEAR = re.compile(rf"([A-Za-z]+){_APART}(\d{{4}})")
-_FIELD = re.compile(r"\d+")
+_DAY_MONTH = re.compile(rf"(?a)(\d{{1,2}}){_APART}([A-Za-z]+)(?:{_APART}(\d{{1,2}}|\d{{4}}))?")
+_MONTH_DAY = re.compile(rf"(?a)([A-Za-z]+){_APART}(\d{{1,2}})(?: ?, (\d{{1,2}}|\d{{4}}))?")
+_MONTH_YEAR = re.compile(rf"(?a)([A-Za-z]+){_APART}(\d{{4}})")
+_FIELD = re.compile(r"(?a)\d+")
 _COLON = re.compile(r" ?: ?")
 _POINT = re.compile(r" ?\. ?")
 _HALF = re.compile(r" ([AaPp][Mm]?)(?![A-Za-z])")
 _HALVES = frozenset(("a", "am", "p", "pm"))
 #: The numbers and words a date and a time are read from, nine at most.
-_TOKENS = re.compile(r"\d+|[A-Za-z]+")
+_TOKENS = re.compile(r"(?a)\d+|[A-Za-z]+")
 #: What Excel reads past after a date and a time, once the spaces round slashes and dashes are gone.
-_READ_PAST = re.compile(r"[/-]?\d+(?:[/ -]\d+)*[/-]?|[/-]")
+_READ_PAST = re.compile(r"(?a)[/-]?\d+(?:[/ -]\d+)*[/-]?|[/-]")
 
 #: The formats typing gives a dollar amount, and the one a Currency value brings.
 TYPED_CURRENCY = ("$#,##0_);[Red]($#,##0)", "$#,##0.00_);[Red]($#,##0.00)")
@@ -482,7 +482,7 @@ def _read_past(rest: str) -> bool:
         return False
     rest = re.sub(r" ?([/-]) ?", r"\1", rest.lstrip(" "))
     return _READ_PAST.fullmatch(rest) is not None and all(
-        len(number) <= 2 or (len(number) <= 4 and int(number) >= 100) for number in re.findall(r"\d+", rest))
+        len(number) <= 2 or (len(number) <= 4 and int(number) >= 100) for number in re.findall(r"[0-9]+", rest))
 
 
 def typed_year(text: str) -> int:
@@ -754,5 +754,8 @@ def is_date_format(code: str) -> bool:
 
 
 def is_currency_format(code: str) -> bool:
-    """Whether a format makes Range.Value read its number as a Currency: a dollar sign outside a bracket."""
-    return "$" in re.sub(r"\[[^\]]*\]", "", code)
+    """Whether a format makes Range.Value read its number as a Currency: a bare dollar sign, outside a bracket.
+    An escaped one, \\$#,##0, is a Double (tests/fixtures/excel_locale_live.json)."""
+    from pyopenvba.formula._display import tokens
+
+    return ("char", "$") in tokens(code)

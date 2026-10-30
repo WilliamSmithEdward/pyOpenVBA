@@ -10,19 +10,22 @@ from __future__ import annotations
 import re
 
 from pyopenvba.formula._calc.reference import CellRef
+from pyopenvba.interpreter._locale import EN_US, Locale
 
 _BARE_SHEET_NAME = re.compile(r"^[A-Za-z_\\][A-Za-z0-9_.\\]*$")
 
 
-def format_value(value: object, code: str, *, epoch_1904: bool = False) -> str:
-    """The text a number format shows a value as, as TEXT gives it; #VALUE! where the format cannot show it."""
+def format_value(value: object, code: str, *, epoch_1904: bool = False, locale: Locale = EN_US,
+                 cell: bool = True) -> str:
+    """The text a number format shows a value as under ``locale``, as a cell shows it or, where ``cell`` is False,
+    as TEXT reads its code; #VALUE! where the format cannot show it."""
     # The tree's module reads quote_sheet_name from here, so the values, which read the tree, come in late.
     from pyopenvba.formula._calc.values import VALUE, ExcelError
     from pyopenvba.formula._display import UndisplayableError
     from pyopenvba.formula._display import format_value as displayed
 
     try:
-        return displayed(value, code, epoch_1904=epoch_1904)
+        return displayed(value, code, epoch_1904=epoch_1904, locale=locale, cell=cell)
     except UndisplayableError:
         raise ExcelError(VALUE) from None
 

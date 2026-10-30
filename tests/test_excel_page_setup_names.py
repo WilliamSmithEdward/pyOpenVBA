@@ -9,7 +9,7 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication, _io
 from pyopenvba.apps.excel._charts_file import xml_tree
 from pyopenvba.apps.excel._page_setup import PageSetup
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 
 NS = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
 SPELLINGS = ["localSheetId='1' x:opaque='keep localSheetId=\"0\" > tail'",
@@ -151,7 +151,8 @@ def test_removed_sheet_page_proxy_cannot_recreate_global_print_names() -> None:
     page.vba_set('PrintArea', 'A1:B9')
     owner.Delete()
     before = list(book.names_.entries), book.saved
-    with pytest.raises(VBAUnsupportedError, match='removed worksheet'):
+    # A deleted sheet's PageSetup is error 424, as in Excel (tests/fixtures/deleted_sheet.json).
+    with pytest.raises(VBARuntimeError, match='424'):
         page.vba_set('PrintArea', 'A1:C9')
     assert (list(book.names_.entries), book.saved) == before
 

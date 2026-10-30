@@ -352,3 +352,8 @@ def delete(book: Workbook, sheets: list[Worksheet], refusal: str) -> None:
         book.active_sheet_index = book.sheets_.index(after)
     book.selected_sheets = []
     book.saved = False
+    for sheet in going:
+        # A variable holding a deleted sheet, or a range of it, fails as Excel's does, and a new sheet of the old
+        # name never takes its place (tests/fixtures/deleted_sheet.json).
+        sheet.deleted = True
+        sheet.invalidated = True

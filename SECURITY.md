@@ -120,11 +120,13 @@ release and its SHA-256. The package has no dependencies of its own.
 ClamAV's signatures change too often to pin, so freshclam fetches and
 verifies them on every run.
 
-Dependabot proposes updates to the GitHub Actions, the Semgrep and ClamAV
-images, and the hash-locked tools in `.github/requirements` once a version
-is a week old, and at once for a security advisory. The Update YARA rules
-workflow proposes new YARA pins in `.github/security/yara.json` each week.
-A minor or patch update, and the YARA pull request, merges itself once CI,
+Dependabot proposes updates to the GitHub Actions, the ClamAV image, and
+the hash-locked tools in `.github/requirements` once a version is a week
+old, and at once for a security advisory. The Update YARA rules workflow
+proposes new YARA pins in `.github/security/yara.json` each week, and the
+Update Semgrep image workflow a new Semgrep image once it is a week old
+(GitHub refuses Dependabot's updates of that image). A minor or patch
+update, and the YARA and Semgrep pull requests, merge themselves once CI,
 Security and Malware scan pass; a third-party major version waits for
 review.
 

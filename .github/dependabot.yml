@@ -27,7 +27,6 @@ updates:
 
   - package-ecosystem: docker
     directories:
-      - /.github/security/semgrep
       - /.github/security/clamav
     schedule:
       interval: weekly

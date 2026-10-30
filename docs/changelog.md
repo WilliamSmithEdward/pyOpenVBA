@@ -1183,10 +1183,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
-- A UserForm is reported with `VBAUnsupportedError`, as the README
-  promises for what the interpreter does not run. `Load frmTest` and
-  `Unload frmTest` were error 35, and `frmTest.Show` or a property of the
-  form error 424, both of which `On Error` could trap (#251).
+- `ReDim a(1 To 0)` is error 9, as in VBA, for any dimension whose upper
+  bound is below its lower bound, with Preserve or without. It made an
+  empty array (#255).
 
 - A variable holding a deleted sheet fails as Excel's does. Each member
   is error -2147221080, "Method 'Rows' of object '_Worksheet' failed",
@@ -1226,6 +1225,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   other separators, a field that does not read with them stays text:
   `234.5` where `.` separates thousands. Before, the model read such a
   field with `.` as the decimal point.
+
+- A UserForm is reported with `VBAUnsupportedError`, as the README
+  promises for what the interpreter does not run. `Load frmTest` and
+  `Unload frmTest` were error 35, and `frmTest.Show` or a property of the
+  form error 424, both of which `On Error` could trap (#251).
 
 - Typing reads a percent sign before a number, `%5` as 5%, and a euro
   sign before or after one, `€5` and `5 €` as 5, as Excel does; a

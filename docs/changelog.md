@@ -13,6 +13,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Range.Sort` takes `OrderCustom` and puts a list's items first, in the
   list's order. 50 live steps agree, `tests/fixtures/custom_lists.json`.
 
+- `SortFields.Add` takes a `CustomOrder`, a list's items as text or the
+  number of a custom list, and puts those items first, in the list's
+  order. A sort matching case matches the items' case, there and in
+  `Range.Sort`'s `OrderCustom`. A save keeps the order as the
+  condition's `customList`, and opening reads it back. A number past
+  the last list is error 1004. `AddCustomList` of a range leaves its
+  numbers out. 11 live cases and 8 saved files agree,
+  `tests/fixtures/custom_orders.json`; `Range.Sort` still writes no
+  `sortState`.
+
 - Tables answer more of `ListObject` as Excel does. `Comment`,
   `AlternativeText`, `Summary` and `ShowAutoFilterDropDown` save where
   Excel saves them and read back. `Active`, `SourceType`,

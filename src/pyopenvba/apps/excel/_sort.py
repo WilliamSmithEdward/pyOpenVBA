@@ -69,7 +69,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, VBAInt, error
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
-    from pyopenvba.apps.excel._model import Cell, Workbook, Worksheet
+    from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
     from pyopenvba.apps.excel._styles import Style
 
 ASCENDING, DESCENDING = 1, 2
@@ -95,7 +95,8 @@ class Key:
     color: int | None = None
     #: The icon a key on icons orders the rows showing first, as its set and place there; None names none.
     icon: tuple[int, int] | None = None
-    #: A custom list's items in small letters, which order ahead of everything else in the list's order.
+    #: A custom list's items, which order ahead of everything else in the list's order: text the same as one but for
+    #: case, or matching its case where the sort matches case (tests/fixtures/custom_orders.json).
     listed: tuple[str, ...] | None = None
 
 
@@ -185,8 +186,11 @@ def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]
     if isinstance(value, ExcelError):
         return _ERROR, 0
     text = str(value)
-    if key.listed is not None and text.lower() in key.listed:
-        return _LISTED, key.listed.index(text.lower())
+    if key.listed is not None:
+        spelled = text if match_case else text.lower()
+        for place, item in enumerate(key.listed):
+            if spelled == (item if match_case else item.lower()):
+                return _LISTED, place
     if key.numbers:
         found = typed_text(text).value
         if isinstance(found, float):
@@ -435,8 +439,6 @@ def range_sort(target: Range, keys: list[tuple[object, object, object]], header:
     from pyopenvba.apps.excel._custom_lists import sort_order
 
     listed = sort_order(target.sheet.book.application, order_custom)
-    if listed is not None and match_case is not MISSING and to_bool(match_case):
-        raise VBAUnsupportedError("sorting by a custom list with MatchCase is not implemented")
     area = target.first
     if target.single:
         area = current_region(target.sheet, area.top, area.left)
@@ -505,7 +507,7 @@ def settings_signature(state: SortState) -> tuple[object, ...]:
     area = (id(state.area.sheet), tuple(state.area.areas)) if state.area is not None else None
     return (area, state.header, state.match_case, state.orientation, state.method,
             tuple((id(field.key.sheet), tuple(field.key.areas), field.order, field.option, field.sort_on, field.color,
-                   field.icon) for field in state.fields))
+                   field.icon, field.custom) for field in state.fields))
 
 
 def changed(sheet: Worksheet) -> bool:
@@ -580,6 +582,8 @@ def condition_attributes(book: Workbook, field: SortField) -> dict[str, str]:
     if field.sort_on != ON_VALUES:
         attributes['sortBy'] = _SORT_BY[field.sort_on]
     attributes['ref'] = field.key.first.address(absolute=False)
+    if field.custom is not None:
+        attributes['customList'] = ','.join(field.custom)
     if field.sort_on == ON_ICON:
         if field.icon is not None:
             attributes['iconSet'] = SETS[field.icon[0]][0]
@@ -716,7 +720,8 @@ def _loaded_state(sheet: Worksheet) -> SortState:
         for condition in group.children:
             sort_by = condition.get('sortBy', 'value')
             if (condition.name != ns + 'sortCondition' or condition.children or condition.has_text or condition.has_opaque
-                    or any(key not in ('ref', 'descending', 'sortBy', 'dxfId', 'iconSet', 'iconId') and key != 'xmlns'
+                    or any(key not in ('ref', 'descending', 'sortBy', 'customList', 'dxfId', 'iconSet', 'iconId')
+                           and key != 'xmlns'
                            and not key.startswith('xmlns:') for key in condition.attributes)
                     or condition.get('descending', '0') not in ('0', '1', 'false', 'true')
                     or sort_by not in SORTED_BY
@@ -728,6 +733,8 @@ def _loaded_state(sheet: Worksheet) -> SortState:
                 raise VBAUnsupportedError('Qualified worksheet sort keys are not implemented')
             order = DESCENDING if condition.get('descending') in ('1', 'true') else ASCENDING
             field = SortField(Range(sheet, [key]), order, 0, SORTED_BY[sort_by])
+            if 'customList' in condition.attributes:
+                field.custom = _custom_items(str(condition.get('customList')))
             if sort_by == 'icon':
                 field.icon = _condition_icon(condition.attributes.get('iconSet'), condition.attributes.get('iconId'))
             elif sort_by != 'value':
@@ -824,7 +831,8 @@ class SortObject(ExcelObject):
         area = target.first
         across = state.orientation == LEFT_TO_RIGHT
         keys = [replace(_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
-                        on=field.sort_on, color=field.color, icon=field.icon) for field in state.fields]
+                        on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom)
+                for field in state.fields]
         sort_area(target.sheet, area, keys, header=state.header == YES, match_case=state.match_case, across=across)
         from pyopenvba.apps.excel._events import recalculated
 
@@ -853,10 +861,10 @@ class SortFields(VBACollection, ExcelObject):
         if not isinstance(Key, Range):
             raise error(1004, "A sort field needs a range for its key")
         on = ON_VALUES if SortOn is MISSING else sort_on(SortOn)
-        if CustomOrder is not MISSING:
-            raise VBAUnsupportedError("sorting by a custom order is not implemented")
+        custom = custom_order(self.owner.sheet.book.application, CustomOrder)
         field = SortField(Key, ASCENDING if Order is MISSING else int(to_integer(Order, "Long")),
                           0 if DataOption is MISSING else int(to_integer(DataOption, "Long")), on)
+        field.custom = custom
         self.owner.state.fields.append(field)
         return field
 
@@ -880,6 +888,8 @@ class SortField(ExcelObject):
         self.color: int | None = None
         #: The icon an icon field sorts on, its set and place there; None, as it starts, names none.
         self.icon: tuple[int, int] | None = None
+        #: The custom order's items, which a file keeps as its customList; None for none.
+        self.custom: tuple[str, ...] | None = None
 
     def vba_no_member(self, name: str) -> Exception:
         return error(438) if name.casefold() == 'name' else super().vba_no_member(name)
@@ -941,6 +951,32 @@ class SortField(ExcelObject):
     @setter("DataOption")
     def _set_data_option(self, value: object) -> None:
         self.option = int(to_integer(value, "Long"))
+
+
+def _custom_items(text: str) -> tuple[str, ...]:
+    """A custom order given as text, its items split at commas, the spaces round each dropped as Excel drops them."""
+    items = tuple(item.strip() for item in text.split(","))
+    if not all(items):
+        raise VBAUnsupportedError("a custom order with an empty item is not implemented")
+    return items
+
+
+def custom_order(app: Application, value: object) -> tuple[str, ...] | None:
+    """SortFields.Add's CustomOrder: a list's items as text, or the number of one of Application's custom lists; empty
+    text or none orders as usual, and a number past the last list is error 1004 (tests/fixtures/custom_orders.json)."""
+    from pyopenvba.apps.excel._custom_lists import lists
+
+    if value is MISSING:
+        return None
+    if isinstance(value, str):
+        return _custom_items(value) if value else None
+    number = int(to_integer(value, "Long"))
+    known = lists(app)
+    if number < 1:
+        raise VBAUnsupportedError("a custom order numbered below 1 is not implemented")
+    if number > len(known):
+        raise error(1004, "Application-defined or object-defined error")
+    return known[number - 1]
 
 
 def sort_on(value: object) -> int:

@@ -1327,6 +1327,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
   sheet reports itself unsupported. Measured in
   `tests/fixtures/sheet_groups.json`.
 
+- The VBA in issue reports #249, #253, #254, #258, #259, #260 and #261
+  answers as live Excel does, and a test now holds it so. Each was wrong
+  in 6.5.0: Variant comparisons of a number with text, a Function
+  `As Long()`, a `ByVal` array, `&HFF01&`, the `Mid` statement, `Value`
+  of a block past the used range, and a formula read under manual
+  calculation.
+
 - Sheet names and defined names beyond ASCII are kept apart and found
   as Excel does. Excel compares them by Windows' word sort, case aside,
   in two ways. A sheet's name must differ from every other sheet's, and

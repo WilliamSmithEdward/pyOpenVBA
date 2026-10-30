@@ -1287,6 +1287,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   the model now, with error 1004, over 7 live formulas in
   `tests/fixtures/formula_spelling.json`.
 
+- Clearing whole rows after `Cells.Font.Name` or another whole-sheet
+  format no longer runs out of memory. The model gave every position of
+  every cleared row a cell of its own. Excel gives each row a format of
+  the default when three columns or more carry a format, and clearing to
+  the last row moves the columns' formats onto the rows above (#256).
+
 - `Application.StatusBar` reads False, a Boolean, until a macro sets it,
   as Excel's does; the model read the text FALSE from the start. Once a
   macro sets it, it reads as text as before.

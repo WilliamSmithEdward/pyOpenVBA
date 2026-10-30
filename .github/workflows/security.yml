@@ -78,20 +78,27 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Build the pinned Semgrep image
-        run: docker build --quiet --tag semgrep-pinned .github/security/semgrep
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12.14"
+
+      # Semgrep and its dependencies from .github/requirements/semgrep.txt,
+      # wheels only and hash-checked, in a venv outside the checkout so the
+      # scan does not read it.
+      - name: Install Semgrep
+        run: |
+          python -m venv "$RUNNER_TEMP/semgrep"
+          "$RUNNER_TEMP/semgrep/bin/python" -m pip install --quiet --require-hashes \
+            --only-binary :all: -r .github/requirements/semgrep.txt
 
       # --metrics=off: nothing about the scan leaves the runner.
       # --disable-nosem: a `nosemgrep` comment cannot hide a finding, so
       # accepting one goes through .github/security/accepted.toml. The long
       # timeout lets every rule finish on the largest files, since a rule
-      # that times out has not checked that file. The runner's user owns
-      # the checkout, so Semgrep runs as that user to read it through git.
+      # that times out has not checked that file.
       - name: Scan
         run: >-
-          docker run --rm --user "$(id -u):$(id -g)" --env HOME=/tmp
-          --volume "$PWD:/src" --workdir /src semgrep-pinned
-          semgrep scan --metrics=off --disable-version-check --disable-nosem
+          "$RUNNER_TEMP/semgrep/bin/semgrep" scan --metrics=off --disable-version-check --disable-nosem
           --timeout 120 --timeout-threshold 0
           --config p/default --config p/python --config p/security-audit
           --config p/secrets --config p/github-actions

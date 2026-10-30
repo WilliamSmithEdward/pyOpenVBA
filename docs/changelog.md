@@ -1389,6 +1389,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   oleaut32 on 7,013 serials, `tests/fixtures/variant_time.json`; the
   last 11 of the 152 live time-rounding cases now agree.
 
+- `MsgBox` with no answer queued comes back with the button
+  `vbDefaultButton2`, `3` or `4` names, as Windows' message box answers
+  Enter. It always came back with the first button, so
+  `vbYesNo + vbDefaultButton2` answered Yes (#250).
+
 - A Date may fall on 100-01-01 after midnight: -657434.5 is
   `1/1/100 12:00:00 PM`, as in VBA, where the model raised error 6 for
   any serial below -657434.

@@ -2908,9 +2908,16 @@ def _is_type(value: object, wanted: str) -> bool:
     return type_name(value).lower() == wanted.lower()
 
 
+#: Each MsgBox button set's buttons, by what each answers, in order: vbOKOnly to vbRetryCancel.
+_BUTTONS = {0: (1,), 1: (1, 2), 2: (3, 4, 5), 3: (6, 7, 2), 4: (6, 7), 5: (4, 2)}
+
+
 def _default_button(style: int) -> int:
-    """Which button MsgBox would come back with if nobody clicked."""
-    return {0: 1, 1: 1, 2: 3, 3: 6, 4: 6, 5: 4}.get(style & 0x0F, 1)
+    """Which button MsgBox comes back with if nobody clicks and Enter is pressed: the one vbDefaultButton2, 3 or 4
+    names, or the first where it names none or one past the last (tests/fixtures/msgbox_default.json)."""
+    buttons = _BUTTONS.get(style & 0x0F, (1,))
+    place = (style >> 8) & 0x0F
+    return buttons[place] if place < len(buttons) else buttons[0]
 
 
 def _exit_word(kind: str) -> str:

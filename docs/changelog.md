@@ -1208,6 +1208,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   names that start like an R1C1 reference. 324 live names agree,
   `tests/fixtures/name_validity.json`.
 
+- `Application.Intersect` keeps every area. It read only the first area
+  of each range, so `A1:A3,C1:C3` with `A1:C10` gave `A1:A3`. Pieces
+  that make a rectangle together are joined, as in Excel (#257).
+
 - `Range.Formula2` no longer puts an @ before a reference to one cell of
   another workbook. The colon of the path's drive, `C:\`, was read as a
   reference across sheets.

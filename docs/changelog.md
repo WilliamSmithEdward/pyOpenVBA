@@ -1369,6 +1369,23 @@ All notable changes to pyOpenVBA are documented here. This project follows
   named beyond ASCII stopped the collection being listed or added to.
   38 live names and 19 lookups agree, `tests/fixtures/style_order.json`.
 
+- `Option Compare Text` takes effect. The model compared as binary
+  whatever a module said, so `"a" = "A"` was False there, and `Like`,
+  `Select Case` and `InStr` or `StrComp` without a Compare were too.
+
+- A text comparison ignores kana type and width, as VBA's does:
+  `StrComp` with `vbTextCompare`, and `=` or `<` under `Option Compare
+  Text`, take あ as ア, ａ as a and ｶﾞ as ガ. `InStr`, `Like`, `Replace`,
+  `Split` and a Dictionary still tell them apart, as in Excel (#252).
+
+- `Val` reads ASCII digits only, as VBA does. It read full-width digits,
+  `inf` and `1_000` as numbers (#252).
+
+- `ListObject.Name` takes any text, and `DisplayName` follows the
+  defined-name rules, beyond ASCII too, as in Excel. A non-ASCII name
+  such as 明細 was refused. Setting `Name` to `a b` keeps it as the
+  table's name and makes its DisplayName `a_b` (#252).
+
 - Opening a workbook that holds a chart sheet, a dialog sheet or an
   Excel 4 macro sheet reports itself unsupported. The model holds
   worksheets alone. It read a chart sheet's part as a worksheet's and

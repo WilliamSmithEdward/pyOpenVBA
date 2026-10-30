@@ -278,6 +278,10 @@ def vba_cverr(interpreter: Interpreter, value: object) -> object:
     return VBAErrorValue(int(to_integer(value, "Long")))
 
 
+#: The number Val reads from the front of its text, spaces gone: a sign, ASCII digits and a point, and an exponent.
+_VAL_NUMBER = re.compile(r"[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eEdD][+-]?[0-9]+)?")
+
+
 @intrinsic("Val", "String", minimum=1)
 def vba_val(interpreter: Interpreter, value: object) -> object:
     """Val takes the leading number and stops, and always gives a Double."""
@@ -298,12 +302,10 @@ def vba_val(interpreter: Interpreter, value: object) -> object:
         if raw <= 0xFFFFFFFF and raw >= 1 << (bits - 1):
             raw -= 1 << bits
         return float(raw)
-    for stop in range(len(text), 0, -1):
-        try:
-            return float(text[:stop])
-        except ValueError:
-            continue
-    return 0.0
+    # The leading number in ASCII digits, D as well as E before an exponent; full-width digits, inf, nan and _ end
+    # it (tests/fixtures/locale_report.json).
+    found = _VAL_NUMBER.match(text)
+    return float(found.group().replace("d", "e").replace("D", "e")) if found else 0.0
 
 
 @intrinsic("Str", "Number", minimum=1)

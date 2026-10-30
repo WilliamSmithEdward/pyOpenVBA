@@ -38,6 +38,7 @@ import datetime as _dt
 import math
 import re
 import struct
+import unicodedata
 from contextlib import AbstractContextManager
 from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Context, Decimal, InvalidOperation, localcontext
 from typing import Any, Callable, Final
@@ -1600,9 +1601,23 @@ def utf16_text(text: str) -> str:
     return text if text.isascii() else text.encode('utf-16-le', 'surrogatepass').decode('utf-16-le', 'surrogatepass')
 
 
+#: Characters a text comparison reads as their narrow or katakana forms: the full-width and half-width forms block and
+#: the ideographic space.
+_WIDE_OR_HALF = re.compile(r"[　＀-￯]+")
+
+
+def _folded(text: str) -> str:
+    """Text as a text comparison weighs it, besides case: full-width forms as ASCII, half-width katakana as full,
+    a half-width voiced mark joined to its kana, and hiragana as katakana (tests/fixtures/locale_report.json,
+    text_compare_names.json)."""
+    narrowed = _WIDE_OR_HALF.sub(lambda found: unicodedata.normalize("NFKC", found.group()), text)
+    return "".join(chr(ord(one) + 0x60) if "ぁ" <= one <= "ゖ" or one in "ゝゞ" else one
+                   for one in narrowed)
+
+
 def string_order(first: str, second: str, *, text_compare: bool = False) -> int:
     if text_compare:
-        first, second = utf16_text(first).upper(), utf16_text(second).upper()
+        first, second = _folded(utf16_text(first)).upper(), _folded(utf16_text(second)).upper()
     if first.isascii() and second.isascii():
         return (first > second) - (first < second)
     left = first.encode('utf-16-be', 'surrogatepass')

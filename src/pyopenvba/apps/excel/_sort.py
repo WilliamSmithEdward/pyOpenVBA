@@ -145,17 +145,30 @@ def text_key(text: str, match_case: bool) -> bytes:
 
 def ordering_key(text: str, match_case: bool) -> bytes:
     """What Excel's sort, and a filter's comparisons, order text by: its word-sort key, :func:`text_key`. Windows'
-    CompareString, which orders Excel's text, takes a combining mark with nothing weighed before it, after only what
-    word sort passes over, \\x02 or a hyphen, otherwise than the key does, and such text reports itself unsupported
+    CompareString, which orders Excel's text, takes a combining mark otherwise than the key does where the mark does
+    not follow a character word sort weighs or another such mark, coming first, after a hyphen or \\x02, or after a
+    character word sort ignores, U+00AD or U+0528, where it orders no two strings consistently; and it adds up
+    diacritic weights past 255 where the key wraps them. Such text reports itself unsupported
     (tests/test_excel_sort_text.py, the strings it draws at random)."""
     weights = _weights()
+    accent = None
     for character in text:
         found = weights.get(ord(character))
-        if found is None or found[0]:
+        if found is None:
             break
-        if found[1]:
-            raise VBAUnsupportedError("ordering text with a combining mark before anything word sort weighs is not "
-                                      "implemented")
+        units, mark = found[0], found[1]
+        if units:
+            accent = (mark + b"\x02" * (len(units) // 2 - len(mark)))[-1]
+        elif not mark:
+            accent = None
+        elif accent is None:
+            raise VBAUnsupportedError("ordering text with a combining mark that does not follow a letter or another "
+                                      "mark is not implemented")
+        else:
+            accent += mark[0]
+            if accent > 0xFF:
+                raise VBAUnsupportedError("ordering text whose combining marks add up to a diacritic weight past 255 "
+                                          "is not implemented")
     return text_key(text, match_case)
 
 

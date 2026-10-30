@@ -2136,6 +2136,10 @@ class Interpreter:
             return self.host.call_global(key, [], {})
         if key in self._intrinsics:
             return self.call_intrinsic(key, [], {})
+        form = self.modules.get(key)
+        if form is not None and form.parsed.kind == "form":
+            # A UserForm's default instance, which the interpreter does not run (issue #251).
+            raise VBAUnsupportedError(f"{form.parsed.name} is a UserForm, which pyOpenVBA does not run")
         return UNRESOLVED
 
     def _read_member(self, expression: A.Member, frame: Frame | None) -> object:
@@ -2286,6 +2290,10 @@ class Interpreter:
         if constant is not UNRESOLVED:
             positional, named = self._arguments(args, frame)
             return _call_value(constant, positional, named)
+        if key in ("load", "unload"):
+            # The statements that load and unload a UserForm, which the interpreter does not run (issue #251).
+            raise VBAUnsupportedError(f"{callee.name}, which loads or unloads a UserForm, is not implemented: "
+                                      "UserForms do not run")
         raise VBARuntimeError(35, f"Sub or Function not defined: {callee.name}")
 
     def _len_of_declared(self, args: list[A.Argument], frame: Frame | None) -> object | None:

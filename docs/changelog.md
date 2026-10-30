@@ -1231,6 +1231,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `234.5` where `.` separates thousands. Before, the model read such a
   field with `.` as the decimal point.
 
+- A UserForm is reported with `VBAUnsupportedError`, as the README
+  promises for what the interpreter does not run. `Load frmTest` and
+  `Unload frmTest` were error 35, and `frmTest.Show` or a property of the
+  form error 424, both of which `On Error` could trap (#251).
+
 - Typing reads a percent sign before a number, `%5` as 5%, and a euro
   sign before or after one, `€5` and `5 €` as 5, as Excel does; a
   percent of an exponent, `1e2%`, keeps the scientific format, and of a

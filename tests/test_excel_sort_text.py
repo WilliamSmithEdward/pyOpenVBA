@@ -80,26 +80,30 @@ def test_styles_named_beyond_ascii_are_refused_found_listed_and_saved_as_in_exce
     assert [html.unescape(name) for name in re.findall(r'<cellStyle name="([^"]*)"', styles)] == STYLES["saved"]
 
 
-@pytest.mark.parametrize("text", ["\u0301a", "\u4e2d", "\u0385", "\x02\u0301a", "-\u0301b"],
+@pytest.mark.parametrize("text", ["\u0301a", "\u4e2d", "\u0385", "\x02\u0301a", "-\u0301b", "a-\u0301",
+                                  "\u03cd\u0528\u0309", "\u1f84\u0359"],
                          ids=["leading mark", "CJK", "dialytika tonos", "mark after a control character",
-                              "mark after a hyphen"])
+                              "mark after a hyphen", "mark after a letter and a hyphen", "mark after an ignored character",
+                              "marks past 255"])
 def test_text_the_model_does_not_sort_reports_itself(text: str) -> None:
     with pytest.raises(VBAUnsupportedError):
         ordering_key(text, False)
 
 
-def _mark_first(text: str) -> bool:
-    """Whether what Windows weighs as a combining mark, a diacritic and no primary weight, comes before anything it
-    weighs otherwise in ``text``."""
-    from pyopenvba.apps.excel._sort_weights import WEIGHTS
+def test_text_compare_string_orders_inconsistently_reports_itself() -> None:
+    """CompareString puts U+1FE0 after U+03CD U+0528 U+0309 but before U+03CD U+0309, which it calls equal to that,
+    and live Excel's sort did the same (U+0528 is a character word sort ignores): no key orders that."""
+    with pytest.raises(VBAUnsupportedError):
+        ordering_key("\u03cd\u0528\u0309", False)
+    assert ordering_key("\u1fe0", False) < ordering_key("\u03cd\u0309", False)
 
-    for character in text:
-        primary, diacritic = WEIGHTS[ord(character)][:2]
-        if primary:
-            return False
-        if diacritic:
-            return True
-    return False
+
+def _orderable(text: str) -> bool:
+    try:
+        ordering_key(text, False)
+    except VBAUnsupportedError:
+        return False
+    return True
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="CompareStringEx is Windows'")
@@ -107,13 +111,13 @@ def test_fresh_strings_sort_as_compare_string_orders_them() -> None:
     compare = _windows.WinDLL("kernel32").CompareStringEx
     compare.argtypes = [ctypes.c_wchar_p, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_int, ctypes.c_wchar_p,
                         ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
-    pick = random.Random()
+    pick = random.Random(20261030)
     alphabet = sorted({character for text, _ignoring, _matching in KEYS for character in text})
     missed: list[tuple[str, str, bool]] = []
     for _ in range(20000):
         first, second = ("".join(pick.choice(alphabet) for _ in range(pick.randint(1, 6))) for _ in range(2))
-        if _mark_first(first) or _mark_first(second):
-            # Text the model reports itself unable to order (see the test above).
+        if not (_orderable(first) and _orderable(second)):
+            # Text the model reports itself unable to order (see the tests above).
             continue
         for matching in (False, True):
             mine = (ordering_key(first, matching) > ordering_key(second, matching)) - \

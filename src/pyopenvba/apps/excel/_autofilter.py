@@ -1455,6 +1455,10 @@ class AutoFilter(ExcelObject):
         return view(self.table)
 
     @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member
     def Range(self) -> object:
         found = self.state()
         if self.table is not None:
@@ -1531,6 +1535,14 @@ class Filters(VBACollection, ExcelObject):
 
     def vba_items(self) -> list[object]:
         return [Filter(self.owner, index) for index in range(1, self.owner.state().area.columns + 1)]
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
 
 class Filter(ExcelObject):

@@ -5839,6 +5839,10 @@ class Names(VBACollection, ExcelObject):
             scopes = [self.sheet.name] if not owner or _names.same_sheet_name(owner, self.sheet.name) else []
         elif owner and owner.casefold() != self.book.name.casefold():
             scopes = [owner]
+        elif owner and any(_names.same_sheet_name(sheet.name, owner) for sheet in self.book.sheets_):
+            # A book Workbooks.Add(xlWBATWorksheet) made is named for its sheet, Sheet1: Sheet1!Local is the sheet's
+            # own name first (tests/fixtures/small_members.json).
+            scopes = [owner, ""]
         else:
             scopes = ([self.book.sheets_[0].name] if self.book.sheets_ and not owner else []) + [""]
         for scope in scopes:

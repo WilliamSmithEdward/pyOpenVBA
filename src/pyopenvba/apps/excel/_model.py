@@ -5347,6 +5347,13 @@ class NameEntry:
     visible: bool = True
     comment: str = ""
     invalidated: bool = False
+    #: Macro metadata (see _name_macro): 0 for an ordinary name, 1 a function, 2 a command; the category's
+    #: functionGroupId; and whether any of it changed, so a name read from a file keeps its attributes as written.
+    macro_type: int = 0
+    shortcut_key: str = ""
+    category: str = ""
+    group: int = 0
+    macro_changed: bool = False
 
 
 class Names(VBACollection, ExcelObject):
@@ -5458,8 +5465,6 @@ class Names(VBACollection, ExcelObject):
             Name = NameLocal
         if Name is MISSING:
             raise error(449)
-        if any(value is not MISSING for value in (MacroType, ShortcutKey, Category, CategoryLocal)):
-            raise VBAUnsupportedError("Macro name metadata is not implemented")
         wanted = _names.canonical(self.book, to_text(Name), self.sheet)
         owner = self.sheet or self.book.active_sheet
         if owner is None:
@@ -5502,6 +5507,9 @@ class Names(VBACollection, ExcelObject):
         entry.refers_to = text
         if Visible is not MISSING:
             entry.visible = to_bool(Visible)
+        from pyopenvba.apps.excel._name_macro import added
+
+        added(entry, MacroType, ShortcutKey, Category, CategoryLocal)
         _names.changed(self.book, entry.name)
         return DefinedName(entry)
 
@@ -5574,6 +5582,74 @@ class DefinedName(ExcelObject):
     def _set_comment(self, value: object) -> None:
         self.entry.comment = to_text(value)
         _names.changed(self.entry.book)
+
+    @member
+    def MacroType(self) -> object:
+        """xlFunction or xlCommand, or xlNone for an ordinary name (see _name_macro)."""
+        from pyopenvba.apps.excel._name_macro import macro_type
+
+        return VBAInt(macro_type(self.entry), "Long")
+
+    @setter("MacroType")
+    def _set_macro_type(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_macro_type
+
+        set_macro_type(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def ShortcutKey(self) -> object:
+        from pyopenvba.apps.excel._name_macro import shortcut_key
+
+        return shortcut_key(self.entry)
+
+    @setter("ShortcutKey")
+    def _set_shortcut_key(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_shortcut_key
+
+        set_shortcut_key(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def Category(self) -> object:
+        from pyopenvba.apps.excel._name_macro import category
+
+        return category(self.entry)
+
+    @setter("Category")
+    def _set_category(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_category
+
+        set_category(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def CategoryLocal(self) -> object:
+        return self.Category()
+
+    @setter("CategoryLocal")
+    def _set_category_local(self, value: object) -> None:
+        self._set_category(value)
+
+    @member
+    def WorkbookParameter(self) -> object:
+        """False: Excel refuses every setting with error 5 (tests/fixtures/name_macro.json)."""
+        return False
+
+    @setter("WorkbookParameter")
+    def _set_workbook_parameter(self, value: object) -> None:
+        raise error(5)
+
+    @member
+    def ValidWorkbookParameter(self) -> object:
+        """True for a workbook's own name for one cell written all absolute, $A$1, once the workbook has been saved
+        (tests/fixtures/name_macro.json); never for a macro's name."""
+        from pyopenvba._a1 import split_sheet
+
+        if not self.entry.book.path or split_sheet(self.entry.name)[0] or self.entry.macro_type:
+            return False
+        sheet, bare = split_sheet(self.entry.refers_to.lstrip("="))
+        return bool(sheet) and re.fullmatch(r"\$[A-Za-z]{1,3}\$[0-9]+", bare) is not None
 
     @member
     def Parent(self) -> object:

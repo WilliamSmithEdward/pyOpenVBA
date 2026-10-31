@@ -105,6 +105,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `Names("Sheet1!Local")` finds the sheet's own name in a workbook
+  `Workbooks.Add(xlWBATWorksheet)` made, which Excel names Sheet1 after
+  its sheet, instead of raising error 1004.
+
 - The checklist's `Range.Sort` row was split by undoubled quotes. A test
   now checks that every row has its eight fields.
 

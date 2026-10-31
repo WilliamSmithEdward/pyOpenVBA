@@ -70,6 +70,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, VBAInt, error
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
+    from pyopenvba.interpreter._locale import Locale
     from pyopenvba.apps.excel._styles import Style
 
 ASCENDING, DESCENDING = 1, 2
@@ -109,21 +110,111 @@ def _weights() -> dict[int, tuple[bytes, bytes, bytes, bytes, bytes]]:
             for code, (primary, accent, ignoring, matching, skipped) in WEIGHTS.items()}
 
 
-def text_key(text: str, match_case: bool) -> bytes:
+#: The extra weights' flags (_sort_weights_cjk): a small kana, a katakana, a half-width form, a kana at all; and a
+#: character whose weights come from the one before it, which reports itself unsupported.
+_SMALL, _KATAKANA, _HALF, _KANA, _CONTEXTUAL = 1, 2, 4, 8, 16
+#: The prolonged sound marks, full and half width, which take the vowel of the kana before them.
+_PROLONGED = {0x30FC: 0, 0xFF70: _HALF}
+
+
+@cache
+def _cjk(locale: str) -> tuple[dict[int, tuple[bytes, bytes, bytes, bytes, bytes, int]], dict[int, bytes]]:
+    """Kana, CJK symbols, full-width forms and ``locale``'s Han ideographs, each with its weights and extra-weight
+    flags, with the characters of the en-US table ``locale`` weighs otherwise (an empty primary and flag 16 for one
+    whose weights come from the character before it); and the vowel a prolonged sound mark takes after each kana."""
+    from pyopenvba.apps.excel._sort_weights_cjk import HAN, JAPANESE, KANA, VOWEL
+
+    table = {code: (bytes.fromhex(primary), bytes.fromhex(accent), bytes.fromhex(ignoring), bytes.fromhex(matching),
+                    bytes.fromhex(skipped), flags)
+             for code, (primary, accent, ignoring, matching, skipped, flags) in KANA.items()}
+    if locale == "ja-JP":
+        for code, weights in JAPANESE.items():
+            if weights is None:
+                table[code] = (b"", b"", b"", b"", b"", _CONTEXTUAL)
+            else:
+                primary, accent, ignoring, matching, skipped = weights
+                table[code] = (bytes.fromhex(primary), bytes.fromhex(accent), bytes.fromhex(ignoring),
+                               bytes.fromhex(matching), bytes.fromhex(skipped), 0)
+    runs, short = HAN[locale]
+    for first, weight, count in runs:
+        for step in range(count):
+            table[first + step] = ((weight + step).to_bytes(4, "big"), b"", b"", b"", b"", 0)
+    for at in range(0, len(short), 8):
+        found = short[at + 4:at + 8]
+        table[int(short[at:at + 4], 16)] = (b"" if found == "0000" else bytes.fromhex(found), b"", b"", b"", b"", 0)
+    return table, {code: bytes.fromhex(vowel) for code, vowel in VOWEL.items()}
+
+
+def _extra(places: list[int], marks: bytes) -> bytes:
+    """The extra weights of a string's kana, one for each kana in order, each section's trailing defaults cut: small
+    or not; whether it is a prolonged sound mark, 05, or not, 03, then 02; katakana or hiragana; half or full width
+    (scripts/bake_sort_weights.py, the strings tests/test_excel_sort_text.py draws)."""
+    if not places:
+        return b""
+    small = bytes(0xC4 if flags & _SMALL else 0xC6 for flags in places).rstrip(b"\xc6")
+    prolonged = marks.rstrip(b"\x03") + b"\x02"
+    kind = bytes(0xC4 if flags & _KATAKANA else 0xE4 for flags in places).rstrip(b"\xe4")
+    width = bytes(0xC4 if flags & _HALF else 0xC5 for flags in places).rstrip(b"\xc5")
+    return small + b"\xff" + prolonged + kind + b"\xff" + width + b"\xff"
+
+
+def text_key(text: str, match_case: bool, locale: Locale | None = None) -> bytes:
     """Text's sort key as Windows word sort (en-US) makes it, which Excel's sort orders text by: each character's
     primary weights in turn; then its diacritic weight for each of them, a combining mark adding its own to the
     one before it, modulo 256; then its case weight, matched or ignored; then, for a character word sort passes over
     but for ties, a hyphen, an apostrophe, a dash or a control character, its place, 0xFFFF less the primary weights
     before it, and its weight. A diacritic or case weight is 2 where a character has none, and those at the end are
-    cut, with any that came to 1 (scripts/bake_sort_weights.py; tests/fixtures/sort_keys.json and sort_text.json)."""
+    cut, with any that came to 1 (scripts/bake_sort_weights.py; tests/fixtures/sort_keys.json and sort_text.json).
+
+    With a ``locale``, kana, CJK symbols, full-width forms and that locale's Han ideographs weigh too, and the key
+    gains the kana's extra weights (:func:`_extra`); a prolonged sound mark takes the vowel, the smallness and the
+    kind of the kana before it (tests/test_excel_sort_text.py). Without one, as for names, they report themselves
+    unsupported."""
     weights = _weights()
+    cjk, vowels = _cjk(locale.name) if locale is not None else ({}, {})
     primary, accents, cases, passed = bytearray(), bytearray(), bytearray(), bytearray()
+    places: list[int] = []
+    marks = bytearray()
+    kana: int | None = None  # the kana the last character was or prolonged
+    previous = b""  # the last character's primary weights
     for index, character in enumerate(text):
-        found = weights.get(ord(character))
+        code = ord(character)
+        found = None if code in cjk else weights.get(code)
+        if code in cjk:
+            units, accent, ignoring, matching, skipped, flags = cjk[code]
+            if flags & _CONTEXTUAL:
+                raise VBAUnsupportedError("sorting text with a character weighed by the one before it is not "
+                                          "implemented")
+            found = (units, accent, ignoring, matching, skipped)
+            if flags & _KANA:
+                places.append(flags)
+                marks.append(0x03)
+                kana = code
+            else:
+                kana = None
+        elif found is None and code in _PROLONGED and locale is not None:
+            if kana is not None:
+                places.append(places[-1] & ~_HALF | _PROLONGED[code])
+                marks.append(0x05)
+                found = (vowels[kana], b"", b"", b"", b"")
+            elif index == 0:
+                # First, it weighs FF FF and takes no place among the diacritics and the cases.
+                primary += b"\xff\xff"
+                continue
+            elif previous and previous[:2] != b"\xfd\xff":
+                # After anything but a kana, it repeats that one's primary weights.
+                found = (previous, b"", b"", b"", b"")
+            else:
+                raise VBAUnsupportedError("sorting text with a prolonged sound mark after a mark or a character "
+                                          "passed over is not implemented")
+        else:
+            kana = None
         if found is None:
             raise VBAUnsupportedError("sorting text with characters beyond Latin, Greek and Cyrillic, their marks "
-                                      "and punctuation is not implemented")
+                                      "and punctuation is not implemented" if locale is None else
+                                      "sorting text with these characters is not implemented")
         units, accent, ignoring, matching, skipped = found
+        previous = units
         if not units and accent:
             if index == 0:
                 # Windows' CompareString, Excel's, takes a mark that begins the text otherwise than its sort keys do.
@@ -135,16 +226,17 @@ def text_key(text: str, match_case: bool) -> bytes:
             continue
         for at in range(0, len(skipped), 2):
             passed += (0xFFFF - len(primary) // 2).to_bytes(2, "big") + skipped[at:at + 2]
-        count = len(units) // 2
+        # An ideograph Windows weighs in four bytes, after FD FF, is one character to the diacritics and the case.
+        count = 1 if units[:2] == b"\xfd\xff" else len(units) // 2
         case = matching if match_case else ignoring
         primary += units
         accents += accent + b"\x02" * (count - len(accent))
         cases += case + b"\x02" * (count - len(case))
-    return b"\x01".join((bytes(primary), bytes(accents).rstrip(b"\x01\x02"), bytes(cases).rstrip(b"\x01\x02"), b"",
-                         bytes(passed))) + b"\x00"
+    return b"\x01".join((bytes(primary), bytes(accents).rstrip(b"\x01\x02"), bytes(cases).rstrip(b"\x01\x02"),
+                         _extra(places, bytes(marks)), bytes(passed))) + b"\x00"
 
 
-def ordering_key(text: str, match_case: bool) -> bytes:
+def ordering_key(text: str, match_case: bool, locale: Locale | None = None) -> bytes:
     """What Excel's sort, and a filter's comparisons, order text by: its word-sort key, :func:`text_key`. Windows'
     CompareString, which orders Excel's text, takes a combining mark otherwise than the key does where the mark does
     not follow a character word sort weighs or another such mark, coming first, after a hyphen or \\x02, or after a
@@ -152,9 +244,15 @@ def ordering_key(text: str, match_case: bool) -> bytes:
     diacritic weights past 255 where the key wraps them. Such text reports itself unsupported
     (tests/test_excel_sort_text.py, the strings it draws at random)."""
     weights = _weights()
+    cjk = _cjk(locale.name)[0] if locale is not None else {}
     accent = None
     for character in text:
-        found = weights.get(ord(character))
+        code = ord(character)
+        found = cjk[code][:2] if code in cjk else weights.get(code)
+        if found is None and code in _PROLONGED and locale is not None:
+            # A prolonged sound mark weighs as a letter with no diacritic.
+            accent = 0x02
+            continue
         if found is None:
             break
         units, mark = found[0], found[1]
@@ -170,11 +268,11 @@ def ordering_key(text: str, match_case: bool) -> bytes:
             if accent > 0xFF:
                 raise VBAUnsupportedError("ordering text whose combining marks add up to a diacritic weight past 255 "
                                           "is not implemented")
-    return text_key(text, match_case)
+    return text_key(text, match_case, locale)
 
 
-def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]:
-    """A value's class, and what orders it within its class."""
+def _classified(value: object, key: Key, match_case: bool, locale: Locale | None = None) -> tuple[int, object]:
+    """A value's class, and what orders it within its class: text under ``locale``'s sort weights."""
     from pyopenvba.apps.excel._typing import typed_text
 
     if value is EMPTY or value is None:
@@ -195,7 +293,7 @@ def _classified(value: object, key: Key, match_case: bool) -> tuple[int, object]
         found = typed_text(text).value
         if isinstance(found, float):
             return _NUMBER, found
-    return _TEXT, ordering_key(text, match_case)
+    return _TEXT, ordering_key(text, match_case, locale)
 
 
 def _compare(first: tuple[int, object], second: tuple[int, object], descending: bool) -> int:
@@ -329,7 +427,7 @@ def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: boo
             raw = value(line, key)
             if charge_value is not None:
                 charge_value(raw)
-            row_keys.append(_classified(raw, key, match_case))
+            row_keys.append(_classified(raw, key, match_case, sheet.book.application.locale))
         classified[line] = row_keys
 
     def compare(one: int, other: int) -> int:

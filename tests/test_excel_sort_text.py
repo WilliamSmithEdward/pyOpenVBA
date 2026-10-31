@@ -30,6 +30,7 @@ import pytest
 from pyopenvba.apps.excel import ExcelApplication
 from pyopenvba.apps.excel._sort import ordering_key, text_key
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.interpreter._locale import EN_US, JA_JP, Locale
 
 FIXTURES = Path(__file__).parent / "fixtures"
 KEYS: list[list[str]] = json.loads((FIXTURES / "sort_keys.json").read_text(encoding="utf-8"))["cases"]
@@ -126,3 +127,93 @@ def test_fresh_strings_sort_as_compare_string_orders_them() -> None:
             if mine != theirs:
                 missed.append((first, second, matching))
     assert not missed, missed[:3]
+
+
+# --- kana and ideographs ------------------------------------------------------------------------------------------
+
+#: tests/fixtures/sort_keys_cjk.json: 1,500 strings of kana, ideographs, CJK symbols, full-width forms and ASCII
+#: with the keys Windows made of them under en-US and ja-JP, ignoring case and matching it
+#: (scripts/bake_sort_weights.py).
+CJK_KEYS: list[list[str]] = json.loads((FIXTURES / "sort_keys_cjk.json").read_text(encoding="utf-8"))["cases"]
+LOCALES = {"en-US": EN_US, "ja-JP": JA_JP}
+
+
+def _reported(text: str, matching: bool, locale: Locale) -> bytes | None:
+    try:
+        return ordering_key(text, matching, locale)
+    except VBAUnsupportedError:
+        return None
+
+
+@pytest.mark.parametrize("locale", sorted(LOCALES))
+def test_kana_and_ideographs_weigh_as_windows_weighs_them(locale: str) -> None:
+    """Every key the model makes is the one Windows made; the few it does not make are text it reports: a prolonged
+    sound mark after something not a kana, an iteration mark, a combining mark with no kana before it."""
+    column = 1 if locale == "en-US" else 3
+    missed: list[tuple[str, bool]] = []
+    reported = 0
+    for case in CJK_KEYS:
+        for offset, matching in ((0, False), (1, True)):
+            mine = _reported(case[0], matching, LOCALES[locale])
+            if mine is None:
+                reported += 1
+            elif mine.hex() != case[column + offset]:
+                missed.append((case[0], matching))
+    assert not missed, missed[:3]
+    assert reported < len(CJK_KEYS) // 5
+
+
+def test_ideographs_weigh_by_the_locale_and_names_weigh_none() -> None:
+    """ja-JP weighs the common ideographs in Japanese order, en-US in Unicode's; names, compared without a locale,
+    still report text beyond Latin, Greek and Cyrillic."""
+    assert ordering_key("亜", False, JA_JP) < ordering_key("一", False, JA_JP)
+    assert ordering_key("一", False, EN_US) < ordering_key("亜", False, EN_US)
+    with pytest.raises(VBAUnsupportedError):
+        text_key("あ", False)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="CompareStringEx is Windows'")
+@pytest.mark.parametrize("locale", sorted(LOCALES))
+def test_kana_and_ideographs_sort_as_compare_string_orders_them(locale: str) -> None:
+    compare = _windows.WinDLL("kernel32").CompareStringEx
+    compare.argtypes = [ctypes.c_wchar_p, ctypes.c_uint32, ctypes.c_wchar_p, ctypes.c_int, ctypes.c_wchar_p,
+                        ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+    pick = random.Random(20261031)
+    texts = [case[0] for case in CJK_KEYS]
+    missed: list[tuple[str, str, bool]] = []
+    for _ in range(20000):
+        first, second = pick.choice(texts), pick.choice(texts)
+        for matching in (False, True):
+            mine_first = _reported(first, matching, LOCALES[locale])
+            mine_second = _reported(second, matching, LOCALES[locale])
+            if mine_first is None or mine_second is None:
+                continue
+            mine = (mine_first > mine_second) - (mine_first < mine_second)
+            theirs = compare(locale, 0 if matching else 1, first, -1, second, -1, None, None, None) - 2
+            if mine != theirs:
+                missed.append((first, second, matching))
+    assert not missed, missed[:3]
+
+
+LIVE_SORTS: dict[str, Any] = json.loads((FIXTURES / "vba_locale_live.json").read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("locale", sorted(LIVE_SORTS))
+@pytest.mark.parametrize("matching", [False, True], ids=["ignoring case", "matching case"])
+def test_range_sort_orders_kana_and_kanji_as_live_excel_did(locale: str, matching: bool) -> None:
+    """Range.Sort of 25 kana, kanji, full-width and ASCII strings, as live Excel put them under each Regional format
+    (tests/fixtures/vba_locale_live.json): the kanji in Japanese order under ja-JP, in Unicode's under en-US."""
+    kind = "sort-case" if matching else "sort"
+    texts, order = next((payload, answer) for _label, case_kind, payload, answer in LIVE_SORTS[locale]["cases"]
+                        if case_kind == kind)
+    app = ExcelApplication(locale=locale)
+    app.add_workbook()
+    filled = "".join(f'    Cells({place + 1}, 3).Value = '
+                     + " & ".join(f"ChrW(&H{ord(char):04X})" for char in text)
+                     + f"\n    Cells({place + 1}, 4).Value = {place}\n" for place, text in enumerate(texts))
+    source = (f'Function P() As String\n{filled}    Range("C1:D{len(texts)}").Sort Key1:=Range("C1"), '
+              f'Order1:=xlAscending, Header:=xlNo, MatchCase:={matching}\n    Dim i As Long, s As String\n'
+              f'    For i = 1 To {len(texts)}\n        s = s & "," & Cells(i, 4).Value\n    Next\n'
+              '    P = Mid(s, 2)\nEnd Function\n')
+    app.add_module(source, name="M")
+    assert [int(place) for place in str(app.run("P")).split(",")] == order

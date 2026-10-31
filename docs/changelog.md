@@ -26,6 +26,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `tests/fixtures/excel_locale_live.json`. A `*` fill and a formula
   reading a month's name report themselves unsupported under ja-JP.
 
+- `Range.Sort` and the `Sort` object order kana, kanji, CJK symbols and
+  full-width forms as Excel does (#252). Kanji go in Japanese order under
+  ja-JP and in Unicode's under en-US. The model builds Windows' sort keys
+  from baked weights, equal to Windows' for 1,500 seeded strings in each
+  locale, `tests/fixtures/sort_keys_cjk.json`. Live Excel's sort of 25
+  such strings agrees under each format. Iteration marks report
+  themselves unsupported.
+
 - Custom lists work as Excel's do: `AddCustomList`, `DeleteCustomList`,
   `CustomListCount`, `GetCustomListContents` and `GetCustomListNum`.
   AutoFill steps along a list a macro added, in the case the cell shows.

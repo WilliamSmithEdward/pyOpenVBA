@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A sheet's sort fields answer as Excel's do. `SortField.Priority` reads
+  a field's place and moves it on a set. `Delete` takes a field out and
+  leaves it dead, and `ModifyKey` gives it a new key and keeps the rest.
+  `CustomOrder` reads back text given as its items joined by commas, and
+  a set takes text, a list's number or 0 for none. `SubField` keeps its
+  text, and on plain values that field then orders nothing. `Parent` is
+  the sheet's one `SortFields`, and `SortFields(0)` is error 1004. A save
+  writes the moved, deleted or changed fields to the `sortState` as Excel
+  does. 50 live cases agree, `tests/fixtures/sort_fields.json`. These
+  report themselves unsupported:
+  - saving a field with a `SubField`
+  - reading the `CustomOrder` of a field loaded from a file
+  - `Priority`, `Delete`, `ModifyKey`, `CustomOrder` and `SubField` sets
+    on a table's sort fields
+
 - `Workbook.Colors` and `Workbook.ResetColors` work as Excel's do. Colors
   reads the 56-colour palette or one slot and sets either. Cells, fonts
   and borders coloured by a slot follow it, and tabs keep Excel's own

@@ -61,11 +61,12 @@ from pyopenvba._a1 import Area, parse_area
 from pyopenvba._opc_xml import bounded_child, opc_part
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._visible import filtering, hidden_lines, unmeasured
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._values import ExcelError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, VBAInt, error, to_bool, to_integer
+from pyopenvba.interpreter._values import (EMPTY, MISSING, NOTHING, VBAArray, VBAInt, error, to_bool, to_integer,
+                                            to_text)
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -82,6 +83,8 @@ ON_VALUES, ON_CELL_COLOR, ON_FONT_COLOR, ON_ICON = 0, 1, 2, 3
 _NUMBER, _TEXT, _LOGICAL, _ERROR, _BLANK = range(5)
 #: A custom list's item, ahead of every other class (see _custom_lists).
 _LISTED = -1
+#: What a sort field reads where the reading is not measured.
+UNREAD = object()
 
 
 @dataclass(frozen=True)
@@ -622,13 +625,15 @@ class SortState:
         self.orientation = TOP_TO_BOTTOM
         self.method = 1
         self.original: tuple[object, ...] = (None, GUESS, False, TOP_TO_BOTTOM, 1, ())
+        #: The SortFields every Sort of the sheet hands out, which its fields name as their Parent.
+        self.collection: SortFields | None = None
 
 
 def settings_signature(state: SortState) -> tuple[object, ...]:
     area = (id(state.area.sheet), tuple(state.area.areas)) if state.area is not None else None
     return (area, state.header, state.match_case, state.orientation, state.method,
             tuple((id(field.key.sheet), tuple(field.key.areas), field.order, field.option, field.sort_on, field.color,
-                   field.icon, field.custom) for field in state.fields))
+                   field.icon, field.custom, field.subfield) for field in state.fields))
 
 
 def changed(sheet: Worksheet) -> bool:
@@ -651,6 +656,8 @@ def with_sort_state(sheet: Worksheet, xml: str) -> str:
             raise VBAUnsupportedError('Persisting unmeasured worksheet sort enums is not implemented')
         if state.orientation != TOP_TO_BOTTOM or state.method != 1:
             raise VBAUnsupportedError('Persisting non-default worksheet sort methods/orientations is not implemented')
+        if any(field.subfield is not EMPTY for field in state.fields):
+            raise VBAUnsupportedError("Persisting a sort field's SubField is not implemented")
         if any(field.option not in (0, 1) for field in state.fields):
             raise VBAUnsupportedError('Persisting custom worksheet sort data options is not implemented')
         if len(state.area.areas) != 1 or any(len(field.key.areas) != 1 for field in state.fields):
@@ -856,6 +863,8 @@ def _loaded_state(sheet: Worksheet) -> SortState:
             field = SortField(Range(sheet, [key]), order, 0, SORTED_BY[sort_by])
             if 'customList' in condition.attributes:
                 field.custom = _custom_items(str(condition.get('customList')))
+                field.custom_text = UNREAD
+            field.state = state
             if sort_by == 'icon':
                 field.icon = _condition_icon(condition.attributes.get('iconSet'), condition.attributes.get('iconId'))
             elif sort_by != 'value':
@@ -893,7 +902,9 @@ class SortObject(ExcelObject):
 
     @member
     def SortFields(self) -> object:
-        return SortFields(self)
+        if self.state.collection is None:
+            self.state.collection = SortFields(self)
+        return self.state.collection
 
     @method
     def SetRange(self, Rng: object = MISSING) -> object:
@@ -953,7 +964,9 @@ class SortObject(ExcelObject):
         across = state.orientation == LEFT_TO_RIGHT
         keys = [replace(_key(field.key, area, across, VBAInt(field.order, "Long"), VBAInt(field.option, "Long")),
                         on=field.sort_on, color=field.color, icon=field.icon, listed=field.custom)
-                for field in state.fields]
+                for field in state.fields if field.subfield is EMPTY]
+        if not keys:
+            raise VBAUnsupportedError("sorting with every field on a data type's field is not implemented")
         sort_area(target.sheet, area, keys, header=state.header == YES, match_case=state.match_case, across=across)
         from pyopenvba.apps.excel._events import recalculated
 
@@ -969,6 +982,20 @@ class SortFields(VBACollection, ExcelObject):
 
     def vba_items(self) -> list[object]:
         return list(self.owner.state.fields)
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        """A field by its number from 1; 0 is error 1004, past the last error 9 (tests/fixtures/sort_fields.json)."""
+        if int(to_integer(index, "Long")) == 0:
+            raise error(1004, "Application-defined or object-defined error")
+        return super().vba_lookup(index, items)
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
     @method
     def Clear(self) -> object:
@@ -986,6 +1013,8 @@ class SortFields(VBACollection, ExcelObject):
         field = SortField(Key, ASCENDING if Order is MISSING else int(to_integer(Order, "Long")),
                           0 if DataOption is MISSING else int(to_integer(DataOption, "Long")), on)
         field.custom = custom
+        field.custom_text = custom_text(CustomOrder, custom)
+        field.state = self.owner.state
         self.owner.state.fields.append(field)
         return field
 
@@ -1011,9 +1040,108 @@ class SortField(ExcelObject):
         self.icon: tuple[int, int] | None = None
         #: The custom order's items, which a file keeps as its customList; None for none.
         self.custom: tuple[str, ...] | None = None
+        #: What CustomOrder reads: the order given as text, its items joined by commas; None, for none or a list's
+        #: number, reads as error 458; UNREAD for an order a file gave, which Excel's reading is not measured for.
+        self.custom_text: str | None | object = None
+        #: The data type's field it sorts by, as SubField reads it; Empty for none.
+        self.subfield: object = EMPTY
+        #: The sort settings it belongs to; Delete takes it out of them and leaves it dead, error 424.
+        self.state: SortState | None = None
+        self.invalidated = False
 
     def vba_no_member(self, name: str) -> Exception:
         return error(438) if name.casefold() == 'name' else super().vba_no_member(name)
+
+    def _fields(self) -> list[SortField]:
+        if self.state is None:
+            raise VBAUnsupportedError("a sort field outside a sheet's sort settings is not implemented")
+        return self.state.fields
+
+    @member
+    def Parent(self) -> object:
+        """The SortFields it was reached through, which every Sort of the sheet hands out
+        (tests/fixtures/sort_fields.json)."""
+        if self.state is None or self.state.collection is None:
+            raise VBAUnsupportedError("a sort field outside a sheet's sort settings is not implemented")
+        return self.state.collection
+
+    @member
+    def Application(self) -> object:
+        return self.key.sheet.book.application
+
+    @member
+    def Priority(self) -> object:
+        return VBAInt(self._fields().index(self) + 1, "Long")
+
+    @setter("Priority")
+    def _set_priority(self, value: object) -> None:
+        """Moves the field to that place, the others keeping their order; a place outside 1 to their number is
+        error 5 (tests/fixtures/sort_fields.json)."""
+        fields = self._fields()
+        place = int(to_integer(value, "Long"))
+        if not 1 <= place <= len(fields):
+            raise error(5, "Invalid procedure call or argument")
+        fields.remove(self)
+        fields.insert(place - 1, self)
+
+    @method
+    def Delete(self) -> object:
+        self._fields().remove(self)
+        self.invalidated = True
+        return EMPTY
+
+    @method
+    def ModifyKey(self, Key: object = MISSING) -> object:
+        """A new key, all else kept; a range of several areas is error 1004, one on another sheet error 438, and
+        what is not a range error 13 (tests/fixtures/sort_fields.json)."""
+        if not isinstance(Key, Range):
+            raise error(13, "Type mismatch")
+        if len(Key.areas) != 1:
+            raise error(1004, "Application-defined or object-defined error")
+        if Key.sheet is not self.key.sheet:
+            raise error(438, "Object doesn't support this property or method")
+        self.key = Range(Key.sheet, list(Key.areas))
+        return EMPTY
+
+    @member
+    def CustomOrder(self) -> object:
+        """The order given as text, its items joined by commas; none, or a list's number, is error 458
+        (tests/fixtures/sort_fields.json)."""
+        if self.custom_text is UNREAD:
+            raise VBAUnsupportedError("reading the CustomOrder of a sort field a file gave is not implemented")
+        if self.custom_text is None:
+            raise error(458, "Variable uses an Automation type not supported in Visual Basic")
+        return self.custom_text
+
+    @setter("CustomOrder")
+    def _set_custom_order(self, value: object) -> None:
+        """As SortFields.Add takes it, 0 for none; a number below 0 or past the last list, or an array, is error 5
+        (tests/fixtures/sort_fields.json)."""
+        if isinstance(value, VBAArray):
+            raise error(5, "Invalid procedure call or argument")
+        if not isinstance(value, str) and int(to_integer(value, "Long")) <= 0:
+            if int(to_integer(value, "Long")) < 0:
+                raise error(5, "Invalid procedure call or argument")
+            self.custom = self.custom_text = None
+            return
+        try:
+            custom = custom_order(self.key.sheet.book.application, value)
+        except VBARuntimeError as failure:
+            if failure.number != 1004:
+                raise
+            raise error(5, "Invalid procedure call or argument") from None
+        self.custom = custom
+        self.custom_text = custom_text(value, custom)
+
+    @member
+    def SubField(self) -> object:
+        return self.subfield
+
+    @setter("SubField")
+    def _set_subfield(self, value: object) -> None:
+        """Kept as text; on cells of plain values the field then orders nothing, Apply sorting by the others
+        (tests/fixtures/sort_fields.json)."""
+        self.subfield = to_text(value)
 
     @member
     def Key(self) -> object:
@@ -1080,6 +1208,14 @@ def _custom_items(text: str) -> tuple[str, ...]:
     if not all(items):
         raise VBAUnsupportedError("a custom order with an empty item is not implemented")
     return items
+
+
+def custom_text(value: object, custom: tuple[str, ...] | None) -> str | None:
+    """What CustomOrder reads for an order given as ``value``: text reads back as its items joined by commas, empty
+    text as empty; none, or a list's number, reads as nothing (tests/fixtures/sort_fields.json)."""
+    if not isinstance(value, str):
+        return None
+    return ','.join(custom) if custom is not None else ''
 
 
 def custom_order(app: Application, value: object) -> tuple[str, ...] | None:

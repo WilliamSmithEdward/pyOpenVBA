@@ -1857,6 +1857,28 @@ RectangularGradient,RectangleBottom,property,As Double,,PARTIAL,tests/fixtures/i
 RectangularGradient,RectangleLeft,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"0 to 1 or error 1004, written only when not 0."
 RectangularGradient,RectangleRight,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"0 to 1 or error 1004, written only when not 0."
 RectangularGradient,RectangleTop,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"0 to 1 or error 1004, written only when not 0."
+Scenario,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The application.
+Scenario,ChangeScenario,method,"ChangeScenario(ChangingCells As Variant, [Values As Variant]) As Variant",,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"New cells and values, adding ""Modified by"" to the comment."
+Scenario,ChangingCells,"property, read-only",As Range,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"The cells, as one range."
+Scenario,Comment,property,As String,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"Its comment; set, no ""Modified by"" is added."
+Scenario,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,xlCreatorCode.
+Scenario,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,Takes it away.
+Scenario,Hidden,property,As Boolean,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"False unless given; set, adds ""Modified by""."
+Scenario,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,Its place among the sheet's scenarios.
+Scenario,Locked,property,As Boolean,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"True unless added to a protected sheet; set, adds ""Modified by""."
+Scenario,Name,property,As String,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,Its name.
+Scenario,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The sheet.
+Scenario,Show,method,Show() As Variant,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,Writes the values into the cells as Value would; saved as show.
+Scenario,Values,"property, read-only",As Variant,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"An array from 1 of the values as text, or one of them by number."
+Scenarios,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Scenarios,Add,method,"Add(Name As String, ChangingCells As Variant, [Values As Variant], [Comment As Variant], [Locked As Variant], [Hidden As Variant]) As Scenario",,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"Values kept as text, the cells' own for those left out; Excel's ""Created by"" comment; unlocked on a protected sheet when Locked is left out; 1004 for an empty, long or repeated name, a formula, or one Integer value."
+Scenarios,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The application.
+Scenarios,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,How many the sheet has.
+Scenarios,CreateSummary,method,"CreateSummary([ReportType As XlSummaryReportType], [ResultCells As Variant]) As Variant",,MISSING,,
+Scenarios,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,xlCreatorCode.
+Scenarios,Item,method,Item(Index As Variant) As Scenario,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,By number or by name ignoring case; one that is not there is 1004.
+Scenarios,Merge,method,Merge(Source As Variant) As Variant,,MISSING,,
+Scenarios,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The sheet.
 Series,Application,"property, read-only",As Application,,MISSING,,
 Series,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,MISSING,,
 Series,ApplyPictToEnd,property,As Boolean,,MISSING,,

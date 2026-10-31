@@ -1431,6 +1431,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
             patched = with_conditional_rules(patched, sheet.conditional_formats,
                                              extension=not sheet.conditional_foreign)
             sheet.conditional_changed = False
+        from pyopenvba.apps.excel._scenarios import written as with_scenarios
+
+        patched = with_scenarios(sheet, patched)
         if sheet.dirty or patched != original:
             package.write(sheet.part_name, patched.encode("utf-8"))
             if outline_changes and sheet.outline_state is not None:

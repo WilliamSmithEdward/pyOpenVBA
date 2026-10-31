@@ -163,6 +163,11 @@ class Cell:
 # --- Application ------------------------------------------------------------------------
 
 
+def coalesced(areas: list[Area]) -> list[Area]:
+    """Areas joined as Union joins them (see _coalesced)."""
+    return _coalesced(areas)
+
+
 def _coalesced(areas: list[Area]) -> list[Area]:
     """Union's areas as Excel leaves them: two areas merge while one holds the
     other, or they share their rows or their columns and touch or overlap; the
@@ -2266,6 +2271,10 @@ class Worksheet(ExcelObject):
         self.tab_changed = False
         #: The sheet's manual page breaks, read from its file when first needed (see _page_breaks).
         self.page_breaks: SheetBreaks | None = None
+        #: The sheet's scenarios, read from its part when first needed, and whether a macro changed them, so a save
+        #: writes them (see _scenarios).
+        self.scenarios: Any = None
+        self.scenarios_changed = False
         #: An AdvancedFilter has no dropdowns but retains its filtered list.
         self.advanced_filter: Area | None = None
         self.advanced_filter_changed = False
@@ -2688,6 +2697,13 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._page_setup import PageSetup
 
         return PageSetup(self)
+
+    @method
+    def Scenarios(self, Index: object = MISSING) -> object:
+        """The sheet's scenarios, or one of them (see _scenarios)."""
+        from pyopenvba.apps.excel._scenarios import Scenarios, find
+
+        return Scenarios(self) if Index is MISSING else find(self, Index)
 
     @member
     def HPageBreaks(self) -> object:

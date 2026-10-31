@@ -18,6 +18,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   - Null
   - `ColorIndex` of a colour a changed palette does not hold
 
+- `Workbook.DeleteNumberFormat` works as Excel's does. Every cell, row,
+  column and cell style using the custom format shows General and keeps
+  the rest of its format. A built-in format, `""` or a protected sheet
+  is error 1004, and a format the workbook does not hold is passed over.
+  17 live cases agree, `tests/fixtures/delete_number_format.json`.
+
 - Workbook settings answer as Excel's do:
   - `DefaultTableStyle` and `DefaultPivotTableStyle` read and set as
     `TableStyle` objects and save to `styles.xml`. `ListObjects.Add`
@@ -64,6 +70,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   it, as Excel does: turning it on rounds the workbook's numbers, and
   numbers written, formats given and formula results round from then on.
   It is saved and read as `calcPr fullPrecision="0"`.
+
+- `Worksheet.CustomProperties` adds, reads, changes and deletes a sheet's
+  custom properties as Excel does, and saves them as Excel's own parts.
+  A workbook read from a file brings its sheets' properties with it.
 
 - `Range.Errors` answers Excel's error checks for a cell, a number
   stored as text, a two-digit text year, an error result, an inconsistent

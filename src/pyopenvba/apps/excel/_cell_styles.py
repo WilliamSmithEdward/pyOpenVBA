@@ -562,6 +562,12 @@ def _in_first_font(style: S.Style, normal: int, old: S.Font, new: S.Font) -> S.S
     return replace(style, font=new)
 
 
+def restyle_book(book: Workbook, change: Callable[[S.Style], S.Style | None]) -> None:
+    """Change every cell, row and column format of the book and the table's cell xfs, each keeping its own xf, as
+    Workbook.DeleteNumberFormat does (see :func:`_follow`)."""
+    _follow(book, change)
+
+
 def _follow(book: Workbook, change: Callable[[S.Style], S.Style | None]) -> None:
     """Give a change to the table's cell xfs, in place, and to every cell, row and column format of the book,
     each keeping its own xf, so that two that come to say the same stay apart as Excel keeps them."""

@@ -115,6 +115,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._editing import CellShift
     from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._sort import SortState
     from pyopenvba.apps.excel._tables import Table
 
 AND, OR, TOP_ITEMS, BOTTOM_ITEMS, TOP_PERCENT, BOTTOM_PERCENT, VALUES = 1, 2, 3, 4, 5, 6, 7
@@ -838,6 +839,10 @@ class SheetFilter:
     fields: dict[int, FieldFilter] = field(default_factory=lambda: {})
     uid: str = ""
     tail: str = ""
+    #: The filter's own sort settings, which AutoFilter.Sort keeps; None until a macro reaches them. Once applied, a
+    #: save writes them as ``tail`` (see _sort.refresh_filter_sort).
+    sort: SortState | None = None
+    sort_applied: bool = False
 
     def apply(self, sheet: Worksheet) -> None:
         """Show each row under the header that meets every column's criteria, and hide the rest."""
@@ -1455,6 +1460,15 @@ class AutoFilter(ExcelObject):
         return view(self.table)
 
     @member
+    def Sort(self) -> object:
+        """The filter's own sort settings, apart from the sheet's (tests/fixtures/autofilter_sort.json)."""
+        if self.table is not None:
+            raise VBAUnsupportedError("the Sort of a table's AutoFilter is not implemented")
+        from pyopenvba.apps.excel._sort import AutoFilterSort
+
+        return AutoFilterSort(self)
+
+    @member
     def Range(self) -> object:
         found = self.state()
         if self.table is not None:
@@ -1500,7 +1514,9 @@ class AutoFilter(ExcelObject):
 
             # A table's clears with no error when nothing is set (tests/fixtures/table_autofilter/).
             clear(self.table)
-        else:
+        elif self.state().fields:
+            # With no criteria the sheet's own, unlike Worksheet.ShowAllData, does nothing and says nothing
+            # (tests/fixtures/autofilter_sort.json).
             show_all_own(self.sheet)
         return EMPTY
 

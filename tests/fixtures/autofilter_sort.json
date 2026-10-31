@@ -1,0 +1,170 @@
+{
+ "measured_at": "2026-10-31T22:07:35.887216+00:00",
+ "source": "Private Function Grid(ByVal ws As Worksheet) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(\"A2:B6\")\n        s = s & \"|\" & c.Formula\n    Next\n    Grid = Mid(s, 2)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:B6\").Value = Application.Transpose(Application.Transpose(Array(Array(\"h1\", \"h2\"), Array(3, \"c\"), Array(1, \"a\"), Array(5, \"E\"), Array(2, \"b\"), Array(4, \"e\"))))\n    ws.Range(\"A1:B6\").AutoFilter\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")\n        Tried = ws.AutoFilter.Sort.SortFields.Count & \" \" & ws.Sort.SortFields.Count\n        wb.SaveAs folder & \"\\added.xlsx\", xlOpenXMLWorkbook\n    Case 1\n        ws.Sort.SortFields.Add ws.Range(\"A2:A6\")\n        Tried = ws.AutoFilter.Sort.SortFields.Count & \" \" & ws.Sort.SortFields.Count\n        wb.SaveAs folder & \"\\sheet.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")\n        ws.AutoFilter.Sort.Apply\n        Tried = Grid(ws)\n        wb.SaveAs folder & \"\\applied.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"B2:B6\"), , xlDescending\n        ws.AutoFilter.Sort.Apply\n        Tried = Grid(ws) & \" \" & ws.AutoFilter.Sort.Rng.Address & \" \" & ws.Sort.SortFields.Count\n        wb.SaveAs folder & \"\\down.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"B2:B6\")\n        ws.AutoFilter.Sort.MatchCase = True\n        ws.AutoFilter.Sort.Apply\n        Tried = Grid(ws)\n        wb.SaveAs folder & \"\\case.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")\n        ws.AutoFilter.Sort.Apply\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"B2:B6\")\n        Tried = ws.AutoFilter.Sort.SortFields.Count\n        wb.SaveAs folder & \"\\later.xlsx\", xlOpenXMLWorkbook\n    Case 6\n        ws.AutoFilter.Sort.SetRange ws.Range(\"A1:B3\")\n        Tried = ws.AutoFilter.Sort.Rng.Address\n    Case 7\n        Tried = ws.AutoFilter.Sort.Header\n    Case 8\n        ws.AutoFilter.Sort.Header = xlNo\n        Tried = ws.AutoFilter.Sort.Header\n    Case 9\n        ws.AutoFilter.Sort.MatchCase = True\n        Tried = ws.AutoFilter.Sort.MatchCase & \" \" & ws.Sort.MatchCase\n    Case 10\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")\n        ws.AutoFilter.ShowAllData\n        Tried = ws.AutoFilter.Sort.SortFields.Count\n    Case 11\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")\n        ws.AutoFilterMode = False\n        ws.Range(\"A1:B6\").AutoFilter\n        Tried = ws.AutoFilter.Sort.SortFields.Count\n    Case 12\n        Tried = TypeName(ws.AutoFilter.Sort) & \" \" & TypeName(ws.AutoFilter.Sort.Parent) & \" \" & TypeName(ws.AutoFilter.Sort.SortFields)\n    Case 13\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")\n        Tried = ws.AutoFilter.Sort.SortFields(1).Key.Address\n    Case 14\n        ws.AutoFilter.Sort.SortFields.Add ws.Range(\"D2:D6\")\n        ws.AutoFilter.Sort.Apply\n        Tried = Grid(ws)\n    Case 15\n        ws.AutoFilter.Sort.Apply\n        Tried = Grid(ws)\n        wb.SaveAs folder & \"\\empty.xlsx\", xlOpenXMLWorkbook\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 15\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")"
+   ],
+   "ws.AutoFilter.Sort.SortFields.Count & \" \" & ws.Sort.SortFields.Count",
+   "added.xlsx",
+   "1 0"
+  ],
+  [
+   [
+    "ws.Sort.SortFields.Add ws.Range(\"A2:A6\")"
+   ],
+   "ws.AutoFilter.Sort.SortFields.Count & \" \" & ws.Sort.SortFields.Count",
+   "sheet.xlsx",
+   "0 1"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")",
+    "ws.AutoFilter.Sort.Apply"
+   ],
+   "Grid(ws)",
+   "applied.xlsx",
+   "1|a|2|b|3|c|4|e|5|E"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"B2:B6\"), , xlDescending",
+    "ws.AutoFilter.Sort.Apply"
+   ],
+   "Grid(ws) & \" \" & ws.AutoFilter.Sort.Rng.Address & \" \" & ws.Sort.SortFields.Count",
+   "down.xlsx",
+   "5|E|4|e|3|c|2|b|1|a $A$1:$B$6 0"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"B2:B6\")",
+    "ws.AutoFilter.Sort.MatchCase = True",
+    "ws.AutoFilter.Sort.Apply"
+   ],
+   "Grid(ws)",
+   "case.xlsx",
+   "1|a|2|b|3|c|4|e|5|E"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")",
+    "ws.AutoFilter.Sort.Apply",
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"B2:B6\")"
+   ],
+   "ws.AutoFilter.Sort.SortFields.Count",
+   "later.xlsx",
+   "2"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SetRange ws.Range(\"A1:B3\")"
+   ],
+   "ws.AutoFilter.Sort.Rng.Address",
+   "",
+   "Err 1004"
+  ],
+  [
+   [],
+   "ws.AutoFilter.Sort.Header",
+   "",
+   "1"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.Header = xlNo"
+   ],
+   "ws.AutoFilter.Sort.Header",
+   "",
+   "Err 5"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.MatchCase = True"
+   ],
+   "ws.AutoFilter.Sort.MatchCase & \" \" & ws.Sort.MatchCase",
+   "",
+   "True False"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")",
+    "ws.AutoFilter.ShowAllData"
+   ],
+   "ws.AutoFilter.Sort.SortFields.Count",
+   "",
+   "1"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")",
+    "ws.AutoFilterMode = False",
+    "ws.Range(\"A1:B6\").AutoFilter"
+   ],
+   "ws.AutoFilter.Sort.SortFields.Count",
+   "",
+   "0"
+  ],
+  [
+   [],
+   "TypeName(ws.AutoFilter.Sort) & \" \" & TypeName(ws.AutoFilter.Sort.Parent) & \" \" & TypeName(ws.AutoFilter.Sort.SortFields)",
+   "",
+   "Sort AutoFilter SortFields"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"A2:A6\")"
+   ],
+   "ws.AutoFilter.Sort.SortFields(1).Key.Address",
+   "",
+   "$A$2:$A$6"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.SortFields.Add ws.Range(\"D2:D6\")",
+    "ws.AutoFilter.Sort.Apply"
+   ],
+   "Grid(ws)",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "ws.AutoFilter.Sort.Apply"
+   ],
+   "Grid(ws)",
+   "empty.xlsx",
+   "3|c|1|a|5|E|2|b|4|e"
+  ]
+ ],
+ "parts": {
+  "added.xlsx": [
+   "<autoFilter ref=\"A1:B6\" xr:uid=\"{1ABC5A2A-BE8D-466C-BE7A-04DBB0CEB601}\"/>",
+   ""
+  ],
+  "sheet.xlsx": [
+   "<autoFilter ref=\"A1:B6\" xr:uid=\"{EA85D71A-421A-4B82-ACD1-995E761A4755}\"/>",
+   ""
+  ],
+  "applied.xlsx": [
+   "<autoFilter ref=\"A1:B6\" xr:uid=\"{67AC04F9-2186-422E-915F-B611233D3463}\"><sortState ref=\"A2:B6\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A2:A6\"/></sortState></autoFilter>",
+   ""
+  ],
+  "down.xlsx": [
+   "<autoFilter ref=\"A1:B6\" xr:uid=\"{993C2F58-36B7-4614-B8A0-BBAF0F381F8C}\"><sortState ref=\"A2:B6\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition descending=\"1\" ref=\"B2:B6\"/></sortState></autoFilter>",
+   ""
+  ],
+  "case.xlsx": [
+   "<autoFilter ref=\"A1:B6\" xr:uid=\"{9278FE8D-8341-4FA9-B31F-35E922B4AEF8}\"><sortState caseSensitive=\"1\" ref=\"A2:B6\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"B2:B6\"/></sortState></autoFilter>",
+   ""
+  ],
+  "later.xlsx": [
+   "<autoFilter ref=\"A1:B6\" xr:uid=\"{4BF300EB-58EE-4A2F-9F86-45458E209906}\"><sortState ref=\"A2:B6\" xmlns:xlrd2=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata2\"><sortCondition ref=\"A2:A6\"/><sortCondition ref=\"B2:B6\"/></sortState></autoFilter>",
+   ""
+  ],
+  "empty.xlsx": [
+   "<autoFilter ref=\"A1:B6\" xr:uid=\"{F11ABC49-D51A-4A4B-A71D-D80A81CB00B2}\"/>",
+   ""
+  ]
+ }
+}

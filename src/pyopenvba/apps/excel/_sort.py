@@ -69,6 +69,7 @@ from pyopenvba.interpreter._values import (EMPTY, MISSING, NOTHING, VBAArray, VB
                                             to_text)
 
 if TYPE_CHECKING:
+    from pyopenvba.apps.excel._autofilter import AutoFilter
     from pyopenvba.apps.excel._charts_file import XmlElement
     from pyopenvba.apps.excel._model import Application, Cell, Workbook, Worksheet
     from pyopenvba.interpreter._locale import Locale
@@ -646,35 +647,7 @@ def with_sort_state(sheet: Worksheet, xml: str) -> str:
     if state is None or not changed(sheet):
         return xml
     namespace = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
-    markup = b''
-    if state.area is not None and state.fields:
-        if len(state.fields) > 64:
-            raise VBAUnsupportedError('Persisting more than 64 worksheet sort fields is not implemented')
-        if state.area.sheet is not sheet or any(field.key.sheet is not sheet for field in state.fields):
-            raise VBAUnsupportedError('Persisting cross-sheet worksheet sort settings is not implemented')
-        if state.header not in (GUESS, YES, NO) or any(field.order not in (ASCENDING, DESCENDING) for field in state.fields):
-            raise VBAUnsupportedError('Persisting unmeasured worksheet sort enums is not implemented')
-        if state.orientation != TOP_TO_BOTTOM or state.method != 1:
-            raise VBAUnsupportedError('Persisting non-default worksheet sort methods/orientations is not implemented')
-        if any(field.subfield is not EMPTY for field in state.fields):
-            raise VBAUnsupportedError("Persisting a sort field's SubField is not implemented")
-        if any(field.option not in (0, 1) for field in state.fields):
-            raise VBAUnsupportedError('Persisting custom worksheet sort data options is not implemented')
-        if len(state.area.areas) != 1 or any(len(field.key.areas) != 1 for field in state.fields):
-            raise VBAUnsupportedError('Persisting multi-area worksheet sort settings is not implemented')
-        from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes
-
-        ns = '{' + namespace + '}'
-        block = state.area.first
-        if state.header == YES and block.rows > 1:
-            # The file keeps the rows sorted, under the header (tests/fixtures/sort_colour/).
-            block = Area(block.top + 1, block.left, block.bottom, block.right, block.sheet)
-        root = XmlElement(ns + 'sortState', {'xmlns': namespace, 'ref': block.address(absolute=False)})
-        if state.match_case:
-            root.set('caseSensitive', '1')
-        for field in state.fields:
-            root.append(XmlElement(ns + 'sortCondition', condition_attributes(sheet.book, field)))
-        markup = xml_bytes(root).split(b'?>', 1)[1].lstrip()
+    markup = sort_state_markup(sheet, state) if state.area is not None and state.fields else b''
     part = opc_part(xml.encode('utf8'), namespace, 'worksheet')
     matches = [(start, end) for tag, _attrs, start, end in part.children if tag == namespace + '}sortState']
     if len(matches) > 1:
@@ -690,6 +663,42 @@ def with_sort_state(sheet: Worksheet, xml: str) -> str:
     at = next((start for tag, _attrs, start, _end in part.children
                if tag.removeprefix(namespace + '}') in before), part.closing_start)
     return part.insert(at, markup).decode('utf8') if markup else xml
+
+
+def sort_state_markup(sheet: Worksheet, state: SortState) -> bytes:
+    """The sortState element a file keeps for ``state``, whose range and fields are set: its rows under the header
+    where the range has one."""
+    namespace = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    area = state.area
+    if area is None:
+        raise VBAUnsupportedError('Persisting sort settings with no range is not implemented')
+    if len(state.fields) > 64:
+        raise VBAUnsupportedError('Persisting more than 64 worksheet sort fields is not implemented')
+    if area.sheet is not sheet or any(field.key.sheet is not sheet for field in state.fields):
+        raise VBAUnsupportedError('Persisting cross-sheet worksheet sort settings is not implemented')
+    if state.header not in (GUESS, YES, NO) or any(field.order not in (ASCENDING, DESCENDING) for field in state.fields):
+        raise VBAUnsupportedError('Persisting unmeasured worksheet sort enums is not implemented')
+    if state.orientation != TOP_TO_BOTTOM or state.method != 1:
+        raise VBAUnsupportedError('Persisting non-default worksheet sort methods/orientations is not implemented')
+    if any(field.subfield is not EMPTY for field in state.fields):
+        raise VBAUnsupportedError("Persisting a sort field's SubField is not implemented")
+    if any(field.option not in (0, 1) for field in state.fields):
+        raise VBAUnsupportedError('Persisting custom worksheet sort data options is not implemented')
+    if len(area.areas) != 1 or any(len(field.key.areas) != 1 for field in state.fields):
+        raise VBAUnsupportedError('Persisting multi-area worksheet sort settings is not implemented')
+    from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes
+
+    ns = '{' + namespace + '}'
+    block = area.first
+    if state.header == YES and block.rows > 1:
+        # The file keeps the rows sorted, under the header (tests/fixtures/sort_colour/).
+        block = Area(block.top + 1, block.left, block.bottom, block.right, block.sheet)
+    root = XmlElement(ns + 'sortState', {'xmlns': namespace, 'ref': block.address(absolute=False)})
+    if state.match_case:
+        root.set('caseSensitive', '1')
+    for field in state.fields:
+        root.append(XmlElement(ns + 'sortCondition', condition_attributes(sheet.book, field)))
+    return xml_bytes(root).split(b'?>', 1)[1].lstrip()
 
 
 _MAIN = '{http://schemas.openxmlformats.org/spreadsheetml/2006/main}'
@@ -806,6 +815,7 @@ def preflight_save(book: Workbook) -> None:
 
     package = book.package
     for sheet in book.sheets_:
+        refresh_filter_sort(sheet)
         if changed(sheet):
             xml = (package.read(sheet.part_name).decode('utf8')
                    if package is not None and sheet.part_name and package.has(sheet.part_name)
@@ -972,6 +982,85 @@ class SortObject(ExcelObject):
 
         recalculated(target.sheet.book)
         return EMPTY
+
+
+class AutoFilterSort(SortObject):
+    """AutoFilter.Sort: the sort settings of the sheet's filter, apart from the sheet's own. Its range is the filter's,
+    header row first, and removing the filter forgets them; Apply sorts the rows under the header, and from then a
+    save writes them in the autoFilter element (tests/fixtures/autofilter_sort.json)."""
+
+    vba_type_name = "Sort"
+
+    def __init__(self, owner: AutoFilter) -> None:
+        self.owner = owner
+        self.sheet = owner.sheet
+        found = owner.state()
+        if found.sort is None:
+            if '<sortState' in found.tail:
+                raise VBAUnsupportedError("reading the sort settings a file keeps with an AutoFilter is not "
+                                          "implemented")
+            found.sort = SortState()
+            found.sort.header = YES
+        found.sort.area = Range(self.sheet, [found.area])
+        self.filter = found
+        self.state = found.sort
+
+    def _check_alive(self) -> None:
+        super()._check_alive()
+        if self.owner.current() is not self.filter:
+            raise VBAUnsupportedError("the sort settings of an AutoFilter since removed are not implemented")
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def SortFields(self) -> object:
+        return SortFields(self)
+
+    @method
+    def SetRange(self, Rng: object = MISSING) -> object:
+        """The range is the filter's, error 1004."""
+        raise error(1004, "Application-defined or object-defined error")
+
+    @setter("Header")
+    def _set_header(self, value: object) -> None:
+        """The header row is the filter's; xlNo is error 5."""
+        if int(to_integer(value, "Long")) != YES:
+            raise error(5, "Invalid procedure call or argument")
+        raise VBAUnsupportedError("setting an AutoFilter sort's Header to xlYes is not implemented")
+
+    @method
+    def Apply(self) -> object:
+        """Sorts the rows under the header; a key outside the filter's columns is error 1004."""
+        area = self.filter.area
+        if any(not (area.left <= field.key.first.left and field.key.first.right <= area.right)
+               for field in self.state.fields):
+            raise error(1004, "Application-defined or object-defined error")
+        if self.filter.fields:
+            raise VBAUnsupportedError("sorting the rows of an AutoFilter with criteria is not implemented")
+        if not self.state.fields:
+            return EMPTY
+        if self.filter.tail and not self.filter.sort_applied:
+            raise VBAUnsupportedError("sorting an AutoFilter the file gave more than its columns is not implemented")
+        sort_state_markup(self.sheet, self.state)
+        super().Apply()
+        self.filter.sort_applied = True
+        self.sheet.filter_changed = True
+        self.sheet.touched()
+        return EMPTY
+
+
+def refresh_filter_sort(sheet: Worksheet) -> None:
+    """Once its sort was applied, a save writes the filter's sort settings as they are then, fields added since
+    among them (tests/fixtures/autofilter_sort.json)."""
+    found = sheet.auto_filter
+    if found is None or not found.sort_applied or found.sort is None or not found.sort.fields:
+        return
+    markup = sort_state_markup(sheet, found.sort).decode('utf8')
+    if markup != found.tail:
+        found.tail = markup
+        sheet.filter_changed = True
 
 
 class SortFields(VBACollection, ExcelObject):

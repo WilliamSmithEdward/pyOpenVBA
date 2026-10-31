@@ -42,7 +42,10 @@ class Tab(ExcelObject):
         self.sheet.book.saved = False
 
     def _rrggbb(self, color: S.Color) -> str:
-        return self.sheet.book.stylesheet.colors.rrggbb(color, 'FFFFFF')
+        # A tab's palette colour is Excel's own, whatever Workbook.Colors made of the slot (tests/fixtures/
+        # workbook_colors.json).
+        colors = self.sheet.book.stylesheet.colors
+        return S.Colors(colors.theme).rrggbb(color, 'FFFFFF')
 
     @member
     def Parent(self) -> object:

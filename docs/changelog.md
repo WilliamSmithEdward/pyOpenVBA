@@ -7,10 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
-- `Range.Consolidate` combines source ranges by position or by their row
-  and column labels with any of its eleven functions, as Excel does, and
-  `Worksheet.ConsolidationFunction`, `ConsolidationOptions` and
-  `ConsolidationSources` read back the last one.
+- `Workbook.Colors` and `Workbook.ResetColors` work as Excel's do. Colors
+  reads the 56-colour palette or one slot and sets either. Cells, fonts
+  and borders coloured by a slot follow it, and tabs keep Excel's own
+  colour. A save writes a changed palette to `styles.xml` as Excel does,
+  and leaves out Excel's own. 48 live cases agree,
+  `tests/fixtures/workbook_colors.json`. These report themselves
+  unsupported:
+  - an array of fewer than 56 colours, which crashed Excel once
+  - Null
+  - `ColorIndex` of a colour a changed palette does not hold
 
 ## [6.6.0] - 2026-10-30
 

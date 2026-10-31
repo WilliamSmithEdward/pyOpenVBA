@@ -3,6 +3,18 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Range.ID`, `Range.AllowEdit` and `Range.ListHeaderRows` answer as
+  Excel does; ListHeaderRows makes Excel's guess at a list's header rows.
+
+### Fixed
+
+- `Range.Locked = Null` is taken without an error and changes nothing, as
+  in Excel, instead of raising "Invalid use of Null".
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

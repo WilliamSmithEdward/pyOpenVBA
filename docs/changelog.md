@@ -7,16 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
-- `Range.ApplyNames` turns the references in a range's formulas, or the
-  whole sheet's when the range is one cell, into the names that refer to
-  the same cells, as Excel does, with `Names:=` and
-  `IgnoreRelativeAbsolute:=` and Excel's two errors.
-
-### Fixed
-
-- A defined name that shares its word with a worksheet function, such as
-  `Rate`, keeps its own spelling in a formula written with it, as Excel
-  spells it, instead of being upper-cased.
+- `Workbook.Colors` and `Workbook.ResetColors` work as Excel's do. Colors
+  reads the 56-colour palette or one slot and sets either. Cells, fonts
+  and borders coloured by a slot follow it, and tabs keep Excel's own
+  colour. A save writes a changed palette to `styles.xml` as Excel does,
+  and leaves out Excel's own. 48 live cases agree,
+  `tests/fixtures/workbook_colors.json`. These report themselves
+  unsupported:
+  - an array of fewer than 56 colours, which crashed Excel once
+  - Null
+  - `ColorIndex` of a colour a changed palette does not hold
 
 ## [6.6.0] - 2026-10-30
 

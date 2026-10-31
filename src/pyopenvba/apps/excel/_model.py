@@ -30,7 +30,7 @@ from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names
+from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -1244,6 +1244,8 @@ class Workbook(ExcelObject):
         self.calculation_version = VERSION
         self.force_full_calculation = False
         self.full_pending = False
+        #: Workbook.PrecisionAsDisplayed, calcPr fullPrecision="0" (see _precision).
+        self.precision_as_displayed = False
 
     @property
     def calculator(self) -> Any:
@@ -1693,6 +1695,21 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._calculation_state import set_force
 
         set_force(self, value)
+
+    @member
+    def PrecisionAsDisplayed(self) -> object:
+        return self.precision_as_displayed
+
+    @setter("PrecisionAsDisplayed")
+    def _set_precision_as_displayed(self, value: object) -> None:
+        """True rounds every number as its format shows it, now and from then on (see _precision)."""
+        wanted = to_bool(value)
+        if wanted and not self.precision_as_displayed:
+            from pyopenvba.apps.excel._precision import turned_on
+
+            self.precision_as_displayed = True
+            turned_on(self)
+        self.precision_as_displayed = wanted
 
     def vba_sink_attached(self) -> None:
         """A WithEvents variable now hears this workbook: formulas written while
@@ -2675,6 +2692,9 @@ class Worksheet(ExcelObject):
             found = self.cells_[(row, column)] = Cell()
         found.style, found.xf = (None if style == self.book.stylesheet.default else style), -1
         self.book.stylesheet.meet(found.style)
+        if not found.formula:
+            # A constant given a format takes the precision it shows, where the workbook keeps numbers so.
+            _precision.settle(self, row, column)
         self.settle(row, column)
         self.touched()
         self.dims.fonts_changed(row)
@@ -5223,6 +5243,7 @@ class Range(ExcelObject):
             changed = replace(changed, quote_prefix=True)
         if changed != style:
             self.sheet.restyle(row, column, changed)
+        _precision.settle(self.sheet, row, column)
         self.sheet.cell_changed(row, column)
 
     def describe(self, indent: str = "") -> str:

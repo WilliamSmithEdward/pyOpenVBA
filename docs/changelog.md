@@ -3,6 +3,15 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Workbook.PrecisionAsDisplayed` keeps every number as its format shows
+  it, as Excel does: turning it on rounds the workbook's numbers, and
+  numbers written, formats given and formula results round from then on.
+  It is saved and read as `calcPr fullPrecision="0"`.
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

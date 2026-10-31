@@ -884,6 +884,10 @@ class ListObjects(VBACollection, ExcelObject):
     def Parent(self) -> object:
         return self.sheet
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     @method
     def Add(self, SourceType: object = MISSING, Source: object = MISSING, LinkSource: object = MISSING,
             XlListObjectHasHeaders: object = MISSING, Destination: object = MISSING,
@@ -1269,6 +1273,10 @@ class ListColumns(VBACollection, ExcelObject):
     def Parent(self) -> object:
         return view(self.table)
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     @method
     def Add(self, Position: object = MISSING) -> object:
         from pyopenvba.apps.excel._table_edits import add_column
@@ -1346,6 +1354,18 @@ class ListColumn(ExcelObject):
             return NOTHING
         return Range(self.sheet, [Area(data.top, self._column(), data.bottom, self._column(), self.sheet.name)])
 
+    @member
+    def Total(self) -> object:
+        """The column's cell in the totals row, Nothing while the table shows none (tests/fixtures/object_parents.json)."""
+        if not self.table.totals:
+            return NOTHING
+        bottom = self.table.area.bottom
+        return Range(self.sheet, [Area(bottom, self._column(), bottom, self._column(), self.sheet.name)])
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     @method
     def Delete(self) -> object:
         from pyopenvba.apps.excel._table_edits import delete_column
@@ -1367,6 +1387,10 @@ class ListRows(VBACollection, ExcelObject):
     @member
     def Parent(self) -> object:
         return view(self.table)
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
 
     @method
     def Add(self, Position: object = MISSING, AlwaysInsert: object = MISSING) -> object:

@@ -241,6 +241,79 @@ def _separator_kept(name: str, value: object, current: str) -> None:
         raise VBAUnsupportedError(f"Application.{name} set to another separator is not implemented")
 
 
+#: Application.ErrorCheckingOptions as a new Excel session reads them on the measuring machine
+#: (tests/fixtures/error_checking_options.json); Range.Errors answers whatever they say.
+_ERROR_CHECKS = {"BackgroundChecking": True, "EvaluateToError": True, "TextDate": True, "NumberAsText": True,
+                 "InconsistentFormula": True, "OmittedCells": True, "UnlockedFormulaCells": True,
+                 "EmptyCellReferences": False, "ListDataValidation": True, "InconsistentTableFormula": True,
+                 "MisleadingNumberFormats": True}
+
+
+def _error_check(key: str) -> tuple[Callable[..., object], Callable[..., None]]:
+    """The getter and setter of one ErrorCheckingOptions switch."""
+
+    def read(self: ErrorCheckingOptions) -> object:
+        return self.kept[key]
+
+    def write(self: ErrorCheckingOptions, value: object) -> None:
+        self.kept[key] = to_bool(value)
+
+    read.__name__ = key
+    return member(read), setter(key)(write)
+
+
+class ErrorCheckingOptions(ExcelObject):
+    """Application.ErrorCheckingOptions: the session's error-checking settings, kept for the session."""
+
+    vba_type_name = "ErrorCheckingOptions"
+
+    def __init__(self, application: Application) -> None:
+        self.application = application
+
+    @property
+    def kept(self) -> dict[str, object]:
+        kept: dict[str, object] | None = getattr(self.application, "error_checking", None)
+        if kept is None:
+            kept = {**_ERROR_CHECKS, "IndicatorColorIndex": -4105}
+            setattr(self.application, "error_checking", kept)
+        return kept
+
+    BackgroundChecking, _set_background_checking = _error_check("BackgroundChecking")
+    EvaluateToError, _set_evaluate_to_error = _error_check("EvaluateToError")
+    TextDate, _set_text_date = _error_check("TextDate")
+    NumberAsText, _set_number_as_text = _error_check("NumberAsText")
+    InconsistentFormula, _set_inconsistent_formula = _error_check("InconsistentFormula")
+    OmittedCells, _set_omitted_cells = _error_check("OmittedCells")
+    UnlockedFormulaCells, _set_unlocked_formula_cells = _error_check("UnlockedFormulaCells")
+    EmptyCellReferences, _set_empty_cell_references = _error_check("EmptyCellReferences")
+    ListDataValidation, _set_list_data_validation = _error_check("ListDataValidation")
+    InconsistentTableFormula, _set_inconsistent_table_formula = _error_check("InconsistentTableFormula")
+    MisleadingNumberFormats, _set_misleading_number_formats = _error_check("MisleadingNumberFormats")
+
+    @member
+    def IndicatorColorIndex(self) -> object:
+        return VBAInt(int(to_integer(self.kept["IndicatorColorIndex"])), "Long")
+
+    @setter("IndicatorColorIndex")
+    def _set_indicator_color_index(self, value: object) -> None:
+        number = int(to_integer(value))
+        if number != -4105 and not 1 <= number <= 56:
+            raise VBAUnsupportedError("ErrorCheckingOptions.IndicatorColorIndex outside the palette is not implemented")
+        self.kept["IndicatorColorIndex"] = number
+
+    @member
+    def Parent(self) -> object:
+        return self.application
+
+    @member
+    def Application(self) -> object:
+        return self.application
+
+    @member
+    def Creator(self) -> object:
+        return VBAInt(1480803660, "Long")
+
+
 class Application(ExcelObject):
     """The Excel instance: the root of everything a macro can reach."""
 
@@ -413,6 +486,10 @@ class Application(ExcelObject):
                                               f"implement")
                 return call(self, name, args, named, raising=False)
         return super().vba_get(name, args, named)
+
+    @member
+    def ErrorCheckingOptions(self) -> object:
+        return ErrorCheckingOptions(self)
 
     @member
     def EnableEvents(self) -> object:

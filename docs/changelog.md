@@ -3,6 +3,32 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Workbook settings answer as Excel's do:
+  - `DefaultTableStyle` and `DefaultPivotTableStyle` read and set as
+    `TableStyle` objects and save to `styles.xml`. `ListObjects.Add`
+    takes the default table style.
+  - `ShowPivotTableFieldList`, `ShowPivotChartActiveFields` and
+    `InactiveListBorderVisible` read and set, and save to `workbookPr`.
+  - `DefaultSlicerStyle`, `DefaultTimelineStyle`, `CreateBackup`,
+    `HasPassword`, `CaseSensitive`, `UseWholeCellCriteria`,
+    `UseWildcards`, `Final`, `UpdateRemoteReferences`,
+    `ChartDataPointTrack` and `AccuracyVersion` read as Excel's, and
+    refuse what Excel refuses.
+  - `TableStyles(name)` finds a built-in style.
+
+  64 live cases agree, `tests/fixtures/workbook_settings.json`. Setting
+  a value Excel takes but saves outside the parts measured reports itself
+  unsupported.
+
+### Fixed
+
+- The checklist's `Range.Sort` row was split by undoubled quotes. A test
+  now checks that every row has its eight fields.
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

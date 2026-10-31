@@ -910,6 +910,8 @@ class Stylesheet:
                             copied.attrib = {**declarations, **section_declarations, **copied.attrib}
                             self._dxfs.append(copied)
         self._dxf_base_count = len(self._dxfs)
+        #: The default table and pivot styles a macro named since (Workbook.DefaultTableStyle), None for none.
+        self._table_defaults: dict[str, str | None] = {}
         palette = tuple(
             _attributes(one).get("rgb", "FF000000")[-6:].upper()
             for one in re.findall(r"<rgbColor\b[^>]*/>", xml)
@@ -1620,11 +1622,26 @@ class Stylesheet:
     def dirty(self) -> bool:
         return self.written() != self.xml
 
+    def table_style_default(self, kind: str) -> str | None:
+        """tableStyles' default table ("table") or pivot ("pivot") style, None where the workbook names none."""
+        if kind in self._table_defaults:
+            return self._table_defaults[kind]
+        found = re.search(r"<tableStyles\b[^>]*>", self.xml)
+        attribute = "defaultTableStyle" if kind == "table" else "defaultPivotStyle"
+        value = _attributes(found.group(0)).get(attribute) if found else None
+        return value or None
+
+    def set_table_style_default(self, kind: str, name: str | None) -> None:
+        """Name the default table or pivot style, or none, which a save then writes."""
+        self._table_defaults[kind] = name
+
     def written(self) -> str:
         """The stylesheet XML as the save writes it: each section the tables fill, in Excel's order."""
         text = self.xml
         for section, entries in self._sections.items():
             text = _with_section(text, section, entries)
+        for kind, name in self._table_defaults.items():
+            text = _with_table_default(text, kind, name)
         return self._write_dxfs(text)
 
     def saved(self) -> dict[int, int]:
@@ -1668,6 +1685,26 @@ class Stylesheet:
         self._written_at = {index: index for index in range(len(self.styles))}
         self._after = None
         return moved
+
+
+def _with_table_default(text: str, kind: str, name: str | None) -> str:
+    """A stylesheet whose tableStyles names ``name`` as its default table or pivot style, the attribute left out
+    for none (tests/fixtures/workbook_settings.json)."""
+    attribute = "defaultTableStyle" if kind == "table" else "defaultPivotStyle"
+    found = re.search(r"<tableStyles\b[^>]*?/?>", text)
+    if found is None:
+        if name is None:
+            return text
+        anchor = re.search(r"<(?:colors|extLst)\b|</styleSheet>", text)
+        position = anchor.start() if anchor else len(text)
+        return text[:position] + f'<tableStyles count="0" {attribute}="{_escape(name)}"/>' + text[position:]
+    opening = re.sub(rf'\s{attribute}="[^"]*"', "", found.group(0))
+    if name is not None:
+        # defaultTableStyle comes before defaultPivotStyle, after count.
+        later = re.search(r'\sdefaultPivotStyle="', opening) if kind == "table" else None
+        at = later.start() if later else len(opening) - (2 if opening.endswith("/>") else 1)
+        opening = opening[:at] + f' {attribute}="{_escape(name)}"' + opening[at:]
+    return text[:found.start()] + opening + text[found.end():]
 
 
 @dataclass(slots=True)

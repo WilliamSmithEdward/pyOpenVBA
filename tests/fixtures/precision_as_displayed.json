@@ -1,0 +1,665 @@
+{
+ "measured_at": "2026-10-31T03:54:10.556500+00:00",
+ "source": "Private Function Bits(ByVal v As Variant) As String\n    If VarType(v) = vbDouble Then\n        Dim d As Double: d = v\n        Bits = \"D:\" & Format(d, \"0.000000000000000E+00\")\n    Else\n        Bits = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, ws2 As Worksheet, c As Range, cell As Range, s As String\n    Dim r As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    r = Empty\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 1\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.235\n        wb.PrecisionAsDisplayed = True\n    Case 2\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = -1.235\n        wb.PrecisionAsDisplayed = True\n    Case 3\n        ws.Range(\"A1\").NumberFormat = \"0\"\n        ws.Range(\"A1\").Value = 2.5\n        wb.PrecisionAsDisplayed = True\n    Case 4\n        ws.Range(\"A1\").NumberFormat = \"0\"\n        ws.Range(\"A1\").Value = 3.5\n        wb.PrecisionAsDisplayed = True\n    Case 5\n        ws.Range(\"A1\").NumberFormat = \"#,##0\"\n        ws.Range(\"A1\").Value = 1234.5678\n        wb.PrecisionAsDisplayed = True\n    Case 6\n        ws.Range(\"A1\").NumberFormat = \"#,##0,\"\n        ws.Range(\"A1\").Value = 1234567.89\n        wb.PrecisionAsDisplayed = True\n    Case 7\n        ws.Range(\"A1\").NumberFormat = \"0.0,,\"\n        ws.Range(\"A1\").Value = 1234567.89\n        wb.PrecisionAsDisplayed = True\n    Case 8\n        ws.Range(\"A1\").NumberFormat = \"0%\"\n        ws.Range(\"A1\").Value = 0.123456\n        wb.PrecisionAsDisplayed = True\n    Case 9\n        ws.Range(\"A1\").NumberFormat = \"0.0%\"\n        ws.Range(\"A1\").Value = 0.123456\n        wb.PrecisionAsDisplayed = True\n    Case 10\n        ws.Range(\"A1\").NumberFormat = \"0.00E+00\"\n        ws.Range(\"A1\").Value = 123456.789\n        wb.PrecisionAsDisplayed = True\n    Case 11\n        ws.Range(\"A1\").NumberFormat = \"# ?/?\"\n        ws.Range(\"A1\").Value = 0.333333333333333\n        wb.PrecisionAsDisplayed = True\n    Case 12\n        ws.Range(\"A1\").NumberFormat = \"# ??/??\"\n        ws.Range(\"A1\").Value = 1.33333333333333\n        wb.PrecisionAsDisplayed = True\n    Case 13\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 14\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456789012345\n        wb.PrecisionAsDisplayed = True\n    Case 15\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 123456789012.345\n        wb.PrecisionAsDisplayed = True\n    Case 16\n        ws.Range(\"A1\").NumberFormat = \"@\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 17\n        ws.Range(\"A1\").NumberFormat = \"m/d/yyyy\"\n        ws.Range(\"A1\").Value = 45293.75\n        wb.PrecisionAsDisplayed = True\n    Case 18\n        ws.Range(\"A1\").NumberFormat = \"h:mm\"\n        ws.Range(\"A1\").Value = 45293.7512345\n        wb.PrecisionAsDisplayed = True\n    Case 19\n        ws.Range(\"A1\").NumberFormat = \"h:mm:ss\"\n        ws.Range(\"A1\").Value = 45293.7512345\n        wb.PrecisionAsDisplayed = True\n    Case 20\n        ws.Range(\"A1\").NumberFormat = \"m/d/yyyy h:mm\"\n        ws.Range(\"A1\").Value = 45293.7512345\n        wb.PrecisionAsDisplayed = True\n    Case 21\n        ws.Range(\"A1\").NumberFormat = \"[h]:mm\"\n        ws.Range(\"A1\").Value = 0.75123456\n        wb.PrecisionAsDisplayed = True\n    Case 22\n        ws.Range(\"A1\").NumberFormat = \"$#,##0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 23\n        ws.Range(\"A1\").NumberFormat = \"0.00;(0.00)\"\n        ws.Range(\"A1\").Value = -1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 24\n        ws.Range(\"A1\").NumberFormat = \"0.00;-0\"\n        ws.Range(\"A1\").Value = -1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 25\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 0.004\n        wb.PrecisionAsDisplayed = True\n    Case 26\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = -0.004\n        wb.PrecisionAsDisplayed = True\n    Case 27\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\" units\"\"\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 28\n        ws.Range(\"A1\").NumberFormat = \"0.0#\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 29\n        ws.Range(\"A1\").NumberFormat = \"0.0#\"\n        ws.Range(\"A1\").Value = 1.2\n        wb.PrecisionAsDisplayed = True\n    Case 30\n        ws.Range(\"A1\").NumberFormat = \"?0.0?\"\n        ws.Range(\"A1\").Value = 12.3456\n        wb.PrecisionAsDisplayed = True\n    Case 31\n        ws.Range(\"A1\").NumberFormat = \"0.00;;;\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 32\n        ws.Range(\"A1\").NumberFormat = \";;;\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 33\n        ws.Range(\"A1\").NumberFormat = \"[Red]0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 34\n        ws.Range(\"A1\").NumberFormat = \"[<2]0.0;0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 35\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1E+20\n        wb.PrecisionAsDisplayed = True\n    Case 36\n        ws.Range(\"A1\").NumberFormat = \"0.00_)\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 37\n        ws.Range(\"A1\").NumberFormat = \"0.00*-\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 38\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = true\n        wb.PrecisionAsDisplayed = True\n    Case 39\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = \"text\"\n        wb.PrecisionAsDisplayed = True\n    Case 40\n        ws.Range(\"A1\").NumberFormat = \"0.000000000000000000\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n    Case 41\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n    Case 42\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        wb.PrecisionAsDisplayed = False\n    Case 43\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        ws.Range(\"B1\").Formula = \"=A1*3\"\n        wb.PrecisionAsDisplayed = True\n    Case 44\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        ws.Range(\"B1\").Formula = \"=A1*3\"\n        ws.Range(\"B1\").NumberFormat = \"0.0\"\n        wb.PrecisionAsDisplayed = True\n    Case 45\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        ws.Range(\"B1\").Formula = \"=1/3\"\n        ws.Range(\"B1\").NumberFormat = \"0.00\"\n        ws.Range(\"C1\").Formula = \"=B1*3\"\n        wb.PrecisionAsDisplayed = True\n    Case 46\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"B1\").NumberFormat = \"0.00\"\n        ws.Range(\"B1\").Value = 2.555\n    Case 47\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"A1\").NumberFormat = \"0.0\"\n    Case 48\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"A1\").NumberFormat = \"0.0\"\n        ws.Calculate\n    Case 49\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"B1\").NumberFormat = \"0.00\"\n        ws.Range(\"B1\").Formula = \"=1/3\"\n        ws.Range(\"C1\").Formula = \"=B1*3\"\n    Case 50\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"B1\").NumberFormat = \"0.00\"\n        ws.Range(\"B1\").Formula = \"=A1\"\n        ws.Range(\"A1\").Value = 9.8765\n    Case 51\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"B1\").Formula = \"=A1*3\"\n    Case 52\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"B1\").Value = \"=1/3\"\n    Case 53\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"A1\").Value = 7.777\n    Case 54\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"A1\").Value2 = 7.777\n    Case 55\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"A1\").Formula = \"7.777\"\n    Case 56\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"A1:A2\").Value = 7.777\n    Case 57\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        ws.Range(\"A2\").Value = 9.87654\n        ws.Range(\"A2\").NumberFormat = \"0.0\"\n        ws.Range(\"A3\").Value = 5.55555\n        Set ws2 = wb.Worksheets.Add\n        ws2.Range(\"A1\").Value = 3.33333\n        ws2.Range(\"A1\").NumberFormat = \"0.0\"\n        wb.PrecisionAsDisplayed = True\n        ws.Range(\"A3\").Value = ws.Range(\"A3\").Value * 1\n        Set c = ws2.Range(\"A1\")\n    Case 58\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        Set c = wb.Worksheets.Add.Range(\"A1\")\n        c.NumberFormat = \"0.0\"\n        c.Value = 3.33333\n    Case 59\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = 1\n    Case 60\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = \"True\"\n    Case 61\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        r = wb.PrecisionAsDisplayed\n    Case 62\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        wb.SaveAs folder & \"\\on.xlsx\"\n    Case 63\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.SaveAs folder & \"\\off.xlsx\"\n    Case 64\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        wb.PrecisionAsDisplayed = True\n        wb.SaveAs folder & \"\\reopen.xlsx\"\n        wb.Close\n        Set wb = Workbooks.Open(folder & \"\\reopen.xlsx\")\n        Set ws = wb.Worksheets(1)\n        r = wb.PrecisionAsDisplayed\n        ws.Range(\"B1\").NumberFormat = \"0.0\"\n        ws.Range(\"B1\").Value = 2.2222\n    Case 65\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        ws.Range(\"B1\").Formula = \"=SUM(A1,0.001)\"\n        ws.Range(\"B1\").NumberFormat = \"0.00\"\n        Application.Calculation = xlCalculationManual\n        wb.PrecisionAsDisplayed = True\n        r = ws.Range(\"B1\").Value2\n        Application.Calculation = xlCalculationAutomatic\n    Case 66\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Range(\"A1\").Value = 1.23456\n        ws.Range(\"A2:A3\").Value = 4.4444\n        ws.Range(\"A2:A3\").NumberFormat = \"0.0\"\n        ws.Range(\"B1\").FormulaArray = \"=A1:A3*2\"\n        ws.Range(\"B1:B3\").NumberFormat = \"0\"\n        wb.PrecisionAsDisplayed = True\n    End Select\n    Select Case which\n    Case 0\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 1\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 2\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 3\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 4\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 5\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 6\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 7\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 8\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 9\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 10\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 11\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 12\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 13\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 14\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 15\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 16\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 17\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 18\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 19\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 20\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 21\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 22\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 23\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 24\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 25\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 26\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 27\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 28\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 29\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 30\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 31\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 32\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 33\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 34\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 35\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 36\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 37\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 38\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 39\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 40\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 41\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 42\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 43\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 44\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 45\n        For Each cell In ws.Range(\"A1:C1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 46\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 47\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 48\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 49\n        For Each cell In ws.Range(\"A1:C1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 50\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 51\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 52\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 53\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 54\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 55\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 56\n        For Each cell In ws.Range(\"A1:A2\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 57\n        For Each cell In ws.Range(\"A1:A3\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 58\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 59\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 60\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 61\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 62\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 63\n        For Each cell In ws.Range(\"A1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 64\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 65\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    Case 66\n        For Each cell In ws.Range(\"A1:B1\")\n            s = s & \";\" & cell.Address(False, False) & \"=\" & Bits(cell.Value2) & \" [\" & cell.Text & \"]\"\n        Next\n    End Select\n    If Not c Is Nothing Then s = s & \";c=\" & Bits(c.Value2) & \" [\" & c.Text & \"]\"\n    If Not IsEmpty(r) Then s = s & \";r=\" & Bits(r)\n    Tried = \"P=\" & wb.PrecisionAsDisplayed & s\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.235",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.240000000000000E+00 [1.24]"
+  ],
+  [
+   "-1.235",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:-1.240000000000000E+00 [-1.24]"
+  ],
+  [
+   "2.5",
+   "0",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:3.000000000000000E+00 [3]"
+  ],
+  [
+   "3.5",
+   "0",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:4.000000000000000E+00 [4]"
+  ],
+  [
+   "1234.5678",
+   "#,##0",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.235000000000000E+03 [1,235]"
+  ],
+  [
+   "1234567.89",
+   "#,##0,",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.235000000000000E+06 [1,235]"
+  ],
+  [
+   "1234567.89",
+   "0.0,,",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.200000000000000E+06 [1.2]"
+  ],
+  [
+   "0.123456",
+   "0%",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.200000000000000E-01 [12%]"
+  ],
+  [
+   "0.123456",
+   "0.0%",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E-01 [12.3%]"
+  ],
+  [
+   "123456.789",
+   "0.00E+00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+05 [1.23E+05]"
+  ],
+  [
+   "0.333333333333333",
+   "# ?/?",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:3.333333333333330E-01 [ 1/3]"
+  ],
+  [
+   "1.33333333333333",
+   "# ??/??",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.333333333333330E+00 [1  1/3 ]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.234560000000000E+00 [1.23456]"
+  ],
+  [
+   "1.23456789012345",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.234567890123450E+00 [1.234568]"
+  ],
+  [
+   "123456789012.345",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.234567890123450E+11 [1.23E+11]"
+  ],
+  [
+   "1.23456",
+   "@",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.234560000000000E+00 [1.23456]"
+  ],
+  [
+   "45293.75",
+   "m/d/yyyy",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:4.529375000000000E+04 [1/2/2024]"
+  ],
+  [
+   "45293.7512345",
+   "h:mm",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:4.529375123450000E+04 [18:01]"
+  ],
+  [
+   "45293.7512345",
+   "h:mm:ss",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:4.529375123450000E+04 [18:01:47]"
+  ],
+  [
+   "45293.7512345",
+   "m/d/yyyy h:mm",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:4.529375123450000E+04 [########]"
+  ],
+  [
+   "0.75123456",
+   "[h]:mm",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:7.512345600000000E-01 [18:01]"
+  ],
+  [
+   "1.23456",
+   "$#,##0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [$1.23]"
+  ],
+  [
+   "-1.23456",
+   "0.00;(0.00)",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:-1.230000000000000E+00 [(1.23)]"
+  ],
+  [
+   "-1.23456",
+   "0.00;-0",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:-1.000000000000000E+00 [-1]"
+  ],
+  [
+   "0.004",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:0.000000000000000E+00 [0.00]"
+  ],
+  [
+   "-0.004",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:0.000000000000000E+00 [0.00]"
+  ],
+  [
+   "1.23456",
+   "0.00\" units\"",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23 units]"
+  ],
+  [
+   "1.23456",
+   "0.0#",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.2",
+   "0.0#",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.200000000000000E+00 [1.2]"
+  ],
+  [
+   "12.3456",
+   "?0.0?",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.235000000000000E+01 [12.35]"
+  ],
+  [
+   "1.23456",
+   "0.00;;;",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   ";;;",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.234560000000000E+00 []"
+  ],
+  [
+   "1.23456",
+   "[Red]0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   "[<2]0.0;0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.200000000000000E+00 [1.2]"
+  ],
+  [
+   "1E+20",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.000000000000000E+20 [########]"
+  ],
+  [
+   "1.23456",
+   "0.00_)",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23 ]"
+  ],
+  [
+   "1.23456",
+   "0.00*-",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23------]"
+  ],
+  [
+   "true",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=Boolean:True [TRUE]"
+  ],
+  [
+   "\"text\"",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=String:text [text]"
+  ],
+  [
+   "1.23456",
+   "0.000000000000000000",
+   [
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1",
+   "P=True;A1=D:1.234560000000000E+00 [########]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [],
+   "A1",
+   "P=False;A1=D:1.234560000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "wb.PrecisionAsDisplayed = False"
+   ],
+   "A1",
+   "P=False;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "ws.Range(\"B1\").Formula = \"=A1*3\"",
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];B1=D:3.690000000000000E+00 [3.69]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "ws.Range(\"B1\").Formula = \"=A1*3\"",
+    "ws.Range(\"B1\").NumberFormat = \"0.0\"",
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.234560000000000E+00 [1.23456];B1=D:3.700000000000000E+00 [3.7]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "ws.Range(\"B1\").Formula = \"=1/3\"",
+    "ws.Range(\"B1\").NumberFormat = \"0.00\"",
+    "ws.Range(\"C1\").Formula = \"=B1*3\"",
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1:C1",
+   "P=True;A1=D:1.234560000000000E+00 [1.23456];B1=D:3.300000000000000E-01 [0.33];C1=D:9.900000000000000E-01 [0.99]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"B1\").NumberFormat = \"0.00\"",
+    "ws.Range(\"B1\").Value = 2.555"
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.234560000000000E+00 [1.23456];B1=D:2.560000000000000E+00 [2.56]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"A1\").NumberFormat = \"0.0\""
+   ],
+   "A1",
+   "P=True;A1=D:1.200000000000000E+00 [1.2]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"A1\").NumberFormat = \"0.0\"",
+    "ws.Calculate"
+   ],
+   "A1",
+   "P=True;A1=D:1.200000000000000E+00 [1.2]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"B1\").NumberFormat = \"0.00\"",
+    "ws.Range(\"B1\").Formula = \"=1/3\"",
+    "ws.Range(\"C1\").Formula = \"=B1*3\""
+   ],
+   "A1:C1",
+   "P=True;A1=D:1.234560000000000E+00 [1.23456];B1=D:3.300000000000000E-01 [0.33];C1=D:9.900000000000000E-01 [0.99]"
+  ],
+  [
+   "1.23456",
+   "General",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"B1\").NumberFormat = \"0.00\"",
+    "ws.Range(\"B1\").Formula = \"=A1\"",
+    "ws.Range(\"A1\").Value = 9.8765"
+   ],
+   "A1:B1",
+   "P=True;A1=D:9.876500000000000E+00 [9.8765];B1=D:9.880000000000000E+00 [9.88]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"B1\").Formula = \"=A1*3\""
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];B1=D:3.690000000000000E+00 [3.69]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"B1\").Value = \"=1/3\""
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];B1=D:3.333333333333330E-01 [0.333333]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"A1\").Value = 7.777"
+   ],
+   "A1",
+   "P=True;A1=D:7.780000000000000E+00 [7.78]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"A1\").Value2 = 7.777"
+   ],
+   "A1",
+   "P=True;A1=D:7.780000000000000E+00 [7.78]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"A1\").Formula = \"7.777\""
+   ],
+   "A1",
+   "P=True;A1=D:7.780000000000000E+00 [7.78]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"A1:A2\").Value = 7.777"
+   ],
+   "A1:A2",
+   "P=True;A1=D:7.780000000000000E+00 [7.78];A2=D:7.777000000000000E+00 [7.777]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "ws.Range(\"A2\").Value = 9.87654",
+    "ws.Range(\"A2\").NumberFormat = \"0.0\"",
+    "ws.Range(\"A3\").Value = 5.55555",
+    "Set ws2 = wb.Worksheets.Add",
+    "ws2.Range(\"A1\").Value = 3.33333",
+    "ws2.Range(\"A1\").NumberFormat = \"0.0\"",
+    "wb.PrecisionAsDisplayed = True",
+    "ws.Range(\"A3\").Value = ws.Range(\"A3\").Value * 1",
+    "Set c = ws2.Range(\"A1\")"
+   ],
+   "A1:A3",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];A2=D:9.900000000000000E+00 [9.9];A3=D:5.555550000000000E+00 [5.55555];c=D:3.300000000000000E+00 [3.3]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "Set c = wb.Worksheets.Add.Range(\"A1\")",
+    "c.NumberFormat = \"0.0\"",
+    "c.Value = 3.33333"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];c=D:3.300000000000000E+00 [3.3]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = 1"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = \"True\""
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "r = wb.PrecisionAsDisplayed"
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];r=Boolean:True"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "wb.SaveAs folder & \"\\on.xlsx\""
+   ],
+   "A1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.SaveAs folder & \"\\off.xlsx\""
+   ],
+   "A1",
+   "P=False;A1=D:1.234560000000000E+00 [1.23]"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "wb.PrecisionAsDisplayed = True",
+    "wb.SaveAs folder & \"\\reopen.xlsx\"",
+    "wb.Close",
+    "Set wb = Workbooks.Open(folder & \"\\reopen.xlsx\")",
+    "Set ws = wb.Worksheets(1)",
+    "r = wb.PrecisionAsDisplayed",
+    "ws.Range(\"B1\").NumberFormat = \"0.0\"",
+    "ws.Range(\"B1\").Value = 2.2222"
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];B1=D:2.200000000000000E+00 [2.2];r=Boolean:True"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "ws.Range(\"B1\").Formula = \"=SUM(A1,0.001)\"",
+    "ws.Range(\"B1\").NumberFormat = \"0.00\"",
+    "Application.Calculation = xlCalculationManual",
+    "wb.PrecisionAsDisplayed = True",
+    "r = ws.Range(\"B1\").Value2",
+    "Application.Calculation = xlCalculationAutomatic"
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];B1=D:1.230000000000000E+00 [1.23];r=D:1.240000000000000E+00"
+  ],
+  [
+   "1.23456",
+   "0.00",
+   [
+    "ws.Range(\"A2:A3\").Value = 4.4444",
+    "ws.Range(\"A2:A3\").NumberFormat = \"0.0\"",
+    "ws.Range(\"B1\").FormulaArray = \"=A1:A3*2\"",
+    "ws.Range(\"B1:B3\").NumberFormat = \"0\"",
+    "wb.PrecisionAsDisplayed = True"
+   ],
+   "A1:B1",
+   "P=True;A1=D:1.230000000000000E+00 [1.23];B1=D:2.000000000000000E+00 [2]"
+  ]
+ ],
+ "calc": {
+  "on.xlsx": "<calcPr calcId=\"191029\" fullPrecision=\"0\"/>",
+  "off.xlsx": "<calcPr calcId=\"191029\"/>",
+  "reopen.xlsx": "<calcPr calcId=\"191029\" fullPrecision=\"0\"/>"
+ }
+}

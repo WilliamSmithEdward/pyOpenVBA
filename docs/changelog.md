@@ -58,6 +58,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
   out of an `.xlsx`. `WorkbookParameter` and `ValidWorkbookParameter`
   answer as Excel does.
 
+- Twenty-four `Workbook` properties about the file and its sharing,
+  `IsAddin`, `KeepChangeHistory` and `CompatibilityVersion` among them,
+  read as Excel's do; those Excel lets a macro set are kept for the
+  session, and those it refuses give its error 1004.
+
 - `Range.Consolidate` combines source ranges by position or by their row
   and column labels with any of its eleven functions, as Excel does, and
   `Worksheet.ConsolidationFunction`, `ConsolidationOptions` and

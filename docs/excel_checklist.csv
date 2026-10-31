@@ -2721,8 +2721,8 @@ Worksheet,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,PARTIA
 Worksheet,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Worksheet,CircleInvalid,method,CircleInvalid(),,MISSING,,
 Worksheet,CircularReference,"property, read-only",As Range,,VERIFIED,tests/fixtures/iteration.json; tests/fixtures/self_reference.json; tests/test_excel_iteration.py,"A cell of a loop on the sheet, or Nothing with none or with Iteration on. A loop is found through the cells a formula reads as it is worked out, so ROWS, ROW, CELL(""address""), FORMULATEXT, an IF branch not taken and a MATCH stopping before the cell close none. Of two cells of one loop, or two loops on a sheet, Excel names either run to run; the model names the latest that closed one."
-Worksheet,ClearArrows,method,ClearArrows(),,MISSING,,
-Worksheet,ClearCircles,method,ClearCircles(),,MISSING,,
+Worksheet,ClearArrows,method,ClearArrows(),,PARTIAL,tests/fixtures/clear_arrows.json; tests/test_excel_clear_arrows.py,"Takes away tracer arrows, which the model never draws; error 1004 on a protected sheet."
+Worksheet,ClearCircles,method,ClearCircles(),,PARTIAL,tests/fixtures/clear_arrows.json; tests/test_excel_clear_arrows.py,"Takes away validation circles, which the model never draws, protected sheet or not."
 Worksheet,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Loaded sheetPr identity; fresh names remain empty until project materialization, then allocate in tab order with collision/history handling. Copy/Move allocation measured; VBIDE renaming remains incomplete."
 Worksheet,Columns,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,Comments,"property, read-only",As Comments,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,"Row by row, and in the saved file."

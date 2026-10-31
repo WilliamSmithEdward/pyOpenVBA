@@ -1,0 +1,47 @@
+{
+ "measured_at": "2026-10-31T22:38:03.503554+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, v As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        wb.SaveAs folder & \"\\c0.xlsx\", xlOpenXMLWorkbook\n        ws.ClearArrows\n    Case 1\n        wb.SaveAs folder & \"\\c1.xlsx\", xlOpenXMLWorkbook\n        ws.ClearCircles\n    Case 2\n        ws.Protect\n        wb.SaveAs folder & \"\\c2.xlsx\", xlOpenXMLWorkbook\n        ws.ClearArrows\n    Case 3\n        ws.Protect\n        wb.SaveAs folder & \"\\c3.xlsx\", xlOpenXMLWorkbook\n        ws.ClearCircles\n    Case 4\n        ws.Range(\"A1\").Formula = \"=B1\"\n        wb.SaveAs folder & \"\\c4.xlsx\", xlOpenXMLWorkbook\n        ws.ClearArrows\n    Case 5\n        ws.Range(\"A1\").Validation.Add xlValidateWholeNumber, xlValidAlertStop, xlBetween, \"1\", \"5\"\n        ws.Range(\"A1\").Value = 9\n        wb.SaveAs folder & \"\\c5.xlsx\", xlOpenXMLWorkbook\n        ws.ClearCircles\n    End Select\n    Tried = TypeName(v) & \" \" & ws.Shapes.Count & \" \" & wb.Saved\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 5\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "ws.ClearArrows"
+   ],
+   "Empty 0 True"
+  ],
+  [
+   [
+    "ws.ClearCircles"
+   ],
+   "Empty 0 True"
+  ],
+  [
+   [
+    "ws.Protect",
+    "ws.ClearArrows"
+   ],
+   "Err 1004"
+  ],
+  [
+   [
+    "ws.Protect",
+    "ws.ClearCircles"
+   ],
+   "Empty 0 True"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=B1\"",
+    "ws.ClearArrows"
+   ],
+   "Empty 0 True"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Validation.Add xlValidateWholeNumber, xlValidAlertStop, xlBetween, \"1\", \"5\"",
+    "ws.Range(\"A1\").Value = 9",
+    "ws.ClearCircles"
+   ],
+   "Empty 0 True"
+  ]
+ ]
+}

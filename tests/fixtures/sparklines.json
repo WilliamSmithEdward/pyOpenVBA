@@ -1,0 +1,405 @@
+{
+ "measured_at": "2026-10-31T23:52:05.483450+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, g As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:D4\").Value = Application.Transpose(Application.Transpose(Array(Array(1, 3, 2, 4), Array(-1, 2, -3, 4), Array(5, 4, 3, 2), Array(2, 2, 2, 2))))\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = TypeName(g) & \" \" & g.Type & \" \" & g.SourceData & \" \" & g.Location.Address & \" \" & g.Count & \" \" & ws.Cells.SparklineGroups.Count & \" \" & ws.Range(\"E1\").SparklineGroups.Count & \" \" & ws.Range(\"A1\").SparklineGroups.Count\n        wb.SaveAs folder & \"\\one.xlsx\", xlOpenXMLWorkbook\n    Case 1\n        Set g = ws.Range(\"E1:E3\").SparklineGroups.Add(xlSparkColumn, \"A1:D3\")\n        Tried = g.Type & \" \" & g.SourceData & \" \" & g.Location.Address & \" \" & g.Count & \" \" & g.Item(2).Location.Address & \" \" & g.Item(2).SourceData & \" \" & TypeName(g.Item(1))\n        wb.SaveAs folder & \"\\three.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkColumnStacked100, \"A1:D1\")\n        Tried = g.Type\n        wb.SaveAs folder & \"\\winloss.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = g.LineWeight & \" \" & g.SeriesColor.Color & \" \" & g.SeriesColor.ThemeColor & \" \" & g.SeriesColor.TintAndShade & \" \" & g.DisplayBlanksAs & \" \" & g.DisplayHidden\n    Case 4\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.SeriesColor.Color = RGB(255, 0, 0)\n        g.LineWeight = 1.5\n        Tried = g.LineWeight & \" \" & g.SeriesColor.Color\n        wb.SaveAs folder & \"\\styled.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        ws.Range(\"E3\").SparklineGroups.Add xlSparkColumn, \"A2:D2\"\n        Tried = ws.Cells.SparklineGroups.Count & \" \" & ws.Cells.SparklineGroups(1).Location.Address & \" \" & ws.Cells.SparklineGroups(2).Location.Address & \" \" & ws.Range(\"E1:E3\").SparklineGroups.Count & \" \" & ws.Range(\"E2\").SparklineGroups.Count\n        wb.SaveAs folder & \"\\two.xlsx\", xlOpenXMLWorkbook\n    Case 6\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.Delete\n        Tried = ws.Cells.SparklineGroups.Count\n    Case 7\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        ws.Range(\"E1\").SparklineGroups.Clear\n        Tried = ws.Cells.SparklineGroups.Count\n        wb.SaveAs folder & \"\\cleared.xlsx\", xlOpenXMLWorkbook\n    Case 8\n        Set g = ws.Range(\"E1:E2\").SparklineGroups.Add(xlSparkLine, \"A1:D2\")\n        ws.Range(\"E2\").SparklineGroups.Clear\n        Tried = ws.Cells.SparklineGroups.Count & \" \" & g.Count & \" \" & g.Location.Address & \" \" & g.SourceData\n    Case 9\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        ws.Range(\"E1\").ClearContents\n        Tried = ws.Cells.SparklineGroups.Count\n    Case 10\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        ws.Range(\"E1\").Clear\n        Tried = ws.Cells.SparklineGroups.Count\n    Case 11\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        ws.Range(\"A1:D1\").Clear\n        Tried = ws.Cells.SparklineGroups.Count\n    Case 12\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = g.Creator & \" \" & TypeName(g.Parent) & \" \" & TypeName(g.Application)\n    Case 13\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = TypeName(g.Item(1).Parent) & \" \" & g.Item(1).SourceData & \" \" & g.Item(1).Location.Address\n    Case 14\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = TypeName(ws.Range(\"E1\").SparklineGroups.Parent) & \" \" & ws.Range(\"E1\").SparklineGroups.Parent.Address\n    Case 15\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = g.Item(2).SourceData\n    Case 16\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = g.Item(0).SourceData\n    Case 17\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = ws.Range(\"E1\").SparklineGroups(2).Type\n    Case 18\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.Type = xlSparkColumn\n        Tried = g.Type\n        wb.SaveAs folder & \"\\retyped.xlsx\", xlOpenXMLWorkbook\n    Case 19\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.Type = 9\n        Tried = g.Type\n    Case 20\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(4, \"A1:D1\").Type\n    Case 21\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1\").SourceData\n    Case 22\n        Tried = ws.Range(\"E1:F1\").SparklineGroups.Add(xlSparkLine, \"A1:D2\").Location.Address\n    Case 23\n        Tried = ws.Range(\"E1:F2\").SparklineGroups.Add(xlSparkLine, \"A1:D4\").Count\n    Case 24\n        Tried = ws.Range(\"E1:E4\").SparklineGroups.Add(xlSparkLine, \"A1:D4\").Item(3).SourceData\n    Case 25\n        Tried = ws.Range(\"A10:D10\").SparklineGroups.Add(xlSparkLine, \"A1:D4\").Item(2).SourceData\n        wb.SaveAs folder & \"\\across.xlsx\", xlOpenXMLWorkbook\n    Case 26\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"Sheet2!A1:D1\").SourceData\n    Case 27\n        wb.Worksheets.Add After:=ws\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"Sheet2!A1:D1\").SourceData\n        wb.SaveAs folder & \"\\elsewhere.xlsx\", xlOpenXMLWorkbook\n    Case 28\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"nonsense\").SourceData\n    Case 29\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"\").SourceData\n    Case 30\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"$A$1:$D$1\").SourceData\n        wb.SaveAs folder & \"\\absolute.xlsx\", xlOpenXMLWorkbook\n    Case 31\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"a1:d1\").SourceData\n    Case 32\n        Tried = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D2\").SourceData\n    Case 33\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        ws.Range(\"E1\").SparklineGroups.Add xlSparkLine, \"A2:D2\"\n        Tried = ws.Cells.SparklineGroups.Count & \" \" & ws.Range(\"E1\").SparklineGroups(1).SourceData\n    Case 34\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        Tried = ws.Range(\"E1\").Value & \"|\" & IsEmpty(ws.Range(\"E1\").Value)\n    Case 35\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        ws.Range(\"E1\").Value = 5\n        Tried = ws.Range(\"E1\").Value & \" \" & ws.Cells.SparklineGroups.Count\n    Case 36\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.Location = ws.Range(\"F1\")\n        Tried = g.Location.Address\n    Case 37\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.SourceData = \"A2:D2\"\n        Tried = g.SourceData\n    Case 38\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.Modify ws.Range(\"F1\"), \"A2:D2\"\n        Tried = g.Location.Address & \" \" & g.SourceData\n        wb.SaveAs folder & \"\\modified.xlsx\", xlOpenXMLWorkbook\n    Case 39\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.ModifySourceData \"A3:D3\"\n        Tried = g.SourceData\n    Case 40\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.ModifyLocation ws.Range(\"G1\")\n        Tried = g.Location.Address\n    Case 41\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.Item(1).SourceData = \"A2:D2\"\n        Tried = g.SourceData & \" \" & g.Item(1).SourceData\n    Case 42\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.Item(1).ModifyLocation ws.Range(\"H1\")\n        Tried = g.Location.Address\n    Case 43\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.SeriesColor.Color = vbGreen\n        Tried = g.SeriesColor.Color & \" \" & g.SeriesColor.ThemeColor\n    Case 44\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.LineWeight = 0\n        Tried = g.LineWeight\n    Case 45\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.LineWeight = -1\n        Tried = g.LineWeight\n    Case 46\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.LineWeight = 2000\n        Tried = g.LineWeight\n    Case 47\n        Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n        g.LineWeight = 0.75\n        Tried = g.LineWeight\n        wb.SaveAs folder & \"\\weight.xlsx\", xlOpenXMLWorkbook\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 47\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "TypeName(g) & \" \" & g.Type & \" \" & g.SourceData & \" \" & g.Location.Address & \" \" & g.Count & \" \" & ws.Cells.SparklineGroups.Count & \" \" & ws.Range(\"E1\").SparklineGroups.Count & \" \" & ws.Range(\"A1\").SparklineGroups.Count",
+   "one.xlsx",
+   "SparklineGroup 1 A1:D1 $E$1 1 1 1 0"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1:E3\").SparklineGroups.Add(xlSparkColumn, \"A1:D3\")"
+   ],
+   "g.Type & \" \" & g.SourceData & \" \" & g.Location.Address & \" \" & g.Count & \" \" & g.Item(2).Location.Address & \" \" & g.Item(2).SourceData & \" \" & TypeName(g.Item(1))",
+   "three.xlsx",
+   "2 A1:D3 $E$1:$E$3 3 $E$2 A2:D2 Sparkline"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkColumnStacked100, \"A1:D1\")"
+   ],
+   "g.Type",
+   "winloss.xlsx",
+   "3"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "g.LineWeight & \" \" & g.SeriesColor.Color & \" \" & g.SeriesColor.ThemeColor & \" \" & g.SeriesColor.TintAndShade & \" \" & g.DisplayBlanksAs & \" \" & g.DisplayHidden",
+   "",
+   "0.75 9592887 0 0 1 False"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.SeriesColor.Color = RGB(255, 0, 0)",
+    "g.LineWeight = 1.5"
+   ],
+   "g.LineWeight & \" \" & g.SeriesColor.Color",
+   "styled.xlsx",
+   "1.5 255"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "ws.Range(\"E3\").SparklineGroups.Add xlSparkColumn, \"A2:D2\""
+   ],
+   "ws.Cells.SparklineGroups.Count & \" \" & ws.Cells.SparklineGroups(1).Location.Address & \" \" & ws.Cells.SparklineGroups(2).Location.Address & \" \" & ws.Range(\"E1:E3\").SparklineGroups.Count & \" \" & ws.Range(\"E2\").SparklineGroups.Count",
+   "two.xlsx",
+   "2 $E$3 $E$1 2 0"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.Delete"
+   ],
+   "ws.Cells.SparklineGroups.Count",
+   "",
+   "0"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "ws.Range(\"E1\").SparklineGroups.Clear"
+   ],
+   "ws.Cells.SparklineGroups.Count",
+   "cleared.xlsx",
+   "0"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1:E2\").SparklineGroups.Add(xlSparkLine, \"A1:D2\")",
+    "ws.Range(\"E2\").SparklineGroups.Clear"
+   ],
+   "ws.Cells.SparklineGroups.Count & \" \" & g.Count & \" \" & g.Location.Address & \" \" & g.SourceData",
+   "",
+   "1 1 $E$1 A1:D1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "ws.Range(\"E1\").ClearContents"
+   ],
+   "ws.Cells.SparklineGroups.Count",
+   "",
+   "1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "ws.Range(\"E1\").Clear"
+   ],
+   "ws.Cells.SparklineGroups.Count",
+   "",
+   "0"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "ws.Range(\"A1:D1\").Clear"
+   ],
+   "ws.Cells.SparklineGroups.Count",
+   "",
+   "1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "g.Creator & \" \" & TypeName(g.Parent) & \" \" & TypeName(g.Application)",
+   "",
+   "1480803660 SparklineGroups Application"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "TypeName(g.Item(1).Parent) & \" \" & g.Item(1).SourceData & \" \" & g.Item(1).Location.Address",
+   "",
+   "SparklineGroup A1:D1 $E$1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "TypeName(ws.Range(\"E1\").SparklineGroups.Parent) & \" \" & ws.Range(\"E1\").SparklineGroups.Parent.Address",
+   "",
+   "Range $E$1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "g.Item(2).SourceData",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "g.Item(0).SourceData",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "ws.Range(\"E1\").SparklineGroups(2).Type",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.Type = xlSparkColumn"
+   ],
+   "g.Type",
+   "retyped.xlsx",
+   "2"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.Type = 9"
+   ],
+   "g.Type",
+   "",
+   "Err 1004"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(4, \"A1:D1\").Type",
+   "",
+   "Err 1004"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1\").SourceData",
+   "",
+   "A1:A1"
+  ],
+  [
+   [],
+   "ws.Range(\"E1:F1\").SparklineGroups.Add(xlSparkLine, \"A1:D2\").Location.Address",
+   "",
+   "$E$1:$F$1"
+  ],
+  [
+   [],
+   "ws.Range(\"E1:F2\").SparklineGroups.Add(xlSparkLine, \"A1:D4\").Count",
+   "",
+   "Err 1004"
+  ],
+  [
+   [],
+   "ws.Range(\"E1:E4\").SparklineGroups.Add(xlSparkLine, \"A1:D4\").Item(3).SourceData",
+   "",
+   "A3:D3"
+  ],
+  [
+   [],
+   "ws.Range(\"A10:D10\").SparklineGroups.Add(xlSparkLine, \"A1:D4\").Item(2).SourceData",
+   "across.xlsx",
+   "A2:D2"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"Sheet2!A1:D1\").SourceData",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "wb.Worksheets.Add After:=ws"
+   ],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"Sheet2!A1:D1\").SourceData",
+   "elsewhere.xlsx",
+   "Sheet2!A1:D1"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"nonsense\").SourceData",
+   "",
+   "Err 1004"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"\").SourceData",
+   "",
+   "Err 1004"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"$A$1:$D$1\").SourceData",
+   "absolute.xlsx",
+   "$A$1:$D$1"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"a1:d1\").SourceData",
+   "",
+   "A1:D1"
+  ],
+  [
+   [],
+   "ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D2\").SourceData",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "ws.Range(\"E1\").SparklineGroups.Add xlSparkLine, \"A2:D2\""
+   ],
+   "ws.Cells.SparklineGroups.Count & \" \" & ws.Range(\"E1\").SparklineGroups(1).SourceData",
+   "",
+   "1 A2:D2"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")"
+   ],
+   "ws.Range(\"E1\").Value & \"|\" & IsEmpty(ws.Range(\"E1\").Value)",
+   "",
+   "|True"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "ws.Range(\"E1\").Value = 5"
+   ],
+   "ws.Range(\"E1\").Value & \" \" & ws.Cells.SparklineGroups.Count",
+   "",
+   "5 1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.Location = ws.Range(\"F1\")"
+   ],
+   "g.Location.Address",
+   "",
+   "$E$1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.SourceData = \"A2:D2\""
+   ],
+   "g.SourceData",
+   "",
+   "A2:D2"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.Modify ws.Range(\"F1\"), \"A2:D2\""
+   ],
+   "g.Location.Address & \" \" & g.SourceData",
+   "modified.xlsx",
+   "$F$1 A2:D2"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.ModifySourceData \"A3:D3\""
+   ],
+   "g.SourceData",
+   "",
+   "A3:D3"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.ModifyLocation ws.Range(\"G1\")"
+   ],
+   "g.Location.Address",
+   "",
+   "$G$1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.Item(1).SourceData = \"A2:D2\""
+   ],
+   "g.SourceData & \" \" & g.Item(1).SourceData",
+   "",
+   "A2:D2 A2:D2"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.Item(1).ModifyLocation ws.Range(\"H1\")"
+   ],
+   "g.Location.Address",
+   "",
+   "$H$1"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.SeriesColor.Color = vbGreen"
+   ],
+   "g.SeriesColor.Color & \" \" & g.SeriesColor.ThemeColor",
+   "",
+   "65280 0"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.LineWeight = 0"
+   ],
+   "g.LineWeight",
+   "",
+   "0"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.LineWeight = -1"
+   ],
+   "g.LineWeight",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.LineWeight = 2000"
+   ],
+   "g.LineWeight",
+   "",
+   "Err 1004"
+  ],
+  [
+   [
+    "Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")",
+    "g.LineWeight = 0.75"
+   ],
+   "g.LineWeight",
+   "weight.xlsx",
+   "0.75"
+  ]
+ ],
+ "parts": {
+  "one.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{D6B243CB-BB26-49E7-B5A3-954264811D53}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "three.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{BE72AC20-403F-4A9E-B162-86BA73B24ECC}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline><x14:sparkline><xm:f>Sheet1!A2:D2</xm:f><xm:sqref>E2</xm:sqref></x14:sparkline><x14:sparkline><xm:f>Sheet1!A3:D3</xm:f><xm:sqref>E3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "winloss.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"stacked\" displayEmptyCellsAs=\"gap\" negative=\"1\" xr2:uid=\"{4EF54F8A-22F1-48FA-BB3F-2162A33A0374}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "styled.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup lineWeight=\"1.5\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{2C297036-60B7-4C98-8805-5469FD4365CC}\"><x14:colorSeries rgb=\"FFFF0000\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "two.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{F1FDD807-0D15-4B9B-B765-B0255FAF805E}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A2:D2</xm:f><xm:sqref>E3</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{4A7988F8-A39E-4006-AC05-E442BF8EEADE}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "cleared.xlsx": "",
+  "retyped.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{7D632839-290A-498E-86DC-08FA8F212266}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "across.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{B3582D5B-1A4E-45D5-8612-9073F55102E7}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>A10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>Sheet1!A2:D2</xm:f><xm:sqref>B10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>Sheet1!A3:D3</xm:f><xm:sqref>C10</xm:sqref></x14:sparkline><x14:sparkline><xm:f>Sheet1!A4:D4</xm:f><xm:sqref>D10</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "elsewhere.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{8174ED27-92B8-41E3-9B2B-0212DA0B7DBF}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet2!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "absolute.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{74D1BD43-A4AE-4511-A156-22A5CD233B6B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!$A$1:$D$1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "modified.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{508B164A-7392-4E21-A8FF-976363CCE2E8}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A2:D2</xm:f><xm:sqref>F1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>",
+  "weight.xlsx": "<extLst><ext uri=\"{05C60535-1F16-4fd2-B633-F4F36F0B64E0}\" xmlns:x14=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\"><x14:sparklineGroups xmlns:xm=\"http://schemas.microsoft.com/office/excel/2006/main\"><x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{89B5DBAD-29E0-43C5-B6E9-8DB3AC251EB2}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup></x14:sparklineGroups></ext></extLst>"
+ }
+}

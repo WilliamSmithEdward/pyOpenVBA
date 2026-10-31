@@ -367,6 +367,9 @@ def plan_sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: boo
                    across: bool, charge_value: Callable[[object], None] | None = None) -> SortPlan | None:
     """Sort the rows of ``area`` -- its columns, ``across`` -- by ``keys``, the first row or column kept if ``header``."""
     from pyopenvba.apps.excel import _merges
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(sheet, "Sorting on")
 
     if any(_merges.intersects(area, one) for one in sheet.merged_areas):
         raise VBAUnsupportedError("sorting merged cells is not implemented")

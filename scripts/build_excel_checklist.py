@@ -66,6 +66,7 @@ def bound_classes() -> dict[str, type]:
         _scenarios,
         _shapes,
         _sheet_tabs,
+        _sparklines,
         _sort,
         _tables,
         _validation,
@@ -79,7 +80,7 @@ def bound_classes() -> dict[str, type]:
                    _pivot_cells, _sheet_tabs, _conditional,
                    _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _page_breaks, _outline,
                    _document_properties, _rich_text, _custom_properties, _error_checks,
-                   _scenarios, _cell_format):
+                   _scenarios, _cell_format, _sparklines):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

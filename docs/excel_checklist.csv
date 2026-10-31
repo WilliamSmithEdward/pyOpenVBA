@@ -1841,7 +1841,7 @@ Range,ShrinkToFit,property,As Variant,,VERIFIED,tests/fixtures/range_format.json
 Range,Sort,method,"Sort([Key1 As Variant], [Order1 As XlSortOrder], [Key2 As Variant], [Type As Variant], [Order2 As XlSortOrder], [Key3 As Variant], [Order3 As XlSortOrder], [Header As XlYesNoGuess], [OrderCustom As Variant], [MatchCase As Variant], [Orientation As XlSortOrientation], [SortMethod As XlSortMethod], [DataOption1 As XlSortDataOption], [DataOption2 As XlSortDataOption], [DataOption3 As XlSortDataOption], [SubField1 As Variant]) As Variant",no SubField1,PARTIAL,tests/fixtures/sort.json; tests/fixtures/sort_order.json; tests/fixtures/sort_text.json; tests/fixtures/sort_keys.json; tests/fixtures/sort_keys_cjk.json; tests/fixtures/custom_orders.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_array_edits.json,"Up to three keys, orders, headers kept, guessed or not, case, orientation and text as numbers, in Excel's order for text in Latin, Greek and Cyrillic with their accents, marks, punctuation and symbols, and in kana, kanji, CJK symbols and full-width forms, kanji in Japanese order under ExcelApplication(locale=""ja-JP""), which is Windows' word sort; other scripts, iteration marks, text that begins with a combining mark, merged cells and several areas report themselves unsupported. On a filtered sheet the visible rows sort among themselves."""""""
 Range,SortSpecial,method,"SortSpecial([SortMethod As XlSortMethod], [Key1 As Variant], [Order1 As XlSortOrder], [Type As Variant], [Key2 As Variant], [Order2 As XlSortOrder], [Key3 As Variant], [Order3 As XlSortOrder], [Header As XlYesNoGuess], [OrderCustom As Variant], [MatchCase As Variant], [Orientation As XlSortOrientation], [DataOption1 As XlSortDataOption], [DataOption2 As XlSortDataOption], [DataOption3 As XlSortDataOption]) As Variant",,MISSING,,
 Range,SoundNote,"property, read-only",As SoundNote,,MISSING,,
-Range,SparklineGroups,"property, read-only",As SparklineGroups,,MISSING,,
+Range,SparklineGroups,"property, read-only",As SparklineGroups,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"The sparkline groups the range reaches, newest first. A row or column put in or taken away, a copy, cut, sort or fill, and a sheet copied, renamed or deleted, where a sparkline sits or reads, are unsupported."
 Range,Speak,method,"Speak([SpeakDirection As Variant], [SpeakFormulas As Variant])",,MISSING,,
 Range,SpecialCells,method,"SpecialCells(Type As XlCellType, [Value As Variant]) As Range",,PARTIAL,tests/fixtures/special_cells.json; tests/fixtures/excel_model/probes.txt,"Constants and formulas by kind, blanks, the last cell, visible cells and the cells with notes, split into areas as Excel splits them; validation and conditional formats report themselves unsupported."
 Range,SpillingToRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/dynamic_arrays.json,The block a dynamic-array formula in the first cell spilled into; Nothing for any other cell.
@@ -2212,6 +2212,54 @@ SortFields,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/sort.jso
 SortFields,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 SortFields,Item,"property, read-only",As SortField,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,"By number from 1; 0 is 1004, past the last 9, text 13."
 SortFields,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,The Sort it was first reached through.
+SparkColor,Application,"property, read-only",As Application,,MISSING,,
+SparkColor,Color,"property, read-only",As FormatColor,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"The colour, read from its RGB or its theme colour; a set writes an RGB."
+SparkColor,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
+SparkColor,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its group.
+SparkColor,ThemeColor,not in the type library,,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,0 for an RGB colour.
+SparkColor,TintAndShade,not in the type library,,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,0 unless the file gives a tint.
+SparkColor,Visible,property,As Boolean,,MISSING,,
+Sparkline,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The application.
+Sparkline,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
+Sparkline,Location,property,As Range,no setter,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its cell.
+Sparkline,ModifyLocation,method,ModifyLocation(Range As Range),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A new cell.
+Sparkline,ModifySourceData,method,ModifySourceData(Formula As String),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A new source for its cell.
+Sparkline,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its group.
+Sparkline,SourceData,property,As String,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Its source, as the group spells sources; a set is ModifySourceData."
+SparklineGroup,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+SparklineGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The application.
+SparklineGroup,Axes,"property, read-only",As SparkAxes,,MISSING,,
+SparklineGroup,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its sparklines.
+SparklineGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
+SparklineGroup,DateRange,property,As String,,MISSING,,
+SparklineGroup,Delete,method,Delete(),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Takes the group away.
+SparklineGroup,DisplayBlanksAs,property,As XlDisplayBlanksAs,no setter,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"xlNotPlotted, gaps; other settings a file gives are unsupported."
+SparklineGroup,DisplayHidden,property,As Boolean,no setter,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"displayHidden, False by default."
+SparklineGroup,Item,"property, read-only",As Sparkline,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A sparkline; out of range is 1004.
+SparklineGroup,LineWeight,property,As Variant,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"0.75 by default, left out of the file there; 0 to 1584, else 1004."
+SparklineGroup,Location,property,As Range,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Its cells; a set is passed over, as Excel passes it over."
+SparklineGroup,Modify,method,"Modify(Location As Range, SourceData As String)",,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,New cells and source.
+SparklineGroup,ModifyDateRange,method,ModifyDateRange(DateRange As String),,MISSING,,
+SparklineGroup,ModifyLocation,method,ModifyLocation(Location As Range),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"New cells, as many as before."
+SparklineGroup,ModifySourceData,method,ModifySourceData(SourceData As String),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A new source for the same cells.
+SparklineGroup,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The SparklineGroups it was reached through.
+SparklineGroup,PlotBy,property,As XlSparklineRowCol,,MISSING,,
+SparklineGroup,Points,"property, read-only",As SparkPoints,,MISSING,,
+SparklineGroup,SeriesColor,"property, read-only",As FormatColor,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The series' SparkColor.
+SparklineGroup,SourceData,property,As String,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"As given, in capitals, a cell as a range of one, another sheet named; the block its sparklines read. A set is ModifySourceData."
+SparklineGroup,Type,property,As XlSparkType,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"xlSparkLine, xlSparkColumn or xlSparkColumnStacked100; a set between line and column works, another number is 1004, win/loss either way unsupported."
+SparklineGroups,_Default,"property, read-only",As SparklineGroup,,MISSING,,
+SparklineGroups,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+SparklineGroups,Add,method,"Add(Type As XlSparkType, SourceData As String) As SparklineGroup",,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Line, column or win/loss sparklines, one for each cell of a row or column, each a row of the source where it has as many, else a column; a cell holding one takes the new one. An unknown type, a block of cells, a source that does not fit or is no reference: 1004."
+SparklineGroups,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The application.
+SparklineGroups,Clear,method,Clear(),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"The range's sparklines go, a group left with none too."
+SparklineGroups,ClearGroups,method,ClearGroups(),,MISSING,,
+SparklineGroups,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The groups the range reaches.
+SparklineGroups,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
+SparklineGroups,Group,method,Group(Location As Range),,MISSING,,
+SparklineGroups,Item,"property, read-only",As SparklineGroup,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Newest first; out of range is 1004.
+SparklineGroups,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The range.
+SparklineGroups,Ungroup,method,Ungroup(),,MISSING,,
 Style,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
 Style,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json; tests/fixtures/cell_styles/style_changes.json,Read and set; each cell that follows the style follows it while the style includes the part.
 Style,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,

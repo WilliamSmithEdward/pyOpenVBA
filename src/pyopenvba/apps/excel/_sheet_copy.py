@@ -46,6 +46,9 @@ def _admit_filters(source: Worksheet) -> None:
 
 def _admit_content(source: Worksheet) -> None:
     """Report what a copy of ``source`` would leave out, before anything is copied."""
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(source, "Copying")
     from pyopenvba.apps.excel._page_setup import guard_copy
 
     guard_copy(source)

@@ -3,6 +3,17 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- 31 more Application switches read and set as Excel's do, among them
+  `AutoPercentEntry`, `ExtendList`, `EnableSound`, `DisplayPasteOptions`,
+  `DisplayFormulaAutoComplete`, `FlashFill`, `GenerateGetPivotData` and
+  `ShowToolTips`. `ConstrainNumeric` and `FlashFillMode` stay False
+  whatever is set, as in Excel. All 31 follow the live answers in
+  `tests/fixtures/application_settings.json`.
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

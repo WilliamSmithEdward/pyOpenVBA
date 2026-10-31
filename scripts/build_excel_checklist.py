@@ -46,6 +46,7 @@ def bound_classes() -> dict[str, type]:
         _conditional_display,
         _data_bars,
         _document_properties,
+        _error_checks,
         _formats,
         _hyperlinks,
         _icon_sets,
@@ -74,7 +75,7 @@ def bound_classes() -> dict[str, type]:
                    _cell_styles, _hyperlinks, _charts, _chart_axes, _pivots, _pivot_criteria, _pivot_calculated,
                    _pivot_cells, _sheet_tabs, _conditional,
                    _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _page_breaks, _outline,
-                   _document_properties, _rich_text):
+                   _document_properties, _rich_text, _error_checks):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

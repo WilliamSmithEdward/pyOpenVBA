@@ -150,6 +150,8 @@ class Cell:
     save_dirty: bool | None = None
     #: The runs of fonts the cell's text is in, where it is in more than its own (see _rich_text).
     runs: tuple[Run, ...] | None = None
+    #: The error checks Range.Errors(...).Ignore set, one bit each from xlEvaluateToError (see _error_checks).
+    ignored_errors: int = 0
     #: Range.ID, which goes with the cell's contents (tests/fixtures/range_small_members.json).
     html_id: str = ""
 
@@ -158,7 +160,7 @@ class Cell:
         return self.style.number_format if self.style is not None else "General"
 
     def is_blank(self) -> bool:
-        return self.value is EMPTY and not self.formula and self.style is None and not self.html_id
+        return self.value is EMPTY and not self.formula and self.style is None and not self.html_id and not self.ignored_errors
 
 
 # --- Application ------------------------------------------------------------------------
@@ -2401,6 +2403,10 @@ class Worksheet(ExcelObject):
         self.tab_changed = False
         #: The sheet's manual page breaks, read from its file when first needed (see _page_breaks).
         self.page_breaks: SheetBreaks | None = None
+        #: Whether the sheet's part holds ignoredErrors, None until asked; and whether a macro changed what the
+        #: sheet ignores, so a save writes it (see _error_checks).
+        self.ignored_from_file: bool | None = None
+        self.ignored_changed = False
         #: The sheet's last Range.Consolidate, None before one (see _consolidate).
         self.consolidation: ConsolidationSettings | None = None
         #: The sheet's scenarios, read from its part when first needed, and whether a macro changed them, so a save
@@ -3082,7 +3088,7 @@ class Worksheet(ExcelObject):
         Excel keeps a cell with nothing in it only while its format differs
         from its row's or column's, and lets it go the moment it does not.
         """
-        if cell.value is not EMPTY or cell.formula or cell.html_id:
+        if cell.value is not EMPTY or cell.formula or cell.html_id or cell.ignored_errors:
             return True
         return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
 
@@ -4333,6 +4339,13 @@ class Range(ExcelObject):
         self._set_format("ReadingOrder", value)
 
     @member
+    def Errors(self) -> object:
+        """The cell's error checks (see _error_checks)."""
+        from pyopenvba.apps.excel._error_checks import Errors
+
+        return Errors(self)
+
+    @member
     def AllowEdit(self) -> object:
         """False where the sheet's contents are protected, for the user alone too, and any cell is locked
         (tests/fixtures/range_small_members.json)."""
@@ -4724,6 +4737,10 @@ class Range(ExcelObject):
             cell.formula = ""
             cell.stale = False
             cell.dynamic = False
+            if cell.ignored_errors:
+                # A cell cleared checks for errors again (tests/fixtures/range_errors.json).
+                cell.ignored_errors = 0
+                self.sheet.ignored_changed = True
             cell.html_id = ""
             self.sheet.settle(row, column)
             self.sheet.cell_changed(row, column)
@@ -5717,6 +5734,10 @@ class Range(ExcelObject):
         cell.spilled_from = None
         # A value written, the same text too, is in the cell's own font (tests/fixtures/characters.json).
         cell.runs = None
+        if cell.ignored_errors:
+            # And is checked for errors again (tests/fixtures/range_errors.json).
+            cell.ignored_errors = 0
+            self.sheet.ignored_changed = True
         changed = style
         if result.number_format is not None:
             changed = applying(changed, "number_format", number_format=result.number_format)

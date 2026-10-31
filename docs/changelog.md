@@ -18,6 +18,88 @@ All notable changes to pyOpenVBA are documented here. This project follows
   - Null
   - `ColorIndex` of a colour a changed palette does not hold
 
+- Workbook settings answer as Excel's do:
+  - `DefaultTableStyle` and `DefaultPivotTableStyle` read and set as
+    `TableStyle` objects and save to `styles.xml`. `ListObjects.Add`
+    takes the default table style.
+  - `ShowPivotTableFieldList`, `ShowPivotChartActiveFields` and
+    `InactiveListBorderVisible` read and set, and save to `workbookPr`.
+  - `DefaultSlicerStyle`, `DefaultTimelineStyle`, `CreateBackup`,
+    `HasPassword`, `CaseSensitive`, `UseWholeCellCriteria`,
+    `UseWildcards`, `Final`, `UpdateRemoteReferences`,
+    `ChartDataPointTrack` and `AccuracyVersion` read as Excel's, and
+    refuse what Excel refuses.
+  - `TableStyles(name)` finds a built-in style.
+  64 live cases agree, `tests/fixtures/workbook_settings.json`. Setting
+  a value Excel takes but saves outside the parts measured reports itself
+  unsupported.
+
+- 31 more Application switches read and set as Excel's do, among them
+  `AutoPercentEntry`, `ExtendList`, `EnableSound`, `DisplayPasteOptions`,
+  `DisplayFormulaAutoComplete`, `FlashFill`, `GenerateGetPivotData` and
+  `ShowToolTips`. `ConstrainNumeric` and `FlashFillMode` stay False
+  whatever is set, as in Excel. All 31 follow the live answers in
+  `tests/fixtures/application_settings.json`.
+
+- `Range.ApplyNames` turns the references in a range's formulas, or the
+  whole sheet's when the range is one cell, into the names that refer to
+  the same cells, as Excel does, with `Names:=` and
+  `IgnoreRelativeAbsolute:=` and Excel's two errors.
+
+- A defined name's `MacroType`, `ShortcutKey`, `Category` and
+  `CategoryLocal`, set on `Name` or given to `Names.Add`, as Excel keeps
+  them and saves them in a macro-enabled workbook; Excel leaves such names
+  out of an `.xlsx`. `WorkbookParameter` and `ValidWorkbookParameter`
+  answer as Excel does.
+
+- `Range.Consolidate` combines source ranges by position or by their row
+  and column labels with any of its eleven functions, as Excel does, and
+  `Worksheet.ConsolidationFunction`, `ConsolidationOptions` and
+  `ConsolidationSources` read back the last one.
+
+- `Range.ID`, `Range.AllowEdit` and `Range.ListHeaderRows` answer as
+  Excel does; ListHeaderRows makes Excel's guess at a list's header rows.
+
+- `Workbook.PrecisionAsDisplayed` keeps every number as its format shows
+  it, as Excel does: turning it on rounds the workbook's numbers, and
+  numbers written, formats given and formula results round from then on.
+  It is saved and read as `calcPr fullPrecision="0"`.
+
+- `Range.Errors` answers Excel's error checks for a cell, a number
+  stored as text, a two-digit text year, an error result, an inconsistent
+  formula, omitted or empty cells and an unlocked formula among them, as
+  Excel does. `Ignore` is kept until the cell changes and saved as
+  Excel saves it.
+
+- `Application.ErrorCheckingOptions` reads the error-checking settings a
+  new Excel session has, and keeps what a macro sets for the session.
+
+- Gradient fills work as Excel's do: `Interior.Pattern` takes
+  `xlPatternLinearGradient` and `xlPatternRectangularGradient`, and
+  `Interior.Gradient` reads and sets the degree, the rectangle and the
+  colour stops. A save writes the fill as Excel writes it.
+
+- `Range.AutoOutline` groups the rows and columns that formulas sum, at
+  one level, as Excel groups them, and sets the summary side it finds.
+  Summaries of summaries, which Excel nests, report themselves
+  unsupported.
+
+- `Worksheet.Scenarios` adds, shows, changes and deletes what-if
+  scenarios as Excel does, with its comments and errors, and saves and
+  reads them in the sheet part.
+
+### Fixed
+
+- The checklist's `Range.Sort` row was split by undoubled quotes. A test
+  now checks that every row has its eight fields.
+
+- A defined name that shares its word with a worksheet function, such as
+  `Rate`, keeps its own spelling in a formula written with it, as Excel
+  spells it, instead of being upper-cased.
+
+- `Range.Locked = Null` is taken without an error and changes nothing, as
+  in Excel, instead of raising "Invalid use of Null".
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

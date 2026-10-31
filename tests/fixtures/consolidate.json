@@ -1,0 +1,510 @@
+{
+ "measured_at": "2026-10-31T03:35:07.634284+00:00",
+ "source": "Private Function Settings(ByVal ws As Worksheet) As String\n    Dim s As String, v As Variant, i As Long\n    On Error Resume Next\n    s = \"F=\" & ws.ConsolidationFunction\n    If Err.Number <> 0 Then s = \"F=E\" & Err.Number: Err.Clear\n    v = ws.ConsolidationOptions\n    If Err.Number <> 0 Then\n        s = s & \" O=E\" & Err.Number: Err.Clear\n    ElseIf IsArray(v) Then\n        s = s & \" O=\" & TypeName(v) & \"(\" & LBound(v) & \")\"\n        For i = LBound(v) To UBound(v): s = s & \",\" & TypeName(v(i)) & \":\" & CStr(v(i)): Next\n    Else\n        s = s & \" O=\" & TypeName(v)\n    End If\n    v = ws.ConsolidationSources\n    If Err.Number <> 0 Then\n        s = s & \" S=E\" & Err.Number: Err.Clear\n    ElseIf IsArray(v) Then\n        s = s & \" S=\" & TypeName(v) & \"(\" & LBound(v) & \")\"\n        For i = LBound(v) To UBound(v): s = s & \",\" & CStr(v(i)): Next\n    Else\n        s = s & \" S=\" & TypeName(v)\n    End If\n    Settings = s\nEnd Function\n\nPrivate Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, s1 As Worksheet, s2 As Worksheet, s3 As Worksheet, c As Range, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set s1 = wb.Worksheets(1)\n    s1.Name = \"Sheet1\"\n    Set s2 = wb.Worksheets.Add(After:=s1)\n    s2.Name = \"Sheet2\"\n    Set s3 = wb.Worksheets.Add(After:=s2)\n    s3.Name = \"Sheet3\"\n    s1.Range(\"A1:C4\").Value = Array(Array(\"\", \"Q1\", \"Q2\"), Array(\"Apple\", 1, 2), Array(\"Pear\", 3, 4), Array(\"Fig\", 5, 6))\n    s1.Range(\"A1:C1\").Value = Array(\"\", \"Q1\", \"Q2\")\n    s1.Range(\"A2:C2\").Value = Array(\"Apple\", 1, 2)\n    s1.Range(\"A3:C3\").Value = Array(\"Pear\", 3, 4)\n    s1.Range(\"A4:C4\").Value = Array(\"Fig\", 5, 6)\n    s2.Range(\"A1:C1\").Value = Array(\"\", \"q2\", \"Q3\")\n    s2.Range(\"A2:C2\").Value = Array(\"pear\", 10, 20)\n    s2.Range(\"A3:C3\").Value = Array(\"Kiwi\", 30, 40)\n    s2.Range(\"E1\").Value = 1\n    s2.Range(\"F1\").Value = \"x\"\n    s2.Range(\"F2\").Value = 2.5\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 1\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\")\n    Case 2\n        s3.Range(\"B2\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 3\n        s3.Range(\"A1:A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 4\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, False\n    Case 5\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, False, True\n    Case 6\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, False, False\n    Case 7\n        s3.Range(\"B2\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 8\n        s3.Range(\"A1:B2\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 9\n        s3.Range(\"A1:D5\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 10\n        s3.Range(\"A1:B2\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 11\n        s3.Range(\"A1\").Consolidate \"Sheet1!R2C2:R4C3\", xlSum\n    Case 12\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!B2:C4\"), xlSum\n    Case 13\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet1!R2C2:R4C3\"), xlSum\n    Case 14\n        s3.Range(\"A1\").Consolidate Array(\"[Book9]Sheet1!R2C2:R4C3\"), xlSum\n    Case 15\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlSum\n    Case 16\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\", \"Sheet2!R1C5:R2C6\"), xlCount\n    Case 17\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlCountNums\n    Case 18\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlAverage\n    Case 19\n        s3.Range(\"A1\").Consolidate\n    Case 20\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n        s3.Range(\"A1:F8\").ClearContents\n        s3.Range(\"A1\").Consolidate\n    Case 21\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlMax\n        s3.Range(\"A1:F8\").ClearContents\n        s3.Range(\"A1\").Consolidate Function:=xlMin\n    Case 22\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True, True\n    Case 23\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum, CreateLinks:=False\n    Case 24\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), 99\n    Case 25\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlUnknown\n    Case 26\n        s1.Range(\"A2\").Value = \"pear\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 27\n        s1.Range(\"B1\").Value = Empty\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 28\n        s1.Range(\"A3\").Value = 7\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 29\n        s1.Range(\"A3\").Value = Empty\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 30\n        s1.Range(\"B2:C4\").NumberFormat = \"0.00\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 31\n        s1.Range(\"B2:C4\").NumberFormat = \"0.00\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 32\n        s3.Range(\"A1:F8\").NumberFormat = \"0.0\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 33\n        s3.Range(\"F8\").Value = \"keep\"\n        s3.Range(\"C3\").Value = \"over\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 34\n        s1.Range(\"B2\").Formula = \"=10+1\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 35\n        s1.Range(\"B2\").Value = \"text\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 36\n        s1.Range(\"B2\").Value = CVErr(xlErrDiv0)\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 37\n        s1.Range(\"B2\").Value = True\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 38\n        s1.Range(\"B2\").Value = \"5\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 39\n        s1.Range(\"B2\").Value = 0.1\n        s2.Range(\"B2\").Value = 0.2\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 40\n        s1.Range(\"B2\").Value = DateSerial(2024, 1, 2)\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 41\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n        s3.Range(\"A1:F8\").ClearContents\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C1:R3C3\"), xlCount\n    Case 42\n        s1.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 43\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\"), xlSum, True, True\n    Case 44\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R1C3\"), xlSum, True, False\n    Case 45\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1\"), xlSum\n    Case 46\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n        s3.Range(\"H1\").Consolidate Array(\"Sheet1!R2C2:R3C2\"), xlMax\n    Case 47\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, 1, 0\n    Case 48\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, \"True\", \"False\"\n    Case 49\n        s3.Range(\"A1\").Consolidate Array(), xlSum\n    Case 50\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3,Sheet2!R2C2:R3C3\"), xlSum\n    Case 51\n        s3.Range(\"A1\").Consolidate Array(\"NoSheet!R2C2:R4C3\"), xlSum\n    Case 52\n        wb.Names.Add \"Src\", \"=Sheet1!$B$2:$C$4\"\n        s3.Range(\"A1\").Consolidate Array(\"Src\"), xlSum\n    Case 53\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!C2:C3\"), xlSum\n    Case 54\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\"), xlSum\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R2C2:R3C3\")\n    Case 55\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlCount\n    Case 56\n        s3.Range(\"B1\").Value = \"old\"\n        s3.Range(\"A2\").Value = \"old2\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlSum\n    Case 57\n        s3.Range(\"B5\").Value = \"old\"\n        s3.Range(\"A1\").Value = \"corner\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 58\n        s1.Range(\"A1:C4\").NumberFormat = \"0.00\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 59\n        s2.Range(\"B2:C3\").NumberFormat = \"0.0\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 60\n        s1.Range(\"B2\").ClearContents\n        s1.Range(\"B2\").NumberFormat = \"0.000\"\n        s2.Range(\"B2\").NumberFormat = \"0.0\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 61\n        s1.Range(\"B2\").Value = \"text\"\n        s1.Range(\"B2\").NumberFormat = \"0.000\"\n        s2.Range(\"B2\").NumberFormat = \"0.0\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum\n    Case 62\n        s1.Range(\"B2\").Value = \"text\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlCount\n    Case 63\n        s1.Range(\"C1\").Value = 2024\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 64\n        s1.Range(\"B3\").Value = \"n/a\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 65\n        s1.Range(\"B3\").Value = \"n/a\"\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlCount, True, True\n    Case 66\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True\n    Case 67\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlCount, True, True\n    Case 68\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlAverage, True, True\n    Case 69\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlMax, True, True\n    Case 70\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlMin, True, True\n    Case 71\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlProduct, True, True\n    Case 72\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlCountNums, True, True\n    Case 73\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlStDev, True, True\n    Case 74\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlStDevP, True, True\n    Case 75\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlVar, True, True\n    Case 76\n        s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlVarP, True, True\n    End Select\n    For Each c In s3.Range(\"A1:F8\")\n        If Not IsEmpty(c.Formula) And c.Formula <> \"\" Then s = s & \";\" & c.Address(False, False) & \"=\" & c.Formula & IIf(c.NumberFormat = \"General\", \"\", \"{\" & c.NumberFormat & \"}\")\n    Next\n    Tried = Mid(s, 2) & \" | \" & Settings(s3) & \" | \" & Settings(s1)\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description & \" | \" & Settings(s3)\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\")"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"B2\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "B2=11;C2=22;B3=33;C3=44;B4=5;C4=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1:A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=14;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, False"
+   ],
+   "A1=Q1;B1=Q2;C1=Q3;A2=1;B2=12;C2=20;A3=3;B3=34;C3=40;A4=5;B4=6 | F=-4157 O=Variant()(1),Boolean:True,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, False, True"
+   ],
+   "A1=Apple;B1=1;C1=2;A2=Pear;B2=13;C2=24;A3=Fig;B3=5;C3=6;A4=Kiwi;B4=30;C4=40 | F=-4157 O=Variant()(1),Boolean:False,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, False, False"
+   ],
+   "B2=11;C2=22;B3=33;C3=44;B4=5;C4=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"B2\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "C2=Q1;D2=Q2;E2=Q3;B3=Apple;C3=1;D3=2;B4=Pear;C4=3;D4=14;E4=20;B5=Fig;C5=5;D5=6;B6=Kiwi;D6=30;E6=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1:B2\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=11;B1=22;A2=33;B2=44 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1:D5\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1:B2\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;A2=Apple;B2=1 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate \"Sheet1!R2C2:R4C3\", xlSum"
+   ],
+   "A1=1;B1=2;A2=3;B2=4;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!B2:C4\"), xlSum"
+   ],
+   "Err 1004 Reference isn't valid. | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),B2:C4"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet1!R2C2:R4C3\"), xlSum"
+   ],
+   "Err 1004 Cannot add duplicate source reference. | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"[Book9]Sheet1!R2C2:R4C3\"), xlSum"
+   ],
+   " | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),[Book9]Sheet1!$B$2:$C$4 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlSum"
+   ],
+   "A1=1;B2=2.5 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet2!$E$1:$F$2 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\", \"Sheet2!R1C5:R2C6\"), xlCount"
+   ],
+   "Err 1004 Cannot add duplicate source reference. | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlCountNums"
+   ],
+   "A1=1;B2=1 | F=-4113 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet2!$E$1:$F$2 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlAverage"
+   ],
+   "A1=1;B2=2.5 | F=-4106 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet2!$E$1:$F$2 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate"
+   ],
+   "Err 1004 No source references specified for consolidation. | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum",
+    "s3.Range(\"A1:F8\").ClearContents",
+    "s3.Range(\"A1\").Consolidate"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlMax",
+    "s3.Range(\"A1:F8\").ClearContents",
+    "s3.Range(\"A1\").Consolidate Function:=xlMin"
+   ],
+   "A1=1;B1=2;A2=3;B2=4;A3=5;B3=6 | F=-4139 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True, True"
+   ],
+   "C1=Q1;D1=Q2;E1=Q3;B2=Sheet23;C2==Sheet1!$B$2;D2==Sheet1!$C$2;A3=Apple;C3==SUM(C2);D3==SUM(D2);B4=Sheet23;C4==Sheet1!$B$3;D4==Sheet1!$C$3;B5=Sheet23;D5==Sheet2!$B$2;E5==Sheet2!$C$2;A6=Pear;C6==SUM(C4:C5);D6==SUM(D4:D5);E6==SUM(E4:E5);B7=Sheet23;C7==Sheet1!$B$4;D7==Sheet1!$C$4;A8=Fig;C8==SUM(C7);D8==SUM(D7) | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:True S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum, CreateLinks:=False"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), 99"
+   ],
+   "Err 1004 Consolidate method of Range class failed | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlUnknown"
+   ],
+   "Err 1004 Consolidate method of Range class failed | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"A2\").Value = \"pear\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=pear;B2=4;C2=16;D2=20;A3=Fig;B3=5;C3=6;A4=Kiwi;C4=30;D4=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B1\").Value = Empty",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q2;C1=Q3;A2=Apple;B2=2;A3=Pear;B3=14;C3=20;A4=Fig;B4=6;A5=Kiwi;B5=30;C5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"A3\").Value = 7",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=7;B3=3;C3=4;A4=Fig;B4=5;C4=6;A5=pear;C5=10;D5=20;A6=Kiwi;C6=30;D6=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"A3\").Value = Empty",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Fig;B3=5;C3=6;A4=pear;C4=10;D4=20;A5=Kiwi;C5=30;D5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2:C4\").NumberFormat = \"0.00\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=11{0.00};B1=22{0.00};A2=33{0.00};B2=44{0.00};A3=5{0.00};B3=6{0.00} | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2:C4\").NumberFormat = \"0.00\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1{0.00};C2=2{0.00};A3=Pear;B3=3{0.00};C3=14{0.00};D3=20;A4=Fig;B4=5{0.00};C4=6{0.00};A5=Kiwi;C5=30;D5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1:F8\").NumberFormat = \"0.0\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"F8\").Value = \"keep\"",
+    "s3.Range(\"C3\").Value = \"over\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6;C3=over;F8=keep | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Formula = \"=10+1\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=21;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = \"text\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=10;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = CVErr(xlErrDiv0)",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=#DIV/0!;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = True",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=10;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = \"5\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=15;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = 0.1",
+    "s2.Range(\"B2\").Value = 0.2",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=0.3;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = DateSerial(2024, 1, 2)",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=45303{m/d/yyyy};B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True",
+    "s3.Range(\"A1:F8\").ClearContents",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C1:R3C3\"), xlCount"
+   ],
+   "B1=q2;C1=Q3;A2=pear;B2=1;C2=1;A3=Kiwi;B3=1;C3=1 | F=-4112 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   " | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=4;A4=Fig;B4=5;C4=6 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R1C3\"), xlSum, True, False"
+   ],
+   " | F=-4157 O=Variant()(1),Boolean:True,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$1 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1\"), xlSum"
+   ],
+   " | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$A$1 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True",
+    "s3.Range(\"H1\").Consolidate Array(\"Sheet1!R2C2:R3C2\"), xlMax"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=14;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4136 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$B$2:$B$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, 1, 0"
+   ],
+   "A1=Q1;B1=Q2;C1=Q3;A2=1;B2=12;C2=20;A3=3;B3=34;C3=40;A4=5;B4=6 | F=-4157 O=Variant()(1),Boolean:True,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, \"True\", \"False\""
+   ],
+   "A1=Q1;B1=Q2;C1=Q3;A2=1;B2=12;C2=20;A3=3;B3=34;C3=40;A4=5;B4=6 | F=-4157 O=Variant()(1),Boolean:True,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(), xlSum"
+   ],
+   "Err 13 Type mismatch | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3,Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "Err 1004 Reference isn't valid. | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),R2C2:R4C3,Sheet2!R2C2:R3C3"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"NoSheet!R2C2:R4C3\"), xlSum"
+   ],
+   " | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),NoSheet!$B$2:$C$4 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "wb.Names.Add \"Src\", \"=Sheet1!$B$2:$C$4\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Src\"), xlSum"
+   ],
+   "A1=1;B1=2;A2=3;B2=4;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Src | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!C2:C3\"), xlSum"
+   ],
+   "Err 1004 Consolidate method of Range class failed | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B:$C"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\"), xlSum",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R2C2:R3C3\")"
+   ],
+   "A1=10;B1=20;A2=30;B2=40;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlCount"
+   ],
+   "A1=1;B1=1;B2=1 | F=-4112 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet2!$E$1:$F$2 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"B1\").Value = \"old\"",
+    "s3.Range(\"A2\").Value = \"old2\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet2!R1C5:R2C6\"), xlSum"
+   ],
+   "A1=1;B2=2.5 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet2!$E$1:$F$2 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"B5\").Value = \"old\"",
+    "s3.Range(\"A1\").Value = \"corner\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "A1=corner;B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=14;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"A1:C4\").NumberFormat = \"0.00\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1{0.00};C2=2{0.00};A3=Pear;B3=3{0.00};C3=14{0.00};D3=20;A4=Fig;B4=5{0.00};C4=6{0.00};A5=Kiwi;C5=30;D5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s2.Range(\"B2:C3\").NumberFormat = \"0.0\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=11;B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").ClearContents",
+    "s1.Range(\"B2\").NumberFormat = \"0.000\"",
+    "s2.Range(\"B2\").NumberFormat = \"0.0\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=10{0.0};B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = \"text\"",
+    "s1.Range(\"B2\").NumberFormat = \"0.000\"",
+    "s2.Range(\"B2\").NumberFormat = \"0.0\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlSum"
+   ],
+   "A1=10{0.0};B1=22;A2=33;B2=44;A3=5;B3=6 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B2\").Value = \"text\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R2C2:R4C3\", \"Sheet2!R2C2:R3C3\"), xlCount"
+   ],
+   "A1=2;B1=2;A2=2;B2=2;A3=1;B3=1 | F=-4112 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Variant()(1),Sheet1!$B$2:$C$4,Sheet2!$B$2:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"C1\").Value = 2024",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=2024;D1=q2;E1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=4;D3=10;E3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;D5=30;E5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B3\").Value = \"n/a\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;C3=14;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s1.Range(\"B3\").Value = \"n/a\"",
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlCount, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=1;A3=Pear;B3=1;C3=2;D3=1;A4=Fig;B4=1;C4=1;A5=Kiwi;C5=1;D5=1 | F=-4112 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlSum, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=14;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4157 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlCount, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=1;A3=Pear;B3=1;C3=2;D3=1;A4=Fig;B4=1;C4=1;A5=Kiwi;C5=1;D5=1 | F=-4112 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlAverage, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=7;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4106 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlMax, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=10;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4136 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlMin, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=4;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4139 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlProduct, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=2;A3=Pear;B3=3;C3=40;D3=20;A4=Fig;B4=5;C4=6;A5=Kiwi;C5=30;D5=40 | F=-4149 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlCountNums, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=1;C2=1;A3=Pear;B3=1;C3=2;D3=1;A4=Fig;B4=1;C4=1;A5=Kiwi;C5=1;D5=1 | F=-4113 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlStDev, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=#DIV/0!;C2=#DIV/0!;A3=Pear;B3=#DIV/0!;C3=4.24264068711928;D3=#DIV/0!;A4=Fig;B4=#DIV/0!;C4=#DIV/0!;A5=Kiwi;C5=#DIV/0!;D5=#DIV/0! | F=-4155 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlStDevP, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=0;C2=0;A3=Pear;B3=0;C3=3;D3=0;A4=Fig;B4=0;C4=0;A5=Kiwi;C5=0;D5=0 | F=-4156 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlVar, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=#DIV/0!;C2=#DIV/0!;A3=Pear;B3=#DIV/0!;C3=18;D3=#DIV/0!;A4=Fig;B4=#DIV/0!;C4=#DIV/0!;A5=Kiwi;C5=#DIV/0!;D5=#DIV/0! | F=-4164 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ],
+  [
+   [
+    "s3.Range(\"A1\").Consolidate Array(\"Sheet1!R1C1:R4C3\", \"Sheet2!R1C1:R3C3\"), xlVarP, True, True"
+   ],
+   "B1=Q1;C1=Q2;D1=Q3;A2=Apple;B2=0;C2=0;A3=Pear;B3=0;C3=9;D3=0;A4=Fig;B4=0;C4=0;A5=Kiwi;C5=0;D5=0 | F=-4165 O=Variant()(1),Boolean:True,Boolean:True,Boolean:False S=Variant()(1),Sheet1!$A$1:$C$4,Sheet2!$A$1:$C$3 | F=-4157 O=Variant()(1),Boolean:False,Boolean:False,Boolean:False S=Empty"
+  ]
+ ]
+}

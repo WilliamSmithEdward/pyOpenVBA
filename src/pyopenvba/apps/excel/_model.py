@@ -74,6 +74,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._outline import OutlineState
     from pyopenvba.apps.excel._page_breaks import SheetBreaks
+    from pyopenvba.apps.excel._consolidate import Settings as ConsolidationSettings
     from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
@@ -1231,6 +1232,23 @@ class Workbooks(VBACollection, ExcelObject):
             self.application.active_book = front_to_back(self.application)[0] if self.books else None
 
 
+def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., None]]:
+    """The getter and setter of one Workbook property kept for the session (see _workbook_settings.SESSION)."""
+
+    def read(self: Workbook) -> object:
+        from pyopenvba.apps.excel._workbook_settings import session_value
+
+        return session_value(self, name)
+
+    def write(self: Workbook, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_session_value
+
+        set_session_value(self, name, value)
+
+    read.__name__ = name
+    return member(read), setter(name)(write)
+
+
 class Workbook(ExcelObject):
     """One workbook: its sheets, its names, and where it came from."""
 
@@ -1254,6 +1272,8 @@ class Workbook(ExcelObject):
         #: (_workbook_settings), which a save writes.
         self.workbook_pr: dict[str, str] = {}
         self.workbook_pr_changed: set[str] = set()
+        #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
+        self.session_properties: dict[str, object] = {}
         self.project_runtime: Interpreter | None = None
         #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
         self.format_code: int | None = None
@@ -1534,6 +1554,39 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._workbook_settings import unmeasured_set
 
         unmeasured_set("ChartDataPointTrack", value, 13)
+
+    AutoSaveOn, _set_auto_save_on = _session_property("AutoSaveOn")
+    AutoUpdateFrequency, _set_auto_update_frequency = _session_property("AutoUpdateFrequency")
+    ChangeHistoryDuration, _set_change_history_duration = _session_property("ChangeHistoryDuration")
+    CompatibilityVersion, _set_compatibility_version = _session_property("CompatibilityVersion")
+    ConflictResolution, _set_conflict_resolution = _session_property("ConflictResolution")
+    ConnectionsDisabled, _set_connections_disabled = _session_property("ConnectionsDisabled")
+    DoNotPromptForConvert, _set_do_not_prompt_for_convert = _session_property("DoNotPromptForConvert")
+    EncryptionProvider, _set_encryption_provider = _session_property("EncryptionProvider")
+    EnvelopeVisible, _set_envelope_visible = _session_property("EnvelopeVisible")
+    Excel8CompatibilityMode, _set_excel8_compatibility_mode = _session_property("Excel8CompatibilityMode")
+    HighlightChangesOnScreen, _set_highlight_changes_on_screen = _session_property("HighlightChangesOnScreen")
+    IsAddin, _set_is_addin = _session_property("IsAddin")
+    IsInplace, _set_is_inplace = _session_property("IsInplace")
+    KeepChangeHistory, _set_keep_change_history = _session_property("KeepChangeHistory")
+    ListChangesOnNewSheet, _set_list_changes_on_new_sheet = _session_property("ListChangesOnNewSheet")
+    MultiUserEditing, _set_multi_user_editing = _session_property("MultiUserEditing")
+    PersonalViewListSettings, _set_personal_view_list_settings = _session_property("PersonalViewListSettings")
+    PersonalViewPrintSettings, _set_personal_view_print_settings = _session_property("PersonalViewPrintSettings")
+    RevisionNumber, _set_revision_number = _session_property("RevisionNumber")
+    ShowConflictHistory, _set_show_conflict_history = _session_property("ShowConflictHistory")
+    TemplateRemoveExtData, _set_template_remove_ext_data = _session_property("TemplateRemoveExtData")
+    VBASigned, _set_vba_signed = _session_property("VBASigned")
+    WriteReserved, _set_write_reserved = _session_property("WriteReserved")
+
+    @member
+    def AutoUpdateSaveChanges(self) -> object:
+        """Error 1004 on a workbook that is not shared (tests/fixtures/workbook_properties.json)."""
+        raise error(1004)
+
+    @setter("AutoUpdateSaveChanges")
+    def _set_auto_update_save_changes(self, value: object) -> None:
+        raise error(1004)
 
     @member
     def AccuracyVersion(self) -> object:
@@ -2354,6 +2407,8 @@ class Worksheet(ExcelObject):
         #: sheet ignores, so a save writes it (see _error_checks).
         self.ignored_from_file: bool | None = None
         self.ignored_changed = False
+        #: The sheet's last Range.Consolidate, None before one (see _consolidate).
+        self.consolidation: ConsolidationSettings | None = None
         #: The sheet's scenarios, read from its part when first needed, and whether a macro changed them, so a save
         #: writes them (see _scenarios).
         self.scenarios: Any = None
@@ -2471,6 +2526,26 @@ class Worksheet(ExcelObject):
         """Rows or columns moved, so every formula has to be read again."""
         self.touched()
         self.book.calculator.rebuild()
+
+    # -- consolidation (see _consolidate)
+
+    @member
+    def ConsolidationFunction(self) -> object:
+        from pyopenvba.apps.excel._consolidate import settings
+
+        return VBAInt(settings(self).function, "Long")
+
+    @member
+    def ConsolidationOptions(self) -> object:
+        from pyopenvba.apps.excel._consolidate import options
+
+        return options(self)
+
+    @member
+    def ConsolidationSources(self) -> object:
+        from pyopenvba.apps.excel._consolidate import sources
+
+        return sources(self)
 
     # -- identity
 
@@ -5008,6 +5083,15 @@ class Range(ExcelObject):
         else:
             Destination.sheet.touched()
             Destination.sheet.book.calculator.wrote_area(Destination.sheet.name, written)
+        return True
+
+    @method
+    def Consolidate(self, Sources: object = MISSING, Function: object = MISSING, TopRow: object = MISSING,
+                    LeftColumn: object = MISSING, CreateLinks: object = MISSING) -> object:
+        """Sum or otherwise combine source ranges into this one (see _consolidate)."""
+        from pyopenvba.apps.excel._consolidate import consolidate
+
+        consolidate(self, Sources, Function, TopRow, LeftColumn, CreateLinks)
         return True
 
     @method

@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `AutoFilter.Sort` keeps the sheet filter's own sort settings apart
+  from `Worksheet.Sort`, as Excel does. Its range and header row are the
+  filter's, so `SetRange` is error 1004 and a `Header` of xlNo error 5.
+  `Apply` sorts the rows under the header. From then on a save writes
+  the fields as they are, those added since included, in the
+  `autoFilter` element. Removing the filter forgets them. 16 live cases
+  and 7 saves agree, `tests/fixtures/autofilter_sort.json`. These report
+  themselves unsupported:
+  - the Sort of a table's AutoFilter
+  - `Apply` on a filter with criteria
+  - reading the sort a file keeps with its AutoFilter
+
 - Twelve `Parent` and `Application` members answer as Excel's do.
   `Areas.Parent` is the range of every area, `Filters.Parent` the
   AutoFilter and `WorksheetFunction.Parent` the application, and Areas,
@@ -132,6 +144,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- `AutoFilter.ShowAllData` on a sheet filter with no criteria does
+  nothing, as Excel's does, instead of raising error 1004.
+  `Worksheet.ShowAllData` still raises it there, as Excel's does.
 
 - A save leaves `PrintComments`, `PrintErrors` and `Order` out of the
   `pageSetup` when a macro set them back to their defaults, as Excel

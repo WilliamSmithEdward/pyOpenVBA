@@ -1,5 +1,7 @@
 """Bake each character's Windows sort weights (en-US), which Excel's sort orders text by, into
-src/pyopenvba/apps/excel/_sort_weights.py, so text sorts as Windows sorts it on every platform.
+src/pyopenvba/apps/excel/_sort_weights.py, so text sorts as Windows sorts it on every platform; and those of kana,
+CJK symbols, full-width forms and Han ideographs under en-US and ja-JP into _sort_weights_cjk.py, with the keys
+Windows makes of 1,500 seeded strings in each locale in tests/fixtures/sort_keys_cjk.json.
 
 For each character of Latin and its extensions, the combining marks, Greek, Cyrillic, general punctuation, currency
 and letterlike symbols, LCMapStringEx gives the sort key of the character alone, ignoring case and matching it. Its
@@ -76,6 +78,151 @@ WEIGHTS: Final[dict[int, tuple[str, str, str, str, str]]] = {
     OUT.write_text(header + "\n".join(rows) + "\n}\n", encoding="utf-8")
     print(len(rows), "characters written to", OUT)
     write_keys(kernel)
+    write_cjk(kernel)
+
+
+CJK_OUT = OUT.with_name("_sort_weights_cjk.py")
+#: CJK symbols, kana, full-width forms and half-width katakana: the same weights under en-US and ja-JP.
+KANA_RANGES = [(0x3000, 0x303F), (0x3041, 0x30FF), (0xFF01, 0xFF5E), (0xFF61, 0xFF9F)]
+#: Han: extension A, the unified ideographs and the compatibility ideographs, weighed apart in each locale.
+HAN_RANGES = [(0x3400, 0x4DBF), (0x4E00, 0x9FFF), (0xF900, 0xFAFF)]
+#: The prolonged sound marks, which take the vowel of the kana before them.
+PROLONGED = (0x30FC, 0xFF70)
+#: Characters whose weights come from the one before them otherwise than a prolonged sound mark's, the iteration
+#: marks among them, and the double hyphen: left out, so they report themselves unsupported.
+CONTEXTUAL = {0x3005, 0x3031, 0x3032, 0x3033, 0x3034, 0x3035, 0x303B, 0x309D, 0x309E, 0x30A0, 0x30FD, 0x30FE}
+
+
+def _sections_of(kernel: ctypes.WinDLL, locale: str, text: str, flags: int) -> list[bytes]:
+    size = kernel.LCMapStringEx(locale, LCMAP_SORTKEY | flags, text, len(text), None, 0, None, None, None)
+    out = ctypes.create_string_buffer(size)
+    kernel.LCMapStringEx(locale, LCMAP_SORTKEY | flags, text, len(text), out, size, None, None, None)
+    return out.raw[:size].removesuffix(b"\x00").split(b"\x01")
+
+
+def write_cjk(kernel: ctypes.WinDLL) -> None:
+    """Bake kana, CJK symbols and full-width forms, the vowel a prolonged sound mark takes after each kana, and the
+    Han ideographs' primary weights under en-US and ja-JP."""
+    kana: list[str] = []
+    vowels: list[str] = []
+    for low, high in KANA_RANGES:
+        for code in range(low, high + 1):
+            if code in CONTEXTUAL or code in PROLONGED:
+                continue
+            ignoring = _sections_of(kernel, "en-US", chr(code), NORM_IGNORECASE)
+            matching = _sections_of(kernel, "en-US", chr(code), 0)
+            assert ignoring == _sections_of(kernel, "ja-JP", chr(code), NORM_IGNORECASE), hex(code)
+            assert matching == _sections_of(kernel, "ja-JP", chr(code), 0), hex(code)
+            primary, accents, ignored_case, extra, skipped = ignoring
+            assert (primary, accents, extra, skipped) == (matching[0], matching[1], matching[3], matching[4])
+            assert len(primary) % 2 == 0 and len(skipped) % 4 == 0, hex(code)
+            weights = b"".join(skipped[at + 2:at + 4] for at in range(0, len(skipped), 4))
+            # The extra weights of a kana alone: small, katakana, half-width.
+            flags = 0
+            if extra:
+                small, kind, width, last = extra.split(b"\xff")
+                assert kind[:1] == b"\x02" and not last and small in (b"", b"\xc4") and width in (b"", b"\xc4")
+                assert kind[1:] in (b"", b"\xc4"), hex(code)
+                flags = (1 if small else 0) | (2 if kind[1:] else 0) | (4 if width else 0) | 8
+                after = _sections_of(kernel, "en-US", chr(code) + "ー", NORM_IGNORECASE)[0]
+                vowels.append(f"    0x{code:04X}: {after[len(primary):].hex()!r},")
+            kana.append(f"    0x{code:04X}: ({primary.hex()!r}, {accents.hex()!r}, {ignored_case.hex()!r}, "
+                        f"{matching[2].hex()!r}, {weights.hex()!r}, {flags}),")
+    han: list[str] = []
+    for locale in ("en-US", "ja-JP"):
+        runs: list[tuple[int, int, int]] = []
+        short: list[str] = []
+        for low, high in HAN_RANGES:
+            for code in range(low, high + 1):
+                found = _sections_of(kernel, locale, chr(code), NORM_IGNORECASE)
+                assert not any(found[1:]), hex(code)
+                primary = found[0]
+                if len(primary) == 4:
+                    weight = int.from_bytes(primary, "big")
+                    if runs and runs[-1][0] + runs[-1][2] == code and runs[-1][1] + runs[-1][2] == weight:
+                        runs[-1] = (runs[-1][0], runs[-1][1], runs[-1][2] + 1)
+                    else:
+                        runs.append((code, weight, 1))
+                else:
+                    assert len(primary) in (0, 2), hex(code)
+                    short.append(f"{code:04X}{primary.hex():0>4}")
+        han.append(f"    {locale!r}: (\n        ("
+                   + ",".join(f"(0x{code:04X},0x{weight:08X},{count})" for code, weight, count in runs)
+                   + "),\n        " + repr("".join(short)) + ",\n    ),")
+    # Where ja-JP weighs a character of the en-US table otherwise: its weights, or None where they come from the
+    # character before it.
+    local: list[str] = []
+    for low, high in RANGES:
+        for code in range(low, high + 1):
+            if code in ODD:
+                continue
+            ignoring = _sections_of(kernel, "ja-JP", chr(code), NORM_IGNORECASE)
+            matching = _sections_of(kernel, "ja-JP", chr(code), 0)
+            if ignoring == _sections_of(kernel, "en-US", chr(code), NORM_IGNORECASE) and \
+                    matching == _sections_of(kernel, "en-US", chr(code), 0):
+                continue
+            primary, accents, ignored_case, extra, skipped = ignoring
+            if primary == b"\xff\xff":
+                local.append(f"    0x{code:04X}: None,")
+                continue
+            assert not extra and not skipped and len(primary) % 2 == 0, hex(code)
+            local.append(f"    0x{code:04X}: ({primary.hex()!r}, {accents.hex()!r}, {ignored_case.hex()!r}, "
+                         f"{matching[2].hex()!r}, ''),")
+    header = '''"""Windows sort weights for kana, CJK symbols, full-width forms and Han ideographs, which Excel's sort orders text
+by: generated by scripts/bake_sort_weights.py, not edited by hand.
+
+KANA maps a character to its primary, diacritic and case weights (ignoring case, matching it) and its weight where
+word sort passes over it, as hex, the same under en-US and ja-JP, and its extra weights as flags: 1 small, 2
+katakana, 4 half-width, 8 a kana at all. VOWEL is the primary weight a prolonged sound mark takes after a kana. HAN
+gives each locale's ideographs: runs of four-byte primary weights, (first character, its weight, how many), each
+next character weighing one more; then every other ideograph as four hex digits of code and four of weight, 0000
+for one Windows passes over. JAPANESE gives the characters of the en-US table ja-JP weighs otherwise, None for one
+whose weights come from the character before it.
+"""
+from __future__ import annotations
+
+from typing import Final
+
+KANA: Final[dict[int, tuple[str, str, str, str, str, int]]] = {
+'''
+    text = (header + "\n".join(kana) + "\n}\n\nVOWEL: Final[dict[int, str]] = {\n" + "\n".join(vowels)
+            + "\n}\n\nHAN: Final[dict[str, tuple[tuple[tuple[int, int, int], ...], str]]] = {\n" + "\n".join(han)
+            + "\n}\n\nJAPANESE: Final[dict[int, tuple[str, str, str, str, str] | None]] = {\n" + "\n".join(local)
+            + "\n}\n")
+    CJK_OUT.write_text(text, encoding="utf-8")
+    print(len(kana), "kana and symbols,", len(vowels), "vowels and the Han weights written to", CJK_OUT)
+    write_cjk_keys(kernel)
+
+
+#: Seeded strings of kana, ideographs, symbols and Latin, and the keys Windows makes of them in each locale.
+CJK_KEYS = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "sort_keys_cjk.json"
+
+
+def write_cjk_keys(kernel: ctypes.WinDLL) -> None:
+    import json
+    import random
+
+    pick = random.Random(20261031)
+    kana = [chr(code) for code in range(0x3041, 0x3097)] + [chr(code) for code in range(0x30A1, 0x30FB)] + \
+        [chr(code) for code in range(0xFF66, 0xFF9E)] + ["ー", "ｰ", "゙", "゚", "ﾞ", "ﾟ"]
+    han = [chr(code) for low, high in HAN_RANGES for code in range(low, high + 1)]
+    other = [chr(code) for code in range(0x20, 0x7F)] + [chr(code) for low, high in KANA_RANGES
+                                                          for code in range(low, high + 1)]
+    cases: list[list[str]] = []
+    while len(cases) < 1500:
+        text = "".join(pick.choice(pick.choice((kana, kana, han, other))) for _ in range(pick.randint(1, 8)))
+        cases.append([text] + [_key(kernel, locale, text, flags).hex() for locale in ("en-US", "ja-JP")
+                               for flags in (NORM_IGNORECASE, 0)])
+    lines = ",\n".join(json.dumps(case, ensure_ascii=False) for case in cases)
+    CJK_KEYS.write_text('{"cases": [\n' + lines + "\n]}\n", encoding="utf-8")
+    print(len(cases), "strings' keys written to", CJK_KEYS)
+
+
+def _key(kernel: ctypes.WinDLL, locale: str, text: str, flags: int) -> bytes:
+    size = kernel.LCMapStringEx(locale, LCMAP_SORTKEY | flags, text, len(text), None, 0, None, None, None)
+    out = ctypes.create_string_buffer(size)
+    kernel.LCMapStringEx(locale, LCMAP_SORTKEY | flags, text, len(text), out, size, None, None, None)
+    return out.raw[:size]
 
 
 #: Seeded strings and the sort keys Windows makes of them, which the model's must equal on every platform.

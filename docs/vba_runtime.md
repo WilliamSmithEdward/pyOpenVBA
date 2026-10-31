@@ -2412,7 +2412,23 @@ unsupported:
 - a month's name read as a date by a formula
 - a local spelling that NumberFormat would spell as a built-in format
 
-Sorting kana and kanji is not implemented under either format.
+Excel's sort (`Range.Sort` and the `Sort` object) orders kana, kanji, CJK
+symbols and full-width forms under either format, as Windows'
+CompareStringEx does for that locale, which reproduced live Excel's sort
+of 25 such strings under each (`tests/fixtures/vba_locale_live.json`).
+ja-JP puts common kanji in Japanese order and en-US in Unicode's. Kana
+weigh the same in both: small, katakana and half-width forms sort after
+the plain kana, and `ー` takes the vowel of the kana before it. The model
+builds Windows' own sort keys from weights `scripts/bake_sort_weights.py`
+baked (`src/pyopenvba/apps/excel/_sort_weights_cjk.py`). They equal
+Windows' keys for 1,500 seeded strings in each locale
+(`tests/fixtures/sort_keys_cjk.json`). These report themselves
+unsupported:
+- an iteration mark, such as ゝ or 々
+- a `ー` after a mark or after a kanji Windows weighs in four bytes
+- under ja-JP, `―` (U+2015)
+
+Filters, duplicates and names still report Japanese text unsupported.
 
 `Round` of a Double scales by ten to the digits in floating point, rounds
 half to even there and scales back, so `Round(2.345, 2)` is 2.35 (2.345 \* 100

@@ -1,0 +1,351 @@
+{
+ "measured_at": "2026-10-31T04:03:37.221168+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, ws2 As Worksheet, wso As Object, p As Object, r As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        r = ws.CustomProperties.Count & \":\" & TypeName(ws.CustomProperties)\n    Case 1\n        Set p = ws.CustomProperties.Add(\"Key\", \"Val\")\n        r = TypeName(p) & \":\" & p.Name & \"=\" & p.Value\n    Case 2\n        ws.CustomProperties.Add \"Key\", \"Val\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\one.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        ws.CustomProperties.Add \"Num\", 5\n        ws.CustomProperties.Add \"Dbl\", 1.5\n        ws.CustomProperties.Add \"Bool\", True\n        ws.CustomProperties.Add \"Day\", #1/2/2024#\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\types.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        ws.CustomProperties.Add \"Key\", \"a\"\n        ws.CustomProperties.Add \"Key\", \"b\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\duplicate.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        ws.CustomProperties.Add \"Key\", \"a\"\n        ws.CustomProperties.Add \"KEY\", \"b\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 6\n        ws.CustomProperties.Add \"\", \"a\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 7\n        ws.CustomProperties.Add \"Key\", \"\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\blank.xlsx\", xlOpenXMLWorkbook\n    Case 8\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.CustomProperties.Add \"A\", \"2\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\order.xlsx\", xlOpenXMLWorkbook\n    Case 9\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.CustomProperties.Add \"A\", \"2\"\n        r = ws.CustomProperties(1).Name & ws.CustomProperties.Item(2).Name\n    Case 10\n        ws.CustomProperties.Add \"B\", \"1\"\n        r = ws.CustomProperties(\"B\").Value\n    Case 11\n        ws.CustomProperties.Add \"B\", \"1\"\n        r = ws.CustomProperties(2).Value\n    Case 12\n        ws.CustomProperties.Add \"B\", \"1\"\n        r = ws.CustomProperties(0).Value\n    Case 13\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.CustomProperties.Add \"A\", \"2\"\n        ws.CustomProperties(1).Delete\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\deleted.xlsx\", xlOpenXMLWorkbook\n    Case 14\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.CustomProperties(1).Value = 7\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 15\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.CustomProperties(1).Name = \"C\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 16\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.CustomProperties(1).Value = Empty\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 17\n        ws.CustomProperties.Add \"B\", Null\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 18\n        Set wso = ws\n        wso.CustomProperties.Add \"B\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 19\n        Set wso = ws\n        wso.CustomProperties.Add Value:=\"x\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 20\n        ws.CustomProperties.Add \"B\", ws.Range(\"A1\")\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 21\n        ws.Range(\"A1\").Value = \"cell\"\n        ws.CustomProperties.Add \"B\", ws.Range(\"A1\")\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 22\n        ws.CustomProperties.Add \"B\", Array(1, 2)\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 23\n        ws.CustomProperties.Add String(300, \"n\"), \"v\"\n        r = Len(ws.CustomProperties(1).Name)\n    Case 24\n        ws.CustomProperties.Add \"n\", String(70000, \"v\")\n        r = Len(ws.CustomProperties(1).Value)\n    Case 25\n        ws.CustomProperties.Add \"a b!\", \"x y\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\odd.xlsx\", xlOpenXMLWorkbook\n    Case 26\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.Copy After:=ws\n        Set ws = wb.Worksheets(2)\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 27\n        ws.CustomProperties.Add \"B\", \"1\"\n        r = TypeName(ws.CustomProperties.Parent) & TypeName(ws.CustomProperties(1).Parent) & ws.CustomProperties.Creator & ws.CustomProperties(1).Creator\n    Case 28\n        ws.CustomProperties.Add \"B\", \"1\"\n        ws.CustomProperties.Add \"A\", \"2\"\n        wb.SaveAs folder & \"\\reopen.xlsx\"\n        wb.Close\n        Set wb = Workbooks.Open(folder & \"\\reopen.xlsx\")\n        Set ws = wb.Worksheets(1)\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 29\n        ws.CustomProperties.Add \"Num\", 5\n        ws.CustomProperties.Add \"Day\", #1/2/2024#\n        wb.SaveAs folder & \"\\reopen_types.xlsx\"\n        wb.Close\n        Set wb = Workbooks.Open(folder & \"\\reopen_types.xlsx\")\n        Set ws = wb.Worksheets(1)\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n    Case 30\n        Set ws2 = wb.Worksheets.Add(After:=ws)\n        ws2.CustomProperties.Add \"S2\", \"two\"\n        ws.CustomProperties.Add \"S1\", \"one\"\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\two_sheets.xlsx\", xlOpenXMLWorkbook\n    Case 31\n        ws.CustomProperties.Add \"B\", 1E+300\n        ws.CustomProperties.Add \"C\", 1.23456789012345\n        For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r\n        wb.SaveAs folder & \"\\numbers.xlsx\", xlOpenXMLWorkbook\n    End Select\n    Tried = CStr(r)\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "r = ws.CustomProperties.Count & \":\" & TypeName(ws.CustomProperties)"
+   ],
+   "",
+   "0:CustomProperties"
+  ],
+  [
+   [
+    "Set p = ws.CustomProperties.Add(\"Key\", \"Val\")",
+    "r = TypeName(p) & \":\" & p.Name & \"=\" & p.Value"
+   ],
+   "",
+   "CustomProperty:Key=Val"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"Key\", \"Val\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "one.xlsx",
+   "1|Key=String:Val"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"Num\", 5",
+    "ws.CustomProperties.Add \"Dbl\", 1.5",
+    "ws.CustomProperties.Add \"Bool\", True",
+    "ws.CustomProperties.Add \"Day\", #1/2/2024#",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "types.xlsx",
+   "4|Bool=String:-1|Day=String:1/2/2024|Dbl=String:1.5|Num=String:5"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"Key\", \"a\"",
+    "ws.CustomProperties.Add \"Key\", \"b\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "duplicate.xlsx",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"Key\", \"a\"",
+    "ws.CustomProperties.Add \"KEY\", \"b\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"\", \"a\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "1|=String:a"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"Key\", \"\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "blank.xlsx",
+   "Err 7 Out of memory"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.CustomProperties.Add \"A\", \"2\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "order.xlsx",
+   "2|A=String:2|B=String:1"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.CustomProperties.Add \"A\", \"2\"",
+    "r = ws.CustomProperties(1).Name & ws.CustomProperties.Item(2).Name"
+   ],
+   "",
+   "AB"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "r = ws.CustomProperties(\"B\").Value"
+   ],
+   "",
+   "Err 13 Type mismatch"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "r = ws.CustomProperties(2).Value"
+   ],
+   "",
+   "Err 9 Subscript out of range"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "r = ws.CustomProperties(0).Value"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.CustomProperties.Add \"A\", \"2\"",
+    "ws.CustomProperties(1).Delete",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "deleted.xlsx",
+   "1|B=String:1"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.CustomProperties(1).Value = 7",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "1|B=String:7"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.CustomProperties(1).Name = \"C\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "1|C=String:1"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.CustomProperties(1).Value = Empty",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", Null",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set wso = ws",
+    "wso.CustomProperties.Add \"B\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "Set wso = ws",
+    "wso.CustomProperties.Add Value:=\"x\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", ws.Range(\"A1\")",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "Err 7 Out of memory"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"cell\"",
+    "ws.CustomProperties.Add \"B\", ws.Range(\"A1\")",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "1|B=String:cell"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", Array(1, 2)",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add String(300, \"n\"), \"v\"",
+    "r = Len(ws.CustomProperties(1).Name)"
+   ],
+   "",
+   "Err 7 Out of memory"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"n\", String(70000, \"v\")",
+    "r = Len(ws.CustomProperties(1).Value)"
+   ],
+   "",
+   "70000"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"a b!\", \"x y\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "odd.xlsx",
+   "1|a b!=String:x y"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.Copy After:=ws",
+    "Set ws = wb.Worksheets(2)",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "0"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "r = TypeName(ws.CustomProperties.Parent) & TypeName(ws.CustomProperties(1).Parent) & ws.CustomProperties.Creator & ws.CustomProperties(1).Creator"
+   ],
+   "",
+   "WorksheetWorksheet14808036601480803660"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", \"1\"",
+    "ws.CustomProperties.Add \"A\", \"2\"",
+    "wb.SaveAs folder & \"\\reopen.xlsx\"",
+    "wb.Close",
+    "Set wb = Workbooks.Open(folder & \"\\reopen.xlsx\")",
+    "Set ws = wb.Worksheets(1)",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "2|A=String:2|B=String:1"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"Num\", 5",
+    "ws.CustomProperties.Add \"Day\", #1/2/2024#",
+    "wb.SaveAs folder & \"\\reopen_types.xlsx\"",
+    "wb.Close",
+    "Set wb = Workbooks.Open(folder & \"\\reopen_types.xlsx\")",
+    "Set ws = wb.Worksheets(1)",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "",
+   "2|Day=String:1/2/2024|Num=String:5"
+  ],
+  [
+   [
+    "Set ws2 = wb.Worksheets.Add(After:=ws)",
+    "ws2.CustomProperties.Add \"S2\", \"two\"",
+    "ws.CustomProperties.Add \"S1\", \"one\"",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "two_sheets.xlsx",
+   "1|S1=String:one"
+  ],
+  [
+   [
+    "ws.CustomProperties.Add \"B\", 1E+300",
+    "ws.CustomProperties.Add \"C\", 1.23456789012345",
+    "For Each p In ws.CustomProperties: r = r & \"|\" & p.Name & \"=\" & TypeName(p.Value) & \":\" & p.Value: Next: r = ws.CustomProperties.Count & r"
+   ],
+   "numbers.xlsx",
+   "2|B=String:1E+300|C=String:1.23456789012345"
+  ]
+ ],
+ "parts": {
+  "one.xlsx": {
+   "xl/worksheets/sheet1.xml": "<customProperties><customPr name=\"Key\" r:id=\"rId1\"/></customProperties>",
+   "xl/worksheets/sheet1.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{D47A6C00-F7D9-41B6-AA8F-E90C207691A3}\">",
+   "xl/worksheets/_rels/sheet1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty1.bin\"/></Relationships>",
+   "xl/customProperty1.bin": "560061006c00",
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"bin\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.customProperty\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"
+  },
+  "types.xlsx": {
+   "xl/worksheets/sheet1.xml": "<customProperties><customPr name=\"Bool\" r:id=\"rId1\"/><customPr name=\"Day\" r:id=\"rId2\"/><customPr name=\"Dbl\" r:id=\"rId3\"/><customPr name=\"Num\" r:id=\"rId4\"/></customProperties>",
+   "xl/worksheets/sheet1.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{4229C090-2837-4749-ACC9-8159F261BF4F}\">",
+   "xl/worksheets/_rels/sheet1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty3.bin\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty2.bin\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty1.bin\"/><Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty4.bin\"/></Relationships>",
+   "xl/customProperty1.bin": "2d003100",
+   "xl/customProperty2.bin": "31002f0032002f003200300032003400",
+   "xl/customProperty3.bin": "31002e003500",
+   "xl/customProperty4.bin": "3500",
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"bin\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.customProperty\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"
+  },
+  "order.xlsx": {
+   "xl/worksheets/sheet1.xml": "<customProperties><customPr name=\"A\" r:id=\"rId1\"/><customPr name=\"B\" r:id=\"rId2\"/></customProperties>",
+   "xl/worksheets/sheet1.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{CBF36A4C-4827-4508-A2E3-6AC1DB9C193A}\">",
+   "xl/worksheets/_rels/sheet1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty2.bin\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty1.bin\"/></Relationships>",
+   "xl/customProperty1.bin": "3200",
+   "xl/customProperty2.bin": "3100",
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"bin\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.customProperty\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"
+  },
+  "deleted.xlsx": {
+   "xl/worksheets/sheet1.xml": "<customProperties><customPr name=\"B\" r:id=\"rId1\"/></customProperties>",
+   "xl/worksheets/sheet1.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{D470976C-F859-4823-811A-1782A3690F62}\">",
+   "xl/worksheets/_rels/sheet1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty1.bin\"/></Relationships>",
+   "xl/customProperty1.bin": "3100",
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"bin\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.customProperty\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"
+  },
+  "odd.xlsx": {
+   "xl/worksheets/sheet1.xml": "<customProperties><customPr name=\"a b!\" r:id=\"rId1\"/></customProperties>",
+   "xl/worksheets/sheet1.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{A64241D3-87B9-46C0-9803-235ED75F0D2B}\">",
+   "xl/worksheets/_rels/sheet1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty1.bin\"/></Relationships>",
+   "xl/customProperty1.bin": "780020007900",
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"bin\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.customProperty\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"
+  },
+  "two_sheets.xlsx": {
+   "xl/worksheets/sheet1.xml": "<customProperties><customPr name=\"S1\" r:id=\"rId1\"/></customProperties>",
+   "xl/worksheets/sheet1.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{2D87CE52-0A19-4D8C-80BC-1DB039AFE313}\">",
+   "xl/worksheets/sheet2.xml": "<customProperties><customPr name=\"S2\" r:id=\"rId1\"/></customProperties>",
+   "xl/worksheets/sheet2.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{0C8C859B-1725-4366-AA7F-C6A5F6416948}\">",
+   "xl/worksheets/_rels/sheet1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty1.bin\"/></Relationships>",
+   "xl/worksheets/_rels/sheet2.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty2.bin\"/></Relationships>",
+   "xl/customProperty1.bin": "6f006e006500",
+   "xl/customProperty2.bin": "740077006f00",
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"bin\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.customProperty\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/worksheets/sheet2.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"
+  },
+  "numbers.xlsx": {
+   "xl/worksheets/sheet1.xml": "<customProperties><customPr name=\"B\" r:id=\"rId1\"/><customPr name=\"C\" r:id=\"rId2\"/></customProperties>",
+   "xl/worksheets/sheet1.xml:root": "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac xr xr2 xr3\" xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\" xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\" xmlns:xr2=\"http://schemas.microsoft.com/office/spreadsheetml/2015/revision2\" xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\" xr:uid=\"{208DD961-AD84-429C-AB07-107081251F0C}\">",
+   "xl/worksheets/_rels/sheet1.xml.rels": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty2.bin\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/customProperty\" Target=\"../customProperty1.bin\"/></Relationships>",
+   "xl/customProperty1.bin": "310045002b00330030003000",
+   "xl/customProperty2.bin": "31002e0032003300340035003600370038003900300031003200330034003500",
+   "[Content_Types].xml": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"bin\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.customProperty\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Default Extension=\"xml\" ContentType=\"application/xml\"/><Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/><Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/><Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/><Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/><Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/><Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/></Types>"
+  }
+ }
+}

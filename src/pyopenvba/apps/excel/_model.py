@@ -1275,6 +1275,40 @@ class Workbook(ExcelObject):
     def Name(self) -> object:
         return self.name
 
+    @method
+    def DeleteNumberFormat(self, NumberFormat: object = MISSING) -> object:
+        """Take a custom number format out of the workbook: every cell, row, column and cell style using it shows
+        General, keeping the rest of its format. A built-in format, or "", is error 1004, and so is a protected
+        sheet; a format the workbook does not hold, as NumberFormat spells it, is passed over
+        (tests/fixtures/delete_number_format.json)."""
+        from dataclasses import replace
+
+        from pyopenvba.apps.excel._number_format import BUILTIN, normalized
+
+        failed = "Method 'DeleteNumberFormat' of object '_Workbook' failed"
+        if NumberFormat is MISSING:
+            raise error(449)
+        code = normalized(to_text(NumberFormat), strict=False) if to_text(NumberFormat) else ""
+        if not code or code in BUILTIN.values():
+            raise error(1004, failed)
+        protected = [sheet for sheet in self.sheets_ if getattr(sheet, "protection", None) is not None]
+        if protected:
+            if protected != [self.active_sheet]:
+                raise VBAUnsupportedError("Workbook.DeleteNumberFormat with a protected sheet other than the "
+                                          "active one is not implemented")
+            raise error(1004, failed)
+        from pyopenvba.apps.excel._cell_styles import restyle_book
+
+        stylesheet = self.stylesheet
+        restyle_book(self, lambda style: replace(style, number_format="General") if style.number_format == code
+                     else None)
+        for entry in stylesheet.cell_styles:
+            if entry.format.number_format == code:
+                entry.format = replace(entry.format, number_format="General")
+                stylesheet.restyle_cell_style(entry)
+        self.saved = False
+        return EMPTY
+
     @member
     def Date1904(self) -> object:
         return self.epoch_1904

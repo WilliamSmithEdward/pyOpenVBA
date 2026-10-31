@@ -3,6 +3,16 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Workbook.DeleteNumberFormat` works as Excel's does. Every cell, row,
+  column and cell style using the custom format shows General and keeps
+  the rest of its format. A built-in format, `""` or a protected sheet
+  is error 1004, and a format the workbook does not hold is passed over.
+  17 live cases agree, `tests/fixtures/delete_number_format.json`.
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

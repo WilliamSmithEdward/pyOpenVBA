@@ -3029,6 +3029,20 @@ class Worksheet(ExcelObject):
         unprotect(self, Password)
         return EMPTY
 
+    @method
+    def ClearArrows(self) -> object:
+        """Takes away tracer arrows, which the model never draws; on a protected sheet error 1004
+        (tests/fixtures/clear_arrows.json)."""
+        if self.protection is not None and self.protection.contents:
+            raise error(1004, "ClearArrows method of Worksheet class failed")
+        return EMPTY
+
+    @method
+    def ClearCircles(self) -> object:
+        """Takes away validation circles, which the model never draws, protected sheet or not
+        (tests/fixtures/clear_arrows.json)."""
+        return EMPTY
+
     @member
     def ProtectContents(self) -> object:
         return self.protection is not None and self.protection.contents

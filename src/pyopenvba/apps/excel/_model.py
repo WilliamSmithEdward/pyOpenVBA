@@ -701,6 +701,21 @@ class Application(ExcelObject):
         return self.active_book if self.active_book is not None else NOTHING
 
     @member
+    def FindFormat(self) -> object:
+        """The format Range.Find and Replace look for with SearchFormat, a new CellFormat over it each time
+        (tests/fixtures/find_format.json)."""
+        from pyopenvba.apps.excel._cell_format import CellFormat
+
+        return CellFormat(self, self.find_state.find_format)
+
+    @member
+    def ReplaceFormat(self) -> object:
+        """The format Range.Replace puts in with ReplaceFormat (tests/fixtures/find_format.json)."""
+        from pyopenvba.apps.excel._cell_format import CellFormat
+
+        return CellFormat(self, self.find_state.replace_format)
+
+    @member
     def ThisWorkbook(self) -> object:
         from pyopenvba.apps.excel._projects import ExcelInterpreter
 

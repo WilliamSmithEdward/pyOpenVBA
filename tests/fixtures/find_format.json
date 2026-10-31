@@ -1,0 +1,449 @@
+{
+ "measured_at": "2026-10-31T22:21:27.564090+00:00",
+ "source": "Private Function Show(ByVal v As Variant) As String\n    If IsNull(v) Then\n        Show = \"Null\"\n    Else\n        Show = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Got(ByVal c As Range) As String\n    If c Is Nothing Then\n        Got = \"Nothing\"\n    Else\n        Got = c.Address(False, False)\n    End If\nEnd Function\n\nPrivate Function Grid(ByVal ws As Worksheet) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(\"A1:C4\")\n        s = s & \"|\" & c.Formula\n    Next\n    Grid = Mid(s, 2)\nEnd Function\n\nPrivate Function Fills(ByVal ws As Worksheet) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(\"A1:C4\")\n        s = s & \"|\" & c.Interior.Color\n    Next\n    Fills = Mid(s, 2)\nEnd Function\n\nPrivate Function Italics(ByVal ws As Worksheet) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(\"A1:C4\")\n        s = s & \"|\" & c.Font.Italic\n    Next\n    Italics = Mid(s, 2)\nEnd Function\n\nPrivate Function Bolds(ByVal ws As Worksheet) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(\"A1:C4\")\n        s = s & \"|\" & c.Font.Bold\n    Next\n    Bolds = Mid(s, 2)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, c As Range, v As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:C4\").Value = Application.Transpose(Application.Transpose(Array(Array(\"x1\", \"a\", 3), Array(\"b\", \"x2\", 5), Array(1.5, 7, \"x3\"), Array(\"\", \"q\", \"x4\"))))\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Tried = TypeName(Application.FindFormat) & \" \" & TypeName(Application.ReplaceFormat) & \" \" & (Application.FindFormat Is Application.FindFormat)\n    Case 1\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Tried = Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Interior.Color) & \" \" & Show(Application.FindFormat.NumberFormat) & \" \" & Show(Application.FindFormat.Font.Name) & \" \" & Show(Application.FindFormat.Font.Size) & \" \" & Show(Application.FindFormat.Locked) & \" \" & Show(Application.FindFormat.Interior.ColorIndex)\n    Case 2\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Tried = Show(Application.FindFormat.HorizontalAlignment) & \" \" & Show(Application.FindFormat.WrapText) & \" \" & Show(Application.FindFormat.IndentLevel) & \" \" & Show(Application.FindFormat.Font.Color) & \" \" & Show(Application.FindFormat.Font.Italic) & \" \" & Show(Application.FindFormat.Interior.Pattern) & \" \" & Show(Application.FindFormat.FormulaHidden)\n    Case 3\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Tried = Show(Application.FindFormat.Font.ColorIndex) & \" \" & Show(Application.FindFormat.Font.Strikethrough) & \" \" & Show(Application.FindFormat.VerticalAlignment) & \" \" & Show(Application.FindFormat.Orientation) & \" \" & Show(Application.FindFormat.ShrinkToFit) & \" \" & Show(Application.FindFormat.MergeCells) & \" \" & Show(Application.FindFormat.AddIndent)\n    Case 4\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        Tried = Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 5\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = False\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 6\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Italic = True\n        Tried = Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic)\n    Case 7\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = False\n        Tried = Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic)\n    Case 8\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        Application.FindFormat.Font.Italic = True\n        Tried = Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic)\n    Case 9\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Size = 11\n        Tried = Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic) & \" \" & Show(Application.FindFormat.Font.Name)\n    Case 10\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        ws.Range(\"C3\").Font.Italic = True\n        Application.FindFormat.Font.Bold = True\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"B2\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 11\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Interior.Color = vbYellow\n        Tried = Show(Application.FindFormat.Interior.Color) & \" \" & Show(Application.FindFormat.Interior.Pattern) & \" \" & Show(Application.FindFormat.Interior.ColorIndex) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 12\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.NumberFormat = \"0.00\"\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 13\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        Application.FindFormat.Clear\n        Tried = Show(Application.FindFormat.Font.Bold) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 14\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 15\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"x\", , xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 16\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        Set c = ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True)\n        Tried = Got(c) & \" \" & Got(ws.Range(\"A1:C4\").FindNext(c))\n    Case 17\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Italic = True\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 18\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Color = vbRed\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 19\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Locked = False\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 20\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Interior.ColorIndex = 6\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 21\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        Application.FindFormat.Interior.Color = vbYellow\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 22\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.ReplaceFormat.Interior.Color = vbRed\n        ws.Range(\"A1:C4\").Replace \"x\", \"y\", xlPart, xlByRows, False, , False, True\n        Tried = Grid(ws) & \" \" & Fills(ws)\n    Case 23\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        Application.ReplaceFormat.Font.Italic = True\n        ws.Range(\"A1:C4\").Replace \"\", \"\", xlPart, xlByRows, False, , True, True\n        Tried = Grid(ws) & \" \" & Italics(ws)\n    Case 24\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.FindFormat.Font.Bold = True\n        ws.Range(\"A1:C4\").Replace \"x\", \"z\", xlPart, xlByRows, False, , True, False\n        Tried = Grid(ws)\n    Case 25\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.ReplaceFormat.Font.Bold = False\n        ws.Range(\"A1:C4\").Replace \"x\", \"y\", xlPart, xlByRows, False, , False, True\n        Tried = Grid(ws) & \" \" & Bolds(ws)\n    Case 26\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Interior.Color = vbYellow\n        ws.Range(\"C1\").Interior.Color = vbYellow\n        ws.Range(\"A3\").NumberFormat = \"0.00\"\n        ws.Range(\"B4\").Font.Italic = True\n        ws.Range(\"C2\").Font.Color = vbRed\n        ws.Range(\"A4\").Locked = False\n        ws.Range(\"C3\").Interior.Color = vbYellow\n        Application.ReplaceFormat.NumberFormat = \"0%\"\n        ws.Range(\"A1:C4\").Replace \"7\", \"8\", xlPart, xlByRows, False, , False, True\n        Tried = Grid(ws) & \" \" & ws.Range(\"B3\").NumberFormat\n    Case 27\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Name = \"Arial\"\n        Tried = Show(Application.FindFormat.Font.Name) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 28\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Size = 14\n        Tried = Show(Application.FindFormat.Font.Size) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 29\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Underline = xlUnderlineStyleSingle\n        Tried = Show(Application.FindFormat.Font.Underline) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 30\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.HorizontalAlignment = xlCenter\n        Tried = Show(Application.FindFormat.HorizontalAlignment) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 31\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.WrapText = True\n        Tried = Show(Application.FindFormat.WrapText) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 32\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.IndentLevel = 2\n        Tried = Show(Application.FindFormat.IndentLevel) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 33\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.FormulaHidden = True\n        Tried = Show(Application.FindFormat.FormulaHidden) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 34\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Interior.ColorIndex = 6\n        Tried = Show(Application.FindFormat.Interior.Color) & \" \" & Show(Application.FindFormat.Interior.Pattern)\n    Case 35\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Interior.Color = RGB(250, 250, 5)\n        Tried = Show(Application.FindFormat.Interior.ColorIndex) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 36\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Interior.Pattern = xlSolid\n        Tried = Show(Application.FindFormat.Interior.Pattern) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))\n    Case 37\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Color = vbRed\n        Tried = Show(Application.FindFormat.Font.Color) & \" \" & Show(Application.FindFormat.Font.ColorIndex)\n    Case 38\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Tried = Got(ws.Range(\"E1:F2\").Find(\"\", , , , , , , , True))\n    Case 39\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Set c = ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True)\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\"))\n    Case 40\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Set c = ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True)\n        Tried = Got(ws.Range(\"A1:C4\").FindPrevious(c))\n    Case 41\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"x\", ws.Range(\"C4\"), , , , , , , True))\n    Case 42\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"x3\", ws.Range(\"C4\"), , xlWhole, , , , , True))\n    Case 43\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , xlPrevious, , , True))\n    Case 44\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Tried = Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True))\n    Case 45\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Tried = Got(ws.Range(\"G1:G3\").Find(\"\", , , , , , , , True))\n    Case 46\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.ReplaceFormat.Font.Bold = True\n        Application.ReplaceFormat.Interior.Color = vbGreen\n        ws.Range(\"A1:C4\").Replace \"q\", \"r\", xlWhole, , , , , True\n        Tried = ws.Range(\"B4\").Formula & \" \" & ws.Range(\"B4\").Font.Bold & \" \" & ws.Range(\"B4\").Interior.Color & \" \" & ws.Range(\"B4\").Interior.Pattern\n    Case 47\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.ReplaceFormat.Font.Bold = True\n        ws.Range(\"A1:C4\").Replace \"zz\", \"r\", xlWhole, , , , , True\n        Tried = Bolds(ws)\n    Case 48\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.ReplaceFormat.Font.Bold = True\n        ws.Range(\"A1:C4\").Replace \"\", \"\", xlPart, , , , , True\n        Tried = Bolds(ws)\n    Case 49\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.ReplaceFormat.Font.Bold = True\n        ws.Range(\"A1:C4\").Replace \"x\", \"x\", xlPart, , , , , True\n        Tried = Bolds(ws)\n    Case 50\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        ws.Range(\"A1:C4\").Replace \"\", \"Q\", xlPart, , , , True\n        Tried = Grid(ws)\n    Case 51\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.ReplaceFormat.Font.Bold = True\n        v = ws.Range(\"A1:C4\").Replace(\"x\", \"y\", xlPart, , , , , True)\n        Tried = v\n    Case 52\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.FindFormat.Font.Bold = True\n        Application.ReplaceFormat.Interior.ColorIndex = 4\n        ws.Range(\"A1:C4\").Replace \"\", \"\", xlPart, , , , True, True\n        Tried = ws.Range(\"B2\").Interior.Color & \" \" & ws.Range(\"C3\").Interior.Color & \" \" & ws.Range(\"A1\").Interior.Color\n    Case 53\n        ws.Range(\"B2\").Font.Bold = True\n        ws.Range(\"C3\").Font.Bold = True\n        ws.Range(\"A2\").Font.Name = \"Arial\"\n        ws.Range(\"B3\").Font.Size = 14\n        ws.Range(\"C2\").Font.Underline = xlUnderlineStyleSingle\n        ws.Range(\"A3\").HorizontalAlignment = xlCenter\n        ws.Range(\"B1\").WrapText = True\n        ws.Range(\"C1\").IndentLevel = 2\n        ws.Range(\"A1\").FormulaHidden = True\n        ws.Range(\"B2\").Interior.Color = RGB(250, 250, 5)\n        ws.Range(\"C4\").Interior.Color = vbYellow\n        ws.Range(\"E1\").Value = 1\n        ws.Range(\"F2\").Font.Bold = True\n        ws.Range(\"G1:G3\").Value = 1\n        Application.ReplaceFormat.Font.Bold = True\n        ws.Range(\"A1:C4\").Replace \"x\", \"y\", xlPart, , , , False, False\n        Tried = Bolds(ws)\n    End Select\nDone:\n    Application.FindFormat.Clear\n    Application.ReplaceFormat.Clear\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 53\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "a",
+   [],
+   "TypeName(Application.FindFormat) & \" \" & TypeName(Application.ReplaceFormat) & \" \" & (Application.FindFormat Is Application.FindFormat)",
+   "CellFormat CellFormat False"
+  ],
+  [
+   "a",
+   [],
+   "Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Interior.Color) & \" \" & Show(Application.FindFormat.NumberFormat) & \" \" & Show(Application.FindFormat.Font.Name) & \" \" & Show(Application.FindFormat.Font.Size) & \" \" & Show(Application.FindFormat.Locked) & \" \" & Show(Application.FindFormat.Interior.ColorIndex)",
+   "Null Double:0 Null Null Null Null Null"
+  ],
+  [
+   "a",
+   [],
+   "Show(Application.FindFormat.HorizontalAlignment) & \" \" & Show(Application.FindFormat.WrapText) & \" \" & Show(Application.FindFormat.IndentLevel) & \" \" & Show(Application.FindFormat.Font.Color) & \" \" & Show(Application.FindFormat.Font.Italic) & \" \" & Show(Application.FindFormat.Interior.Pattern) & \" \" & Show(Application.FindFormat.FormulaHidden)",
+   "Null Null Null Null Null Null Null"
+  ],
+  [
+   "a",
+   [],
+   "Show(Application.FindFormat.Font.ColorIndex) & \" \" & Show(Application.FindFormat.Font.Strikethrough) & \" \" & Show(Application.FindFormat.VerticalAlignment) & \" \" & Show(Application.FindFormat.Orientation) & \" \" & Show(Application.FindFormat.ShrinkToFit) & \" \" & Show(Application.FindFormat.MergeCells) & \" \" & Show(Application.FindFormat.AddIndent)",
+   "Null Null Null Null Null Null Null"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Boolean:True Boolean:False B2"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = False"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "A1"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Italic = True"
+   ],
+   "Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic)",
+   "Boolean:False Boolean:True"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = False"
+   ],
+   "Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic)",
+   "Boolean:False Boolean:False"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Application.FindFormat.Font.Italic = True"
+   ],
+   "Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic)",
+   "Boolean:True Boolean:True"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Size = 11"
+   ],
+   "Show(Application.FindFormat.Font.Bold) & \" \" & Show(Application.FindFormat.Font.Italic) & \" \" & Show(Application.FindFormat.Font.Name)",
+   "Null Null Null"
+  ],
+  [
+   "a",
+   [
+    "ws.Range(\"C3\").Font.Italic = True",
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"B2\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "C3"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Interior.Color = vbYellow"
+   ],
+   "Show(Application.FindFormat.Interior.Color) & \" \" & Show(Application.FindFormat.Interior.Pattern) & \" \" & Show(Application.FindFormat.Interior.ColorIndex) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Double:65535 Null Long:6 C1"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.NumberFormat = \"0.00\""
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "A3"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Application.FindFormat.Clear"
+   ],
+   "Show(Application.FindFormat.Font.Bold) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Null A4"
+  ],
+  [
+   "a",
+   [],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "A4"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"x\", , xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "B2"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Set c = ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True)"
+   ],
+   "Got(c) & \" \" & Got(ws.Range(\"A1:C4\").FindNext(c))",
+   "B2 A4"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Italic = True"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "B4"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Color = vbRed"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "C2"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Locked = False"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "A4"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Interior.ColorIndex = 6"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "C1"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Application.FindFormat.Interior.Color = vbYellow"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "C3"
+  ],
+  [
+   "a",
+   [
+    "Application.ReplaceFormat.Interior.Color = vbRed",
+    "ws.Range(\"A1:C4\").Replace \"x\", \"y\", xlPart, xlByRows, False, , False, True"
+   ],
+   "Grid(ws) & \" \" & Fills(ws)",
+   "y1|a|3|b|y2|5|1.5|7|y3||q|y4 255|16777215|65535|65535|255|16777215|16777215|16777215|255|16777215|16777215|255"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Application.ReplaceFormat.Font.Italic = True",
+    "ws.Range(\"A1:C4\").Replace \"\", \"\", xlPart, xlByRows, False, , True, True"
+   ],
+   "Grid(ws) & \" \" & Italics(ws)",
+   "x1|a|3|b|x2|5|1.5|7|x3||q|x4 False|False|False|False|True|False|False|False|True|False|True|False"
+  ],
+  [
+   "a",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "ws.Range(\"A1:C4\").Replace \"x\", \"z\", xlPart, xlByRows, False, , True, False"
+   ],
+   "Grid(ws)",
+   "x1|a|3|b|z2|5|1.5|7|z3||q|x4"
+  ],
+  [
+   "a",
+   [
+    "Application.ReplaceFormat.Font.Bold = False",
+    "ws.Range(\"A1:C4\").Replace \"x\", \"y\", xlPart, xlByRows, False, , False, True"
+   ],
+   "Grid(ws) & \" \" & Bolds(ws)",
+   "y1|a|3|b|y2|5|1.5|7|y3||q|y4 False|False|False|False|False|False|False|False|False|False|False|False"
+  ],
+  [
+   "a",
+   [
+    "Application.ReplaceFormat.NumberFormat = \"0%\"",
+    "ws.Range(\"A1:C4\").Replace \"7\", \"8\", xlPart, xlByRows, False, , False, True"
+   ],
+   "Grid(ws) & \" \" & ws.Range(\"B3\").NumberFormat",
+   "x1|a|3|b|x2|5|1.5|8|x3||q|x4 0%"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Name = \"Arial\""
+   ],
+   "Show(Application.FindFormat.Font.Name) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "String:Arial A2"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Size = 14"
+   ],
+   "Show(Application.FindFormat.Font.Size) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Double:14 B3"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Underline = xlUnderlineStyleSingle"
+   ],
+   "Show(Application.FindFormat.Font.Underline) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Long:2 C2"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.HorizontalAlignment = xlCenter"
+   ],
+   "Show(Application.FindFormat.HorizontalAlignment) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Long:-4108 A3"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.WrapText = True"
+   ],
+   "Show(Application.FindFormat.WrapText) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Boolean:True B1"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.IndentLevel = 2"
+   ],
+   "Show(Application.FindFormat.IndentLevel) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Long:2 C1"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.FormulaHidden = True"
+   ],
+   "Show(Application.FindFormat.FormulaHidden) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Boolean:True A1"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Interior.ColorIndex = 6"
+   ],
+   "Show(Application.FindFormat.Interior.Color) & \" \" & Show(Application.FindFormat.Interior.Pattern)",
+   "Double:65535 Null"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Interior.Color = RGB(250, 250, 5)"
+   ],
+   "Show(Application.FindFormat.Interior.ColorIndex) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Long:6 B2"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Interior.Pattern = xlSolid"
+   ],
+   "Show(Application.FindFormat.Interior.Pattern) & \" \" & Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), xlFormulas, xlPart, xlByRows, xlNext, False, , True))",
+   "Long:1 B2"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Color = vbRed"
+   ],
+   "Show(Application.FindFormat.Font.Color) & \" \" & Show(Application.FindFormat.Font.ColorIndex)",
+   "Double:255 Long:3"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Got(ws.Range(\"E1:F2\").Find(\"\", , , , , , , , True))",
+   "F2"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Set c = ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True)"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\"))",
+   "A4"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Set c = ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True)"
+   ],
+   "Got(ws.Range(\"A1:C4\").FindPrevious(c))",
+   "A4"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"x\", ws.Range(\"C4\"), , , , , , , True))",
+   "B2"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"x3\", ws.Range(\"C4\"), , xlWhole, , , , , True))",
+   "C3"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , xlPrevious, , , True))",
+   "C3"
+  ],
+  [
+   "b",
+   [],
+   "Got(ws.Range(\"A1:C4\").Find(\"\", ws.Range(\"C4\"), , , , , , , True))",
+   "A4"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True"
+   ],
+   "Got(ws.Range(\"G1:G3\").Find(\"\", , , , , , , , True))",
+   "Nothing"
+  ],
+  [
+   "b",
+   [
+    "Application.ReplaceFormat.Font.Bold = True",
+    "Application.ReplaceFormat.Interior.Color = vbGreen",
+    "ws.Range(\"A1:C4\").Replace \"q\", \"r\", xlWhole, , , , , True"
+   ],
+   "ws.Range(\"B4\").Formula & \" \" & ws.Range(\"B4\").Font.Bold & \" \" & ws.Range(\"B4\").Interior.Color & \" \" & ws.Range(\"B4\").Interior.Pattern",
+   "r True 65280 1"
+  ],
+  [
+   "b",
+   [
+    "Application.ReplaceFormat.Font.Bold = True",
+    "ws.Range(\"A1:C4\").Replace \"zz\", \"r\", xlWhole, , , , , True"
+   ],
+   "Bolds(ws)",
+   "False|False|False|False|True|False|False|False|True|False|False|False"
+  ],
+  [
+   "b",
+   [
+    "Application.ReplaceFormat.Font.Bold = True",
+    "ws.Range(\"A1:C4\").Replace \"\", \"\", xlPart, , , , , True"
+   ],
+   "Bolds(ws)",
+   "False|False|False|False|True|False|False|False|True|True|False|False"
+  ],
+  [
+   "b",
+   [
+    "Application.ReplaceFormat.Font.Bold = True",
+    "ws.Range(\"A1:C4\").Replace \"x\", \"x\", xlPart, , , , , True"
+   ],
+   "Bolds(ws)",
+   "True|False|False|False|True|False|False|False|True|False|False|True"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "ws.Range(\"A1:C4\").Replace \"\", \"Q\", xlPart, , , , True"
+   ],
+   "Grid(ws)",
+   "x1|a|3|b|Q|5|1.5|7|Q||q|x4"
+  ],
+  [
+   "b",
+   [
+    "Application.ReplaceFormat.Font.Bold = True",
+    "v = ws.Range(\"A1:C4\").Replace(\"x\", \"y\", xlPart, , , , , True)"
+   ],
+   "v",
+   "True"
+  ],
+  [
+   "b",
+   [
+    "Application.FindFormat.Font.Bold = True",
+    "Application.ReplaceFormat.Interior.ColorIndex = 4",
+    "ws.Range(\"A1:C4\").Replace \"\", \"\", xlPart, , , , True, True"
+   ],
+   "ws.Range(\"B2\").Interior.Color & \" \" & ws.Range(\"C3\").Interior.Color & \" \" & ws.Range(\"A1\").Interior.Color",
+   "65280 65280 16777215"
+  ],
+  [
+   "b",
+   [
+    "Application.ReplaceFormat.Font.Bold = True",
+    "ws.Range(\"A1:C4\").Replace \"x\", \"y\", xlPart, , , , False, False"
+   ],
+   "Bolds(ws)",
+   "False|False|False|False|True|False|False|False|True|False|False|False"
+  ]
+ ]
+}

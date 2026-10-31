@@ -70,7 +70,6 @@ End Function'''
 
 @pytest.mark.parametrize("expression", [
     'Range("A1,B2").Find("a")',
-    'Range("A1").Find("a", SearchFormat:=True)',
     'Range("A1").Find("a", MatchByte:=True)',
     'Range("A1").Find("a", LookIn:=-4144)',
 ])

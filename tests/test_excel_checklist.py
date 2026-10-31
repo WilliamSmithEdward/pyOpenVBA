@@ -18,6 +18,7 @@ from pyopenvba.apps.excel import (
     _autofilter,
     _chart_axes,
     _colour_scales,
+    _custom_properties,
     _data_bars,
     _document_properties,
     _error_checks,
@@ -72,7 +73,7 @@ def _classes() -> dict[str, type[VBAObject]]:
     for module in (_model, _shapes, _formats, _sort, _autofilter, _protection, _tables, _validation, _windows, _notes,
                    _hyperlinks, _chart_axes, _pivots, _pivot_criteria, _pivot_calculated, _pivot_cells, _sheet_tabs, _page_setup,
                    _page_breaks, _outline, _colour_scales, _data_bars, _icon_sets, _document_properties, _rich_text,
-                   _error_checks):
+                   _custom_properties, _error_checks):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

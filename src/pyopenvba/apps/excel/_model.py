@@ -74,6 +74,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._outline import OutlineState
     from pyopenvba.apps.excel._page_breaks import SheetBreaks
+    from pyopenvba.apps.excel._custom_properties import Property as CustomProperty
     from pyopenvba.apps.excel._consolidate import Settings as ConsolidationSettings
     from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
@@ -1354,6 +1355,8 @@ class Workbook(ExcelObject):
         self.calculation_version = VERSION
         self.force_full_calculation = False
         self.full_pending = False
+        #: True once a sheet's custom properties change, so a save writes them all (see _custom_properties).
+        self.custom_properties_changed = False
         #: Workbook.PrecisionAsDisplayed, calcPr fullPrecision="0" (see _precision).
         self.precision_as_displayed = False
 
@@ -2403,6 +2406,8 @@ class Worksheet(ExcelObject):
         self.tab_changed = False
         #: The sheet's manual page breaks, read from its file when first needed (see _page_breaks).
         self.page_breaks: SheetBreaks | None = None
+        #: The sheet's custom properties, read from its file when first needed (see _custom_properties).
+        self.custom_properties: list[CustomProperty] | None = None
         #: Whether the sheet's part holds ignoredErrors, None until asked; and whether a macro changed what the
         #: sheet ignores, so a save writes it (see _error_checks).
         self.ignored_from_file: bool | None = None
@@ -2862,6 +2867,12 @@ class Worksheet(ExcelObject):
         from pyopenvba.apps.excel._scenarios import Scenarios, find
 
         return Scenarios(self) if Index is MISSING else find(self, Index)
+
+    @member
+    def CustomProperties(self) -> object:
+        from pyopenvba.apps.excel._custom_properties import CustomProperties
+
+        return CustomProperties(self)
 
     @member
     def HPageBreaks(self) -> object:

@@ -1447,6 +1447,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     write_rich_pivots(book, package)
     if book.names_.changed:
         _write_names(book, package)
+    from pyopenvba.apps.excel._custom_properties import write as write_custom_properties
+
+    write_custom_properties(book, package)
     if book.protection_changed and package.has("xl/workbook.xml"):
         from pyopenvba.apps.excel._protection import with_book_protection
 

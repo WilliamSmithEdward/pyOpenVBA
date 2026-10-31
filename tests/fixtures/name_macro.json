@@ -1,0 +1,718 @@
+{
+ "measured_at": "2026-10-31T03:29:20.443797+00:00",
+ "source": "Private Function Prop(ByVal n As Object, ByVal what As String) As String\n    Dim v As Variant\n    On Error Resume Next\n    v = CallByName(n, what, VbGet)\n    If Err.Number <> 0 Then Prop = \"E\" & Err.Number Else Prop = TypeName(v) & \":\" & CStr(v)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, n As Object, p As Variant, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"Sheet1\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        wb.SaveAs folder & \"\\plain.xlsx\", xlOpenXMLWorkbook\n    Case 1\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        wb.SaveAs folder & \"\\function.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        wb.SaveAs folder & \"\\command.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.MacroType = xlNotXLM\n        wb.SaveAs folder & \"\\back.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = 0\n    Case 5\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = 4\n    Case 6\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = \"2\"\n    Case 7\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"k\"\n        wb.SaveAs folder & \"\\key.xlsx\", xlOpenXMLWorkbook\n    Case 8\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"K\"\n        wb.SaveAs folder & \"\\shift_key.xlsx\", xlOpenXMLWorkbook\n    Case 9\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"ab\"\n    Case 10\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"1\"\n    Case 11\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"k\"\n        n.ShortcutKey = \"\"\n        wb.SaveAs folder & \"\\key_cleared.xlsx\", xlOpenXMLWorkbook\n    Case 12\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.ShortcutKey = \"k\"\n    Case 13\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.ShortcutKey = \"k\"\n    Case 14\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Financial\"\n        wb.SaveAs folder & \"\\financial.xlsx\", xlOpenXMLWorkbook\n    Case 15\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"text\"\n        wb.SaveAs folder & \"\\text.xlsx\", xlOpenXMLWorkbook\n    Case 16\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"My Things\"\n        wb.SaveAs folder & \"\\custom.xlsx\", xlOpenXMLWorkbook\n    Case 17\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.CategoryLocal = \"Statistical\"\n        wb.SaveAs folder & \"\\local.xlsx\", xlOpenXMLWorkbook\n    Case 18\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"\"\n    Case 19\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.Category = \"Database\"\n        wb.SaveAs folder & \"\\command_category.xlsx\", xlOpenXMLWorkbook\n    Case 20\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.Category = \"Financial\"\n        wb.SaveAs folder & \"\\plain_category.xlsx\", xlOpenXMLWorkbook\n    Case 21\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Financial\"\n        n.MacroType = xlNotXLM\n        wb.SaveAs folder & \"\\dropped.xlsx\", xlOpenXMLWorkbook\n    Case 22\n        Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=xlCommand, ShortcutKey:=\"q\")\n        wb.SaveAs folder & \"\\add_key.xlsx\", xlOpenXMLWorkbook\n    Case 23\n        Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=xlFunction, Category:=\"Text\")\n        wb.SaveAs folder & \"\\add_category.xlsx\", xlOpenXMLWorkbook\n    Case 24\n        Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", ShortcutKey:=\"q\")\n    Case 25\n        Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", Category:=\"Text\")\n    Case 26\n        Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=xlFunction, CategoryLocal:=\"Logical\")\n    Case 27\n        Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=7)\n    Case 28\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.WorkbookParameter = True\n        wb.SaveAs folder & \"\\parameter.xlsx\", xlOpenXMLWorkbook\n    Case 29\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1:$A$2\")\n        n.WorkbookParameter = True\n    Case 30\n        Set n = wb.Names.Add(\"Mac\", \"=5\")\n        n.WorkbookParameter = True\n    Case 31\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.WorkbookParameter = True\n    Case 32\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.WorkbookParameter = True\n        n.WorkbookParameter = False\n    Case 33\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1:$A$2\")\n    Case 34\n        Set n = wb.Names.Add(\"Mac\", \"=5\")\n    Case 35\n        Set n = ws.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.WorkbookParameter = True\n    Case 36\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\", False)\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"k\"\n        wb.SaveAs folder & \"\\hidden_key.xlsx\", xlOpenXMLWorkbook\n    Case 37\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        wb.SaveAs folder & \"\\function.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 38\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        wb.SaveAs folder & \"\\command.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 39\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"K\"\n        wb.SaveAs folder & \"\\shift_key.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 40\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Financial\"\n        wb.SaveAs folder & \"\\financial.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 41\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Text\"\n        wb.SaveAs folder & \"\\text.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 42\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"User Defined\"\n        wb.SaveAs folder & \"\\user.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 43\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"My Things\"\n        wb.SaveAs folder & \"\\custom.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 44\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.Category = \"Database\"\n        wb.SaveAs folder & \"\\command_category.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 45\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\", False)\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"k\"\n        wb.SaveAs folder & \"\\hidden_key.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 46\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        wb.Names.Add \"Other\", \"=Sheet1!$B$1\"\n        n.MacroType = xlCommand\n        wb.SaveAs folder & \"\\two.xlsx\", xlOpenXMLWorkbook\n    Case 47\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"My Things\"\n        Set n = wb.Names.Add(\"Fn\", \"=Sheet1!$A$2\")\n        n.MacroType = xlFunction\n        n.Category = \"Zed\"\n        wb.SaveAs folder & \"\\two_custom.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 48\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"k\"\n        n.RefersTo = \"=Sheet1!$B$2\"\n    Case 49\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlCommand\n        n.ShortcutKey = \"k\"\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$B$2\")\n    Case 50\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Financial\"\n        n.ShortcutKey = \"k\"\n        wb.SaveAs folder & \"\\reopened.xlsm\", xlOpenXMLWorkbookMacroEnabled\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\reopened.xlsm\")\n        Set n = wb.Names(\"Mac\")\n    Case 51\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"My Things\"\n        wb.SaveAs folder & \"\\reopened_custom.xlsm\", xlOpenXMLWorkbookMacroEnabled\n        wb.Close False\n        Set wb = Workbooks.Open(folder & \"\\reopened_custom.xlsm\")\n        Set n = wb.Names(\"Mac\")\n    Case 52\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1:$A$2\")\n        wb.SaveAs folder & \"\\saved52.xlsx\", xlOpenXMLWorkbook\n    Case 53\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!A1\")\n        wb.SaveAs folder & \"\\saved53.xlsx\", xlOpenXMLWorkbook\n    Case 54\n        Set n = wb.Names.Add(\"Mac\", \"=5\")\n        wb.SaveAs folder & \"\\saved54.xlsx\", xlOpenXMLWorkbook\n    Case 55\n        Set n = ws.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        wb.SaveAs folder & \"\\saved55.xlsx\", xlOpenXMLWorkbook\n    Case 56\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Financial\"\n        wb.SaveAs folder & \"\\category0.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 57\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Date & Time\"\n        wb.SaveAs folder & \"\\category1.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 58\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Math & Trig\"\n        wb.SaveAs folder & \"\\category2.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 59\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Statistical\"\n        wb.SaveAs folder & \"\\category3.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 60\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Lookup & Reference\"\n        wb.SaveAs folder & \"\\category4.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 61\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Database\"\n        wb.SaveAs folder & \"\\category5.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 62\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Text\"\n        wb.SaveAs folder & \"\\category6.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 63\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Logical\"\n        wb.SaveAs folder & \"\\category7.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 64\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Information\"\n        wb.SaveAs folder & \"\\category8.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 65\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Commands\"\n        wb.SaveAs folder & \"\\category9.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 66\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Customizing\"\n        wb.SaveAs folder & \"\\category10.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 67\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Macro Control\"\n        wb.SaveAs folder & \"\\category11.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 68\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"DDE/External\"\n        wb.SaveAs folder & \"\\category12.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 69\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"User Defined\"\n        wb.SaveAs folder & \"\\category13.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 70\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Engineering\"\n        wb.SaveAs folder & \"\\category14.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 71\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Cube\"\n        wb.SaveAs folder & \"\\category15.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 72\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Compatibility\"\n        wb.SaveAs folder & \"\\category16.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 73\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Web\"\n        wb.SaveAs folder & \"\\category17.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 74\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"Date and Time\"\n        wb.SaveAs folder & \"\\category18.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    Case 75\n        Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")\n        n.MacroType = xlFunction\n        n.Category = \"lookup & reference\"\n        wb.SaveAs folder & \"\\category19.xlsm\", xlOpenXMLWorkbookMacroEnabled\n    End Select\n    For Each p In Array(\"MacroType\", \"ShortcutKey\", \"Category\", \"CategoryLocal\", \"WorkbookParameter\", \"ValidWorkbookParameter\")\n        s = s & \"|\" & Prop(n, CStr(p))\n    Next\n    Tried = Mid(s, 2)\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")"
+   ],
+   "plain.xlsx",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:True"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction"
+   ],
+   "function.xlsx",
+   "Long:1|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand"
+   ],
+   "command.xlsx",
+   "Long:2|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.MacroType = xlNotXLM"
+   ],
+   "back.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = 0"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = 4"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = \"2\""
+   ],
+   "",
+   "Long:2|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"k\""
+   ],
+   "key.xlsx",
+   "Long:2|String:k|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"K\""
+   ],
+   "shift_key.xlsx",
+   "Long:2|String:K|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"ab\""
+   ],
+   "",
+   "Long:2|String:a|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"1\""
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"k\"",
+    "n.ShortcutKey = \"\""
+   ],
+   "key_cleared.xlsx",
+   "Long:2|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.ShortcutKey = \"k\""
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.ShortcutKey = \"k\""
+   ],
+   "",
+   "Long:1|String:k|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Financial\""
+   ],
+   "financial.xlsx",
+   "Long:1|String:|String:Financial|String:Financial|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"text\""
+   ],
+   "text.xlsx",
+   "Long:1|String:|String:Text|String:Text|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"My Things\""
+   ],
+   "custom.xlsx",
+   "Long:1|String:|String:My Things|String:My Things|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.CategoryLocal = \"Statistical\""
+   ],
+   "local.xlsx",
+   "Long:1|String:|String:Statistical|String:Statistical|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"\""
+   ],
+   "",
+   "Long:1|String:|String:|String:|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.Category = \"Database\""
+   ],
+   "command_category.xlsx",
+   "Long:2|String:|String:Database|String:Database|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.Category = \"Financial\""
+   ],
+   "plain_category.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Financial\"",
+    "n.MacroType = xlNotXLM"
+   ],
+   "dropped.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=xlCommand, ShortcutKey:=\"q\")"
+   ],
+   "add_key.xlsx",
+   "Long:2|String:q|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=xlFunction, Category:=\"Text\")"
+   ],
+   "add_category.xlsx",
+   "Long:1|String:|String:Text|String:Text|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", ShortcutKey:=\"q\")"
+   ],
+   "",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", Category:=\"Text\")"
+   ],
+   "",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=xlFunction, CategoryLocal:=\"Logical\")"
+   ],
+   "",
+   "Long:1|String:|String:Logical|String:Logical|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(Name:=\"Mac\", RefersTo:=\"=Sheet1!$A$1\", MacroType:=7)"
+   ],
+   "",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.WorkbookParameter = True"
+   ],
+   "parameter.xlsx",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1:$A$2\")",
+    "n.WorkbookParameter = True"
+   ],
+   "",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=5\")",
+    "n.WorkbookParameter = True"
+   ],
+   "",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.WorkbookParameter = True"
+   ],
+   "",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.WorkbookParameter = True",
+    "n.WorkbookParameter = False"
+   ],
+   "",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1:$A$2\")"
+   ],
+   "",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=5\")"
+   ],
+   "",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = ws.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.WorkbookParameter = True"
+   ],
+   "",
+   "Err 5 Invalid procedure call or argument"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\", False)",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"k\""
+   ],
+   "hidden_key.xlsx",
+   "Long:2|String:k|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction"
+   ],
+   "function.xlsm",
+   "Long:1|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand"
+   ],
+   "command.xlsm",
+   "Long:2|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"K\""
+   ],
+   "shift_key.xlsm",
+   "Long:2|String:K|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Financial\""
+   ],
+   "financial.xlsm",
+   "Long:1|String:|String:Financial|String:Financial|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Text\""
+   ],
+   "text.xlsm",
+   "Long:1|String:|String:Text|String:Text|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"User Defined\""
+   ],
+   "user.xlsm",
+   "Long:1|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"My Things\""
+   ],
+   "custom.xlsm",
+   "Long:1|String:|String:My Things|String:My Things|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.Category = \"Database\""
+   ],
+   "command_category.xlsm",
+   "Long:2|String:|String:Database|String:Database|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\", False)",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"k\""
+   ],
+   "hidden_key.xlsm",
+   "Long:2|String:k|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "wb.Names.Add \"Other\", \"=Sheet1!$B$1\"",
+    "n.MacroType = xlCommand"
+   ],
+   "two.xlsx",
+   "Long:2|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"My Things\"",
+    "Set n = wb.Names.Add(\"Fn\", \"=Sheet1!$A$2\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Zed\""
+   ],
+   "two_custom.xlsm",
+   "Long:1|String:|String:Zed|String:Zed|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"k\"",
+    "n.RefersTo = \"=Sheet1!$B$2\""
+   ],
+   "",
+   "Long:2|String:k|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlCommand",
+    "n.ShortcutKey = \"k\"",
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$B$2\")"
+   ],
+   "",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Financial\"",
+    "n.ShortcutKey = \"k\"",
+    "wb.SaveAs folder & \"\\reopened.xlsm\", xlOpenXMLWorkbookMacroEnabled",
+    "wb.Close False",
+    "Set wb = Workbooks.Open(folder & \"\\reopened.xlsm\")",
+    "Set n = wb.Names(\"Mac\")"
+   ],
+   "",
+   "Long:1|String:|String:All|String:All|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"My Things\"",
+    "wb.SaveAs folder & \"\\reopened_custom.xlsm\", xlOpenXMLWorkbookMacroEnabled",
+    "wb.Close False",
+    "Set wb = Workbooks.Open(folder & \"\\reopened_custom.xlsm\")",
+    "Set n = wb.Names(\"Mac\")"
+   ],
+   "",
+   "Long:1|String:|String:All|String:All|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1:$A$2\")"
+   ],
+   "saved52.xlsx",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!A1\")"
+   ],
+   "saved53.xlsx",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=5\")"
+   ],
+   "saved54.xlsx",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = ws.Names.Add(\"Mac\", \"=Sheet1!$A$1\")"
+   ],
+   "saved55.xlsx",
+   "Long:-4142|E1004|E1004|E1004|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Financial\""
+   ],
+   "category0.xlsm",
+   "Long:1|String:|String:Financial|String:Financial|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Date & Time\""
+   ],
+   "category1.xlsm",
+   "Long:1|String:|String:Date & Time|String:Date & Time|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Math & Trig\""
+   ],
+   "category2.xlsm",
+   "Long:1|String:|String:Math & Trig|String:Math & Trig|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Statistical\""
+   ],
+   "category3.xlsm",
+   "Long:1|String:|String:Statistical|String:Statistical|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Lookup & Reference\""
+   ],
+   "category4.xlsm",
+   "Long:1|String:|String:Lookup & Reference|String:Lookup & Reference|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Database\""
+   ],
+   "category5.xlsm",
+   "Long:1|String:|String:Database|String:Database|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Text\""
+   ],
+   "category6.xlsm",
+   "Long:1|String:|String:Text|String:Text|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Logical\""
+   ],
+   "category7.xlsm",
+   "Long:1|String:|String:Logical|String:Logical|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Information\""
+   ],
+   "category8.xlsm",
+   "Long:1|String:|String:Information|String:Information|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Commands\""
+   ],
+   "category9.xlsm",
+   "Long:1|String:|String:Commands|String:Commands|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Customizing\""
+   ],
+   "category10.xlsm",
+   "Long:1|String:|String:Customizing|String:Customizing|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Macro Control\""
+   ],
+   "category11.xlsm",
+   "Long:1|String:|String:Macro Control|String:Macro Control|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"DDE/External\""
+   ],
+   "category12.xlsm",
+   "Long:1|String:|String:DDE/External|String:DDE/External|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"User Defined\""
+   ],
+   "category13.xlsm",
+   "Long:1|String:|String:User Defined|String:User Defined|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Engineering\""
+   ],
+   "category14.xlsm",
+   "Long:1|String:|String:Engineering|String:Engineering|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Cube\""
+   ],
+   "category15.xlsm",
+   "Long:1|String:|String:Cube|String:Cube|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Compatibility\""
+   ],
+   "category16.xlsm",
+   "Long:1|String:|String:Compatibility|String:Compatibility|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Web\""
+   ],
+   "category17.xlsm",
+   "Long:1|String:|String:Web|String:Web|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"Date and Time\""
+   ],
+   "category18.xlsm",
+   "Long:1|String:|String:Date and Time|String:Date and Time|Boolean:False|Boolean:False"
+  ],
+  [
+   [
+    "Set n = wb.Names.Add(\"Mac\", \"=Sheet1!$A$1\")",
+    "n.MacroType = xlFunction",
+    "n.Category = \"lookup & reference\""
+   ],
+   "category19.xlsm",
+   "Long:1|String:|String:Lookup & Reference|String:Lookup & Reference|Boolean:False|Boolean:False"
+  ]
+ ],
+ "names": {
+  "plain.xlsx": "<definedNames><definedName name=\"Mac\">Sheet1!$A$1</definedName></definedNames>",
+  "function.xlsx": "",
+  "command.xlsx": "",
+  "key.xlsx": "",
+  "shift_key.xlsx": "",
+  "key_cleared.xlsx": "",
+  "financial.xlsx": "",
+  "text.xlsx": "",
+  "custom.xlsx": "",
+  "local.xlsx": "",
+  "command_category.xlsx": "",
+  "add_key.xlsx": "",
+  "add_category.xlsx": "",
+  "hidden_key.xlsx": "",
+  "function.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>",
+  "command.xlsm": "<definedNames><definedName name=\"Mac\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>",
+  "shift_key.xlsm": "<definedNames><definedName name=\"Mac\" xlm=\"1\" functionGroupId=\"14\" shortcutKey=\"K\">Sheet1!$A$1</definedName></definedNames>",
+  "financial.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"1\">Sheet1!$A$1</definedName></definedNames>",
+  "text.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"7\">Sheet1!$A$1</definedName></definedNames>",
+  "user.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>",
+  "custom.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>",
+  "command_category.xlsm": "<definedNames><definedName name=\"Mac\" xlm=\"1\" functionGroupId=\"6\">Sheet1!$A$1</definedName></definedNames>",
+  "hidden_key.xlsm": "<definedNames><definedName name=\"Mac\" hidden=\"1\" xlm=\"1\" functionGroupId=\"14\" shortcutKey=\"k\">Sheet1!$A$1</definedName></definedNames>",
+  "two.xlsx": "<definedNames><definedName name=\"Other\">Sheet1!$B$1</definedName></definedNames>",
+  "two_custom.xlsm": "<definedNames><definedName name=\"Fn\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$2</definedName><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>",
+  "saved52.xlsx": "<definedNames><definedName name=\"Mac\">Sheet1!$A$1:$A$2</definedName></definedNames>",
+  "saved53.xlsx": "<definedNames><definedName name=\"Mac\">Sheet1!A1</definedName></definedNames>",
+  "saved54.xlsx": "<definedNames><definedName name=\"Mac\">5</definedName></definedNames>",
+  "saved55.xlsx": "<definedNames><definedName name=\"Mac\" localSheetId=\"0\">Sheet1!$A$1</definedName></definedNames>",
+  "category0.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"1\">Sheet1!$A$1</definedName></definedNames>",
+  "category1.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"2\">Sheet1!$A$1</definedName></definedNames>",
+  "category2.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"3\">Sheet1!$A$1</definedName></definedNames>",
+  "category3.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"4\">Sheet1!$A$1</definedName></definedNames>",
+  "category4.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"5\">Sheet1!$A$1</definedName></definedNames>",
+  "category5.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"6\">Sheet1!$A$1</definedName></definedNames>",
+  "category6.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"7\">Sheet1!$A$1</definedName></definedNames>",
+  "category7.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"8\">Sheet1!$A$1</definedName></definedNames>",
+  "category8.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"9\">Sheet1!$A$1</definedName></definedNames>",
+  "category9.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"10\">Sheet1!$A$1</definedName></definedNames>",
+  "category10.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"11\">Sheet1!$A$1</definedName></definedNames>",
+  "category11.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"12\">Sheet1!$A$1</definedName></definedNames>",
+  "category12.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"13\">Sheet1!$A$1</definedName></definedNames>",
+  "category13.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>",
+  "category14.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"15\">Sheet1!$A$1</definedName></definedNames>",
+  "category15.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"16\">Sheet1!$A$1</definedName></definedNames>",
+  "category16.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"17\">Sheet1!$A$1</definedName></definedNames>",
+  "category17.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"18\">Sheet1!$A$1</definedName></definedNames>",
+  "category18.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"14\">Sheet1!$A$1</definedName></definedNames>",
+  "category19.xlsm": "<definedNames><definedName name=\"Mac\" function=\"1\" xlm=\"1\" functionGroupId=\"5\">Sheet1!$A$1</definedName></definedNames>"
+ }
+}

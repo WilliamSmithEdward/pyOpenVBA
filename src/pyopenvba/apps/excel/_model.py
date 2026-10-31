@@ -30,7 +30,7 @@ from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names
+from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -1247,6 +1247,8 @@ class Workbook(ExcelObject):
         self.full_pending = False
         #: True once a sheet's custom properties change, so a save writes them all (see _custom_properties).
         self.custom_properties_changed = False
+        #: Workbook.PrecisionAsDisplayed, calcPr fullPrecision="0" (see _precision).
+        self.precision_as_displayed = False
 
     @property
     def calculator(self) -> Any:
@@ -1277,6 +1279,40 @@ class Workbook(ExcelObject):
     @member
     def Name(self) -> object:
         return self.name
+
+    @method
+    def DeleteNumberFormat(self, NumberFormat: object = MISSING) -> object:
+        """Take a custom number format out of the workbook: every cell, row, column and cell style using it shows
+        General, keeping the rest of its format. A built-in format, or "", is error 1004, and so is a protected
+        sheet; a format the workbook does not hold, as NumberFormat spells it, is passed over
+        (tests/fixtures/delete_number_format.json)."""
+        from dataclasses import replace
+
+        from pyopenvba.apps.excel._number_format import BUILTIN, normalized
+
+        failed = "Method 'DeleteNumberFormat' of object '_Workbook' failed"
+        if NumberFormat is MISSING:
+            raise error(449)
+        code = normalized(to_text(NumberFormat), strict=False) if to_text(NumberFormat) else ""
+        if not code or code in BUILTIN.values():
+            raise error(1004, failed)
+        protected = [sheet for sheet in self.sheets_ if getattr(sheet, "protection", None) is not None]
+        if protected:
+            if protected != [self.active_sheet]:
+                raise VBAUnsupportedError("Workbook.DeleteNumberFormat with a protected sheet other than the "
+                                          "active one is not implemented")
+            raise error(1004, failed)
+        from pyopenvba.apps.excel._cell_styles import restyle_book
+
+        stylesheet = self.stylesheet
+        restyle_book(self, lambda style: replace(style, number_format="General") if style.number_format == code
+                     else None)
+        for entry in stylesheet.cell_styles:
+            if entry.format.number_format == code:
+                entry.format = replace(entry.format, number_format="General")
+                stylesheet.restyle_cell_style(entry)
+        self.saved = False
+        return EMPTY
 
     @member
     def Colors(self, Index: object = MISSING) -> object:
@@ -1719,6 +1755,21 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._calculation_state import set_force
 
         set_force(self, value)
+
+    @member
+    def PrecisionAsDisplayed(self) -> object:
+        return self.precision_as_displayed
+
+    @setter("PrecisionAsDisplayed")
+    def _set_precision_as_displayed(self, value: object) -> None:
+        """True rounds every number as its format shows it, now and from then on (see _precision)."""
+        wanted = to_bool(value)
+        if wanted and not self.precision_as_displayed:
+            from pyopenvba.apps.excel._precision import turned_on
+
+            self.precision_as_displayed = True
+            turned_on(self)
+        self.precision_as_displayed = wanted
 
     def vba_sink_attached(self) -> None:
         """A WithEvents variable now hears this workbook: formulas written while
@@ -2709,6 +2760,9 @@ class Worksheet(ExcelObject):
             found = self.cells_[(row, column)] = Cell()
         found.style, found.xf = (None if style == self.book.stylesheet.default else style), -1
         self.book.stylesheet.meet(found.style)
+        if not found.formula:
+            # A constant given a format takes the precision it shows, where the workbook keeps numbers so.
+            _precision.settle(self, row, column)
         self.settle(row, column)
         self.touched()
         self.dims.fonts_changed(row)
@@ -4621,6 +4675,16 @@ class Range(ExcelObject):
         return True
 
     @method
+    def ApplyNames(self, Names: object = MISSING, IgnoreRelativeAbsolute: object = MISSING,
+                   UseRowColumnNames: object = MISSING, OmitColumn: object = MISSING, OmitRow: object = MISSING,
+                   Order: object = MISSING, AppendLast: object = MISSING) -> object:
+        """Turn references in the range's formulas into the names that cover them (see _apply_names)."""
+        from pyopenvba.apps.excel._apply_names import apply_names
+
+        apply_names(self, Names, IgnoreRelativeAbsolute)
+        return EMPTY
+
+    @method
     def AutoFill(self, Destination: object = MISSING, Type: object = MISSING) -> object:
         from pyopenvba.apps.excel._autofill import autofill
 
@@ -5257,6 +5321,7 @@ class Range(ExcelObject):
             changed = replace(changed, quote_prefix=True)
         if changed != style:
             self.sheet.restyle(row, column, changed)
+        _precision.settle(self.sheet, row, column)
         self.sheet.cell_changed(row, column)
 
     def describe(self, indent: str = "") -> str:
@@ -5293,6 +5358,13 @@ class NameEntry:
     visible: bool = True
     comment: str = ""
     invalidated: bool = False
+    #: Macro metadata (see _name_macro): 0 for an ordinary name, 1 a function, 2 a command; the category's
+    #: functionGroupId; and whether any of it changed, so a name read from a file keeps its attributes as written.
+    macro_type: int = 0
+    shortcut_key: str = ""
+    category: str = ""
+    group: int = 0
+    macro_changed: bool = False
 
 
 class Names(VBACollection, ExcelObject):
@@ -5404,8 +5476,6 @@ class Names(VBACollection, ExcelObject):
             Name = NameLocal
         if Name is MISSING:
             raise error(449)
-        if any(value is not MISSING for value in (MacroType, ShortcutKey, Category, CategoryLocal)):
-            raise VBAUnsupportedError("Macro name metadata is not implemented")
         wanted = _names.canonical(self.book, to_text(Name), self.sheet)
         owner = self.sheet or self.book.active_sheet
         if owner is None:
@@ -5448,6 +5518,9 @@ class Names(VBACollection, ExcelObject):
         entry.refers_to = text
         if Visible is not MISSING:
             entry.visible = to_bool(Visible)
+        from pyopenvba.apps.excel._name_macro import added
+
+        added(entry, MacroType, ShortcutKey, Category, CategoryLocal)
         _names.changed(self.book, entry.name)
         return DefinedName(entry)
 
@@ -5520,6 +5593,74 @@ class DefinedName(ExcelObject):
     def _set_comment(self, value: object) -> None:
         self.entry.comment = to_text(value)
         _names.changed(self.entry.book)
+
+    @member
+    def MacroType(self) -> object:
+        """xlFunction or xlCommand, or xlNone for an ordinary name (see _name_macro)."""
+        from pyopenvba.apps.excel._name_macro import macro_type
+
+        return VBAInt(macro_type(self.entry), "Long")
+
+    @setter("MacroType")
+    def _set_macro_type(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_macro_type
+
+        set_macro_type(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def ShortcutKey(self) -> object:
+        from pyopenvba.apps.excel._name_macro import shortcut_key
+
+        return shortcut_key(self.entry)
+
+    @setter("ShortcutKey")
+    def _set_shortcut_key(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_shortcut_key
+
+        set_shortcut_key(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def Category(self) -> object:
+        from pyopenvba.apps.excel._name_macro import category
+
+        return category(self.entry)
+
+    @setter("Category")
+    def _set_category(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_category
+
+        set_category(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def CategoryLocal(self) -> object:
+        return self.Category()
+
+    @setter("CategoryLocal")
+    def _set_category_local(self, value: object) -> None:
+        self._set_category(value)
+
+    @member
+    def WorkbookParameter(self) -> object:
+        """False: Excel refuses every setting with error 5 (tests/fixtures/name_macro.json)."""
+        return False
+
+    @setter("WorkbookParameter")
+    def _set_workbook_parameter(self, value: object) -> None:
+        raise error(5)
+
+    @member
+    def ValidWorkbookParameter(self) -> object:
+        """True for a workbook's own name for one cell written all absolute, $A$1, once the workbook has been saved
+        (tests/fixtures/name_macro.json); never for a macro's name."""
+        from pyopenvba._a1 import split_sheet
+
+        if not self.entry.book.path or split_sheet(self.entry.name)[0] or self.entry.macro_type:
+            return False
+        sheet, bare = split_sheet(self.entry.refers_to.lstrip("="))
+        return bool(sheet) and re.fullmatch(r"\$[A-Za-z]{1,3}\$[0-9]+", bare) is not None
 
     @member
     def Parent(self) -> object:

@@ -543,10 +543,13 @@ def _read_names(book: Workbook, workbook_xml: str) -> None:
         from pyopenvba.apps.excel._workbook_links import read_name
 
         refers = read_name(_formula_read(body.strip()))
-        book.names_.entries.append(
-            NameEntry(name, refers, book, attributes=attributes_text.strip(),
-                      visible=attributes.get("hidden", "0") not in ("1", "true"), comment=attributes.get("comment", ""))
-        )
+        entry = NameEntry(name, refers, book, attributes=attributes_text.strip(),
+                          visible=attributes.get("hidden", "0") not in ("1", "true"),
+                          comment=attributes.get("comment", ""))
+        from pyopenvba.apps.excel._name_macro import loaded
+
+        loaded(entry, attributes)
+        book.names_.entries.append(entry)
 
 
 _TABLE_PART = re.compile(r"<table\b[^>]*/?>")
@@ -1571,6 +1574,8 @@ def prepare_format(book: Workbook, file_format: int) -> None:
     package = book.package
     previous = workbook_format(book)
     book.format_code = file_format
+    if file_format not in (52, 53, 55) and any(entry.macro_type for entry in book.names_.entries):
+        book.names_.changed = True
     if package is None or previous == file_format:
         return
     if previous == 51 and file_format == 52:
@@ -2370,7 +2375,13 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         if name.startswith("_xlnm") and (name not in (_FILTER_DATABASE, "_xlnm.Criteria", "_xlnm.Extract", "_xlnm.Print_Area", "_xlnm.Print_Titles") or unowned_print):
             written.append((_name_order(book, name, found.get("localSheetId")),
                             f"<definedName {attributes}>{body}</definedName>"))
+    from pyopenvba.apps.excel._name_macro import saved as macro_saved
+
+    # Excel leaves Excel 4 macro names out of a workbook saved without macros (tests/fixtures/name_macro.json).
+    macros = workbook_format(book) in (52, 53, 55)
     for entry in book.names_.entries:
+        if entry.macro_type and not macros:
+            continue
         # A name that came from the file keeps the attributes it came
         # with; localSheetId and hidden are not the model's to drop.
         from pyopenvba._a1 import split_sheet
@@ -2396,6 +2407,9 @@ def _write_names(book: Workbook, package: OpcFile) -> None:
         attributes = entry.attributes
         for key in ("name", "localSheetId", "hidden", "comment"):
             attributes = patch_attribute(attributes, key, owned.get(key))
+        if entry.macro_changed:
+            for key, value in macro_saved(entry).items():
+                attributes = patch_attribute(attributes, key, value)
         attributes = attributes.strip()
         refers_to = saved_name(prefixes.in_file(in_file(entry.refers_to, tables)).lstrip("="))
         written.append((_name_order(book, owned["name"], owned.get("localSheetId")),

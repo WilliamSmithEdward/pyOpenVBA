@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING, Final, TypeVar
 from pyopenvba._xml import attributes as _attributes
 from pyopenvba._xml import escape as _escape
 from pyopenvba._xml import unescape as _unescape
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._number_format import BUILTIN, LISTED, SPELLED_OUT, from_file, to_file
 from pyopenvba.apps.excel._xstring import decode, encode_attribute
 
@@ -52,6 +53,8 @@ PALETTE: Final = (
     "3366FF", "33CCCC", "99CC00", "FFCC00", "FF9900", "FF6600", "666699", "969696",
     "003366", "339966", "003300", "333300", "993300", "993366", "333399", "333333",
 )
+#: The 64 indexed colours of a workbook whose palette no one changed: the eight fixed ones, then the 56.
+DEFAULT_PALETTE: Final = PALETTE[:8] + PALETTE
 #: indexed="64" and "65": the system's window text and window colours, Excel's automatic.
 SYSTEM_FOREGROUND: Final = 64
 SYSTEM_BACKGROUND: Final = 65
@@ -255,7 +258,9 @@ class Colors:
     def __init__(self, theme: tuple[str, ...] = DEFAULT_THEME, palette: tuple[str, ...] = ()) -> None:
         self.theme = theme
         #: indexed 0..63; 8..63 are ColorIndex 1..56.
-        self.indexed = palette or (PALETTE[:8] + PALETTE)
+        self.indexed = palette or DEFAULT_PALETTE
+        #: Whether a macro changed the palette, Workbook.Colors or ResetColors, which a save then writes.
+        self.palette_changed = False
 
     def rrggbb(self, color: Color | None, automatic: str) -> str:
         """The colour a macro reads, with ``automatic`` standing in for Excel's automatic."""
@@ -289,7 +294,12 @@ class Colors:
                 return index - 7
             if 0 <= index < 8:
                 return index + 1
-        return self.nearest(self.rrggbb(color, automatic))
+        rrggbb = self.rrggbb(color, automatic)
+        if self.indexed != DEFAULT_PALETTE and rrggbb not in self.indexed[8:64]:
+            # Excel answered 3 for a red near the palette's red and -5 for a red whose slot a macro had changed
+            # (tests/fixtures/workbook_colors.json): a rule not found.
+            raise VBAUnsupportedError("ColorIndex of a colour a changed palette does not hold is not implemented")
+        return self.nearest(rrggbb)
 
     def tab_index(self, color: Color) -> int:
         """Tab.ColorIndex: an indexed colour's own slot, tinted or not; for any other colour the slot a tab finds
@@ -1642,6 +1652,8 @@ class Stylesheet:
             text = _with_section(text, section, entries)
         for kind, name in self._table_defaults.items():
             text = _with_table_default(text, kind, name)
+        if self.colors.palette_changed:
+            text = _with_palette(text, self.colors.indexed)
         return self._write_dxfs(text)
 
     def saved(self) -> dict[int, int]:
@@ -1705,6 +1717,24 @@ def _with_table_default(text: str, kind: str, name: str | None) -> str:
         at = later.start() if later else len(opening) - (2 if opening.endswith("/>") else 1)
         opening = opening[:at] + f' {attribute}="{_escape(name)}"' + opening[at:]
     return text[:found.start()] + opening + text[found.end():]
+
+
+def _with_palette(text: str, indexed: tuple[str, ...]) -> str:
+    """A stylesheet with its palette as Excel saves it: all 64 indexed colours as rgb="00RRGGBB" first in
+    <colors>, or none where the palette is the default one, <colors> then left out if nothing else is in it
+    (tests/fixtures/workbook_colors.json)."""
+    text = re.sub(r"<indexedColors\b[^>]*?(?:/>|>.*?</indexedColors>)", "", text, flags=re.DOTALL)
+    if indexed == DEFAULT_PALETTE:
+        return re.sub(r"<colors\b[^>]*?(?:/>|>\s*</colors>)", "", text)
+    entries = "<indexedColors>" + "".join(f'<rgbColor rgb="00{entry}"/>' for entry in indexed) + "</indexedColors>"
+    found = re.search(r"<colors\b[^>]*?(/>|>)", text)
+    if found is not None:
+        if found.group(1) == "/>":
+            return text[:found.start()] + f"<colors>{entries}</colors>" + text[found.end():]
+        return text[:found.end()] + entries + text[found.end():]
+    anchor = re.search(r"<extLst\b|</styleSheet>", text)
+    position = anchor.start() if anchor else len(text)
+    return text[:position] + f"<colors>{entries}</colors>" + text[position:]
 
 
 @dataclass(slots=True)

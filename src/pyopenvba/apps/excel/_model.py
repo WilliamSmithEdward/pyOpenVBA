@@ -1458,6 +1458,29 @@ class Workbook(ExcelObject):
         raise VBAUnsupportedError("Workbook.AccuracyVersion set is not implemented")
 
     @member
+    def Colors(self, Index: object = MISSING) -> object:
+        """The palette ColorIndex counts in, or one colour of it (see _palette)."""
+        from pyopenvba.apps.excel._palette import colors
+
+        return colors(self, Index)
+
+    @setter("Colors")
+    def _set_colors(self, Index: object, value: object = MISSING) -> None:
+        from pyopenvba.apps.excel._palette import set_colors
+
+        if value is MISSING:
+            # Colors = array: the value comes alone.
+            Index, value = MISSING, Index
+        set_colors(self, Index, value)
+
+    @method
+    def ResetColors(self) -> object:
+        from pyopenvba.apps.excel._palette import reset_colors
+
+        reset_colors(self)
+        return EMPTY
+
+    @member
     def Date1904(self) -> object:
         return self.epoch_1904
 

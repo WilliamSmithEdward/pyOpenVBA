@@ -7,27 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
-- Workbook settings answer as Excel's do:
-  - `DefaultTableStyle` and `DefaultPivotTableStyle` read and set as
-    `TableStyle` objects and save to `styles.xml`. `ListObjects.Add`
-    takes the default table style.
-  - `ShowPivotTableFieldList`, `ShowPivotChartActiveFields` and
-    `InactiveListBorderVisible` read and set, and save to `workbookPr`.
-  - `DefaultSlicerStyle`, `DefaultTimelineStyle`, `CreateBackup`,
-    `HasPassword`, `CaseSensitive`, `UseWholeCellCriteria`,
-    `UseWildcards`, `Final`, `UpdateRemoteReferences`,
-    `ChartDataPointTrack` and `AccuracyVersion` read as Excel's, and
-    refuse what Excel refuses.
-  - `TableStyles(name)` finds a built-in style.
-
-  64 live cases agree, `tests/fixtures/workbook_settings.json`. Setting
-  a value Excel takes but saves outside the parts measured reports itself
-  unsupported.
-
-### Fixed
-
-- The checklist's `Range.Sort` row was split by undoubled quotes. A test
-  now checks that every row has its eight fields.
+- `Workbook.Colors` and `Workbook.ResetColors` work as Excel's do. Colors
+  reads the 56-colour palette or one slot and sets either. Cells, fonts
+  and borders coloured by a slot follow it, and tabs keep Excel's own
+  colour. A save writes a changed palette to `styles.xml` as Excel does,
+  and leaves out Excel's own. 48 live cases agree,
+  `tests/fixtures/workbook_colors.json`. These report themselves
+  unsupported:
+  - an array of fewer than 56 colours, which crashed Excel once
+  - Null
+  - `ColorIndex` of a colour a changed palette does not hold
 
 ## [6.6.0] - 2026-10-30
 

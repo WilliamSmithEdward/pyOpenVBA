@@ -1,0 +1,681 @@
+{
+ "measured_at": "2026-10-31T02:50:11.618280+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, wbo As Object, ws As Worksheet, r As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set wbo = wb\n    Set ws = wb.Worksheets(1)\n    r = \"ok\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)\n        Tried = CStr(r)\n    Case 1\n        r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)\n        Tried = CStr(r)\n    Case 2\n        r = TypeName(wb.DefaultSlicerStyle) & \":\" & CStr(wb.DefaultSlicerStyle)\n        Tried = CStr(r)\n    Case 3\n        r = TypeName(wb.DefaultTimelineStyle) & \":\" & CStr(wb.DefaultTimelineStyle)\n        Tried = CStr(r)\n    Case 4\n        r = TypeName(wb.ShowPivotTableFieldList) & \":\" & CStr(wb.ShowPivotTableFieldList)\n        Tried = CStr(r)\n    Case 5\n        r = TypeName(wb.ShowPivotChartActiveFields) & \":\" & CStr(wb.ShowPivotChartActiveFields)\n        Tried = CStr(r)\n    Case 6\n        r = TypeName(wb.CreateBackup) & \":\" & CStr(wb.CreateBackup)\n        Tried = CStr(r)\n    Case 7\n        r = TypeName(wb.InactiveListBorderVisible) & \":\" & CStr(wb.InactiveListBorderVisible)\n        Tried = CStr(r)\n    Case 8\n        r = TypeName(wb.UpdateRemoteReferences) & \":\" & CStr(wb.UpdateRemoteReferences)\n        Tried = CStr(r)\n    Case 9\n        r = TypeName(wb.ChartDataPointTrack) & \":\" & CStr(wb.ChartDataPointTrack)\n        Tried = CStr(r)\n    Case 10\n        r = TypeName(wb.AccuracyVersion) & \":\" & CStr(wb.AccuracyVersion)\n        Tried = CStr(r)\n    Case 11\n        r = TypeName(wb.Final) & \":\" & CStr(wb.Final)\n        Tried = CStr(r)\n    Case 12\n        r = TypeName(wb.HasPassword) & \":\" & CStr(wb.HasPassword)\n        Tried = CStr(r)\n    Case 13\n        r = TypeName(wb.CaseSensitive) & \":\" & CStr(wb.CaseSensitive)\n        Tried = CStr(r)\n    Case 14\n        r = TypeName(wb.UseWholeCellCriteria) & \":\" & CStr(wb.UseWholeCellCriteria)\n        Tried = CStr(r)\n    Case 15\n        r = TypeName(wb.UseWildcards) & \":\" & CStr(wb.UseWildcards)\n        Tried = CStr(r)\n    Case 16\n        wbo.ShowPivotTableFieldList = Not wb.ShowPivotTableFieldList\n        r = CStr(wb.ShowPivotTableFieldList)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\ShowPivotTableFieldList.xlsx\", xlOpenXMLWorkbook\n    Case 17\n        wbo.ShowPivotTableFieldList = \"x\"\n        r = CStr(wb.ShowPivotTableFieldList)\n        Tried = CStr(r)\n    Case 18\n        wbo.ShowPivotTableFieldList = 0\n        r = CStr(wb.ShowPivotTableFieldList)\n        Tried = CStr(r)\n    Case 19\n        wbo.ShowPivotChartActiveFields = Not wb.ShowPivotChartActiveFields\n        r = CStr(wb.ShowPivotChartActiveFields)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\ShowPivotChartActiveFields.xlsx\", xlOpenXMLWorkbook\n    Case 20\n        wbo.ShowPivotChartActiveFields = \"x\"\n        r = CStr(wb.ShowPivotChartActiveFields)\n        Tried = CStr(r)\n    Case 21\n        wbo.ShowPivotChartActiveFields = 0\n        r = CStr(wb.ShowPivotChartActiveFields)\n        Tried = CStr(r)\n    Case 22\n        wbo.CreateBackup = Not wb.CreateBackup\n        r = CStr(wb.CreateBackup)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\CreateBackup.xlsx\", xlOpenXMLWorkbook\n    Case 23\n        wbo.CreateBackup = \"x\"\n        r = CStr(wb.CreateBackup)\n        Tried = CStr(r)\n    Case 24\n        wbo.CreateBackup = 0\n        r = CStr(wb.CreateBackup)\n        Tried = CStr(r)\n    Case 25\n        wbo.InactiveListBorderVisible = Not wb.InactiveListBorderVisible\n        r = CStr(wb.InactiveListBorderVisible)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\InactiveListBorderVisible.xlsx\", xlOpenXMLWorkbook\n    Case 26\n        wbo.InactiveListBorderVisible = \"x\"\n        r = CStr(wb.InactiveListBorderVisible)\n        Tried = CStr(r)\n    Case 27\n        wbo.InactiveListBorderVisible = 0\n        r = CStr(wb.InactiveListBorderVisible)\n        Tried = CStr(r)\n    Case 28\n        wbo.UpdateRemoteReferences = Not wb.UpdateRemoteReferences\n        r = CStr(wb.UpdateRemoteReferences)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\UpdateRemoteReferences.xlsx\", xlOpenXMLWorkbook\n    Case 29\n        wbo.UpdateRemoteReferences = \"x\"\n        r = CStr(wb.UpdateRemoteReferences)\n        Tried = CStr(r)\n    Case 30\n        wbo.UpdateRemoteReferences = 0\n        r = CStr(wb.UpdateRemoteReferences)\n        Tried = CStr(r)\n    Case 31\n        wbo.ChartDataPointTrack = Not wb.ChartDataPointTrack\n        r = CStr(wb.ChartDataPointTrack)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\ChartDataPointTrack.xlsx\", xlOpenXMLWorkbook\n    Case 32\n        wbo.ChartDataPointTrack = \"x\"\n        r = CStr(wb.ChartDataPointTrack)\n        Tried = CStr(r)\n    Case 33\n        wbo.ChartDataPointTrack = 0\n        r = CStr(wb.ChartDataPointTrack)\n        Tried = CStr(r)\n    Case 34\n        wbo.CaseSensitive = Not wb.CaseSensitive\n        r = CStr(wb.CaseSensitive)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\CaseSensitive.xlsx\", xlOpenXMLWorkbook\n    Case 35\n        wbo.CaseSensitive = \"x\"\n        r = CStr(wb.CaseSensitive)\n        Tried = CStr(r)\n    Case 36\n        wbo.CaseSensitive = 0\n        r = CStr(wb.CaseSensitive)\n        Tried = CStr(r)\n    Case 37\n        wbo.UseWholeCellCriteria = Not wb.UseWholeCellCriteria\n        r = CStr(wb.UseWholeCellCriteria)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\UseWholeCellCriteria.xlsx\", xlOpenXMLWorkbook\n    Case 38\n        wbo.UseWholeCellCriteria = \"x\"\n        r = CStr(wb.UseWholeCellCriteria)\n        Tried = CStr(r)\n    Case 39\n        wbo.UseWholeCellCriteria = 0\n        r = CStr(wb.UseWholeCellCriteria)\n        Tried = CStr(r)\n    Case 40\n        wbo.UseWildcards = Not wb.UseWildcards\n        r = CStr(wb.UseWildcards)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\UseWildcards.xlsx\", xlOpenXMLWorkbook\n    Case 41\n        wbo.UseWildcards = \"x\"\n        r = CStr(wb.UseWildcards)\n        Tried = CStr(r)\n    Case 42\n        wbo.UseWildcards = 0\n        r = CStr(wb.UseWildcards)\n        Tried = CStr(r)\n    Case 43\n        wbo.DefaultTableStyle = \"TableStyleMedium9\"\n        r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTableStyle_TableStyleMedium9.xlsx\", xlOpenXMLWorkbook\n    Case 44\n        wbo.DefaultTableStyle = \"tablestylelight1\"\n        r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTableStyle_tablestylelight1.xlsx\", xlOpenXMLWorkbook\n    Case 45\n        wbo.DefaultTableStyle = \"NoSuch\"\n        r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTableStyle_NoSuch.xlsx\", xlOpenXMLWorkbook\n    Case 46\n        wbo.DefaultTableStyle = \"\"\n        r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTableStyle_blank.xlsx\", xlOpenXMLWorkbook\n    Case 47\n        wbo.DefaultTableStyle = wb.TableStyles(\"TableStyleDark1\")\n        r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTableStyle_wbTableStylesTableStyleDark1.xlsx\", xlOpenXMLWorkbook\n    Case 48\n        wbo.DefaultTableStyle = 5\n        r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTableStyle_5.xlsx\", xlOpenXMLWorkbook\n    Case 49\n        wbo.DefaultPivotTableStyle = \"PivotStyleMedium2\"\n        r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultPivotTableStyle_PivotStyleMedium2.xlsx\", xlOpenXMLWorkbook\n    Case 50\n        wbo.DefaultPivotTableStyle = \"NoSuch\"\n        r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultPivotTableStyle_NoSuch.xlsx\", xlOpenXMLWorkbook\n    Case 51\n        wbo.DefaultPivotTableStyle = \"\"\n        r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultPivotTableStyle_blank.xlsx\", xlOpenXMLWorkbook\n    Case 52\n        wbo.DefaultSlicerStyle = \"SlicerStyleDark1\"\n        r = TypeName(wb.DefaultSlicerStyle) & \":\" & CStr(wb.DefaultSlicerStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultSlicerStyle_SlicerStyleDark1.xlsx\", xlOpenXMLWorkbook\n    Case 53\n        wbo.DefaultSlicerStyle = \"NoSuch\"\n        r = TypeName(wb.DefaultSlicerStyle) & \":\" & CStr(wb.DefaultSlicerStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultSlicerStyle_NoSuch.xlsx\", xlOpenXMLWorkbook\n    Case 54\n        wbo.DefaultTimelineStyle = \"TimeSlicerStyleDark1\"\n        r = TypeName(wb.DefaultTimelineStyle) & \":\" & CStr(wb.DefaultTimelineStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTimelineStyle_TimeSlicerStyleDark1.xlsx\", xlOpenXMLWorkbook\n    Case 55\n        wbo.DefaultTimelineStyle = \"NoSuch\"\n        r = TypeName(wb.DefaultTimelineStyle) & \":\" & CStr(wb.DefaultTimelineStyle)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\DefaultTimelineStyle_NoSuch.xlsx\", xlOpenXMLWorkbook\n    Case 56\n        wbo.DefaultTableStyle = \"TableStyleLight1\"\n        ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"T\"\n        r = ws.ListObjects(1).TableStyle\n        Tried = CStr(r)\n    Case 57\n        wbo.AccuracyVersion = 1\n        r = CStr(wb.AccuracyVersion)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\AccuracyVersion.xlsx\", xlOpenXMLWorkbook\n    Case 58\n        wbo.AccuracyVersion = 2\n        Tried = CStr(r)\n    Case 59\n        wbo.HasPassword = True\n        Tried = CStr(r)\n    Case 60\n        wbo.Password = \"a\"\n        r = CStr(wb.HasPassword)\n        Tried = CStr(r)\n    Case 61\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"ab\", \"AB\", \"a*\"))\n        wbo.CaseSensitive = True\n        ws.Range(\"B1\").Formula = \"=COUNTIF(A1:A3,\"\"ab\"\")\"\n        r = ws.Range(\"B1\").Value\n        Tried = CStr(r)\n    Case 62\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"ab\", \"AB\", \"a*\"))\n        wbo.UseWildcards = False\n        ws.Range(\"B1\").Formula = \"=COUNTIF(A1:A3,\"\"a*\"\")\"\n        r = ws.Range(\"B1\").Value\n        Tried = CStr(r)\n    Case 63\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"ab\", \"abc\", \"a\"))\n        wbo.UseWholeCellCriteria = False\n        ws.Range(\"B1\").Formula = \"=COUNTIF(A1:A3,\"\"a\"\")\"\n        r = ws.Range(\"B1\").Value\n        Tried = CStr(r)\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)"
+   ],
+   "r",
+   "",
+   "TableStyle:TableStyleMedium2"
+  ],
+  [
+   [
+    "r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)"
+   ],
+   "r",
+   "",
+   "TableStyle:PivotStyleLight16"
+  ],
+  [
+   [
+    "r = TypeName(wb.DefaultSlicerStyle) & \":\" & CStr(wb.DefaultSlicerStyle)"
+   ],
+   "r",
+   "",
+   "TableStyle:SlicerStyleLight1"
+  ],
+  [
+   [
+    "r = TypeName(wb.DefaultTimelineStyle) & \":\" & CStr(wb.DefaultTimelineStyle)"
+   ],
+   "r",
+   "",
+   "TableStyle:TimeSlicerStyleLight1"
+  ],
+  [
+   [
+    "r = TypeName(wb.ShowPivotTableFieldList) & \":\" & CStr(wb.ShowPivotTableFieldList)"
+   ],
+   "r",
+   "",
+   "Boolean:True"
+  ],
+  [
+   [
+    "r = TypeName(wb.ShowPivotChartActiveFields) & \":\" & CStr(wb.ShowPivotChartActiveFields)"
+   ],
+   "r",
+   "",
+   "Boolean:False"
+  ],
+  [
+   [
+    "r = TypeName(wb.CreateBackup) & \":\" & CStr(wb.CreateBackup)"
+   ],
+   "r",
+   "",
+   "Boolean:False"
+  ],
+  [
+   [
+    "r = TypeName(wb.InactiveListBorderVisible) & \":\" & CStr(wb.InactiveListBorderVisible)"
+   ],
+   "r",
+   "",
+   "Boolean:True"
+  ],
+  [
+   [
+    "r = TypeName(wb.UpdateRemoteReferences) & \":\" & CStr(wb.UpdateRemoteReferences)"
+   ],
+   "r",
+   "",
+   "Boolean:True"
+  ],
+  [
+   [
+    "r = TypeName(wb.ChartDataPointTrack) & \":\" & CStr(wb.ChartDataPointTrack)"
+   ],
+   "r",
+   "",
+   "Boolean:True"
+  ],
+  [
+   [
+    "r = TypeName(wb.AccuracyVersion) & \":\" & CStr(wb.AccuracyVersion)"
+   ],
+   "r",
+   "",
+   "Long:0"
+  ],
+  [
+   [
+    "r = TypeName(wb.Final) & \":\" & CStr(wb.Final)"
+   ],
+   "r",
+   "",
+   "Boolean:False"
+  ],
+  [
+   [
+    "r = TypeName(wb.HasPassword) & \":\" & CStr(wb.HasPassword)"
+   ],
+   "r",
+   "",
+   "Boolean:False"
+  ],
+  [
+   [
+    "r = TypeName(wb.CaseSensitive) & \":\" & CStr(wb.CaseSensitive)"
+   ],
+   "r",
+   "",
+   "Boolean:False"
+  ],
+  [
+   [
+    "r = TypeName(wb.UseWholeCellCriteria) & \":\" & CStr(wb.UseWholeCellCriteria)"
+   ],
+   "r",
+   "",
+   "Boolean:True"
+  ],
+  [
+   [
+    "r = TypeName(wb.UseWildcards) & \":\" & CStr(wb.UseWildcards)"
+   ],
+   "r",
+   "",
+   "Boolean:True"
+  ],
+  [
+   [
+    "wbo.ShowPivotTableFieldList = Not wb.ShowPivotTableFieldList",
+    "r = CStr(wb.ShowPivotTableFieldList)"
+   ],
+   "r",
+   "ShowPivotTableFieldList.xlsx",
+   "False"
+  ],
+  [
+   [
+    "wbo.ShowPivotTableFieldList = \"x\"",
+    "r = CStr(wb.ShowPivotTableFieldList)"
+   ],
+   "r",
+   "",
+   "Err 13 Type mismatch"
+  ],
+  [
+   [
+    "wbo.ShowPivotTableFieldList = 0",
+    "r = CStr(wb.ShowPivotTableFieldList)"
+   ],
+   "r",
+   "",
+   "False"
+  ],
+  [
+   [
+    "wbo.ShowPivotChartActiveFields = Not wb.ShowPivotChartActiveFields",
+    "r = CStr(wb.ShowPivotChartActiveFields)"
+   ],
+   "r",
+   "ShowPivotChartActiveFields.xlsx",
+   "True"
+  ],
+  [
+   [
+    "wbo.ShowPivotChartActiveFields = \"x\"",
+    "r = CStr(wb.ShowPivotChartActiveFields)"
+   ],
+   "r",
+   "",
+   "Err 13 Type mismatch"
+  ],
+  [
+   [
+    "wbo.ShowPivotChartActiveFields = 0",
+    "r = CStr(wb.ShowPivotChartActiveFields)"
+   ],
+   "r",
+   "",
+   "False"
+  ],
+  [
+   [
+    "wbo.CreateBackup = Not wb.CreateBackup",
+    "r = CStr(wb.CreateBackup)"
+   ],
+   "r",
+   "CreateBackup.xlsx",
+   "Err 1004 Unable to set the CreateBackup property of the Workbook class"
+  ],
+  [
+   [
+    "wbo.CreateBackup = \"x\"",
+    "r = CStr(wb.CreateBackup)"
+   ],
+   "r",
+   "",
+   "Err 1004 Unable to set the CreateBackup property of the Workbook class"
+  ],
+  [
+   [
+    "wbo.CreateBackup = 0",
+    "r = CStr(wb.CreateBackup)"
+   ],
+   "r",
+   "",
+   "Err 1004 Unable to set the CreateBackup property of the Workbook class"
+  ],
+  [
+   [
+    "wbo.InactiveListBorderVisible = Not wb.InactiveListBorderVisible",
+    "r = CStr(wb.InactiveListBorderVisible)"
+   ],
+   "r",
+   "InactiveListBorderVisible.xlsx",
+   "False"
+  ],
+  [
+   [
+    "wbo.InactiveListBorderVisible = \"x\"",
+    "r = CStr(wb.InactiveListBorderVisible)"
+   ],
+   "r",
+   "",
+   "Err 13 Type mismatch"
+  ],
+  [
+   [
+    "wbo.InactiveListBorderVisible = 0",
+    "r = CStr(wb.InactiveListBorderVisible)"
+   ],
+   "r",
+   "",
+   "False"
+  ],
+  [
+   [
+    "wbo.UpdateRemoteReferences = Not wb.UpdateRemoteReferences",
+    "r = CStr(wb.UpdateRemoteReferences)"
+   ],
+   "r",
+   "UpdateRemoteReferences.xlsx",
+   "False"
+  ],
+  [
+   [
+    "wbo.UpdateRemoteReferences = \"x\"",
+    "r = CStr(wb.UpdateRemoteReferences)"
+   ],
+   "r",
+   "",
+   "Err 1004 Unable to set the UpdateRemoteReferences property of the Workbook class"
+  ],
+  [
+   [
+    "wbo.UpdateRemoteReferences = 0",
+    "r = CStr(wb.UpdateRemoteReferences)"
+   ],
+   "r",
+   "",
+   "False"
+  ],
+  [
+   [
+    "wbo.ChartDataPointTrack = Not wb.ChartDataPointTrack",
+    "r = CStr(wb.ChartDataPointTrack)"
+   ],
+   "r",
+   "ChartDataPointTrack.xlsx",
+   "False"
+  ],
+  [
+   [
+    "wbo.ChartDataPointTrack = \"x\"",
+    "r = CStr(wb.ChartDataPointTrack)"
+   ],
+   "r",
+   "",
+   "Err 13 Type mismatch"
+  ],
+  [
+   [
+    "wbo.ChartDataPointTrack = 0",
+    "r = CStr(wb.ChartDataPointTrack)"
+   ],
+   "r",
+   "",
+   "False"
+  ],
+  [
+   [
+    "wbo.CaseSensitive = Not wb.CaseSensitive",
+    "r = CStr(wb.CaseSensitive)"
+   ],
+   "r",
+   "CaseSensitive.xlsx",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.CaseSensitive = \"x\"",
+    "r = CStr(wb.CaseSensitive)"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.CaseSensitive = 0",
+    "r = CStr(wb.CaseSensitive)"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.UseWholeCellCriteria = Not wb.UseWholeCellCriteria",
+    "r = CStr(wb.UseWholeCellCriteria)"
+   ],
+   "r",
+   "UseWholeCellCriteria.xlsx",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.UseWholeCellCriteria = \"x\"",
+    "r = CStr(wb.UseWholeCellCriteria)"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.UseWholeCellCriteria = 0",
+    "r = CStr(wb.UseWholeCellCriteria)"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.UseWildcards = Not wb.UseWildcards",
+    "r = CStr(wb.UseWildcards)"
+   ],
+   "r",
+   "UseWildcards.xlsx",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.UseWildcards = \"x\"",
+    "r = CStr(wb.UseWildcards)"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.UseWildcards = 0",
+    "r = CStr(wb.UseWildcards)"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.DefaultTableStyle = \"TableStyleMedium9\"",
+    "r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)"
+   ],
+   "r",
+   "DefaultTableStyle_TableStyleMedium9.xlsx",
+   "TableStyle:TableStyleMedium9"
+  ],
+  [
+   [
+    "wbo.DefaultTableStyle = \"tablestylelight1\"",
+    "r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)"
+   ],
+   "r",
+   "DefaultTableStyle_tablestylelight1.xlsx",
+   "TableStyle:TableStyleLight1"
+  ],
+  [
+   [
+    "wbo.DefaultTableStyle = \"NoSuch\"",
+    "r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)"
+   ],
+   "r",
+   "DefaultTableStyle_NoSuch.xlsx",
+   "String:None"
+  ],
+  [
+   [
+    "wbo.DefaultTableStyle = \"\"",
+    "r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)"
+   ],
+   "r",
+   "DefaultTableStyle_blank.xlsx",
+   "String:None"
+  ],
+  [
+   [
+    "wbo.DefaultTableStyle = wb.TableStyles(\"TableStyleDark1\")",
+    "r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)"
+   ],
+   "r",
+   "DefaultTableStyle_wbTableStylesTableStyleDark1.xlsx",
+   "TableStyle:TableStyleDark1"
+  ],
+  [
+   [
+    "wbo.DefaultTableStyle = 5",
+    "r = TypeName(wb.DefaultTableStyle) & \":\" & CStr(wb.DefaultTableStyle)"
+   ],
+   "r",
+   "DefaultTableStyle_5.xlsx",
+   "String:None"
+  ],
+  [
+   [
+    "wbo.DefaultPivotTableStyle = \"PivotStyleMedium2\"",
+    "r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)"
+   ],
+   "r",
+   "DefaultPivotTableStyle_PivotStyleMedium2.xlsx",
+   "TableStyle:PivotStyleMedium2"
+  ],
+  [
+   [
+    "wbo.DefaultPivotTableStyle = \"NoSuch\"",
+    "r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)"
+   ],
+   "r",
+   "DefaultPivotTableStyle_NoSuch.xlsx",
+   "String:None"
+  ],
+  [
+   [
+    "wbo.DefaultPivotTableStyle = \"\"",
+    "r = TypeName(wb.DefaultPivotTableStyle) & \":\" & CStr(wb.DefaultPivotTableStyle)"
+   ],
+   "r",
+   "DefaultPivotTableStyle_blank.xlsx",
+   "String:None"
+  ],
+  [
+   [
+    "wbo.DefaultSlicerStyle = \"SlicerStyleDark1\"",
+    "r = TypeName(wb.DefaultSlicerStyle) & \":\" & CStr(wb.DefaultSlicerStyle)"
+   ],
+   "r",
+   "DefaultSlicerStyle_SlicerStyleDark1.xlsx",
+   "TableStyle:SlicerStyleDark1"
+  ],
+  [
+   [
+    "wbo.DefaultSlicerStyle = \"NoSuch\"",
+    "r = TypeName(wb.DefaultSlicerStyle) & \":\" & CStr(wb.DefaultSlicerStyle)"
+   ],
+   "r",
+   "DefaultSlicerStyle_NoSuch.xlsx",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.DefaultTimelineStyle = \"TimeSlicerStyleDark1\"",
+    "r = TypeName(wb.DefaultTimelineStyle) & \":\" & CStr(wb.DefaultTimelineStyle)"
+   ],
+   "r",
+   "DefaultTimelineStyle_TimeSlicerStyleDark1.xlsx",
+   "TableStyle:TimeSlicerStyleDark1"
+  ],
+  [
+   [
+    "wbo.DefaultTimelineStyle = \"NoSuch\"",
+    "r = TypeName(wb.DefaultTimelineStyle) & \":\" & CStr(wb.DefaultTimelineStyle)"
+   ],
+   "r",
+   "DefaultTimelineStyle_NoSuch.xlsx",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "wbo.DefaultTableStyle = \"TableStyleLight1\"",
+    "ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B3\"), , xlYes).Name = \"T\"",
+    "r = ws.ListObjects(1).TableStyle"
+   ],
+   "r",
+   "",
+   "TableStyleLight1"
+  ],
+  [
+   [
+    "wbo.AccuracyVersion = 1",
+    "r = CStr(wb.AccuracyVersion)"
+   ],
+   "r",
+   "AccuracyVersion.xlsx",
+   "1"
+  ],
+  [
+   [
+    "wbo.AccuracyVersion = 2"
+   ],
+   "r",
+   "",
+   "ok"
+  ],
+  [
+   [
+    "wbo.HasPassword = True"
+   ],
+   "r",
+   "",
+   "Err 1004 Unable to set the HasPassword property of the Workbook class"
+  ],
+  [
+   [
+    "wbo.Password = \"a\"",
+    "r = CStr(wb.HasPassword)"
+   ],
+   "r",
+   "",
+   "True"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"ab\", \"AB\", \"a*\"))",
+    "wbo.CaseSensitive = True",
+    "ws.Range(\"B1\").Formula = \"=COUNTIF(A1:A3,\"\"ab\"\")\"",
+    "r = ws.Range(\"B1\").Value"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"ab\", \"AB\", \"a*\"))",
+    "wbo.UseWildcards = False",
+    "ws.Range(\"B1\").Formula = \"=COUNTIF(A1:A3,\"\"a*\"\")\"",
+    "r = ws.Range(\"B1\").Value"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(\"ab\", \"abc\", \"a\"))",
+    "wbo.UseWholeCellCriteria = False",
+    "ws.Range(\"B1\").Formula = \"=COUNTIF(A1:A3,\"\"a\"\")\"",
+    "r = ws.Range(\"B1\").Value"
+   ],
+   "r",
+   "",
+   "Err 450 Wrong number of arguments or invalid property assignment"
+  ]
+ ],
+ "parts": {
+  "ShowPivotTableFieldList.xlsx": {
+   "workbookPr": "<workbookPr hidePivotFieldList=\"1\" defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "ShowPivotChartActiveFields.xlsx": {
+   "workbookPr": "<workbookPr showPivotChartFilter=\"1\" defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "InactiveListBorderVisible.xlsx": {
+   "workbookPr": "<workbookPr showBorderUnselectedTables=\"0\" defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "UpdateRemoteReferences.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "ChartDataPointTrack.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultTableStyle_TableStyleMedium9.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium9\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultTableStyle_tablestylelight1.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleLight1\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultTableStyle_NoSuch.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultTableStyle_blank.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultTableStyle_wbTableStylesTableStyleDark1.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleDark1\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultTableStyle_5.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultPivotTableStyle_PivotStyleMedium2.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleMedium2\"/>",
+   "custom": ""
+  },
+  "DefaultPivotTableStyle_NoSuch.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\"/>",
+   "custom": ""
+  },
+  "DefaultPivotTableStyle_blank.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\"/>",
+   "custom": ""
+  },
+  "DefaultSlicerStyle_SlicerStyleDark1.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "DefaultTimelineStyle_TimeSlicerStyleDark1.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  },
+  "AccuracyVersion.xlsx": {
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "calcPr": "<calcPr calcId=\"191029\"/>",
+   "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+   "custom": ""
+  }
+ },
+ "blank": {
+  "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+  "calcPr": "<calcPr calcId=\"191029\"/>",
+  "tableStyles": "<tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium2\" defaultPivotStyle=\"PivotStyleLight16\"/>",
+  "custom": ""
+ }
+}

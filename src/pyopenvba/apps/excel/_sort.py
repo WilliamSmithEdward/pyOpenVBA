@@ -480,13 +480,36 @@ def sort_area(sheet: Worksheet, area: Area, keys: list[Key], *, header: bool, ma
 
 def guessed_header(sheet: Worksheet, area: Area, across: bool) -> bool:
     """Whether xlGuess takes the first row, or column, for a header."""
-    from pyopenvba.apps.excel._region import holds_content
-
     if (area.columns if across else area.rows) < 2:
         return False
+    return _differs(sheet, area, across, 0)
+
+
+def header_rows(sheet: Worksheet, area: Area) -> int:
+    """Range.ListHeaderRows: the first row the guess tells from the row under it, counted from the top, so long as
+    every row above it holds text or nothing (tests/fixtures/range_small_members.json)."""
+    from pyopenvba.apps.excel._region import holds_content
+
+    calculator = sheet.book.calculator
+    for at in range(area.rows - 1):
+        if _differs(sheet, area, False, at):
+            return at + 1
+        row = area.top + at
+        for column in range(area.left, area.right + 1):
+            if holds_content(sheet, row, column):
+                cell = sheet.cells_[(row, column)]
+                if _kind(calculator.value_of(sheet.name, row, column) if cell.formula else cell.value) != _TEXT:
+                    return 0
+    return 0
+
+
+def _differs(sheet: Worksheet, area: Area, across: bool, at: int) -> bool:
+    """Whether line ``at`` of the area and the one after it differ, as xlGuess tells a header."""
+    from pyopenvba.apps.excel._region import holds_content
+
     calculator = sheet.book.calculator
     for offset in range(area.rows if across else area.columns):
-        first = (area.top + offset, area.left) if across else (area.top, area.left + offset)
+        first = (area.top + offset, area.left + at) if across else (area.top + at, area.left + offset)
         second = (first[0], first[1] + 1) if across else (first[0] + 1, first[1])
         if not holds_content(sheet, *first) or not holds_content(sheet, *second):
             continue

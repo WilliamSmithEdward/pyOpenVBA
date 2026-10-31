@@ -437,6 +437,42 @@ def _choose(sections: list[_Section], value: float) -> tuple[_Section, float, bo
     return sections[0], value, False
 
 
+def precision_shown(value: float, code: str) -> float | None:
+    """The number a format shows, as Workbook.PrecisionAsDisplayed keeps it: rounded half away from zero to the
+    section's decimal places, through its percent signs and trailing commas, or its mantissa's places with an
+    exponent; None where the section shows the number whole -- General, text, a date or time, a fraction, nothing
+    (tests/fixtures/precision_as_displayed.json)."""
+    section, _, _ = _choose(list(_sections(code)), value)
+    if section.has("date", "elapsed", "ampm", "general", "text") or not section.has("digit") \
+            or _slash(section.items) is not None:
+        return None
+    items, number = section.items, _significant(abs(value))
+    if section.has("exponent"):
+        at = next(index for index, item in enumerate(items) if item.kind == "exponent")
+        mantissa_items = items[:at]
+        point = next((index for index, item in enumerate(mantissa_items) if item.kind == "point"),
+                     len(mantissa_items))
+        step = max(sum(item.kind == "digit" for item in mantissa_items[:point]), 1)
+        places = sum(item.kind == "digit" for item in mantissa_items[point + 1:])
+        if number:
+            exponent = number.adjusted() // step * step
+            mantissa = _rounded(number.scaleb(-exponent), places)
+            if mantissa >= Decimal(10) ** step:
+                exponent += step
+                mantissa = _rounded(number.scaleb(-exponent), places)
+            number = mantissa.scaleb(exponent)
+    else:
+        digits = [index for index, item in enumerate(items) if item.kind == "digit"]
+        point = next((index for index, item in enumerate(items) if item.kind == "point"), len(items))
+        scale = sum(item.kind == "comma" and index > digits[-1] for index, item in enumerate(items))
+        percent = sum(item.kind == "percent" for item in items)
+        places = sum(item.kind == "digit" for item in items[point + 1:])
+        shown = _rounded(number * Decimal(100) ** percent / Decimal(1000) ** scale, places)
+        number = shown / Decimal(100) ** percent * Decimal(1000) ** scale
+    result = float(number)
+    return (-result if value < 0 else result) if result else 0.0
+
+
 def _literal(item: _Item) -> str:
     """What an item shows when it is not filled with a value; a fill marks where it repeats."""
     if item.kind == "fill":

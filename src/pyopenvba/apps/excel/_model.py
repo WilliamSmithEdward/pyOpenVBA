@@ -30,7 +30,7 @@ from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._find import FindState
-from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names
+from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
 from pyopenvba.shapes._values import Shape as ShapeState
 from pyopenvba.interpreter._objects import MemberSpec, VBACollection, VBAObject, member, method, setter
@@ -74,6 +74,8 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._outline import OutlineState
     from pyopenvba.apps.excel._page_breaks import SheetBreaks
+    from pyopenvba.apps.excel._custom_properties import Property as CustomProperty
+    from pyopenvba.apps.excel._consolidate import Settings as ConsolidationSettings
     from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
@@ -149,16 +151,25 @@ class Cell:
     save_dirty: bool | None = None
     #: The runs of fonts the cell's text is in, where it is in more than its own (see _rich_text).
     runs: tuple[Run, ...] | None = None
+    #: The error checks Range.Errors(...).Ignore set, one bit each from xlEvaluateToError (see _error_checks).
+    ignored_errors: int = 0
+    #: Range.ID, which goes with the cell's contents (tests/fixtures/range_small_members.json).
+    html_id: str = ""
 
     @property
     def number_format(self) -> str:
         return self.style.number_format if self.style is not None else "General"
 
     def is_blank(self) -> bool:
-        return self.value is EMPTY and not self.formula and self.style is None
+        return self.value is EMPTY and not self.formula and self.style is None and not self.html_id and not self.ignored_errors
 
 
 # --- Application ------------------------------------------------------------------------
+
+
+def coalesced(areas: list[Area]) -> list[Area]:
+    """Areas joined as Union joins them (see _coalesced)."""
+    return _coalesced(areas)
 
 
 def _coalesced(areas: list[Area]) -> list[Area]:
@@ -232,6 +243,79 @@ def _separator_kept(name: str, value: object, current: str) -> None:
     follow."""
     if to_text(value) != current:
         raise VBAUnsupportedError(f"Application.{name} set to another separator is not implemented")
+
+
+#: Application.ErrorCheckingOptions as a new Excel session reads them on the measuring machine
+#: (tests/fixtures/error_checking_options.json); Range.Errors answers whatever they say.
+_ERROR_CHECKS = {"BackgroundChecking": True, "EvaluateToError": True, "TextDate": True, "NumberAsText": True,
+                 "InconsistentFormula": True, "OmittedCells": True, "UnlockedFormulaCells": True,
+                 "EmptyCellReferences": False, "ListDataValidation": True, "InconsistentTableFormula": True,
+                 "MisleadingNumberFormats": True}
+
+
+def _error_check(key: str) -> tuple[Callable[..., object], Callable[..., None]]:
+    """The getter and setter of one ErrorCheckingOptions switch."""
+
+    def read(self: ErrorCheckingOptions) -> object:
+        return self.kept[key]
+
+    def write(self: ErrorCheckingOptions, value: object) -> None:
+        self.kept[key] = to_bool(value)
+
+    read.__name__ = key
+    return member(read), setter(key)(write)
+
+
+class ErrorCheckingOptions(ExcelObject):
+    """Application.ErrorCheckingOptions: the session's error-checking settings, kept for the session."""
+
+    vba_type_name = "ErrorCheckingOptions"
+
+    def __init__(self, application: Application) -> None:
+        self.application = application
+
+    @property
+    def kept(self) -> dict[str, object]:
+        kept: dict[str, object] | None = getattr(self.application, "error_checking", None)
+        if kept is None:
+            kept = {**_ERROR_CHECKS, "IndicatorColorIndex": -4105}
+            setattr(self.application, "error_checking", kept)
+        return kept
+
+    BackgroundChecking, _set_background_checking = _error_check("BackgroundChecking")
+    EvaluateToError, _set_evaluate_to_error = _error_check("EvaluateToError")
+    TextDate, _set_text_date = _error_check("TextDate")
+    NumberAsText, _set_number_as_text = _error_check("NumberAsText")
+    InconsistentFormula, _set_inconsistent_formula = _error_check("InconsistentFormula")
+    OmittedCells, _set_omitted_cells = _error_check("OmittedCells")
+    UnlockedFormulaCells, _set_unlocked_formula_cells = _error_check("UnlockedFormulaCells")
+    EmptyCellReferences, _set_empty_cell_references = _error_check("EmptyCellReferences")
+    ListDataValidation, _set_list_data_validation = _error_check("ListDataValidation")
+    InconsistentTableFormula, _set_inconsistent_table_formula = _error_check("InconsistentTableFormula")
+    MisleadingNumberFormats, _set_misleading_number_formats = _error_check("MisleadingNumberFormats")
+
+    @member
+    def IndicatorColorIndex(self) -> object:
+        return VBAInt(int(to_integer(self.kept["IndicatorColorIndex"])), "Long")
+
+    @setter("IndicatorColorIndex")
+    def _set_indicator_color_index(self, value: object) -> None:
+        number = int(to_integer(value))
+        if number != -4105 and not 1 <= number <= 56:
+            raise VBAUnsupportedError("ErrorCheckingOptions.IndicatorColorIndex outside the palette is not implemented")
+        self.kept["IndicatorColorIndex"] = number
+
+    @member
+    def Parent(self) -> object:
+        return self.application
+
+    @member
+    def Application(self) -> object:
+        return self.application
+
+    @member
+    def Creator(self) -> object:
+        return VBAInt(1480803660, "Long")
 
 
 class Application(ExcelObject):
@@ -406,6 +490,10 @@ class Application(ExcelObject):
                                               f"implement")
                 return call(self, name, args, named, raising=False)
         return super().vba_get(name, args, named)
+
+    @member
+    def ErrorCheckingOptions(self) -> object:
+        return ErrorCheckingOptions(self)
 
     @member
     def EnableEvents(self) -> object:
@@ -1145,6 +1233,23 @@ class Workbooks(VBACollection, ExcelObject):
             self.application.active_book = front_to_back(self.application)[0] if self.books else None
 
 
+def _session_property(name: str) -> tuple[Callable[..., object], Callable[..., None]]:
+    """The getter and setter of one Workbook property kept for the session (see _workbook_settings.SESSION)."""
+
+    def read(self: Workbook) -> object:
+        from pyopenvba.apps.excel._workbook_settings import session_value
+
+        return session_value(self, name)
+
+    def write(self: Workbook, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_session_value
+
+        set_session_value(self, name, value)
+
+    read.__name__ = name
+    return member(read), setter(name)(write)
+
+
 class Workbook(ExcelObject):
     """One workbook: its sheets, its names, and where it came from."""
 
@@ -1164,6 +1269,12 @@ class Workbook(ExcelObject):
         self.read_only = False
         self.epoch_1904 = False
         self.date_system_changed = False
+        #: workbook.xml's workbookPr attributes as the file held them, and those a macro changed since
+        #: (_workbook_settings), which a save writes.
+        self.workbook_pr: dict[str, str] = {}
+        self.workbook_pr_changed: set[str] = set()
+        #: The workbook properties a macro set for the session (_workbook_settings.SESSION).
+        self.session_properties: dict[str, object] = {}
         self.project_runtime: Interpreter | None = None
         #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
         self.format_code: int | None = None
@@ -1244,6 +1355,10 @@ class Workbook(ExcelObject):
         self.calculation_version = VERSION
         self.force_full_calculation = False
         self.full_pending = False
+        #: True once a sheet's custom properties change, so a save writes them all (see _custom_properties).
+        self.custom_properties_changed = False
+        #: Workbook.PrecisionAsDisplayed, calcPr fullPrecision="0" (see _precision).
+        self.precision_as_displayed = False
 
     @property
     def calculator(self) -> Any:
@@ -1274,6 +1389,217 @@ class Workbook(ExcelObject):
     @member
     def Name(self) -> object:
         return self.name
+
+    # --- settings (_workbook_settings) ----------------------------------------------------------------------
+
+    @member
+    def DefaultTableStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import default_style
+
+        return default_style(self, "table")
+
+    @setter("DefaultTableStyle")
+    def _set_default_table_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_default_style
+
+        set_default_style(self, "table", value)
+
+    @member
+    def DefaultPivotTableStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import default_style
+
+        return default_style(self, "pivot")
+
+    @setter("DefaultPivotTableStyle")
+    def _set_default_pivot_table_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_default_style
+
+        set_default_style(self, "pivot", value)
+
+    @member
+    def DefaultSlicerStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import TableStyle
+
+        return TableStyle(self, "SlicerStyleLight1")
+
+    @setter("DefaultSlicerStyle")
+    def _set_default_slicer_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import SLICER_STYLES, set_slicer_default
+
+        set_slicer_default(value, SLICER_STYLES, "DefaultSlicerStyle")
+
+    @member
+    def DefaultTimelineStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import TableStyle
+
+        return TableStyle(self, "TimeSlicerStyleLight1")
+
+    @setter("DefaultTimelineStyle")
+    def _set_default_timeline_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import TIMELINE_STYLES, set_slicer_default
+
+        set_slicer_default(value, TIMELINE_STYLES, "DefaultTimelineStyle")
+
+    @member
+    def TableStyles(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_settings import table_style
+
+        if Index is MISSING:
+            raise VBAUnsupportedError("Workbook.TableStyles as a collection is not implemented")
+        return table_style(self, Index)
+
+    @member
+    def ShowPivotTableFieldList(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import flag
+
+        return flag(self, "ShowPivotTableFieldList")
+
+    @setter("ShowPivotTableFieldList")
+    def _set_show_pivot_table_field_list(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_flag
+
+        set_flag(self, "ShowPivotTableFieldList", value)
+
+    @member
+    def ShowPivotChartActiveFields(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import flag
+
+        return flag(self, "ShowPivotChartActiveFields")
+
+    @setter("ShowPivotChartActiveFields")
+    def _set_show_pivot_chart_active_fields(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_flag
+
+        set_flag(self, "ShowPivotChartActiveFields", value)
+
+    @member
+    def InactiveListBorderVisible(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import flag
+
+        return flag(self, "InactiveListBorderVisible")
+
+    @setter("InactiveListBorderVisible")
+    def _set_inactive_list_border_visible(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_flag
+
+        set_flag(self, "InactiveListBorderVisible", value)
+
+    @member
+    def CreateBackup(self) -> object:
+        return False
+
+    @setter("CreateBackup")
+    def _set_create_backup(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("CreateBackup", 1004)
+
+    @member
+    def HasPassword(self) -> object:
+        return False
+
+    @setter("HasPassword")
+    def _set_has_password(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("HasPassword", 1004)
+
+    @member
+    def CaseSensitive(self) -> object:
+        return False
+
+    @setter("CaseSensitive")
+    def _set_case_sensitive(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("CaseSensitive", 450)
+
+    @member
+    def UseWholeCellCriteria(self) -> object:
+        return True
+
+    @setter("UseWholeCellCriteria")
+    def _set_use_whole_cell_criteria(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("UseWholeCellCriteria", 450)
+
+    @member
+    def UseWildcards(self) -> object:
+        return True
+
+    @setter("UseWildcards")
+    def _set_use_wildcards(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("UseWildcards", 450)
+
+    @member
+    def Final(self) -> object:
+        return False
+
+    @member
+    def UpdateRemoteReferences(self) -> object:
+        return True
+
+    @setter("UpdateRemoteReferences")
+    def _set_update_remote_references(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import unmeasured_set
+
+        unmeasured_set("UpdateRemoteReferences", value, 1004)
+
+    @member
+    def ChartDataPointTrack(self) -> object:
+        return True
+
+    @setter("ChartDataPointTrack")
+    def _set_chart_data_point_track(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import unmeasured_set
+
+        unmeasured_set("ChartDataPointTrack", value, 13)
+
+    AutoSaveOn, _set_auto_save_on = _session_property("AutoSaveOn")
+    AutoUpdateFrequency, _set_auto_update_frequency = _session_property("AutoUpdateFrequency")
+    ChangeHistoryDuration, _set_change_history_duration = _session_property("ChangeHistoryDuration")
+    CompatibilityVersion, _set_compatibility_version = _session_property("CompatibilityVersion")
+    ConflictResolution, _set_conflict_resolution = _session_property("ConflictResolution")
+    ConnectionsDisabled, _set_connections_disabled = _session_property("ConnectionsDisabled")
+    DoNotPromptForConvert, _set_do_not_prompt_for_convert = _session_property("DoNotPromptForConvert")
+    EncryptionProvider, _set_encryption_provider = _session_property("EncryptionProvider")
+    EnvelopeVisible, _set_envelope_visible = _session_property("EnvelopeVisible")
+    Excel8CompatibilityMode, _set_excel8_compatibility_mode = _session_property("Excel8CompatibilityMode")
+    HighlightChangesOnScreen, _set_highlight_changes_on_screen = _session_property("HighlightChangesOnScreen")
+    IsAddin, _set_is_addin = _session_property("IsAddin")
+    IsInplace, _set_is_inplace = _session_property("IsInplace")
+    KeepChangeHistory, _set_keep_change_history = _session_property("KeepChangeHistory")
+    ListChangesOnNewSheet, _set_list_changes_on_new_sheet = _session_property("ListChangesOnNewSheet")
+    MultiUserEditing, _set_multi_user_editing = _session_property("MultiUserEditing")
+    PersonalViewListSettings, _set_personal_view_list_settings = _session_property("PersonalViewListSettings")
+    PersonalViewPrintSettings, _set_personal_view_print_settings = _session_property("PersonalViewPrintSettings")
+    RevisionNumber, _set_revision_number = _session_property("RevisionNumber")
+    ShowConflictHistory, _set_show_conflict_history = _session_property("ShowConflictHistory")
+    TemplateRemoveExtData, _set_template_remove_ext_data = _session_property("TemplateRemoveExtData")
+    VBASigned, _set_vba_signed = _session_property("VBASigned")
+    WriteReserved, _set_write_reserved = _session_property("WriteReserved")
+
+    @member
+    def AutoUpdateSaveChanges(self) -> object:
+        """Error 1004 on a workbook that is not shared (tests/fixtures/workbook_properties.json)."""
+        raise error(1004)
+
+    @setter("AutoUpdateSaveChanges")
+    def _set_auto_update_save_changes(self, value: object) -> None:
+        raise error(1004)
+
+    @member
+    def AccuracyVersion(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import ACCURACY_VERSION
+
+        return ACCURACY_VERSION
+
+    @setter("AccuracyVersion")
+    def _set_accuracy_version(self, value: object) -> None:
+        raise VBAUnsupportedError("Workbook.AccuracyVersion set is not implemented")
 
     @method
     def DeleteNumberFormat(self, NumberFormat: object = MISSING) -> object:
@@ -1751,6 +2077,21 @@ class Workbook(ExcelObject):
 
         set_force(self, value)
 
+    @member
+    def PrecisionAsDisplayed(self) -> object:
+        return self.precision_as_displayed
+
+    @setter("PrecisionAsDisplayed")
+    def _set_precision_as_displayed(self, value: object) -> None:
+        """True rounds every number as its format shows it, now and from then on (see _precision)."""
+        wanted = to_bool(value)
+        if wanted and not self.precision_as_displayed:
+            from pyopenvba.apps.excel._precision import turned_on
+
+            self.precision_as_displayed = True
+            turned_on(self)
+        self.precision_as_displayed = wanted
+
     def vba_sink_attached(self) -> None:
         """A WithEvents variable now hears this workbook: formulas written while
         nobody listened are worked out first, as Excel worked them out when
@@ -2065,6 +2406,18 @@ class Worksheet(ExcelObject):
         self.tab_changed = False
         #: The sheet's manual page breaks, read from its file when first needed (see _page_breaks).
         self.page_breaks: SheetBreaks | None = None
+        #: The sheet's custom properties, read from its file when first needed (see _custom_properties).
+        self.custom_properties: list[CustomProperty] | None = None
+        #: Whether the sheet's part holds ignoredErrors, None until asked; and whether a macro changed what the
+        #: sheet ignores, so a save writes it (see _error_checks).
+        self.ignored_from_file: bool | None = None
+        self.ignored_changed = False
+        #: The sheet's last Range.Consolidate, None before one (see _consolidate).
+        self.consolidation: ConsolidationSettings | None = None
+        #: The sheet's scenarios, read from its part when first needed, and whether a macro changed them, so a save
+        #: writes them (see _scenarios).
+        self.scenarios: Any = None
+        self.scenarios_changed = False
         #: An AdvancedFilter has no dropdowns but retains its filtered list.
         self.advanced_filter: Area | None = None
         self.advanced_filter_changed = False
@@ -2178,6 +2531,26 @@ class Worksheet(ExcelObject):
         """Rows or columns moved, so every formula has to be read again."""
         self.touched()
         self.book.calculator.rebuild()
+
+    # -- consolidation (see _consolidate)
+
+    @member
+    def ConsolidationFunction(self) -> object:
+        from pyopenvba.apps.excel._consolidate import settings
+
+        return VBAInt(settings(self).function, "Long")
+
+    @member
+    def ConsolidationOptions(self) -> object:
+        from pyopenvba.apps.excel._consolidate import options
+
+        return options(self)
+
+    @member
+    def ConsolidationSources(self) -> object:
+        from pyopenvba.apps.excel._consolidate import sources
+
+        return sources(self)
 
     # -- identity
 
@@ -2488,6 +2861,19 @@ class Worksheet(ExcelObject):
 
         return PageSetup(self)
 
+    @method
+    def Scenarios(self, Index: object = MISSING) -> object:
+        """The sheet's scenarios, or one of them (see _scenarios)."""
+        from pyopenvba.apps.excel._scenarios import Scenarios, find
+
+        return Scenarios(self) if Index is MISSING else find(self, Index)
+
+    @member
+    def CustomProperties(self) -> object:
+        from pyopenvba.apps.excel._custom_properties import CustomProperties
+
+        return CustomProperties(self)
+
     @member
     def HPageBreaks(self) -> object:
         from pyopenvba.apps.excel._page_breaks import HPageBreaks
@@ -2713,7 +3099,7 @@ class Worksheet(ExcelObject):
         Excel keeps a cell with nothing in it only while its format differs
         from its row's or column's, and lets it go the moment it does not.
         """
-        if cell.value is not EMPTY or cell.formula:
+        if cell.value is not EMPTY or cell.formula or cell.html_id or cell.ignored_errors:
             return True
         return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
 
@@ -2732,6 +3118,9 @@ class Worksheet(ExcelObject):
             found = self.cells_[(row, column)] = Cell()
         found.style, found.xf = (None if style == self.book.stylesheet.default else style), -1
         self.book.stylesheet.meet(found.style)
+        if not found.formula:
+            # A constant given a format takes the precision it shows, where the workbook keeps numbers so.
+            _precision.settle(self, row, column)
         self.settle(row, column)
         self.touched()
         self.dims.fonts_changed(row)
@@ -3961,11 +4350,62 @@ class Range(ExcelObject):
         self._set_format("ReadingOrder", value)
 
     @member
+    def Errors(self) -> object:
+        """The cell's error checks (see _error_checks)."""
+        from pyopenvba.apps.excel._error_checks import Errors
+
+        return Errors(self)
+
+    @member
+    def AllowEdit(self) -> object:
+        """False where the sheet's contents are protected, for the user alone too, and any cell is locked
+        (tests/fixtures/range_small_members.json)."""
+        from pyopenvba.apps.excel._protection import any_locked
+
+        protection = self.sheet.protection
+        return not (protection is not None and protection.contents and any_locked(self.sheet, self.areas))
+
+    @member
+    def ID(self) -> object:
+        """The cell's ID, "" for none; a range of more than one cell is error 1004."""
+        top = self._single_cell()
+        cell = self.sheet.cells_.get((top.top, top.left))
+        return cell.html_id if cell is not None else ""
+
+    @setter("ID")
+    def _set_id(self, value: object) -> None:
+        top = self._single_cell()
+        text = to_text(value)
+        cell = self.sheet.cells_.get((top.top, top.left))
+        if cell is None:
+            if not text:
+                return
+            cell = self.sheet.cells_[(top.top, top.left)] = Cell()
+        cell.html_id = text
+        self.sheet.settle(top.top, top.left)
+
+    def _single_cell(self) -> Area:
+        if len(self.areas) != 1 or self.first.rows != 1 or self.first.columns != 1:
+            raise error(1004)
+        return self.first
+
+    @member
+    def ListHeaderRows(self) -> object:
+        """How many header rows Excel guesses the first area has (see _sort.header_rows)."""
+        from pyopenvba.apps.excel._sort import header_rows
+
+        return VBAInt(header_rows(self.sheet, self.first), "Long")
+
+    @member
     def Locked(self) -> object:
         return self._format("Locked")
 
     @setter("Locked")
     def _set_locked(self, value: object) -> None:
+        from pyopenvba.interpreter._values import NULL
+
+        if value is NULL:
+            return  # Excel takes Null without a word and leaves the cells as they were.
         self._set_format("Locked", value)
 
     @member
@@ -4036,6 +4476,14 @@ class Range(ExcelObject):
             if table_at(self) is not None:
                 return ungroup(self)
         return group(self, 'Ungroup')
+
+    @method
+    def AutoOutline(self) -> object:
+        """Group rows and columns from the formulas that sum the cells beside them (see _auto_outline)."""
+        from pyopenvba.apps.excel._auto_outline import auto_outline
+
+        auto_outline(self)
+        return True
 
     @method
     def ClearOutline(self) -> object:
@@ -4300,6 +4748,11 @@ class Range(ExcelObject):
             cell.formula = ""
             cell.stale = False
             cell.dynamic = False
+            if cell.ignored_errors:
+                # A cell cleared checks for errors again (tests/fixtures/range_errors.json).
+                cell.ignored_errors = 0
+                self.sheet.ignored_changed = True
+            cell.html_id = ""
             self.sheet.settle(row, column)
             self.sheet.cell_changed(row, column)
         self.sheet.touched()
@@ -4642,6 +5095,25 @@ class Range(ExcelObject):
             Destination.sheet.touched()
             Destination.sheet.book.calculator.wrote_area(Destination.sheet.name, written)
         return True
+
+    @method
+    def Consolidate(self, Sources: object = MISSING, Function: object = MISSING, TopRow: object = MISSING,
+                    LeftColumn: object = MISSING, CreateLinks: object = MISSING) -> object:
+        """Sum or otherwise combine source ranges into this one (see _consolidate)."""
+        from pyopenvba.apps.excel._consolidate import consolidate
+
+        consolidate(self, Sources, Function, TopRow, LeftColumn, CreateLinks)
+        return True
+
+    @method
+    def ApplyNames(self, Names: object = MISSING, IgnoreRelativeAbsolute: object = MISSING,
+                   UseRowColumnNames: object = MISSING, OmitColumn: object = MISSING, OmitRow: object = MISSING,
+                   Order: object = MISSING, AppendLast: object = MISSING) -> object:
+        """Turn references in the range's formulas into the names that cover them (see _apply_names)."""
+        from pyopenvba.apps.excel._apply_names import apply_names
+
+        apply_names(self, Names, IgnoreRelativeAbsolute)
+        return EMPTY
 
     @method
     def AutoFill(self, Destination: object = MISSING, Type: object = MISSING) -> object:
@@ -5273,6 +5745,10 @@ class Range(ExcelObject):
         cell.spilled_from = None
         # A value written, the same text too, is in the cell's own font (tests/fixtures/characters.json).
         cell.runs = None
+        if cell.ignored_errors:
+            # And is checked for errors again (tests/fixtures/range_errors.json).
+            cell.ignored_errors = 0
+            self.sheet.ignored_changed = True
         changed = style
         if result.number_format is not None:
             changed = applying(changed, "number_format", number_format=result.number_format)
@@ -5280,6 +5756,7 @@ class Range(ExcelObject):
             changed = replace(changed, quote_prefix=True)
         if changed != style:
             self.sheet.restyle(row, column, changed)
+        _precision.settle(self.sheet, row, column)
         self.sheet.cell_changed(row, column)
 
     def describe(self, indent: str = "") -> str:
@@ -5316,6 +5793,13 @@ class NameEntry:
     visible: bool = True
     comment: str = ""
     invalidated: bool = False
+    #: Macro metadata (see _name_macro): 0 for an ordinary name, 1 a function, 2 a command; the category's
+    #: functionGroupId; and whether any of it changed, so a name read from a file keeps its attributes as written.
+    macro_type: int = 0
+    shortcut_key: str = ""
+    category: str = ""
+    group: int = 0
+    macro_changed: bool = False
 
 
 class Names(VBACollection, ExcelObject):
@@ -5387,6 +5871,10 @@ class Names(VBACollection, ExcelObject):
             scopes = [self.sheet.name] if not owner or _names.same_sheet_name(owner, self.sheet.name) else []
         elif owner and owner.casefold() != self.book.name.casefold():
             scopes = [owner]
+        elif owner and any(_names.same_sheet_name(sheet.name, owner) for sheet in self.book.sheets_):
+            # A book Workbooks.Add(xlWBATWorksheet) made is named for its sheet, Sheet1: Sheet1!Local is the sheet's
+            # own name first (tests/fixtures/small_members.json).
+            scopes = [owner, ""]
         else:
             scopes = ([self.book.sheets_[0].name] if self.book.sheets_ and not owner else []) + [""]
         for scope in scopes:
@@ -5427,8 +5915,6 @@ class Names(VBACollection, ExcelObject):
             Name = NameLocal
         if Name is MISSING:
             raise error(449)
-        if any(value is not MISSING for value in (MacroType, ShortcutKey, Category, CategoryLocal)):
-            raise VBAUnsupportedError("Macro name metadata is not implemented")
         wanted = _names.canonical(self.book, to_text(Name), self.sheet)
         owner = self.sheet or self.book.active_sheet
         if owner is None:
@@ -5471,6 +5957,9 @@ class Names(VBACollection, ExcelObject):
         entry.refers_to = text
         if Visible is not MISSING:
             entry.visible = to_bool(Visible)
+        from pyopenvba.apps.excel._name_macro import added
+
+        added(entry, MacroType, ShortcutKey, Category, CategoryLocal)
         _names.changed(self.book, entry.name)
         return DefinedName(entry)
 
@@ -5543,6 +6032,74 @@ class DefinedName(ExcelObject):
     def _set_comment(self, value: object) -> None:
         self.entry.comment = to_text(value)
         _names.changed(self.entry.book)
+
+    @member
+    def MacroType(self) -> object:
+        """xlFunction or xlCommand, or xlNone for an ordinary name (see _name_macro)."""
+        from pyopenvba.apps.excel._name_macro import macro_type
+
+        return VBAInt(macro_type(self.entry), "Long")
+
+    @setter("MacroType")
+    def _set_macro_type(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_macro_type
+
+        set_macro_type(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def ShortcutKey(self) -> object:
+        from pyopenvba.apps.excel._name_macro import shortcut_key
+
+        return shortcut_key(self.entry)
+
+    @setter("ShortcutKey")
+    def _set_shortcut_key(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_shortcut_key
+
+        set_shortcut_key(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def Category(self) -> object:
+        from pyopenvba.apps.excel._name_macro import category
+
+        return category(self.entry)
+
+    @setter("Category")
+    def _set_category(self, value: object) -> None:
+        from pyopenvba.apps.excel._name_macro import set_category
+
+        set_category(self.entry, value)
+        _names.changed(self.entry.book)
+
+    @member
+    def CategoryLocal(self) -> object:
+        return self.Category()
+
+    @setter("CategoryLocal")
+    def _set_category_local(self, value: object) -> None:
+        self._set_category(value)
+
+    @member
+    def WorkbookParameter(self) -> object:
+        """False: Excel refuses every setting with error 5 (tests/fixtures/name_macro.json)."""
+        return False
+
+    @setter("WorkbookParameter")
+    def _set_workbook_parameter(self, value: object) -> None:
+        raise error(5)
+
+    @member
+    def ValidWorkbookParameter(self) -> object:
+        """True for a workbook's own name for one cell written all absolute, $A$1, once the workbook has been saved
+        (tests/fixtures/name_macro.json); never for a macro's name."""
+        from pyopenvba._a1 import split_sheet
+
+        if not self.entry.book.path or split_sheet(self.entry.name)[0] or self.entry.macro_type:
+            return False
+        sheet, bare = split_sheet(self.entry.refers_to.lstrip("="))
+        return bool(sheet) and re.fullmatch(r"\$[A-Za-z]{1,3}\$[0-9]+", bare) is not None
 
     @member
     def Parent(self) -> object:

@@ -24,6 +24,7 @@ def read(book: Workbook, xml: str) -> None:
     found = _CALC.search(xml)
     values = attributes(found.group(0)) if found else {}
     _application_settings(book, values)
+    book.precision_as_displayed = values.get('fullPrecision', '1').lower() in ('0', 'false')
     calc_id = values.get('calcId', '')
     opened(book, int(calc_id) if calc_id.isdigit() else 0, values.get('fullCalcOnLoad', '0').lower() in ('1', 'true'),
            values.get('forceFullCalc', '0').lower() in ('1', 'true'))
@@ -78,6 +79,11 @@ def write(book: Workbook, xml: str) -> str:
         desired['forceFullCalc'] = '1'
     else:
         changed = re.sub(r'\sforceFullCalc="[^"]*"', '', changed)
+    # PrecisionAsDisplayed (see _precision).
+    if book.precision_as_displayed:
+        desired['fullPrecision'] = '0'
+    else:
+        changed = re.sub(r'\sfullPrecision="[^"]*"', '', changed)
     # The iteration's settings are written where they are not Excel's own, off, 100 and 0.001, each on its own
     # (tests/fixtures/iteration.json).
     from pyopenvba.apps.excel._styles import excel_number

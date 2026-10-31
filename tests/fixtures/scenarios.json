@@ -1,0 +1,367 @@
+{
+ "measured_at": "2026-10-31T04:44:07.056559+00:00",
+ "source": "Private Function Vals(ByVal sc As Object) As String()\n    Dim v As Variant, out() As String, i As Long\n    v = sc.Values\n    ReDim out(LBound(v) To UBound(v))\n    For i = LBound(v) To UBound(v): out(i) = TypeName(v(i)) & \"=\" & CStr(v(i)): Next\n    Vals = out\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, sc As Object, r As Variant, user As String\n    user = Application.UserName\n    Application.UserName = \"Probe\"\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 1\n    ws.Range(\"A2\").Value = 2\n    ws.Range(\"B1\").Formula = \"=A1+A2\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        r = ws.Scenarios.Count & TypeName(ws.Scenarios)\n    Case 1\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\one.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios(\"Low\").Show\n        r = ws.Range(\"A1\").Value & \",\" & ws.Range(\"A2\").Value & \",\" & ws.Range(\"B1\").Value\n        wb.SaveAs folder & \"\\shown.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20), \"Note\", False, True\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\flags.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios.Add \"High\", ws.Range(\"A1\"), Array(99)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\two.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        ws.Scenarios.Add \"B\", ws.Range(\"A1\"), Array(5)\n        ws.Scenarios.Add \"A\", ws.Range(\"A1\"), Array(6)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 6\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(5)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 7\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 8\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20, 30)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 9\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\")\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 10\n        ws.Scenarios.Add \"Low\", ws.Range(\"B1\"), Array(5)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 11\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1,A3\"), Array(1, 3)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\union.xlsx\", xlOpenXMLWorkbook\n    Case 12\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), \"text\"\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\text.xlsx\", xlOpenXMLWorkbook\n    Case 13\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), 1.5\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\fraction.xlsx\", xlOpenXMLWorkbook\n    Case 14\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), #1/2/2024#\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 15\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), True\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 16\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), \"=1+1\"\n        ws.Scenarios(1).Show\n        r = ws.Range(\"A1\").Formula\n    Case 17\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios(1).Delete\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\deleted.xlsx\", xlOpenXMLWorkbook\n    Case 18\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios(1).ChangeScenario ws.Range(\"A1\"), Array(7)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\changed.xlsx\", xlOpenXMLWorkbook\n    Case 19\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios(1).Name = \"Lower\"\n        ws.Scenarios(1).Comment = \"c\"\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 20\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        r = ws.Scenarios(1).Values(2) & TypeName(ws.Scenarios(1).Values(2)) & TypeName(ws.Scenarios(1).Values)\n    Case 21\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        r = ws.Scenarios(\"low\").Name\n    Case 22\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        r = ws.Scenarios(2).Name\n    Case 23\n        ws.Scenarios.Add \"\", ws.Range(\"A1\"), Array(1)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 24\n        ws.Scenarios.Add String(256, \"n\"), ws.Range(\"A1\"), Array(1)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 25\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(1)\n        ws.Scenarios(1).Show\n        r = ws.Range(\"A1\").Value\n        wb.SaveAs folder & \"\\shown_one.xlsx\", xlOpenXMLWorkbook\n    Case 26\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(1)\n        ws.Scenarios.Add \"High\", ws.Range(\"A1\"), Array(2)\n        ws.Scenarios(2).Show\n        ws.Scenarios(1).Delete\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\shown_then_deleted.xlsx\", xlOpenXMLWorkbook\n    Case 27\n        ws.Range(\"A1\").NumberFormat = \"0.00\"\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)\n        ws.Scenarios(1).Show\n        r = ws.Range(\"A1\").Text\n    Case 28\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)\n        ws.Copy After:=ws\n        Set ws = wb.Worksheets(2)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 29\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)\n        r = TypeName(ws.Scenarios(1).Parent) & ws.Scenarios.Creator\n    Case 30\n        ws.Protect\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 31\n        ws.Scenarios.Add \"Low\", ws.Range(\"C5:D6\"), Array(1, 2, 3, 4)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\block.xlsx\", xlOpenXMLWorkbook\n    Case 32\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), 5\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 33\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), CLng(5)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 34\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), CDbl(5)\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 35\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), \"7\"\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n    Case 36\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(\"=A2*2\")\n        ws.Scenarios(1).Show\n        r = ws.Range(\"A1\").Formula\n    Case 37\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios(1).Locked = False\n        ws.Scenarios(1).Hidden = True\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\set_flags.xlsx\", xlOpenXMLWorkbook\n    Case 38\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)\n        ws.Scenarios.Add \"High\", ws.Range(\"A1:A2\"), Array(30, 40)\n        ws.Scenarios(\"High\").Show\n        ws.Scenarios(\"Low\").Show\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\shown_second.xlsx\", xlOpenXMLWorkbook\n    Case 39\n        ws.Range(\"A1\").Value = 1.123456789012345\n        ws.Scenarios.Add \"Low\", ws.Range(\"A1\")\n        r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next\n        wb.SaveAs folder & \"\\precise.xlsx\", xlOpenXMLWorkbook\n    End Select\n    Tried = CStr(r)\nDone:\n    wb.Close False\n    Application.UserName = user\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "r = ws.Scenarios.Count & TypeName(ws.Scenarios)"
+   ],
+   "",
+   "0Scenarios"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "one.xlsx",
+   "1|Low:$A$1:$A$2:String=10,String=20:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios(\"Low\").Show",
+    "r = ws.Range(\"A1\").Value & \",\" & ws.Range(\"A2\").Value & \",\" & ws.Range(\"B1\").Value"
+   ],
+   "shown.xlsx",
+   "10,20,30"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20), \"Note\", False, True",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "flags.xlsx",
+   "1|Low:$A$1:$A$2:String=10,String=20:Note:False:True:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios.Add \"High\", ws.Range(\"A1\"), Array(99)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "two.xlsx",
+   "2|Low:$A$1:$A$2:String=10,String=20:Created by Probe on 10/30/2026:True:False:1|High:$A$1:String=99:Created by Probe on 10/30/2026:True:False:2"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"B\", ws.Range(\"A1\"), Array(5)",
+    "ws.Scenarios.Add \"A\", ws.Range(\"A1\"), Array(6)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "2|B:$A$1:String=5:Created by Probe on 10/30/2026:True:False:1|A:$A$1:String=6:Created by Probe on 10/30/2026:True:False:2"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(5)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "Err 1004 Add method of Scenarios class failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:$A$2:String=10,String=2:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20, 30)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:$A$2:String=10,String=20:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\")",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:$A$2:String=1,String=2:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"B1\"), Array(5)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$B$1:String=5:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1,A3\"), Array(1, 3)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "union.xlsx",
+   "1|Low:$A$1,$A$3:String=1,String=3:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), \"text\"",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "text.xlsx",
+   "1|Low:$A$1:String=text:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), 1.5",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "fraction.xlsx",
+   "1|Low:$A$1:String=1.5:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), #1/2/2024#",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:String=1/2/2024:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), True",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:String=TRUE:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), \"=1+1\"",
+    "ws.Scenarios(1).Show",
+    "r = ws.Range(\"A1\").Formula"
+   ],
+   "",
+   "Err 1004 Add method of Scenarios class failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios(1).Delete",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "deleted.xlsx",
+   "0"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios(1).ChangeScenario ws.Range(\"A1\"), Array(7)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "changed.xlsx",
+   "1|Low:$A$1:String=7:Created by Probe on 10/30/2026\nModified by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios(1).Name = \"Lower\"",
+    "ws.Scenarios(1).Comment = \"c\"",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Lower:$A$1:$A$2:String=10,String=20:c:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "r = ws.Scenarios(1).Values(2) & TypeName(ws.Scenarios(1).Values(2)) & TypeName(ws.Scenarios(1).Values)"
+   ],
+   "",
+   "20StringVariant()"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "r = ws.Scenarios(\"low\").Name"
+   ],
+   "",
+   "Low"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "r = ws.Scenarios(2).Name"
+   ],
+   "",
+   "Err 1004 Method 'Scenarios' of object '_Worksheet' failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"\", ws.Range(\"A1\"), Array(1)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "Err 1004 Add method of Scenarios class failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add String(256, \"n\"), ws.Range(\"A1\"), Array(1)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "Err 1004 Add method of Scenarios class failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(1)",
+    "ws.Scenarios(1).Show",
+    "r = ws.Range(\"A1\").Value"
+   ],
+   "shown_one.xlsx",
+   "1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(1)",
+    "ws.Scenarios.Add \"High\", ws.Range(\"A1\"), Array(2)",
+    "ws.Scenarios(2).Show",
+    "ws.Scenarios(1).Delete",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "shown_then_deleted.xlsx",
+   "1|High:$A$1:String=2:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").NumberFormat = \"0.00\"",
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)",
+    "ws.Scenarios(1).Show",
+    "r = ws.Range(\"A1\").Text"
+   ],
+   "",
+   "3.00"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)",
+    "ws.Copy After:=ws",
+    "Set ws = wb.Worksheets(2)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:String=3:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)",
+    "r = TypeName(ws.Scenarios(1).Parent) & ws.Scenarios.Creator"
+   ],
+   "",
+   "Worksheet1480803660"
+  ],
+  [
+   [
+    "ws.Protect",
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(3)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:String=3:Created by Probe on 10/30/2026:False:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"C5:D6\"), Array(1, 2, 3, 4)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "block.xlsx",
+   "1|Low:$C$5:$D$6:String=1,String=2,String=3,String=4:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), 5",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "Err 1004 Add method of Scenarios class failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), CLng(5)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "Err 1004 Add method of Scenarios class failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), CDbl(5)",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:String=5:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), \"7\"",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "",
+   "1|Low:$A$1:$A$2:String=7,String=2:Created by Probe on 10/30/2026:True:False:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\"), Array(\"=A2*2\")",
+    "ws.Scenarios(1).Show",
+    "r = ws.Range(\"A1\").Formula"
+   ],
+   "",
+   "Err 1004 Add method of Scenarios class failed"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios(1).Locked = False",
+    "ws.Scenarios(1).Hidden = True",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "set_flags.xlsx",
+   "1|Low:$A$1:$A$2:String=10,String=20:Created by Probe on 10/30/2026\nModified by Probe on 10/30/2026:False:True:1"
+  ],
+  [
+   [
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1:A2\"), Array(10, 20)",
+    "ws.Scenarios.Add \"High\", ws.Range(\"A1:A2\"), Array(30, 40)",
+    "ws.Scenarios(\"High\").Show",
+    "ws.Scenarios(\"Low\").Show",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "shown_second.xlsx",
+   "2|Low:$A$1:$A$2:String=10,String=20:Created by Probe on 10/30/2026:True:False:1|High:$A$1:$A$2:String=30,String=40:Created by Probe on 10/30/2026:True:False:2"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.123456789012345",
+    "ws.Scenarios.Add \"Low\", ws.Range(\"A1\")",
+    "r = ws.Scenarios.Count: For Each sc In ws.Scenarios: r = r & \"|\" & sc.Name & \":\" & sc.ChangingCells.Address & \":\" & Join(Vals(sc), \",\") & \":\" & sc.Comment & \":\" & sc.Locked & \":\" & sc.Hidden & \":\" & sc.Index: Next"
+   ],
+   "precise.xlsx",
+   "1|Low:$A$1:String=1.12345678901235:Created by Probe on 10/30/2026:True:False:1"
+  ]
+ ],
+ "scenarios": {
+  "one.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"2\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"10\"/><inputCells r=\"A2\" val=\"20\"/></scenario></scenarios>",
+  "shown.xlsx": "<scenarios current=\"0\" show=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"2\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"10\"/><inputCells r=\"A2\" val=\"20\"/></scenario></scenarios>",
+  "flags.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" hidden=\"1\" count=\"2\" user=\"Probe\" comment=\"Note\"><inputCells r=\"A1\" val=\"10\"/><inputCells r=\"A2\" val=\"20\"/></scenario></scenarios>",
+  "two.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"2\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"10\"/><inputCells r=\"A2\" val=\"20\"/></scenario><scenario name=\"High\" locked=\"1\" count=\"1\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"99\"/></scenario></scenarios>",
+  "union.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"2\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"1\"/><inputCells r=\"A3\" val=\"3\"/></scenario></scenarios>",
+  "text.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"1\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"text\"/></scenario></scenarios>",
+  "fraction.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"1\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"1.5\"/></scenario></scenarios>",
+  "deleted.xlsx": "",
+  "changed.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"1\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026_x000a_Modified by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"7\"/></scenario></scenarios>",
+  "shown_one.xlsx": "<scenarios current=\"0\" show=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"1\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"1\"/></scenario></scenarios>",
+  "shown_then_deleted.xlsx": "<scenarios current=\"0\" show=\"0\"><scenario name=\"High\" locked=\"1\" count=\"1\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"2\"/></scenario></scenarios>",
+  "block.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"4\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"C5\" val=\"1\"/><inputCells r=\"D5\" val=\"2\"/><inputCells r=\"C6\" val=\"3\"/><inputCells r=\"D6\" val=\"4\"/></scenario></scenarios>",
+  "set_flags.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" hidden=\"1\" count=\"2\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026_x000a_Modified by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"10\"/><inputCells r=\"A2\" val=\"20\"/></scenario></scenarios>",
+  "shown_second.xlsx": "<scenarios current=\"0\" show=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"2\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"10\"/><inputCells r=\"A2\" val=\"20\"/></scenario><scenario name=\"High\" locked=\"1\" count=\"2\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"30\"/><inputCells r=\"A2\" val=\"40\"/></scenario></scenarios>",
+  "precise.xlsx": "<scenarios current=\"0\"><scenario name=\"Low\" locked=\"1\" count=\"1\" user=\"Probe\" comment=\"Created by Probe on 10/30/2026\"><inputCells r=\"A1\" val=\"1.12345678901235\"/></scenario></scenarios>"
+ }
+}

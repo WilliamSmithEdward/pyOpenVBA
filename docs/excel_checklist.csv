@@ -2383,7 +2383,7 @@ Workbook,CheckIn,method,"CheckIn([SaveChanges As Variant], [Comments As Variant]
 Workbook,CheckInWithVersion,method,"CheckInWithVersion([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant], [VersionType As Variant])",,MISSING,,
 Workbook,Close,method,"Close([SaveChanges As Variant], [Filename As Variant], [RouteWorkbook As Variant])",,PARTIAL,tests/fixtures/workbook_lifecycle.json,Cancellation and explicit saving order measured; omitted SaveChanges on a changed workbook requires an unimplemented prompt; RouteWorkbook unassessed
 Workbook,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,Loaded workbookPr identity; fresh code name stays empty until project materialization. Lazy allocation measured with native Excel; VBIDE renaming remains incomplete.
-Workbook,Colors,property,As Variant,,MISSING,,
+Workbook,Colors,property,As Variant,,PARTIAL,tests/test_excel_workbook_colors.py; tests/fixtures/workbook_colors.json,"The palette as an array of 56 Doubles, or one slot by an index cut to a whole number, error 1004 outside 1 to 56; set one slot to a number's low 24 bits, True as 1 and text as 0, or all from an array's first 56 values. Cells, fonts and borders of a slot follow it, tabs keep Excel's own colour, and a save writes the palette as Excel does. An array of fewer than 56, Null, and ColorIndex of a colour a changed palette does not hold report themselves unsupported."
 Workbook,CommandBars,"property, read-only",As CommandBars,,MISSING,,
 Workbook,CompatibilityVersion,property,As Long,,MISSING,,
 Workbook,ConflictResolution,property,As XlSaveConflictResolution,,MISSING,,
@@ -2493,7 +2493,7 @@ Workbook,Reply,method,Reply(),,MISSING,,
 Workbook,ReplyAll,method,ReplyAll(),,MISSING,,
 Workbook,ReplyWithChanges,method,ReplyWithChanges([ShowMessage As Variant]),,MISSING,,
 Workbook,Research,"property, read-only",As Research,,MISSING,,
-Workbook,ResetColors,method,ResetColors(),,MISSING,,
+Workbook,ResetColors,method,ResetColors(),,PARTIAL,tests/test_excel_workbook_colors.py; tests/fixtures/workbook_colors.json,"Puts back Excel's own palette, which a save then leaves out of styles.xml."
 Workbook,RevisionNumber,"property, read-only",As Long,,MISSING,,
 Workbook,RowsetComplete,event,"RowsetComplete(Description As String, Sheet As String, Success As Boolean)",,MISSING,,
 Workbook,RunAutoMacros,method,RunAutoMacros(Which As XlRunAutoMacro),,MISSING,,

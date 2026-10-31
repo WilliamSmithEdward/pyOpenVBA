@@ -548,6 +548,15 @@ def set_summary_below(sheet: Worksheet, below: bool) -> None:
     _change_flag(sheet, 'summaryBelow', '1' if below else '0')
 
 
+def set_summary_right(sheet: Worksheet, right: bool) -> None:
+    _change_flag(sheet, 'summaryRight', '1' if right else '0')
+
+
+def outlined(sheet: Worksheet, rows: bool) -> list[int]:
+    """The rows, or columns, in a group."""
+    return sorted(number for number, record in _records(sheet, rows).items() if _depth(record))
+
+
 def _admit_stored_axes(sheet: Worksheet) -> None:
     package = sheet.book.package
     if package is not None and sheet.part_name and package.has(sheet.part_name):

@@ -3,6 +3,15 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Range.Consolidate` combines source ranges by position or by their row
+  and column labels with any of its eleven functions, as Excel does, and
+  `Worksheet.ConsolidationFunction`, `ConsolidationOptions` and
+  `ConsolidationSources` read back the last one.
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

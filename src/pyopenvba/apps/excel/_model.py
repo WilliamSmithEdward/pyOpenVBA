@@ -3787,6 +3787,13 @@ class Range(ExcelObject):
         return pivot_cell(self)
 
     @member
+    def LocationInTable(self) -> object:
+        """Where in a pivot table the range's cells are (see _pivot_cells)."""
+        from pyopenvba.apps.excel._pivot_cells import location_in_table
+
+        return location_in_table(self)
+
+    @member
     def PivotTable(self) -> object:
         """The pivot table the range's first cell is part of, its page fields too."""
         from pyopenvba.apps.excel._pivot_cells import pivot_table

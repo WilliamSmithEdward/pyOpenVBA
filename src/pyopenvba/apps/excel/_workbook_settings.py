@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Final
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import member
-from pyopenvba.interpreter._values import NULL, VBAInt, error, to_bool, to_text
+from pyopenvba.interpreter._values import NULL, VBAInt, error, to_bool, to_integer, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -153,3 +153,42 @@ def unmeasured_set(name: str, value: object, text_error: int) -> None:
 
 
 ACCURACY_VERSION: Final = VBAInt(0, "Long")
+
+#: Workbook properties as a new workbook, and one saved and opened again, read them
+#: (tests/fixtures/workbook_properties.json); those a macro may set it sets for the session, nothing of them
+#: reaching the file.
+SESSION: Final[dict[str, object]] = {
+    "AutoSaveOn": False, "AutoUpdateFrequency": 0, "ChangeHistoryDuration": 0, "CompatibilityVersion": 2,
+    "ConflictResolution": 1, "ConnectionsDisabled": False, "DoNotPromptForConvert": True, "EncryptionProvider": "",
+    "Excel8CompatibilityMode": False, "HighlightChangesOnScreen": False, "IsAddin": False, "IsInplace": False,
+    "KeepChangeHistory": True, "ListChangesOnNewSheet": False, "MultiUserEditing": False,
+    "PersonalViewListSettings": True, "PersonalViewPrintSettings": True, "RevisionNumber": 0,
+    "ShowConflictHistory": False, "TemplateRemoveExtData": False, "VBASigned": False, "WriteReserved": False,
+    "EnvelopeVisible": False,
+}
+#: Those a set changes: a Boolean, or a Long.
+SETTABLE: Final = {"PersonalViewListSettings": bool, "PersonalViewPrintSettings": bool, "TemplateRemoveExtData": bool,
+                   "DoNotPromptForConvert": bool, "KeepChangeHistory": bool, "ConflictResolution": int, "IsAddin": bool}
+#: Those a set leaves as they are: ChangeHistoryDuration, which belongs to a shared workbook.
+IGNORED_SET: Final = frozenset({"ChangeHistoryDuration"})
+#: Those Excel refuses to set on a workbook not shared, and the message it gives.
+REFUSED_SET: Final = {"HighlightChangesOnScreen": "", "ListChangesOnNewSheet": "", "AutoUpdateFrequency": "",
+                      "AutoSaveOn": "", "ShowConflictHistory": "Unable to set the ShowConflictHistory property of the "
+                                                               "Workbook class"}
+
+
+def session_value(book: Workbook, name: str) -> object:
+    value = book.session_properties.get(name, SESSION[name])
+    return VBAInt(value, "Long") if isinstance(value, int) and not isinstance(value, bool) else value
+
+
+def set_session_value(book: Workbook, name: str, value: object) -> None:
+    if name in REFUSED_SET:
+        raise error(1004, REFUSED_SET[name] or "Application-defined or object-defined error")
+    if name in IGNORED_SET:
+        to_integer(value)
+        return
+    kind = SETTABLE.get(name)
+    if kind is None:
+        raise VBAUnsupportedError(f"Workbook.{name} set is not implemented")
+    book.session_properties[name] = to_bool(value) if kind is bool else int(to_integer(value))

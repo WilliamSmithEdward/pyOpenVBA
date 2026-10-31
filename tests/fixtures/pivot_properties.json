@@ -1,0 +1,1022 @@
+{
+ "measured_at": "2026-10-31T23:12:18.878421+00:00",
+ "source": "Private Function GV(ByVal o As Object, ByVal n As String) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    v = CallByName(o, n, VbGet)\n    If IsArray(v) Then\n        GV = \"arr\"\n    ElseIf IsNull(v) Then\n        GV = \"Null\"\n    Else\n        GV = TypeName(v) & \":\" & CStr(v)\n    End If\n    Exit Function\nFailed:\n    GV = \"E\" & Err.Number\nEnd Function\n\nPrivate Function GO(ByVal o As Object, ByVal n As String) As String\n    Dim x As Object\n    On Error GoTo Failed\n    Set x = CallByName(o, n, VbGet)\n    If x Is Nothing Then GO = \"Nothing\" Else GO = \"obj:\" & TypeName(x)\n    Exit Function\nFailed:\n    GO = \"E\" & Err.Number\nEnd Function\n\nPrivate Function G(ByVal o As Object, ByVal n As String) As String\n    G = GV(o, n)\n    If G = \"E450\" Or G = \"E438\" Or G = \"E13\" Or G = \"E91\" Then G = G & \"/\" & GO(o, n)\nEnd Function\n\nPrivate Function Made(ByVal wb As Workbook) As Object\n    Dim ws As Worksheet, pt As Object\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:D5\").Value = Application.Transpose(Application.Transpose(Array(Array(\"k\", \"p\", \"v\", \"q\"), Array(\"a\", \"x\", 1, \"m\"), Array(\"b\", \"y\", 2, \"n\"), Array(\"a\", \"y\", 3, \"m\"), Array(\"c\", \"x\", 4, \"n\"))))\n    Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:D5\")).CreatePivotTable(ws.Range(\"I3\"), \"PT\")\n    pt.PivotFields(\"k\").Orientation = xlRowField\n    pt.PivotFields(\"p\").Orientation = xlPageField\n    pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum\n    Set Made = pt\nEnd Function\n\nPublic Function Reads() As String\n    Dim wb As Workbook, pt As Object, s As String, n As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set pt = Made(wb)\n    For Each n In Array(\"MissingItemsLimit\", \"OptimizeCache\", \"RefreshPeriod\", \"BackgroundQuery\", \"CommandText\", \"CommandType\", \"Connection\", \"IsConnected\", \"LocalConnection\", \"MaintainConnection\", \"QueryType\", \"RobustConnect\", \"SavePassword\", \"SourceConnectionFile\", \"SourceDataFile\", \"UpgradeOnRefresh\", \"UseLocalConnection\", \"WorkbookConnection\", \"ADOConnection\", \"Recordset\")\n        s = s & \"~\" & G(pt.PivotCache, CStr(n))\n    Next\n    For Each n In Array(\"SmallGrid\", \"PageFieldStyle\", \"VacatedStyle\", \"PrintDrillIndicators\", \"ShowPageMultipleItemLabel\", \"DisplayMemberPropertyTooltips\", \"EnableWriteback\", \"AllocationMethod\", \"AllocationValue\", \"Allocation\", \"AllocationWeightExpression\", \"TotalsAnnotation\", \"ViewCalculatedMembers\", \"VisualTotals\", \"VisualTotalsForSets\", \"CalculatedMembersInFilters\", \"Hidden\", \"MDX\", \"ChangeList\", \"CubeFields\", \"CalculatedMembers\", \"PivotChart\", \"SelectionMode\", \"PivotSelection\", \"PivotSelectionStandard\", \"InnerDetail\", \"AutoRefresh\")\n        s = s & \"~\" & G(pt, CStr(n))\n    Next\n    For Each n In Array(\"AutoShowCount\", \"AutoShowField\", \"AutoShowRange\", \"AutoShowType\", \"CurrentPageList\", \"CurrentPageName\", \"DatabaseSort\", \"DisplayAsCaption\", \"DisplayAsTooltip\", \"DisplayInReport\", \"DragToColumn\", \"DragToData\", \"DragToHide\", \"DragToPage\", \"DragToRow\", \"DrilledDown\", \"EnableItemSelection\", \"Hidden\", \"HiddenItemsList\", \"IncludeNewItemsInFilter\", \"IsMemberProperty\", \"PropertyOrder\", \"ServerBased\", \"ShowAllItems\", \"SourceCaption\", \"UseMemberPropertyAsCaption\", \"VisibleItemsList\", \"CubeField\", \"PropertyParentField\", \"MemberPropertyCaption\")\n        s = s & \"~\" & G(pt.PivotFields(\"k\"), CStr(n))\n    Next\n    For Each n In Array(\"CurrentPageName\", \"ShowAllItems\", \"DragToRow\", \"EnableItemSelection\", \"DatabaseSort\", \"ServerBased\")\n        s = s & \"~\" & G(pt.PivotFields(\"p\"), CStr(n))\n    Next\n    For Each n In Array(\"DragToRow\", \"ShowAllItems\", \"EnableItemSelection\", \"DatabaseSort\", \"ServerBased\")\n        s = s & \"~\" & G(pt.PivotFields(\"q\"), CStr(n))\n    Next\n    For Each n In Array(\"DragToRow\", \"ShowAllItems\", \"EnableItemSelection\", \"DatabaseSort\", \"ServerBased\", \"AutoShowCount\")\n        s = s & \"~\" & G(pt.DataFields(1), CStr(n))\n    Next\n    For Each n In Array(\"DrilledDown\", \"ParentShowDetail\", \"RecordCount\", \"SourceNameStandard\")\n        s = s & \"~\" & G(pt.PivotFields(\"k\").PivotItems(1), CStr(n))\n    Next\n    For Each n In Array(\"RecordCount\", \"SourceNameStandard\")\n        s = s & \"~\" & G(pt.PivotFields(\"k\").PivotItems(\"b\"), CStr(n))\n    Next\n    wb.Close False\n    Reads = Mid(s, 2)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, pt As Object, pc As Object, pf As Object, pp As Object, pq As Object, pd As Object\n    Dim v As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set pt = Made(wb)\n    Set pc = pt.PivotCache\n    Set pf = pt.PivotFields(\"k\")\n    Set pp = pt.PivotFields(\"p\")\n    Set pq = pt.PivotFields(\"q\")\n    Set pd = pt.DataFields(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        pt.SmallGrid = True\n        v = pt.SmallGrid\n    Case 1\n        pt.PrintDrillIndicators = True\n        v = pt.PrintDrillIndicators\n    Case 2\n        pt.ShowPageMultipleItemLabel = False\n        v = pt.ShowPageMultipleItemLabel\n    Case 3\n        pt.DisplayMemberPropertyTooltips = False\n        v = pt.DisplayMemberPropertyTooltips\n    Case 4\n        pt.TotalsAnnotation = True\n        v = pt.TotalsAnnotation\n    Case 5\n        pt.VisualTotals = False\n        v = pt.VisualTotals\n    Case 6\n        pt.VisualTotalsForSets = True\n        v = pt.VisualTotalsForSets\n    Case 7\n        pt.CalculatedMembersInFilters = True\n        v = pt.CalculatedMembersInFilters\n    Case 8\n        pt.PageFieldStyle = \"PivotStyleDark1\"\n        v = pt.PageFieldStyle\n    Case 9\n        pt.VacatedStyle = \"Good\"\n        v = pt.VacatedStyle\n    Case 10\n        pt.EnableWriteback = True\n        v = pt.EnableWriteback\n    Case 11\n        pt.AutoRefresh = True\n        v = pt.AutoRefresh\n    Case 12\n        pt.Hidden = True\n        v = pt.Hidden\n    Case 13\n        pc.MissingItemsLimit = xlMissingItemsNone\n        v = pc.MissingItemsLimit\n    Case 14\n        pc.OptimizeCache = True\n        v = pc.OptimizeCache\n    Case 15\n        pc.BackgroundQuery = True\n        v = pc.BackgroundQuery\n    Case 16\n        pc.SavePassword = True\n        v = pc.SavePassword\n    Case 17\n        pc.UpgradeOnRefresh = True\n        v = pc.UpgradeOnRefresh\n    Case 18\n        pc.RefreshPeriod = 5\n        v = pc.RefreshPeriod\n    Case 19\n        pf.DragToColumn = False\n        v = pf.DragToColumn\n    Case 20\n        pf.DragToRow = False\n        v = pf.DragToRow\n    Case 21\n        pf.DragToPage = False\n        v = pf.DragToPage\n    Case 22\n        pf.DragToData = False\n        v = pf.DragToData\n    Case 23\n        pf.DragToHide = False\n        v = pf.DragToHide\n    Case 24\n        pf.ShowAllItems = False\n        v = pf.ShowAllItems\n    Case 25\n        pf.IncludeNewItemsInFilter = True\n        v = pf.IncludeNewItemsInFilter\n    Case 26\n        pf.EnableItemSelection = False\n        v = pf.EnableItemSelection\n    Case 27\n        pf.DatabaseSort = True\n        v = pf.DatabaseSort\n    Case 28\n        pf.AutoShowCount = 3\n        v = pf.AutoShowCount\n    Case 29\n        pf.ServerBased = True\n        v = pf.ServerBased\n    Case 30\n        pf.SourceCaption = \"zz\"\n        v = pf.SourceCaption\n    Case 31\n        pt.SmallGrid = True\n        pt.SmallGrid = False\n        v = pt.SmallGrid\n    Case 32\n        pt.PrintDrillIndicators = True\n        pt.PrintDrillIndicators = False\n        v = pt.PrintDrillIndicators\n    Case 33\n        pt.ShowPageMultipleItemLabel = False\n        pt.ShowPageMultipleItemLabel = True\n        v = pt.ShowPageMultipleItemLabel\n    Case 34\n        pt.PageFieldStyle = \"PivotStyleDark1\"\n        pt.PageFieldStyle = \"\"\n        v = pt.PageFieldStyle\n    Case 35\n        pt.VacatedStyle = \"Good\"\n        pt.VacatedStyle = \"\"\n        v = pt.VacatedStyle\n    Case 36\n        pc.MissingItemsLimit = xlMissingItemsNone\n        pc.MissingItemsLimit = xlMissingItemsDefault\n        v = pc.MissingItemsLimit\n    Case 37\n        pc.MissingItemsLimit = xlMissingItemsMax2\n        v = pc.MissingItemsLimit\n    Case 38\n        pc.MissingItemsLimit = 5\n        v = pc.MissingItemsLimit\n    Case 39\n        pc.MissingItemsLimit = -2\n        v = pc.MissingItemsLimit\n    Case 40\n        pf.DragToColumn = False\n        pf.DragToColumn = True\n        v = pf.DragToColumn\n    Case 41\n        pf.DragToHide = False\n        pf.DragToHide = True\n        v = pf.DragToHide\n    Case 42\n        pf.IncludeNewItemsInFilter = True\n        pf.IncludeNewItemsInFilter = False\n        v = pf.IncludeNewItemsInFilter\n    Case 43\n        pf.EnableItemSelection = False\n        pf.EnableItemSelection = True\n        v = pf.EnableItemSelection\n    Case 44\n        pt.PageFieldStyle = \"nonsense\"\n        v = pt.PageFieldStyle\n    Case 45\n        pt.SmallGrid = \"x\"\n        v = pt.SmallGrid\n    Case 46\n        pf.DragToRow = Null\n        v = pf.DragToRow\n    Case 47\n        pq.DragToColumn = False\n        v = pq.DragToColumn\n    Case 48\n        pd.DragToColumn = False\n        v = pd.DragToColumn\n    Case 49\n        pp.ShowAllItems = True\n        v = pp.ShowAllItems\n    Case 50\n        pp.DragToRow = False\n        v = pp.DragToRow\n    Case 51\n        pq.ShowAllItems = True\n        v = pq.ShowAllItems\n    Case 52\n        v = \"plain\"\n    End Select\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    Tried = \"ok \" & CStr(v)\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    s = Reads()\n    For i = 0 To 52\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = s\nEnd Function\n",
+ "reads": [
+  [
+   "pc",
+   "MissingItemsLimit",
+   "Long:-1"
+  ],
+  [
+   "pc",
+   "OptimizeCache",
+   "Boolean:False"
+  ],
+  [
+   "pc",
+   "RefreshPeriod",
+   "E1004"
+  ],
+  [
+   "pc",
+   "BackgroundQuery",
+   "Boolean:False"
+  ],
+  [
+   "pc",
+   "CommandText",
+   "E1004"
+  ],
+  [
+   "pc",
+   "CommandType",
+   "E1004"
+  ],
+  [
+   "pc",
+   "Connection",
+   "E1004"
+  ],
+  [
+   "pc",
+   "IsConnected",
+   "E1004"
+  ],
+  [
+   "pc",
+   "LocalConnection",
+   "E1004"
+  ],
+  [
+   "pc",
+   "MaintainConnection",
+   "E1004"
+  ],
+  [
+   "pc",
+   "QueryType",
+   "E1004"
+  ],
+  [
+   "pc",
+   "RobustConnect",
+   "E1004"
+  ],
+  [
+   "pc",
+   "SavePassword",
+   "Boolean:False"
+  ],
+  [
+   "pc",
+   "SourceConnectionFile",
+   "E1004"
+  ],
+  [
+   "pc",
+   "SourceDataFile",
+   "E1004"
+  ],
+  [
+   "pc",
+   "UpgradeOnRefresh",
+   "Boolean:False"
+  ],
+  [
+   "pc",
+   "UseLocalConnection",
+   "E1004"
+  ],
+  [
+   "pc",
+   "WorkbookConnection",
+   "E1004"
+  ],
+  [
+   "pc",
+   "ADOConnection",
+   "E1004"
+  ],
+  [
+   "pc",
+   "Recordset",
+   "E1004"
+  ],
+  [
+   "pt",
+   "SmallGrid",
+   "Boolean:False"
+  ],
+  [
+   "pt",
+   "PageFieldStyle",
+   "String:"
+  ],
+  [
+   "pt",
+   "VacatedStyle",
+   "String:"
+  ],
+  [
+   "pt",
+   "PrintDrillIndicators",
+   "Boolean:False"
+  ],
+  [
+   "pt",
+   "ShowPageMultipleItemLabel",
+   "Boolean:True"
+  ],
+  [
+   "pt",
+   "DisplayMemberPropertyTooltips",
+   "Boolean:True"
+  ],
+  [
+   "pt",
+   "EnableWriteback",
+   "Boolean:False"
+  ],
+  [
+   "pt",
+   "AllocationMethod",
+   "E1004"
+  ],
+  [
+   "pt",
+   "AllocationValue",
+   "E1004"
+  ],
+  [
+   "pt",
+   "Allocation",
+   "E1004"
+  ],
+  [
+   "pt",
+   "AllocationWeightExpression",
+   "E1004"
+  ],
+  [
+   "pt",
+   "TotalsAnnotation",
+   "Boolean:False"
+  ],
+  [
+   "pt",
+   "ViewCalculatedMembers",
+   "E1004"
+  ],
+  [
+   "pt",
+   "VisualTotals",
+   "Boolean:True"
+  ],
+  [
+   "pt",
+   "VisualTotalsForSets",
+   "Boolean:False"
+  ],
+  [
+   "pt",
+   "CalculatedMembersInFilters",
+   "Boolean:False"
+  ],
+  [
+   "pt",
+   "Hidden",
+   "Boolean:False"
+  ],
+  [
+   "pt",
+   "MDX",
+   "E1004"
+  ],
+  [
+   "pt",
+   "ChangeList",
+   "E1004"
+  ],
+  [
+   "pt",
+   "CubeFields",
+   "E1004"
+  ],
+  [
+   "pt",
+   "CalculatedMembers",
+   "E1004"
+  ],
+  [
+   "pt",
+   "PivotChart",
+   "E1004"
+  ],
+  [
+   "pt",
+   "SelectionMode",
+   "E1004"
+  ],
+  [
+   "pt",
+   "PivotSelection",
+   "E1004"
+  ],
+  [
+   "pt",
+   "PivotSelectionStandard",
+   "E1004"
+  ],
+  [
+   "pt",
+   "InnerDetail",
+   "E1004"
+  ],
+  [
+   "pt",
+   "AutoRefresh",
+   "Boolean:False"
+  ],
+  [
+   "pf",
+   "AutoShowCount",
+   "Long:10"
+  ],
+  [
+   "pf",
+   "AutoShowField",
+   "String:"
+  ],
+  [
+   "pf",
+   "AutoShowRange",
+   "Long:-4160"
+  ],
+  [
+   "pf",
+   "AutoShowType",
+   "Long:-4135"
+  ],
+  [
+   "pf",
+   "CurrentPageList",
+   "E1004"
+  ],
+  [
+   "pf",
+   "CurrentPageName",
+   "E1004"
+  ],
+  [
+   "pf",
+   "DatabaseSort",
+   "Boolean:False"
+  ],
+  [
+   "pf",
+   "DisplayAsCaption",
+   "E1004"
+  ],
+  [
+   "pf",
+   "DisplayAsTooltip",
+   "E1004"
+  ],
+  [
+   "pf",
+   "DisplayInReport",
+   "E1004"
+  ],
+  [
+   "pf",
+   "DragToColumn",
+   "Boolean:True"
+  ],
+  [
+   "pf",
+   "DragToData",
+   "Boolean:True"
+  ],
+  [
+   "pf",
+   "DragToHide",
+   "Boolean:True"
+  ],
+  [
+   "pf",
+   "DragToPage",
+   "Boolean:True"
+  ],
+  [
+   "pf",
+   "DragToRow",
+   "Boolean:True"
+  ],
+  [
+   "pf",
+   "DrilledDown",
+   "E1004"
+  ],
+  [
+   "pf",
+   "EnableItemSelection",
+   "Boolean:True"
+  ],
+  [
+   "pf",
+   "Hidden",
+   "E1004"
+  ],
+  [
+   "pf",
+   "HiddenItemsList",
+   "E1004"
+  ],
+  [
+   "pf",
+   "IncludeNewItemsInFilter",
+   "Boolean:False"
+  ],
+  [
+   "pf",
+   "IsMemberProperty",
+   "E1004"
+  ],
+  [
+   "pf",
+   "PropertyOrder",
+   "E1004"
+  ],
+  [
+   "pf",
+   "ServerBased",
+   "Boolean:False"
+  ],
+  [
+   "pf",
+   "ShowAllItems",
+   "Boolean:False"
+  ],
+  [
+   "pf",
+   "SourceCaption",
+   "E5"
+  ],
+  [
+   "pf",
+   "UseMemberPropertyAsCaption",
+   "E1004"
+  ],
+  [
+   "pf",
+   "VisibleItemsList",
+   "E1004"
+  ],
+  [
+   "pf",
+   "CubeField",
+   "E1004"
+  ],
+  [
+   "pf",
+   "PropertyParentField",
+   "E1004"
+  ],
+  [
+   "pf",
+   "MemberPropertyCaption",
+   "E1004"
+  ],
+  [
+   "pp",
+   "CurrentPageName",
+   "E1004"
+  ],
+  [
+   "pp",
+   "ShowAllItems",
+   "Boolean:False"
+  ],
+  [
+   "pp",
+   "DragToRow",
+   "Boolean:True"
+  ],
+  [
+   "pp",
+   "EnableItemSelection",
+   "Boolean:True"
+  ],
+  [
+   "pp",
+   "DatabaseSort",
+   "Boolean:False"
+  ],
+  [
+   "pp",
+   "ServerBased",
+   "Boolean:False"
+  ],
+  [
+   "pq",
+   "DragToRow",
+   "Boolean:True"
+  ],
+  [
+   "pq",
+   "ShowAllItems",
+   "Boolean:False"
+  ],
+  [
+   "pq",
+   "EnableItemSelection",
+   "Boolean:True"
+  ],
+  [
+   "pq",
+   "DatabaseSort",
+   "Boolean:False"
+  ],
+  [
+   "pq",
+   "ServerBased",
+   "Boolean:False"
+  ],
+  [
+   "pd",
+   "DragToRow",
+   "E1004"
+  ],
+  [
+   "pd",
+   "ShowAllItems",
+   "Boolean:False"
+  ],
+  [
+   "pd",
+   "EnableItemSelection",
+   "E1004"
+  ],
+  [
+   "pd",
+   "DatabaseSort",
+   "E1004"
+  ],
+  [
+   "pd",
+   "ServerBased",
+   "E1004"
+  ],
+  [
+   "pd",
+   "AutoShowCount",
+   "E1004"
+  ],
+  [
+   "pi",
+   "DrilledDown",
+   "E1004"
+  ],
+  [
+   "pi",
+   "ParentShowDetail",
+   "Error:Error 2042"
+  ],
+  [
+   "pi",
+   "RecordCount",
+   "Long:2"
+  ],
+  [
+   "pi",
+   "SourceNameStandard",
+   "String:a"
+  ],
+  [
+   "pi2",
+   "RecordCount",
+   "Long:1"
+  ],
+  [
+   "pi2",
+   "SourceNameStandard",
+   "String:b"
+  ]
+ ],
+ "sets": [
+  [
+   [
+    "pt.SmallGrid = True"
+   ],
+   "ok True",
+   {
+    "pivotTable1.xml": {
+     "showDropZones": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pt.PrintDrillIndicators = True"
+   ],
+   "ok True",
+   {
+    "pivotTable1.xml": {
+     "printDrill": [
+      null,
+      "1"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pt.ShowPageMultipleItemLabel = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "showMultipleLabel": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pt.DisplayMemberPropertyTooltips = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "showMemberPropertyTips": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pt.TotalsAnnotation = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pt.VisualTotals = False"
+   ],
+   "ok True",
+   {}
+  ],
+  [
+   [
+    "pt.VisualTotalsForSets = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pt.CalculatedMembersInFilters = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pt.PageFieldStyle = \"PivotStyleDark1\""
+   ],
+   "ok PivotStyleDark1",
+   {
+    "pivotTable1.xml": {
+     "pageStyle": [
+      null,
+      "PivotStyleDark1"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pt.VacatedStyle = \"Good\""
+   ],
+   "ok Good",
+   {
+    "pivotTable1.xml": {
+     "vacatedStyle": [
+      null,
+      "Good"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pt.EnableWriteback = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pt.AutoRefresh = True"
+   ],
+   "Err 445",
+   null
+  ],
+  [
+   [
+    "pt.Hidden = True"
+   ],
+   "Err 450",
+   null
+  ],
+  [
+   [
+    "pc.MissingItemsLimit = xlMissingItemsNone"
+   ],
+   "ok 0",
+   {
+    "pivotCacheDefinition1.xml": {
+     "missingItemsLimit": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pc.OptimizeCache = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pc.BackgroundQuery = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pc.SavePassword = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pc.UpgradeOnRefresh = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pc.RefreshPeriod = 5"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pf.DragToColumn = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field0.dragToCol": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pf.DragToRow = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field0.dragToRow": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pf.DragToPage = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field0.dragToPage": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pf.DragToData = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field0.dragToData": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pf.DragToHide = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field0.dragOff": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pf.ShowAllItems = False"
+   ],
+   "ok False",
+   {}
+  ],
+  [
+   [
+    "pf.IncludeNewItemsInFilter = True"
+   ],
+   "ok True",
+   {
+    "pivotTable1.xml": {
+     "field0.includeNewItemsInFilter": [
+      null,
+      "1"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pf.EnableItemSelection = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field0.showDropDowns": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pf.DatabaseSort = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pf.AutoShowCount = 3"
+   ],
+   "Err 450",
+   null
+  ],
+  [
+   [
+    "pf.ServerBased = True"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pf.SourceCaption = \"zz\""
+   ],
+   "Err 5",
+   null
+  ],
+  [
+   [
+    "pt.SmallGrid = True",
+    "pt.SmallGrid = False"
+   ],
+   "ok False",
+   {}
+  ],
+  [
+   [
+    "pt.PrintDrillIndicators = True",
+    "pt.PrintDrillIndicators = False"
+   ],
+   "ok False",
+   {}
+  ],
+  [
+   [
+    "pt.ShowPageMultipleItemLabel = False",
+    "pt.ShowPageMultipleItemLabel = True"
+   ],
+   "ok True",
+   {}
+  ],
+  [
+   [
+    "pt.PageFieldStyle = \"PivotStyleDark1\"",
+    "pt.PageFieldStyle = \"\""
+   ],
+   "ok ",
+   {}
+  ],
+  [
+   [
+    "pt.VacatedStyle = \"Good\"",
+    "pt.VacatedStyle = \"\""
+   ],
+   "ok ",
+   {}
+  ],
+  [
+   [
+    "pc.MissingItemsLimit = xlMissingItemsNone",
+    "pc.MissingItemsLimit = xlMissingItemsDefault"
+   ],
+   "ok -1",
+   {}
+  ],
+  [
+   [
+    "pc.MissingItemsLimit = xlMissingItemsMax2"
+   ],
+   "ok 1048576",
+   {
+    "pivotCacheDefinition1.xml": {
+     "missingItemsLimit": [
+      null,
+      "1048576"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pc.MissingItemsLimit = 5"
+   ],
+   "ok 5",
+   {
+    "pivotCacheDefinition1.xml": {
+     "missingItemsLimit": [
+      null,
+      "5"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pc.MissingItemsLimit = -2"
+   ],
+   "ok -1",
+   {}
+  ],
+  [
+   [
+    "pf.DragToColumn = False",
+    "pf.DragToColumn = True"
+   ],
+   "ok True",
+   {}
+  ],
+  [
+   [
+    "pf.DragToHide = False",
+    "pf.DragToHide = True"
+   ],
+   "ok True",
+   {}
+  ],
+  [
+   [
+    "pf.IncludeNewItemsInFilter = True",
+    "pf.IncludeNewItemsInFilter = False"
+   ],
+   "ok False",
+   {}
+  ],
+  [
+   [
+    "pf.EnableItemSelection = False",
+    "pf.EnableItemSelection = True"
+   ],
+   "ok True",
+   {}
+  ],
+  [
+   [
+    "pt.PageFieldStyle = \"nonsense\""
+   ],
+   "ok nonsense",
+   {
+    "pivotTable1.xml": {
+     "pageStyle": [
+      null,
+      "nonsense"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pt.SmallGrid = \"x\""
+   ],
+   "Err 13",
+   null
+  ],
+  [
+   [
+    "pf.DragToRow = Null"
+   ],
+   "Err 13",
+   null
+  ],
+  [
+   [
+    "pq.DragToColumn = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field3.dragToCol": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pd.DragToColumn = False"
+   ],
+   "Err 1004",
+   null
+  ],
+  [
+   [
+    "pp.ShowAllItems = True"
+   ],
+   "ok True",
+   {
+    "pivotTable1.xml": {
+     "field1.showAll": [
+      "0",
+      null
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pp.DragToRow = False"
+   ],
+   "ok False",
+   {
+    "pivotTable1.xml": {
+     "field1.dragToRow": [
+      null,
+      "0"
+     ]
+    }
+   }
+  ],
+  [
+   [
+    "pq.ShowAllItems = True"
+   ],
+   "Err 1004",
+   null
+  ]
+ ]
+}

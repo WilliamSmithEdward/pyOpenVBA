@@ -4004,6 +4004,14 @@ class Range(ExcelObject):
         return group(self, 'Ungroup')
 
     @method
+    def AutoOutline(self) -> object:
+        """Group rows and columns from the formulas that sum the cells beside them (see _auto_outline)."""
+        from pyopenvba.apps.excel._auto_outline import auto_outline
+
+        auto_outline(self)
+        return True
+
+    @method
     def ClearOutline(self) -> object:
         from pyopenvba.apps.excel._outline import group
 

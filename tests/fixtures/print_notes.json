@@ -1,0 +1,116 @@
+{
+ "measured_at": "2026-10-31T21:39:32.328935+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n    Case 1\n        ws.PageSetup.PrintNotes = True\n        wb.SaveAs folder & \"\\on.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        ws.PageSetup.PrintNotes = True\n        ws.PageSetup.PrintNotes = False\n        wb.SaveAs folder & \"\\off.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        ws.PageSetup.PrintComments = xlPrintSheetEnd\n    Case 4\n        ws.PageSetup.PrintComments = xlPrintInPlace\n    Case 5\n        ws.PageSetup.PrintComments = xlPrintInPlace\n        ws.PageSetup.PrintNotes = False\n    Case 6\n        ws.PageSetup.PrintComments = xlPrintInPlace\n        ws.PageSetup.PrintNotes = True\n    Case 7\n        ws.PageSetup.PrintNotes = 7\n    Case 8\n        ws.PageSetup.PrintNotes = \"True\"\n    Case 9\n        ws.PageSetup.PrintNotes = \"x\"\n    Case 10\n        ws.PageSetup.PrintComments = xlPrintSheetEnd\n        ws.PageSetup.PrintComments = xlPrintNoComments\n        wb.SaveAs folder & \"\\no_comments.xlsx\", xlOpenXMLWorkbook\n    Case 11\n        ws.PageSetup.PrintErrors = xlPrintErrorsDash\n        ws.PageSetup.PrintErrors = xlPrintErrorsDisplayed\n        wb.SaveAs folder & \"\\errors.xlsx\", xlOpenXMLWorkbook\n    Case 12\n        ws.PageSetup.Order = xlOverThenDown\n        ws.PageSetup.Order = xlDownThenOver\n        wb.SaveAs folder & \"\\order.xlsx\", xlOpenXMLWorkbook\n    Case 13\n        ws.PageSetup.PrintComments = xlPrintNoComments\n        wb.SaveAs folder & \"\\never_set.xlsx\", xlOpenXMLWorkbook\n    End Select\n    Tried = ws.PageSetup.PrintNotes & \" \" & ws.PageSetup.PrintComments\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 13\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [],
+   "",
+   "False -4142"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintNotes = True"
+   ],
+   "on.xlsx",
+   "True 1"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintNotes = True",
+    "ws.PageSetup.PrintNotes = False"
+   ],
+   "off.xlsx",
+   "False -4142"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintComments = xlPrintSheetEnd"
+   ],
+   "",
+   "True 1"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintComments = xlPrintInPlace"
+   ],
+   "",
+   "True 16"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintComments = xlPrintInPlace",
+    "ws.PageSetup.PrintNotes = False"
+   ],
+   "",
+   "False -4142"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintComments = xlPrintInPlace",
+    "ws.PageSetup.PrintNotes = True"
+   ],
+   "",
+   "True 1"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintNotes = 7"
+   ],
+   "",
+   "True 1"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintNotes = \"True\""
+   ],
+   "",
+   "True 1"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintNotes = \"x\""
+   ],
+   "",
+   "Err 13"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintComments = xlPrintSheetEnd",
+    "ws.PageSetup.PrintComments = xlPrintNoComments"
+   ],
+   "no_comments.xlsx",
+   "False -4142"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintErrors = xlPrintErrorsDash",
+    "ws.PageSetup.PrintErrors = xlPrintErrorsDisplayed"
+   ],
+   "errors.xlsx",
+   "False -4142"
+  ],
+  [
+   [
+    "ws.PageSetup.Order = xlOverThenDown",
+    "ws.PageSetup.Order = xlDownThenOver"
+   ],
+   "order.xlsx",
+   "False -4142"
+  ],
+  [
+   [
+    "ws.PageSetup.PrintComments = xlPrintNoComments"
+   ],
+   "never_set.xlsx",
+   "False -4142"
+  ]
+ ],
+ "parts": {
+  "on.xlsx": "<pageSetup orientation=\"portrait\" cellComments=\"atEnd\" r:id=\"rId1\"/>",
+  "off.xlsx": "<pageSetup orientation=\"portrait\" r:id=\"rId1\"/>",
+  "no_comments.xlsx": "",
+  "errors.xlsx": "",
+  "order.xlsx": "<pageSetup orientation=\"portrait\" r:id=\"rId1\"/>",
+  "never_set.xlsx": ""
+ }
+}

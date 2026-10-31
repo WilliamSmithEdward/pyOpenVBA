@@ -21,8 +21,9 @@ Every answer here is Excel's own, replayed from tests/fixtures/range_format.json
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Iterable
-from dataclasses import replace
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
@@ -31,8 +32,19 @@ from pyopenvba.apps.excel import _styles as S
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.apps.excel._visible import visible_areas
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import VBACollection, member, setter
-from pyopenvba.interpreter._values import MISSING, NULL, VBAInt, error, to_bool, to_integer, to_number, to_text
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
+from pyopenvba.interpreter._values import (
+    EMPTY,
+    MISSING,
+    NOTHING,
+    NULL,
+    VBAInt,
+    error,
+    to_bool,
+    to_integer,
+    to_number,
+    to_text,
+)
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Range, Worksheet
@@ -420,6 +432,252 @@ def with_pattern(fill: S.Fill, pattern: str) -> S.Fill:
     return S.Fill(pattern, foreground=lines, background=cell)
 
 
+# --- gradient fills (tests/fixtures/interior_gradient.json, scripts/measure_interior_gradient.py) ---------------
+
+LINEAR_GRADIENT, RECTANGULAR_GRADIENT = 4000, 4001
+_GRADIENT_ATTRIBUTE = re.compile(r'\s([A-Za-z]+)="([^"]*)"')
+
+
+@dataclass
+class GradientFill:
+    """A gradient fill as styles.xml writes it: a linear one at a degree, or a path one with its rectangle's edges,
+    and its colour stops in order."""
+
+    path: bool = False
+    degree: float = 0.0
+    edges: dict[str, float] = field(default_factory=dict[str, float])
+    stops: list[tuple[float, S.Color]] = field(default_factory=list[tuple[float, S.Color]])
+
+    @classmethod
+    def new(cls, path: bool) -> GradientFill:
+        """What Pattern = xlPatternLinearGradient or xlPatternRectangularGradient makes: Dark 1 to Accent 1."""
+        return cls(path, stops=[(0.0, S.Color("theme", 0)), (1.0, S.Color("theme", 4))])
+
+    @classmethod
+    def parsed(cls, xml: str) -> GradientFill:
+        opening = re.search(r"<gradientFill\b[^>]*>", xml)
+        fields = dict(_GRADIENT_ATTRIBUTE.findall(opening.group(0))) if opening else {}
+        made = cls(fields.get("type") == "path", float(fields.get("degree", "0")),
+                   {edge: float(fields[edge]) for edge in ("left", "right", "top", "bottom") if edge in fields})
+        for position, inner in re.findall(r'<stop\b[^>]*position="([^"]*)"[^>]*>(.*?)</stop>', xml, re.DOTALL):
+            color = S.parse_color(inner)
+            made.stops.append((float(position), color if color is not None else S.Color("theme", 0)))
+        return made
+
+    def xml(self) -> str:
+        attributes = ' type="path"' if self.path else ""
+        if not self.path and self.degree:
+            attributes += f' degree="{S.excel_number(self.degree)}"'
+        for edge in ("left", "right", "top", "bottom"):
+            if self.edges.get(edge):
+                attributes += f' {edge}="{S.excel_number(self.edges[edge])}"'
+        stops = "".join(f'<stop position="{S.excel_number(position)}">{S.color_xml("color", color)}</stop>'
+                        for position, color in self.stops)
+        body = f"<gradientFill{attributes}>{stops}</gradientFill>" if stops else f"<gradientFill{attributes}/>"
+        return f"<fill>{body}</fill>"
+
+    def fill(self) -> S.Fill:
+        return S.Fill(pattern="gradient", gradient=self.xml())
+
+
+def _position(value: object) -> float:
+    position = float(to_number(value))
+    if not 0 <= position <= 1:
+        raise error(1004)
+    return position
+
+
+class _Gradient(ExcelObject):
+    """Interior.Gradient: the gradient every cell of the range has."""
+
+    vba_type_name = ""
+
+    def __init__(self, interior: Interior) -> None:
+        self.interior = interior
+
+    def read(self) -> GradientFill:
+        return self.interior.gradient()
+
+    def write(self, gradient: GradientFill) -> None:
+        self.interior.write_fill(gradient.fill())
+
+    @member
+    def ColorStops(self) -> object:
+        return ColorStops(self)
+
+    @member
+    def Parent(self) -> object:
+        return self.interior
+
+    @member
+    def Application(self) -> object:
+        return self.interior.target.sheet.book.application
+
+    @member
+    def Creator(self) -> object:
+        return _long(1480803660)
+
+
+class LinearGradient(_Gradient):
+    vba_type_name = "LinearGradient"
+
+    @member
+    def Degree(self) -> object:
+        return self.read().degree
+
+    @setter("Degree")
+    def _set_degree(self, value: object) -> None:
+        gradient = self.read()
+        gradient.degree = float(to_number(value))
+        self.write(gradient)
+
+
+def _edge(name: str) -> tuple[Callable[..., object], Callable[..., None]]:
+    """The getter and setter of one edge of a rectangular gradient's rectangle, 0 to 1."""
+
+    def read(self: RectangularGradient) -> object:
+        return self.read().edges.get(name, 0.0)
+
+    def write(self: RectangularGradient, value: object) -> None:
+        gradient = self.read()
+        gradient.edges[name] = _position(value)
+        self.write(gradient)
+
+    read.__name__ = "Rectangle" + name.title()
+    return member(read), setter("Rectangle" + name.title())(write)
+
+
+class RectangularGradient(_Gradient):
+    vba_type_name = "RectangularGradient"
+
+    RectangleLeft, _set_left = _edge("left")
+    RectangleRight, _set_right = _edge("right")
+    RectangleTop, _set_top = _edge("top")
+    RectangleBottom, _set_bottom = _edge("bottom")
+
+
+class ColorStops(VBACollection, ExcelObject):
+    """A gradient's colour stops, in the order of their positions."""
+
+    vba_type_name = "ColorStops"
+
+    def __init__(self, gradient: _Gradient) -> None:
+        self.gradient = gradient
+
+    def vba_items(self) -> list[object]:
+        return [ColorStop(self, at) for at in range(len(self.gradient.read().stops))]
+
+    @method
+    def Add(self, Position: object = MISSING) -> object:
+        """A stop at Position, 0 to 1, before any already there; Dark 1 until coloured."""
+        if Position is MISSING:
+            raise error(449)
+        position = _position(Position)
+        gradient = self.gradient.read()
+        at = next((index for index, (other, _) in enumerate(gradient.stops) if other >= position),
+                  len(gradient.stops))
+        gradient.stops.insert(at, (position, S.Color("theme", 0)))
+        self.gradient.write(gradient)
+        return ColorStop(self, at)
+
+    @method
+    def Clear(self) -> object:
+        gradient = self.gradient.read()
+        gradient.stops.clear()
+        self.gradient.write(gradient)
+        return EMPTY
+
+    @member
+    def Parent(self) -> object:
+        return self.gradient
+
+    @member
+    def Application(self) -> object:
+        return self.gradient.Application()
+
+    @member
+    def Creator(self) -> object:
+        return _long(1480803660)
+
+
+class ColorStop(ExcelObject):
+    """One colour stop of a gradient."""
+
+    vba_type_name = "ColorStop"
+
+    def __init__(self, stops: ColorStops, at: int) -> None:
+        self.stops = stops
+        self.at = at
+
+    def _stop(self) -> tuple[float, S.Color]:
+        found = self.stops.gradient.read().stops
+        if self.at >= len(found):
+            raise error(1004)
+        return found[self.at]
+
+    def _change(self, position: float | None = None, color: S.Color | None = None) -> None:
+        gradient = self.stops.gradient.read()
+        old_position, old_color = gradient.stops[self.at]
+        gradient.stops[self.at] = (old_position if position is None else position,
+                                   old_color if color is None else color)
+        if [one for one, _ in gradient.stops] != sorted(one for one, _ in gradient.stops):
+            raise VBAUnsupportedError("Moving a colour stop past another is not implemented")
+        self.stops.gradient.write(gradient)
+
+    @member
+    def Position(self) -> object:
+        return self._stop()[0]
+
+    @setter("Position")
+    def _set_position(self, value: object) -> None:
+        self._change(position=_position(value))
+
+    @member
+    def Color(self) -> object:
+        return float(S.bgr(_colors(self.stops.gradient.interior.target).rrggbb(self._stop()[1], "FFFFFF")))
+
+    @setter("Color")
+    def _set_color(self, value: object) -> None:
+        self._change(color=S.Color.from_bgr(int(to_integer(value, "Long"))))
+
+    @member
+    def ThemeColor(self) -> object:
+        color = self._stop()[1]
+        return _long(int(color.value) + 1 if color.kind == "theme" else 0)
+
+    @setter("ThemeColor")
+    def _set_theme_color(self, value: object) -> None:
+        self._change(color=replace(_theme_color(value), tint=self._stop()[1].tint))
+
+    @member
+    def TintAndShade(self) -> object:
+        return self._stop()[1].tint / S.TINT_SCALE
+
+    @setter("TintAndShade")
+    def _set_tint(self, value: object) -> None:
+        self._change(color=replace(self._stop()[1], tint=_tint(value)))
+
+    @method
+    def Delete(self) -> object:
+        gradient = self.stops.gradient.read()
+        self._stop()
+        del gradient.stops[self.at]
+        self.stops.gradient.write(gradient)
+        return EMPTY
+
+    @member
+    def Parent(self) -> object:
+        return self.stops
+
+    @member
+    def Application(self) -> object:
+        return self.stops.Application()
+
+    @member
+    def Creator(self) -> object:
+        return _long(1480803660)
+
+
 class Interior(ExcelObject):
     """A range's fill."""
 
@@ -438,17 +696,34 @@ class Interior(ExcelObject):
 
     def _fills(self) -> list[S.Fill]:
         fills = list({style.fill: None for style in styles_of(self.target)})
-        if any(fill.gradient for fill in fills):
-            raise VBAUnsupportedError("a gradient fill's Interior is not implemented")
+        if any(fill.gradient for fill in fills) and not all(fill.gradient for fill in fills):
+            raise VBAUnsupportedError("the Interior of a range with gradient and other fills is not implemented")
         return fills
 
     def _write(self, change: Callable[[S.Fill], S.Fill]) -> None:
         def apply(style: S.Style) -> S.Style:
-            if style.fill.gradient:
-                raise VBAUnsupportedError("a gradient fill's Interior is not implemented")
-            return S.applying(style, "fill", fill=change(style.fill))
+            # A colour or pattern given to a gradient takes the place of it, as one given to no fill would.
+            return S.applying(style, "fill", fill=change(S.Fill() if style.fill.gradient else style.fill))
 
         restyle(self.target, apply)
+
+    def gradient(self) -> GradientFill:
+        """The gradient every cell of the range has."""
+        fills = self._fills()
+        if len(fills) != 1 or not fills[0].gradient:
+            raise VBAUnsupportedError("the gradient of a range whose cells have different fills is not implemented")
+        return GradientFill.parsed(fills[0].gradient)
+
+    def write_fill(self, fill: S.Fill) -> None:
+        restyle(self.target, lambda style: S.applying(style, "fill", fill=fill))
+
+    @member
+    def Gradient(self) -> object:
+        """The range's gradient, Nothing for a fill that is none (tests/fixtures/interior_gradient.json)."""
+        fills = self._fills()
+        if not any(fill.gradient for fill in fills):
+            return NOTHING
+        return (RectangularGradient if self.gradient().path else LinearGradient)(self)
 
     def _colored(self, fill: S.Fill, color: S.Color) -> S.Fill:
         """The fill with a new cell colour, as a cell takes one."""
@@ -460,6 +735,9 @@ class Interior(ExcelObject):
 
     def _answer(self, pick: Callable[[S.Fill], S.Color], what: str, mixed: object) -> object:
         fills = self._fills()
+        if fills and fills[0].gradient:
+            # A gradient's Interior answers black, automatic, no theme colour (tests/fixtures/interior_gradient.json).
+            return {"Color": 0.0, "ColorIndex": _long(XL_AUTOMATIC), "ThemeColor": _long(0)}.get(what, 0.0)
         colors = {pick(fill) for fill in fills}
         if len(colors) != 1:
             return mixed
@@ -524,12 +802,18 @@ class Interior(ExcelObject):
 
     @member
     def Pattern(self) -> object:
-        found = uniform(fill.pattern for fill in self._fills())
+        fills = self._fills()
+        if fills and fills[0].gradient:
+            return _long(RECTANGULAR_GRADIENT if self.gradient().path else LINEAR_GRADIENT)
+        found = uniform(fill.pattern for fill in fills)
         return found if found is NULL else _long(PATTERNS.get(str(found), 1))
 
     @setter("Pattern")
     def _set_pattern(self, value: object) -> None:
         wanted = int(to_integer(value, "Long"))
+        if wanted in (LINEAR_GRADIENT, RECTANGULAR_GRADIENT):
+            self.write_fill(GradientFill.new(wanted == RECTANGULAR_GRADIENT).fill())
+            return
         if wanted == XL_AUTOMATIC:
             wanted = 1  # xlPatternAutomatic is a solid fill
         if wanted not in _PATTERN_OF:

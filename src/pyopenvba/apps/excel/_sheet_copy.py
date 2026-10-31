@@ -261,6 +261,11 @@ def _published(stage: _Staged, destination: Workbook, at: int | None, external: 
 
     # Not its custom properties (tests/fixtures/custom_properties.json).
     copied_properties(source, copied)
+
+    from pyopenvba.apps.excel._scenarios import copied as copied_scenarios
+
+    # And its scenarios (tests/fixtures/scenarios.json).
+    copied_scenarios(source, copied)
     from pyopenvba.apps.excel._page_setup import copied as copied_headers
 
     # And its headers and footers (tests/fixtures/page_headers.json, copied).

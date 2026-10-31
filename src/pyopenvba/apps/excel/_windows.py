@@ -618,6 +618,14 @@ class Panes(VBACollection, ExcelObject):
     def __init__(self, window: Window) -> None:
         self.window = window
 
+    @member
+    def Parent(self) -> object:
+        return self.window
+
+    @member
+    def Application(self) -> object:
+        return self.window.book.application
+
     def vba_items(self) -> list[object]:
         raise VBAUnsupportedError("a window's panes, each scrolled on its own, are not implemented; Panes.Count is")
 

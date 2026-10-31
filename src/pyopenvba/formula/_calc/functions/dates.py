@@ -18,7 +18,7 @@ from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.arithmetic import checked
 from pyopenvba.formula._calc.functions.common import numbers
 from pyopenvba.formula._calc.registry import R, V, function
-from pyopenvba.formula._calc.values import NUM, VALUE, Empty, ExcelError, Scalar, Value
+from pyopenvba.formula._calc.values import NUM, VALUE, Empty, ExcelError, Scalar, Value, read_date_time
 
 
 def serial_of(context: Context, value: Scalar) -> int:
@@ -150,7 +150,7 @@ def _date_text(context: Context, value: Scalar) -> float:
     text only, and not a plain number."""
     if not isinstance(value, str):
         raise ExcelError(VALUE)
-    found = dates.parse_date_time(value, context.today, epoch_1904=context.epoch_1904)
+    found = read_date_time(value, context.today, epoch_1904=context.epoch_1904, locale=context.locale)
     if found is None:
         raise ExcelError(VALUE)
     return found

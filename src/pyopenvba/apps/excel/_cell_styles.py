@@ -735,11 +735,15 @@ class StyleObject(ExcelObject):
 
     @member
     def NumberFormatLocal(self) -> object:
-        return self.cell_style.format.number_format
+        from pyopenvba.apps.excel._number_format import to_local
+
+        return to_local(self.cell_style.format.number_format, self.book.application.locale)
 
     @setter("NumberFormatLocal")
     def _set_number_format_local(self, value: object) -> None:
-        self._set_number_format(value)
+        from pyopenvba.apps.excel._number_format import from_local
+
+        self._set_number_format(from_local(to_text(value), self.book.application.locale))
 
     def _alignment(self, what: str) -> object:
         return alignment_answer(self.cell_style.format, what)

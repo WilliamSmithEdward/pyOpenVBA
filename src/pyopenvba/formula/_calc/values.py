@@ -33,7 +33,8 @@ from pyopenvba.formula._calc import collate as _collate
 from pyopenvba.formula._calc.dates import parse_date_time
 from pyopenvba.formula._calc.nodes import Node
 from pyopenvba.formula._calc.numbers import compare_numbers, number_text, text_value
-from pyopenvba.formula._calc.cells import CellError
+from pyopenvba.formula._calc.cells import CellError, UnsupportedFormulaError
+from pyopenvba.interpreter._locale import EN_US, Locale
 
 
 class Empty:
@@ -288,22 +289,52 @@ _FRACTION = re.compile(r" ([0-9]+)/([0-9]+)")
 _FRACTION_PART = 32767
 
 
-def text_to_number(text: str, today: dt.date, *, epoch_1904: bool = False) -> float | None:
+def text_to_number(text: str, today: dt.date, *, epoch_1904: bool = False, locale: Locale = EN_US) -> float | None:
     """The number text stands for, as typing it into a cell would make it,
-    or ``None`` when it is not one."""
-    number = plain_number(text)
+    or ``None`` when it is not one; under ``locale``'s Regional format."""
+    number = plain_number(text, locale=locale)
     if number is not None:
         return number
+    return read_date_time(text, today, epoch_1904=epoch_1904, locale=locale)
+
+
+#: Three numbers apart by slashes or dashes, alone; and at the start of text, a time perhaps after them.
+_THREE_NUMBERS = re.compile(r" *([0-9]{1,4}) *([/-]) *([0-9]{1,4}) *\2 *([0-9]{1,4}) *")
+_STARTS_THREE_NUMBERS = re.compile(r" *[0-9]{1,2} *[/-] *[0-9]{1,4} *[/-] *[0-9]{1,4}")
+
+
+def read_date_time(text: str, today: dt.date, *, epoch_1904: bool = False, locale: Locale = EN_US) -> float | None:
+    """The serial a date or time typed as text stands for, as DATEVALUE and a
+    formula's text read it, or ``None``.
+
+    Under ja-JP three numbers are the year, the month and the day and
+    nothing else: 26/1/5 is 5 January 2026 and 1/5/2026 no date
+    (tests/fixtures/excel_locale_live.json). A month's name, which ja-JP
+    reads by rules not measured, reports itself unsupported.
+    """
+    if locale.currency_symbol == "$":
+        return parse_date_time(text, today, epoch_1904=epoch_1904)
+    if re.search(r"[A-Za-z]{3}", text):
+        raise UnsupportedFormulaError(f"reading a month's name in text as a date under {locale.name}")
+    found = _THREE_NUMBERS.fullmatch(text)
+    if found is not None:
+        year, month, day = (int(found.group(place)) for place in (1, 3, 4))
+        if not (1 <= month <= 12 and 1 <= day <= 31):
+            return None
+        year = year + (2000 if year < 30 else 1900) if year < 100 else year
+        return parse_date_time(f"{year}/{month}/{day}", today, epoch_1904=epoch_1904)
+    if _STARTS_THREE_NUMBERS.match(text):
+        raise UnsupportedFormulaError(f"reading a date with no four-digit year first and a time under {locale.name}")
     return parse_date_time(text, today, epoch_1904=epoch_1904)
 
 
-def plain_number(text: str) -> float | None:
+def plain_number(text: str, *, locale: Locale = EN_US) -> float | None:
     """The number text stands for when it is written as one, with its sign,
     currency or percent, rather than as a date or a time; ``None`` when it
     is not. Measured, this is the text Excel's error checking calls a
-    number stored as text."""
+    number stored as text. Under ja-JP the currency sign is ¥, not $."""
     body = text.strip(" ")
-    return _plain_number(body) if body else None
+    return _plain_number(body, locale.currency_symbol + _CURRENCY[1:]) if body else None
 
 
 def _skip(text: str, index: int) -> int:
@@ -312,7 +343,7 @@ def _skip(text: str, index: int) -> int:
     return index
 
 
-def _plain_number(text: str) -> float | None:
+def _plain_number(text: str, signs: str = _CURRENCY) -> float | None:
     """A number with its sign, currency or percent, and parentheses.
     Measured: a currency sign and a percent sign together are not one."""
     index = 0
@@ -325,7 +356,7 @@ def _plain_number(text: str) -> float | None:
         char = text[index]
         if char in "+-" and not sign and not parenthesis:
             sign = char
-        elif char in _CURRENCY and not currency and not percent:
+        elif char in signs and not currency and not percent:
             currency = True
         elif char == "(" and not parenthesis and not sign:
             parenthesis = True
@@ -458,5 +489,6 @@ __all__ = [
     "compare",
     "plain_number",
     "scalar_text",
+    "read_date_time",
     "text_to_number",
 ]

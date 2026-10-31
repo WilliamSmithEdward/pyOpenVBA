@@ -153,7 +153,8 @@ def _key(sheet: Worksheet, row: int, column: int) -> tuple[object, ...]:
         return ("number", float(value), "true" if value else "false")
     if isinstance(value, (int, float)):
         try:
-            text, _ = shown(float(value), cell.number_format, epoch_1904=sheet.book.epoch_1904)
+            text, _ = shown(float(value), cell.number_format, epoch_1904=sheet.book.epoch_1904,
+                            locale=sheet.book.application.locale)
         except UndisplayableError:
             text = "#"
         return ("number", float(value), text.lower())

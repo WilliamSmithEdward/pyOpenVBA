@@ -653,7 +653,8 @@ def cell_text(sheet: Worksheet, row: int, column: int) -> str:
         return ""
     if isinstance(value, (bool, int, float)):
         try:
-            return shown(value, cell.number_format, epoch_1904=sheet.book.epoch_1904)[0]
+            return shown(value, cell.number_format, epoch_1904=sheet.book.epoch_1904,
+                         locale=sheet.book.application.locale)[0]
         except UndisplayableError:
             pass
     return to_text(value)

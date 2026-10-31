@@ -465,7 +465,8 @@ class Validation(ExcelObject):
         except ValueError:
             return "=" + _moved(formula, rule.anchor, self._here())
         if rule.kind == DATE:
-            return shown(number, "m/d/yyyy", epoch_1904=self.sheet.book.epoch_1904)[0]
+            return shown(number, "m/d/yyyy", epoch_1904=self.sheet.book.epoch_1904,
+                         locale=self.sheet.book.application.locale)[0]
         if rule.kind == TIME:
             return shown(number, "h:mm:ss AM/PM")[0]
         return formula

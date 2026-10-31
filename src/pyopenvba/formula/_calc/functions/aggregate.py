@@ -50,7 +50,7 @@ def COUNT(context: Context, *args: Value) -> Value:
     for arg in args:
         if isinstance(arg, (Reference, Array)):
             count += sum(1 for value, _ in context.scalars(arg) if isinstance(value, float))
-        elif isinstance(arg, (float, bool, Empty)) or (isinstance(arg, str) and text_to_number(arg, context.today, epoch_1904=context.epoch_1904) is not None):
+        elif isinstance(arg, (float, bool, Empty)) or (isinstance(arg, str) and text_to_number(arg, context.today, epoch_1904=context.epoch_1904, locale=context.locale) is not None):
             count += 1
     return float(count)
 

@@ -49,6 +49,8 @@ from decimal import ROUND_HALF_UP, Decimal, localcontext
 from fractions import Fraction
 from functools import lru_cache
 
+from pyopenvba.interpreter._locale import EN_US, JA_JP, Locale, era_of
+
 
 class UndisplayableError(Exception):
     """A value its format cannot show: TEXT answers #VALUE!, and a cell fills with #."""
@@ -170,6 +172,9 @@ class _Section:
     items: list[_Item]
     condition: tuple[str, float] | None
     has_fill: bool
+    #: The language a [$-...] bracket names, lower-cased, "" for none: [$-411] and [$-ja-JP] show Japanese names
+    #: and eras, [$-409] English names, whatever the Regional format.
+    language: str = ""
 
     def has(self, *kinds: str) -> bool:
         return any(item.kind in kinds for item in self.items)
@@ -179,6 +184,7 @@ def _section(pieces: list[tuple[str, str]]) -> _Section:
     items: list[_Item] = []
     condition: tuple[str, float] | None = None
     fill = False
+    language = ""
     chars: list[str] = []
 
     def flush() -> None:
@@ -206,11 +212,12 @@ def _section(pieces: list[tuple[str, str]]) -> _Section:
             condition = (found.group(1), float(found.group(2)))
         elif (found := _CURRENCY.fullmatch(text)) is not None:
             items.append(_Item("literal", found.group(1)))
+            language = text[text.index("-") + 1:-1].lower() if "-" in text else language
         elif (found := _ELAPSED.fullmatch(text)) is not None:
             items.append(_Item("elapsed", found.group(1).lower()))
         # Any other bracket -- a colour, a locale -- shows nothing.
     flush()
-    return _Section(items, condition, fill)
+    return _Section(items, condition, fill, language)
 
 
 def _letters(run: str) -> Iterator[_Item]:
@@ -236,10 +243,20 @@ def _letters(run: str) -> Iterator[_Item]:
             yield _Item("date", char.lower() * count)
             index += count
         elif char in "eE":
-            # e without a sign after it is the era year, which in this locale is the year: TEXT(0,"zero") shows
-            # z1900ro (pyOfficeEditor's formula corpus).
+            # e without a sign after it is the era year, the year itself unless the section is Japanese:
+            # TEXT(0,"zero") shows z1900ro (pyOfficeEditor's formula corpus).
             count = len(run[index:]) - len(run[index:].lstrip("eE"))
-            yield _Item("date", "yyyy")
+            yield _Item("date", "e" * count)
+            index += count
+        elif char in "gG":
+            # The era, which shows only in a Japanese section: ggge is 2026, [$-411]ggge 令和8.
+            count = len(run[index:]) - len(run[index:].lstrip("gG"))
+            yield _Item("date", "g" * count)
+            index += count
+        elif lowered.startswith("aaa"):
+            # The day's name, as ddd and dddd are, in the section's language.
+            count = len(run[index:]) - len(run[index:].lstrip("aA"))
+            yield _Item("date", "a" * count)
             index += count
         elif char in ".,%/@":
             yield _Item({".": "point", ",": "comma", "%": "percent", "/": "slash", "@": "text"}[char], char)
@@ -270,22 +287,52 @@ def _meets(condition: tuple[str, float], value: float) -> bool:
 # --- the value, through its section ------------------------------------------------------------------
 
 
-def format_value(value: object, code: str, *, epoch_1904: bool = False) -> str:
-    """What ``code`` shows for ``value`` -- a number, a string or a Boolean -- as TEXT does.
+def format_value(value: object, code: str, *, epoch_1904: bool = False, locale: Locale = EN_US,
+                 cell: bool = True) -> str:
+    """What ``code`` shows for ``value`` -- a number, a string or a Boolean -- as a cell does, or as TEXT does
+    where ``cell`` is False (see :func:`localized`).
 
     Raises UndisplayableError where the format cannot show the value.
     """
-    return shown(value, code, epoch_1904=epoch_1904)[0]
+    return shown(value, code, epoch_1904=epoch_1904, locale=locale, cell=cell)[0]
 
 
-def shown(value: object, code: str, *, epoch_1904: bool = False) -> tuple[str, bool]:
+def shown(value: object, code: str, *, epoch_1904: bool = False, locale: Locale = EN_US,
+          cell: bool = True) -> tuple[str, bool]:
     """What ``code`` shows for ``value``, and whether the section it shows through fills the cell's width.
 
     A ``*`` fill repeats its character across whatever width the cell has
     to spare, which TEXT leaves out; the text returned leaves it out too.
     """
-    found = displayed(value, code, epoch_1904=epoch_1904)
+    found = displayed(value, code, epoch_1904=epoch_1904, locale=locale, cell=cell)
     return found.text, bool(found.fill)
+
+
+_SYSTEM_DATE = re.compile(r"\[\$-(?:F800|x-sysdate)\]", re.IGNORECASE)
+_SYSTEM_TIME = re.compile(r"\[\$-(?:F400|x-systime)\]", re.IGNORECASE)
+
+
+@lru_cache(maxsize=256)
+def localized(code: str, locale: Locale, cell: bool = True) -> str:
+    """The code a value shows through under ``locale`` (tests/fixtures/excel_locale_live.json).
+
+    [$-F800] and [$-F400] at the start are the system's long date and long
+    time, the rest of the code aside. In a cell, a built-in format is kept
+    as its number and shows as the locale's own code for it, so ja-JP shows
+    m/d/yyyy as yyyy/mm/dd, and a ``$`` written as itself is the currency
+    sign, ¥ under ja-JP, where a quoted or escaped one stays a dollar. TEXT
+    reads its code as written: TEXT(46027,"m/d/yyyy") is 1/5/2026 there.
+    """
+    if cell:
+        code = dict(locale.builtin_formats).get(code, code)
+    if _SYSTEM_DATE.match(code):
+        return locale.system_date
+    if _SYSTEM_TIME.match(code):
+        return locale.system_time
+    if not cell or locale.currency_symbol == "$" or "$" not in code:
+        return code
+    return "".join("\\" + locale.currency_symbol if kind == "char" and text == "$" else text
+                   for kind, text in tokens(code))
 
 
 #: What stands, while a section is laid out, where its fill repeats and on either side of what General shows.
@@ -309,12 +356,14 @@ class Display:
     general_value: float = 0.0
 
 
-def displayed(value: object, code: str, *, epoch_1904: bool = False) -> Display:
-    """What ``code`` shows for ``value`` -- a number, a string or a Boolean -- laid out as a cell lays it out.
+def displayed(value: object, code: str, *, epoch_1904: bool = False, locale: Locale = EN_US,
+              cell: bool = True) -> Display:
+    """What ``code`` shows for ``value`` -- a number, a string or a Boolean -- laid out as a cell lays it out,
+    under the Regional format ``locale``; as TEXT shows it where ``cell`` is False.
 
     Raises UndisplayableError where the format cannot show the value.
     """
-    sections = list(_sections(code or "General"))
+    sections = list(_sections(localized(code or "General", locale, cell)))
     text_section = sections[3] if len(sections) >= 4 else sections[-1] if sections[-1].has("text") else None
     if isinstance(value, (bool, str)):
         text = ("TRUE" if value else "FALSE") if isinstance(value, bool) else value
@@ -336,7 +385,7 @@ def displayed(value: object, code: str, *, epoch_1904: bool = False) -> Display:
         text = general_text(number)
         return Display(text, general=(0, len(text)), general_value=number)
     section, magnitude, signed = _choose(numeric, number)
-    laid = _numeric(section, magnitude, signed, epoch_1904=epoch_1904)
+    laid = _numeric(section, magnitude, signed, epoch_1904=epoch_1904, locale=locale)
     out: list[str] = []
     fill_at: int | None = None
     edges: list[int] = []
@@ -395,10 +444,13 @@ def _literal(item: _Item) -> str:
     return item.text if item.kind in ("literal", "percent", "slash", "comma", "point", "date", "ampm") else ""
 
 
-def _numeric(section: _Section, value: float, signed: bool, *, epoch_1904: bool = False) -> str:
+def _numeric(section: _Section, value: float, signed: bool, *, epoch_1904: bool = False,
+             locale: Locale = EN_US) -> str:
     """What a number section shows, a fill and the edges of what General shows marked (see :func:`displayed`)."""
     if section.has("date", "elapsed", "ampm"):
-        return _date(section.items, value, epoch_1904=epoch_1904)
+        japanese = section.language in ("411", "ja-jp")
+        names = JA_JP if japanese else EN_US if section.language in ("409", "en-us") else locale
+        return _date(section.items, value, epoch_1904=epoch_1904, names=names, eras=japanese)
     if section.has("general"):
         shown = _GENERAL + general_text(value if signed else abs(value)) + _GENERAL
         return "".join(shown if item.kind == "general" else _literal(item) for item in section.items)
@@ -608,10 +660,6 @@ def _fraction(items: list[_Item], value: float) -> tuple[str, bool]:
 
 # --- dates and times ------------------------------------------------------------------------------
 
-_MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
-           "November", "December")
-_DAYS = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
-
 
 def excel_date(day: int) -> tuple[int, int, int]:
     """A serial day on Excel's 1900 calendar, which counts a 29 February 1900 and a day 0 of January."""
@@ -644,8 +692,10 @@ def clock(value: float, places: int = 0) -> tuple[int, int, int, int, int]:
     return day, hour, minute, second, math.floor((rest - second) * unit)
 
 
-def _date(items: list[_Item], value: float, *, epoch_1904: bool = False) -> str:
-    """A serial through date and time codes, rounded to the smallest part shown."""
+def _date(items: list[_Item], value: float, *, epoch_1904: bool = False, names: Locale = EN_US,
+          eras: bool = False) -> str:
+    """A serial through date and time codes, rounded to the smallest part shown: day, month and AM/PM names in
+    ``names``' language, and the era where ``eras`` says the section is Japanese."""
     parts = [item for item in items if item.kind in ("date", "elapsed", "ampm")]
     if len(parts) == 1 and parts[0].kind == "elapsed" and parts[0].text[0] == "s" and not any(
             item.kind == "point" for item in items):
@@ -655,7 +705,7 @@ def _date(items: list[_Item], value: float, *, epoch_1904: bool = False) -> str:
         return "".join(("-" if seconds < 0 else "") + str(abs(seconds)).rjust(len(item.text), "0")
                        if item.kind == "elapsed" else _literal(item) for item in items)
     if epoch_1904 and value < 0:
-        return "-" + _date(items, -value, epoch_1904=True)
+        return "-" + _date(items, -value, epoch_1904=True, names=names, eras=eras)
     last = 2957004 if epoch_1904 else 2958466
     if value < 0 or value >= last:
         raise UndisplayableError("a date outside the workbook calendar")
@@ -679,36 +729,53 @@ def _date(items: list[_Item], value: float, *, epoch_1904: bool = False) -> str:
     else:
         year, month, date = excel_date(day)
     twelve = any(item.kind == "ampm" for item in items)
+    # AM/PM is the locale's beside minutes or seconds, and English beside an hour alone: ja-JP shows h:mm AM/PM as
+    # 1:04 午後 and h AM/PM as 1 PM (tests/fixtures/excel_locale_live.json).
+    clocked = any(item.kind == "date" and (item.text[0] == "s" or (
+        item.text[0] == "m" and len(item.text) <= 2
+        and (_neighbour(items, index, -1) == "h" or _neighbour(items, index, 1) == "s")))
+        for index, item in enumerate(items))
+    marks = names if clocked else EN_US
     fraction = str(part).rjust(places, "0") if places else ""
     out: list[str] = []
     for index, item in enumerate(items):
         if index in tenths:
             out.append(fraction[sorted(tenths).index(index)])
         elif item.kind == "date":
-            out.append(_part(item.text, items, index, (year, month, date, day + 1462 if epoch_1904 else day), (hour, minute, second), twelve))
+            out.append(_part(item.text, items, index, (year, month, date, day + 1462 if epoch_1904 else day),
+                             (hour, minute, second), twelve, names, eras))
         elif item.kind == "elapsed":
             amount = {"h": total // 3600, "m": total // 60, "s": total}[item.text[0]]
             out.append(str(amount).rjust(len(item.text), "0"))
         elif item.kind == "ampm":
             morning = hour < 12
-            out.append(("AM" if morning else "PM") if len(item.text) == 5 else item.text[0 if morning else 2])
+            out.append((marks.morning if morning else marks.afternoon) if len(item.text) == 5
+                       else item.text[0 if morning else 2])
         else:
             out.append(_literal(item))
     return "".join(out)
 
 
 def _part(code: str, items: list[_Item], index: int, calendar: tuple[int, int, int, int],
-          clock: tuple[int, int, int], twelve: bool) -> str:
+          clock: tuple[int, int, int], twelve: bool, names: Locale = EN_US, eras: bool = False) -> str:
     year, month, date, day = calendar
     hour, minute, second = clock
     letter, count = code[0], len(code)
     if letter == "y":
         return f"{year % 100:02d}" if count <= 2 else f"{year:04d}"
-    if letter == "d":
-        if count <= 2:
+    if letter in "ge":
+        found = era_of(JA_JP, float(day), year) if eras else None
+        if found is None:
+            return "" if letter == "g" else f"{year:04d}"
+        era, era_year = found
+        if letter == "g":
+            return era.letter if count == 1 else era.short if count == 2 else era.name
+        return f"{era_year:0{min(count, 2)}d}"
+    if letter in "da":
+        if letter == "d" and count <= 2:
             return f"{date:0{count}d}"
-        name = _DAYS[(day + 6) % 7]
-        return name[:3] if count == 3 else name
+        weekday = (day + 6) % 7
+        return names.day_abbreviations[weekday] if count == 3 else names.days[weekday]
     if letter == "h":
         shown = (hour % 12 or 12) if twelve else hour
         return f"{shown:0{min(count, 2)}d}"
@@ -719,8 +786,8 @@ def _part(code: str, items: list[_Item], index: int, calendar: tuple[int, int, i
         return f"{minute:0{count}d}"
     if count <= 2:
         return f"{month:0{count}d}"
-    name = _MONTHS[month - 1]
-    return name[:3] if count == 3 else name if count == 4 else name[0]
+    name = names.months[month - 1]
+    return names.month_abbreviations[month - 1] if count == 3 else name if count == 4 else name[0]
 
 
 def _neighbour(items: list[_Item], index: int, step: int) -> str:

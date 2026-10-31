@@ -151,7 +151,8 @@ def _key(sheet: Worksheet, row: int, column: int) -> str:
     if isinstance(value, ExcelError):
         return value.name
     try:
-        return format_value(value, sheet.style_at(row, column).number_format, epoch_1904=sheet.book.epoch_1904)
+        return format_value(value, sheet.style_at(row, column).number_format, epoch_1904=sheet.book.epoch_1904,
+                            locale=sheet.book.application.locale)
     except UndisplayableError:
         raise VBAUnsupportedError("Subtotals over a value its format cannot show are not implemented") from None
 

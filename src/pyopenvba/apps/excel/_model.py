@@ -465,13 +465,16 @@ class Application(ExcelObject):
 
     @member
     def International(self, Index: object = MISSING) -> object:
-        """A setting of the en-US locale the model works in, by its xlApplicationInternational index; any other
-        index is error 1004 (tests/fixtures/international.json)."""
+        """A setting of the Regional format, by its xlApplicationInternational index; any other index is error
+        1004 (tests/fixtures/international.json, and tests/fixtures/excel_locale_live.json for ja-JP)."""
         if Index is MISSING:
             raise error(449)
-        found = _INTERNATIONAL.get(int(to_integer(Index, "Long")), MISSING)
+        index = int(to_integer(Index, "Long"))
+        found = {**_INTERNATIONAL, **dict(self.locale.international)}.get(index, MISSING)
         if found is MISSING:
             raise error(1004, "Application-defined or object-defined error")
+        if index == 46 and self.locale.international:
+            raise VBAUnsupportedError(f"Application.International(46) under {self.locale.name} is not implemented")
         return found
 
     @member
@@ -3440,16 +3443,22 @@ class Range(ExcelObject):
         set_style(self, value)
         _column_fit.widen(self.sheet, self.areas)
 
-    # The Local spellings are in the language of the user's settings, which the model keeps English: the same
-    # text as the plain ones, as an English Excel has them (tests/fixtures/excel_model/probes.txt).
+    # The Local spellings are in the language of the user's settings: the same text as the plain ones under en-US,
+    # as an English Excel has them (tests/fixtures/excel_model/probes.txt); NumberFormatLocal follows the
+    # Regional format (_number_format.to_local), FormulaLocal stays English.
 
     @member
     def NumberFormatLocal(self) -> object:
-        return self.NumberFormat()
+        from pyopenvba.apps.excel._number_format import to_local
+
+        code = self.NumberFormat()
+        return to_local(code, self.sheet.book.application.locale) if isinstance(code, str) else code
 
     @setter("NumberFormatLocal")
     def _set_number_format_local(self, value: object) -> None:
-        self._set_number_format(value)
+        from pyopenvba.apps.excel._number_format import from_local
+
+        self._set_number_format(from_local(to_text(value), self.sheet.book.application.locale))
 
     @member
     def FormulaLocal(self) -> object:

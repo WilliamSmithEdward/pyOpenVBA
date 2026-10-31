@@ -65,6 +65,18 @@ class Locale:
     eras: tuple[Era, ...] = field(default=())
     #: Whether full-width ASCII forms (U+FF01-U+FF5E) read as their ASCII letters, digits and signs.
     folds_width: bool = False
+    #: What Excel's cells show (tests/fixtures/excel_locale_live.json): a built-in format, kept as its number,
+    #: shows as the locale's own code for that number, given here by the en-US code (missing: the same).
+    builtin_formats: tuple[tuple[str, str], ...] = ()
+    #: General as NumberFormatLocal spells it.
+    general: str = "General"
+    #: What [$-F800] and [$-F400] show a date and a time as: the system's long date and long time.
+    system_date: str = "dddd, mmmm d, yyyy"
+    system_time: str = "h:mm:ss AM/PM"
+    #: The character NumberFormatLocal escapes a literal with.
+    escape: str = "\\"
+    #: Application.International where the locale answers otherwise than en-US, by index.
+    international: tuple[tuple[int, object], ...] = ()
 
 
 EN_US: Final = Locale(
@@ -122,6 +134,31 @@ JA_JP: Final = Locale(
         Era(_dt.date(2019, 5, 1), "令和", "令", "R"),
     ),
     folds_width=True,
+    builtin_formats=(
+        ("#,##0_);(#,##0)", "#,##0;-#,##0"),
+        ("#,##0_);[Red](#,##0)", "#,##0;[Red]-#,##0"),
+        ("#,##0.00_);(#,##0.00)", "#,##0.00;-#,##0.00"),
+        ("#,##0.00_);[Red](#,##0.00)", "#,##0.00;[Red]-#,##0.00"),
+        ("$#,##0_);($#,##0)", "$#,##0;-$#,##0"),
+        ("$#,##0_);[Red]($#,##0)", "$#,##0;[Red]-$#,##0"),
+        ("$#,##0.00_);($#,##0.00)", "$#,##0.00;-$#,##0.00"),
+        ("$#,##0.00_);[Red]($#,##0.00)", "$#,##0.00;[Red]-$#,##0.00"),
+        ("m/d/yyyy", "yyyy/mm/dd"),
+        ("d-mmm-yy", "dd-mmm-yy"),
+        ("d-mmm", "dd-mmm"),
+        ("m/d/yyyy h:mm", "yyyy/mm/dd h:mm"),
+        ('_(* #,##0_);_(* (#,##0);_(* "-"_);_(@_)', '_-* #,##0_-;-* #,##0_-;_-* "-"_-;_-@_-'),
+        ('_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)', '_-$* #,##0_-;-$* #,##0_-;_-$* "-"_-;_-@_-'),
+        ('_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)', '_-* #,##0.00_-;-* #,##0.00_-;_-* "-"??_-;_-@_-'),
+        ('_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)',
+         '_-$* #,##0.00_-;-$* #,##0.00_-;_-$* "-"??_-;_-@_-'),
+    ),
+    general="G/標準",
+    system_date='yyyy"年"m"月"d"日"',
+    system_time="h:mm:ss",
+    escape="!",
+    international=((2, 81.0), (25, "¥"), (26, "G/標準"), (27, 0.0), (28, 1.0), (32, 2.0), (33, True), (35, True),
+                   (38, True), (41, True), (42, True)),
 )
 
 LOCALES: Final = {locale.name.lower(): locale for locale in (EN_US, JA_JP)}

@@ -1,0 +1,24 @@
+{
+"file": "pivots/native-advanced-manual-group.xlsx",
+"dump": "Private Function Where(c As Object) As String\n    Dim kind As String\n    On Error Resume Next\n    kind = c.PivotCell.PivotCellType\n    If Err.Number <> 0 Then kind = \"E\" & Err.Number\n    Err.Clear\n    Where = c.LocationInTable\n    If Err.Number <> 0 Then Where = \"E\" & Err.Number\n    Where = Where & \"|\" & kind\nEnd Function\n\nPublic Function Dump(path As String) As String\n    Dim wb As Object, ws As Object, pt As Object, c As Object, whole As Object\n    Dim tables() As String, cells() As String, n As Long, k As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path)\n    ReDim tables(0 To 0)\n    For Each ws In wb.Worksheets\n        For Each pt In ws.PivotTables\n            Set whole = pt.TableRange2\n            ReDim cells(0 To whole.Cells.Count + 1)\n            k = 0\n            For Each c In whole.Cells\n                cells(k) = c.Address(False, False) & \"=\" & Where(c)\n                k = k + 1\n            Next\n            cells(k) = \"whole=\" & Where(pt.TableRange1)\n            cells(k + 1) = \"beside=\" & Where(ws.Cells(whole.Row, whole.Column + whole.Columns.Count))\n            ReDim Preserve tables(0 To n)\n            tables(n) = ws.Name & \"!\" & pt.Name & \"^\" & Join(cells, \"~\")\n            n = n + 1\n        Next\n    Next\n    wb.Close False\n    Dump = Join(tables, \"`\")\nEnd Function\n",
+"tables": {
+"Sheet1!Advanced": [
+"H3=-4153|9",
+"I3=7|4",
+"H4=4|1",
+"I4=8|0",
+"H5=4|1",
+"I5=8|0",
+"H6=4|1",
+"I6=8|0",
+"H7=4|1",
+"I7=8|0",
+"H8=4|1",
+"I8=8|0",
+"H9=7|3",
+"I9=8|0",
+"whole=E94|9",
+"beside=E1004|E1004"
+]
+}
+}

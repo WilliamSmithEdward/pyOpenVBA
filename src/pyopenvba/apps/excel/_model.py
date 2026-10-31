@@ -2232,6 +2232,12 @@ class Sheets(VBACollection, ExcelObject):
         return EMPTY
 
     @method
+    def Add2(self, Before: object = MISSING, After: object = MISSING, Count: object = MISSING,
+             NewLayout: object = MISSING) -> object:
+        """Charts.Add2's; on a workbook's sheets, whatever is given, error 445 (tests/fixtures/sheets_add2.json)."""
+        raise error(445, "Object doesn't support this action")
+
+    @method
     def Add(
         self,
         Before: object = MISSING,

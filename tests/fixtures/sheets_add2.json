@@ -1,0 +1,38 @@
+{
+ "measured_at": "2026-10-31T22:34:40.864650+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Object, o As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    On Error Resume Next\n    Select Case which\n    Case 0\n        Set o = wb.Sheets.Add2\n    Case 1\n        Set o = wb.Sheets.Add2(After:=wb.Sheets(1))\n    Case 2\n        Set o = wb.Sheets.Add2(Count:=2)\n    Case 3\n        Set o = wb.Sheets.Add2(Before:=wb.Sheets(1), Count:=2)\n    Case 4\n        Set o = wb.Sheets.Add2(NewLayout:=True)\n    Case 5\n        Set o = wb.Sheets.Add2(Count:=0)\n    Case 6\n        Set o = wb.Worksheets.Add2\n    Case 7\n        Set o = wb.Worksheets.Add2(After:=wb.Sheets(1))\n    End Select\n    Tried = Err.Number & \" \" & wb.Sheets.Count\n    On Error GoTo 0\n    wb.Close False\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 7\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "calls": [
+  [
+   "wb.Sheets.Add2",
+   "445 1"
+  ],
+  [
+   "wb.Sheets.Add2(After:=wb.Sheets(1))",
+   "445 1"
+  ],
+  [
+   "wb.Sheets.Add2(Count:=2)",
+   "445 1"
+  ],
+  [
+   "wb.Sheets.Add2(Before:=wb.Sheets(1), Count:=2)",
+   "445 1"
+  ],
+  [
+   "wb.Sheets.Add2(NewLayout:=True)",
+   "445 1"
+  ],
+  [
+   "wb.Sheets.Add2(Count:=0)",
+   "445 1"
+  ],
+  [
+   "wb.Worksheets.Add2",
+   "445 1"
+  ],
+  [
+   "wb.Worksheets.Add2(After:=wb.Sheets(1))",
+   "445 1"
+  ]
+ ]
+}

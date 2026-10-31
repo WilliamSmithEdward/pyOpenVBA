@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -15,6 +16,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURE: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures/workbook_colors.json").read_text(
     encoding="utf-8"))
+SOURCE = FIXTURE["source"].replace('folder & "\\', f'folder & "{os.sep}')
 #: Cases the model reports itself unable to answer: ColorIndex of a colour a changed palette does not hold (8, 24,
 #: 42, 45), an array of fewer than 56 colours (18, which crashed Excel, and 22), and Null (39).
 UNSUPPORTED = {8, 18, 22, 24, 39, 42, 45}
@@ -32,7 +34,7 @@ def test_the_palette_answers_as_live_excel_did(index: int, tmp_path: Path) -> No
     statements, _read, saved, answer = FIXTURE["cases"][index]
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module(FIXTURE["source"], name="Measure")
+    app.add_module(SOURCE, name="Measure")
     if index in UNSUPPORTED:
         with pytest.raises(VBAUnsupportedError):
             app.run("Measure.Probe", str(tmp_path), index, index)

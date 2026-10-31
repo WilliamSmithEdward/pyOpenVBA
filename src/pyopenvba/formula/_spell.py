@@ -586,10 +586,15 @@ def _name(text: str, called: bool, names: Names) -> str:
     if not called and refused_in_a1(bare):
         # R1C1, RC or R: A1 cannot read it, and Excel reads the formula as R1C1 instead.
         raise FormulaError(f"A1 cannot read the name {bare!r}")
+    # A defined name keeps its own spelling though a function has the word: with Rate defined, =RATE*2 reads
+    # =Rate*2, and only a call is the function, =rate(1,2,3) reading =RATE(1,2,3) (tests/fixtures/apply_names.json,
+    # names_spelling).
+    defined = None if called else names.defined(bare, split_sheet(head + "!")[0] if bang else names.home)
+    if defined is not None:
+        return prefix + defined
     if _fixed(bare, called):
         return prefix + bare.upper()
-    defined = None if called else names.defined(bare, split_sheet(head + "!")[0] if bang else names.home)
-    return prefix + (defined if defined is not None else names.remembered(bare))
+    return prefix + names.remembered(bare)
 
 
 def _unquoted(bare: str) -> str:

@@ -894,7 +894,15 @@ class ListObjects(VBACollection, ExcelObject):
         if Source.sheet is not self.sheet:
             raise error(1004, "The table's range must be on this sheet")
         headers = GUESS if XlListObjectHasHeaders is MISSING else int(to_integer(XlListObjectHasHeaders, "Long"))
-        style = DEFAULT_STYLE if TableStyleName is MISSING else to_text(TableStyleName)
+        if TableStyleName is MISSING:
+            # The workbook's default table style (Workbook.DefaultTableStyle, tests/fixtures/workbook_settings.json).
+            found = self.sheet.book.stylesheet.table_style_default("table")
+            if found is None:
+                raise VBAUnsupportedError("ListObjects.Add in a workbook with no default table style is not "
+                                          "implemented")
+            style = found
+        else:
+            style = to_text(TableStyleName)
         return view(add(self.sheet, Source, headers, style))
 
 

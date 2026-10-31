@@ -2344,7 +2344,7 @@ Windows,ResetPositionsSideBySide,method,ResetPositionsSideBySide(),,MISSING,,
 Windows,SyncScrollingSideBySide,property,As Boolean,,MISSING,,
 Workbook,_CodeName,property,As String,,MISSING,,
 Workbook,AcceptAllChanges,method,"AcceptAllChanges([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
-Workbook,AccuracyVersion,property,As Long,,MISSING,,
+Workbook,AccuracyVersion,property,As Long,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,0; setting it reports itself unsupported.
 Workbook,Activate,event,Activate(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_excel_projects.py,Native workbook Activate/Deactivate callbacks on window changes; event handler errors/mutations and close transitions need further conformance
 Workbook,ActiveChart,"property, read-only",As Chart,,MISSING,,
 Workbook,ActiveSheet,"property, read-only",As Object,,UNASSESSED,,
@@ -2372,11 +2372,11 @@ Workbook,BuiltinDocumentProperties,"property, read-only",As Object,,PARTIAL,test
 Workbook,Calculate,not in the type library,,,UNASSESSED,,
 Workbook,CalculationVersion,"property, read-only",As Long,,VERIFIED,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"191029 for a new workbook; a file's calcId of 191028 or more as it is, kept and saved; a lower one, none or fullCalcOnLoad worked out in full as the file opens and 191029 from then on, or under manual calculation the file's calcId and values until the next Calculate, over 10 files opened each way"
 Workbook,CanCheckIn,method,CanCheckIn() As Boolean,,MISSING,,
-Workbook,CaseSensitive,"property, read-only",As Boolean,,MISSING,,
+Workbook,CaseSensitive,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 450 to set.
 Workbook,ChangeFileAccess,method,"ChangeFileAccess(Mode As XlFileAccess, [WritePassword As Variant], [Notify As Variant])",,MISSING,,
 Workbook,ChangeHistoryDuration,property,As Long,,MISSING,,
 Workbook,ChangeLink,method,"ChangeLink(Name As String, NewName As String, [Type As XlLinkType])",,MISSING,,
-Workbook,ChartDataPointTrack,property,As Boolean,,MISSING,,
+Workbook,ChartDataPointTrack,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"True; text is error 13, and setting it reports itself unsupported."
 Workbook,Charts,"property, read-only",As Sheets,,MISSING,,
 Workbook,CheckCompatibility,property,As Boolean,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"False for a new workbook; takes a Boolean, leaving the workbook unsaved; saved as the workbookPr's checkCompatibility and read back. It checks nothing."
 Workbook,CheckIn,method,"CheckIn([SaveChanges As Variant], [Comments As Variant], [MakePublic As Variant])",,MISSING,,
@@ -2392,7 +2392,7 @@ Workbook,ConnectionsDisabled,"property, read-only",As Boolean,,MISSING,,
 Workbook,Container,"property, read-only",As Object,,MISSING,,
 Workbook,ContentTypeProperties,"property, read-only",As MetaProperties,,MISSING,,
 Workbook,ConvertComments,method,ConvertComments(),,MISSING,,
-Workbook,CreateBackup,"property, read-only",As Boolean,,MISSING,,
+Workbook,CreateBackup,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 1004 to set.
 Workbook,CreateForecastSheet,method,"CreateForecastSheet(Timeline As Range, Values As Range, [ForecastStart As Variant], [ForecastEnd As Variant], [ConfInt As Variant], [Seasonality As Variant], [DataCompletion As Variant], [Aggregation As Variant], [ChartType As Variant], [ShowStatsTable As Variant])",,MISSING,,
 Workbook,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Workbook,CustomDocumentProperties,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"The custom properties, saved to docProps custom.xml with its relationship and content type; a part holding a type Excel does not write reports itself unsupported and is kept as it is."
@@ -2400,10 +2400,10 @@ Workbook,CustomViews,"property, read-only",As CustomViews,,MISSING,,
 Workbook,CustomXMLParts,"property, read-only",As CustomXMLParts,,MISSING,,
 Workbook,Date1904,property,As Boolean,,PARTIAL,tests/test_excel_date1904.py; tests/fixtures/date1904/native.json; tests/fixtures/date1904/paths.json,"Each workbook's calendar reaches cells, typing, Value/Value2/Text, formulas, Text cells, Find/Replace, AutoFill, TextToColumns, AutoFilter and validation criteria, Evaluate and WorksheetFunction, over 8 native controls and 14 path probes; native Excel reopens the model's files. Power Query dates follow the calendar unmeasured; PivotCaches holding dates in a 1904 workbook, mixed-calendar copies, chart date axes and events remain gaps."
 Workbook,Deactivate,event,Deactivate(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,Raised for the sheet or workbook left when another is made active.
-Workbook,DefaultPivotTableStyle,property,As Variant,,MISSING,,
-Workbook,DefaultSlicerStyle,property,As Variant,,MISSING,,
-Workbook,DefaultTableStyle,property,As Variant,,MISSING,,
-Workbook,DefaultTimelineStyle,property,As Variant,,MISSING,,
+Workbook,DefaultPivotTableStyle,property,As Variant,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"A TableStyle, set as DefaultTableStyle is; saved as tableStyles defaultPivotStyle."
+Workbook,DefaultSlicerStyle,property,As Variant,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"SlicerStyleLight1; an unknown name is error 450, and setting a known one reports itself unsupported."
+Workbook,DefaultTableStyle,property,As Variant,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"A TableStyle, set by one or a built-in name in any case; another name, """" or a number leaves none, read as ""None""; saved as tableStyles defaultTableStyle, which ListObjects.Add takes."
+Workbook,DefaultTimelineStyle,property,As Variant,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"TimeSlicerStyleLight1; an unknown name is error 450, and setting a known one reports itself unsupported."
 Workbook,DeleteNumberFormat,method,DeleteNumberFormat(NumberFormat As String),,PARTIAL,tests/test_excel_delete_number_format.py; tests/fixtures/delete_number_format.json,"Every cell, row, column and cell style using the custom format shows General, keeping the rest of its format, on every sheet; matched as NumberFormat spells it, so [red] finds [Red]. A built-in format or "" is error 1004, as is a protected active sheet; a format the workbook does not hold is passed over. Another protected sheet reports itself unsupported."
 Workbook,DisplayDrawingObjects,property,As XlDisplayDrawingObjects,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,"xlDisplayShapes, xlPlaceholders or xlHide, saved as the workbookPr's showObjects and read back; setting it leaves the workbook unsaved. It hides nothing the model draws."
 Workbook,DisplayInkComments,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as the workbookPr's showInkAnnotation and read back; the workbook stays saved.
@@ -2422,7 +2422,7 @@ Workbook,ExclusiveAccess,method,ExclusiveAccess() As Boolean,,MISSING,,
 Workbook,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Workbook,ExternalCodeServiceTimeout,property,As Long,,MISSING,,
 Workbook,FileFormat,"property, read-only",As XlFileFormat,,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/text_files.json,"51/52 values and Long type measured including failed saves; a text file opened answers xlCSV, xlCSVUTF8, xlUnicodeText, 65 or xlCurrentPlatformText as Excel does. Saving in those formats is not implemented."
-Workbook,Final,property,As Boolean,,MISSING,,
+Workbook,Final,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"False; setting it, which saves the workbook, is not implemented."
 Workbook,FollowHyperlink,method,"FollowHyperlink(Address As String, [SubAddress As Variant], [NewWindow As Variant], [AddHistory As Variant], [ExtraInfo As Variant], [Method As Variant], [HeaderInfo As Variant])",,MISSING,,
 Workbook,ForceFullCalculation,property,As Boolean,,PARTIAL,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"False until set, taken as a Boolean is, the workbook kept saved, and saved and read as calcPr forceFullCalc; True holds every workbook to full calculation until the application quits, every edit and calculation working every formula out and xlPending for good, as Excel does; whether a workbook it works out under automatic calculation, not the one edited, goes unsaved is not measured"
 Workbook,ForwardMailer,method,ForwardMailer(),,MISSING,,
@@ -2430,12 +2430,12 @@ Workbook,FullName,"property, read-only",As String,,UNASSESSED,,
 Workbook,FullNameURLEncoded,"property, read-only",As String,,MISSING,,
 Workbook,GetWorkflowTasks,method,GetWorkflowTasks() As WorkflowTasks,,MISSING,,
 Workbook,GetWorkflowTemplates,method,GetWorkflowTemplates() As WorkflowTemplates,,MISSING,,
-Workbook,HasPassword,"property, read-only",As Boolean,,MISSING,,
+Workbook,HasPassword,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 1004 to set. Workbook.Password is not implemented.
 Workbook,HasVBProject,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,Whether the workbook's project holds code: a new workbook's does not.
 Workbook,HighlightChangesOnScreen,property,As Boolean,,MISSING,,
 Workbook,HighlightChangesOptions,method,"HighlightChangesOptions([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
 Workbook,IconSets,"property, read-only",As IconSets,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-Workbook,InactiveListBorderVisible,property,As Boolean,,MISSING,,
+Workbook,InactiveListBorderVisible,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,Read and set; saved as workbookPr showBorderUnselectedTables; text is error 13.
 Workbook,IsAddin,property,As Boolean,,MISSING,,
 Workbook,IsInplace,"property, read-only",As Boolean,,MISSING,,
 Workbook,KeepChangeHistory,property,As Boolean,,MISSING,,
@@ -2532,14 +2532,14 @@ Workbook,Sheets,"property, read-only",As Sheets,,UNASSESSED,,
 Workbook,SheetSelectionChange,event,"SheetSelectionChange(Sh As Object, Target As Range)",,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised by a Select that moves the selection. Raised after the sheet's own, the sheet first among the arguments."
 Workbook,SheetTableUpdate,event,"SheetTableUpdate(Sh As Object, Target As TableObject)",,MISSING,,
 Workbook,ShowConflictHistory,property,As Boolean,,MISSING,,
-Workbook,ShowPivotChartActiveFields,property,As Boolean,,MISSING,,
-Workbook,ShowPivotTableFieldList,property,As Boolean,,MISSING,,
+Workbook,ShowPivotChartActiveFields,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,Read and set; saved as workbookPr showPivotChartFilter; text is error 13.
+Workbook,ShowPivotTableFieldList,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,Read and set; saved as workbookPr hidePivotFieldList; text is error 13.
 Workbook,Signatures,"property, read-only",As SignatureSet,,MISSING,,
 Workbook,SlicerCaches,"property, read-only",As SlicerCaches,,MISSING,,
 Workbook,SmartDocument,"property, read-only",As SmartDocument,,MISSING,,
 Workbook,Styles,"property, read-only",As Styles,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,"Excel's 47 built-in styles and every one the file or a macro adds, in the order Windows word sort puts their names."
 Workbook,Sync,event,Sync(SyncEventType As MsoSyncEventType),,MISSING,,
-Workbook,TableStyles,"property, read-only",As TableStyles,,MISSING,,
+Workbook,TableStyles,"property, read-only",As TableStyles,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"A built-in style by name; the collection, a custom style or a number report themselves unsupported."
 Workbook,TemplateRemoveExtData,property,As Boolean,,MISSING,,
 Workbook,Theme,"property, read-only",As OfficeTheme,,MISSING,,
 Workbook,ToggleFormsDesign,method,ToggleFormsDesign(),,MISSING,,
@@ -2548,10 +2548,10 @@ Workbook,UnprotectSharing,method,UnprotectSharing([SharingPassword As Variant]),
 Workbook,UpdateFromFile,method,UpdateFromFile(),,MISSING,,
 Workbook,UpdateLink,method,"UpdateLink([Name As Variant], [Type As Variant])",,MISSING,,
 Workbook,UpdateLinks,property,As XlUpdateLinks,,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"Reads the file's updateLinks and takes 1 to 3, rounded as a Long, else 1004, leaving the workbook saved; saved as never or always, measured live. It changes nothing the model opens."
-Workbook,UpdateRemoteReferences,property,As Boolean,,MISSING,,
+Workbook,UpdateRemoteReferences,property,As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"True; text is error 1004, and setting it reports itself unsupported."
 Workbook,UserStatus,"property, read-only",As Variant,,MISSING,,
-Workbook,UseWholeCellCriteria,"property, read-only",As Boolean,,MISSING,,
-Workbook,UseWildcards,"property, read-only",As Boolean,,MISSING,,
+Workbook,UseWholeCellCriteria,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,True; error 450 to set.
+Workbook,UseWildcards,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,True; error 450 to set.
 Workbook,VBASigned,"property, read-only",As Boolean,,MISSING,,
 Workbook,VBProject,"property, read-only",As VBProject,,PARTIAL,tests/fixtures/vbide_projects.json; tests/test_excel_vbide.py,"In-memory component/source buffers, delayed compilation and guarded persistence; 128 native probes and native execution gate. References/designers/import/export, complete procedure queries and reset/lifetime semantics remain incomplete."
 Workbook,WebOptions,"property, read-only",As WebOptions,,MISSING,,

@@ -1164,6 +1164,10 @@ class Workbook(ExcelObject):
         self.read_only = False
         self.epoch_1904 = False
         self.date_system_changed = False
+        #: workbook.xml's workbookPr attributes as the file held them, and those a macro changed since
+        #: (_workbook_settings), which a save writes.
+        self.workbook_pr: dict[str, str] = {}
+        self.workbook_pr_changed: set[str] = set()
         self.project_runtime: Interpreter | None = None
         #: A validated SaveAs changes FileFormat even if the subsequent file write fails.
         self.format_code: int | None = None
@@ -1276,6 +1280,184 @@ class Workbook(ExcelObject):
     @member
     def Name(self) -> object:
         return self.name
+
+    # --- settings (_workbook_settings) ----------------------------------------------------------------------
+
+    @member
+    def DefaultTableStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import default_style
+
+        return default_style(self, "table")
+
+    @setter("DefaultTableStyle")
+    def _set_default_table_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_default_style
+
+        set_default_style(self, "table", value)
+
+    @member
+    def DefaultPivotTableStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import default_style
+
+        return default_style(self, "pivot")
+
+    @setter("DefaultPivotTableStyle")
+    def _set_default_pivot_table_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_default_style
+
+        set_default_style(self, "pivot", value)
+
+    @member
+    def DefaultSlicerStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import TableStyle
+
+        return TableStyle(self, "SlicerStyleLight1")
+
+    @setter("DefaultSlicerStyle")
+    def _set_default_slicer_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import SLICER_STYLES, set_slicer_default
+
+        set_slicer_default(value, SLICER_STYLES, "DefaultSlicerStyle")
+
+    @member
+    def DefaultTimelineStyle(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import TableStyle
+
+        return TableStyle(self, "TimeSlicerStyleLight1")
+
+    @setter("DefaultTimelineStyle")
+    def _set_default_timeline_style(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import TIMELINE_STYLES, set_slicer_default
+
+        set_slicer_default(value, TIMELINE_STYLES, "DefaultTimelineStyle")
+
+    @member
+    def TableStyles(self, Index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._workbook_settings import table_style
+
+        if Index is MISSING:
+            raise VBAUnsupportedError("Workbook.TableStyles as a collection is not implemented")
+        return table_style(self, Index)
+
+    @member
+    def ShowPivotTableFieldList(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import flag
+
+        return flag(self, "ShowPivotTableFieldList")
+
+    @setter("ShowPivotTableFieldList")
+    def _set_show_pivot_table_field_list(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_flag
+
+        set_flag(self, "ShowPivotTableFieldList", value)
+
+    @member
+    def ShowPivotChartActiveFields(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import flag
+
+        return flag(self, "ShowPivotChartActiveFields")
+
+    @setter("ShowPivotChartActiveFields")
+    def _set_show_pivot_chart_active_fields(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_flag
+
+        set_flag(self, "ShowPivotChartActiveFields", value)
+
+    @member
+    def InactiveListBorderVisible(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import flag
+
+        return flag(self, "InactiveListBorderVisible")
+
+    @setter("InactiveListBorderVisible")
+    def _set_inactive_list_border_visible(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import set_flag
+
+        set_flag(self, "InactiveListBorderVisible", value)
+
+    @member
+    def CreateBackup(self) -> object:
+        return False
+
+    @setter("CreateBackup")
+    def _set_create_backup(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("CreateBackup", 1004)
+
+    @member
+    def HasPassword(self) -> object:
+        return False
+
+    @setter("HasPassword")
+    def _set_has_password(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("HasPassword", 1004)
+
+    @member
+    def CaseSensitive(self) -> object:
+        return False
+
+    @setter("CaseSensitive")
+    def _set_case_sensitive(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("CaseSensitive", 450)
+
+    @member
+    def UseWholeCellCriteria(self) -> object:
+        return True
+
+    @setter("UseWholeCellCriteria")
+    def _set_use_whole_cell_criteria(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("UseWholeCellCriteria", 450)
+
+    @member
+    def UseWildcards(self) -> object:
+        return True
+
+    @setter("UseWildcards")
+    def _set_use_wildcards(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import refused
+
+        refused("UseWildcards", 450)
+
+    @member
+    def Final(self) -> object:
+        return False
+
+    @member
+    def UpdateRemoteReferences(self) -> object:
+        return True
+
+    @setter("UpdateRemoteReferences")
+    def _set_update_remote_references(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import unmeasured_set
+
+        unmeasured_set("UpdateRemoteReferences", value, 1004)
+
+    @member
+    def ChartDataPointTrack(self) -> object:
+        return True
+
+    @setter("ChartDataPointTrack")
+    def _set_chart_data_point_track(self, value: object) -> None:
+        from pyopenvba.apps.excel._workbook_settings import unmeasured_set
+
+        unmeasured_set("ChartDataPointTrack", value, 13)
+
+    @member
+    def AccuracyVersion(self) -> object:
+        from pyopenvba.apps.excel._workbook_settings import ACCURACY_VERSION
+
+        return ACCURACY_VERSION
+
+    @setter("AccuracyVersion")
+    def _set_accuracy_version(self, value: object) -> None:
+        raise VBAUnsupportedError("Workbook.AccuracyVersion set is not implemented")
 
     @method
     def DeleteNumberFormat(self, NumberFormat: object = MISSING) -> object:

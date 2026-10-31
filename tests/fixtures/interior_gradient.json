@@ -1,0 +1,352 @@
+{
+ "measured_at": "2026-10-31T04:28:58.918342+00:00",
+ "source": "Private Function Prop(ByVal o As Object, ByVal what As String) As String\n    Dim v As Variant\n    On Error Resume Next\n    v = CallByName(o, what, VbGet)\n    If Err.Number <> 0 Then Prop = \"E\" & Err.Number Else Prop = TypeName(v) & \":\" & CStr(v)\nEnd Function\n\nPrivate Function Described(ByVal i As Interior) As String\n    Dim s As String, g As Object, st As Object, p As Variant\n    For Each p In Array(\"Pattern\", \"Color\", \"ColorIndex\", \"ThemeColor\", \"TintAndShade\", \"PatternColor\")\n        s = s & \" \" & p & \"=\" & Prop(i, CStr(p))\n    Next\n    On Error Resume Next\n    Set g = i.Gradient\n    If Err.Number <> 0 Then Described = s & \" G=E\" & Err.Number: Exit Function\n    On Error GoTo 0\n    If g Is Nothing Then Described = s & \" G=Nothing\": Exit Function\n    s = s & \" G=\" & TypeName(g)\n    For Each p In Array(\"Degree\", \"RectangleLeft\", \"RectangleRight\", \"RectangleTop\", \"RectangleBottom\")\n        s = s & \" \" & p & \"=\" & Prop(g, CStr(p))\n    Next\n    s = s & \" stops=\" & g.ColorStops.Count\n    For Each st In g.ColorStops\n        s = s & \" [\" & Prop(st, \"Position\") & \" \" & Prop(st, \"Color\") & \" \" & Prop(st, \"ThemeColor\") & \" \" & Prop(st, \"TintAndShade\") & \"]\"\n    Next\n    Described = s\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, i As Interior, st As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set i = ws.Range(\"A1\").Interior\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n    Case 1\n        i.Pattern = xlPatternLinearGradient\n        wb.SaveAs folder & \"\\linear.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.Degree = 90\n        i.Gradient.ColorStops.Clear\n        Set st = i.Gradient.ColorStops.Add(0)\n        st.ThemeColor = xlThemeColorDark1\n        st.TintAndShade = 0\n        Set st = i.Gradient.ColorStops.Add(1)\n        st.ThemeColor = xlThemeColorAccent1\n        st.TintAndShade = 0\n        wb.SaveAs folder & \"\\recorded.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        i.Pattern = xlPatternRectangularGradient\n        wb.SaveAs folder & \"\\rect.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        i.Pattern = xlPatternRectangularGradient\n        i.Gradient.RectangleLeft = 0.5\n        i.Gradient.RectangleRight = 0.5\n        i.Gradient.RectangleTop = 0.5\n        i.Gradient.RectangleBottom = 0.5\n        i.Gradient.ColorStops.Clear\n        i.Gradient.ColorStops.Add(0).Color = RGB(255, 0, 0)\n        i.Gradient.ColorStops.Add(1).Color = RGB(0, 0, 255)\n        wb.SaveAs folder & \"\\rect_centre.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        i.Color = RGB(255, 200, 0)\n        i.Pattern = xlPatternLinearGradient\n        wb.SaveAs folder & \"\\coloured_first.xlsx\", xlOpenXMLWorkbook\n    Case 6\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.Degree = 45\n        wb.SaveAs folder & \"\\degree45.xlsx\", xlOpenXMLWorkbook\n    Case 7\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.Degree = 400\n    Case 8\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.Degree = -90\n    Case 9\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.Degree = 12.5\n        wb.SaveAs folder & \"\\degree_fraction.xlsx\", xlOpenXMLWorkbook\n    Case 10\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops.Add(0.5).Color = RGB(0, 255, 0)\n        wb.SaveAs folder & \"\\three.xlsx\", xlOpenXMLWorkbook\n    Case 11\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops.Clear\n        i.Gradient.ColorStops.Add(1).Color = RGB(0, 0, 255)\n        i.Gradient.ColorStops.Add(0).Color = RGB(255, 0, 0)\n        wb.SaveAs folder & \"\\reversed.xlsx\", xlOpenXMLWorkbook\n    Case 12\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops.Clear\n        wb.SaveAs folder & \"\\cleared.xlsx\", xlOpenXMLWorkbook\n    Case 13\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops.Clear\n        i.Gradient.ColorStops.Add(0.3).Color = RGB(1, 2, 3)\n        wb.SaveAs folder & \"\\one_stop.xlsx\", xlOpenXMLWorkbook\n    Case 14\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops.Add(1.5)\n    Case 15\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops.Add(-0.1)\n    Case 16\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops.Add(0).Color = RGB(9, 9, 9)\n        wb.SaveAs folder & \"\\duplicate.xlsx\", xlOpenXMLWorkbook\n    Case 17\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops(1).Delete\n    Case 18\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops(2).Position = 0.25\n        wb.SaveAs folder & \"\\moved.xlsx\", xlOpenXMLWorkbook\n    Case 19\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops(1).TintAndShade = 0.5\n    Case 20\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops(1).ThemeColor = xlThemeColorAccent2\n        i.Gradient.ColorStops(1).TintAndShade = -0.25\n        wb.SaveAs folder & \"\\theme_tint.xlsx\", xlOpenXMLWorkbook\n    Case 21\n        i.Pattern = xlPatternLinearGradient\n        i.Pattern = xlSolid\n        wb.SaveAs folder & \"\\back_solid.xlsx\", xlOpenXMLWorkbook\n    Case 22\n        i.Pattern = xlPatternLinearGradient\n        i.Color = RGB(10, 20, 30)\n        wb.SaveAs folder & \"\\colour_after.xlsx\", xlOpenXMLWorkbook\n    Case 23\n        i.Pattern = xlPatternLinearGradient\n        i.ColorIndex = xlNone\n    Case 24\n        ws.Range(\"A1:B2\").Interior.Pattern = xlPatternLinearGradient\n        Set i = ws.Range(\"A1:B2\").Interior\n        wb.SaveAs folder & \"\\area.xlsx\", xlOpenXMLWorkbook\n    Case 25\n        i.Pattern = xlPatternRectangularGradient\n        i.Gradient.RectangleLeft = 2\n    Case 26\n        i.Pattern = xlPatternRectangularGradient\n        i.Gradient.Degree = 30\n    Case 27\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.RectangleLeft = 0.2\n    Case 28\n        i.Pattern = xlPatternLinearGradient\n        ws.Range(\"A1\").Copy ws.Range(\"C3\")\n        Set i = ws.Range(\"C3\").Interior\n    Case 29\n        i.Pattern = xlPatternLinearGradient\n        i.Gradient.ColorStops(1).Color = RGB(1, 2, 3)\n        i.Gradient.ColorStops(2).ThemeColor = 5\n        wb.SaveAs folder & \"\\mixed.xlsx\", xlOpenXMLWorkbook\n    End Select\n    Tried = Mid(Described(i), 2)\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [],
+   "",
+   "Pattern=Long:-4142 Color=Double:16777215 ColorIndex=Long:-4142 ThemeColor=Long:-4142 TintAndShade=Double:0 PatternColor=Long:0 G=Nothing"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient"
+   ],
+   "linear.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.Degree = 90",
+    "i.Gradient.ColorStops.Clear",
+    "Set st = i.Gradient.ColorStops.Add(0)",
+    "st.ThemeColor = xlThemeColorDark1",
+    "st.TintAndShade = 0",
+    "Set st = i.Gradient.ColorStops.Add(1)",
+    "st.ThemeColor = xlThemeColorAccent1",
+    "st.TintAndShade = 0"
+   ],
+   "recorded.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:90 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternRectangularGradient"
+   ],
+   "rect.xlsx",
+   "Pattern=Long:4001 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=RectangularGradient Degree=E438 RectangleLeft=Double:0 RectangleRight=Double:0 RectangleTop=Double:0 RectangleBottom=Double:0 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternRectangularGradient",
+    "i.Gradient.RectangleLeft = 0.5",
+    "i.Gradient.RectangleRight = 0.5",
+    "i.Gradient.RectangleTop = 0.5",
+    "i.Gradient.RectangleBottom = 0.5",
+    "i.Gradient.ColorStops.Clear",
+    "i.Gradient.ColorStops.Add(0).Color = RGB(255, 0, 0)",
+    "i.Gradient.ColorStops.Add(1).Color = RGB(0, 0, 255)"
+   ],
+   "rect_centre.xlsx",
+   "Pattern=Long:4001 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=RectangularGradient Degree=E438 RectangleLeft=Double:0.5 RectangleRight=Double:0.5 RectangleTop=Double:0.5 RectangleBottom=Double:0.5 stops=2 [Double:0 Double:255 Long:0 Double:0] [Double:1 Double:16711680 Long:0 Double:0]"
+  ],
+  [
+   [
+    "i.Color = RGB(255, 200, 0)",
+    "i.Pattern = xlPatternLinearGradient"
+   ],
+   "coloured_first.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:44 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.Degree = 45"
+   ],
+   "degree45.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:45 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.Degree = 400"
+   ],
+   "",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:400 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.Degree = -90"
+   ],
+   "",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:-90 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.Degree = 12.5"
+   ],
+   "degree_fraction.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:12.5 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops.Add(0.5).Color = RGB(0, 255, 0)"
+   ],
+   "three.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=3 [Double:0 Double:16777215 Long:1 Double:0] [Double:0.5 Double:65280 Long:0 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops.Clear",
+    "i.Gradient.ColorStops.Add(1).Color = RGB(0, 0, 255)",
+    "i.Gradient.ColorStops.Add(0).Color = RGB(255, 0, 0)"
+   ],
+   "reversed.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:255 Long:0 Double:0] [Double:1 Double:16711680 Long:0 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops.Clear"
+   ],
+   "cleared.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=0"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops.Clear",
+    "i.Gradient.ColorStops.Add(0.3).Color = RGB(1, 2, 3)"
+   ],
+   "one_stop.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=1 [Double:0.3 Double:197121 Long:0 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops.Add(1.5)"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops.Add(-0.1)"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops.Add(0).Color = RGB(9, 9, 9)"
+   ],
+   "duplicate.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=3 [Double:0 Double:592137 Long:0 Double:0] [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops(1).Delete"
+   ],
+   "",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=1 [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops(2).Position = 0.25"
+   ],
+   "moved.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:0.25 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops(1).TintAndShade = 0.5"
+   ],
+   "",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0.499984740745262] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops(1).ThemeColor = xlThemeColorAccent2",
+    "i.Gradient.ColorStops(1).TintAndShade = -0.25"
+   ],
+   "theme_tint.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:1331390 Long:6 Double:-0.249977111117893] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Pattern = xlSolid"
+   ],
+   "back_solid.xlsx",
+   "Pattern=Long:1 Color=Double:16777215 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=Nothing"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Color = RGB(10, 20, 30)"
+   ],
+   "colour_after.xlsx",
+   "Pattern=Long:1 Color=Double:1971210 ColorIndex=Long:1 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=Nothing"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.ColorIndex = xlNone"
+   ],
+   "",
+   "Pattern=Long:-4142 Color=Double:16777215 ColorIndex=Long:-4142 ThemeColor=Long:-4142 TintAndShade=Double:0 PatternColor=Long:0 G=Nothing"
+  ],
+  [
+   [
+    "ws.Range(\"A1:B2\").Interior.Pattern = xlPatternLinearGradient",
+    "Set i = ws.Range(\"A1:B2\").Interior"
+   ],
+   "area.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternRectangularGradient",
+    "i.Gradient.RectangleLeft = 2"
+   ],
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternRectangularGradient",
+    "i.Gradient.Degree = 30"
+   ],
+   "",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.RectangleLeft = 0.2"
+   ],
+   "",
+   "Err 438 Object doesn't support this property or method"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "ws.Range(\"A1\").Copy ws.Range(\"C3\")",
+    "Set i = ws.Range(\"C3\").Interior"
+   ],
+   "",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:16777215 Long:1 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ],
+  [
+   [
+    "i.Pattern = xlPatternLinearGradient",
+    "i.Gradient.ColorStops(1).Color = RGB(1, 2, 3)",
+    "i.Gradient.ColorStops(2).ThemeColor = 5"
+   ],
+   "mixed.xlsx",
+   "Pattern=Long:4000 Color=Double:0 ColorIndex=Long:-4105 ThemeColor=Long:0 TintAndShade=Double:0 PatternColor=Long:0 G=LinearGradient Degree=Double:0 RectangleLeft=E438 RectangleRight=E438 RectangleTop=E438 RectangleBottom=E438 stops=2 [Double:0 Double:197121 Long:0 Double:0] [Double:1 Double:8544277 Long:5 Double:0]"
+  ]
+ ],
+ "fills": {
+  "linear.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "recorded.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill degree=\"90\"><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "rect.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill type=\"path\"><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "rect_centre.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill type=\"path\" left=\"0.5\" right=\"0.5\" top=\"0.5\" bottom=\"0.5\"><stop position=\"0\"><color rgb=\"FFFF0000\"/></stop><stop position=\"1\"><color rgb=\"FF0000FF\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "coloured_first.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "degree45.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill degree=\"45\"><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "degree_fraction.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill degree=\"12.5\"><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "three.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"0.5\"><color rgb=\"FF00FF00\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "reversed.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color rgb=\"FFFF0000\"/></stop><stop position=\"1\"><color rgb=\"FF0000FF\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "cleared.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill/></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "one_stop.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0.3\"><color rgb=\"FF010203\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "duplicate.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color rgb=\"FF090909\"/></stop><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "moved.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"0.25\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "theme_tint.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color theme=\"5\" tint=\"-0.249977111117893\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "back_solid.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><patternFill patternType=\"solid\"><fgColor indexed=\"65\"/><bgColor indexed=\"64\"/></patternFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "colour_after.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF0A141E\"/><bgColor indexed=\"64\"/></patternFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "area.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color theme=\"0\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:2\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  },
+  "mixed.xlsx": {
+   "fills": "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill><fill><gradientFill><stop position=\"0\"><color rgb=\"FF010203\"/></stop><stop position=\"1\"><color theme=\"4\"/></stop></gradientFill></fill></fills>",
+   "cellXfs": "<cellXfs count=\"2\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/><xf numFmtId=\"0\" fontId=\"0\" fillId=\"2\" borderId=\"0\" xfId=\"0\" applyFill=\"1\"/></cellXfs>",
+   "sheetData": "<sheetData><row r=\"1\" spans=\"1:1\" x14ac:dyDescent=\"0.25\"><c r=\"A1\" s=\"1\"/>"
+  }
+ }
+}

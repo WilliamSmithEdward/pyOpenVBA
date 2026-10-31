@@ -3,6 +3,16 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- A defined name's `MacroType`, `ShortcutKey`, `Category` and
+  `CategoryLocal`, set on `Name` or given to `Names.Add`, as Excel keeps
+  them and saves them in a macro-enabled workbook; Excel leaves such names
+  out of an `.xlsx`. `WorkbookParameter` and `ValidWorkbookParameter`
+  answer as Excel does.
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

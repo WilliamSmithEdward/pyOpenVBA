@@ -149,13 +149,15 @@ class Cell:
     save_dirty: bool | None = None
     #: The runs of fonts the cell's text is in, where it is in more than its own (see _rich_text).
     runs: tuple[Run, ...] | None = None
+    #: Range.ID, which goes with the cell's contents (tests/fixtures/range_small_members.json).
+    html_id: str = ""
 
     @property
     def number_format(self) -> str:
         return self.style.number_format if self.style is not None else "General"
 
     def is_blank(self) -> bool:
-        return self.value is EMPTY and not self.formula and self.style is None
+        return self.value is EMPTY and not self.formula and self.style is None and not self.html_id
 
 
 # --- Application ------------------------------------------------------------------------
@@ -2912,7 +2914,7 @@ class Worksheet(ExcelObject):
         Excel keeps a cell with nothing in it only while its format differs
         from its row's or column's, and lets it go the moment it does not.
         """
-        if cell.value is not EMPTY or cell.formula:
+        if cell.value is not EMPTY or cell.formula or cell.html_id:
             return True
         return (cell.style or self.book.stylesheet.default) != self.inherited_style(row, column)
 
@@ -4163,11 +4165,55 @@ class Range(ExcelObject):
         self._set_format("ReadingOrder", value)
 
     @member
+    def AllowEdit(self) -> object:
+        """False where the sheet's contents are protected, for the user alone too, and any cell is locked
+        (tests/fixtures/range_small_members.json)."""
+        from pyopenvba.apps.excel._protection import any_locked
+
+        protection = self.sheet.protection
+        return not (protection is not None and protection.contents and any_locked(self.sheet, self.areas))
+
+    @member
+    def ID(self) -> object:
+        """The cell's ID, "" for none; a range of more than one cell is error 1004."""
+        top = self._single_cell()
+        cell = self.sheet.cells_.get((top.top, top.left))
+        return cell.html_id if cell is not None else ""
+
+    @setter("ID")
+    def _set_id(self, value: object) -> None:
+        top = self._single_cell()
+        text = to_text(value)
+        cell = self.sheet.cells_.get((top.top, top.left))
+        if cell is None:
+            if not text:
+                return
+            cell = self.sheet.cells_[(top.top, top.left)] = Cell()
+        cell.html_id = text
+        self.sheet.settle(top.top, top.left)
+
+    def _single_cell(self) -> Area:
+        if len(self.areas) != 1 or self.first.rows != 1 or self.first.columns != 1:
+            raise error(1004)
+        return self.first
+
+    @member
+    def ListHeaderRows(self) -> object:
+        """How many header rows Excel guesses the first area has (see _sort.header_rows)."""
+        from pyopenvba.apps.excel._sort import header_rows
+
+        return VBAInt(header_rows(self.sheet, self.first), "Long")
+
+    @member
     def Locked(self) -> object:
         return self._format("Locked")
 
     @setter("Locked")
     def _set_locked(self, value: object) -> None:
+        from pyopenvba.interpreter._values import NULL
+
+        if value is NULL:
+            return  # Excel takes Null without a word and leaves the cells as they were.
         self._set_format("Locked", value)
 
     @member
@@ -4502,6 +4548,7 @@ class Range(ExcelObject):
             cell.formula = ""
             cell.stale = False
             cell.dynamic = False
+            cell.html_id = ""
             self.sheet.settle(row, column)
             self.sheet.cell_changed(row, column)
         self.sheet.touched()

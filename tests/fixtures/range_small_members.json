@@ -1,0 +1,429 @@
+{
+ "measured_at": "2026-10-31T03:46:44.699271+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Tried = CStr(ws.Range(\"A1\").ID)\n    Case 1\n        ws.Range(\"A1\").ID = \"first\"\n        Tried = CStr(ws.Range(\"A1\").ID)\n    Case 2\n        ws.Range(\"A1\").ID = \"first\"\n        Tried = CStr(ws.Range(\"A1:B2\").ID)\n    Case 3\n        ws.Range(\"A1:B2\").ID = \"both\"\n        Tried = CStr(ws.Range(\"A1\").ID & \"|\" & ws.Range(\"B2\").ID & \"|\" & ws.Range(\"A1:B2\").ID)\n    Case 4\n        ws.Range(\"A1\").ID = 5\n        Tried = CStr(TypeName(ws.Range(\"A1\").ID) & \":\" & ws.Range(\"A1\").ID)\n    Case 5\n        ws.Range(\"A1\").ID = \"x\"\n        ws.Range(\"A1\").ClearContents\n        Tried = CStr(ws.Range(\"A1\").ID)\n    Case 6\n        ws.Range(\"A1\").ID = \"x\"\n        ws.Range(\"A1\").Clear\n        Tried = CStr(ws.Range(\"A1\").ID)\n    Case 7\n        ws.Range(\"A1\").ID = \"x\"\n        ws.Range(\"A1\").Copy ws.Range(\"C1\")\n        Tried = CStr(ws.Range(\"C1\").ID)\n    Case 8\n        ws.Range(\"A1\").ID = \"x\"\n        ws.Rows(1).Insert\n        Tried = CStr(ws.Range(\"A1\").ID & \"|\" & ws.Range(\"A2\").ID)\n    Case 9\n        ws.Range(\"A1\").ID = \"x\"\n        ws.Range(\"A2\").ID = \"x\"\n        Tried = CStr(ws.Range(\"A2\").ID)\n    Case 10\n        ws.Range(\"A1\").ID = \"\"\n        Tried = CStr(ws.Range(\"A1\").ID)\n    Case 11\n        ws.Range(\"A1\").ID = \"a b\"\n        Tried = CStr(ws.Range(\"A1\").ID)\n    Case 12\n        ws.Range(\"A1,C3\").ID = \"two\"\n        Tried = CStr(ws.Range(\"A1\").ID & \"|\" & ws.Range(\"C3\").ID)\n    Case 13\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 14\n        ws.Protect\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 15\n        ws.Range(\"A1\").Locked = False\n        ws.Protect\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 16\n        ws.Range(\"A1\").Locked = False\n        ws.Protect\n        Tried = CStr(ws.Range(\"A1:A2\").AllowEdit)\n    Case 17\n        ws.Range(\"A1:A2\").Locked = False\n        ws.Protect\n        Tried = CStr(ws.Range(\"A1:A2\").AllowEdit)\n    Case 18\n        ws.Protect UserInterfaceOnly:=True\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 19\n        ws.Protect DrawingObjects:=True, Contents:=False\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 20\n        ws.Protect\n        ws.Unprotect\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 21\n        ws.Range(\"A1\").Locked = False\n        ws.Protect\n        Tried = CStr(ws.Range(\"A1,C3\").AllowEdit)\n    Case 22\n        ws.Range(\"A1,C3\").Locked = False\n        ws.Protect\n        Tried = CStr(ws.Range(\"A1,C3\").AllowEdit)\n    Case 23\n        wb.Protect Structure:=True\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 24\n        ws.Protect Password:=\"p\"\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 25\n        ws.Range(\"A1\").Locked = Null\n        ws.Protect\n        Tried = CStr(ws.Range(\"A1\").AllowEdit)\n    Case 26\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 27\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", \"x\")\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", \"y\")\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 28\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(1, 2)\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(3, 4)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(5, 6)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 29\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Year\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(2020, 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(2021, 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 30\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(2020, 2021)\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(1, 2)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(3, 4)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 31\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        Tried = CStr(ws.Range(\"A1\").Resize(1, 2).ListHeaderRows)\n    Case 32\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        Tried = CStr(ws.Range(\"A1\").Resize(2, 2).ListHeaderRows)\n    Case 33\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 34\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 35\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"\", \"\")\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 36\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"Sub\", \"Unit\")\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A4\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(4, 2).ListHeaderRows)\n    Case 37\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"name\", \"qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        Tried = CStr(ws.Range(\"A1\").Resize(2, 2).ListHeaderRows)\n    Case 38\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", 5)\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 39\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(True, False)\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(1, 2)\n        Tried = CStr(ws.Range(\"A1\").Resize(2, 2).ListHeaderRows)\n    Case 40\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", #1/1/2020#)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", #1/2/2020#)\n        Tried = CStr(ws.Range(\"A1\").Resize(3, 2).ListHeaderRows)\n    Case 41\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"=1+1\", 1)\n        Tried = CStr(ws.Range(\"A1\").Resize(2, 2).ListHeaderRows)\n    Case 42\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A2\").ListHeaderRows)\n    Case 43\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1\").ListHeaderRows)\n    Case 44\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1:A3\").ListHeaderRows)\n    Case 45\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"B1:B3\").ListHeaderRows)\n    Case 46\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A2:B3\").ListHeaderRows)\n    Case 47\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        Tried = CStr(ws.Range(\"A1:B3,D1:E3\").ListHeaderRows)\n    Case 48\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        ws.Range(\"A1:B1\").Font.Bold = True\n        Tried = CStr(ws.Range(\"A1:B3\").ListHeaderRows)\n    Case 49\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", \"x\")\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", \"y\")\n        ws.Range(\"A1:B1\").Font.Bold = True\n        Tried = CStr(ws.Range(\"A1:B3\").ListHeaderRows)\n    Case 50\n        ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")\n        ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)\n        ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)\n        ws.ListObjects.Add xlSrcRange, ws.Range(\"A1:B3\"), , xlYes\n        Tried = CStr(ws.Range(\"A1:B3\").ListHeaderRows)\n    Case 51\n        Tried = CStr(ws.Range(\"A1:B3\").ListHeaderRows)\n    Case 52\n        Tried = CStr(ws.Range(\"A1\").ListHeaderRows)\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [],
+   "ws.Range(\"A1\").ID",
+   ""
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"first\""
+   ],
+   "ws.Range(\"A1\").ID",
+   "first"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"first\""
+   ],
+   "ws.Range(\"A1:B2\").ID",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.Range(\"A1:B2\").ID = \"both\""
+   ],
+   "ws.Range(\"A1\").ID & \"|\" & ws.Range(\"B2\").ID & \"|\" & ws.Range(\"A1:B2\").ID",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = 5"
+   ],
+   "TypeName(ws.Range(\"A1\").ID) & \":\" & ws.Range(\"A1\").ID",
+   "String:5"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"x\"",
+    "ws.Range(\"A1\").ClearContents"
+   ],
+   "ws.Range(\"A1\").ID",
+   ""
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"x\"",
+    "ws.Range(\"A1\").Clear"
+   ],
+   "ws.Range(\"A1\").ID",
+   ""
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"x\"",
+    "ws.Range(\"A1\").Copy ws.Range(\"C1\")"
+   ],
+   "ws.Range(\"C1\").ID",
+   "x"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"x\"",
+    "ws.Rows(1).Insert"
+   ],
+   "ws.Range(\"A1\").ID & \"|\" & ws.Range(\"A2\").ID",
+   "|x"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"x\"",
+    "ws.Range(\"A2\").ID = \"x\""
+   ],
+   "ws.Range(\"A2\").ID",
+   "x"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"\""
+   ],
+   "ws.Range(\"A1\").ID",
+   ""
+  ],
+  [
+   [
+    "ws.Range(\"A1\").ID = \"a b\""
+   ],
+   "ws.Range(\"A1\").ID",
+   "a b"
+  ],
+  [
+   [
+    "ws.Range(\"A1,C3\").ID = \"two\""
+   ],
+   "ws.Range(\"A1\").ID & \"|\" & ws.Range(\"C3\").ID",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [],
+   "ws.Range(\"A1\").AllowEdit",
+   "True"
+  ],
+  [
+   [
+    "ws.Protect"
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "False"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Locked = False",
+    "ws.Protect"
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "True"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Locked = False",
+    "ws.Protect"
+   ],
+   "ws.Range(\"A1:A2\").AllowEdit",
+   "False"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A2\").Locked = False",
+    "ws.Protect"
+   ],
+   "ws.Range(\"A1:A2\").AllowEdit",
+   "True"
+  ],
+  [
+   [
+    "ws.Protect UserInterfaceOnly:=True"
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "False"
+  ],
+  [
+   [
+    "ws.Protect DrawingObjects:=True, Contents:=False"
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "True"
+  ],
+  [
+   [
+    "ws.Protect",
+    "ws.Unprotect"
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "True"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Locked = False",
+    "ws.Protect"
+   ],
+   "ws.Range(\"A1,C3\").AllowEdit",
+   "False"
+  ],
+  [
+   [
+    "ws.Range(\"A1,C3\").Locked = False",
+    "ws.Protect"
+   ],
+   "ws.Range(\"A1,C3\").AllowEdit",
+   "True"
+  ],
+  [
+   [
+    "wb.Protect Structure:=True"
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "True"
+  ],
+  [
+   [
+    "ws.Protect Password:=\"p\""
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "False"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Locked = Null",
+    "ws.Protect"
+   ],
+   "ws.Range(\"A1\").AllowEdit",
+   "False"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", \"x\")",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", \"y\")"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(1, 2)",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(3, 4)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(5, 6)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Year\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(2020, 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(2021, 2)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(2020, 2021)",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(1, 2)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(3, 4)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")"
+   ],
+   "ws.Range(\"A1\").Resize(1, 2).ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)"
+   ],
+   "ws.Range(\"A1\").Resize(2, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"\", \"\")",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"Sub\", \"Unit\")",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A4\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1\").Resize(4, 2).ListHeaderRows",
+   "2"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"name\", \"qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)"
+   ],
+   "ws.Range(\"A1\").Resize(2, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", 5)",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(True, False)",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(1, 2)"
+   ],
+   "ws.Range(\"A1\").Resize(2, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", #1/1/2020#)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", #1/2/2020#)"
+   ],
+   "ws.Range(\"A1\").Resize(3, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"=1+1\", 1)"
+   ],
+   "ws.Range(\"A1\").Resize(2, 2).ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A2\").ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1\").ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1:A3\").ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"B1:B3\").ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A2:B3\").ListHeaderRows",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)"
+   ],
+   "ws.Range(\"A1:B3,D1:E3\").ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)",
+    "ws.Range(\"A1:B1\").Font.Bold = True"
+   ],
+   "ws.Range(\"A1:B3\").ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", \"x\")",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", \"y\")",
+    "ws.Range(\"A1:B1\").Font.Bold = True"
+   ],
+   "ws.Range(\"A1:B3\").ListHeaderRows",
+   "1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Resize(1, 2).Value = Array(\"Name\", \"Qty\")",
+    "ws.Range(\"A2\").Resize(1, 2).Value = Array(\"a\", 1)",
+    "ws.Range(\"A3\").Resize(1, 2).Value = Array(\"b\", 2)",
+    "ws.ListObjects.Add xlSrcRange, ws.Range(\"A1:B3\"), , xlYes"
+   ],
+   "ws.Range(\"A1:B3\").ListHeaderRows",
+   "1"
+  ],
+  [
+   [],
+   "ws.Range(\"A1:B3\").ListHeaderRows",
+   "0"
+  ],
+  [
+   [],
+   "ws.Range(\"A1\").ListHeaderRows",
+   "0"
+  ]
+ ]
+}

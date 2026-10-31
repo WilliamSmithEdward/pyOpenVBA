@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `PageSetup.PrintNotes` works as Excel's does. It reads True when
+  comments print at the end or as shown. A set of True prints them at
+  the end, and False not at all. 14 live cases agree,
+  `tests/fixtures/print_notes.json`.
+
 - A sheet's sort fields answer as Excel's do. `SortField.Priority` reads
   a field's place and moves it on a set. `Delete` takes a field out and
   leaves it dead, and `ModifyKey` gives it a new key and keeps the rest.
@@ -119,6 +124,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A save leaves `PrintComments`, `PrintErrors` and `Order` out of the
+  `pageSetup` when a macro set them back to their defaults, as Excel
+  does, instead of writing `cellComments="none"` and the like.
 
 - `Names("Sheet1!Local")` finds the sheet's own name in a workbook
   `Workbooks.Add(xlWBATWorksheet)` made, which Excel names Sheet1 after

@@ -215,6 +215,10 @@ def refuse_1904_dates(cache: PivotCache) -> None:
 class PivotCache(ExcelObject):
     vba_type_name = 'PivotCache'
 
+    @member
+    def Application(self) -> object:
+        return self.book.application
+
     def __init__(self, book: Workbook, part: str, root: XmlElement, index: int) -> None:
         self.book, self.part, self.root, self.index = book, part, root, index
         self.pending_source: object = None
@@ -322,6 +326,19 @@ class PivotTable(ExcelObject):
         self.sort_names: dict[int, str] = {}
         #: ManualUpdate, which no file keeps.
         self.manual = False
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member(default=True, name="_Default")
+    def _Default(self) -> object:
+        """Its name, which Value reads too (tests/fixtures/object_members.json)."""
+        return self.vba_get("Name")
+
+    @member
+    def Value(self) -> object:
+        return self.vba_get("Name")
 
     @method
     def RefreshTable(self) -> object:
@@ -946,6 +963,19 @@ class PivotField(ExcelObject):
     def __init__(self, table: PivotTable, index: int, root: XmlElement, data: bool = False) -> None:
         self.table, self.index, self.root, self.data = table, index, root, data
 
+    @member
+    def Application(self) -> object:
+        return self.table.sheet.book.application
+
+    @member(default=True, name="_Default")
+    def _Default(self) -> object:
+        """Its name, which Value reads too (tests/fixtures/object_members.json)."""
+        return self.vba_get("Name")
+
+    @member
+    def Value(self) -> object:
+        return self.vba_get("Name")
+
     def check_alive(self) -> None:
         if self.data and self.root not in self.table.root.findall(f'{NS}dataFields/{NS}dataField'):
             raise error(424)
@@ -1469,6 +1499,15 @@ class PivotItem(ExcelObject):
 
     def __init__(self, field: PivotField, root: XmlElement | None, position: int, x: int = -1) -> None:
         self.field, self.root, self.position, self.x = field, root, position, x
+
+    @member
+    def Application(self) -> object:
+        return self.field.table.sheet.book.application
+
+    @member(default=True, name="_Default")
+    def _Default(self) -> object:
+        """Its name (tests/fixtures/object_members.json)."""
+        return self.vba_get("Name")
 
     @member
     def Name(self) -> object:

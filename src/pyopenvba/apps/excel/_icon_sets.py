@@ -500,6 +500,10 @@ class IconSet(VBACollection, ExcelObject):
     def __init__(self, book: Workbook, identifier: int, count: int) -> None:
         self.book, self.identifier, self.count = book, identifier, count
 
+    @member
+    def Application(self) -> object:
+        return self.book.application
+
     def vba_items(self) -> list[object]:
         return [Icon(self, index) for index in range(1, self.count + 1)]
 

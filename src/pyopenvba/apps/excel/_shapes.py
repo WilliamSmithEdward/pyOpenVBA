@@ -88,6 +88,14 @@ class Shapes(VBACollection, Created):
     def __init__(self, sheet: Worksheet) -> None:
         self.sheet = sheet
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.sheet
+
     def vba_items(self) -> list[object]:
         from pyopenvba.apps.excel._notes import NoteShape
 
@@ -321,6 +329,14 @@ class ShapeObject(_Drawn):
     def __init__(self, sheet: Worksheet, shape: Shape) -> None:
         self.sheet = sheet
         self.shape = shape
+
+    @member
+    def Parent(self) -> object:
+        return self.sheet
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
 
     @member
     def HasChart(self) -> object:

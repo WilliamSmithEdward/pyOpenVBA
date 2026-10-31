@@ -695,6 +695,15 @@ class RuleObject(ExcelObject):
         self.sheet, self.rule = sheet, rule
 
     @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member
+    def PTCondition(self) -> object:
+        """False: the model's rules are a range's, none a pivot table's (tests/fixtures/object_members.json)."""
+        return False
+
+    @member
     def Parent(self) -> object:
         return self.AppliesTo()
 
@@ -1075,6 +1084,11 @@ def _stat_long(value: object) -> int:
 
 class _StatisticalRule(_ConditionalRule):
     vba_type_name = ''
+
+    @member
+    def CalcFor(self) -> object:
+        """xlAllValues: a range's rule counts every value (tests/fixtures/object_members.json)."""
+        return VBAInt(0, 'Long')
 
     @member
     def ScopeType(self) -> object:

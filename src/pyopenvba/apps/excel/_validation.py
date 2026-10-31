@@ -620,6 +620,16 @@ class Validation(ExcelObject):
         self._flag("show_input", value)
 
     @member
+    def IMEMode(self) -> object:
+        """xlIMEModeNoControl, rule or none; a set, of any number, is passed over and no file keeps it. So Excel
+        answered on a machine with no East Asian input method (tests/fixtures/object_members.json)."""
+        return VBAInt(0, 'Long')
+
+    @setter("IMEMode")
+    def _set_ime_mode(self, value: object) -> None:
+        to_integer(value, 'Long')
+
+    @member
     def ShowError(self) -> object:
         return self._rule().show_error
 

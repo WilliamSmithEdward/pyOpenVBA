@@ -3,6 +3,21 @@
 All notable changes to pyOpenVBA are documented here. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Range.ApplyNames` turns the references in a range's formulas, or the
+  whole sheet's when the range is one cell, into the names that refer to
+  the same cells, as Excel does, with `Names:=` and
+  `IgnoreRelativeAbsolute:=` and Excel's two errors.
+
+### Fixed
+
+- A defined name that shares its word with a worksheet function, such as
+  `Rate`, keeps its own spelling in a formula written with it, as Excel
+  spells it, instead of being upper-cased.
+
 ## [6.6.0] - 2026-10-30
 
 ### Added

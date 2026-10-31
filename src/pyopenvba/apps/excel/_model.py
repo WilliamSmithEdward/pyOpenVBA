@@ -4644,6 +4644,16 @@ class Range(ExcelObject):
         return True
 
     @method
+    def ApplyNames(self, Names: object = MISSING, IgnoreRelativeAbsolute: object = MISSING,
+                   UseRowColumnNames: object = MISSING, OmitColumn: object = MISSING, OmitRow: object = MISSING,
+                   Order: object = MISSING, AppendLast: object = MISSING) -> object:
+        """Turn references in the range's formulas into the names that cover them (see _apply_names)."""
+        from pyopenvba.apps.excel._apply_names import apply_names
+
+        apply_names(self, Names, IgnoreRelativeAbsolute)
+        return EMPTY
+
+    @method
     def AutoFill(self, Destination: object = MISSING, Type: object = MISSING) -> object:
         from pyopenvba.apps.excel._autofill import autofill
 

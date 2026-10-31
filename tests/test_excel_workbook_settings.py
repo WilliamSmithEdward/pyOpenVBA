@@ -3,6 +3,7 @@ scripts/measure_workbook_settings.py)."""
 from __future__ import annotations
 
 import json
+import os
 import re
 import zipfile
 from pathlib import Path
@@ -15,6 +16,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 
 FIXTURE: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures/workbook_settings.json").read_text(
     encoding="utf-8"))
+SOURCE = FIXTURE["source"].replace('folder & "\\', f'folder & "{os.sep}')
 #: Settings whose place in a saved file was not measured report themselves unsupported when set to a value Excel
 #: takes; so does the default slicer or timeline style; and the criteria cases, which Excel refused anyway, use one.
 UNSUPPORTED_SETTINGS = ("UpdateRemoteReferences", "ChartDataPointTrack", "AccuracyVersion", "DefaultSlicerStyle",
@@ -41,7 +43,7 @@ def test_workbook_settings_answer_as_live_excel_did(index: int, tmp_path: Path) 
     statements, _read, saved, answer = FIXTURE["cases"][index]
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module(FIXTURE["source"], name="Measure")
+    app.add_module(SOURCE, name="Measure")
     if _unsupported(statements, answer):
         with pytest.raises(VBAUnsupportedError):
             app.run("Measure.Probe", str(tmp_path), index, index)

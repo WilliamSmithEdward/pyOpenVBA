@@ -74,6 +74,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._pivots import PivotCache, PivotTable
     from pyopenvba.apps.excel._outline import OutlineState
     from pyopenvba.apps.excel._page_breaks import SheetBreaks
+    from pyopenvba.apps.excel._consolidate import Settings as ConsolidationSettings
     from pyopenvba.apps.excel._page_setup import PageState
     from pyopenvba.apps.excel._typing import Typed
     from pyopenvba.apps.excel._validation import Rule as ValidationRule
@@ -2400,6 +2401,8 @@ class Worksheet(ExcelObject):
         self.tab_changed = False
         #: The sheet's manual page breaks, read from its file when first needed (see _page_breaks).
         self.page_breaks: SheetBreaks | None = None
+        #: The sheet's last Range.Consolidate, None before one (see _consolidate).
+        self.consolidation: ConsolidationSettings | None = None
         #: The sheet's scenarios, read from its part when first needed, and whether a macro changed them, so a save
         #: writes them (see _scenarios).
         self.scenarios: Any = None
@@ -2517,6 +2520,26 @@ class Worksheet(ExcelObject):
         """Rows or columns moved, so every formula has to be read again."""
         self.touched()
         self.book.calculator.rebuild()
+
+    # -- consolidation (see _consolidate)
+
+    @member
+    def ConsolidationFunction(self) -> object:
+        from pyopenvba.apps.excel._consolidate import settings
+
+        return VBAInt(settings(self).function, "Long")
+
+    @member
+    def ConsolidationOptions(self) -> object:
+        from pyopenvba.apps.excel._consolidate import options
+
+        return options(self)
+
+    @member
+    def ConsolidationSources(self) -> object:
+        from pyopenvba.apps.excel._consolidate import sources
+
+        return sources(self)
 
     # -- identity
 
@@ -5043,6 +5066,15 @@ class Range(ExcelObject):
         else:
             Destination.sheet.touched()
             Destination.sheet.book.calculator.wrote_area(Destination.sheet.name, written)
+        return True
+
+    @method
+    def Consolidate(self, Sources: object = MISSING, Function: object = MISSING, TopRow: object = MISSING,
+                    LeftColumn: object = MISSING, CreateLinks: object = MISSING) -> object:
+        """Sum or otherwise combine source ranges into this one (see _consolidate)."""
+        from pyopenvba.apps.excel._consolidate import consolidate
+
+        consolidate(self, Sources, Function, TopRow, LeftColumn, CreateLinks)
         return True
 
     @method

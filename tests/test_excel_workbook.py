@@ -167,10 +167,10 @@ def test_a_class_whose_members_sit_on_its_interface_still_tells_a_gap_from_a_typ
     """Range keeps its members on IRange, and Font on IFont rather than on Word's Font."""
     app = fresh()
     with pytest.raises(VBAUnsupportedError) as gap:
-        macro(app, '    Range("A1").Consolidate', name="Gap")
-    assert "Consolidate" in str(gap.value)
+        macro(app, '    Range("A1").Justify', name="Gap")
+    assert "Justify" in str(gap.value)
     with pytest.raises(VBARuntimeError) as typo:
-        macro(app, '    Range("A1").Consolidaet', name="Typo")
+        macro(app, '    Range("A1").Justfy', name="Typo")
     assert typo.value.number == 438
     with pytest.raises(VBAUnsupportedError):
         macro(app, '    x = Range("A1").Font.Background', name="ExcelOnly")

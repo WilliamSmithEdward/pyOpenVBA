@@ -288,7 +288,7 @@ class _TableField(SortField):
     def _check_alive(self) -> None:
         super()._check_alive()
         alive(self.table)
-        if self not in self.state.fields:
+        if self.state is None or self not in self.state.fields:
             raise unsupported('through a removed sort-field proxy')
 
     @setter('Order')
@@ -297,6 +297,26 @@ class _TableField(SortField):
         if wanted not in (ASCENDING, DESCENDING):
             raise error(5)
         self.order = wanted
+
+    @setter('Priority')
+    def _set_priority(self, value: object) -> None:
+        raise unsupported("reordered by Priority")
+
+    @method
+    def Delete(self) -> object:
+        raise unsupported("deleted one field at a time")
+
+    @method
+    def ModifyKey(self, Key: object = MISSING) -> object:
+        raise unsupported("given a new key")
+
+    @setter('CustomOrder')
+    def _set_custom_order(self, value: object) -> None:
+        raise unsupported('with custom ordering')
+
+    @setter('SubField')
+    def _set_subfield(self, value: object) -> None:
+        raise unsupported("by a data type's field")
 
 
 class _TableFields(SortFields):

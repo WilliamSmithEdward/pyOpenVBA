@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbook.Colors` and `Workbook.ResetColors` work as Excel's do. Colors
+  reads the 56-colour palette or one slot and sets either. Cells, fonts
+  and borders coloured by a slot follow it, and tabs keep Excel's own
+  colour. A save writes a changed palette to `styles.xml` as Excel does,
+  and leaves out Excel's own. 48 live cases agree,
+  `tests/fixtures/workbook_colors.json`. These report themselves
+  unsupported:
+  - an array of fewer than 56 colours, which crashed Excel once
+  - Null
+  - `ColorIndex` of a colour a changed palette does not hold
+
 - `Workbook.DeleteNumberFormat` works as Excel's does. Every cell, row,
   column and cell style using the custom format shows General and keeps
   the rest of its format. A built-in format, `""` or a protected sheet

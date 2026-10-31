@@ -1,10 +1,10 @@
 # Dependabot keeps the pinned tools current: the workflows' actions, each
-# pinned to a commit with its release named in a comment, and the Semgrep
-# and ClamAV images the scans run, each pinned by digest in a one-line
-# Dockerfile, and the pip pins in .github/requirements. The YARA-X engine
-# and the YARA Forge rules are release downloads Dependabot cannot follow;
-# update-yara-rules.yml proposes those. The
-# package itself depends on nothing, and its development tools are minimum
+# pinned to a commit with its release named in a comment, and the pip pins
+# in .github/requirements. The YARA-X engine and the YARA Forge rules are
+# release downloads Dependabot cannot follow; update-yara-rules.yml
+# proposes those. GitHub refuses Dependabot's image updates, so
+# update-images.yml proposes new ClamAV and Semgrep images. The package
+# itself depends on nothing, and its development tools are minimum
 # versions that CI installs at their latest.
 #
 # A release waits a week before it is proposed, long enough for most
@@ -22,20 +22,6 @@ updates:
       prefix: ci
     groups:
       actions:
-        patterns: ["*"]
-        update-types: [minor, patch]
-
-  - package-ecosystem: docker
-    directories:
-      - /.github/security/clamav
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 7
-    commit-message:
-      prefix: ci
-    groups:
-      minor-and-patch:
         patterns: ["*"]
         update-types: [minor, patch]
 

@@ -1,0 +1,453 @@
+{
+ "measured_at": "2026-10-31T02:30:02.589297+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, r As Variant, i As Long\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    r = \"ok\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        r = TypeName(wb.Colors) & \":\" & LBound(wb.Colors) & \":\" & UBound(wb.Colors)\n        Tried = CStr(r)\n    Case 1\n        r = TypeName(wb.Colors(3)) & \":\" & wb.Colors(3) & \":\" & wb.Colors(1) & \":\" & wb.Colors(56)\n        Tried = CStr(r)\n    Case 2\n        r = wb.Colors(0)\n        Tried = CStr(r)\n    Case 3\n        r = wb.Colors(57)\n        Tried = CStr(r)\n    Case 4\n        r = wb.Colors(-1)\n        Tried = CStr(r)\n    Case 5\n        r = wb.Colors(\"3\")\n        Tried = CStr(r)\n    Case 6\n        r = wb.Colors(3.6)\n        Tried = CStr(r)\n    Case 7\n        wb.Colors(3) = RGB(1, 2, 3)\n        r = wb.Colors(3) & \":\" & TypeName(wb.Colors(3))\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\one.xlsx\", xlOpenXMLWorkbook\n    Case 8\n        ws.Range(\"A1\").Interior.ColorIndex = 3\n        ws.Range(\"A2\").Interior.Color = RGB(255, 0, 0)\n        ws.Range(\"A3\").Font.ColorIndex = 3\n        wb.Colors(3) = RGB(1, 2, 3)\n        r = ws.Range(\"A1\").Interior.Color & \":\" & ws.Range(\"A1\").Interior.ColorIndex & \":\" & ws.Range(\"A2\").Interior.Color & \":\" & ws.Range(\"A2\").Interior.ColorIndex & \":\" & ws.Range(\"A3\").Font.Color & \":\" & ws.Range(\"A3\").Font.ColorIndex\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\cells.xlsx\", xlOpenXMLWorkbook\n    Case 9\n        wb.Colors(3) = RGB(1, 2, 3)\n        wb.ResetColors\n        r = wb.Colors(3)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\reset.xlsx\", xlOpenXMLWorkbook\n    Case 10\n        wb.Colors(3) = -1\n        Tried = CStr(r)\n    Case 11\n        wb.Colors(3) = &H1000000\n        Tried = CStr(r)\n    Case 12\n        wb.Colors(3) = \"x\"\n        Tried = CStr(r)\n    Case 13\n        wb.Colors(3) = \"255\"\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 14\n        wb.Colors(3) = 255.6\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 15\n        wb.Colors(0) = 255\n        Tried = CStr(r)\n    Case 16\n        wb.Colors(57) = 255\n        Tried = CStr(r)\n    Case 17\n        Dim a(1 To 56) As Long\n        For i = 1 To 56: a(i) = i * 1000: Next\n        wb.Colors = a\n        r = wb.Colors(1) & \":\" & wb.Colors(56)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\all.xlsx\", xlOpenXMLWorkbook\n    Case 18\n        wb.Colors = Array(RGB(9, 9, 9), RGB(8, 8, 8), RGB(7, 7, 7))\n        r = wb.Colors(1) & \":\" & wb.Colors(2) & \":\" & wb.Colors(3) & \":\" & wb.Colors(4)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\some.xlsx\", xlOpenXMLWorkbook\n    Case 19\n        wb.Colors = 255\n        Tried = CStr(r)\n    Case 20\n        wb.Colors = Array()\n        r = wb.Colors(1)\n        Tried = CStr(r)\n    Case 21\n        wb.Colors = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58)\n        r = wb.Colors(1) & \":\" & wb.Colors(56)\n        Tried = CStr(r)\n    Case 22\n        wb.Colors = Array(RGB(9, 9, 9), \"x\")\n        r = wb.Colors(1)\n        Tried = CStr(r)\n    Case 23\n        wb.Colors(3) = RGB(255, 0, 0)\n        wb.Colors(10) = RGB(255, 0, 0)\n        ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)\n        r = ws.Range(\"A1\").Interior.ColorIndex\n        Tried = CStr(r)\n    Case 24\n        wb.Colors(3) = RGB(1, 2, 3)\n        ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)\n        r = ws.Range(\"A1\").Interior.ColorIndex & \":\" & ws.Range(\"A1\").Interior.Color\n        Tried = CStr(r)\n    Case 25\n        wb.Colors(3) = RGB(1, 2, 3)\n        Dim other As Workbook\n        Set other = Workbooks.Add\n        r = other.Colors(3)\n        other.Close False\n        Tried = CStr(r)\n    Case 26\n        wb.Colors(3) = RGB(255, 0, 0)\n        r = wb.Colors(3)\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\same.xlsx\", xlOpenXMLWorkbook\n    Case 27\n        ws.Range(\"A1\").Interior.ColorIndex = 3\n        wb.Colors(3) = RGB(1, 2, 3)\n        ws.Range(\"A1\").Copy ws.Range(\"B1\")\n        r = ws.Range(\"B1\").Interior.Color & \":\" & ws.Range(\"B1\").Interior.ColorIndex\n        Tried = CStr(r)\n    Case 28\n        ws.Tab.ColorIndex = 3\n        wb.Colors(3) = RGB(1, 2, 3)\n        r = ws.Tab.Color & \":\" & ws.Tab.ColorIndex\n        Tried = CStr(r)\n    Case 29\n        wb.Colors(3) = -1\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 30\n        wb.Colors(3) = &H1000000\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 31\n        wb.Colors(3) = &H1FF0102\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 32\n        wb.Colors(3) = \"x\"\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 33\n        wb.Colors(3) = \"&HFF\"\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 34\n        wb.Colors(3) = \"65280\"\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 35\n        wb.Colors(3) = True\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 36\n        wb.Colors(3) = Empty\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 37\n        wb.Colors(3) = 255.5\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 38\n        wb.Colors(3) = 254.5\n        r = wb.Colors(3)\n        Tried = CStr(r)\n    Case 39\n        wb.Colors(3) = Null\n        Tried = CStr(r)\n    Case 40\n        r = wb.Colors(2.5) & \":\" & wb.Colors(3.5) & \":\" & wb.Colors(\"4.9\")\n        Tried = CStr(r)\n    Case 41\n        ws.Range(\"A1\").Interior.Color = RGB(250, 0, 0)\n        r = ws.Range(\"A1\").Interior.ColorIndex\n        Tried = CStr(r)\n    Case 42\n        wb.Colors(10) = RGB(9, 9, 9)\n        ws.Range(\"A1\").Interior.Color = RGB(250, 0, 0)\n        r = ws.Range(\"A1\").Interior.ColorIndex\n        Tried = CStr(r)\n    Case 43\n        wb.Colors(10) = RGB(9, 9, 9)\n        ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)\n        r = ws.Range(\"A1\").Interior.ColorIndex & \":\" & ws.Range(\"A1\").Font.ColorIndex\n        Tried = CStr(r)\n    Case 44\n        ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)\n        wb.Colors(3) = RGB(1, 2, 3)\n        wb.ResetColors\n        r = ws.Range(\"A1\").Interior.ColorIndex\n        Tried = CStr(r)\n    Case 45\n        ws.Range(\"A1\").Font.Color = RGB(255, 0, 0)\n        wb.Colors(3) = RGB(1, 2, 3)\n        r = ws.Range(\"A1\").Font.ColorIndex & \":\" & ws.Range(\"A1\").Font.Color\n        Tried = CStr(r)\n    Case 46\n        ws.Range(\"A1\").Interior.Color = RGB(1, 2, 3)\n        wb.Colors(3) = RGB(1, 2, 3)\n        r = ws.Range(\"A1\").Interior.ColorIndex\n        Tried = CStr(r)\n    Case 47\n        wb.Colors(3) = RGB(1, 2, 3)\n        ws.Range(\"A1\").Interior.Color = RGB(1, 2, 3)\n        r = ws.Range(\"A1\").Interior.ColorIndex\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\chosen.xlsx\", xlOpenXMLWorkbook\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "r = TypeName(wb.Colors) & \":\" & LBound(wb.Colors) & \":\" & UBound(wb.Colors)"
+   ],
+   "r",
+   "",
+   "Variant():1:56"
+  ],
+  [
+   [
+    "r = TypeName(wb.Colors(3)) & \":\" & wb.Colors(3) & \":\" & wb.Colors(1) & \":\" & wb.Colors(56)"
+   ],
+   "r",
+   "",
+   "Double:255:0:3355443"
+  ],
+  [
+   [
+    "r = wb.Colors(0)"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'Colors' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "r = wb.Colors(57)"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'Colors' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "r = wb.Colors(-1)"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'Colors' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "r = wb.Colors(\"3\")"
+   ],
+   "r",
+   "",
+   "255"
+  ],
+  [
+   [
+    "r = wb.Colors(3.6)"
+   ],
+   "r",
+   "",
+   "255"
+  ],
+  [
+   [
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "r = wb.Colors(3) & \":\" & TypeName(wb.Colors(3))"
+   ],
+   "r",
+   "one.xlsx",
+   "197121:Double"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Interior.ColorIndex = 3",
+    "ws.Range(\"A2\").Interior.Color = RGB(255, 0, 0)",
+    "ws.Range(\"A3\").Font.ColorIndex = 3",
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "r = ws.Range(\"A1\").Interior.Color & \":\" & ws.Range(\"A1\").Interior.ColorIndex & \":\" & ws.Range(\"A2\").Interior.Color & \":\" & ws.Range(\"A2\").Interior.ColorIndex & \":\" & ws.Range(\"A3\").Font.Color & \":\" & ws.Range(\"A3\").Font.ColorIndex"
+   ],
+   "r",
+   "cells.xlsx",
+   "197121:3:255:-5:197121:3"
+  ],
+  [
+   [
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "wb.ResetColors",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "reset.xlsx",
+   "255"
+  ],
+  [
+   [
+    "wb.Colors(3) = -1"
+   ],
+   "r",
+   "",
+   "ok"
+  ],
+  [
+   [
+    "wb.Colors(3) = &H1000000"
+   ],
+   "r",
+   "",
+   "ok"
+  ],
+  [
+   [
+    "wb.Colors(3) = \"x\""
+   ],
+   "r",
+   "",
+   "ok"
+  ],
+  [
+   [
+    "wb.Colors(3) = \"255\"",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "0"
+  ],
+  [
+   [
+    "wb.Colors(3) = 255.6",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "255"
+  ],
+  [
+   [
+    "wb.Colors(0) = 255"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'Colors' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "wb.Colors(57) = 255"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'Colors' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "Dim a(1 To 56) As Long",
+    "For i = 1 To 56: a(i) = i * 1000: Next",
+    "wb.Colors = a",
+    "r = wb.Colors(1) & \":\" & wb.Colors(56)"
+   ],
+   "r",
+   "all.xlsx",
+   "1000:56000"
+  ],
+  [
+   [
+    "wb.Colors = Array(RGB(9, 9, 9), RGB(8, 8, 8), RGB(7, 7, 7))",
+    "r = wb.Colors(1) & \":\" & wb.Colors(2) & \":\" & wb.Colors(3) & \":\" & wb.Colors(4)"
+   ],
+   "r",
+   "some.xlsx",
+   "Excel crashed"
+  ],
+  [
+   [
+    "wb.Colors = 255"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'Colors' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "wb.Colors = Array()",
+    "r = wb.Colors(1)"
+   ],
+   "r",
+   "",
+   "Err 13 Type mismatch"
+  ],
+  [
+   [
+    "wb.Colors = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58)",
+    "r = wb.Colors(1) & \":\" & wb.Colors(56)"
+   ],
+   "r",
+   "",
+   "1:56"
+  ],
+  [
+   [
+    "wb.Colors = Array(RGB(9, 9, 9), \"x\")",
+    "r = wb.Colors(1)"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'Colors' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "wb.Colors(3) = RGB(255, 0, 0)",
+    "wb.Colors(10) = RGB(255, 0, 0)",
+    "ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)",
+    "r = ws.Range(\"A1\").Interior.ColorIndex"
+   ],
+   "r",
+   "",
+   "3"
+  ],
+  [
+   [
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)",
+    "r = ws.Range(\"A1\").Interior.ColorIndex & \":\" & ws.Range(\"A1\").Interior.Color"
+   ],
+   "r",
+   "",
+   "-5:255"
+  ],
+  [
+   [
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "Dim other As Workbook",
+    "Set other = Workbooks.Add",
+    "r = other.Colors(3)",
+    "other.Close False"
+   ],
+   "r",
+   "",
+   "255"
+  ],
+  [
+   [
+    "wb.Colors(3) = RGB(255, 0, 0)",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "same.xlsx",
+   "255"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Interior.ColorIndex = 3",
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "ws.Range(\"A1\").Copy ws.Range(\"B1\")",
+    "r = ws.Range(\"B1\").Interior.Color & \":\" & ws.Range(\"B1\").Interior.ColorIndex"
+   ],
+   "r",
+   "",
+   "197121:3"
+  ],
+  [
+   [
+    "ws.Tab.ColorIndex = 3",
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "r = ws.Tab.Color & \":\" & ws.Tab.ColorIndex"
+   ],
+   "r",
+   "",
+   "255:3"
+  ],
+  [
+   [
+    "wb.Colors(3) = -1",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "16777215"
+  ],
+  [
+   [
+    "wb.Colors(3) = &H1000000",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "0"
+  ],
+  [
+   [
+    "wb.Colors(3) = &H1FF0102",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "16711938"
+  ],
+  [
+   [
+    "wb.Colors(3) = \"x\"",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "0"
+  ],
+  [
+   [
+    "wb.Colors(3) = \"&HFF\"",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "0"
+  ],
+  [
+   [
+    "wb.Colors(3) = \"65280\"",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "0"
+  ],
+  [
+   [
+    "wb.Colors(3) = True",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "1"
+  ],
+  [
+   [
+    "wb.Colors(3) = Empty",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "0"
+  ],
+  [
+   [
+    "wb.Colors(3) = 255.5",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "255"
+  ],
+  [
+   [
+    "wb.Colors(3) = 254.5",
+    "r = wb.Colors(3)"
+   ],
+   "r",
+   "",
+   "254"
+  ],
+  [
+   [
+    "wb.Colors(3) = Null"
+   ],
+   "r",
+   "",
+   "ok"
+  ],
+  [
+   [
+    "r = wb.Colors(2.5) & \":\" & wb.Colors(3.5) & \":\" & wb.Colors(\"4.9\")"
+   ],
+   "r",
+   "",
+   "16777215:255:65280"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Interior.Color = RGB(250, 0, 0)",
+    "r = ws.Range(\"A1\").Interior.ColorIndex"
+   ],
+   "r",
+   "",
+   "3"
+  ],
+  [
+   [
+    "wb.Colors(10) = RGB(9, 9, 9)",
+    "ws.Range(\"A1\").Interior.Color = RGB(250, 0, 0)",
+    "r = ws.Range(\"A1\").Interior.ColorIndex"
+   ],
+   "r",
+   "",
+   "3"
+  ],
+  [
+   [
+    "wb.Colors(10) = RGB(9, 9, 9)",
+    "ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)",
+    "r = ws.Range(\"A1\").Interior.ColorIndex & \":\" & ws.Range(\"A1\").Font.ColorIndex"
+   ],
+   "r",
+   "",
+   "3:1"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Interior.Color = RGB(255, 0, 0)",
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "wb.ResetColors",
+    "r = ws.Range(\"A1\").Interior.ColorIndex"
+   ],
+   "r",
+   "",
+   "3"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Font.Color = RGB(255, 0, 0)",
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "r = ws.Range(\"A1\").Font.ColorIndex & \":\" & ws.Range(\"A1\").Font.Color"
+   ],
+   "r",
+   "",
+   "-5:255"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Interior.Color = RGB(1, 2, 3)",
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "r = ws.Range(\"A1\").Interior.ColorIndex"
+   ],
+   "r",
+   "",
+   "3"
+  ],
+  [
+   [
+    "wb.Colors(3) = RGB(1, 2, 3)",
+    "ws.Range(\"A1\").Interior.Color = RGB(1, 2, 3)",
+    "r = ws.Range(\"A1\").Interior.ColorIndex"
+   ],
+   "r",
+   "chosen.xlsx",
+   "3"
+  ]
+ ],
+ "parts": {
+  "one.xlsx": "<colors><indexedColors><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00010203\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008000\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00808000\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"00C0C0C0\"/><rgbColor rgb=\"00808080\"/><rgbColor rgb=\"009999FF\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00FFFFCC\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00660066\"/><rgbColor rgb=\"00FF8080\"/><rgbColor rgb=\"000066CC\"/><rgbColor rgb=\"00CCCCFF\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"0000CCFF\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00CCFFCC\"/><rgbColor rgb=\"00FFFF99\"/><rgbColor rgb=\"0099CCFF\"/><rgbColor rgb=\"00FF99CC\"/><rgbColor rgb=\"00CC99FF\"/><rgbColor rgb=\"00FFCC99\"/><rgbColor rgb=\"003366FF\"/><rgbColor rgb=\"0033CCCC\"/><rgbColor rgb=\"0099CC00\"/><rgbColor rgb=\"00FFCC00\"/><rgbColor rgb=\"00FF9900\"/><rgbColor rgb=\"00FF6600\"/><rgbColor rgb=\"00666699\"/><rgbColor rgb=\"00969696\"/><rgbColor rgb=\"00003366\"/><rgbColor rgb=\"00339966\"/><rgbColor rgb=\"00003300\"/><rgbColor rgb=\"00333300\"/><rgbColor rgb=\"00993300\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00333399\"/><rgbColor rgb=\"00333333\"/></indexedColors></colors>",
+  "cells.xlsx": "<colors><indexedColors><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00010203\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008000\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00808000\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"00C0C0C0\"/><rgbColor rgb=\"00808080\"/><rgbColor rgb=\"009999FF\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00FFFFCC\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00660066\"/><rgbColor rgb=\"00FF8080\"/><rgbColor rgb=\"000066CC\"/><rgbColor rgb=\"00CCCCFF\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"0000CCFF\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00CCFFCC\"/><rgbColor rgb=\"00FFFF99\"/><rgbColor rgb=\"0099CCFF\"/><rgbColor rgb=\"00FF99CC\"/><rgbColor rgb=\"00CC99FF\"/><rgbColor rgb=\"00FFCC99\"/><rgbColor rgb=\"003366FF\"/><rgbColor rgb=\"0033CCCC\"/><rgbColor rgb=\"0099CC00\"/><rgbColor rgb=\"00FFCC00\"/><rgbColor rgb=\"00FF9900\"/><rgbColor rgb=\"00FF6600\"/><rgbColor rgb=\"00666699\"/><rgbColor rgb=\"00969696\"/><rgbColor rgb=\"00003366\"/><rgbColor rgb=\"00339966\"/><rgbColor rgb=\"00003300\"/><rgbColor rgb=\"00333300\"/><rgbColor rgb=\"00993300\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00333399\"/><rgbColor rgb=\"00333333\"/></indexedColors></colors>",
+  "reset.xlsx": "",
+  "all.xlsx": "<colors><indexedColors><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00E80300\"/><rgbColor rgb=\"00D00700\"/><rgbColor rgb=\"00B80B00\"/><rgbColor rgb=\"00A00F00\"/><rgbColor rgb=\"00881300\"/><rgbColor rgb=\"00701700\"/><rgbColor rgb=\"00581B00\"/><rgbColor rgb=\"00401F00\"/><rgbColor rgb=\"00282300\"/><rgbColor rgb=\"00102700\"/><rgbColor rgb=\"00F82A00\"/><rgbColor rgb=\"00E02E00\"/><rgbColor rgb=\"00C83200\"/><rgbColor rgb=\"00B03600\"/><rgbColor rgb=\"00983A00\"/><rgbColor rgb=\"00803E00\"/><rgbColor rgb=\"00684200\"/><rgbColor rgb=\"00504600\"/><rgbColor rgb=\"00384A00\"/><rgbColor rgb=\"00204E00\"/><rgbColor rgb=\"00085200\"/><rgbColor rgb=\"00F05500\"/><rgbColor rgb=\"00D85900\"/><rgbColor rgb=\"00C05D00\"/><rgbColor rgb=\"00A86100\"/><rgbColor rgb=\"00906500\"/><rgbColor rgb=\"00786900\"/><rgbColor rgb=\"00606D00\"/><rgbColor rgb=\"00487100\"/><rgbColor rgb=\"00307500\"/><rgbColor rgb=\"00187900\"/><rgbColor rgb=\"00007D00\"/><rgbColor rgb=\"00E88000\"/><rgbColor rgb=\"00D08400\"/><rgbColor rgb=\"00B88800\"/><rgbColor rgb=\"00A08C00\"/><rgbColor rgb=\"00889000\"/><rgbColor rgb=\"00709400\"/><rgbColor rgb=\"00589800\"/><rgbColor rgb=\"00409C00\"/><rgbColor rgb=\"0028A000\"/><rgbColor rgb=\"0010A400\"/><rgbColor rgb=\"00F8A700\"/><rgbColor rgb=\"00E0AB00\"/><rgbColor rgb=\"00C8AF00\"/><rgbColor rgb=\"00B0B300\"/><rgbColor rgb=\"0098B700\"/><rgbColor rgb=\"0080BB00\"/><rgbColor rgb=\"0068BF00\"/><rgbColor rgb=\"0050C300\"/><rgbColor rgb=\"0038C700\"/><rgbColor rgb=\"0020CB00\"/><rgbColor rgb=\"0008CF00\"/><rgbColor rgb=\"00F0D200\"/><rgbColor rgb=\"00D8D600\"/><rgbColor rgb=\"00C0DA00\"/></indexedColors></colors>",
+  "same.xlsx": "",
+  "chosen.xlsx": "<colors><indexedColors><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00FF0000\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00000000\"/><rgbColor rgb=\"00FFFFFF\"/><rgbColor rgb=\"00010203\"/><rgbColor rgb=\"0000FF00\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008000\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00808000\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"00C0C0C0\"/><rgbColor rgb=\"00808080\"/><rgbColor rgb=\"009999FF\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00FFFFCC\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00660066\"/><rgbColor rgb=\"00FF8080\"/><rgbColor rgb=\"000066CC\"/><rgbColor rgb=\"00CCCCFF\"/><rgbColor rgb=\"00000080\"/><rgbColor rgb=\"00FF00FF\"/><rgbColor rgb=\"00FFFF00\"/><rgbColor rgb=\"0000FFFF\"/><rgbColor rgb=\"00800080\"/><rgbColor rgb=\"00800000\"/><rgbColor rgb=\"00008080\"/><rgbColor rgb=\"000000FF\"/><rgbColor rgb=\"0000CCFF\"/><rgbColor rgb=\"00CCFFFF\"/><rgbColor rgb=\"00CCFFCC\"/><rgbColor rgb=\"00FFFF99\"/><rgbColor rgb=\"0099CCFF\"/><rgbColor rgb=\"00FF99CC\"/><rgbColor rgb=\"00CC99FF\"/><rgbColor rgb=\"00FFCC99\"/><rgbColor rgb=\"003366FF\"/><rgbColor rgb=\"0033CCCC\"/><rgbColor rgb=\"0099CC00\"/><rgbColor rgb=\"00FFCC00\"/><rgbColor rgb=\"00FF9900\"/><rgbColor rgb=\"00FF6600\"/><rgbColor rgb=\"00666699\"/><rgbColor rgb=\"00969696\"/><rgbColor rgb=\"00003366\"/><rgbColor rgb=\"00339966\"/><rgbColor rgb=\"00003300\"/><rgbColor rgb=\"00333300\"/><rgbColor rgb=\"00993300\"/><rgbColor rgb=\"00993366\"/><rgbColor rgb=\"00333399\"/><rgbColor rgb=\"00333333\"/></indexedColors></colors>"
+ }
+}

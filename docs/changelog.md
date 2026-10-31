@@ -18,14 +18,6 @@ All notable changes to pyOpenVBA are documented here. This project follows
   - Null
   - `ColorIndex` of a colour a changed palette does not hold
 
-## [Unreleased]
-
-### Added
-
-- `Worksheet.CustomProperties` adds, reads, changes and deletes a sheet's
-  custom properties as Excel does, and saves them as Excel's own parts.
-  A workbook read from a file brings its sheets' properties with it.
-
 ## [6.6.0] - 2026-10-30
 
 ### Added

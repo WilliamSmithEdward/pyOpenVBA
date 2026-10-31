@@ -336,12 +336,12 @@ Application,WorksheetFunction,"property, read-only",As WorksheetFunction,,PARTIA
 Application,Worksheets,"property, read-only",As Sheets,,UNASSESSED,,
 Areas,_Default,"property, read-only",As Range,,MISSING,,
 Areas,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Areas,Application,"property, read-only",As Application,,MISSING,,
+Areas,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 Areas,Count,"property, read-only",As Long,,UNASSESSED,,
 Areas,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Areas,Item,"property, read-only",As Range,,UNASSESSED,,
-Areas,Parent,"property, read-only",As Object,,MISSING,,
-AutoFilter,Application,"property, read-only",As Application,,MISSING,,
+Areas,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The range of every area.
+AutoFilter,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 AutoFilter,ApplyFilter,method,ApplyFilter(),,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_autofilter_wildcards.py; tests/fixtures/table_autofilter/table_autofilter.json,"Filters again, taking in the rows of data that have grown on below the range. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts. Wildcard matching uses bounded state transitions while preserving prior literal, tilde, Unicode case, newline and type-admission behavior; no new criterion-length cap."
 AutoFilter,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 AutoFilter,FilterMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
@@ -875,11 +875,11 @@ Filter,Operator,property,As XlAutoFilterOperator,no setter,PARTIAL,tests/fixture
 Filter,Parent,"property, read-only",As Object,,MISSING,,
 Filters,_Default,"property, read-only",As Filter,,MISSING,,
 Filters,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Filters,Application,"property, read-only",As Application,,MISSING,,
+Filters,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 Filters,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py,
 Filters,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Filters,Item,"property, read-only",As Filter,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py,
-Filters,Parent,"property, read-only",As Object,,MISSING,,
+Filters,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The AutoFilter.
 Font,Application,"property, read-only",As Application,,UNASSESSED,,
 Font,Background,property,As Variant,,MISSING,,
 Font,Bold,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
@@ -1065,7 +1065,7 @@ LinearGradient,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixture
 LinearGradient,Degree,property,As Double,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"Any number, written only when not 0."
 LinearGradient,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,The Interior.
 ListColumn,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/tables/tables.json,The column's name.
-ListColumn,Application,"property, read-only",As Application,,MISSING,,
+ListColumn,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 ListColumn,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListColumn,DataBodyRange,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumn,Delete,method,Delete(),,PARTIAL,tests/fixtures/tables/edits/edits.json,"The column's cells deleted, those right of them moving across, and a structured reference to it #REF!; deleting the only column reports itself."
@@ -1073,13 +1073,13 @@ ListColumn,Index,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/t
 ListColumn,Name,property,As String,,VERIFIED,tests/fixtures/tables/tables.json; tests/fixtures/structured_references/structured.json,"Setting it renames the column, its header and every formula naming it; a name another column has leaves the column as it was, and an empty one is the first free ColumnN."
 ListColumn,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/tables/tables.json,
 ListColumn,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tables.json,
-ListColumn,Total,"property, read-only",As Range,,MISSING,,
+ListColumn,Total,"property, read-only",As Range,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The column's cell in the totals row; Nothing while the table shows none.
 ListColumn,TotalsCalculation,property,As XlTotalsCalculation,,VERIFIED,tests/fixtures/tables/totals_row/totals_row.json,"Read and set, the totals row shown or hidden: each function its SUBTOTAL, None an empty cell, Custom an empty cell until a formula is written there; read back from a SUBTOTAL, a formula or a label written into the row."
 ListColumn,XPath,"property, read-only",As XPath,,MISSING,,
 ListColumns,_Default,"property, read-only",As ListColumn,,MISSING,,
 ListColumns,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListColumns,Add,method,Add([Position As Variant]) As ListColumn,,VERIFIED,tests/fixtures/tables/edits/edits.json,"At the end or at a position, named the first free ColumnN, the cells right of it in the table's rows moving across."
-ListColumns,Application,"property, read-only",As Application,,MISSING,,
+ListColumns,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 ListColumns,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListColumns,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListColumns,Item,"property, read-only",As ListColumn,,VERIFIED,tests/fixtures/tables/tables.json,"By position or by name, error 9 for neither."
@@ -1131,7 +1131,7 @@ ListObject,XmlMap,"property, read-only",As XmlMap,,PARTIAL,tests/fixtures/table_
 ListObjects,_Default,"property, read-only",As ListObject,,MISSING,,
 ListObjects,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListObjects,Add,method,"Add([SourceType As XlListObjectSourceType], [Source As Variant], [LinkSource As Variant], [XlListObjectHasHeaders As XlYesNoGuess], [Destination As Variant], [TableStyleName As Variant]) As ListObject",,PARTIAL,tests/fixtures/tables/tables.json,"Over a range of the sheet: headers from its first row as text, a blank one ColumnN and a repeat numbered, or a header row put in above it; left to guess, text over data takes headers; the first free TableN, TableStyleMedium2; error 1004 over another table. Other sources, and a range over array formulas or merged cells, report themselves."
-ListObjects,Application,"property, read-only",As Application,,MISSING,,
+ListObjects,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 ListObjects,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListObjects,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListObjects,Item,"property, read-only",As ListObject,,VERIFIED,tests/fixtures/tables/tables.json,"By position or by name, error 9 for neither."
@@ -1145,7 +1145,7 @@ ListRow,Range,"property, read-only",As Range,,VERIFIED,tests/fixtures/tables/tab
 ListRows,_Default,"property, read-only",As ListRow,,MISSING,,
 ListRows,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 ListRows,Add,method,"Add([Position As Variant], [AlwaysInsert As Variant]) As ListRow",,VERIFIED,tests/fixtures/tables/edits/edits.json,"At the end, above a totals row, or at a position, the table's columns moving down; with AlwaysInsert False over an empty row the table takes the row. A calculated column fills the new row, and a reference to a column's rows stretches over it."
-ListRows,Application,"property, read-only",As Application,,MISSING,,
+ListRows,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 ListRows,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/tables/tables.json,
 ListRows,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ListRows,Item,"property, read-only",As ListRow,,VERIFIED,tests/fixtures/tables/tables.json,Error 9 past the last row.
@@ -1237,7 +1237,7 @@ PageSetup,PrintComments,property,As XlPrintLocation,,PARTIAL,tests/test_excel_pa
 PageSetup,PrintErrors,property,As XlPrintErrors,,PARTIAL,tests/test_excel_page_setup.py; tests/test_excel_page_setup_names.py; tests/fixtures/page_setup,"Measured persisted worksheet configuration: finite nonnegative margins in points, bounded scaling and fit settings, initial enums/Boolean options and scoped print areas/titles. Variant getter types, native save/reopen and quote-safe name lifecycle have controls. Coercion differences, negative margins, unmeasured worksheet-UDF setters, configured-sheet copying, printer services and rendering remain unsupported or partial."
 PageSetup,PrintGridlines,property,As Boolean,,PARTIAL,tests/test_excel_page_setup.py; tests/test_excel_page_setup_names.py; tests/fixtures/page_setup,"Measured persisted worksheet configuration: finite nonnegative margins in points, bounded scaling and fit settings, initial enums/Boolean options and scoped print areas/titles. Variant getter types, native save/reopen and quote-safe name lifecycle have controls. Coercion differences, negative margins, unmeasured worksheet-UDF setters, configured-sheet copying, printer services and rendering remain unsupported or partial."
 PageSetup,PrintHeadings,property,As Boolean,,PARTIAL,tests/test_excel_page_setup.py; tests/test_excel_page_setup_names.py; tests/fixtures/page_setup,"Measured persisted worksheet configuration: finite nonnegative margins in points, bounded scaling and fit settings, initial enums/Boolean options and scoped print areas/titles. Variant getter types, native save/reopen and quote-safe name lifecycle have controls. Coercion differences, negative margins, unmeasured worksheet-UDF setters, configured-sheet copying, printer services and rendering remain unsupported or partial."
-PageSetup,PrintNotes,property,As Boolean,,MISSING,,
+PageSetup,PrintNotes,property,As Boolean,,PARTIAL,tests/fixtures/print_notes.json; tests/test_excel_print_notes.py,"Whether comments print, at the end or as shown; set, True prints them at the end, False not at all."
 PageSetup,PrintQuality,property,As Variant,,MISSING,,
 PageSetup,PrintTitleColumns,property,As String,,PARTIAL,tests/test_excel_page_setup.py; tests/test_excel_page_setup_names.py; tests/fixtures/page_setup,"Measured persisted worksheet configuration: finite nonnegative margins in points, bounded scaling and fit settings, initial enums/Boolean options and scoped print areas/titles. Variant getter types, native save/reopen and quote-safe name lifecycle have controls. Combined filter/print reserved names migrate atomically on worksheet rename. Coercion differences, negative margins, unmeasured worksheet-UDF setters, configured-sheet copying, printer services and rendering remain unsupported or partial."
 PageSetup,PrintTitleRows,property,As String,,PARTIAL,tests/test_excel_page_setup.py; tests/test_excel_page_setup_names.py; tests/fixtures/page_setup,"Measured persisted worksheet configuration: finite nonnegative margins in points, bounded scaling and fit settings, initial enums/Boolean options and scoped print areas/titles. Variant getter types, native save/reopen and quote-safe name lifecycle have controls. Combined filter/print reserved names migrate atomically on worksheet rename. Coercion differences, negative margins, unmeasured worksheet-UDF setters, configured-sheet copying, printer services and rendering remain unsupported or partial."
@@ -2801,7 +2801,7 @@ WorksheetFunction,Aggregate,method,"Aggregate(Arg1 As Double, Arg2 As Double, Ar
 WorksheetFunction,AmorDegrc,method,"AmorDegrc(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, Arg6 As Variant, [Arg7 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,AmorLinc,method,"AmorLinc(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, Arg6 As Variant, [Arg7 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,And,method,"And(Arg1 As Variant, [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Boolean",,PARTIAL,tests/fixtures/worksheet_functions.json,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
-WorksheetFunction,Application,"property, read-only",As Application,,MISSING,,
+WorksheetFunction,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 WorksheetFunction,Arabic,method,Arabic(Arg1 As String) As Double,,UNASSESSED,,
 WorksheetFunction,ArrayToText,method,"ArrayToText(Arg1 As Variant, [Arg2 As Variant]) As String",,UNASSESSED,,
 WorksheetFunction,Asc,method,Asc(Arg1 As String) As String,,UNASSESSED,,
@@ -3068,7 +3068,7 @@ WorksheetFunction,OddFYield,method,"OddFYield(Arg1 As Variant, Arg2 As Variant, 
 WorksheetFunction,OddLPrice,method,"OddLPrice(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, Arg6 As Variant, Arg7 As Variant, [Arg8 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,OddLYield,method,"OddLYield(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, Arg6 As Variant, Arg7 As Variant, [Arg8 As Variant]) As Double",,UNASSESSED,,
 WorksheetFunction,Or,method,"Or(Arg1 As Variant, [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Boolean",,PARTIAL,tests/fixtures/worksheet_functions.json,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
-WorksheetFunction,Parent,"property, read-only",As Object,,MISSING,,
+WorksheetFunction,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 WorksheetFunction,PDuration,method,"PDuration(Arg1 As Double, Arg2 As Double, Arg3 As Double) As Double",,UNASSESSED,,
 WorksheetFunction,Pearson,method,"Pearson(Arg1 As Variant, Arg2 As Variant) As Double",,UNASSESSED,,
 WorksheetFunction,Percentile,method,"Percentile(Arg1 As Variant, Arg2 As Double) As Double",,UNASSESSED,,

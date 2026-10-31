@@ -5777,6 +5777,15 @@ class Areas(VBACollection, ExcelObject):
     def vba_items(self) -> list[object]:
         return [Range(self.target.sheet, [area]) for area in self.target.areas]
 
+    @member
+    def Parent(self) -> object:
+        """The range of every area (tests/fixtures/object_parents.json)."""
+        return self.target
+
+    @member
+    def Application(self) -> object:
+        return self.target.sheet.book.application
+
 
 # --- names -------------------------------------------------------------------------------------
 
@@ -6316,6 +6325,14 @@ class WorksheetFunction(ExcelObject):
                 )
             raise error(438, f"WorksheetFunction has no member named {name}")
         return super().vba_get(name, args, named)
+
+    @member
+    def Parent(self) -> object:
+        return self.application
+
+    @member
+    def Application(self) -> object:
+        return self.application
 
 
 def _register_worksheet_functions() -> None:

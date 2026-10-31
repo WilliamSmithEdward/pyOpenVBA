@@ -7,7 +7,12 @@ Measured in live Excel (scripts/measure_application_settings.py, tests/fixtures/
   Null and text that is no Boolean leave a switch as it was, with no
   error. DisplayFullScreen and FixedDecimal start False, UserControl False
   as in Excel a program started, AskToUpdateLinks True as Excel ships it
-  (the measuring harness turns it off), and the rest True.
+  (the measuring harness turns it off), and the rest of the first fifteen
+  True. The 31 since (AutoPercentEntry, ExtendList, EnableSound and the
+  rest) start as the measuring machine's Excel had them. ConstrainNumeric
+  and FlashFillMode stay False whatever is set. ShowMenuFloaties and
+  ShowSelectionFloaties are left out: their setters are turned round, and
+  measuring them turned the measuring user's mini toolbar off.
 - Cursor, EnableCancelKey, MoveAfterReturnDirection, DisplayCommentIndicator
   and FixedDecimalPlaces take a number rounded as VBA rounds to a Long,
   Empty as 0, Null and text that is no number changing nothing. A Cursor
@@ -45,7 +50,20 @@ SWITCHES = {'DisplayStatusBar': True, 'DisplayFormulaBar': True, 'DisplayScrollB
             'DisplayFullScreen': False, 'EnableAnimations': True, 'Interactive': True, 'AskToUpdateLinks': True,
             'AlertBeforeOverwriting': True, 'CellDragAndDrop': True, 'CopyObjectsWithCells': True,
             'EditDirectlyInCell': True, 'EnableAutoComplete': True, 'FixedDecimal': False, 'MoveAfterReturn': True,
-            'UserControl': False}
+            'UserControl': False,
+            'AutoFormatAsYouTypeReplaceHyperlinks': True, 'AutoPercentEntry': True, 'ChartDataPointTrack': True,
+            'ConstrainNumeric': False, 'ControlCharacters': False, 'DeferAsyncQueries': False,
+            'DisplayFormulaAutoComplete': True, 'DisplayFunctionToolTips': True, 'DisplayInsertOptions': True,
+            'DisplayPasteOptions': True, 'EnableCheckFileExtensions': True, 'EnableLargeOperationAlert': True,
+            'EnableLivePreview': True, 'EnableMacroAnimations': False, 'EnableSound': False, 'ExtendList': True,
+            'FlashFill': True, 'FlashFillMode': False, 'FormatStaleValues': True, 'GenerateGetPivotData': True,
+            'MapPaperSize': True, 'PivotTableSelection': True, 'PromptForSummaryInfo': False, 'RollZoom': False,
+            'ShowChartTipNames': True, 'ShowChartTipValues': True, 'ShowConvertToDataType': True,
+            'ShowQuickAnalysis': True, 'ShowToolTips': True, 'TransitionNavigKeys': False,
+            'WarnOnFunctionNameConflict': True}
+#: Switches that stay as they are whatever a macro sets, with no error: pen input's ConstrainNumeric and Flash
+#: Fill's FlashFillMode read False after every setting (tests/fixtures/application_settings.json).
+FIXED = frozenset({'ConstrainNumeric', 'FlashFillMode'})
 CURSORS = (1, 2, 3, -4143)
 #: MoveAfterReturnDirection's directions, by the place Excel also takes for each: down, right, up and left.
 DIRECTIONS = (-4121, -4161, -4162, -4159)
@@ -94,7 +112,7 @@ def _switch(name: str) -> MemberSpec:
 
     def put(application: Application, value: object) -> None:
         found = flag(value)
-        if found is not None:
+        if found is not None and name not in FIXED:
             application.settings[name] = found
 
     return MemberSpec(name=name, kind='property', getter=get, setter=put)

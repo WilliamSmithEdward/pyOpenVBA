@@ -2404,7 +2404,7 @@ Workbook,DefaultPivotTableStyle,property,As Variant,,MISSING,,
 Workbook,DefaultSlicerStyle,property,As Variant,,MISSING,,
 Workbook,DefaultTableStyle,property,As Variant,,MISSING,,
 Workbook,DefaultTimelineStyle,property,As Variant,,MISSING,,
-Workbook,DeleteNumberFormat,method,DeleteNumberFormat(NumberFormat As String),,MISSING,,
+Workbook,DeleteNumberFormat,method,DeleteNumberFormat(NumberFormat As String),,PARTIAL,tests/test_excel_delete_number_format.py; tests/fixtures/delete_number_format.json,"Every cell, row, column and cell style using the custom format shows General, keeping the rest of its format, on every sheet; matched as NumberFormat spells it, so [red] finds [Red]. A built-in format or "" is error 1004, as is a protected active sheet; a format the workbook does not hold is passed over. Another protected sheet reports itself unsupported."
 Workbook,DisplayDrawingObjects,property,As XlDisplayDrawingObjects,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,"xlDisplayShapes, xlPlaceholders or xlHide, saved as the workbookPr's showObjects and read back; setting it leaves the workbook unsaved. It hides nothing the model draws."
 Workbook,DisplayInkComments,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as the workbookPr's showInkAnnotation and read back; the workbook stays saved.
 Workbook,DocumentInspectors,"property, read-only",As DocumentInspectors,,MISSING,,

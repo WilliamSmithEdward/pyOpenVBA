@@ -1,0 +1,191 @@
+{
+ "measured_at": "2026-10-31T02:39:32.759201+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, r As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    r = \"ok\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.000\\x\"\n        wb.DeleteNumberFormat \"0.000\\x\"\n        r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"A1\").Text\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\used.xlsx\", xlOpenXMLWorkbook\n    Case 1\n        ws.Range(\"A1\").NumberFormat = \"0.000\\x\"\n        ws.Range(\"A1\").NumberFormat = \"General\"\n        wb.DeleteNumberFormat \"0.000\\x\"\n        r = \"deleted\"\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\unused.xlsx\", xlOpenXMLWorkbook\n    Case 2\n        wb.DeleteNumberFormat \"0.000\\x\"\n        r = \"deleted\"\n        Tried = CStr(r)\n    Case 3\n        wb.DeleteNumberFormat \"0.00\"\n        Tried = CStr(r)\n    Case 4\n        wb.DeleteNumberFormat \"General\"\n        Tried = CStr(r)\n    Case 5\n        wb.DeleteNumberFormat \"m/d/yyyy\"\n        Tried = CStr(r)\n    Case 6\n        wb.DeleteNumberFormat \"\"\n        Tried = CStr(r)\n    Case 7\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        wb.DeleteNumberFormat \"0.0000\"\n        r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"A1\").Text\n        Tried = CStr(r)\n    Case 8\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        wb.DeleteNumberFormat \"0.0000 \"\n        r = ws.Range(\"A1\").NumberFormat\n        Tried = CStr(r)\n    Case 9\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        wb.DeleteNumberFormat \"0.0000;\"\n        r = ws.Range(\"A1\").NumberFormat\n        Tried = CStr(r)\n    Case 10\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"[Red]0.0000\"\n        wb.DeleteNumberFormat \"[red]0.0000\"\n        r = ws.Range(\"A1\").NumberFormat\n        Tried = CStr(r)\n    Case 11\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        wb.DeleteNumberFormat 5\n        r = ws.Range(\"A1\").NumberFormat\n        Tried = CStr(r)\n    Case 12\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"#,##0.0000\"\n        ws.Range(\"B1\").NumberFormat = \"#,##0.0000\"\n        wb.Worksheets.Add.Range(\"C1\").NumberFormat = \"#,##0.0000\"\n        wb.DeleteNumberFormat \"#,##0.0000\"\n        r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"B1\").NumberFormat & \"|\" & wb.Worksheets(1).Range(\"C1\").NumberFormat\n        Tried = CStr(r)\n        wb.SaveAs folder & \"\\several.xlsx\", xlOpenXMLWorkbook\n    Case 13\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        ws.Range(\"A1\").Font.Bold = True\n        wb.DeleteNumberFormat \"0.0000\"\n        r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"A1\").Font.Bold\n        Tried = CStr(r)\n    Case 14\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        wb.Styles.Add \"S1\"\n        wb.Styles(\"S1\").NumberFormat = \"0.0000\"\n        wb.DeleteNumberFormat \"0.0000\"\n        r = wb.Styles(\"S1\").NumberFormat\n        Tried = CStr(r)\n    Case 15\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        ws.Protect\n        wb.DeleteNumberFormat \"0.0000\"\n        r = ws.Range(\"A1\").NumberFormat\n        Tried = CStr(r)\n    Case 16\n        ws.Range(\"A1\").Value = 1.5\n        ws.Range(\"A1\").NumberFormat = \"0.0000\"\n        wb.Protect Structure:=True\n        wb.DeleteNumberFormat \"0.0000\"\n        r = ws.Range(\"A1\").NumberFormat\n        Tried = CStr(r)\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.000\\x\"",
+    "wb.DeleteNumberFormat \"0.000\\x\"",
+    "r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"A1\").Text"
+   ],
+   "r",
+   "used.xlsx",
+   "General|1.5"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").NumberFormat = \"0.000\\x\"",
+    "ws.Range(\"A1\").NumberFormat = \"General\"",
+    "wb.DeleteNumberFormat \"0.000\\x\"",
+    "r = \"deleted\""
+   ],
+   "r",
+   "unused.xlsx",
+   "deleted"
+  ],
+  [
+   [
+    "wb.DeleteNumberFormat \"0.000\\x\"",
+    "r = \"deleted\""
+   ],
+   "r",
+   "",
+   "deleted"
+  ],
+  [
+   [
+    "wb.DeleteNumberFormat \"0.00\""
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'DeleteNumberFormat' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "wb.DeleteNumberFormat \"General\""
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'DeleteNumberFormat' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "wb.DeleteNumberFormat \"m/d/yyyy\""
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'DeleteNumberFormat' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "wb.DeleteNumberFormat \"\""
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'DeleteNumberFormat' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "wb.DeleteNumberFormat \"0.0000\"",
+    "r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"A1\").Text"
+   ],
+   "r",
+   "",
+   "General|1.5"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "wb.DeleteNumberFormat \"0.0000 \"",
+    "r = ws.Range(\"A1\").NumberFormat"
+   ],
+   "r",
+   "",
+   "0.0000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "wb.DeleteNumberFormat \"0.0000;\"",
+    "r = ws.Range(\"A1\").NumberFormat"
+   ],
+   "r",
+   "",
+   "0.0000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"[Red]0.0000\"",
+    "wb.DeleteNumberFormat \"[red]0.0000\"",
+    "r = ws.Range(\"A1\").NumberFormat"
+   ],
+   "r",
+   "",
+   "General"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "wb.DeleteNumberFormat 5",
+    "r = ws.Range(\"A1\").NumberFormat"
+   ],
+   "r",
+   "",
+   "0.0000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"#,##0.0000\"",
+    "ws.Range(\"B1\").NumberFormat = \"#,##0.0000\"",
+    "wb.Worksheets.Add.Range(\"C1\").NumberFormat = \"#,##0.0000\"",
+    "wb.DeleteNumberFormat \"#,##0.0000\"",
+    "r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"B1\").NumberFormat & \"|\" & wb.Worksheets(1).Range(\"C1\").NumberFormat"
+   ],
+   "r",
+   "several.xlsx",
+   "General|General|General"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "ws.Range(\"A1\").Font.Bold = True",
+    "wb.DeleteNumberFormat \"0.0000\"",
+    "r = ws.Range(\"A1\").NumberFormat & \"|\" & ws.Range(\"A1\").Font.Bold"
+   ],
+   "r",
+   "",
+   "General|True"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "wb.Styles.Add \"S1\"",
+    "wb.Styles(\"S1\").NumberFormat = \"0.0000\"",
+    "wb.DeleteNumberFormat \"0.0000\"",
+    "r = wb.Styles(\"S1\").NumberFormat"
+   ],
+   "r",
+   "",
+   "General"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "ws.Protect",
+    "wb.DeleteNumberFormat \"0.0000\"",
+    "r = ws.Range(\"A1\").NumberFormat"
+   ],
+   "r",
+   "",
+   "Err 1004 Method 'DeleteNumberFormat' of object '_Workbook' failed"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 1.5",
+    "ws.Range(\"A1\").NumberFormat = \"0.0000\"",
+    "wb.Protect Structure:=True",
+    "wb.DeleteNumberFormat \"0.0000\"",
+    "r = ws.Range(\"A1\").NumberFormat"
+   ],
+   "r",
+   "",
+   "General"
+  ]
+ ],
+ "parts": {
+  "used.xlsx": "",
+  "unused.xlsx": "",
+  "several.xlsx": ""
+ }
+}

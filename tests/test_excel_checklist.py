@@ -98,6 +98,13 @@ def test_every_row_has_a_known_status_and_no_duplicates() -> None:
     assert len(keys) == len(set(keys))
 
 
+def test_every_row_has_its_eight_fields() -> None:
+    """A quote left undoubled inside a quoted field splits a row into more fields, which DictReader keeps under
+    the key None."""
+    split = [(row["object"], row["member"]) for row in ROWS if len(row) != 8]
+    assert not split, split
+
+
 @pytest.mark.parametrize("type_name", sorted(CLASSES))
 def test_the_status_matches_the_registration(type_name: str) -> None:
     registered = _implemented(CLASSES[type_name])

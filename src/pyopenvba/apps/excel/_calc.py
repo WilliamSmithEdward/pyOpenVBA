@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.apps.excel._arrays import array_at
+from pyopenvba.apps.excel._precision import shown
 from pyopenvba.apps.excel._engine_book import ERROR_NUMBERS, EngineBook, calls_user, model_value, volatile
 from pyopenvba.formula._calc.evaluator import Context as EngineContext
 from pyopenvba.formula._calc.lexer import FormulaSyntaxError
@@ -1056,7 +1057,7 @@ class Calculator:
                 if compiled.dynamic:
                     return self._spilling(owner, row, column, deep(whole))
                 if block is None:
-                    return model_value(deep(one))
+                    return shown(owner, row, column, model_value(deep(one)))
                 return _spread(owner, block, deep(whole))
         except EngineError as failure:
             if compiled.dynamic:
@@ -1263,7 +1264,7 @@ def _spread(sheet: Worksheet, block: Area, answer: Array) -> object:
     first: object = 0.0
     for row in range(block.top, block.bottom + 1):
         for column in range(block.left, block.right + 1):
-            value = model_value(answer.at(row - block.top, column - block.left))
+            value = shown(sheet, row, column, model_value(answer.at(row - block.top, column - block.left)))
             if (row, column) == (block.top, block.left):
                 first = value
                 continue

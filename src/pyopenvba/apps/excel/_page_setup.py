@@ -426,10 +426,12 @@ class PageSetup(ExcelObject):
             updates[('printOptions',) if name in OPTIONS else ('pageSetup',)] = {key: str(int(value))}
         elif name in ENUMS:
             number = _finite(value)
-            attribute, mapping, _default = ENUMS[name]
+            attribute, mapping, default = ENUMS[name]
             if number not in mapping:
                 raise error(1004)
-            updates[('pageSetup',)] = {attribute: mapping[int(number)]}
+            # Set back to its default, a setting leaves the file but orientation stays (tests/fixtures/print_notes.json).
+            dropped = number == default and name != 'Orientation'
+            updates[('pageSetup',)] = {attribute: None if dropped else mapping[int(number)]}
         elif name == 'PaperSize':
             number = _finite(value)
             if number == 0:
@@ -573,6 +575,16 @@ class PageSetup(ExcelObject):
     @setter('PrintComments')
     def set_printcomments(self, value: object) -> None:
         self._set('PrintComments', value)
+
+    @member
+    def PrintNotes(self) -> object:
+        """Whether comments print, at the end or as shown; set, True prints them at the end and False not at all
+        (tests/fixtures/print_notes.json)."""
+        return self._get('PrintComments') != -4142
+
+    @setter('PrintNotes')
+    def set_printnotes(self, value: object) -> None:
+        self._set('PrintComments', VBAInt(1 if to_bool(value) else -4142, 'Long'))
 
     @member
     def PrintErrors(self) -> object:

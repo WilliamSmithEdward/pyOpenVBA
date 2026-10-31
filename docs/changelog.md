@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Twelve `Parent` and `Application` members answer as Excel's do.
+  `Areas.Parent` is the range of every area, `Filters.Parent` the
+  AutoFilter and `WorksheetFunction.Parent` the application, and Areas,
+  Filters, AutoFilter, WorksheetFunction, ListObjects, ListColumns,
+  ListRows and ListColumn gain `Application`. `ListColumn.Total` is the
+  column's cell in the totals row, and Nothing while the table shows
+  none. 16 live reads agree, `tests/fixtures/object_parents.json`.
+
 - `PageSetup.PrintNotes` works as Excel's does. It reads True when
   comments print at the end or as shown. A set of True prints them at
   the end, and False not at all. 14 live cases agree,

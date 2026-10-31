@@ -1,0 +1,195 @@
+{
+ "measured_at": "2026-10-31T07:22:41.725426+00:00",
+ "source": "Private Function Prop(ByVal o As Object, ByVal what As String) As String\n    Dim v As Variant\n    On Error Resume Next\n    v = CallByName(o, what, VbGet)\n    If Err.Number <> 0 Then\n        Prop = \"E\" & Err.Number\n    ElseIf IsArray(v) Then\n        Prop = \"Array\" & LBound(v) & \"-\" & UBound(v)\n    Else\n        Prop = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, wbo As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set wbo = wb\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n    Case 1\n        wb.SaveAs folder & \"\\plain.xlsx\", xlOpenXMLWorkbook\n        wb.Close\n        Set wb = Workbooks.Open(folder & \"\\plain.xlsx\")\n        Set wbo = wb\n    Case 2\n        wbo.PersonalViewListSettings = False\n        wb.SaveAs folder & \"\\set_PersonalViewListSettings.xlsx\", xlOpenXMLWorkbook\n    Case 3\n        wbo.PersonalViewPrintSettings = False\n        wb.SaveAs folder & \"\\set_PersonalViewPrintSettings.xlsx\", xlOpenXMLWorkbook\n    Case 4\n        wbo.TemplateRemoveExtData = True\n        wb.SaveAs folder & \"\\set_TemplateRemoveExtData.xlsx\", xlOpenXMLWorkbook\n    Case 5\n        wbo.DoNotPromptForConvert = True\n        wb.SaveAs folder & \"\\set_DoNotPromptForConvert.xlsx\", xlOpenXMLWorkbook\n    Case 6\n        wbo.EnvelopeVisible = True\n        wb.SaveAs folder & \"\\set_EnvelopeVisible.xlsx\", xlOpenXMLWorkbook\n    Case 7\n        wbo.ChangeHistoryDuration = 30\n        wb.SaveAs folder & \"\\set_ChangeHistoryDuration.xlsx\", xlOpenXMLWorkbook\n    Case 8\n        wbo.KeepChangeHistory = False\n        wb.SaveAs folder & \"\\set_KeepChangeHistory.xlsx\", xlOpenXMLWorkbook\n    Case 9\n        wbo.ConflictResolution = 2\n        wb.SaveAs folder & \"\\set_ConflictResolution.xlsx\", xlOpenXMLWorkbook\n    Case 10\n        wbo.HighlightChangesOnScreen = True\n        wb.SaveAs folder & \"\\set_HighlightChangesOnScreen.xlsx\", xlOpenXMLWorkbook\n    Case 11\n        wbo.ListChangesOnNewSheet = True\n        wb.SaveAs folder & \"\\set_ListChangesOnNewSheet.xlsx\", xlOpenXMLWorkbook\n    Case 12\n        wbo.ShowConflictHistory = True\n        wb.SaveAs folder & \"\\set_ShowConflictHistory.xlsx\", xlOpenXMLWorkbook\n    Case 13\n        wbo.AutoUpdateFrequency = 5\n        wb.SaveAs folder & \"\\set_AutoUpdateFrequency.xlsx\", xlOpenXMLWorkbook\n    Case 14\n        wbo.AutoUpdateSaveChanges = False\n        wb.SaveAs folder & \"\\set_AutoUpdateSaveChanges.xlsx\", xlOpenXMLWorkbook\n    Case 15\n        wbo.IsAddin = True\n        wb.SaveAs folder & \"\\set_IsAddin.xlsx\", xlOpenXMLWorkbook\n    Case 16\n        wbo.AutoSaveOn = True\n        wb.SaveAs folder & \"\\set_AutoSaveOn.xlsx\", xlOpenXMLWorkbook\n    Case 17\n        wbo.WritePassword = \"w\"\n        wb.SaveAs folder & \"\\set_WritePassword.xlsx\", xlOpenXMLWorkbook\n    Case 18\n        wbo.Password = \"p\"\n        wb.SaveAs folder & \"\\set_Password.xlsx\", xlOpenXMLWorkbook\n    End Select\n    Dim s As String\n    s = s & \"|AutoSaveOn=\" & Prop(wbo, \"AutoSaveOn\")\n    s = s & \"|AutoUpdateFrequency=\" & Prop(wbo, \"AutoUpdateFrequency\")\n    s = s & \"|AutoUpdateSaveChanges=\" & Prop(wbo, \"AutoUpdateSaveChanges\")\n    s = s & \"|ChangeHistoryDuration=\" & Prop(wbo, \"ChangeHistoryDuration\")\n    s = s & \"|CompatibilityVersion=\" & Prop(wbo, \"CompatibilityVersion\")\n    s = s & \"|ConflictResolution=\" & Prop(wbo, \"ConflictResolution\")\n    s = s & \"|ConnectionsDisabled=\" & Prop(wbo, \"ConnectionsDisabled\")\n    s = s & \"|DoNotPromptForConvert=\" & Prop(wbo, \"DoNotPromptForConvert\")\n    s = s & \"|EncryptionProvider=\" & Prop(wbo, \"EncryptionProvider\")\n    s = s & \"|EnvelopeVisible=\" & Prop(wbo, \"EnvelopeVisible\")\n    s = s & \"|Excel8CompatibilityMode=\" & Prop(wbo, \"Excel8CompatibilityMode\")\n    s = s & \"|HighlightChangesOnScreen=\" & Prop(wbo, \"HighlightChangesOnScreen\")\n    s = s & \"|IsAddin=\" & Prop(wbo, \"IsAddin\")\n    s = s & \"|IsInplace=\" & Prop(wbo, \"IsInplace\")\n    s = s & \"|KeepChangeHistory=\" & Prop(wbo, \"KeepChangeHistory\")\n    s = s & \"|ListChangesOnNewSheet=\" & Prop(wbo, \"ListChangesOnNewSheet\")\n    s = s & \"|MultiUserEditing=\" & Prop(wbo, \"MultiUserEditing\")\n    s = s & \"|Password=\" & Prop(wbo, \"Password\")\n    s = s & \"|PersonalViewListSettings=\" & Prop(wbo, \"PersonalViewListSettings\")\n    s = s & \"|PersonalViewPrintSettings=\" & Prop(wbo, \"PersonalViewPrintSettings\")\n    s = s & \"|RevisionNumber=\" & Prop(wbo, \"RevisionNumber\")\n    s = s & \"|ShowConflictHistory=\" & Prop(wbo, \"ShowConflictHistory\")\n    s = s & \"|TemplateRemoveExtData=\" & Prop(wbo, \"TemplateRemoveExtData\")\n    s = s & \"|VBASigned=\" & Prop(wbo, \"VBASigned\")\n    s = s & \"|WritePassword=\" & Prop(wbo, \"WritePassword\")\n    s = s & \"|WriteReserved=\" & Prop(wbo, \"WriteReserved\")\n    s = s & \"|UserStatus=\" & Prop(wbo, \"UserStatus\")\n    Tried = Mid(s, 2)\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   [],
+   "",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wb.SaveAs folder & \"\\plain.xlsx\", xlOpenXMLWorkbook",
+    "wb.Close",
+    "Set wb = Workbooks.Open(folder & \"\\plain.xlsx\")",
+    "Set wbo = wb"
+   ],
+   "",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.PersonalViewListSettings = False"
+   ],
+   "set_PersonalViewListSettings.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:False|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.PersonalViewPrintSettings = False"
+   ],
+   "set_PersonalViewPrintSettings.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:False|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.TemplateRemoveExtData = True"
+   ],
+   "set_TemplateRemoveExtData.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:True|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.DoNotPromptForConvert = True"
+   ],
+   "set_DoNotPromptForConvert.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.EnvelopeVisible = True"
+   ],
+   "set_EnvelopeVisible.xlsx",
+   "Excel timeout"
+  ],
+  [
+   [
+    "wbo.ChangeHistoryDuration = 30"
+   ],
+   "set_ChangeHistoryDuration.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.KeepChangeHistory = False"
+   ],
+   "set_KeepChangeHistory.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:False|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.ConflictResolution = 2"
+   ],
+   "set_ConflictResolution.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:2|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.HighlightChangesOnScreen = True"
+   ],
+   "set_HighlightChangesOnScreen.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "wbo.ListChangesOnNewSheet = True"
+   ],
+   "set_ListChangesOnNewSheet.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "wbo.ShowConflictHistory = True"
+   ],
+   "set_ShowConflictHistory.xlsx",
+   "Err 1004 Unable to set the ShowConflictHistory property of the Workbook class"
+  ],
+  [
+   [
+    "wbo.AutoUpdateFrequency = 5"
+   ],
+   "set_AutoUpdateFrequency.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "wbo.AutoUpdateSaveChanges = False"
+   ],
+   "set_AutoUpdateSaveChanges.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "wbo.IsAddin = True"
+   ],
+   "set_IsAddin.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:True|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.AutoSaveOn = True"
+   ],
+   "set_AutoSaveOn.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "wbo.WritePassword = \"w\""
+   ],
+   "set_WritePassword.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ],
+  [
+   [
+    "wbo.Password = \"p\""
+   ],
+   "set_Password.xlsx",
+   "AutoSaveOn=Boolean:False|AutoUpdateFrequency=Long:0|AutoUpdateSaveChanges=E1004|ChangeHistoryDuration=Long:0|CompatibilityVersion=Long:2|ConflictResolution=Long:1|ConnectionsDisabled=Boolean:False|DoNotPromptForConvert=Boolean:True|EncryptionProvider=String:|EnvelopeVisible=Boolean:False|Excel8CompatibilityMode=Boolean:False|HighlightChangesOnScreen=Boolean:False|IsAddin=Boolean:False|IsInplace=Boolean:False|KeepChangeHistory=Boolean:True|ListChangesOnNewSheet=Boolean:False|MultiUserEditing=Boolean:False|Password=String:********|PersonalViewListSettings=Boolean:True|PersonalViewPrintSettings=Boolean:True|RevisionNumber=Long:0|ShowConflictHistory=Boolean:False|TemplateRemoveExtData=Boolean:False|VBASigned=Boolean:False|WritePassword=String:********|WriteReserved=Boolean:False|UserStatus=Array1-1"
+  ]
+ ],
+ "parts": {
+  "set_PersonalViewListSettings.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_PersonalViewPrintSettings.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_TemplateRemoveExtData.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_DoNotPromptForConvert.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_ChangeHistoryDuration.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_KeepChangeHistory.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_ConflictResolution.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_IsAddin.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_WritePassword.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  },
+  "set_Password.xlsx": {
+   "encrypted": "d0cf11e0a1b11ae1"
+  },
+  "plain.xlsx": {
+   "fileSharing": "",
+   "workbookPr": "<workbookPr defaultThemeVersion=\"202300\"/>",
+   "bookViews": "<bookViews>"
+  }
+ }
+}

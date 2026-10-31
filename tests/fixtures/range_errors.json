@@ -1,0 +1,710 @@
+{
+ "measured_at": "2026-10-31T04:14:56.543257+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, c As Range, i As Long, s As String, r As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    r = Empty\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A1\").Value = 5\n        Set c = ws.Range(\"A1\")\n    Case 1\n        Set c = ws.Range(\"A1\")\n    Case 2\n        ws.Range(\"A1\").Value = \"'123\"\n        Set c = ws.Range(\"A1\")\n    Case 3\n        ws.Range(\"A1\").NumberFormat = \"@\"\n        ws.Range(\"A1\").Value = \"123\"\n        Set c = ws.Range(\"A1\")\n    Case 4\n        ws.Range(\"A1\").Value = \"'1.5\"\n        Set c = ws.Range(\"A1\")\n    Case 5\n        ws.Range(\"A1\").Value = \"'-7\"\n        Set c = ws.Range(\"A1\")\n    Case 6\n        ws.Range(\"A1\").Value = \"'1E3\"\n        Set c = ws.Range(\"A1\")\n    Case 7\n        ws.Range(\"A1\").Value = \"'$5\"\n        Set c = ws.Range(\"A1\")\n    Case 8\n        ws.Range(\"A1\").Value = \"'12%\"\n        Set c = ws.Range(\"A1\")\n    Case 9\n        ws.Range(\"A1\").Value = \"' 123\"\n        Set c = ws.Range(\"A1\")\n    Case 10\n        ws.Range(\"A1\").Value = \"'1,234\"\n        Set c = ws.Range(\"A1\")\n    Case 11\n        ws.Range(\"A1\").Value = \"'abc\"\n        Set c = ws.Range(\"A1\")\n    Case 12\n        ws.Range(\"A1\").Value = \"'TRUE\"\n        Set c = ws.Range(\"A1\")\n    Case 13\n        ws.Range(\"A1\").Value = \"'1/2/24\"\n        Set c = ws.Range(\"A1\")\n    Case 14\n        ws.Range(\"A1\").Value = \"'1/2/2024\"\n        Set c = ws.Range(\"A1\")\n    Case 15\n        ws.Range(\"A1\").Value = \"'Jan-24\"\n        Set c = ws.Range(\"A1\")\n    Case 16\n        ws.Range(\"A1\").Value = \"'2-Jan\"\n        Set c = ws.Range(\"A1\")\n    Case 17\n        ws.Range(\"A1\").Formula = \"=1/0\"\n        Set c = ws.Range(\"A1\")\n    Case 18\n        ws.Range(\"A1\").Formula = \"=NA()\"\n        Set c = ws.Range(\"A1\")\n    Case 19\n        ws.Range(\"A1\").Value = CVErr(xlErrNA)\n        Set c = ws.Range(\"A1\")\n    Case 20\n        ws.Range(\"A1\").Formula = \"=B1\"\n        Set c = ws.Range(\"A1\")\n    Case 21\n        ws.Range(\"B1\").Value = 2\n        ws.Range(\"A1\").Formula = \"=B1\"\n        Set c = ws.Range(\"A1\")\n    Case 22\n        ws.Range(\"A1\").Formula = \"=SUM(B1:B3)\"\n        Set c = ws.Range(\"A1\")\n    Case 23\n        ws.Range(\"A1\").Formula = \"=1+1\"\n        ws.Range(\"A1\").Locked = False\n        Set c = ws.Range(\"A1\")\n    Case 24\n        ws.Range(\"A1\").Value = 5\n        ws.Range(\"A1\").Locked = False\n        Set c = ws.Range(\"A1\")\n    Case 25\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"B1\").Formula = \"=A1*2\"\n        ws.Range(\"B2\").Formula = \"=A2*3\"\n        ws.Range(\"B3\").Formula = \"=A3*2\"\n        Set c = ws.Range(\"B2\")\n    Case 26\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"B1\").Formula = \"=A1*2\"\n        ws.Range(\"B2\").Formula = \"=A2*3\"\n        ws.Range(\"B3\").Formula = \"=A3*2\"\n        Set c = ws.Range(\"B1\")\n    Case 27\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"A4\").Formula = \"=SUM(A1:A2)\"\n        Set c = ws.Range(\"A4\")\n    Case 28\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"A4\").Formula = \"=SUM(A1:A3)\"\n        Set c = ws.Range(\"A4\")\n    Case 29\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1\").Errors(xlNumberAsText).Ignore = True\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored.xlsx\", xlOpenXMLWorkbook\n    Case 30\n        ws.Range(\"A1:B2\").Value = \"'123\"\n        ws.Range(\"A1:B2\").Errors(xlNumberAsText).Ignore = True\n        Set c = ws.Range(\"B2\")\n        wb.SaveAs folder & \"\\ignored_area.xlsx\", xlOpenXMLWorkbook\n    Case 31\n        ws.Range(\"A1\").Formula = \"=1/0\"\n        ws.Range(\"A1\").Errors(xlEvaluateToError).Ignore = True\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored_error.xlsx\", xlOpenXMLWorkbook\n    Case 32\n        ws.Range(\"A1\").Formula = \"=1/0\"\n        ws.Range(\"A1\").Errors(1).Ignore = True\n        ws.Range(\"A1\").Errors(7).Ignore = True\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored_two.xlsx\", xlOpenXMLWorkbook\n    Case 33\n        ws.Range(\"A1\").Formula = \"=1/0\"\n        ws.Range(\"A1\").Errors(1).Ignore = True\n        ws.Range(\"A1\").Errors(1).Ignore = False\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored_back.xlsx\", xlOpenXMLWorkbook\n    Case 34\n        ws.Range(\"A1\").Value = 5\n        ws.Range(\"A1\").Errors(3).Ignore = True\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored_number.xlsx\", xlOpenXMLWorkbook\n    Case 35\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"C3\").Errors(3).Ignore = True\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored_elsewhere.xlsx\", xlOpenXMLWorkbook\n    Case 36\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1\").Errors(3).Ignore = True\n        ws.Range(\"A2\").Errors(3).Ignore = True\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored_neighbours.xlsx\", xlOpenXMLWorkbook\n    Case 37\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1,C1\").Errors(3).Ignore = True\n        Set c = ws.Range(\"A1\")\n        wb.SaveAs folder & \"\\ignored_union.xlsx\", xlOpenXMLWorkbook\n    Case 38\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1\").Errors(3).Ignore = True\n        ws.Range(\"A1\").Value = \"'456\"\n        Set c = ws.Range(\"A1\")\n    Case 39\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1\").Errors(3).Ignore = True\n        ws.Range(\"A1\").ClearContents\n        Set c = ws.Range(\"A1\")\n    Case 40\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1\").Errors(3).Ignore = True\n        ws.Range(\"A1\").Clear\n        Set c = ws.Range(\"A1\")\n    Case 41\n        ws.Range(\"A1\").Value = \"'123\"\n        r = ws.Range(\"A1:B2\").Errors(3).Value\n        Set c = ws.Range(\"A1\")\n    Case 42\n        ws.Range(\"B1\").Value = \"'123\"\n        r = ws.Range(\"A1:B2\").Errors(3).Value\n        Set c = ws.Range(\"A1\")\n    Case 43\n        r = ws.Range(\"A1\").Errors(0).Value\n        Set c = ws.Range(\"A1\")\n    Case 44\n        r = ws.Range(\"A1\").Errors(11).Value\n        Set c = ws.Range(\"A1\")\n    Case 45\n        r = TypeName(ws.Range(\"A1\").Errors) & TypeName(ws.Range(\"A1\").Errors(1)) & TypeName(ws.Range(\"A1\").Errors(1).Parent) & TypeName(ws.Range(\"A1\").Errors.Parent)\n        Set c = ws.Range(\"A1\")\n    Case 46\n        r = ws.Range(\"A1\").Errors.Item(3).Value\n        Set c = ws.Range(\"A1\")\n    Case 47\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1\").Errors(3).Ignore = \"True\"\n        Set c = ws.Range(\"A1\")\n    Case 48\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Range(\"A1\").Errors(3).Ignore = 1\n        Set c = ws.Range(\"A1\")\n    Case 49\n        ws.Range(\"A1\").Formula = \"=\"\"123\"\"\"\n        Set c = ws.Range(\"A1\")\n    Case 50\n        ws.Range(\"A1\").Formula = \"=A2+1\"\n        ws.Range(\"A2\").Value = \"'5\"\n        Set c = ws.Range(\"A1\")\n    Case 51\n        ws.Range(\"A1\").Value = \"'123\"\n        ws.Protect\n        Set c = ws.Range(\"A1\")\n    Case 52\n        ws.Range(\"A1\").Value = \"'00123\"\n        Set c = ws.Range(\"A1\")\n    Case 53\n        ws.Range(\"A1\").Formula = \"=SQRT(-1)\"\n        Set c = ws.Range(\"A1\")\n    Case 54\n        ws.Range(\"A1\").Formula = \"=1+\"\"a\"\"\"\n        Set c = ws.Range(\"A1\")\n    Case 55\n        ws.Range(\"A1\").Formula = \"=nosuchname\"\n        Set c = ws.Range(\"A1\")\n    Case 56\n        ws.Range(\"A1\").Formula = \"=#REF!\"\n        Set c = ws.Range(\"A1\")\n    Case 57\n        ws.Range(\"A1\").Formula = \"=IFERROR(1/0,1)\"\n        Set c = ws.Range(\"A1\")\n    Case 58\n        ws.Range(\"A1\").Formula = \"=B1:B2 C3:C4\"\n        Set c = ws.Range(\"A1\")\n    Case 59\n        ws.Range(\"B1\").Value = 2\n        ws.Range(\"A1\").Formula = \"=SUM(B1:B3)\"\n        Set c = ws.Range(\"A1\")\n    Case 60\n        ws.Range(\"B1\").Value = \"x\"\n        ws.Range(\"A1\").Formula = \"=B1\"\n        Set c = ws.Range(\"A1\")\n    Case 61\n        ws.Range(\"A1\").Formula = \"=Sheet2!B1\"\n        Set c = ws.Range(\"A1\")\n    Case 62\n        ws.Range(\"A1\").Formula = \"=ROW(B1)\"\n        Set c = ws.Range(\"A1\")\n    Case 63\n        ws.Range(\"A1\").Formula = \"=ISBLANK(B1)\"\n        Set c = ws.Range(\"A1\")\n    Case 64\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"B1\").Formula = \"=A1*2\"\n        ws.Range(\"B2\").Formula = \"=A2*2\"\n        ws.Range(\"B3\").Formula = \"=A3*3\"\n        Set c = ws.Range(\"B3\")\n    Case 65\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))\n        ws.Range(\"B1\").Formula = \"=A1*2\"\n        ws.Range(\"B2\").Formula = \"=A2*2\"\n        ws.Range(\"B3\").Formula = \"=A3*3\"\n        Set c = ws.Range(\"B3\")\n    Case 66\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"B1\").Formula = \"=A1*3\"\n        ws.Range(\"B2\").Formula = \"=A2*2\"\n        ws.Range(\"B3\").Formula = \"=A3*2\"\n        Set c = ws.Range(\"B1\")\n    Case 67\n        ws.Range(\"A1:C1\").Value = Array(1, 2, 3)\n        ws.Range(\"A2\").Formula = \"=A1*2\"\n        ws.Range(\"B2\").Formula = \"=B1*3\"\n        ws.Range(\"C2\").Formula = \"=C1*2\"\n        Set c = ws.Range(\"B2\")\n    Case 68\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"B1\").Formula = \"=A1*2\"\n        ws.Range(\"B2\").Value = 5\n        ws.Range(\"B3\").Formula = \"=A3*2\"\n        Set c = ws.Range(\"B2\")\n    Case 69\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"B1\").Formula = \"=A1*2\"\n        ws.Range(\"B2\").Formula = \"=A2*3\"\n        ws.Range(\"B3\").Formula = \"=A3*4\"\n        Set c = ws.Range(\"B2\")\n    Case 70\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))\n        ws.Range(\"A5\").Formula = \"=SUM(A2:A4)\"\n        Set c = ws.Range(\"A5\")\n    Case 71\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"A4\").Formula = \"=A1+A2\"\n        Set c = ws.Range(\"A4\")\n    Case 72\n        ws.Range(\"A1:C1\").Value = Array(1, 2, 3)\n        ws.Range(\"D1\").Formula = \"=SUM(A1:B1)\"\n        Set c = ws.Range(\"D1\")\n    Case 73\n        ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))\n        ws.Range(\"C1\").Formula = \"=SUM(A1:A2)\"\n        Set c = ws.Range(\"C1\")\n    Case 74\n        ws.Range(\"A1:A2\").Value = Application.Transpose(Array(1, 2))\n        ws.Range(\"A3\").Value = \"x\"\n        ws.Range(\"A4\").Formula = \"=SUM(A1:A2)\"\n        Set c = ws.Range(\"A4\")\n    Case 75\n        ws.Range(\"A1\").Value = 0.5\n        ws.Range(\"A1\").NumberFormat = \"0%\"\n        ws.Range(\"B1\").Formula = \"=A1\"\n        ws.Range(\"B1\").NumberFormat = \"General\"\n        Set c = ws.Range(\"B1\")\n    Case 76\n        ws.Range(\"A1\").Value = 0.5\n        ws.Range(\"A1\").NumberFormat = \"0%\"\n        ws.Range(\"B1\").Formula = \"=A1*2\"\n        ws.Range(\"B1\").NumberFormat = \"0.00\"\n        Set c = ws.Range(\"B1\")\n    End Select\n    For i = 1 To 10\n        s = s & IIf(c.Errors(i).Value, \"1\", \"0\")\n    Next\n    s = s & \" ignore=\"\n    For i = 1 To 10\n        s = s & IIf(c.Errors(i).Ignore, \"1\", \"0\")\n    Next\n    If Not IsEmpty(r) Then s = s & \" r=\" & CStr(r)\n    Tried = s\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Done\nEnd Function\n\nPublic Function Options() As String\n    Options = IIf(Application.ErrorCheckingOptions.BackgroundChecking, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.EvaluateToError, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.TextDate, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.NumberAsText, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.InconsistentFormula, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.OmittedCells, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.UnlockedFormulaCells, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.EmptyCellReferences, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.ListDataValidation, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.InconsistentTableFormula, \"1\", \"0\") & IIf(Application.ErrorCheckingOptions.MisleadingNumberFormats, \"1\", \"0\")\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal first As Long, ByVal last As Long) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = first To last\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "options": {
+  "BackgroundChecking": "1",
+  "EvaluateToError": "1",
+  "TextDate": "1",
+  "NumberAsText": "1",
+  "InconsistentFormula": "1",
+  "OmittedCells": "1",
+  "UnlockedFormulaCells": "1",
+  "EmptyCellReferences": "0",
+  "ListDataValidation": "1",
+  "InconsistentTableFormula": "1",
+  "MisleadingNumberFormats": "1"
+ },
+ "cases": [
+  [
+   [
+    "ws.Range(\"A1\").Value = 5"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").NumberFormat = \"@\"",
+    "ws.Range(\"A1\").Value = \"123\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'1.5\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'-7\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'1E3\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'$5\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'12%\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"' 123\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'1,234\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'abc\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'TRUE\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'1/2/24\""
+   ],
+   "A1",
+   "",
+   "0100000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'1/2/2024\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'Jan-24\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'2-Jan\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=1/0\""
+   ],
+   "A1",
+   "",
+   "1000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=NA()\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = CVErr(xlErrNA)"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=B1\""
+   ],
+   "A1",
+   "",
+   "0000001000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"B1\").Value = 2",
+    "ws.Range(\"A1\").Formula = \"=B1\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=SUM(B1:B3)\""
+   ],
+   "A1",
+   "",
+   "0000001000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=1+1\"",
+    "ws.Range(\"A1\").Locked = False"
+   ],
+   "A1",
+   "",
+   "0000010000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 5",
+    "ws.Range(\"A1\").Locked = False"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"B2\").Formula = \"=A2*3\"",
+    "ws.Range(\"B3\").Formula = \"=A3*2\""
+   ],
+   "B2",
+   "",
+   "0001000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"B2\").Formula = \"=A2*3\"",
+    "ws.Range(\"B3\").Formula = \"=A3*2\""
+   ],
+   "B1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"A4\").Formula = \"=SUM(A1:A2)\""
+   ],
+   "A4",
+   "",
+   "0000100000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"A4\").Formula = \"=SUM(A1:A3)\""
+   ],
+   "A4",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1\").Errors(xlNumberAsText).Ignore = True"
+   ],
+   "A1",
+   "ignored.xlsx",
+   "0010000000 ignore=0010000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:B2\").Value = \"'123\"",
+    "ws.Range(\"A1:B2\").Errors(xlNumberAsText).Ignore = True"
+   ],
+   "B2",
+   "ignored_area.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=1/0\"",
+    "ws.Range(\"A1\").Errors(xlEvaluateToError).Ignore = True"
+   ],
+   "A1",
+   "ignored_error.xlsx",
+   "1000000000 ignore=1000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=1/0\"",
+    "ws.Range(\"A1\").Errors(1).Ignore = True",
+    "ws.Range(\"A1\").Errors(7).Ignore = True"
+   ],
+   "A1",
+   "ignored_two.xlsx",
+   "1000000000 ignore=1000001000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=1/0\"",
+    "ws.Range(\"A1\").Errors(1).Ignore = True",
+    "ws.Range(\"A1\").Errors(1).Ignore = False"
+   ],
+   "A1",
+   "ignored_back.xlsx",
+   "1000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 5",
+    "ws.Range(\"A1\").Errors(3).Ignore = True"
+   ],
+   "A1",
+   "ignored_number.xlsx",
+   "0000000000 ignore=0010000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"C3\").Errors(3).Ignore = True"
+   ],
+   "A1",
+   "ignored_elsewhere.xlsx",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1\").Errors(3).Ignore = True",
+    "ws.Range(\"A2\").Errors(3).Ignore = True"
+   ],
+   "A1",
+   "ignored_neighbours.xlsx",
+   "0010000000 ignore=0010000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1,C1\").Errors(3).Ignore = True"
+   ],
+   "A1",
+   "ignored_union.xlsx",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1\").Errors(3).Ignore = True",
+    "ws.Range(\"A1\").Value = \"'456\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1\").Errors(3).Ignore = True",
+    "ws.Range(\"A1\").ClearContents"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1\").Errors(3).Ignore = True",
+    "ws.Range(\"A1\").Clear"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "r = ws.Range(\"A1:B2\").Errors(3).Value"
+   ],
+   "A1",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.Range(\"B1\").Value = \"'123\"",
+    "r = ws.Range(\"A1:B2\").Errors(3).Value"
+   ],
+   "A1",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "r = ws.Range(\"A1\").Errors(0).Value"
+   ],
+   "A1",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "r = ws.Range(\"A1\").Errors(11).Value"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000 r=False"
+  ],
+  [
+   [
+    "r = TypeName(ws.Range(\"A1\").Errors) & TypeName(ws.Range(\"A1\").Errors(1)) & TypeName(ws.Range(\"A1\").Errors(1).Parent) & TypeName(ws.Range(\"A1\").Errors.Parent)"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000 r=ErrorsErrorErrorsRange"
+  ],
+  [
+   [
+    "r = ws.Range(\"A1\").Errors.Item(3).Value"
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000 r=False"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1\").Errors(3).Ignore = \"True\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0010000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Range(\"A1\").Errors(3).Ignore = 1"
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0010000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=\"\"123\"\"\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=A2+1\"",
+    "ws.Range(\"A2\").Value = \"'5\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'123\"",
+    "ws.Protect"
+   ],
+   "A1",
+   "",
+   "Err 1004 Application-defined or object-defined error"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = \"'00123\""
+   ],
+   "A1",
+   "",
+   "0010000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=SQRT(-1)\""
+   ],
+   "A1",
+   "",
+   "1000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=1+\"\"a\"\"\""
+   ],
+   "A1",
+   "",
+   "1000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=nosuchname\""
+   ],
+   "A1",
+   "",
+   "1000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=#REF!\""
+   ],
+   "A1",
+   "",
+   "1000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=IFERROR(1/0,1)\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=B1:B2 C3:C4\""
+   ],
+   "A1",
+   "",
+   "1000001000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"B1\").Value = 2",
+    "ws.Range(\"A1\").Formula = \"=SUM(B1:B3)\""
+   ],
+   "A1",
+   "",
+   "0000001000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"B1\").Value = \"x\"",
+    "ws.Range(\"A1\").Formula = \"=B1\""
+   ],
+   "A1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=Sheet2!B1\""
+   ],
+   "A1",
+   "",
+   "1000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=ROW(B1)\""
+   ],
+   "A1",
+   "",
+   "0000001000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Formula = \"=ISBLANK(B1)\""
+   ],
+   "A1",
+   "",
+   "0000001000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"B2\").Formula = \"=A2*2\"",
+    "ws.Range(\"B3\").Formula = \"=A3*3\""
+   ],
+   "B3",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"B2\").Formula = \"=A2*2\"",
+    "ws.Range(\"B3\").Formula = \"=A3*3\""
+   ],
+   "B3",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"B1\").Formula = \"=A1*3\"",
+    "ws.Range(\"B2\").Formula = \"=A2*2\"",
+    "ws.Range(\"B3\").Formula = \"=A3*2\""
+   ],
+   "B1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:C1\").Value = Array(1, 2, 3)",
+    "ws.Range(\"A2\").Formula = \"=A1*2\"",
+    "ws.Range(\"B2\").Formula = \"=B1*3\"",
+    "ws.Range(\"C2\").Formula = \"=C1*2\""
+   ],
+   "B2",
+   "",
+   "0001000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"B2\").Value = 5",
+    "ws.Range(\"B3\").Formula = \"=A3*2\""
+   ],
+   "B2",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"B2\").Formula = \"=A2*3\"",
+    "ws.Range(\"B3\").Formula = \"=A3*4\""
+   ],
+   "B2",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(1, 2, 3, 4))",
+    "ws.Range(\"A5\").Formula = \"=SUM(A2:A4)\""
+   ],
+   "A5",
+   "",
+   "0000100000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"A4\").Formula = \"=A1+A2\""
+   ],
+   "A4",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:C1\").Value = Array(1, 2, 3)",
+    "ws.Range(\"D1\").Formula = \"=SUM(A1:B1)\""
+   ],
+   "D1",
+   "",
+   "0000100000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A3\").Value = Application.Transpose(Array(1, 2, 3))",
+    "ws.Range(\"C1\").Formula = \"=SUM(A1:A2)\""
+   ],
+   "C1",
+   "",
+   "0000100000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1:A2\").Value = Application.Transpose(Array(1, 2))",
+    "ws.Range(\"A3\").Value = \"x\"",
+    "ws.Range(\"A4\").Formula = \"=SUM(A1:A2)\""
+   ],
+   "A4",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0.5",
+    "ws.Range(\"A1\").NumberFormat = \"0%\"",
+    "ws.Range(\"B1\").Formula = \"=A1\"",
+    "ws.Range(\"B1\").NumberFormat = \"General\""
+   ],
+   "B1",
+   "",
+   "0000000000 ignore=0000000000"
+  ],
+  [
+   [
+    "ws.Range(\"A1\").Value = 0.5",
+    "ws.Range(\"A1\").NumberFormat = \"0%\"",
+    "ws.Range(\"B1\").Formula = \"=A1*2\"",
+    "ws.Range(\"B1\").NumberFormat = \"0.00\""
+   ],
+   "B1",
+   "",
+   "0000000000 ignore=0000000000"
+  ]
+ ],
+ "ignored": {
+  "ignored.xlsx": "<ignoredErrors><ignoredError sqref=\"A1\" numberStoredAsText=\"1\"/></ignoredErrors>",
+  "ignored_error.xlsx": "<ignoredErrors><ignoredError sqref=\"A1\" evalError=\"1\"/></ignoredErrors>",
+  "ignored_two.xlsx": "",
+  "ignored_back.xlsx": "",
+  "ignored_number.xlsx": "<ignoredErrors><ignoredError sqref=\"A1\" numberStoredAsText=\"1\"/></ignoredErrors>",
+  "ignored_elsewhere.xlsx": "<ignoredErrors><ignoredError sqref=\"C3\" numberStoredAsText=\"1\"/></ignoredErrors>",
+  "ignored_neighbours.xlsx": "<ignoredErrors><ignoredError sqref=\"A1:A2\" numberStoredAsText=\"1\"/></ignoredErrors>"
+ }
+}

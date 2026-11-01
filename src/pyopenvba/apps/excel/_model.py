@@ -364,6 +364,8 @@ class Application(ExcelObject):
         self.user_name = "pyOpenVBA"
         self.interpreter: Interpreter | None = None
         self.executing_projects: list[Interpreter] = []
+        #: Workbook.RunAutoMacros does nothing on the call after one that ran a macro (tests/fixtures/run_auto_macros.json).
+        self.auto_macro_skipped = False
         #: The cells whose formulas are running a VBA Function now, innermost last (see _udf).
         self.udf_callers: list[Range] = []
         #: Active formula clients and the origin captured by each VBA UDF invocation.
@@ -2075,6 +2077,37 @@ class Workbook(ExcelObject):
     def ExclusiveAccess(self) -> object:
         """Error 1004: the model has no shared workbooks to take back (tests/fixtures/workbook_small_methods.json)."""
         raise error(1004, "ExclusiveAccess method of Workbook class failed")
+
+    @method
+    def RunAutoMacros(self, Which: object = MISSING) -> object:  # noqa: N803 - native name
+        """Auto_Open or Auto_Close, as Excel runs them (tests/fixtures/run_auto_macros.json).
+
+        A kind other than xlAutoOpen to xlAutoDeactivate (1 to 4) raises 1004. Excel runs no Auto_Activate or
+        Auto_Deactivate this way. After a call that runs a macro the next call that succeeds does nothing, and the
+        one after runs again; a call whose macro is missing changes nothing. Which workbook's calls share that
+        alternation is not measured, and the model keeps one for the application."""
+        which = int(to_number(Which))
+        if which not in (1, 2, 3, 4):
+            raise error(1004, "RunAutoMacros method of Workbook class failed")
+        application = self.application
+        if application.auto_macro_skipped:
+            application.auto_macro_skipped = False
+            return EMPTY
+        if which > 2:
+            return EMPTY
+        project = self.project_runtime
+        if project is None and application.vba_get("ThisWorkbook") is self:
+            project = application.interpreter
+        if project is None:
+            return EMPTY
+        project.initialise()
+        name = "Auto_Open" if which == 1 else "Auto_Close"
+        procedure, runtime = project.find_procedure(name, "")
+        if procedure is None or runtime is None or runtime.document is not None:
+            return EMPTY
+        application.auto_macro_skipped = True
+        project.run(name, [], preserve_error=True)
+        return EMPTY
 
     @method
     def RemoveDocumentInformation(self, RemoveDocInfoType: object = MISSING) -> object:  # noqa: N803 - native name

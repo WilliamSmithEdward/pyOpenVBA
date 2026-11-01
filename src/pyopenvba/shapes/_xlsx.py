@@ -269,6 +269,9 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
         shape.lock_aspect = re.search(r'\bnoChangeAspect="(?:1|true)"', locks.group(1)) is not None
     client = re.search(r"<xdr:clientData\b([^>]*)/?>", anchor)
     shape.locked = client is None or re.search(r'\bfLocksWithSheet="(?:0|false)"', client.group(1)) is None
+    shape.prints = client is None or re.search(r'\bfPrintsWithSheet="(?:0|false)"', client.group(1)) is None
+    placement = re.search(r'<xdr:twoCellAnchor\b[^>]*\beditAs="([^"]*)"', anchor)
+    shape.edit_as = placement.group(1) if placement and placement.group(1) != "twoCell" else ""
 
 
 def _anchor_box(anchor: str, grid: SheetGrid | None) -> tuple[float, float, float, float] | None:
@@ -903,12 +906,12 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     """
     grid = grid or SheetGrid()
     left, top, width, height = _turned_box(shape)
-    client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
+    opening = f'<xdr:twoCellAnchor editAs="{shape.edit_as}">' if shape.edit_as else "<xdr:twoCellAnchor>"
     return (
-        "<xdr:twoCellAnchor>"
+        f"{opening}"
         f"{_corner_markup('from', grid, left, top)}"
         f"{_corner_markup('to', grid, left + width, top + height)}"
-        f"{_new_element(shape)}{client}</xdr:twoCellAnchor>"
+        f"{_new_element(shape)}{_client_data(shape)}</xdr:twoCellAnchor>"
     )
 
 
@@ -1167,9 +1170,12 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
             markup = re.sub(r"<a:spLocks\b[^>]*/>", locks, markup, count=1)
         else:
             markup = re.sub(r"<xdr:cNvSpPr([^>]*)/>", rf"<xdr:cNvSpPr\1>{locks}</xdr:cNvSpPr>", markup, count=1)
-    if shape.locked != was.locked:
-        client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
-        markup = re.sub(r"<xdr:clientData\b[^>]*/>", client, markup, count=1)
+    if (shape.locked, shape.prints) != (was.locked, was.prints):
+        markup = re.sub(r"<xdr:clientData\b[^>]*/>", lambda _: _client_data(shape), markup, count=1)
+    if shape.edit_as != was.edit_as:
+        # tests/fixtures/chart_object_more.json
+        tag = f'<xdr:twoCellAnchor editAs="{shape.edit_as}">' if shape.edit_as else "<xdr:twoCellAnchor>"
+        markup = re.sub(r"<xdr:twoCellAnchor\b[^>]*>", lambda _: tag, markup, count=1)
     if (shape.rotation, shape.flip_h, shape.flip_v) != (was.rotation, was.flip_h, was.flip_v):
         found = re.search(r"<a:xfrm\b[^>]*>", markup)
         if found is not None:
@@ -1179,6 +1185,12 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
         if _turned_box(shape) != _turned_box(was):
             markup = _moved(markup, shape, was, grid)
     return markup
+
+
+def _client_data(shape: Shape) -> str:
+    """The anchor's clientData: fLocksWithSheet and fPrintsWithSheet, each only where it is off."""
+    return ("<xdr:clientData" + ("" if shape.locked else ' fLocksWithSheet="0"')
+            + ("" if shape.prints else ' fPrintsWithSheet="0"') + "/>")
 
 
 def _xfrm_attributes(shape: Shape) -> str:

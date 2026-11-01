@@ -418,9 +418,8 @@ class ShapeObject(_Drawn):
         self.sheet.drawing_changed()
 
     def restyled(self) -> Shape:
-        """The shape, for a change the model writes only into shapes it made itself."""
-        if self.shape.source:
-            raise VBAUnsupportedError("Changing this property of a loaded shape is not implemented")
+        """The shape, for a change a save writes, into the markup a loaded shape keeps as well
+        (tests/fixtures/loaded_shape/cases.json)."""
         self.sheet.drawing_changed()
         return self.shape
 
@@ -449,7 +448,11 @@ class ShapeObject(_Drawn):
     @setter("Decorative")
     def _decorative(self, value: object) -> None:
         wanted = to_bool(value)
-        self.restyled().decorative = wanted
+        shape = self.restyled()
+        shape.decorative = wanted
+        if wanted:
+            # A decorative shape needs no alternative text, and Excel takes it away, title and all.
+            shape.description = shape.title = ""
 
     @member
     def Rotation(self) -> object:
@@ -464,7 +467,10 @@ class ShapeObject(_Drawn):
     def IncrementRotation(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
         self.guard("IncrementRotation")
         wanted = float(VBASingle(_number(Increment)))
-        self.restyled().rotation += wanted
+        shape = self.restyled()
+        # Unlike Rotation, which the file keeps as given, an increment lands inside 0 to 360
+        # (tests/fixtures/loaded_shape/cases.json).
+        shape.rotation = (shape.rotation + wanted) % 360
         return EMPTY
 
     @method

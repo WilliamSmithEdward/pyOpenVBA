@@ -1,0 +1,326 @@
+{
+ "measured_at": "2026-11-01T13:08:31.788933+00:00",
+ "source": "Private Function Safe(ByVal target As Object, ByVal name As String) As String\n    On Error GoTo Failed\n    Safe = CallByName(target, name, VbGet)\n    Exit Function\nFailed:\n    Safe = \"E\" & Err.Number\nEnd Function\n\nPrivate Function Tried(ByVal which As Long, ByVal kind As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, cf As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"J1:J3\").Value = Application.Transpose(Array(\"a\", \"b\", \"c\"))\n    Set cf = ws.Shapes.AddFormControl(kind, 10, 10, 90, 60).ControlFormat\n    If kind = xlDropDown Or kind = xlListBox Then cf.ListFillRange = \"$J$1:$J$3\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n    Case 1\n        cf.Enabled = False\n    Case 2\n        cf.LockedText = False\n    Case 3\n        cf.PrintObject = False\n    Case 4\n        cf.Enabled = False: cf.Enabled = True\n    Case 5\n        cf.DropDownLines = 3\n    Case 6\n        cf.DropDownLines = 0\n    Case 7\n        cf.DropDownLines = -1\n    Case 8\n        cf.DropDownLines = 40000\n    Case 9\n        cf.ListIndex = 2\n    Case 10\n        cf.ListIndex = 0\n    Case 11\n        cf.ListIndex = 4\n    Case 12\n        cf.Value = 3\n    Case 13\n    Case 14\n        cf.Enabled = False\n    Case 15\n        cf.LockedText = False\n    Case 16\n        cf.PrintObject = False\n    Case 17\n        cf.Enabled = False: cf.Enabled = True\n    Case 18\n        cf.DropDownLines = 3\n    Case 19\n        cf.DropDownLines = 0\n    Case 20\n        cf.DropDownLines = -1\n    Case 21\n        cf.DropDownLines = 40000\n    Case 22\n        cf.ListIndex = 2\n    Case 23\n        cf.ListIndex = 0\n    Case 24\n        cf.ListIndex = 4\n    Case 25\n        cf.Value = 3\n    Case 26\n    Case 27\n        cf.Enabled = False\n    Case 28\n        cf.LockedText = False\n    Case 29\n        cf.PrintObject = False\n    Case 30\n        cf.Enabled = False: cf.Enabled = True\n    Case 31\n        cf.DropDownLines = 3\n    Case 32\n        cf.ListIndex = 1\n    Case 33\n    Case 34\n        cf.Enabled = False\n    Case 35\n        cf.LockedText = False\n    Case 36\n        cf.PrintObject = False\n    Case 37\n        cf.Enabled = False: cf.Enabled = True\n    Case 38\n        cf.DropDownLines = 3\n    Case 39\n        cf.ListIndex = 1\n    End Select\n    s = Safe(cf, \"DropDownLines\") & \",\" & Safe(cf, \"Enabled\") & \",\" & Safe(cf, \"ListIndex\") & \",\" & Safe(cf, \"LockedText\") & \",\" & Safe(cf, \"PrintObject\")\n    Tried = \"ok \" & s\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String\n    Application.DisplayAlerts = False\n    s = s & \"@@@\" & Tried(0, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(1, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(2, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(3, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(4, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(5, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(6, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(7, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(8, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(9, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(10, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(11, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(12, xlDropDown, folder)\n    s = s & \"@@@\" & Tried(13, xlListBox, folder)\n    s = s & \"@@@\" & Tried(14, xlListBox, folder)\n    s = s & \"@@@\" & Tried(15, xlListBox, folder)\n    s = s & \"@@@\" & Tried(16, xlListBox, folder)\n    s = s & \"@@@\" & Tried(17, xlListBox, folder)\n    s = s & \"@@@\" & Tried(18, xlListBox, folder)\n    s = s & \"@@@\" & Tried(19, xlListBox, folder)\n    s = s & \"@@@\" & Tried(20, xlListBox, folder)\n    s = s & \"@@@\" & Tried(21, xlListBox, folder)\n    s = s & \"@@@\" & Tried(22, xlListBox, folder)\n    s = s & \"@@@\" & Tried(23, xlListBox, folder)\n    s = s & \"@@@\" & Tried(24, xlListBox, folder)\n    s = s & \"@@@\" & Tried(25, xlListBox, folder)\n    s = s & \"@@@\" & Tried(26, xlCheckBox, folder)\n    s = s & \"@@@\" & Tried(27, xlCheckBox, folder)\n    s = s & \"@@@\" & Tried(28, xlCheckBox, folder)\n    s = s & \"@@@\" & Tried(29, xlCheckBox, folder)\n    s = s & \"@@@\" & Tried(30, xlCheckBox, folder)\n    s = s & \"@@@\" & Tried(31, xlCheckBox, folder)\n    s = s & \"@@@\" & Tried(32, xlCheckBox, folder)\n    s = s & \"@@@\" & Tried(33, xlButtonControl, folder)\n    s = s & \"@@@\" & Tried(34, xlButtonControl, folder)\n    s = s & \"@@@\" & Tried(35, xlButtonControl, folder)\n    s = s & \"@@@\" & Tried(36, xlButtonControl, folder)\n    s = s & \"@@@\" & Tried(37, xlButtonControl, folder)\n    s = s & \"@@@\" & Tried(38, xlButtonControl, folder)\n    s = s & \"@@@\" & Tried(39, xlButtonControl, folder)\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "xlDropDown: ",
+   "ok 8,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.Enabled = False",
+   "ok 8,False,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:Disabled/>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.LockedText = False",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.PrintObject = False",
+   "ok 8,True,0,E438,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.Enabled = False: cf.Enabled = True",
+   "ok 8,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.DropDownLines = 3",
+   "ok 3,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropLines=\"3\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>3</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.DropDownLines = 0",
+   "ok 0,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropLines=\"0\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>0</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.DropDownLines = -1",
+   "Err 1004",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.DropDownLines = 40000",
+   "Err 1004",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.ListIndex = 2",
+   "ok 8,True,2,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"2\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>2</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.ListIndex = 0",
+   "ok 8,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.ListIndex = 4",
+   "Err 1004",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlDropDown: cf.Value = 3",
+   "ok 8,True,3,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Drop\" dropStyle=\"combo\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"3\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"Drop\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>10</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>3</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n   <x:DropStyle>Combo</x:DropStyle>\r\n   <x:DropLines>8</x:DropLines>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: ",
+   "ok E438,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.Enabled = False",
+   "ok E438,False,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Disabled/>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.LockedText = False",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.PrintObject = False",
+   "ok E438,True,0,E438,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.Enabled = False: cf.Enabled = True",
+   "ok E438,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.DropDownLines = 3",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.DropDownLines = 0",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.DropDownLines = -1",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.DropDownLines = 40000",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.ListIndex = 2",
+   "ok E438,True,2,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"2\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>2</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.ListIndex = 0",
+   "ok E438,True,0,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.ListIndex = 4",
+   "Err 1004",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"0\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>0</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlListBox: cf.Value = 3",
+   "ok E438,True,3,E438,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"List\" dx=\"39\" fmlaRange=\"$J$1:$J$3\" noThreeD=\"1\" sel=\"3\" val=\"0\"/>",
+    "<x:ClientData ObjectType=\"List\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 28</x:Anchor>\r\n   <x:Val>0</x:Val>\r\n   <x:Min>0</x:Min>\r\n   <x:Max>0</x:Max>\r\n   <x:Inc>1</x:Inc>\r\n   <x:Page>5</x:Page>\r\n   <x:Dx>39</x:Dx>\r\n   <x:FmlaRange>$J$1:$J$3</x:FmlaRange>\r\n   <x:Sel>3</x:Sel>\r\n   <x:NoThreeD2/>\r\n   <x:SelType>Single</x:SelType>\r\n   <x:LCT>Normal</x:LCT>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlCheckBox: ",
+   "ok E438,True,E438,True,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" lockText=\"1\" noThreeD=\"1\"/>",
+    "<x:ClientData ObjectType=\"Checkbox\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:AutoLine>False</x:AutoLine>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:NoThreeD/>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlCheckBox: cf.Enabled = False",
+   "ok E438,False,E438,True,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" lockText=\"1\" noThreeD=\"1\"/>",
+    "<x:ClientData ObjectType=\"Checkbox\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:Disabled/>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:AutoLine>False</x:AutoLine>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:NoThreeD/>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlCheckBox: cf.LockedText = False",
+   "ok E438,True,E438,False,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" noThreeD=\"1\"/>",
+    "<x:ClientData ObjectType=\"Checkbox\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:AutoLine>False</x:AutoLine>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:LockText>False</x:LockText>\r\n   <x:NoThreeD/>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlCheckBox: cf.PrintObject = False",
+   "ok E438,True,E438,True,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" lockText=\"1\" noThreeD=\"1\"/>",
+    "<x:ClientData ObjectType=\"Checkbox\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:AutoLine>False</x:AutoLine>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:NoThreeD/>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlCheckBox: cf.Enabled = False: cf.Enabled = True",
+   "ok E438,True,E438,True,True",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" lockText=\"1\" noThreeD=\"1\"/>",
+    "<x:ClientData ObjectType=\"Checkbox\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:AutoLine>False</x:AutoLine>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:NoThreeD/>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlCheckBox: cf.DropDownLines = 3",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" lockText=\"1\" noThreeD=\"1\"/>",
+    "<x:ClientData ObjectType=\"Checkbox\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:AutoLine>False</x:AutoLine>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:NoThreeD/>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlCheckBox: cf.ListIndex = 1",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"CheckBox\" lockText=\"1\" noThreeD=\"1\"/>",
+    "<x:ClientData ObjectType=\"Checkbox\">\r\n   <x:SizeWithCells/>\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:AutoLine>False</x:AutoLine>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:NoThreeD/>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlButtonControl: ",
+   "ok E438,True,E438,True,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Button\" lockText=\"1\"/>",
+    "<x:ClientData ObjectType=\"Button\">\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:TextHAlign>Center</x:TextHAlign>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlButtonControl: cf.Enabled = False",
+   "ok E438,False,E438,True,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Button\" lockText=\"1\"/>",
+    "<x:ClientData ObjectType=\"Button\">\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:Disabled/>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:TextHAlign>Center</x:TextHAlign>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlButtonControl: cf.LockedText = False",
+   "ok E438,True,E438,False,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Button\"/>",
+    "<x:ClientData ObjectType=\"Button\">\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:TextHAlign>Center</x:TextHAlign>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n   <x:LockText>False</x:LockText>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlButtonControl: cf.PrintObject = False",
+   "ok E438,True,E438,True,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Button\" lockText=\"1\"/>",
+    "<x:ClientData ObjectType=\"Button\">\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:TextHAlign>Center</x:TextHAlign>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlButtonControl: cf.Enabled = False: cf.Enabled = True",
+   "ok E438,True,E438,True,False",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Button\" lockText=\"1\"/>",
+    "<x:ClientData ObjectType=\"Button\">\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:TextHAlign>Center</x:TextHAlign>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlButtonControl: cf.DropDownLines = 3",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Button\" lockText=\"1\"/>",
+    "<x:ClientData ObjectType=\"Button\">\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:TextHAlign>Center</x:TextHAlign>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n  </x:ClientData>"
+   ]
+  ],
+  [
+   "xlButtonControl: cf.ListIndex = 1",
+   "Err 438",
+   [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<formControlPr xmlns=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/main\" objectType=\"Button\" lockText=\"1\"/>",
+    "<x:ClientData ObjectType=\"Button\">\r\n   <x:Anchor>\r\n    0, 26, 0, 26, 1, 130, 4, 34</x:Anchor>\r\n   <x:PrintObject>False</x:PrintObject>\r\n   <x:AutoFill>False</x:AutoFill>\r\n   <x:TextHAlign>Center</x:TextHAlign>\r\n   <x:TextVAlign>Center</x:TextVAlign>\r\n  </x:ClientData>"
+   ]
+  ]
+ ]
+}

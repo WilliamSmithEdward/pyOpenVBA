@@ -519,17 +519,21 @@ def control_properties(shape: Shape) -> str:
         kind = "CheckBox"
     linked = f' fmlaLink="{escape(control.linked_cell)}"' if control and control.linked_cell else ""
     listed = f' fmlaRange="{escape(control.list_range)}"' if control and control.list_range else ""
-    extra = ' dropStyle="combo" dropLines="8"' if kind == "Drop" else ""
+    # A drop-down names its lines only once a macro sets them (tests/fixtures/control_format_more.json).
+    lines = f' dropLines="{control.drop_lines}"' if control and control.drop_lines is not None else ""
+    extra = f' dropStyle="combo"{lines}' if kind == "Drop" else ""
     if kind in {"CheckBox", "Radio"} and control:
         checked = {1: "Checked", 2: "Mixed"}.get(control.value, "")
         if checked:
             extra += f' checked="{checked}"'
     if kind in {"Drop", "List"} and control:
         extra += f' sel="{control.value}" val="0"'
+    # A list or drop-down has no text to lock; the rest lock theirs until LockedText is turned off.
+    locked = "" if kind in {"Drop", "List"} or control and not control.lock_text else ' lockText="1"'
     xml = (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n'
         '<formControlPr xmlns="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main"'
-        f' objectType="{kind}"{linked}{listed}{extra} lockText="1"/>'
+        f' objectType="{kind}"{linked}{listed}{extra}{locked}/>'
     )
     return with_control_bindings(xml, control) if control else xml
 
@@ -615,7 +619,7 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
         f"{text}"
         f'<x:ClientData ObjectType="{kind}">'
         f"<x:Anchor>{control_anchor(shape, grid)}</x:Anchor>"
-        "<x:PrintObject>False</x:PrintObject>"
+        f"{_vml_settings(kind, control)}"
         "<x:AutoFill>False</x:AutoFill>"
         f"{macro}{linked}{listed}{checked}"
         "<x:TextHAlign>Center</x:TextHAlign>"
@@ -623,6 +627,21 @@ def control_vml(shape: Shape, grid: SheetGrid | None = None) -> str:
         "</x:ClientData>"
         "</v:shape>"
     )
+
+
+def _vml_settings(kind: str, control: ControlInfo | None) -> str:
+    """A control's PrintObject, Disabled, LockText and DropLines in its VML (tests/fixtures/control_format_more.json):
+    a button prints only once told to, the rest unless told not to; a drop-down shows 8 lines until set."""
+    printed = control.print_object if control and control.print_object is not None else kind != "Button"
+    settings = "" if printed else "<x:PrintObject>False</x:PrintObject>"
+    if control and control.disabled:
+        settings += "<x:Disabled/>"
+    if control and not control.lock_text:
+        settings += "<x:LockText>False</x:LockText>"
+    if kind == "Drop":
+        lines = control.drop_lines if control and control.drop_lines is not None else 8
+        settings += f"<x:DropLines>{lines}</x:DropLines>"
+    return settings
 
 
 def _vml_id(name: str) -> str:

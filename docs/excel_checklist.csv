@@ -765,20 +765,20 @@ ControlFormat,_Default,property,As Long,,MISSING,,
 ControlFormat,AddItem,method,"AddItem(Text As String, [Index As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,Application,"property, read-only",As Application,,MISSING,,
 ControlFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-ControlFormat,DropDownLines,property,As Long,,MISSING,,
-ControlFormat,Enabled,property,As Boolean,,MISSING,,
+ControlFormat,DropDownLines,property,As Long,,PARTIAL,tests/fixtures/control_format_more.json; tests/test_excel_control_format_more.py,"A drop-down's lines, 8 until set, written as dropLines and the VML's DropLines; outside 0 to 32767 raises 1004, other controls 438. New controls only."
+ControlFormat,Enabled,property,As Boolean,,PARTIAL,tests/fixtures/control_format_more.json; tests/test_excel_control_format_more.py,"The VML's Disabled, on drop-downs, list boxes, check boxes and buttons. New controls only."
 ControlFormat,LargeChange,property,As Long,,PARTIAL,tests/fixtures/shapes/numeric_controls.json,
 ControlFormat,LinkedCell,property,As String,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
 ControlFormat,List,method,List([Index As Variant]) As Variant,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,ListCount,property,As Long,no setter,PARTIAL,tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/list_rebinding.json,
 ControlFormat,ListFillRange,property,As String,,PARTIAL,tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/list_rebinding.json,
-ControlFormat,ListIndex,property,As Long,,MISSING,,
-ControlFormat,LockedText,property,As Boolean,,MISSING,,
+ControlFormat,ListIndex,property,As Long,,PARTIAL,tests/fixtures/control_format_more.json; tests/test_excel_control_format_more.py,A drop-down's or list box's Value; other controls raise 438.
+ControlFormat,LockedText,property,As Boolean,,PARTIAL,tests/fixtures/control_format_more.json; tests/test_excel_control_format_more.py,"A check box's or button's lockText, True until turned off; lists and drop-downs raise 438."
 ControlFormat,Max,property,As Long,,PARTIAL,tests/fixtures/shapes/numeric_controls.json,
 ControlFormat,Min,property,As Long,,PARTIAL,tests/fixtures/shapes/numeric_controls.json,
 ControlFormat,MultiSelect,property,As Long,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,Parent,"property, read-only",As Object,,MISSING,,
-ControlFormat,PrintObject,property,As Boolean,,MISSING,,
+ControlFormat,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/control_format_more.json; tests/test_excel_control_format_more.py,"The VML's PrintObject: a button starts False, the other controls True. New controls only."
 ControlFormat,RemoveAllItems,method,RemoveAllItems(),,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,RemoveItem,method,"RemoveItem(Index As Long, [Count As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,SmallChange,property,As Long,,PARTIAL,tests/fixtures/shapes/numeric_controls.json,

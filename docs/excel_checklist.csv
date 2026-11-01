@@ -2279,13 +2279,13 @@ SparklineGroups,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 SparklineGroups,Add,method,"Add(Type As XlSparkType, SourceData As String) As SparklineGroup",,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Line, column or win/loss sparklines, one for each cell of a row or column, each a row of the source where it has as many, else a column; a cell holding one takes the new one. An unknown type, a block of cells, a source that does not fit or is no reference: 1004."
 SparklineGroups,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The application.
 SparklineGroups,Clear,method,Clear(),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"The range's sparklines go, a group left with none too."
-SparklineGroups,ClearGroups,method,ClearGroups(),,MISSING,,
+SparklineGroups,ClearGroups,method,ClearGroups(),,PARTIAL,tests/fixtures/sparkline_grouping.json; tests/test_excel_sparkline_grouping.py,"Every group the range reaches goes, its sparklines outside the range too."
 SparklineGroups,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The groups the range reaches.
 SparklineGroups,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
-SparklineGroups,Group,method,Group(Location As Range),,MISSING,,
+SparklineGroups,Group,method,Group(Location As Range),,PARTIAL,tests/fixtures/sparkline_grouping.json; tests/test_excel_sparkline_grouping.py,The range's sparklines in one group with the settings of the group Location holds; a Location outside the range is 1004; part of a group unsupported.
 SparklineGroups,Item,"property, read-only",As SparklineGroup,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Newest first; out of range is 1004.
 SparklineGroups,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The range.
-SparklineGroups,Ungroup,method,Ungroup(),,MISSING,,
+SparklineGroups,Ungroup,method,Ungroup(),,PARTIAL,tests/fixtures/sparkline_grouping.json; tests/test_excel_sparkline_grouping.py,"Each of the range's sparklines in a group of its own, newest last in the range's order, its old group keeping the rest."
 Style,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
 Style,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json; tests/fixtures/cell_styles/style_changes.json,Read and set; each cell that follows the style follows it while the style includes the part.
 Style,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,

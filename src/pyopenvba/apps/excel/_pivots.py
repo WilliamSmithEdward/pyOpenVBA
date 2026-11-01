@@ -1537,6 +1537,15 @@ class PivotItems(_Collection):
         found = super().vba_lookup(index, items)
         return items[0] if self.first_for_names and isinstance(index, str) else found
 
+    @method
+    def Add(self, Name: object) -> object:  # noqa: N803 - native named argument
+        from pyopenvba.apps.excel._pivot_items import add_missing
+
+        if not isinstance(self.parent, PivotField):
+            raise VBAUnsupportedError('PivotItems.Add here is not implemented')
+        add_missing(self.parent, Name)
+        return EMPTY
+
 
 class PivotItem(ExcelObject):
     """An item of a pivot field: its value in the cache, or None for the (All) a page field showing every item

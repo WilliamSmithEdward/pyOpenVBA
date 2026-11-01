@@ -46,7 +46,7 @@ from pyopenvba.apps.excel._pivots import NS, PivotField, decode_text
 from pyopenvba.apps.excel._xstring import encode_attribute as encoded
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._values import number_text
-from pyopenvba.interpreter._objects import VBACollection, member, method
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
@@ -515,6 +515,18 @@ class PivotFilter(ExcelObject):
         return VBAInt(self.rule().kind, 'Long')
 
     @member
+    def Order(self) -> object:
+        """-1, the evalOrder a table that is not OLAP keeps for every filter (tests/fixtures/pivot_filter_order.json)."""
+        self.rule()
+        return VBAInt(-1, 'Long')
+
+    @setter('Order')
+    def _order(self, value: object) -> None:
+        # Such a table orders no filters: Excel raises 5 for any order.
+        self.rule()
+        raise error(5)
+
+    @member
     def Value1(self) -> object:
         return self._value(0)
 
@@ -695,13 +707,17 @@ def add(field: PivotField, kind_argument: object, data_argument: object, first: 
     group = _place_filters(root)
     identifier = max([0, *(int(entry.get('id', '0')) for entry in group)]) + 1
     element = rule_node(field.index, kind, identifier, measure, values, numeric, whole_day and dated(kind))
-    # A label or date filter goes ahead of a value filter on its field.
+    # A label or date filter goes ahead of a value filter on its field, a value filter after its field's others, and
+    # the first filter of a field ahead of every other field's (tests/fixtures/pivot_filter_order.json).
     ahead = next((spot for spot, entry in enumerate(group) if label_class(kind)
                   and int(entry.get('fld', '-1')) == field.index), None)
-    if ahead is None:
-        group.append(element)
-    else:
+    own = [spot for spot, entry in enumerate(group) if int(entry.get('fld', '-1')) == field.index]
+    if ahead is not None:
         group.insert(ahead, element)
+    elif own:
+        group.insert(own[-1] + 1, element)
+    else:
+        group.insert(0, element)
     _tidy(root)
     _apply(table, root)
     return PivotFilter(field, element)

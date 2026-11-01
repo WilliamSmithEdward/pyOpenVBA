@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `PivotFilter.Order` reads -1 and refuses a new order with error 5, as
+  Excel's does on a table that is not OLAP, and `PivotItems.Add` adds an
+  item no record holds, saved as Excel saves it. 11 live cases agree,
+  `tests/fixtures/pivot_filter_order.json`.
+
 - `PivotTable.ListFormulas` writes Excel's listing of a table's
   calculated fields and items on a new sheet, laid out, headed and noted
   as Excel lays it out. 8 live cases agree,
@@ -455,6 +460,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- Pivot table, pivot cache and chart parts close an empty element with
+  `/>`, as Excel writes it. They were written with ` />`.
+
+- A pivot filter on a field with no other filter is saved ahead of the
+  table's other filters, as Excel saves it. It was saved after them.
 
 - `SetSourceData` takes a first column or row of dates as the chart's
   categories, as Excel does, and the category axis shows them in their

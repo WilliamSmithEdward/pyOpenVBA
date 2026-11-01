@@ -88,8 +88,11 @@ def xml_bytes(root: XmlElement) -> bytes:
         cloned.extend(copy(child, scope) for child in entry)
         return cloned
 
-    return ET.tostring(copy(root, {'xml': 'http://www.w3.org/XML/1998/namespace'}),
-                       encoding='utf-8', xml_declaration=True)
+    written = ET.tostring(copy(root, {'xml': 'http://www.w3.org/XML/1998/namespace'}),
+                          encoding='utf-8', xml_declaration=True)
+    # ElementTree closes an empty element with " />" and Excel with "/>". The space can stand nowhere else: ">" in
+    # text and attribute values is written as &gt;.
+    return written.replace(b' />', b'/>')
 
 
 def xml_parser() -> expat.XMLParserType:

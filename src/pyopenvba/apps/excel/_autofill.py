@@ -93,6 +93,9 @@ _1904_DAYS = 1462.0
 
 def autofill(source: Range, destination: object, kind_argument: object) -> object:
     from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(source.sheet, "Filling on")
 
     if destination is MISSING:
         raise error(449)

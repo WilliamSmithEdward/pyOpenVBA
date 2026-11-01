@@ -68,6 +68,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._hyperlinks import Link
     from pyopenvba.apps.excel._notes import Note
     from pyopenvba.apps.excel._sort import SortState
+    from pyopenvba.apps.excel._sparklines import State as SparklineState
     from pyopenvba.apps.excel._spills import Spill
     from pyopenvba.apps.excel._styles import Color, Style, Stylesheet
     from pyopenvba.apps.excel._tables import Table
@@ -2417,6 +2418,8 @@ class Worksheet(ExcelObject):
         self.selection_range: Range | None = None
         #: The settings Worksheet.Sort holds, made the first time it is asked for.
         self.sort_state: SortState | None = None
+        #: The sheet's sparkline groups, read from its part the first time they are reached (see _sparklines).
+        self.sparklines: SparklineState | None = None
         #: The sheet's AutoFilter: its range and the criteria on its columns.
         self.auto_filter: SheetFilter | None = None
         #: FilterMode as a table's filter at the active cell left it, None while the sheet's own answers for it
@@ -2589,6 +2592,9 @@ class Worksheet(ExcelObject):
 
         refuse_structure(self.book, APPLICATION_DEFINED)
         wanted = to_text(value)
+        from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+        refuse_sparklines(self, "Renaming")
         # Native probes: empty, past 31 characters, any of \ / ? * [ ] :, an
         # apostrophe first or last, and History in any case are refused.
         if (not wanted or len(wanted) > 31 or any(char in wanted for char in "\\/?*[]:")
@@ -2957,8 +2963,10 @@ class Worksheet(ExcelObject):
     def Delete(self) -> object:
         """Take the sheet out: the formulas and names that read it read #REF! instead, and where it was active the
         next visible sheet after it is, or the last visible one before it (tests/fixtures/sheet_groups.json)."""
+        from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
         from pyopenvba.apps.excel._sheet_groups import delete
 
+        refuse_sparklines(self, "Deleting")
         delete(self.book, [self], "Cannot delete the only worksheet")
         return EMPTY
 
@@ -3778,6 +3786,13 @@ class Range(ExcelObject):
 
         table = table_at(self.sheet, self.first.top, self.first.left)
         return NOTHING if table is None else view(table)
+
+    @member
+    def SparklineGroups(self) -> object:
+        """The sparkline groups the range reaches, newest first (see _sparklines)."""
+        from pyopenvba.apps.excel._sparklines import SparklineGroups
+
+        return SparklineGroups(self)
 
     @member
     def PivotCell(self) -> object:
@@ -4680,6 +4695,10 @@ class Range(ExcelObject):
             from pyopenvba.apps.excel._hyperlinks import cleared
 
             cleared(self.sheet, list(target.areas))
+        from pyopenvba.apps.excel._sparklines import cleared as sparklines_cleared
+
+        # Clear takes the range's sparklines too; ClearContents leaves them (tests/fixtures/sparklines.json).
+        sparklines_cleared(target)
         _events.after_edit(self)
         return EMPTY
 
@@ -5204,6 +5223,9 @@ class Range(ExcelObject):
         with no row before it is error 1004, before anything changes.
         On a filtered sheet the visible cells fill, as _visible has it.
         """
+        from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+        refuse_sparklines(self.sheet, "Filling on")
         from pyopenvba.apps.excel._visible import visible_areas
 
         if self.sheet.tables:

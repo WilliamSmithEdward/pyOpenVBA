@@ -110,6 +110,9 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
     if sheet.merged_areas or sheet.shapes_:
         raise VBAUnsupportedError("Whole-row/column edits on sheets with merges or shapes are not implemented")
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(sheet, "Inserting or deleting rows or columns on")
     rows = area.whole_rows
     start, count, limit = (area.top, area.rows, MAX_ROWS) if rows else (area.left, area.columns, MAX_COLUMNS)
     if not laid:
@@ -228,6 +231,9 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
         raise VBAUnsupportedError('Cell shifts on an advanced-filtered sheet are not implemented')
     if sheet.merged_areas or sheet.shapes_:
         raise VBAUnsupportedError("shifting cells on a sheet with merges or shapes is not implemented")
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(sheet, "Shifting cells on")
     shift = CellShift.of(area, delete=delete, vertical=vertical)
     band, start, count = shift.band, shift.start, shift.count
     limit = MAX_ROWS if vertical else MAX_COLUMNS

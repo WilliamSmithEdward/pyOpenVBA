@@ -134,6 +134,9 @@ def mode(clip: Clip | None) -> VBAInt:
 
 def copy(target: Range) -> object:
     """Range.Copy with no destination: on a filtered sheet the visible cells, as _visible has it."""
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(target.sheet, "Copying from")
     source = visible(target)
     target.sheet.book.application.clipboard = Clip(source, block_of(source.areas), cut=False)
     return True
@@ -167,6 +170,11 @@ def copy_range(target: Range, destination: object) -> object:
     one after the other, a later one pasting over what an earlier one ran into.
     """
     from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(target.sheet, "Copying from")
+    if isinstance(destination, Range):
+        refuse_sparklines(destination.sheet, "Copying onto")
 
     if not isinstance(destination, Range):
         raise error(1004, "Copy needs a range to copy to")
@@ -243,6 +251,11 @@ def paste_block(sheet: Worksheet, made: Block, destination: Range) -> object:
 def cut(target: Range, destination: object) -> object:
     """Range.Cut: onto the clipboard, or straight to ``destination``."""
     from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(target.sheet, "Cutting from")
+    if isinstance(destination, Range):
+        refuse_sparklines(destination.sheet, "Cutting onto")
 
     if target.sheet.advanced_filter is not None or (isinstance(destination, Range) and destination.sheet.advanced_filter is not None):
         raise VBAUnsupportedError('Cut involving an advanced-filtered sheet is not implemented')
@@ -271,6 +284,9 @@ def _clip(target: Range, empty: str = "There is nothing to paste") -> Clip:
 def paste(sheet: Worksheet, destination: object, link: object) -> object:
     """Worksheet.Paste: what was copied or cut, at ``destination`` or the selection."""
     from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(sheet, "Pasting onto")
 
     if link is not MISSING and to_bool(link):
         raise VBAUnsupportedError("Worksheet.Paste Link:=True is not implemented")
@@ -295,6 +311,9 @@ def paste(sheet: Worksheet, destination: object, link: object) -> object:
 
 def paste_special(target: Range, what: object, operation: object, skip_blanks: object, transpose: object) -> object:
     """Range.PasteSpecial."""
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(target.sheet, "Pasting onto")
     # Measured with the clipboard emptied, as Protect empties it.
     clip = _clip(target, "PasteSpecial method of Range class failed")
     if not admit_write(target.sheet):
@@ -518,6 +537,10 @@ def _column_widths(source_sheet: Worksheet, made: Block, target: Range) -> None:
 
 def move(source: Range, area: Area, destination: Range) -> None:
     """Cut ``area`` to ``destination``'s top-left cell, taking every reference to it along."""
+    from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
+
+    refuse_sparklines(source.sheet, "Moving cells from")
+    refuse_sparklines(destination.sheet, "Moving cells onto")
     from pyopenvba.apps.excel._table_sort import guard_edit
 
     for table in source.sheet.tables:

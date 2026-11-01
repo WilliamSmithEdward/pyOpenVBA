@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, NoReturn
 from pyopenvba._xml import attributes, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
-from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
+from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, DATA_TABLE, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           linked_title, referenced_values, shown_type)
@@ -197,6 +197,7 @@ def read_chart(xml: str, part: str) -> ChartState:
     plot = root.find('c:chart/c:plotArea', NS)
     if plot is None:
         return result
+    result.data_table = plot.find('c:dTable', NS) is not None
     plots = [entry for entry in plot if entry.tag.rpartition('}')[2].endswith('Chart')]
     if len(plots) != 1:
         return result
@@ -264,6 +265,11 @@ def read_chart(xml: str, part: str) -> ChartState:
         size = series.find('c:marker/c:size', NS)
         if size is not None and re.fullmatch(r'[0-9]{1,2}', size.get('val', '')) and 2 <= int(size.get('val', '')) <= 72:
             item.marker_size = int(size.get('val', ''))
+        invert = series.find('c:invertIfNegative', NS)
+        item.invert_if_negative = invert is not None and invert.get('val', '1') in ('1', 'true')
+        explosion = series.find('c:explosion', NS)
+        if explosion is not None and re.fullmatch(r'[0-9]{1,9}', explosion.get('val', '')):
+            item.explosion = int(explosion.get('val', ''))
         result.series.append(item)
     if result.series and result.series[0].value_reference:
         try:
@@ -373,7 +379,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                category_format=source_format(sheet, item.category_reference),
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
-                               smooth=item.smooth))
+                               smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
@@ -391,6 +397,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     from pyopenvba.apps.excel._chart_axes_file import generated
 
     xml = generated(xml, state, lambda formula: linked_title(sheet, formula))
+    if state.data_table:
+        # The data table closes the plot area, after the axes, on every kind (tests/fixtures/chart_series_more.json).
+        xml = xml.replace('</c:plotArea>', DATA_TABLE + '</c:plotArea>', 1)
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)

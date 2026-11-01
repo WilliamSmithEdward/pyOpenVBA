@@ -66,6 +66,14 @@ class SeriesData:
     #: In a line or scatter chart: the marker element, none for an automatic marker, and whether the line is smoothed.
     marker: str = ""
     smooth: bool = False
+    #: In a column or bar chart, InvertIfNegative; in a pie, Explosion (tests/fixtures/chart_series_more.json).
+    invert: bool = False
+    explosion: int = 0
+
+
+#: Chart.HasDataTable, as Excel writes the table (tests/fixtures/chart_series_more.json).
+DATA_TABLE = ('<c:dTable><c:showHorzBorder val="1"/><c:showVertBorder val="1"/><c:showOutline val="1"/>'
+              '<c:showKeys val="1"/></c:dTable>')
 
 
 # -- the pieces every kind shares ----------------------------------------
@@ -220,7 +228,7 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         numbers=True,
     )
     if kind in ("column", "bar"):
-        body = f'<c:invertIfNegative val="0"/>{categories}{values}'
+        body = f'<c:invertIfNegative val="{int(data.invert)}"/>{categories}{values}'
     elif kind in ("line", "lineMarkers"):
         body = f'{data.marker}{categories}{values}<c:smooth val="{int(data.smooth)}"/>'
     elif kind == "scatter":
@@ -228,6 +236,8 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
             f'<c:spPr><a:ln w="38100"><a:noFill/></a:ln></c:spPr>{data.marker}{categories}{values}'
             f'<c:smooth val="{int(data.smooth)}"/>'
         )
+    elif kind == "pie" and data.explosion:
+        body = f'<c:explosion val="{data.explosion}"/>{categories}{values}'
     else:  # area, pie and doughnut
         body = f"{categories}{values}"
     return (

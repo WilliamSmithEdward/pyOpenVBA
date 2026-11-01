@@ -26,6 +26,7 @@ from pyopenvba.interpreter._values import (
     VBAInt,
     VBASingle,
     error,
+    to_bool,
     to_number,
     to_text,
 )
@@ -415,6 +416,94 @@ class ShapeObject(_Drawn):
     def _set_top(self, value: object) -> None:
         self.shape.top = _number(value)
         self.sheet.drawing_changed()
+
+    def restyled(self) -> Shape:
+        """The shape, for a change the model writes only into shapes it made itself."""
+        if self.shape.source:
+            raise VBAUnsupportedError("Changing this property of a loaded shape is not implemented")
+        self.sheet.drawing_changed()
+        return self.shape
+
+    @member
+    def AlternativeText(self) -> object:
+        return self.shape.description
+
+    @setter("AlternativeText")
+    def _alternative_text(self, value: object) -> None:
+        wanted = to_text(value)
+        self.restyled().description = wanted
+
+    @member
+    def Title(self) -> object:
+        return self.shape.title
+
+    @setter("Title")
+    def _title(self, value: object) -> None:
+        wanted = to_text(value)
+        self.restyled().title = wanted
+
+    @member
+    def Decorative(self) -> object:
+        return VBAInt(-1 if self.shape.decorative else 0, "Long")
+
+    @setter("Decorative")
+    def _decorative(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.restyled().decorative = wanted
+
+    @member
+    def Rotation(self) -> object:
+        return VBASingle(self.shape.rotation % 360)
+
+    @setter("Rotation")
+    def _rotation(self, value: object) -> None:
+        wanted = float(VBASingle(_number(value)))
+        self.restyled().rotation = wanted
+
+    @method
+    def IncrementRotation(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
+        self.guard("IncrementRotation")
+        wanted = float(VBASingle(_number(Increment)))
+        self.restyled().rotation += wanted
+        return EMPTY
+
+    @method
+    def IncrementLeft(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
+        self.guard("IncrementLeft")
+        # Excel stops a shape at the sheet's edge.
+        self.shape.left = max(0.0, self.shape.left + _number(Increment))
+        self.sheet.drawing_changed()
+        return EMPTY
+
+    @method
+    def IncrementTop(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
+        self.guard("IncrementTop")
+        self.shape.top = max(0.0, self.shape.top + _number(Increment))
+        self.sheet.drawing_changed()
+        return EMPTY
+
+    def guard(self, name: str) -> None:
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        guard_drawing(self.sheet, f"Shape.{name}")
+
+    @member
+    def LockAspectRatio(self) -> object:
+        return VBAInt(-1 if self.shape.lock_aspect else 0, "Long")
+
+    @setter("LockAspectRatio")
+    def _lock_aspect(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.restyled().lock_aspect = wanted
+
+    @member
+    def Locked(self) -> object:
+        return self.shape.locked
+
+    @setter("Locked")
+    def _locked(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.restyled().locked = wanted
 
     @member
     def Width(self) -> object:

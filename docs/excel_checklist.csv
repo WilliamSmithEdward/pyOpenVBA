@@ -2021,7 +2021,7 @@ SeriesCollection,NewSeries,method,NewSeries() As Series,,PARTIAL,tests/fixtures/
 SeriesCollection,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,Its chart.
 SeriesCollection,Paste,method,"Paste([Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant], [NewSeries As Variant]) As Variant",,MISSING,,
 Shape,Adjustments,"property, read-only",As Adjustments,,MISSING,,
-Shape,AlternativeText,property,As String,,MISSING,,
+Shape,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as cNvPr descr; empty removes it. Changing a loaded shape's is refused.
 Shape,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Shape,Apply,method,Apply(),,MISSING,,
 Shape,AutoShapeType,property,As MsoAutoShapeType,no setter,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2039,7 +2039,7 @@ Shape,Copy,method,Copy(),,UNASSESSED,,
 Shape,CopyPicture,method,"CopyPicture([Appearance As Variant], [Format As Variant])",,MISSING,,
 Shape,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Shape,Cut,method,Cut(),,MISSING,,
-Shape,Decorative,property,As MsoTriState,,MISSING,,
+Shape,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as the adec:decorative extension after the creation id. Changing a loaded shape's is refused.
 Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
 Shape,Duplicate,method,Duplicate() As Shape,,MISSING,,
@@ -2055,14 +2055,14 @@ Shape,Height,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; 
 Shape,HorizontalFlip,"property, read-only",As MsoTriState,,MISSING,,
 Shape,Hyperlink,"property, read-only",As Hyperlink,,MISSING,,
 Shape,ID,"property, read-only",As Long,,MISSING,,
-Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,MISSING,,
-Shape,IncrementRotation,method,IncrementRotation(Increment As Single),,MISSING,,
-Shape,IncrementTop,method,IncrementTop(Increment As Single),,MISSING,,
+Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's left edge."
+Shape,IncrementRotation,method,IncrementRotation(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Adds to Rotation as given.
+Shape,IncrementTop,method,IncrementTop(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's top edge."
 Shape,Left,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Line,"property, read-only",As LineFormat,,MISSING,,
 Shape,LinkFormat,"property, read-only",As LinkFormat,,MISSING,,
-Shape,LockAspectRatio,property,As MsoTriState,,MISSING,,
-Shape,Locked,property,As Boolean,,MISSING,,
+Shape,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as spLocks noChangeAspect; msoFalse after it leaves an empty spLocks.
+Shape,Locked,property,As Boolean,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,False writes clientData fLocksWithSheet 0.
 Shape,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 Shape,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Nodes,"property, read-only",As ShapeNodes,,MISSING,,
@@ -2076,7 +2076,7 @@ Shape,Placement,property,As XlPlacement,no setter,PARTIAL,tests/fixtures/excel_m
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
 Shape,RerouteConnections,method,RerouteConnections(),,MISSING,,
-Shape,Rotation,property,As Single,,MISSING,,
+Shape,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,The file keeps the angle as given; reads wrap it into 0 to 360. Between 45 and 135 or 225 and 315 degrees the anchor holds the box turned on its centre.
 Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
 Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
 Shape,Select,method,Select([Replace As Variant]),,UNASSESSED,,
@@ -2089,7 +2089,7 @@ Shape,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
 Shape,TextFrame,"property, read-only",As TextFrame,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,TextFrame2,"property, read-only",As TextFrame2,,UNASSESSED,,
 Shape,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
-Shape,Title,property,As String,,MISSING,,
+Shape,Title,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as cNvPr title. Changing a loaded shape's is refused.
 Shape,Top,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,

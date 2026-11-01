@@ -7,6 +7,33 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Chart.Legend` and a `Legend` object answer as Excel's do: Position,
+  IncludeInLayout, Shadow and Delete. A chart without a legend raises
+  1004. 17 live cases agree, `tests/fixtures/chart_legend.json`.
+
+- `Axis.CategoryNames` and `Axis.Delete` answer as Excel's do.
+  CategoryNames reads the first series' categories, and setting it
+  gives every series the same categories. 17 live cases agree,
+  `tests/fixtures/chart_axis_names.json`.
+
+- `Range.ApplyOutlineStyles` gives summary rows and columns Excel's
+  RowLevel_n and ColLevel_n styles, which the model now defines as
+  Excel does. 9 live cases agree, `tests/fixtures/outline_styles.json`.
+
+- `Worksheet.SetBackgroundPicture` keeps a PNG's own bytes in the saved
+  file, shared between sheets that hold the same picture. 7 live cases
+  agree, `tests/fixtures/background_picture.json`.
+
+- `Worksheet.EnableFormatConditionsCalculation`, and
+  `Workbook.EnableConnections`, `ConvertComments`, `CanCheckIn` and
+  `ExclusiveAccess`, answer as Excel's do.
+  `tests/fixtures/format_conditions_calculation.json` and
+  `tests/fixtures/workbook_small_methods.json`.
+
+- Shape settings can be changed on shapes a workbook opened with, patched
+  into the markup they came with as Excel patches it. 17 live cases
+  agree, `tests/fixtures/loaded_shape/cases.json`.
+
 - `Chart.DisplayBlanksAs`, `PlotVisibleOnly`, `ShowDataLabelsOverMaximum`
   and `DisplayValueNotAvailableAsBlank` answer as Excel's do, and a save
   writes them as Excel does. 24 live cases agree,
@@ -308,6 +335,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A Range given to `Series.Values`, `Series.XValues` or
+  `Axis.CategoryNames` by Let links the series to its cells, as in
+  Excel, instead of copying their values in. Properties can now take an
+  object by Let, through `setter(name, objects=True)`.
+
+- `SeriesCollection(n)` for a series the chart does not have raises
+  1004, as Excel does, instead of 9.
+
+- A save's new Default content types go in alphabetical order, as Excel
+  keeps them, which puts `vml` before `xml` for notes.
 
 - Charts made through `ChartObjects.Add` are saved with the chart part
   Excel writes for them, which carries no formatting of its own, in

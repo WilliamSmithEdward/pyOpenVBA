@@ -1,0 +1,87 @@
+{
+ "measured_at": "2026-11-01T14:26:58.939420+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, pt As Object, c As Range, s As String, f As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"data\"\n    ws.Range(\"A1:C1\").Value = Array(\"Region\", \"Product\", \"Amount\")\n    ws.Range(\"A2:C2\").Value = Array(\"East\", \"Pen\", 10)\n    ws.Range(\"A3:C3\").Value = Array(\"East\", \"Ink\", 20)\n    ws.Range(\"A4:C4\").Value = Array(\"West\", \"Pen\", 30)\n    ws.Range(\"A5:C5\").Value = Array(\"West\", \"Ink\", 40)\n    ws.Range(\"A6:C6\").Value = Array(\"West\", \"Pad\", 50)\n    Set ws = wb.Worksheets.Add(After:=ws)\n    ws.Name = \"report\"\n    Set pt = wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R6C3\").CreatePivotTable(ws.Range(\"A3\"), \"P\")\n    pt.PivotFields(\"Region\").Orientation = xlRowField\n    pt.PivotFields(\"Product\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Sum of Amount\", xlSum\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        pt.RowAxisLayout xlCompactRow\n    Case 1\n        pt.RowAxisLayout xlCompactRow\n        pt.SubtotalLocation xlAtBottom\n    Case 2\n        pt.RowAxisLayout xlCompactRow\n        pt.SubtotalLocation xlAtBottom: pt.SubtotalLocation xlAtTop\n    Case 3\n        pt.RowAxisLayout xlOutlineRow\n        pt.SubtotalLocation xlAtBottom\n    Case 4\n        pt.RowAxisLayout xlTabularRow\n        pt.SubtotalLocation xlAtBottom\n    Case 5\n        pt.RowAxisLayout xlCompactRow\n        pt.PivotFields(\"Region\").LayoutSubtotalLocation = xlAtBottom: pt.SubtotalLocation xlAtTop\n    Case 6\n        pt.RowAxisLayout xlCompactRow\n        pt.SubtotalLocation 3\n    Case 7\n        pt.RowAxisLayout xlCompactRow\n        s = TypeName(pt.SubtotalLocation(xlAtBottom))\n    Case 8\n        pt.RowAxisLayout xlCompactRow\n        pt.PivotFields(\"Product\").Orientation = xlColumnField: pt.SubtotalLocation xlAtBottom\n    End Select\n    For Each f In pt.RowFields: s = s & \"|\" & f.Name & \"=\" & f.LayoutSubtotalLocation: Next\n    s = s & \"|\"\n    For Each c In pt.TableRange1.Cells: s = s & c.Address(False, False) & \":\" & c.Text & \";\": Next\n    Tried = \"ok \" & s\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 8\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "xlCompactRow: ",
+   "ok |Region=1|Product=1|A3:Row Labels;B3:Sum of Amount;A4:East;B4:30;A5:Ink;B5:20;A6:Pen;B6:10;A7:West;B7:120;A8:Ink;B8:40;A9:Pad;B9:50;A10:Pen;B10:30;A11:Grand Total;B11:150;",
+   [
+    "axis=\"axisRow\"",
+    "axis=\"axisRow\"",
+    ""
+   ]
+  ],
+  [
+   "xlCompactRow: pt.SubtotalLocation xlAtBottom",
+   "ok |Region=2|Product=2|A3:Row Labels;B3:Sum of Amount;A4:East;B4:;A5:Ink;B5:20;A6:Pen;B6:10;A7:East Total;B7:30;A8:West;B8:;A9:Ink;B9:40;A10:Pad;B10:50;A11:Pen;B11:30;A12:West Total;B12:120;A13:Grand Total;B13:150;",
+   [
+    "axis=\"axisRow\" subtotalTop=\"0\"",
+    "axis=\"axisRow\" subtotalTop=\"0\"",
+    "subtotalTop=\"0\""
+   ]
+  ],
+  [
+   "xlCompactRow: pt.SubtotalLocation xlAtBottom: pt.SubtotalLocation xlAtTop",
+   "ok |Region=1|Product=1|A3:Row Labels;B3:Sum of Amount;A4:East;B4:30;A5:Ink;B5:20;A6:Pen;B6:10;A7:West;B7:120;A8:Ink;B8:40;A9:Pad;B9:50;A10:Pen;B10:30;A11:Grand Total;B11:150;",
+   [
+    "axis=\"axisRow\"",
+    "axis=\"axisRow\"",
+    ""
+   ]
+  ],
+  [
+   "xlOutlineRow: pt.SubtotalLocation xlAtBottom",
+   "ok |Region=2|Product=2|A3:Region;B3:Product;C3:Sum of Amount;A4:East;B4:;C4:;A5:;B5:Ink;C5:20;A6:;B6:Pen;C6:10;A7:East Total;B7:;C7:30;A8:West;B8:;C8:;A9:;B9:Ink;C9:40;A10:;B10:Pad;C10:50;A11:;B11:Pen;C11:30;A12:West Total;B12:;C12:120;A13:Grand Total;B13:;C13:150;",
+   [
+    "axis=\"axisRow\" compact=\"0\" subtotalTop=\"0\"",
+    "axis=\"axisRow\" compact=\"0\" subtotalTop=\"0\"",
+    "compact=\"0\" subtotalTop=\"0\""
+   ]
+  ],
+  [
+   "xlTabularRow: pt.SubtotalLocation xlAtBottom",
+   "ok |Region=2|Product=2|A3:Region;B3:Product;C3:Sum of Amount;A4:East;B4:Ink;C4:20;A5:;B5:Pen;C5:10;A6:East Total;B6:;C6:30;A7:West;B7:Ink;C7:40;A8:;B8:Pad;C8:50;A9:;B9:Pen;C9:30;A10:West Total;B10:;C10:120;A11:Grand Total;B11:;C11:150;",
+   [
+    "axis=\"axisRow\" compact=\"0\" outline=\"0\" subtotalTop=\"0\"",
+    "axis=\"axisRow\" compact=\"0\" outline=\"0\" subtotalTop=\"0\"",
+    "compact=\"0\" outline=\"0\" subtotalTop=\"0\""
+   ]
+  ],
+  [
+   "xlCompactRow: pt.PivotFields(\"Region\").LayoutSubtotalLocation = xlAtBottom: pt.SubtotalLocation xlAtTop",
+   "ok |Region=1|Product=1|A3:Row Labels;B3:Sum of Amount;A4:East;B4:30;A5:Ink;B5:20;A6:Pen;B6:10;A7:West;B7:120;A8:Ink;B8:40;A9:Pad;B9:50;A10:Pen;B10:30;A11:Grand Total;B11:150;",
+   [
+    "axis=\"axisRow\"",
+    "axis=\"axisRow\"",
+    ""
+   ]
+  ],
+  [
+   "xlCompactRow: pt.SubtotalLocation 3",
+   "Err 5",
+   [
+    "axis=\"axisRow\"",
+    "axis=\"axisRow\"",
+    ""
+   ]
+  ],
+  [
+   "xlCompactRow: s = TypeName(pt.SubtotalLocation(xlAtBottom))",
+   "ok Empty|Region=2|Product=2|A3:Row Labels;B3:Sum of Amount;A4:East;B4:;A5:Ink;B5:20;A6:Pen;B6:10;A7:East Total;B7:30;A8:West;B8:;A9:Ink;B9:40;A10:Pad;B10:50;A11:Pen;B11:30;A12:West Total;B12:120;A13:Grand Total;B13:150;",
+   [
+    "axis=\"axisRow\" subtotalTop=\"0\"",
+    "axis=\"axisRow\" subtotalTop=\"0\"",
+    "subtotalTop=\"0\""
+   ]
+  ],
+  [
+   "xlCompactRow: pt.PivotFields(\"Product\").Orientation = xlColumnField: pt.SubtotalLocation xlAtBottom",
+   "ok |Region=2|A3:Sum of Amount;B3:Column Labels;C3:;D3:;E3:;A4:Row Labels;B4:Ink;C4:Pad;D4:Pen;E4:Grand Total;A5:East;B5:20;C5:;D5:10;E5:30;A6:West;B6:40;C6:50;D6:30;E6:120;A7:Grand Total;B7:60;C7:50;D7:40;E7:150;",
+   [
+    "axis=\"axisRow\" subtotalTop=\"0\"",
+    "axis=\"axisCol\" subtotalTop=\"0\"",
+    "subtotalTop=\"0\""
+   ]
+  ]
+ ]
+}

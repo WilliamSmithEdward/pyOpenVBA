@@ -267,6 +267,17 @@ def repeat_all_labels(table: PivotTable, value: object) -> None:
     _changed(table, root)
 
 
+def subtotal_location_all(table: PivotTable, value: object) -> None:
+    """SubtotalLocation: xlAtTop (1) or xlAtBottom (2) on every field of the table, those on no axis and on the column
+    axis as well as the rows; anything else is error 5 (tests/fixtures/pivot_subtotal_location.json)."""
+    top = _choice(value, (1, 2), 5) == 1
+    table = table.entry
+    root = deepcopy(table.root)
+    for field in root.findall(f'{NS}pivotFields/{NS}pivotField'):
+        set_flag(field, 'subtotalTop', top, True, _field_order())
+    _changed(table, root)
+
+
 def _set_repeat(field: XmlElement, repeat: bool) -> None:
     if repeat:
         options = _options(field, create=True)

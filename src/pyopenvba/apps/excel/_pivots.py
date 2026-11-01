@@ -590,6 +590,13 @@ class PivotTable(ExcelObject):
         return EMPTY
 
     @method
+    def SubtotalLocation(self, Location: object) -> object:  # noqa: N803 - native named argument
+        from pyopenvba.apps.excel._pivot_forms import subtotal_location_all
+
+        subtotal_location_all(self, Location)
+        return EMPTY
+
+    @method
     def RepeatAllLabels(self, Repeat: object) -> object:
         from pyopenvba.apps.excel._pivot_forms import repeat_all_labels
 

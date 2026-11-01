@@ -7,6 +7,17 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Series.InvertIfNegative`, `Series.Explosion`, `Chart.HasDataTable`
+  and `Chart.Name` answer as Excel's do, and a loaded chart reads the
+  first three from its file. 23 live cases agree,
+  `tests/fixtures/chart_series_more.json`.
+
+- TextFrame2's margins, `AutoSize`, `HorizontalAnchor`,
+  `VerticalAnchor`, `NoTextRotation`, `Orientation`, `WordWrap` and
+  `DeleteText` answer as Excel's do on new shapes, sharing the margins,
+  orientation and anchor TextFrame sets. 51 live cases agree,
+  `tests/fixtures/text_frame2.json`.
+
 - `Workbook.RunAutoMacros` runs `Auto_Open` and `Auto_Close` as Excel
   does, down to Excel doing nothing on the call after one that ran a
   macro. Auto_Activate and Auto_Deactivate run nothing. A 19-step live

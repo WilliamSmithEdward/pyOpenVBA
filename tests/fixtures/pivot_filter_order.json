@@ -1,0 +1,109 @@
+{
+ "measured_at": "2026-11-01T15:11:10.009038+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, pt As Object, s As String, f As Object, flt As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"data\"\n    ws.Range(\"A1:C1\").Value = Array(\"Region\", \"Product\", \"Amount\")\n    ws.Range(\"A2:C2\").Value = Array(\"East\", \"Pen\", 10)\n    ws.Range(\"A3:C3\").Value = Array(\"East\", \"Ink\", 20)\n    ws.Range(\"A4:C4\").Value = Array(\"West\", \"Pen\", 30)\n    Set ws = wb.Worksheets.Add(After:=ws)\n    ws.Name = \"report\"\n    Set pt = wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\").CreatePivotTable(ws.Range(\"A3\"), \"P\")\n    pt.PivotFields(\"Region\").Orientation = xlRowField\n    pt.PivotFields(\"Product\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Sum of Amount\", xlSum\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\"\n    Case 1\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\"\n    Case 2\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Product\").PivotFilters(1).Order = 1\n    Case 3\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 2\n    Case 4\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 3\n    Case 5\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 0\n    Case 6\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 1\n    Case 7\n        pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").ClearAllFilters\n    Case 8\n        pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\"\n    Case 9\n        s = TypeName(pt.PivotFields(\"Region\").PivotItems.Add(\"North\"))\n    Case 10\n        pt.PivotFields(\"Region\").PivotItems.Add \"North\": s = pt.PivotFields(\"Region\").PivotItems.Count & \",\" & pt.TableRange1.Rows.Count\n    End Select\n    For Each f In pt.RowFields\n        For Each flt In f.PivotFilters: s = s & \"|\" & f.Name & \":\" & flt.FilterType & \":\" & flt.Order: Next\n    Next\n    Tried = \"ok \" & s\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 10\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\"",
+   "ok |Region:17:-1",
+   [
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\"",
+   "ok |Region:17:-1|Product:21:-1",
+   [
+    "fld=\"1\" type=\"captionContains\" evalOrder=\"-1\" id=\"2\"",
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Product\").PivotFilters(1).Order = 1",
+   "Err 5",
+   [
+    "fld=\"1\" type=\"captionContains\" evalOrder=\"-1\" id=\"2\"",
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 2",
+   "Err 5",
+   [
+    "fld=\"1\" type=\"captionContains\" evalOrder=\"-1\" id=\"2\"",
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 3",
+   "Err 5",
+   [
+    "fld=\"1\" type=\"captionContains\" evalOrder=\"-1\" id=\"2\"",
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 0",
+   "Err 5",
+   [
+    "fld=\"1\" type=\"captionContains\" evalOrder=\"-1\" id=\"2\"",
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Region\").PivotFilters(1).Order = 1",
+   "Err 5",
+   [
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\": pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").ClearAllFilters",
+   "ok |Product:21:-1",
+   [
+    "fld=\"1\" type=\"captionContains\" evalOrder=\"-1\" id=\"2\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Product\").PivotFilters.Add2 xlCaptionContains, Value1:=\"n\": pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\"",
+   "ok |Region:17:-1|Product:21:-1",
+   [
+    "fld=\"0\" type=\"captionBeginsWith\" evalOrder=\"-1\" id=\"2\"",
+    "fld=\"1\" type=\"captionContains\" evalOrder=\"-1\" id=\"1\"",
+    "<items count=\"3\"><item x=\"0\"/><item x=\"1\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"2\"><s v=\"East\"/><s v=\"West\"/></sharedItems>"
+   ]
+  ],
+  [
+   "s = TypeName(pt.PivotFields(\"Region\").PivotItems.Add(\"North\"))",
+   "ok Empty",
+   [
+    "<items count=\"4\"><item x=\"0\"/><item x=\"1\"/><item m=\"1\" x=\"2\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"3\"><s v=\"East\"/><s v=\"West\"/><s v=\"North\" u=\"1\"/></sharedItems>"
+   ]
+  ],
+  [
+   "pt.PivotFields(\"Region\").PivotItems.Add \"North\": s = pt.PivotFields(\"Region\").PivotItems.Count & \",\" & pt.TableRange1.Rows.Count",
+   "ok 3,7",
+   [
+    "<items count=\"4\"><item x=\"0\"/><item x=\"1\"/><item m=\"1\" x=\"2\"/><item t=\"default\"/></items>",
+    "<sharedItems count=\"3\"><s v=\"East\"/><s v=\"West\"/><s v=\"North\" u=\"1\"/></sharedItems>"
+   ]
+  ]
+ ]
+}

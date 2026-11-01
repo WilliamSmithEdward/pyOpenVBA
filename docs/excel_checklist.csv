@@ -1578,7 +1578,7 @@ PivotFilter,FilterType,"property, read-only",As XlPivotFilterType,,PARTIAL,tests
 PivotFilter,IsMemberPropertyFilter,"property, read-only",As Boolean,,MISSING,,
 PivotFilter,MemberPropertyField,"property, read-only",As PivotField,,MISSING,,
 PivotFilter,Name,"property, read-only",As String,,MISSING,,
-PivotFilter,Order,property,As Long,,MISSING,,
+PivotFilter,Order,property,As Long,,PARTIAL,tests/fixtures/pivot_filter_order.json; tests/test_excel_pivot_filter_order.py,"-1, the evalOrder a table that is not OLAP keeps for every filter; setting it raises 5."
 PivotFilter,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,The field.
 PivotFilter,PivotField,"property, read-only",As PivotField,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py,The field.
 PivotFilter,Value1,"property, read-only",As Variant,,PARTIAL,tests/test_excel_pivotfilters.py; tests/fixtures/pivotfilters/pivotfilters.json; scripts/measure_pivotfilters.py; tests/test_live_excel_model_gate.py; tests/test_excel_pivot_date_filters.py; tests/fixtures/pivot_date_filters/pivot_date_filters.json; scripts/measure_pivot_date_filters.py,"A label filter's text; a value filter's number, a whole one as a Long. A date filter's Date; a period's first day as yyyy-mm-dd text; Empty for a quarter or a month."
@@ -1625,7 +1625,7 @@ PivotItemList,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures
 PivotItemList,Item,method,Item(Index As Variant) As PivotItem,,PARTIAL,tests/test_excel_pivot_cells.py; tests/fixtures/pivot_cells; scripts/measure_pivot_cells.py,"An item by its place from 1, or by name."
 PivotItemList,Parent,"property, read-only",As Object,,UNASSESSED,,
 PivotItems,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
-PivotItems,Add,method,Add(Name As String),,MISSING,,
+PivotItems,Add,method,Add(Name As String),,PARTIAL,tests/fixtures/pivot_filter_order.json; tests/test_excel_pivot_filter_order.py,"An item no record holds, after the field's others: an unused shared item in the cache and a missing item in the table, which keeps its rows; answers Empty. Fields of other than text and names the field has are refused."
 PivotItems,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,The application.
 PivotItems,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotItems,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."

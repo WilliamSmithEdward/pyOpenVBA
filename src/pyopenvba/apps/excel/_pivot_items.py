@@ -277,6 +277,35 @@ def add(field: PivotField, name: object, formula: object) -> object:
     return next(item for item in field.listed_items() if item.x == place)
 
 
+def add_missing(field: PivotField, name: object) -> None:
+    """PivotItems.Add: an item no record holds, after the field's others, the cache keeping its value as unused and
+    the table listing it as missing; the table's rows stay as they were (tests/fixtures/pivot_filter_order.json)."""
+    from pyopenvba.apps.excel._pivot_filters import item_node
+
+    text = to_text(name)
+    table = field.table.entry
+    cache = table.cache
+    if field.data or field.index < 0:
+        raise VBAUnsupportedError('PivotItems.Add on this field is not implemented')
+    if any(string_order(each.casefold(), text.casefold()) == 0 for each in _names(cache, field.index)):
+        raise VBAUnsupportedError('PivotItems.Add of an item the field has is not implemented')
+    shared = _fields(cache)[field.index].find(NS + 'sharedItems')
+    if shared is None or any(entry.tag != NS + 's' for entry in shared):
+        raise VBAUnsupportedError('PivotItems.Add on a field of other than text is not implemented')
+    place = len(shared)
+    shared.append(node('s', {'v': encoded(text), 'u': '1'}))
+    shared.set('count', str(len(shared)))
+    for each in _tables(cache):
+        items = each.root.findall(f'{NS}pivotFields/{NS}pivotField')[field.index].find(NS + 'items')
+        if items is None:
+            continue
+        data = [item for item in items if item.get('t', 'data') == 'data']
+        rest = [item for item in items if item.get('t', 'data') != 'data']
+        items[:] = [*data, item_node(place, gone=True), *rest]
+        items.set('count', str(len(items)))
+    _render_all(cache)
+
+
 def set_formula(item: PivotItem, value: object) -> None:
     """PivotItem.Formula set: a calculated item worked out by another formula; error 1004 for any other item."""
     cache = item.field.table.entry.cache

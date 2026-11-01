@@ -6,9 +6,8 @@ import math
 import re
 from typing import TYPE_CHECKING
 
-from pyopenvba._xml import escape_text
 from pyopenvba.apps.excel._chart_axes import NO_AXES, SUPPORTED, AxisState, TitleState
-from pyopenvba.apps.excel._chart_xml import format_number
+from pyopenvba.apps.excel._chart_xml import format_number, title_markup
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import ChartState
@@ -140,11 +139,14 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
             if sum(len(node.text or "") for node in runs) > 32768:
                 return
             text = "".join(node.text or "" for node in runs)
-            entry.title = TitleState(text or "Axis Title")
+            entry.title = TitleState(text or "Axis Title", typed=bool(text))
         axes[kind] = entry
     result.axes = axes
     result.axis_ids = (axes[1].identifier, axes[2].identifier)
     result.axes_readable = True
+
+
+FAR_SIDE = {"b": "t", "t": "b", "l": "r", "r": "l"}
 
 
 def generated(xml: str, result: ChartState) -> str:
@@ -160,6 +162,10 @@ def generated(xml: str, result: ChartState) -> str:
             return raw
         axis = by_identifier[int(identifier.group(1))]
         raw = raw.replace('<c:delete val="0"/>', '<c:delete val="' + ("0" if axis.present else "1") + '"/>', 1)
+        if any(other.reverse for other in result.axes.values() if other is not axis):
+            # An axis crosses the other at its start, so reversing that one moves this to the far side.
+            raw = re.sub(r'<c:axPos val="([bltr])"/>', lambda found: '<c:axPos val="' + FAR_SIDE[found.group(1)] + '"/>',
+                         raw, count=1)
         orientation = "maxMin" if axis.reverse else "minMax"
         scaling = '<c:scaling><c:orientation val="' + orientation + '"/>'
         for field, tag in [("maximum", "max"), ("minimum", "min")]:
@@ -169,12 +175,7 @@ def generated(xml: str, result: ChartState) -> str:
         scaling += "</c:scaling>"
         raw = re.sub(r"<c:scaling>.*?</c:scaling>", lambda _match: scaling, raw, count=1)
         if axis.title is not None:
-            title = (
-                '<c:title><c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p><a:r><a:rPr lang="en-US"/>'
-                "<a:t>"
-                + escape_text(axis.title.text)
-                + '</a:t></a:r></a:p></c:rich></c:tx><c:overlay val="0"/></c:title>'
-            )
+            title = title_markup(axis.title.text if axis.title.typed else None)
             # Title precedes numFmt/tick metadata in CT_CatAx and CT_ValAx.
             marker = re.search(r"<c:(?:numFmt|majorTickMark)\b", raw)
             if marker is not None:

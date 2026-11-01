@@ -1,12 +1,10 @@
-"""Charts written as Excel's Insert Chart writes them.
+"""Charts written as Excel writes one made through ``ChartObjects.Add``.
 
-Measured with ``Shapes.AddChart2`` and its default style, one chart of each
-kind from the same block of cells: every part below is the markup Excel
-wrote, taken apart into the pieces the kinds share. A chart part holds its
-own formatting, the text, the lines and each series' colour, so it looks as
-Excel's own does without the style and colour parts Excel also writes for
-its chart-style gallery; those are left out, as a chart made through
-``ChartObjects.Add`` has none either.
+Such a chart carries no formatting of its own: no colours, lines or text
+properties, the legend on the right and the gaps and tick marks of Excel's
+classic default, and no style or colour parts beside it. Every piece below
+is the markup Excel wrote for each kind, and for each edit the model makes
+(tests/fixtures/chart_markup.json).
 
 Each series keeps, beside its references, a cache of the values they read,
 as Excel writes one, so a reader that does not calculate still sees the
@@ -104,124 +102,52 @@ def _display(blanks: int, visible_only: bool, over_maximum: bool, not_available_
 
 _TAIL = (
     "</c:chart>"
-    '<c:spPr><a:solidFill><a:schemeClr val="bg1"/></a:solidFill>'
-    '<a:ln w="9525" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="tx1">'
-    '<a:lumMod val="15000"/><a:lumOff val="85000"/></a:schemeClr></a:solidFill><a:round/></a:ln>'
-    "<a:effectLst/></c:spPr>"
-    '<c:txPr><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr/></a:pPr><a:endParaRPr lang="en-US"/></a:p></c:txPr>'
     '<c:printSettings><c:headerFooter/><c:pageMargins b="0.75" l="0.7" r="0.7" t="0.75" header="0.3"'
     ' footer="0.3"/><c:pageSetup/></c:printSettings></c:chartSpace>'
 )
 
-_NOTHING = "<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>"
-
-#: The grey Excel draws a category axis, and gridlines, in.
-_LIGHT_LINE = (
-    '<a:ln w="9525" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="tx1">'
-    '<a:lumMod val="{mod}"/><a:lumOff val="{off}"/></a:schemeClr></a:solidFill><a:round/></a:ln>'
-)
-
-_GRIDLINES = (
-    "<c:majorGridlines><c:spPr>" + _LIGHT_LINE.format(mod=15000, off=85000) + "<a:effectLst/></c:spPr>"
-    "</c:majorGridlines>"
-)
-
-_BODY = (
-    '<a:bodyPr rot="{rot}" spcFirstLastPara="1" vertOverflow="ellipsis" vert="horz" wrap="square"'
-    ' anchor="ctr" anchorCtr="1"/><a:lstStyle/>'
-)
-
-_RUN_PROPERTIES = (
-    '<a:defRPr sz="{size}" b="0" i="0" u="none" strike="noStrike" kern="1200"{spacing} baseline="0">'
-    '<a:solidFill><a:schemeClr val="tx1"><a:lumMod val="65000"/><a:lumOff val="35000"/></a:schemeClr>'
-    '</a:solidFill><a:latin typeface="+mn-lt"/><a:ea typeface="+mn-ea"/><a:cs typeface="+mn-cs"/></a:defRPr>'
-)
-
-
-def _text(size: int, *, rotated: bool, spaced: bool = False) -> str:
-    """Text properties: the size, and the grey Excel sets text in."""
-    body = _BODY.format(rot="-60000000" if rotated else "0")
-    run = _RUN_PROPERTIES.format(size=size, spacing=' spc="0"' if spaced else "")
-    return f'<c:txPr>{body}<a:p><a:pPr>{run}</a:pPr><a:endParaRPr lang="en-US"/></a:p></c:txPr>'
-
-
-def _title(text: str | None) -> str:
-    """The title: Excel's automatic one, or one typed in."""
-    typed = ""
-    if text is not None:
-        body = _BODY.format(rot="0")
-        run = _RUN_PROPERTIES.format(size=1400, spacing=' spc="0"')
-        typed = (
-            f"<c:tx><c:rich>{body}<a:p><a:pPr>{run}</a:pPr>"
-            f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(text)}</a:t></a:r></a:p></c:rich></c:tx>'
-        )
-    return (
-        f'<c:title>{typed}<c:overlay val="0"/>{_NOTHING}{_text(1400, rotated=False, spaced=True)}</c:title>'
-        '<c:autoTitleDeleted val="0"/>'
-    )
-
-
-_LEGEND = f'<c:legend><c:legendPos val="b"/><c:overlay val="0"/>{_NOTHING}{_text(900, rotated=False)}</c:legend>'
+_LEGEND = '<c:legend><c:legendPos val="r"/><c:overlay val="0"/></c:legend>'
 
 _LABELS = (
     '<c:dLbls><c:showLegendKey val="0"/><c:showVal val="0"/><c:showCatName val="0"/><c:showSerName val="0"/>'
     '<c:showPercent val="0"/><c:showBubbleSize val="0"/>{extra}</c:dLbls>'
 )
 
+_NUMBER_FORMAT = '<c:numFmt formatCode="General" sourceLinked="1"/>'
 
-def _category_axis(own: int, other: int, *, position: str, ticks: str = "none") -> str:
+
+def title_markup(text: str | None) -> str:
+    """A chart or axis title: Excel's automatic one with no text, or the text typed in."""
+    typed = ""
+    if text is not None:
+        typed = (
+            "<c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p><a:pPr><a:defRPr/></a:pPr>"
+            f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(text)}</a:t></a:r></a:p></c:rich></c:tx>'
+        )
+    return f'<c:title>{typed}<c:overlay val="0"/></c:title>'
+
+
+def _category_axis(own: int, other: int, *, position: str, formatted: bool) -> str:
     return (
         f'<c:catAx><c:axId val="{own}"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:delete val="0"/>'
-        f'<c:axPos val="{position}"/><c:numFmt formatCode="General" sourceLinked="1"/>'
-        f'<c:majorTickMark val="{ticks}"/><c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/>'
-        "<c:spPr><a:noFill/>" + _LIGHT_LINE.format(mod=15000, off=85000) + "<a:effectLst/></c:spPr>"
-        f'{_text(900, rotated=True)}<c:crossAx val="{other}"/><c:crosses val="autoZero"/><c:auto val="1"/>'
-        '<c:lblAlgn val="ctr"/><c:lblOffset val="100"/><c:noMultiLvlLbl val="0"/></c:catAx>'
+        f'<c:axPos val="{position}"/>{_NUMBER_FORMAT if formatted else ""}<c:majorTickMark val="out"/>'
+        '<c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/>'
+        f'<c:crossAx val="{other}"/><c:crosses val="autoZero"/><c:auto val="1"/><c:lblAlgn val="ctr"/>'
+        '<c:lblOffset val="100"/><c:noMultiLvlLbl val="0"/></c:catAx>'
     )
 
 
-def _value_axis(own: int, other: int, *, position: str, between: str, formatted: bool = True, line: bool = False) -> str:
-    number = '<c:numFmt formatCode="General" sourceLinked="1"/>' if formatted else ""
-    shape = (
-        "<c:spPr><a:noFill/>" + _LIGHT_LINE.format(mod=25000, off=75000) + "<a:effectLst/></c:spPr>"
-        if line
-        else _NOTHING
-    )
+def _value_axis(own: int, other: int, *, position: str, between: str, formatted: bool, gridlines: bool) -> str:
     return (
         f'<c:valAx><c:axId val="{own}"/><c:scaling><c:orientation val="minMax"/></c:scaling><c:delete val="0"/>'
-        f'<c:axPos val="{position}"/>{_GRIDLINES}{number}<c:majorTickMark val="none"/>'
-        f'<c:minorTickMark val="none"/><c:tickLblPos val="nextTo"/>{shape}{_text(900, rotated=True)}'
-        f'<c:crossAx val="{other}"/><c:crosses val="autoZero"/><c:crossBetween val="{between}"/></c:valAx>'
+        f'<c:axPos val="{position}"/>{"<c:majorGridlines/>" if gridlines else ""}'
+        f'{_NUMBER_FORMAT if formatted else ""}<c:majorTickMark val="out"/><c:minorTickMark val="none"/>'
+        f'<c:tickLblPos val="nextTo"/><c:crossAx val="{other}"/><c:crosses val="autoZero"/>'
+        f'<c:crossBetween val="{between}"/></c:valAx>'
     )
 
 
 # -- series ---------------------------------------------------------------
-
-
-#: How Excel's default palette varies the six accents on each round past
-#: the first, as its colour part lists the variations and as it coloured
-#: twenty series, measured.
-_VARIATIONS = (
-    "",
-    '<a:lumMod val="60000"/>',
-    '<a:lumMod val="80000"/><a:lumOff val="20000"/>',
-    '<a:lumMod val="80000"/>',
-    '<a:lumMod val="60000"/><a:lumOff val="40000"/>',
-    '<a:lumMod val="50000"/>',
-    '<a:lumMod val="70000"/><a:lumOff val="30000"/>',
-    '<a:lumMod val="70000"/>',
-    '<a:lumMod val="50000"/><a:lumOff val="50000"/>',
-)
-
-
-def _accent(index: int) -> str:
-    """The theme colour of the ``index``-th series: the six accents, then
-    the same six in each of the palette's variations in turn."""
-    variation = _VARIATIONS[index // 6 % len(_VARIATIONS)]
-    accent = index % 6 + 1
-    if not variation:
-        return f'<a:schemeClr val="accent{accent}"/>'
-    return f'<a:schemeClr val="accent{accent}">{variation}</a:schemeClr>'
 
 
 def _string_cache(texts: Sequence[str | float | None]) -> str:
@@ -256,7 +182,6 @@ def _reference(element: str, formula: str, cache: str, *, numbers: bool) -> str:
 
 def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
     identity = index if data.series_id is None else data.series_id
-    colour = _accent(identity)
     name = ""
     if data.name is not None:
         name = f"<c:tx><c:strRef><c:f>{escape_text(data.name)}</c:f>{_string_cache([data.name_cache])}</c:strRef></c:tx>"
@@ -278,38 +203,20 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         numbers=True,
     )
     if kind in ("column", "bar"):
-        look = f"<c:spPr><a:solidFill>{colour}</a:solidFill><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>"
-        body = f'{look}<c:invertIfNegative val="0"/>{categories}{values}'
-    elif kind == "area":
-        look = f"<c:spPr><a:solidFill>{colour}</a:solidFill><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>"
-        body = f"{look}{categories}{values}"
-    elif kind in ("line", "lineMarkers"):
-        look = f'<c:spPr><a:ln w="28575" cap="rnd"><a:solidFill>{colour}</a:solidFill><a:round/></a:ln><a:effectLst/></c:spPr>'
-        marker = _marker(colour) if kind == "lineMarkers" else '<c:marker><c:symbol val="none"/></c:marker>'
-        body = f'{look}{marker}{categories}{values}<c:smooth val="0"/>'
+        body = f'<c:invertIfNegative val="0"/>{categories}{values}'
+    elif kind == "line":
+        body = f'<c:marker><c:symbol val="none"/></c:marker>{categories}{values}<c:smooth val="0"/>'
+    elif kind == "lineMarkers":
+        body = f'{categories}{values}<c:smooth val="0"/>'
     elif kind == "scatter":
-        look = '<c:spPr><a:ln w="38100" cap="rnd"><a:noFill/><a:round/></a:ln><a:effectLst/></c:spPr>'
-        body = f'{look}{_marker(colour)}{categories}{values}<c:smooth val="0"/>'
-    else:  # pie and doughnut: a colour for each slice
-        slices = "".join(
-            f'<c:dPt><c:idx val="{point}"/><c:bubble3D val="0"/><c:spPr><a:solidFill>{_accent(point)}</a:solidFill>'
-            '<a:ln w="19050"><a:solidFill><a:schemeClr val="lt1"/></a:solidFill></a:ln><a:effectLst/></c:spPr></c:dPt>'
-            for point in range(len(data.value_cache))
-        )
-        body = f"{slices}{categories}{values}"
+        body = f'<c:spPr><a:ln w="38100"><a:noFill/></a:ln></c:spPr>{categories}{values}<c:smooth val="0"/>'
+    else:  # area, pie and doughnut
+        body = f"{categories}{values}"
     return (
         f'<c:ser><c:idx val="{identity}"/><c:order val="{index}"/>{name}{body}'
         '<c:extLst><c:ext uri="{C3380CC4-5D6E-409C-BE32-E72D297353CC}"'
         ' xmlns:c16="http://schemas.microsoft.com/office/drawing/2014/chart">'
         f'<c16:uniqueId val="{{{identity:08X}{unique}}}"/></c:ext></c:extLst></c:ser>'
-    )
-
-
-def _marker(colour: str) -> str:
-    return (
-        '<c:marker><c:symbol val="circle"/><c:size val="5"/><c:spPr>'
-        f'<a:solidFill>{colour}</a:solidFill><a:ln w="9525"><a:solidFill>{colour}</a:solidFill></a:ln>'
-        "<a:effectLst/></c:spPr></c:marker>"
     )
 
 
@@ -321,6 +228,8 @@ def chart_part(
     series: Sequence[SeriesData],
     *,
     title: str | None = None,
+    titled: bool = False,
+    legend: bool = True,
     axis_ids: tuple[int, int] | None = None,
     unique: str | None = None,
     blanks: int = 1,
@@ -330,61 +239,61 @@ def chart_part(
 ) -> str:
     """A chart part, as Excel writes one of this kind.
 
-    ``title`` is text typed in; with none the chart shows Excel's automatic
-    title. ``axis_ids`` and ``unique``, the tail every series' id shares,
-    are random, as Excel's are, unless given. The last four are the chart's
-    DisplayBlanksAs, PlotVisibleOnly, ShowDataLabelsOverMaximum and
-    DisplayValueNotAvailableAsBlank, defaulting as a chart made through
-    ``ChartObjects.Add`` has them, whatever its type.
+    ``titled`` gives the chart a title: ``title`` typed in, or with none
+    Excel's automatic one. ``axis_ids`` and ``unique``, the tail every
+    series' id shares, are random, as Excel's are, unless given. The last
+    four are the chart's DisplayBlanksAs, PlotVisibleOnly,
+    ShowDataLabelsOverMaximum and DisplayValueNotAvailableAsBlank,
+    defaulting as a chart made through ``ChartObjects.Add`` has them,
+    whatever its type.
     """
     first, second = axis_ids if axis_ids is not None else _axis_ids()
     tail = unique if unique is not None else "-" + str(uuid.uuid4()).upper().split("-", 1)[1]
     written = "".join(_series(kind, index, data, tail) for index, data in enumerate(series))
     axes_ids = f'<c:axId val="{first}"/><c:axId val="{second}"/>'
+    labelled = any(data.categories is not None for data in series)
     if kind in ("column", "bar"):
         direction = "col" if kind == "column" else "bar"
-        spacing = '<c:gapWidth val="219"/><c:overlap val="-27"/>' if kind == "column" else '<c:gapWidth val="182"/>'
         plot = (
             f'<c:barChart><c:barDir val="{direction}"/><c:grouping val="clustered"/><c:varyColors val="0"/>'
-            f"{written}{_LABELS.format(extra='')}{spacing}{axes_ids}</c:barChart>"
+            f'{written}{_LABELS.format(extra="")}<c:gapWidth val="150"/>{axes_ids}</c:barChart>'
         )
-        axes = _category_axis(first, second, position="b" if kind == "column" else "l") + _value_axis(
-            second, first, position="l" if kind == "column" else "b", between="between"
-        )
+        axes = _category_axis(first, second, position="b" if kind == "column" else "l", formatted=labelled)
+        axes += _value_axis(second, first, position="l" if kind == "column" else "b", between="between",
+                            formatted=bool(series), gridlines=True)
     elif kind in ("line", "lineMarkers"):
         markers = '<c:marker val="1"/>' if kind == "lineMarkers" else ""
         plot = (
             f'<c:lineChart><c:grouping val="standard"/><c:varyColors val="0"/>{written}'
             f'{_LABELS.format(extra="")}{markers}<c:smooth val="0"/>{axes_ids}</c:lineChart>'
         )
-        axes = _category_axis(first, second, position="b") + _value_axis(second, first, position="l", between="between")
+        axes = _category_axis(first, second, position="b", formatted=labelled)
+        axes += _value_axis(second, first, position="l", between="between", formatted=bool(series), gridlines=True)
     elif kind == "area":
         plot = (
             f'<c:areaChart><c:grouping val="standard"/><c:varyColors val="0"/>{written}'
             f'{_LABELS.format(extra="")}{axes_ids}</c:areaChart>'
         )
-        axes = _category_axis(first, second, position="b", ticks="out") + _value_axis(
-            second, first, position="l", between="midCat"
-        )
+        axes = _category_axis(first, second, position="b", formatted=labelled)
+        axes += _value_axis(second, first, position="l", between="midCat", formatted=bool(series), gridlines=True)
     elif kind == "scatter":
         plot = (
             f'<c:scatterChart><c:scatterStyle val="lineMarker"/><c:varyColors val="0"/>{written}'
             f'{_LABELS.format(extra="")}{axes_ids}</c:scatterChart>'
         )
-        numeric = bool(series) and series[0].numeric_categories
-        axes = _value_axis(first, second, position="b", between="midCat", formatted=numeric, line=True) + _value_axis(
-            second, first, position="l", between="midCat", line=True
-        )
+        axes = _value_axis(first, second, position="b", between="midCat", formatted=labelled, gridlines=False)
+        axes += _value_axis(second, first, position="l", between="midCat", formatted=bool(series), gridlines=True)
     else:
         leaders = '<c:showLeaderLines val="1"/>'
-        hole = '<c:holeSize val="75"/>' if kind == "doughnut" else ""
+        hole = '<c:holeSize val="50"/>' if kind == "doughnut" else ""
         plot = (
             f'<c:{kind}Chart><c:varyColors val="1"/>{written}{_LABELS.format(extra=leaders)}'
             f'<c:firstSliceAng val="0"/>{hole}</c:{kind}Chart>'
         )
         axes = ""
     return (
-        f"{_HEAD}{_title(title)}<c:plotArea><c:layout/>{plot}{axes}{_NOTHING}</c:plotArea>{_LEGEND}"
+        f'{_HEAD}{title_markup(title) if titled else ""}<c:autoTitleDeleted val="0"/>'
+        f'<c:plotArea><c:layout/>{plot}{axes}</c:plotArea>{_LEGEND if legend else ""}'
         + _display(blanks, visible_only, over_maximum, not_available_as_blank)
         + _TAIL
     )

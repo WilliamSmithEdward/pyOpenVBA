@@ -42,6 +42,8 @@ class SeriesState:
 class ChartState:
     chart_type: int = 51
     title: str | None = None
+    #: False for Excel's automatic title, which the file holds with no text.
+    title_typed: bool = False
     legend: bool = True
     plot_by: int = 2
     series: list[SeriesState] = field(default_factory=lambda: [])
@@ -58,6 +60,58 @@ class ChartState:
     not_available_as_blank: bool = True
     #: False when an imported chart spells one of the four display options in a way the model does not read.
     display_readable: bool = True
+
+
+def shown_type(chart: ChartState) -> int:
+    """The type a chart reads and is written as: a line chart with no series is one with markers until it has one."""
+    return 65 if chart.chart_type == 4 and not chart.series else chart.chart_type
+
+
+def plot_by(chart: ChartState) -> int:
+    """PlotBy as Excel works it out from the series: xlColumns (2) when their values are columns of the same rows from
+    left to right, each name the cell above its own column and every series the same categories; xlRows (1) the same
+    turned round; 0 when neither holds, as for a literal or a series moved out of order. A chart with no series reads
+    xlRows, and series that fit both read the way their source data was given."""
+    if not chart.series:
+        return 1
+    try:
+        values = [parse_reference(entry.value_reference) for entry in chart.series]
+        names = [parse_reference(entry.name_reference) if entry.name_reference else None for entry in chart.series]
+    except ValueError:
+        return 0
+    literal = any(not entry.value_reference or entry.name is not None and not entry.name_reference
+                  or entry.categories and not entry.category_reference for entry in chart.series)
+    if (literal or any(len(areas) != 1 for areas in values) or any(name is not None and len(name) != 1 for name in names)
+            or len({entry.category_reference for entry in chart.series}) != 1
+            or len({name is None for name in names}) != 1):
+        return 0
+    blocks = [areas[0] for areas in values]
+    cells = [name[0] if name is not None else None for name in names]
+
+    def fits(columns: bool) -> bool:
+        def span(area: Area) -> tuple[int, int]:
+            return (area.top, area.bottom) if columns else (area.left, area.right)
+
+        def place(area: Area) -> int:
+            return area.left if columns else area.top
+
+        if any(place(area) != (area.right if columns else area.bottom) for area in blocks):
+            return False
+        if len({(area.sheet, span(area)) for area in blocks}) != 1:
+            return False
+        places = [place(area) for area in blocks]
+        if any(later <= earlier for earlier, later in zip(places, places[1:])):
+            return False
+        for cell, area in zip(cells, blocks):
+            if cell is not None and (cell.sheet != area.sheet or (cell.top, cell.left) != (cell.bottom, cell.right)
+                                     or place(cell) != place(area) or span(cell)[0] >= span(area)[0]):
+                return False
+        return len({span(cell) for cell in cells if cell is not None}) <= 1
+
+    by_columns, by_rows = fits(True), fits(False)
+    if by_columns and by_rows:
+        return chart.plot_by
+    return 2 if by_columns else 1 if by_rows else 0
 
 
 def state(sheet: Worksheet, shape: Shape) -> ChartState:
@@ -229,7 +283,7 @@ class Chart(Created):
     def ChartType(self) -> object:
         if self.state.chart_type == 0:
             raise VBAUnsupportedError('Reading this imported chart type is not implemented')
-        return VBAInt(self.state.chart_type, 'Long')
+        return VBAInt(shown_type(self.state), 'Long')
 
     @setter('ChartType')
     def _chart_type(self, value: object) -> None:
@@ -241,7 +295,7 @@ class Chart(Created):
         self.admit_change()
         transition(self, wanted)
         self.changed()
-        self.state.chart_type = 65 if wanted == 4 and not self.state.series else wanted
+        self.state.chart_type = wanted
 
     @member
     def HasTitle(self) -> object:
@@ -252,7 +306,10 @@ class Chart(Created):
         self.admit_change()
         wanted = to_bool(value)
         self.changed()
-        self.state.title = (self.state.title or 'Chart Title') if wanted else None
+        if not wanted:
+            self.state.title, self.state.title_typed = None, False
+        elif self.state.title is None:
+            self.state.title = 'Chart Title'
 
     @member
     def HasLegend(self) -> object:
@@ -268,12 +325,15 @@ class Chart(Created):
     @member
     def ChartTitle(self) -> object:
         if self.state.title is None:
-            raise error(1004, 'This chart has no title')
+            # Excel gives the chart its automatic title on the way to the object.
+            self.changed()
+            self.state.title = 'Chart Title'
         return ChartTitle(self)
 
     @member
     def PlotBy(self) -> object:
-        return VBAInt(self.state.plot_by, 'Long')
+        self.admit_read()
+        return VBAInt(plot_by(self.state), 'Long')
 
     def display(self) -> ChartState:
         self.admit_read()
@@ -428,14 +488,18 @@ class ChartTitle(Created):
 
     @member
     def Text(self) -> object:
-        return self.chart.state.title or ''
+        state = self.chart.state
+        if state.title is not None and not state.title_typed and len(state.series) == 1:
+            # The automatic title of a chart with one series is that series' name.
+            return Series(self.chart, state.series[0]).Name()
+        return state.title or ''
 
     @setter('Text')
     def _text(self, value: object) -> None:
         self.chart.admit_change()
         wanted = to_text(value)
         self.chart.changed()
-        self.chart.state.title = wanted
+        self.chart.state.title, self.chart.state.title_typed = wanted, True
 
 
 class SeriesCollection(VBACollection, Created):

@@ -106,7 +106,7 @@ def _here(prefix: Prefix | None, sheet: Worksheet) -> bool:
         and same_sheet_name(prefix.sheet, sheet.name)
 
 
-def _reads(sheet: Worksheet, row: int, column: int) -> list[Area]:
+def reads(sheet: Worksheet, row: int, column: int) -> list[Area]:
     """The cells on its own sheet a formula reads, in the order the formula gives them."""
     from pyopenvba.apps.excel._model import Range
 
@@ -171,7 +171,7 @@ def _precedents_of(sheet: Worksheet, areas: Iterable[Area], taken: set[tuple[int
         if position in taken:
             continue
         taken.add(position)
-        for area in _reads(sheet, *position):
+        for area in reads(sheet, *position):
             joined(found, area)
     return found
 
@@ -186,7 +186,7 @@ def _readers(sheet: Worksheet) -> list[tuple[tuple[int, int], Area, list[Area]]]
         spill = sheet.spills.get(position)
         shown = spill.area if spill is not None else Area(*position, *position, sheet.name)
         found.append((position, Area(shown.top, shown.left, shown.bottom, shown.right, sheet.name),
-                      _reads(sheet, *position)))
+                      reads(sheet, *position)))
     return found
 
 

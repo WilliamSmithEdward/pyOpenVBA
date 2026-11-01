@@ -23,6 +23,14 @@ Measured in live Excel (scripts/measure_application_settings.py, tests/fixtures/
   was set, 65536 added where it is not positive. A DisplayCommentIndicator
   Excel does not name changes nothing. FixedDecimalPlaces takes -300 to
   300.
+- MergeInstances (True) and HighQualityModeForGraphics (False) are
+  switches like the rest. GenerateTableRefs takes 0 and 1 and keeps
+  anything else out; CursorMovement takes 1 and 2 and turns any other
+  number into 1; DefaultSheetDirection takes xlRTL and xlLTR, takes
+  xlContext and 0 as xlLTR, and keeps anything else out;
+  LargeOperationCellThousandCount takes 1 and up and ODBCTimeout 0 and
+  up. FormulaBarHeight is left out: how tall it may be follows the
+  window, which the model does not have.
 - DisplayNoteIndicator reads whether DisplayCommentIndicator shows
   anything; True sets it to show indicators only, False to show none.
 - Caption reads after the active window's caption and a dash, kept to its
@@ -60,7 +68,7 @@ SWITCHES = {'DisplayStatusBar': True, 'DisplayFormulaBar': True, 'DisplayScrollB
             'MapPaperSize': True, 'PivotTableSelection': True, 'PromptForSummaryInfo': False, 'RollZoom': False,
             'ShowChartTipNames': True, 'ShowChartTipValues': True, 'ShowConvertToDataType': True,
             'ShowQuickAnalysis': True, 'ShowToolTips': True, 'TransitionNavigKeys': False,
-            'WarnOnFunctionNameConflict': True}
+            'WarnOnFunctionNameConflict': True, 'MergeInstances': True, 'HighQualityModeForGraphics': False}
 #: Switches that stay as they are whatever a macro sets, with no error: pen input's ConstrainNumeric and Flash
 #: Fill's FlashFillMode read False after every setting (tests/fixtures/application_settings.json).
 FIXED = frozenset({'ConstrainNumeric', 'FlashFillMode'})
@@ -68,8 +76,11 @@ CURSORS = (1, 2, 3, -4143)
 #: MoveAfterReturnDirection's directions, by the place Excel also takes for each: down, right, up and left.
 DIRECTIONS = (-4121, -4161, -4162, -4159)
 INDICATORS = (0, 1, -1)
+#: LargeOperationCellThousandCount and ODBCTimeout start as the measuring machine's Excel had them.
 STARTS: dict[str, int] = {'Cursor': -4143, 'EnableCancelKey': 1, 'MoveAfterReturnDirection': -4121,
-                          'DisplayCommentIndicator': -1, 'FixedDecimalPlaces': 2}
+                          'DisplayCommentIndicator': -1, 'FixedDecimalPlaces': 2, 'GenerateTableRefs': 1,
+                          'CursorMovement': 1, 'DefaultSheetDirection': -5003,
+                          'LargeOperationCellThousandCount': 33554, 'ODBCTimeout': 45}
 
 
 def flag(value: object) -> bool | None:
@@ -103,6 +114,16 @@ def _numbered(name: str, current: int, given: int) -> int:
         return DIRECTIONS[given - 1] if 1 <= given <= 4 else given
     if name == 'DisplayCommentIndicator':
         return given if given in INDICATORS else current
+    if name == 'GenerateTableRefs':
+        return given if given in (0, 1) else current
+    if name == 'CursorMovement':
+        return given if given in (1, 2) else 1
+    if name == 'DefaultSheetDirection':
+        return given if given in (-5004, -5003) else -5003 if given in (-5002, 0) else current
+    if name == 'LargeOperationCellThousandCount':
+        return given if given >= 1 else current
+    if name == 'ODBCTimeout':
+        return given if given >= 0 else current
     return given if -300 <= given <= 300 else current
 
 

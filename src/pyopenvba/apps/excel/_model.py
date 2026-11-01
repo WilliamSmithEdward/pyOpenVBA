@@ -2051,6 +2051,15 @@ class Workbook(ExcelObject):
         """A Boolean as VBA passes it; the workbook stays saved."""
         self.ink_comments = to_bool(value)
 
+    @method
+    def RemoveDocumentInformation(self, RemoveDocInfoType: object = MISSING) -> object:  # noqa: N803 - native name
+        from pyopenvba.apps.excel._document_properties import remove_information
+
+        if RemoveDocInfoType is MISSING:
+            raise error(449)
+        remove_information(self, RemoveDocInfoType)
+        return EMPTY
+
     @member
     def RemovePersonalInformation(self) -> object:
         return self.remove_personal
@@ -3113,6 +3122,12 @@ class Worksheet(ExcelObject):
         self.background, self.background_changed = path.read_bytes(), True
         return EMPTY
 
+    @method
+    def CircleInvalid(self) -> object:
+        """Circles the cells their validation rejects, which the model never draws, protected sheet or not
+        (tests/fixtures/tracer_arrows.json)."""
+        return EMPTY
+
     @member
     def ProtectContents(self) -> object:
         return self.protection is not None and self.protection.contents
@@ -3636,6 +3651,48 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._precedents import answer
 
         return answer(self, dependents=False, direct=True)
+
+    def tracing(self) -> None:
+        """Tracer arrows, which the model never draws; Excel refuses them on a protected sheet
+        (tests/fixtures/tracer_arrows.json)."""
+        if self.sheet.protection is not None and self.sheet.protection.contents:
+            raise error(1004, "You cannot use this command on a protected sheet. To use this command, you must first "
+                              "unprotect the sheet (Review tab, Protect group, Unprotect Sheet button). You may be "
+                              "prompted for a password.")
+
+    @method
+    def ShowPrecedents(self, Remove: object = MISSING) -> object:  # noqa: N803 - native named argument
+        self.tracing()
+        return True
+
+    @method
+    def ShowDependents(self, Remove: object = MISSING) -> object:  # noqa: N803 - native named argument
+        self.tracing()
+        return True
+
+    @method
+    def ShowErrors(self) -> object:
+        """Traces an error to the cell it starts in and answers that cell: from a cell holding an error, through the
+        first cell it reads that holds one, until a cell reads none. Any other range answers itself."""
+        from pyopenvba.apps.excel._precedents import reads
+        from pyopenvba.interpreter._values import VBAErrorValue
+
+        self.tracing()
+        first = self.first
+        if len(self.areas) != 1 or (first.top, first.left) != (first.bottom, first.right):
+            return self
+        row, column = first.top, first.left
+        seen: set[tuple[int, int]] = set()
+        while isinstance(Range(self.sheet, [Area(row, column, row, column)]).Value(), VBAErrorValue):
+            seen.add((row, column))
+            source = next(((top, left) for area in reads(self.sheet, row, column)
+                           for top in range(area.top, area.bottom + 1) for left in range(area.left, area.right + 1)
+                           if (top, left) not in seen and isinstance(
+                               Range(self.sheet, [Area(top, left, top, left)]).Value(), VBAErrorValue)), None)
+            if source is None:
+                break
+            row, column = source
+        return Range(self.sheet, [Area(row, column, row, column)])
 
     @member
     def Dependents(self) -> object:

@@ -1,0 +1,27 @@
+"""Range.ShowPrecedents, ShowDependents and ShowErrors, and Worksheet.CircleInvalid, replayed from live Excel
+(scripts/measure_tracer_arrows.py, tests/fixtures/tracer_arrows.json): what each answers, and the errors each raises."""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from pyopenvba.apps.excel import ExcelApplication
+
+RECORD: dict[str, Any] = json.loads(
+    (Path(__file__).parent / 'fixtures/tracer_arrows.json').read_text(encoding='utf-8'))
+
+
+@pytest.fixture(scope='module')
+def answers() -> list[str]:
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module(RECORD['source'], name='TracerProbe')
+    return str(app.run('TracerProbe.Probe')).split('@@@')
+
+
+@pytest.mark.parametrize('index', range(len(RECORD['cases'])))
+def test_each_case_as_excel_answered(answers: list[str], index: int) -> None:
+    assert answers[index] == RECORD['cases'][index][1]

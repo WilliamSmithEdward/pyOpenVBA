@@ -80,12 +80,30 @@ _HEAD = (
     "<c:chart>"
 )
 
-_TAIL = (
-    '<c:plotVisOnly val="1"/><c:dispBlanksAs val="{blanks}"/><c:showDLblsOverMax val="0"/>'
-    '<c:extLst><c:ext uri="{{56B9EC1D-385E-4148-901F-78D8002777C0}}"'
+#: DisplayBlanksAs as the file spells it; Excel writes no element for any other value.
+BLANKS = {1: "gap", 2: "zero", 3: "span"}
+
+_NOT_AVAILABLE_AS_BLANK = (
+    '<c:extLst><c:ext uri="{56B9EC1D-385E-4148-901F-78D8002777C0}"'
     ' xmlns:c16r3="http://schemas.microsoft.com/office/drawing/2017/03/chart">'
     '<c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val="1"/></c16r3:dataDisplayOptions16>'
-    "</c:ext></c:extLst></c:chart>"
+    "</c:ext></c:extLst>"
+)
+
+
+def _display(blanks: int, visible_only: bool, over_maximum: bool, not_available_as_blank: bool) -> str:
+    """The chart's display options: which cells it plots, and how blanks and #N/A show."""
+    spelled = BLANKS.get(blanks)
+    return (
+        f'<c:plotVisOnly val="{int(visible_only)}"/>'
+        + (f'<c:dispBlanksAs val="{spelled}"/>' if spelled else "")
+        + f'<c:showDLblsOverMax val="{int(over_maximum)}"/>'
+        + (_NOT_AVAILABLE_AS_BLANK if not_available_as_blank else "")
+    )
+
+
+_TAIL = (
+    "</c:chart>"
     '<c:spPr><a:solidFill><a:schemeClr val="bg1"/></a:solidFill>'
     '<a:ln w="9525" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="tx1">'
     '<a:lumMod val="15000"/><a:lumOff val="85000"/></a:schemeClr></a:solidFill><a:round/></a:ln>'
@@ -305,12 +323,19 @@ def chart_part(
     title: str | None = None,
     axis_ids: tuple[int, int] | None = None,
     unique: str | None = None,
+    blanks: int = 1,
+    visible_only: bool = True,
+    over_maximum: bool = False,
+    not_available_as_blank: bool = True,
 ) -> str:
     """A chart part, as Excel writes one of this kind.
 
     ``title`` is text typed in; with none the chart shows Excel's automatic
     title. ``axis_ids`` and ``unique``, the tail every series' id shares,
-    are random, as Excel's are, unless given.
+    are random, as Excel's are, unless given. The last four are the chart's
+    DisplayBlanksAs, PlotVisibleOnly, ShowDataLabelsOverMaximum and
+    DisplayValueNotAvailableAsBlank, defaulting as a chart made through
+    ``ChartObjects.Add`` has them, whatever its type.
     """
     first, second = axis_ids if axis_ids is not None else _axis_ids()
     tail = unique if unique is not None else "-" + str(uuid.uuid4()).upper().split("-", 1)[1]
@@ -358,10 +383,10 @@ def chart_part(
             f'<c:firstSliceAng val="0"/>{hole}</c:{kind}Chart>'
         )
         axes = ""
-    blanks = "zero" if kind == "area" else "gap"
     return (
         f"{_HEAD}{_title(title)}<c:plotArea><c:layout/>{plot}{axes}{_NOTHING}</c:plotArea>{_LEGEND}"
-        + _TAIL.format(blanks=blanks)
+        + _display(blanks, visible_only, over_maximum, not_available_as_blank)
+        + _TAIL
     )
 
 

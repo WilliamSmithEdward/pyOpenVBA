@@ -51,6 +51,13 @@ class ChartState:
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
     axis_ids: tuple[int, int] = (10000001, 10000002)
+    #: DisplayBlanksAs, any Long; the file holds only 1 to 3.
+    blanks: int = 1
+    visible_only: bool = True
+    over_maximum: bool = False
+    not_available_as_blank: bool = True
+    #: False when an imported chart spells one of the four display options in a way the model does not read.
+    display_readable: bool = True
 
 
 def state(sheet: Worksheet, shape: Shape) -> ChartState:
@@ -267,6 +274,52 @@ class Chart(Created):
     @member
     def PlotBy(self) -> object:
         return VBAInt(self.state.plot_by, 'Long')
+
+    def display(self) -> ChartState:
+        self.admit_read()
+        if not self.state.display_readable:
+            raise VBAUnsupportedError("Reading this imported chart's display options is not implemented")
+        return self.state
+
+    @member
+    def DisplayBlanksAs(self) -> object:
+        return VBAInt(self.display().blanks, 'Long')
+
+    @setter('DisplayBlanksAs')
+    def _blanks(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        self.changed()
+        self.state.blanks = wanted
+
+    @member
+    def PlotVisibleOnly(self) -> object:
+        return self.display().visible_only
+
+    @setter('PlotVisibleOnly')
+    def _visible_only(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.changed()
+        self.state.visible_only = wanted
+
+    @member
+    def ShowDataLabelsOverMaximum(self) -> object:
+        return self.display().over_maximum
+
+    @setter('ShowDataLabelsOverMaximum')
+    def _over_maximum(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.changed()
+        self.state.over_maximum = wanted
+
+    @member
+    def DisplayValueNotAvailableAsBlank(self) -> object:
+        return self.display().not_available_as_blank
+
+    @setter('DisplayValueNotAvailableAsBlank')
+    def _not_available_as_blank(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.changed()
+        self.state.not_available_as_blank = wanted
 
     @method
     def SeriesCollection(self, Index: object = MISSING) -> object:

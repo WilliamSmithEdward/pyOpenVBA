@@ -39,6 +39,7 @@ from pyopenvba.shapes._values import (
     SHAPE_NAMES,
     Box,
     Shape,
+    TextLook,
     child_space,
     emu,
     to_child,
@@ -997,6 +998,167 @@ class TextFrame(Created):
     @member
     def AutoSize(self) -> object:
         return VBAInt(0, "Long")
+
+    # -- the layout, as tests/fixtures/text_frame.json measured it on a new rectangle and text box
+
+    def _look(self) -> TextLook:
+        """The shape's text layout, which a loaded shape's markup holds and the model does not read yet."""
+        shape = self.owner.shape
+        if shape.source or shape.kind not in ("shape", "textBox"):
+            raise _unsupported("the text layout of this shape")
+        if shape.text_look is None:
+            shape.text_look = TextLook(align="l" if shape.kind == "shape" else None,
+                                       vert="horz" if shape.kind == "textBox" else None)
+        return shape.text_look
+
+    def _changed(self) -> TextLook:
+        self.owner.sheet.drawing_changed()
+        return self._look()
+
+    def _margin(self, side: int) -> object:
+        value = self._look().margins[side]
+        return VBASingle((7.2, 3.6, 7.2, 3.6)[side] if value is None else value)
+
+    def _set_margin(self, side: int, value: object) -> None:
+        wanted = float(VBASingle(_number(value)))
+        if wanted < 0:
+            raise error(-2147024809, "The parameter is incorrect.")
+        self._changed().margins[side] = wanted
+
+    @member
+    def MarginLeft(self) -> object:
+        return self._margin(0)
+
+    @setter("MarginLeft")
+    def _margin_left(self, value: object) -> None:
+        self._set_margin(0, value)
+
+    @member
+    def MarginTop(self) -> object:
+        return self._margin(1)
+
+    @setter("MarginTop")
+    def _margin_top(self, value: object) -> None:
+        self._set_margin(1, value)
+
+    @member
+    def MarginRight(self) -> object:
+        return self._margin(2)
+
+    @setter("MarginRight")
+    def _margin_right(self, value: object) -> None:
+        self._set_margin(2, value)
+
+    @member
+    def MarginBottom(self) -> object:
+        return self._margin(3)
+
+    @setter("MarginBottom")
+    def _margin_bottom(self, value: object) -> None:
+        self._set_margin(3, value)
+
+    @member
+    def AutoMargins(self) -> object:
+        # Excel raises 1004 for AutoMargins either way, on a rectangle and a text box alike.
+        raise error(1004, "Unable to get the AutoMargins property of the TextFrame class")
+
+    @setter("AutoMargins")
+    def _auto_margins(self, value: object) -> None:
+        raise error(1004, "Unable to set the AutoMargins property of the TextFrame class")
+
+    @member
+    def HorizontalAlignment(self) -> object:
+        look = self._look()
+        if look.align is None:
+            # A text box that names no alignment reads right to left as right-aligned.
+            return VBAInt(-4152 if look.rtl else -4131, "Long")
+        return VBAInt(_ALIGN_READ[look.align], "Long")
+
+    @setter("HorizontalAlignment")
+    def _horizontal_alignment(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in _ALIGN_SET:
+            raise _unsupported(f"HorizontalAlignment {wanted}")
+        self._changed().align = _ALIGN_SET[wanted]
+
+    @member
+    def VerticalAlignment(self) -> object:
+        return VBAInt({"t": -4160, "ctr": -4108, "b": -4107}[self._look().anchor], "Long")
+
+    @setter("VerticalAlignment")
+    def _vertical_alignment(self, value: object) -> None:
+        wanted = int(to_number(value))
+        # Justify, distributed and 5 all centre the text.
+        anchors = {-4160: "t", -4108: "ctr", -4107: "b", -4130: "ctr", -4117: "ctr", 5: "ctr"}
+        if wanted not in anchors:
+            raise _unsupported(f"VerticalAlignment {wanted}")
+        self._changed().anchor = anchors[wanted]
+
+    @member
+    def Orientation(self) -> object:
+        return VBAInt(_ORIENTATIONS.index(self._look().vert or "horz") + 1, "Long")
+
+    @setter("Orientation")
+    def _orientation(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in range(1, 7):
+            raise error(-2147024809, "The parameter is incorrect.")
+        look = self._look()
+        if wanted == 1 and look.vert is None:
+            return
+        self._changed().vert = _ORIENTATIONS[wanted - 1]
+
+    @member
+    def HorizontalOverflow(self) -> object:
+        return VBAInt(("overflow", "clip").index(self._look().horizontal_overflow), "Long")
+
+    @setter("HorizontalOverflow")
+    def _horizontal_overflow(self, value: object) -> None:
+        self._overflow("horizontal_overflow", ("overflow", "clip"), value)
+
+    @member
+    def VerticalOverflow(self) -> object:
+        return VBAInt(("overflow", "clip", "ellipsis").index(self._look().vertical_overflow), "Long")
+
+    @setter("VerticalOverflow")
+    def _vertical_overflow(self, value: object) -> None:
+        self._overflow("vertical_overflow", ("overflow", "clip", "ellipsis"), value)
+
+    def _overflow(self, field_name: str, choices: tuple[str, ...], value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in range(len(choices)):
+            raise error(-2147467259, "Unspecified error")
+        look = self._look()
+        if getattr(look, field_name) != choices[wanted]:
+            setattr(self._changed(), field_name, choices[wanted])
+            # An AutoShape whose overflow changes is written in full from then on; a text box is not.
+            look.full = look.full or self.owner.shape.kind == "shape"
+
+    @member
+    def ReadingOrder(self) -> object:
+        rtl = self._look().rtl
+        return VBAInt(-2 if rtl is None else -5004 if rtl else -5003, "Long")
+
+    @setter("ReadingOrder")
+    def _reading_order(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in (-5004, -5003):
+            raise error(1004, "Unable to set the ReadingOrder property of the TextFrame class")
+        look = self._look()
+        if wanted == -5004 and look.rtl is False:
+            raise _unsupported("turning text from left to right back to right to left")
+        if wanted == -5003 and look.rtl and look.align in ("l", "r"):
+            # Back from right to left, Excel mirrors a left or right alignment.
+            look.align = "r" if look.align == "l" else "l"
+        self._changed().rtl = wanted == -5004
+
+
+#: HorizontalAlignment as each algn reads, and what each value Excel takes writes: general is left, fill (5)
+#: distributed and center across selection (7) centred.
+_ALIGN_READ = {"l": -4131, "ctr": -4108, "r": -4152, "just": -4130, "justLow": -4117}
+_ALIGN_SET = {-4131: "l", -4108: "ctr", -4152: "r", -4130: "just", -4117: "justLow", 1: "l", 5: "justLow", 7: "ctr"}
+#: msoTextOrientation 1 to 6 as bodyPr's vert.
+_ORIENTATIONS = ("horz", "vert270", "vert", "eaVert", "mongolianVert", "wordArtVert")
 
 
 class TextFrame2(Created):

@@ -2399,21 +2399,21 @@ Tab,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_sheet_tabs.
 Tab,ThemeColor,property,As XlThemeColor,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"xlThemeColorDark1 to xlThemeColorFollowedHyperlink, error 9 beyond; 0 for any other colour."
 Tab,TintAndShade,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; a tint cut toward zero to n / 32767 and kept in 16 bits, so 1.5 reads -0.5000763; a tab with no colour takes none."
 TextFrame,Application,"property, read-only",As Application,,MISSING,,
-TextFrame,AutoMargins,property,As Boolean,,MISSING,,
+TextFrame,AutoMargins,property,As Boolean,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"Excel raises 1004 reading or setting it, on a rectangle and a text box alike."
 TextFrame,AutoSize,property,As Boolean,no setter,UNASSESSED,,
 TextFrame,Characters,method,"Characters([Start As Variant], [Length As Variant]) As Characters",,PARTIAL,tests/fixtures/excel_model/probes.txt,
 TextFrame,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-TextFrame,HorizontalAlignment,property,As XlHAlign,,MISSING,,
-TextFrame,HorizontalOverflow,property,As XlOartHorizontalOverflow,,MISSING,,
-TextFrame,MarginBottom,property,As Single,,MISSING,,
-TextFrame,MarginLeft,property,As Single,,MISSING,,
-TextFrame,MarginRight,property,As Single,,MISSING,,
-TextFrame,MarginTop,property,As Single,,MISSING,,
-TextFrame,Orientation,property,As MsoTextOrientation,,MISSING,,
+TextFrame,HorizontalAlignment,property,As XlHAlign,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"The paragraphs' algn; general is left, fill and distributed justLow, center across selection centred. A text box naming none reads right when right to left. Other values are refused."
+TextFrame,HorizontalOverflow,property,As XlOartHorizontalOverflow,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,bodyPr's horzOverflow; 2 raises -2147467259. A rectangle whose overflow changes writes bodyPr in full.
+TextFrame,MarginBottom,property,As Single,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"3.6 until set, then bodyPr's bIns; negative raises -2147024809. New rectangles and text boxes only."
+TextFrame,MarginLeft,property,As Single,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"7.2 until set, then bodyPr's lIns; negative raises -2147024809. New rectangles and text boxes only."
+TextFrame,MarginRight,property,As Single,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"7.2 until set, then bodyPr's rIns; negative raises -2147024809. New rectangles and text boxes only."
+TextFrame,MarginTop,property,As Single,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"3.6 until set, then bodyPr's tIns; negative raises -2147024809. New rectangles and text boxes only."
+TextFrame,Orientation,property,As MsoTextOrientation,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"msoTextOrientation 1 to 6 as bodyPr's vert; others, the xl orientations among them, raise -2147024809."
 TextFrame,Parent,"property, read-only",As Object,,MISSING,,
-TextFrame,ReadingOrder,property,As Long,,MISSING,,
-TextFrame,VerticalAlignment,property,As XlVAlign,,MISSING,,
-TextFrame,VerticalOverflow,property,As XlOartVerticalOverflow,,MISSING,,
+TextFrame,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"-2 until set; xlRTL and xlLTR write the paragraphs' rtl, and back to left to right mirrors a rectangle's alignment. xlContext and others raise 1004; left to right back to right to left is refused."
+TextFrame,VerticalAlignment,property,As XlVAlign,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's anchor; justify, distributed and 5 centre. Other values are refused."
+TextFrame,VerticalOverflow,property,As XlOartVerticalOverflow,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's vertOverflow, ellipsis too; 3 raises -2147467259. A rectangle whose overflow changes writes bodyPr in full."
 TextFrame2,Application,"property, read-only",As Object,,MISSING,,
 TextFrame2,AutoSize,property,As MsoAutoSize,,MISSING,,
 TextFrame2,Column,"property, read-only",As TextColumn2,,MISSING,,

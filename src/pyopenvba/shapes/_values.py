@@ -167,6 +167,27 @@ class ControlInfo:
 
 
 @dataclass(slots=True)
+class TextLook:
+    """Excel: how a new shape lays out its text, as TextFrame sets it and bodyPr and pPr keep it
+    (tests/fixtures/text_frame.json)."""
+
+    #: lIns, tIns, rIns and bIns in points, None until set.
+    margins: list[float | None] = field(default_factory=lambda: [None, None, None, None])
+    #: The paragraphs' algn, None while the file leaves it out.
+    align: str | None = None
+    #: bodyPr's anchor.
+    anchor: str = "t"
+    #: bodyPr's vert, None while the file leaves it out.
+    vert: str | None = None
+    horizontal_overflow: str = "clip"
+    vertical_overflow: str = "clip"
+    #: The paragraphs' rtl, None while the file leaves it out.
+    rtl: bool | None = None
+    #: Once an AutoShape's overflow has changed, Excel writes bodyPr with every attribute and a text warp.
+    full: bool = False
+
+
+@dataclass(slots=True)
 class Shape:
     """One shape on a sheet, a slide or a page.
 
@@ -228,6 +249,8 @@ class Shape:
     child_box: tuple[float, float, float, float] | None = None
     #: Excel: the group Ungroup took this shape out of, which Regroup puts back together.
     former_group: Shape | None = field(default=None, compare=False)
+    #: Excel: the text layout TextFrame set on a new shape, None while it is the one Excel starts with.
+    text_look: TextLook | None = None
 
     @property
     def mso_type(self) -> int:

@@ -2578,8 +2578,8 @@ Validation,ShowInput,property,As Boolean,,VERIFIED,tests/fixtures/validation/val
 Validation,Type,"property, read-only",As Long,,VERIFIED,tests/fixtures/validation/validation.json,Error 1004 where a cell of the range has no rule.
 Validation,Value,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/validation/validation.json,"Whether the value passes, for every type, measured cell by cell; a range of several cells passes when each does, which is not measured."
 Window,Activate,method,Activate() As Variant,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,ActivateNext,method,ActivateNext() As Variant,,MISSING,,
-Window,ActivatePrevious,method,ActivatePrevious() As Variant,,MISSING,,
+Window,ActivateNext,method,ActivateNext() As Variant,,PARTIAL,tests/fixtures/window_activate_next.json; tests/test_excel_window_activate_next.py,"The window behind the front one activated, so two in a row swap the front two; answers True. A window not in front changes nothing."
+Window,ActivatePrevious,method,ActivatePrevious() As Variant,,PARTIAL,tests/fixtures/window_activate_next.json; tests/test_excel_window_activate_next.py,"The window at the back activated, so steps go round every window; answers True."
 Window,ActiveCell,"property, read-only",As Range,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,ActiveChart,"property, read-only",As Chart,,MISSING,,
 Window,ActivePane,"property, read-only",As Pane,,MISSING,,

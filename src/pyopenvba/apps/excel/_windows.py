@@ -710,6 +710,25 @@ class Window(ExcelObject):
         self.book.application.activate_book(self.book)
         return EMPTY
 
+    @method
+    def ActivateNext(self) -> object:
+        """The window behind this one activated, so that two in a row swap the front two; True
+        (tests/fixtures/window_activate_next.json). A window not in front leaves the windows as they are."""
+        return self._stepped(1)
+
+    @method
+    def ActivatePrevious(self) -> object:
+        """The window at the back activated, so that steps go round every window (tests/fixtures/
+        window_activate_next.json)."""
+        return self._stepped(-1)
+
+    def _stepped(self, step: int) -> object:
+        application = self.book.application
+        order = front_to_back(application)
+        if len(order) > 1 and order[0] is self.book:
+            application.activate_book(order[step])
+        return True
+
     # -- the window itself
 
     @member

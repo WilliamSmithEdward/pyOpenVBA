@@ -1,0 +1,39 @@
+{
+ "measured_at": "2026-11-01T16:11:43.789094+00:00",
+ "source": "Private books(1 To 3) As Workbook\n\nPrivate Function Label() As String\n    Dim i As Long\n    Label = \"other\"\n    For i = 1 To 3\n        If ActiveWorkbook Is books(i) Then Label = Chr(96 + i)\n    Next\nEnd Function\n\nPrivate Function Tried(ByVal which As Long) As String\n    Dim i As Long, s As String\n    For i = 1 To 3: Set books(i) = Workbooks.Add(xlWBATWorksheet): Next\n    s = Label()\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ActiveWindow.ActivateNext: s = s & \",\" & Label()\n    Case 1\n        ActiveWindow.ActivatePrevious: s = s & \",\" & Label()\n    Case 2\n        ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivateNext: s = s & \",\" & Label()\n    Case 3\n        ActiveWindow.ActivatePrevious: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label()\n    Case 4\n        ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label()\n    Case 5\n        books(1).Activate: s = s & \",\" & Label(): ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label()\n    Case 6\n        books(1).Windows(1).ActivateNext: s = s & \",\" & Label()\n    Case 7\n        s = s & \",\" & TypeName(ActiveWindow.ActivateNext): s = s & \",\" & Label()\n    End Select\n    Tried = \"ok \" & s\nDone:\n    For i = 1 To 3: books(i).Close False: Next\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & s\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    s = \"windows=\" & (Windows.Count + 3)\n    For i = 0 To 7\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = s\nEnd Function\n",
+ "windows": "windows=4",
+ "cases": [
+  [
+   "ActiveWindow.ActivateNext: s = s & \",\" & Label()",
+   "ok c,b"
+  ],
+  [
+   "ActiveWindow.ActivatePrevious: s = s & \",\" & Label()",
+   "ok c,other"
+  ],
+  [
+   "ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivateNext: s = s & \",\" & Label()",
+   "ok c,b,c,b"
+  ],
+  [
+   "ActiveWindow.ActivatePrevious: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label()",
+   "ok c,other,a,b"
+  ],
+  [
+   "ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label()",
+   "ok c,b,other"
+  ],
+  [
+   "books(1).Activate: s = s & \",\" & Label(): ActiveWindow.ActivateNext: s = s & \",\" & Label(): ActiveWindow.ActivatePrevious: s = s & \",\" & Label()",
+   "ok c,a,c,other"
+  ],
+  [
+   "books(1).Windows(1).ActivateNext: s = s & \",\" & Label()",
+   "ok c,c"
+  ],
+  [
+   "s = s & \",\" & TypeName(ActiveWindow.ActivateNext): s = s & \",\" & Label()",
+   "ok c,Boolean,b"
+  ]
+ ]
+}

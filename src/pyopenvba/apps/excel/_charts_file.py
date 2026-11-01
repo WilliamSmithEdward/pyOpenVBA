@@ -17,7 +17,9 @@ from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState,
-                                          referenced_values, shown_type)
+                                          MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
+                                          linked_title, referenced_values, shown_type)
+from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
@@ -175,7 +177,11 @@ def read_chart(xml: str, part: str) -> ChartState:
     result.title = ''.join(title.itertext()) if title is not None else None
     if title is not None:
         typed = ''.join(node.text or '' for node in title.findall('.//a:t', NS))
-        result.title, result.title_typed = typed or 'Chart Title', bool(typed)
+        rich = title.find('c:tx/c:rich', NS) is not None
+        result.title, result.title_typed = typed if rich else 'Chart Title', rich
+        result.title_look = read_look(title, NS)
+    deleted = root.find('c:chart/c:autoTitleDeleted', NS)
+    result.title_deleted = title is None and deleted is not None and deleted.get('val', '1') in ('1', 'true')
     result.legend = root.find('c:chart/c:legend', NS) is not None
     read_display(result, root)
     plot = root.find('c:chart/c:plotArea', NS)
@@ -237,6 +243,17 @@ def read_chart(xml: str, part: str) -> ChartState:
             val = series.find('c:yVal', NS)
         item.category_reference, item.categories = _data(cat)
         item.value_reference, item.values = _data(val)
+        smooth = series.find('c:smooth', NS)
+        item.smooth = smooth is not None and smooth.get('val', '1') in ('1', 'true')
+        symbol = series.find('c:marker/c:symbol', NS)
+        if symbol is None:
+            item.marker = MARKER_AUTOMATIC if kind in ('lineChart', 'scatterChart') else MARKER_NONE
+        else:
+            spelled = {name: number for number, name in MARKER_SYMBOLS.items() if name}
+            item.marker = spelled.get(symbol.get('val', ''), MARKER_UNREAD)
+        size = series.find('c:marker/c:size', NS)
+        if size is not None and re.fullmatch(r'[0-9]{1,2}', size.get('val', '')) and 2 <= int(size.get('val', '')) <= 72:
+            item.marker_size = int(size.get('val', ''))
         result.series.append(item)
     if result.series and result.series[0].value_reference:
         try:
@@ -345,13 +362,18 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
                                category_format=source_format(sheet, item.category_reference),
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
-                               unique_id=item.unique if item.unique >= 0 else None))
+                               unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
+                               smooth=item.smooth))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
     state = chart.state
-    xml = chart_part(kind, data, title=state.title if state.title_typed else None, titled=state.title is not None,
-                     legend=state.legend, axis_ids=state.axis_ids, blanks=state.blanks,
+    title = ''
+    if state.title is not None:
+        look = state.title_look
+        title = title_element(look, text=state.title if state.title_typed else None,
+                              linked_text=linked_title(sheet, look.formula) if look.formula else '')
+    xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted, legend=state.legend, axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,
                      not_available_as_blank=state.not_available_as_blank)
     from pyopenvba.apps.excel._chart_axes_file import generated

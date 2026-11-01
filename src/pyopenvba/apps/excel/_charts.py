@@ -5,10 +5,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 import math
+import re
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState
+from pyopenvba.apps.excel._chart_title import (ALIGNMENTS, ORIENTATIONS, READING_ORDERS, VERTICAL,
+                                               VERTICAL_ALIGNMENTS, TitleLook)
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
@@ -39,6 +42,10 @@ class SeriesState:
     series_id: int = -1
     #: The first group of the series' unique id; -1 to take its series_id.
     unique: int = -1
+    smooth: bool = False
+    marker: int = -4142
+    #: MarkerSize once given; until then 9 for an automatic marker and 5 for the rest.
+    marker_size: int | None = None
 
 @dataclass
 class ChartState:
@@ -46,6 +53,9 @@ class ChartState:
     title: str | None = None
     #: False for Excel's automatic title, which the file holds with no text.
     title_typed: bool = False
+    title_look: TitleLook = field(default_factory=TitleLook)
+    #: Set by ChartTitle.Delete, which Excel records as autoTitleDeleted.
+    title_deleted: bool = False
     legend: bool = True
     plot_by: int = 2
     series: list[SeriesState] = field(default_factory=lambda: [])
@@ -133,8 +143,39 @@ def plotted_before(sheet: Worksheet) -> int:
 
 
 def shown_type(chart: ChartState) -> int:
-    """The type a chart reads and is written as: a line chart with no series is one with markers until it has one."""
-    return 65 if chart.chart_type == 4 and not chart.series else chart.chart_type
+    """The type a chart reads and is written as. A line chart follows its first series: with markers (65) unless that
+    series has none, and with markers while it has no series at all."""
+    if chart.chart_type in (4, 65):
+        return 4 if chart.series and chart.series[0].marker == MARKER_NONE else 65
+    return chart.chart_type
+
+
+#: Series.MarkerStyle and the symbol the file spells it with; automatic has no symbol of its own.
+MARKER_AUTOMATIC, MARKER_NONE = -4105, -4142
+#: An imported series whose marker symbol the model does not read.
+MARKER_UNREAD = 0
+MARKER_SYMBOLS = {MARKER_AUTOMATIC: '', MARKER_NONE: 'none', 1: 'square', 2: 'diamond', 3: 'triangle', -4168: 'x',
+                  5: 'star', 8: 'circle', 9: 'plus', -4118: 'dot', -4115: 'dash', -4147: 'picture'}
+#: Older marker numbers MarkerStyle still takes: 0 for none, and Excel 4's x, short bar and long bar.
+MARKER_ALIASES = {0: MARKER_NONE, 4: -4168, 6: -4118, 7: -4115}
+#: The marker an automatic series shows, by its idx; MarkerSize fixes it.
+AUTOMATIC_MARKERS = (2, 1, 3, -4168, 5, 8, 9, -4118, -4115)
+
+
+def default_marker(chart: ChartState) -> int:
+    """The marker a new series takes: automatic in a chart drawn with markers, none otherwise."""
+    return MARKER_AUTOMATIC if chart.chart_type in (65, -4169) else MARKER_NONE
+
+
+def marker_markup(entry: SeriesState) -> str:
+    """The series' marker element: none for an automatic marker, a symbol for the rest, with its size where it has
+    one."""
+    symbol = MARKER_SYMBOLS[entry.marker]
+    if not symbol:
+        return ''
+    if symbol in ('none', 'picture'):
+        return f'<c:marker><c:symbol val="{symbol}"/></c:marker>'
+    return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{entry.marker_size or 5}"/></c:marker>'
 
 
 def plot_by(chart: ChartState) -> int:
@@ -367,6 +408,12 @@ class Chart(Created):
         transition(self, wanted)
         self.changed()
         self.state.chart_type = wanted
+        # A line chart turns every marker off; one with markers, or a scatter chart, turns those that were off back on.
+        for entry in self.state.series:
+            if wanted == 4:
+                entry.marker = MARKER_NONE
+            elif wanted in (65, -4169) and entry.marker == MARKER_NONE:
+                entry.marker = MARKER_AUTOMATIC
 
     @member
     def HasTitle(self) -> object:
@@ -377,8 +424,9 @@ class Chart(Created):
         self.admit_change()
         wanted = to_bool(value)
         self.changed()
+        self.state.title_deleted = False
         if not wanted:
-            self.state.title, self.state.title_typed = None, False
+            self.state.title, self.state.title_typed, self.state.title_look = None, False, TitleLook()
         elif self.state.title is None:
             self.state.title = 'Chart Title'
 
@@ -516,6 +564,7 @@ class Chart(Created):
         self.state.plot_by = orientation
         for index, series in enumerate(series_plan):
             series.unique = self.state.unique_base + index
+            series.marker = default_marker(self.state)
         self.state.next_unique = self.state.unique_base + len(series_plan)
         self.state.series[:] = series_plan
         return EMPTY
@@ -530,6 +579,8 @@ class ChartTitle(Created):
     @member
     def Text(self) -> object:
         state = self.chart.state
+        if state.title_look.formula:
+            return linked_title(self.chart.sheet, state.title_look.formula)
         if state.title is not None and not state.title_typed and len(state.series) == 1:
             # The automatic title of a chart with one series is that series' name.
             return Series(self.chart, state.series[0]).Name()
@@ -541,6 +592,180 @@ class ChartTitle(Created):
         wanted = to_text(value)
         self.chart.changed()
         self.chart.state.title, self.chart.state.title_typed = wanted, True
+        self.chart.state.title_look.formula = ''
+
+    @member
+    def Caption(self) -> object:
+        return self.Text()
+
+    @setter('Caption')
+    def _caption(self, value: object) -> None:
+        self._text(value)
+
+    @member
+    def Formula(self) -> object:
+        look = self.chart.state.title_look
+        return '=' + look.formula if look.formula else self.Text()
+
+    @setter('Formula')
+    def _formula(self, value: object) -> None:
+        self.link(to_text(value), r1c1=False)
+
+    @member
+    def FormulaR1C1(self) -> object:
+        look = self.chart.state.title_look
+        return r1c1_series('=' + look.formula) if look.formula else self.Text()
+
+    @setter('FormulaR1C1')
+    def _formula_r1c1(self, value: object) -> None:
+        self.link(to_text(value), r1c1=True)
+
+    @member
+    def FormulaLocal(self) -> object:
+        return self.Formula()
+
+    @setter('FormulaLocal')
+    def _formula_local(self, value: object) -> None:
+        self._formula(value)
+
+    @member
+    def FormulaR1C1Local(self) -> object:
+        return self.FormulaR1C1()
+
+    @setter('FormulaR1C1Local')
+    def _formula_r1c1_local(self, value: object) -> None:
+        self._formula_r1c1(value)
+
+    def link(self, text: str, *, r1c1: bool) -> None:
+        """Formula: a reference to one cell links the title to it; anything not starting with = is typed text."""
+        self.chart.admit_change()
+        if not text.startswith('='):
+            self._text(text)
+            return
+        found = re.fullmatch(r"=((?:'[^']+'|[^!'=]+))!(?:\$?([A-Za-z]{1,3})\$?(\d+)|R(\d+)C(\d+))", text)
+        if found is None:
+            if re.fullmatch(r"=[^!]*![^!]*", text):
+                raise VBAUnsupportedError('Linking a chart title to this reference is not implemented')
+            raise error(1004, 'Unable to set the Formula property of the ChartTitle class')
+        from pyopenvba._a1 import column_number
+
+        sheet_name = found.group(1)[1:-1].replace("''", "'") if found.group(1).startswith("'") else found.group(1)
+        sheet = next((item for item in self.chart.sheet.book.sheets_ if item.name.lower() == sheet_name.lower()), None)
+        if sheet is None or (found.group(4) is not None) != r1c1:
+            raise VBAUnsupportedError('Linking a chart title to this reference is not implemented')
+        row, column = ((int(found.group(4)), int(found.group(5))) if r1c1
+                       else (int(found.group(3)), column_number(found.group(2).upper())))
+        reference_text = reference(sheet, Area(row, column, row, column))
+        self.chart.changed()
+        self.chart.state.title_typed = False
+        self.chart.state.title_look.formula = reference_text
+
+    def look(self) -> TitleLook:
+        self.chart.admit_read()
+        return self.chart.state.title_look
+
+    def restyle(self) -> TitleLook:
+        self.chart.admit_change()
+        self.chart.changed()
+        return self.chart.state.title_look
+
+    @member
+    def Orientation(self) -> object:
+        rotation = self.look().rotation
+        if rotation == VERTICAL:
+            return VBAInt(VERTICAL, 'Long')
+        named = {angle: number for number, angle in ORIENTATIONS.items()}
+        return VBAInt(named.get(rotation or 0, rotation or 0), 'Long')
+
+    @setter('Orientation')
+    def _orientation(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        angle = VERTICAL if wanted == VERTICAL else ORIENTATIONS.get(wanted, wanted)
+        if angle != VERTICAL and not -90 <= angle <= 90:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        self.restyle().rotation = angle
+
+    @member
+    def HorizontalAlignment(self) -> object:
+        spelled = self.look().alignment or 'ctr'
+        return VBAInt(next(number for number, name in ALIGNMENTS.items() if name == spelled), 'Long')
+
+    @setter('HorizontalAlignment')
+    def _horizontal_alignment(self, value: object) -> None:
+        wanted = ALIGNMENTS.get(int(to_integer(value, 'Long')))
+        if wanted is None:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        look = self.look()
+        if look.rotation == VERTICAL:
+            raise VBAUnsupportedError('Aligning a vertical chart title is not implemented')
+        if not look.rotated():
+            # Excel ignores the alignment of text it has turned.
+            self.restyle().alignment = wanted
+
+    @member
+    def VerticalAlignment(self) -> object:
+        self.look()
+        return VBAInt(-4108, 'Long')
+
+    @setter('VerticalAlignment')
+    def _vertical_alignment(self, value: object) -> None:
+        if int(to_integer(value, 'Long')) not in VERTICAL_ALIGNMENTS:
+            raise VBAUnsupportedError('This chart title vertical alignment is not implemented')
+        self.look()  # Excel keeps a title centred whatever is set.
+
+    @member
+    def ReadingOrder(self) -> object:
+        setting = self.look().right_to_left
+        return VBAInt(next(number for number, value in READING_ORDERS.items() if value is setting), 'Long')
+
+    @setter('ReadingOrder')
+    def _reading_order(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        if wanted not in READING_ORDERS:
+            raise VBAUnsupportedError('This chart title reading order is not implemented')
+        self.restyle().right_to_left = READING_ORDERS[wanted]
+
+    @member
+    def Position(self) -> object:
+        self.look()
+        return VBAInt(-4105, 'Long')
+
+    @setter('Position')
+    def _position(self, value: object) -> None:
+        if int(to_integer(value, 'Long')) != -4105:
+            raise VBAUnsupportedError('Placing a chart title requires native layout')
+        self.look()
+
+    @member
+    def IncludeInLayout(self) -> object:
+        return not self.look().overlay
+
+    @setter('IncludeInLayout')
+    def _include_in_layout(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.restyle().overlay = not wanted
+
+    @member
+    def Shadow(self) -> object:
+        return bool(self.look().shadow)
+
+    @setter('Shadow')
+    def _shadow(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.restyle().shadow = wanted
+
+    @method
+    def Delete(self) -> object:
+        self.chart.admit_change()
+        self.chart.changed()
+        state = self.chart.state
+        state.title, state.title_typed, state.title_look, state.title_deleted = None, False, TitleLook(), True
+        return EMPTY
+
+
+def linked_title(sheet: Worksheet, formula: str) -> str:
+    values = referenced_values(sheet, formula)
+    return to_text(values[0]) if values and values[0] is not EMPTY else ''
 
 
 class SeriesCollection(VBACollection, Created):
@@ -569,7 +794,8 @@ class SeriesCollection(VBACollection, Created):
         series_id = 0
         while series_id in used:
             series_id += 1
-        entry = SeriesState(series_id=series_id, unique=self.chart.state.next_unique)
+        entry = SeriesState(series_id=series_id, unique=self.chart.state.next_unique,
+                            marker=default_marker(self.chart.state))
         self.chart.changed()
         self.chart.state.next_unique += 1
         self.chart.state.series.append(entry)
@@ -695,6 +921,86 @@ class Series(Created):
         categories = self.entry.category_reference or literal_array(self.entry.categories)
         values = self.entry.value_reference or literal_array(self.entry.values)
         return f'=SERIES({name},{categories},{values},{order})'
+
+    @member
+    def FormulaR1C1(self) -> object:
+        return r1c1_series(str(self.Formula()))
+
+    @member
+    def FormulaLocal(self) -> object:
+        return self.Formula()
+
+    @member
+    def FormulaR1C1Local(self) -> object:
+        return self.FormulaR1C1()
+
+    def lines(self) -> SeriesState:
+        """The series, where its chart draws lines or markers; Excel raises 1004 for the other kinds."""
+        self.position()
+        if CHART_TYPES.get(shown_type(self.chart.state)) not in ('line', 'lineMarkers', 'scatter'):
+            raise error(1004, 'Unable to get the property of the Series class')
+        if self.entry.marker == MARKER_UNREAD:
+            raise VBAUnsupportedError("Reading this imported series' marker is not implemented")
+        return self.entry
+
+    @member
+    def Smooth(self) -> object:
+        return self.lines().smooth
+
+    @setter('Smooth')
+    def _smooth(self, value: object) -> None:
+        entry = self.lines()
+        wanted = to_bool(value)
+        self.chart.changed()
+        entry.smooth = wanted
+
+    @member
+    def MarkerStyle(self) -> object:
+        return VBAInt(self.lines().marker, 'Long')
+
+    @setter('MarkerStyle')
+    def _marker_style(self, value: object) -> None:
+        entry = self.lines()
+        wanted = int(to_integer(value, 'Long'))
+        wanted = MARKER_ALIASES.get(wanted, wanted)
+        if wanted not in MARKER_SYMBOLS:
+            raise error(1004, 'Unable to set the MarkerStyle property of the Series class')
+        self.chart.changed()
+        entry.marker = wanted
+
+    @member
+    def MarkerSize(self) -> object:
+        entry = self.lines()
+        size = entry.marker_size or (9 if entry.marker == MARKER_AUTOMATIC else 5)
+        return VBAInt(size, 'Long')
+
+    @setter('MarkerSize')
+    def _marker_size(self, value: object) -> None:
+        entry = self.lines()
+        wanted = int(to_integer(value, 'Long'))
+        if not 2 <= wanted <= 72:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        identity = entry.series_id if entry.series_id >= 0 else self.position() - 1
+        if entry.marker == MARKER_AUTOMATIC and identity >= len(AUTOMATIC_MARKERS):
+            raise VBAUnsupportedError('The automatic marker of a series past the ninth is not implemented')
+        self.chart.changed()
+        entry.marker_size = wanted
+        if entry.marker == MARKER_AUTOMATIC:
+            entry.marker = AUTOMATIC_MARKERS[identity]
+
+
+def r1c1_series(formula: str) -> str:
+    """A SERIES formula with its absolute A1 references spelled R1C1, as FormulaR1C1 answers."""
+    from pyopenvba._a1 import column_number
+
+    def cell(found: re.Match[str]) -> str:
+        if not (found.group(1) and found.group(3)):
+            raise VBAUnsupportedError('Relative references in a series formula are not implemented')
+        return f'R{found.group(4)}C{column_number(found.group(2))}'
+
+    parts = re.split(r'("(?:[^"]|"")*"|\{[^}]*\})', formula)
+    return ''.join(part if part.startswith(('"', '{')) else re.sub(
+        r"(?<=[!:,(])(\$?)([A-Z]{1,3})(\$?)(\d+)(?![\w(])", cell, part) for part in parts)
 
 
 def quoted(value: str) -> str:

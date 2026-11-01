@@ -63,6 +63,9 @@ class SeriesData:
     series_id: int | None = None
     #: The first group of its unique id, when that is not its series_id.
     unique_id: int | None = None
+    #: In a line or scatter chart: the marker element, none for an automatic marker, and whether the line is smoothed.
+    marker: str = ""
+    smooth: bool = False
 
 
 # -- the pieces every kind shares ----------------------------------------
@@ -206,12 +209,13 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
     )
     if kind in ("column", "bar"):
         body = f'<c:invertIfNegative val="0"/>{categories}{values}'
-    elif kind == "line":
-        body = f'<c:marker><c:symbol val="none"/></c:marker>{categories}{values}<c:smooth val="0"/>'
-    elif kind == "lineMarkers":
-        body = f'{categories}{values}<c:smooth val="0"/>'
+    elif kind in ("line", "lineMarkers"):
+        body = f'{data.marker}{categories}{values}<c:smooth val="{int(data.smooth)}"/>'
     elif kind == "scatter":
-        body = f'<c:spPr><a:ln w="38100"><a:noFill/></a:ln></c:spPr>{categories}{values}<c:smooth val="0"/>'
+        body = (
+            f'<c:spPr><a:ln w="38100"><a:noFill/></a:ln></c:spPr>{data.marker}{categories}{values}'
+            f'<c:smooth val="{int(data.smooth)}"/>'
+        )
     else:  # area, pie and doughnut
         body = f"{categories}{values}"
     return (
@@ -230,8 +234,8 @@ def chart_part(
     kind: ChartKind,
     series: Sequence[SeriesData],
     *,
-    title: str | None = None,
-    titled: bool = False,
+    title: str = "",
+    title_deleted: bool = False,
     legend: bool = True,
     axis_ids: tuple[int, int] | None = None,
     unique: str | None = None,
@@ -242,8 +246,8 @@ def chart_part(
 ) -> str:
     """A chart part, as Excel writes one of this kind.
 
-    ``titled`` gives the chart a title: ``title`` typed in, or with none
-    Excel's automatic one. ``axis_ids`` and ``unique``, the tail every
+    ``title`` is the chart's title element, if it has one, and
+    ``title_deleted`` says ChartTitle.Delete removed it. ``axis_ids`` and ``unique``, the tail every
     series' id shares, are random, as Excel's are, unless given. The last
     four are the chart's DisplayBlanksAs, PlotVisibleOnly,
     ShowDataLabelsOverMaximum and DisplayValueNotAvailableAsBlank,
@@ -295,7 +299,7 @@ def chart_part(
         )
         axes = ""
     return (
-        f'{_HEAD}{title_markup(title) if titled else ""}<c:autoTitleDeleted val="0"/>'
+        f'{_HEAD}{title}<c:autoTitleDeleted val="{int(title_deleted)}"/>'
         f'<c:plotArea><c:layout/>{plot}{axes}</c:plotArea>{_LEGEND if legend else ""}'
         + _display(blanks, visible_only, over_maximum, not_available_as_blank)
         + _TAIL

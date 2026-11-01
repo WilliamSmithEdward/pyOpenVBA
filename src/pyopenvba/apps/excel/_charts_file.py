@@ -208,6 +208,7 @@ def read_chart(xml: str, part: str) -> ChartState:
         return result
     entry = plots[0]
     kind = entry.tag.rpartition('}')[2]
+    _read_group(result, entry)
     grouping = entry.find('c:grouping', NS)
     group = grouping.attrib.get('val', '') if grouping is not None else ''
     if kind == 'barChart' and group == 'clustered':
@@ -344,6 +345,37 @@ def _number(value: object) -> float | None:
         return None
     return float(to_number(value))
 
+def _read_group(result: ChartState, group: ET.Element) -> None:
+    """The chart group's settings as a loaded part holds them (tests/fixtures/chart_groups.json)."""
+    def number(name: str) -> int | None:
+        node = group.find('c:' + name, NS)
+        text = node.get('val', '') if node is not None else ''
+        return int(text) if re.fullmatch(r'-?[0-9]{1,3}', text) else None
+
+    vary = group.find('c:varyColors', NS)
+    if vary is not None:
+        result.vary = vary.get('val', '1') in ('1', 'true')
+    gap, overlap, first, hole = number('gapWidth'), number('overlap'), number('firstSliceAng'), number('holeSize')
+    result.gap_width = gap if gap is not None else result.gap_width
+    result.overlap = overlap if overlap is not None else result.overlap
+    result.first_slice = first if first is not None else result.first_slice
+    result.hole = hole
+
+
+def _grouped(xml: str, state: ChartState, kind: str) -> str:
+    """The chart group's settings in the part (tests/fixtures/chart_groups.json): varyColors once set, a bar or column
+    chart's gapWidth with any overlap after it, a pie's or doughnut's firstSliceAng, and a doughnut's holeSize. A kind
+    that draws none of these keeps what was set and writes nothing."""
+    if state.vary is not None:
+        xml = re.sub(r'<c:varyColors val="[01]"/>', f'<c:varyColors val="{int(state.vary)}"/>', xml, count=1)
+    overlap = f'<c:overlap val="{state.overlap}"/>' if state.overlap and kind in ('column', 'bar') else ''
+    xml = xml.replace('<c:gapWidth val="150"/>', f'<c:gapWidth val="{state.gap_width}"/>{overlap}', 1)
+    xml = xml.replace('<c:firstSliceAng val="0"/>', f'<c:firstSliceAng val="{state.first_slice}"/>', 1)
+    if state.hole is not None:
+        xml = xml.replace('<c:holeSize val="50"/>', f'<c:holeSize val="{state.hole}"/>', 1)
+    return xml
+
+
 def dated_categories(sheet: Worksheet, state: ChartState) -> bool:
     """Whether the chart's categories are dates, which gives an automatic category axis a time scale: the first
     series' categories are cells formatted as dates (tests/fixtures/chart_category_type.json)."""
@@ -443,6 +475,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     from pyopenvba.apps.excel._chart_axes_file import generated
 
     xml = generated(xml, state, lambda formula: linked_title(sheet, formula), dated_categories(sheet, state))
+    xml = _grouped(xml, state, kind)
     if data and data[0].numeric_categories and data[0].category_format != 'General':
         # A category axis over numbers shows them in their cells' format, dates as dates
         # (tests/fixtures/chart_category_type.json).

@@ -71,6 +71,13 @@ class ChartState:
     legend_shadow: bool | None = None
     #: The legend entries deleted, by series or, in a pie, point index (tests/fixtures/chart_legend_entries.json).
     legend_deleted: list[int] = field(default_factory=lambda: [])
+    #: The chart group's GapWidth, Overlap, VaryByCategories once set, FirstSliceAngle and DoughnutHoleSize once set
+    #: (tests/fixtures/chart_groups.json).
+    gap_width: int = 150
+    overlap: int = 0
+    vary: bool | None = None
+    first_slice: int = 0
+    hole: int | None = None
     plot_by: int = 2
     series: list[SeriesState] = field(default_factory=lambda: [])
     part: str = ''
@@ -588,6 +595,11 @@ class Chart(Created):
     def HasLegend(self) -> object:
         return self.state.legend
 
+    @method
+    def ChartGroups(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        groups = ChartGroups(self)
+        return groups if Index is MISSING else groups.vba_lookup(Index, groups.vba_items())
+
     @member
     def HasDataTable(self) -> object:
         """Whether the chart shows a data table, on any kind, a pie's included (tests/fixtures/chart_series_more.json)."""
@@ -936,6 +948,101 @@ class LegendEntry(Created):
             raise error(1004, 'Delete method of LegendEntry class failed')
         state.legend_deleted.append(self.index)
         return EMPTY
+
+
+class ChartGroups(VBACollection, Created):
+    """A chart's groups: the one group a chart of a single kind has (tests/fixtures/chart_groups.json)."""
+
+    vba_type_name = 'ChartGroups'
+
+    def __init__(self, chart: Chart) -> None:
+        self.chart = chart
+
+    def vba_items(self) -> list[object]:
+        self.chart.admit_read()
+        return [ChartGroup(self.chart)]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        if int(to_number(index)) != 1:
+            raise error(1004, 'Unable to get the ChartGroups property of the Chart class')
+        return items[0]
+
+
+class ChartGroup(Created):
+    """The settings a chart's series share as a group (tests/fixtures/chart_groups.json). A kind that draws one of
+    them not keeps what is set and writes nothing."""
+
+    vba_type_name = 'ChartGroup'
+
+    def __init__(self, chart: Chart) -> None:
+        self.chart = chart
+
+    def _kind(self) -> str:
+        self.chart.admit_read()
+        return CHART_TYPES.get(shown_type(self.chart.state), '')
+
+    def _set(self, field_name: str, value: object, lowest: int, highest: int) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        self.chart.admit_change()
+        if not lowest <= wanted <= highest:
+            raise error(1004, 'Unable to set the property of the ChartGroup class')
+        self.chart.changed()
+        setattr(self.chart.state, field_name, wanted)
+
+    @member
+    def Parent(self) -> object:
+        return self.chart
+
+    @member
+    def GapWidth(self) -> object:
+        self._kind()
+        return VBAInt(self.chart.state.gap_width, 'Long')
+
+    @setter('GapWidth')
+    def _gap_width(self, value: object) -> None:
+        self._set('gap_width', value, 0, 500)
+
+    @member
+    def Overlap(self) -> object:
+        # Lines, areas and scatter charts answer 100, the series drawn over each other.
+        return VBAInt(100 if self._kind() in ('line', 'lineMarkers', 'area', 'scatter') else self.chart.state.overlap,
+                      'Long')
+
+    @setter('Overlap')
+    def _overlap(self, value: object) -> None:
+        if self._kind() not in ('column', 'bar'):
+            raise VBAUnsupportedError('Overlap on a chart without bars is not implemented')
+        self._set('overlap', value, -100, 100)
+
+    @member
+    def VaryByCategories(self) -> object:
+        vary = self.chart.state.vary
+        return self._kind() in ('pie', 'doughnut') if vary is None else vary
+
+    @setter('VaryByCategories')
+    def _vary_by_categories(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.chart.admit_change()
+        self.chart.changed()
+        self.chart.state.vary = wanted
+
+    @member
+    def FirstSliceAngle(self) -> object:
+        self._kind()
+        return VBAInt(self.chart.state.first_slice, 'Long')
+
+    @setter('FirstSliceAngle')
+    def _first_slice_angle(self, value: object) -> None:
+        self._set('first_slice', value, 0, 360)
+
+    @member
+    def DoughnutHoleSize(self) -> object:
+        hole = self.chart.state.hole
+        return VBAInt((50 if self._kind() == 'doughnut' else 0) if hole is None else hole, 'Long')
+
+    @setter('DoughnutHoleSize')
+    def _doughnut_hole_size(self, value: object) -> None:
+        self._set('hole', value, 10, 90)
 
 
 class SeriesCollection(VBACollection, Created):

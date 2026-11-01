@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Chart.ChartGroups` and a group's `GapWidth`, `Overlap`,
+  `VaryByCategories`, `FirstSliceAngle` and `DoughnutHoleSize` answer
+  as Excel's do, saved in the chart's group and read back from a
+  loaded chart. 29 live cases agree, `tests/fixtures/chart_groups.json`.
+
 - `Legend.LegendEntries`, `LegendEntry.Delete` and `Legend.Clear`
   answer as Excel's do. A legend lists one entry per series, or per
   point in a pie, a deleted one is saved as a `legendEntry`, and

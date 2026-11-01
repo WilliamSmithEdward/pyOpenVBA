@@ -15,7 +15,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAInt, error, to_bool, to_integer, to_number, to_text
+from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAArray, VBAInt, error, to_bool, to_integer, to_number,
+                                           to_text)
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import Chart
@@ -570,6 +571,36 @@ class Axis(Created):
     @setter("TickMarkSpacing")
     def _mark_skip(self, value: object) -> None:
         self.set_skip("mark_skip", value)
+
+    @member
+    def CategoryNames(self) -> object:
+        from pyopenvba.apps.excel._charts import Series
+
+        self.kind_only(False)
+        if not self.chart.state.series:
+            raise error(1004, "Unable to get the CategoryNames property of the Axis class")
+        return Series(self.chart, self.chart.state.series[0]).XValues()
+
+    @setter("CategoryNames", objects=True)
+    def _category_names(self, value: object) -> None:
+        from pyopenvba.apps.excel._charts import series_input
+        from pyopenvba.apps.excel._model import Range
+
+        self.kind_only(False)
+        self.change()
+        if not isinstance(value, (VBAArray, Range)):
+            raise error(1004, "Unable to set the CategoryNames property of the Axis class")
+        reference, values = series_input(value, sheet=self.chart.sheet)
+        self.chart.changed()
+        # Every series takes the names, as Excel gives them all the same categories.
+        for entry in self.chart.state.series:
+            entry.category_reference, entry.categories = reference, list(values)
+
+    @method
+    def Delete(self) -> object:
+        self.read()
+        self.chart.vba_set("HasAxis", False, [VBAInt(self.entry.kind, "Long"), VBAInt(1, "Long")])
+        return EMPTY
 
 
 class AxisTitle(TitleMembers):

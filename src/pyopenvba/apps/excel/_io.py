@@ -714,6 +714,48 @@ def _write_links(book: Workbook, package: OpcFile, folder: str) -> None:
     book.links_folder = folder
 
 
+_IMAGE_RELATIONSHIP = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"
+#: What follows a sheet's <picture> in the schema's order: the first of these there.
+_AFTER_PICTURE = re.compile(r"<(?:oleObjects|controls|webPublishItems|tableParts|extLst|mc:AlternateContent)\b"
+                            r"|</worksheet>")
+
+
+def _write_backgrounds(book: Workbook, package: OpcFile) -> None:
+    """Each sheet whose background picture changed: the old one's <picture>, relationship and image taken away, and
+    the new one written. The image goes in xl/media, sharing a part that holds the same bytes, as Excel shares one
+    between sheets; its relationship comes after a VML part the save makes and before a comments part
+    (tests/fixtures/background_picture.json)."""
+    for sheet in book.sheets_:
+        if not sheet.background_changed or not sheet.part_name or not package.has(sheet.part_name):
+            continue
+        sheet.background_changed = False
+        text = package.read(sheet.part_name).decode("utf-8", errors="replace")
+        for relationship, (kind, target) in _sheet_relationships(package, sheet.part_name).items():
+            if kind == "image":
+                _remove_sheet_relationship(package, sheet.part_name, relationship)
+                text = re.sub(r'<picture\b[^>]*\br:id="' + re.escape(relationship) + r'"[^>]*/>', "", text)
+                package.write(sheet.part_name, text.encode("utf-8"))
+                _remove_unreferenced_part(package, _resolved(target))
+        if sheet.background is None:
+            continue
+        held = sorted(name for name in package.names() if name.startswith("xl/media/"))
+        part = next((name for name in held if package.read(name) == sheet.background), None)
+        if part is None:
+            number = 1
+            while f"xl/media/image{number}.png" in held:
+                number += 1
+            part = f"xl/media/image{number}.png"
+            package.write(part, sheet.background)
+        _add_default_content_type(package, "png", "image/png")
+        relationship = _add_sheet_relationship(package, sheet.part_name, "../" + part[len("xl/"):],
+                                               _IMAGE_RELATIONSHIP)
+        text = package.read(sheet.part_name).decode("utf-8", errors="replace")
+        cells_end = max(text.find("</sheetData>"), text.find("<sheetData/>"), 0)
+        place = _AFTER_PICTURE.search(text, cells_end)
+        at = place.start() if place is not None else len(text)
+        package.write(sheet.part_name, (text[:at] + f'<picture r:id="{relationship}"/>' + text[at:]).encode("utf-8"))
+
+
 def _new_vml_parts(book: Workbook, package: OpcFile) -> None:
     """The VML part each sheet about to draw its first note or form control needs, made sheet by sheet, so they
     are numbered in the sheets' order, as Excel numbers them (tests/fixtures/notes.json)."""
@@ -1135,6 +1177,12 @@ def _add_default_content_type(package: OpcFile, extension: str, content_type: st
     if f'Extension="{extension}"' in raw:
         return
     element = f'<Default Extension="{extension}" ContentType="{content_type}"/>'
+    # Excel keeps its Defaults in alphabetical order: png, rels, vml, xml (tests/fixtures/background_picture.json).
+    later = next((found for found in re.finditer(r'<Default\b[^>]*\bExtension="([^"]*)"[^>]*/>', raw)
+                  if found.group(1).lower() > extension.lower()), None)
+    if later is not None:
+        package.write("[Content_Types].xml", (raw[:later.start()] + element + raw[later.start():]).encode("utf-8"))
+        return
     at = raw.rfind("/>", 0, raw.find("<Override"))
     if at < 0:
         at = raw.find(">", raw.find("<Types"))
@@ -1475,6 +1523,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     write_pivots(book, package)
     _new_vml_parts(book, package)
     _write_shapes(book, package)
+    _write_backgrounds(book, package)
     _write_notes(book, package)
     _write_links(book, package, str(target.resolve().parent))
     from pyopenvba.apps.excel._workbook_links import write as write_workbook_links

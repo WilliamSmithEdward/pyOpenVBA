@@ -1045,6 +1045,8 @@ class Assignable:
     put: Callable[[object, bool], None]
     take: Callable[[], object]
     declared: str = 'Variant'
+    #: True for a property whose Let takes an object itself (setter(objects=True)).
+    takes_objects: bool = False
 
 
 @dataclass(slots=True)
@@ -1705,14 +1707,15 @@ class Interpreter:
                     "Variant", ""):
                 raise error(ERR_TYPE_MISMATCH, "Set needs an object on the right")
             raise error(424, "Object required")
-        if statement.kind == "let" and isinstance(value, VBAObject):
-            # A property takes some objects themselves by Let; anything else hands over its default member.
-            if not (value.vba_let_as_object and isinstance(statement.target, A.Member)):
-                value = value.vba_value()
-        elif statement.kind == "let" and value is NOTHING:
+        if statement.kind == "let" and value is NOTHING:
             # Nothing has no value to let: v = Range("A1:B1").Style, whose cells differ, is error 91.
             raise error(ERR_OBJECT_VARIABLE_NOT_SET)
         target = self.resolve_target(statement.target, frame)
+        if statement.kind == "let" and isinstance(value, VBAObject):
+            # Some objects, and some properties, take an object itself by Let; anything else hands over the
+            # object's default member.
+            if not ((value.vba_let_as_object or target.takes_objects) and isinstance(statement.target, A.Member)):
+                value = value.vba_value()
         target.put(value, statement.kind == "set")
 
     def _check_let_into_object(self, name: str, frame: Frame) -> None:
@@ -2468,10 +2471,12 @@ class Interpreter:
             target = self._member_target(expression, frame)
             name = expression.name
             slot = self.member_variable(target, name, frame)
+            spec = target.vba_member(name) if isinstance(target, VBAObject) else None
             return Assignable(
                 put=lambda value, by_ref: _dispatch_set(target, name, value, [], {}, by_ref),
                 take=lambda: _dispatch_get(target, name, [], {}),
                 declared=slot.declared if slot is not None else 'Variant',
+                takes_objects=bool(spec is not None and getattr(spec.setter, '_vba_let_objects', False)),
             )
         if isinstance(expression, A.Index):
             return self._index_target(expression, frame)

@@ -75,11 +75,13 @@ def method(function: Callable[..., Any] | None = None, *, name: str = "", defaul
     return member(function, name=name, default=default, kind="method")
 
 
-def setter(name: str) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """Mark a method as the ``Property Let`` of ``name``."""
+def setter(name: str, *, objects: bool = False) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """Mark a method as the ``Property Let`` of ``name``. With ``objects`` the property takes an object given by Let
+    as the object itself, as Series.Values takes a Range, rather than its default member."""
 
     def mark(target: Callable[..., Any]) -> Callable[..., Any]:
         target._vba_setter = name  # type: ignore[attr-defined]
+        target._vba_let_objects = objects  # type: ignore[attr-defined]
         return target
 
     return mark

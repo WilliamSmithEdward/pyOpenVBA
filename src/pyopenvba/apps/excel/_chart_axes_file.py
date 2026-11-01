@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._chart_axes import (
@@ -15,7 +16,8 @@ from pyopenvba.apps.excel._chart_axes import (
     AxisState,
     TitleState,
 )
-from pyopenvba.apps.excel._chart_xml import format_number, title_markup
+from pyopenvba.apps.excel._chart_title import read_look, title_element
+from pyopenvba.apps.excel._chart_xml import format_number
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import ChartState
@@ -133,7 +135,8 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
             if len(transactions) > 1:
                 return
             runs: list[Element] = []
-            if transactions:
+            linked = transactions and transactions[0].find("c:strRef/c:f", NS) is not None
+            if transactions and not linked:
                 rich = transactions[0].findall("c:rich", NS)
                 if len(rich) != 1 or len(transactions[0]) != 1:
                     return
@@ -148,7 +151,7 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
             if sum(len(node.text or "") for node in runs) > 32768:
                 return
             text = "".join(node.text or "" for node in runs)
-            entry.title = TitleState(text or "Axis Title", typed=bool(text))
+            entry.title = TitleState(text or "Axis Title", typed=bool(text), look=read_look(titles[0], NS))
         axes[kind] = entry
     for kind, own in enumerate(identifiers, 1):
         assert own is not None
@@ -188,7 +191,7 @@ def read_lines(axis: AxisState, other: AxisState, element: Element) -> None:
 FAR_SIDE = {"b": "t", "t": "b", "l": "r", "r": "l"}
 
 
-def generated(xml: str, result: ChartState) -> str:
+def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambda formula: "") -> str:
     """Patch only our own bounded generated templates, never imported originals."""
     if not result.axes:
         return xml
@@ -227,7 +230,9 @@ def generated(xml: str, result: ChartState) -> str:
         scaling += "</c:scaling>"
         raw = re.sub(r"<c:scaling>.*?</c:scaling>", lambda _match: scaling, raw, count=1)
         if axis.title is not None:
-            title = title_markup(axis.title.text if axis.title.typed else None)
+            look = axis.title.look
+            title = title_element(look, text=axis.title.text if axis.title.typed else None,
+                                  linked_text=linked(look.formula) if look.formula else "")
             # Title precedes numFmt/tick metadata in CT_CatAx and CT_ValAx.
             marker = re.search(r"<c:(?:numFmt|majorTickMark)\b", raw)
             if marker is not None:

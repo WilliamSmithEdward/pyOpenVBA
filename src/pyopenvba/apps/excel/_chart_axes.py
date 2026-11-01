@@ -8,16 +8,18 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAInt, error, to_bool, to_integer, to_number, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import Chart
+    from pyopenvba.apps.excel._model import Worksheet
 
 SUPPORTED = {51, 57, 4, 65, 1, -4169, 5, -4120}
 NO_AXES = {5, -4120}
@@ -29,6 +31,7 @@ class TitleState:
     text: str = "Axis Title"
     #: False for Excel's automatic title, which the file holds with no text.
     typed: bool = False
+    look: TitleLook = field(default_factory=TitleLook)
 
 
 @dataclass
@@ -384,7 +387,7 @@ class Axis(Created):
         self.entry.crosses, self.entry.crosses_at = "custom", wanted
 
 
-class AxisTitle(Created):
+class AxisTitle(TitleMembers):
     vba_type_name = "AxisTitle"
 
     def __init__(self, axis: Axis, entry: TitleState | None) -> None:
@@ -415,10 +418,41 @@ class AxisTitle(Created):
         self.read()
         return self.axis
 
-    @member
-    def Text(self) -> object:
+    def title_look(self) -> TitleLook:
         self.read()
         assert self.entry is not None
+        return self.entry.look
+
+    def title_restyle(self) -> TitleLook:
+        self.read()
+        self.axis.change()
+        self.axis.chart.changed()
+        assert self.entry is not None
+        return self.entry.look
+
+    def title_sheet(self) -> Worksheet:
+        self.read()
+        self.axis.change()
+        return self.axis.chart.sheet
+
+    def title_link(self, formula: str) -> None:
+        self.axis.chart.changed()
+        assert self.entry is not None
+        self.entry.typed, self.entry.look.formula = False, formula
+
+    def title_angle(self) -> int:
+        # The title of an axis drawn upright reads upward until its orientation is set.
+        upright = (self.axis.entry.kind == 1) == (self.axis.chart.state.chart_type == 57)
+        return 90 if upright else 0
+
+    @member
+    def Text(self) -> object:
+        from pyopenvba.apps.excel._charts import linked_title
+
+        self.read()
+        assert self.entry is not None
+        if self.entry.look.formula:
+            return linked_title(self.axis.chart.sheet, self.entry.look.formula)
         return self.entry.text
 
     @setter("Text")
@@ -445,7 +479,7 @@ class AxisTitle(Created):
         self.axis.chart.changed()
         if wanted:
             assert self.entry is not None
-            self.entry.text, self.entry.typed = wanted, True
+            self.entry.text, self.entry.typed, self.entry.look.formula = wanted, True, ""
         else:
             self.axis.entry.title = None
 

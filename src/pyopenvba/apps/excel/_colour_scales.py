@@ -426,6 +426,12 @@ class FormatColor(ExcelObject):
         self._write(styles.Color.from_bgr(int(to_integer(value, 'Long'))))
 
     @member
+    def ColorIndex(self) -> object:
+        """The palette slot a sheet tab finds for the colour, not a cell's: the default scale's three colours read
+        38, 36 and 50 (tests/fixtures/collection_members.json)."""
+        return VBAInt(self.owner.sheet.book.stylesheet.colors.tab_index(self._color()), 'Long')
+
+    @member
     def ThemeColor(self) -> object:
         color = self._color()
         return VBAInt(int(color.value) + 1 if color.kind == 'theme' else 0, 'Long')

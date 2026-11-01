@@ -613,6 +613,10 @@ class FormatConditions(VBACollection, ExcelObject):
     def Parent(self) -> object:
         return self.target
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
     @method
     def Add(self, Type: object = MISSING, Operator: object = MISSING, Formula1: object = MISSING,
             Formula2: object = MISSING, String: object = MISSING, TextOperator: object = MISSING,

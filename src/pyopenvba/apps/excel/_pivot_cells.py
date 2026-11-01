@@ -283,6 +283,10 @@ class PivotCell(ExcelObject):
         self.table, self.found, self.cell = table, found, cell
 
     @member
+    def Application(self) -> object:
+        return self.table.sheet.book.application
+
+    @member
     def PivotCellType(self) -> object:
         return self.found.kind
 

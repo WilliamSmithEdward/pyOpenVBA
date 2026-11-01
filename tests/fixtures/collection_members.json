@@ -1,0 +1,67 @@
+{
+ "measured_at": "2026-11-01T01:03:14.275608+00:00",
+ "queries_file": "power_query/loaded_to_sheet.xlsx",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, pt As Object, cs As Object, ch As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:B5\").Value = Application.Transpose(Application.Transpose(Array(Array(\"k\", \"v\"), Array(\"a\", 1), Array(\"b\", 2), Array(\"a\", 3), Array(\"c\", 4))))\n    Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"I3\"), \"PT\")\n    pt.PivotFields(\"k\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum\n    ws.Range(\"D1:D5\").Value = Application.Transpose(Array(1, 2, 3, 4, 5))\n    Set cs = ws.Range(\"D1:D5\").FormatConditions.AddColorScale(3)\n    ws.Range(\"F1:G1\").Merge\n    Set ch = ws.ChartObjects.Add(300, 10, 200, 120).Chart\n    ch.SetSourceData ws.Range(\"A1:B5\")\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Tried = TypeName(ws.Range(\"D1:D5\").FormatConditions.Application) & \" \" & TypeName(ws.Range(\"D1:D5\").FormatConditions.Parent)\n    Case 1\n        Tried = TypeName(wb.IconSets.Application) & \" \" & TypeName(wb.IconSets.Parent)\n    Case 2\n        Tried = TypeName(wb.PivotCaches.Application) & \" \" & TypeName(wb.PivotCaches.Parent)\n    Case 3\n        Tried = TypeName(ws.PivotTables.Application) & \" \" & TypeName(ws.PivotTables.Parent)\n    Case 4\n        Tried = TypeName(pt.PivotFields(\"k\").PivotFilters.Application) & \" \" & TypeName(pt.PivotFields(\"k\").PivotFilters.Parent)\n    Case 5\n        Tried = TypeName(ws.Range(\"J5\").PivotCell.RowItems.Application) & \" \" & TypeName(ws.Range(\"J5\").PivotCell.RowItems.Parent)\n    Case 6\n        Tried = TypeName(ch.Axes.Application) & \" \" & TypeName(ch.Axes.Parent)\n    Case 7\n        Tried = TypeName(ch.SeriesCollection.Application) & \" \" & TypeName(ch.SeriesCollection.Parent)\n    Case 8\n        Tried = ws.Range(\"F1\").DisplayFormat.MergeCells & \" \" & ws.Range(\"D1\").DisplayFormat.MergeCells & \" \" & IsNull(ws.Range(\"E1:F1\").DisplayFormat.MergeCells)\n    Case 9\n        Tried = TypeName(ws.Range(\"D1\").DisplayFormat.Style) & \" \" & ws.Range(\"D1\").DisplayFormat.Style.Name & \" \" & ws.Range(\"F1\").DisplayFormat.Style.Name\n    Case 10\n        Tried = cs.ColorScaleCriteria(1).FormatColor.ColorIndex & \" \" & cs.ColorScaleCriteria(2).FormatColor.ColorIndex & \" \" & cs.ColorScaleCriteria(3).FormatColor.ColorIndex\n    Case 11\n        Tried = TypeName(ws.PivotTables.Add(pt.PivotCache, ws.Range(\"M3\"), \"PT2\")) & \" \" & ws.PivotTables.Count & \" \" & ws.PivotTables(\"PT2\").TableRange1.Address\n    Case 12\n        Tried = TypeName(ws.PivotTables.Add(pt.PivotCache, ws.Range(\"M3\"))) & \" \" & ws.PivotTables(2).Name\n    Case 13\n        Tried = TypeName(ws.PivotTables.Add(PivotCache:=pt.PivotCache, TableDestination:=\"R3C13\", TableName:=\"PT3\"))\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Queries(ByVal path As String) As String\n    Dim wb As Workbook, q As Object\n    Set wb = Workbooks.Open(path, UpdateLinks:=0, ReadOnly:=True)\n    Set q = wb.Queries(1)\n    Queries = TypeName(wb.Queries.Application) & \" \" & TypeName(wb.Queries.Parent) & \" \" & TypeName(q.Application) & \" \" & TypeName(q.Parent) & \" \" & q & \" \" & q.Name\n    wb.Close False\nEnd Function\n\nPublic Function Probe(ByVal path As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 13\n        s = s & \"@@@\" & Tried(i)\n    Next\n    s = s & \"@@@\" & Queries(path)\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "reads": [
+  [
+   "TypeName(ws.Range(\"D1:D5\").FormatConditions.Application) & \" \" & TypeName(ws.Range(\"D1:D5\").FormatConditions.Parent)",
+   "Application Range"
+  ],
+  [
+   "TypeName(wb.IconSets.Application) & \" \" & TypeName(wb.IconSets.Parent)",
+   "Application Workbook"
+  ],
+  [
+   "TypeName(wb.PivotCaches.Application) & \" \" & TypeName(wb.PivotCaches.Parent)",
+   "Application Workbook"
+  ],
+  [
+   "TypeName(ws.PivotTables.Application) & \" \" & TypeName(ws.PivotTables.Parent)",
+   "Application Worksheet"
+  ],
+  [
+   "TypeName(pt.PivotFields(\"k\").PivotFilters.Application) & \" \" & TypeName(pt.PivotFields(\"k\").PivotFilters.Parent)",
+   "Application PivotField"
+  ],
+  [
+   "TypeName(ws.Range(\"J5\").PivotCell.RowItems.Application) & \" \" & TypeName(ws.Range(\"J5\").PivotCell.RowItems.Parent)",
+   "Application PivotCell"
+  ],
+  [
+   "TypeName(ch.Axes.Application) & \" \" & TypeName(ch.Axes.Parent)",
+   "Application Chart"
+  ],
+  [
+   "TypeName(ch.SeriesCollection.Application) & \" \" & TypeName(ch.SeriesCollection.Parent)",
+   "Application Chart"
+  ],
+  [
+   "ws.Range(\"F1\").DisplayFormat.MergeCells & \" \" & ws.Range(\"D1\").DisplayFormat.MergeCells & \" \" & IsNull(ws.Range(\"E1:F1\").DisplayFormat.MergeCells)",
+   "True False True"
+  ],
+  [
+   "TypeName(ws.Range(\"D1\").DisplayFormat.Style) & \" \" & ws.Range(\"D1\").DisplayFormat.Style.Name & \" \" & ws.Range(\"F1\").DisplayFormat.Style.Name",
+   "Style Normal Normal"
+  ],
+  [
+   "cs.ColorScaleCriteria(1).FormatColor.ColorIndex & \" \" & cs.ColorScaleCriteria(2).FormatColor.ColorIndex & \" \" & cs.ColorScaleCriteria(3).FormatColor.ColorIndex",
+   "38 36 50"
+  ],
+  [
+   "TypeName(ws.PivotTables.Add(pt.PivotCache, ws.Range(\"M3\"), \"PT2\")) & \" \" & ws.PivotTables.Count & \" \" & ws.PivotTables(\"PT2\").TableRange1.Address",
+   "PivotTable 2 $M$3:$O$20"
+  ],
+  [
+   "TypeName(ws.PivotTables.Add(pt.PivotCache, ws.Range(\"M3\"))) & \" \" & ws.PivotTables(2).Name",
+   "PivotTable PT"
+  ],
+  [
+   "TypeName(ws.PivotTables.Add(PivotCache:=pt.PivotCache, TableDestination:=\"R3C13\", TableName:=\"PT3\"))",
+   "PivotTable"
+  ],
+  [
+   "Queries",
+   "Application Workbook Application Queries Loaded Loaded"
+  ]
+ ]
+}

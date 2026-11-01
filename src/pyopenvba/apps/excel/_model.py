@@ -6357,6 +6357,14 @@ class Queries(VBACollection, ExcelObject):
     def vba_items(self) -> list[object]:
         return [WorkbookQuery(entry, self.book) for entry in self.entries]
 
+    @member
+    def Parent(self) -> object:
+        return self.book
+
+    @member
+    def Application(self) -> object:
+        return self.book.application
+
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
             for entry in self.entries:
@@ -6383,6 +6391,19 @@ class WorkbookQuery(ExcelObject):
     def __init__(self, entry: QueryEntry, book: Workbook) -> None:
         self.entry = entry
         self.book = book
+
+    @member(default=True, name="_Default")
+    def _Default(self) -> object:
+        """Its name (tests/fixtures/collection_members.json)."""
+        return self.entry.name
+
+    @member
+    def Parent(self) -> object:
+        return self.book.queries_
+
+    @member
+    def Application(self) -> object:
+        return self.book.application
 
     @member
     def Name(self) -> object:

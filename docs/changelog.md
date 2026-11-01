@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Shapes.AddPolyline` and `Shapes.AddCurve` draw freeforms as Excel
+  does, saved with Excel's custom geometry, box and style, a closed
+  polyline filled and an open one drawn as a line. 10 live cases
+  agree, `tests/fixtures/shape_polyline.json`.
+
 - `Chart.ChartGroups` and a group's `GapWidth`, `Overlap`,
   `VaryByCategories`, `FirstSliceAngle` and `DoughnutHoleSize` answer
   as Excel's do, saved in the chart's group and read back from a

@@ -38,6 +38,7 @@ from pyopenvba.shapes._values import (
     PRESET_GEOMETRY,
     SHAPE_NAMES,
     Box,
+    EMU_PER_POINT,
     ControlInfo,
     Shape,
     TextLook,
@@ -143,6 +144,48 @@ class Shapes(VBACollection, Created):
         if 1 <= position <= len(items):
             return items[position - 1]
         raise error(ERR_NO_SUCH_SHAPE, f"there is no shape number {position}")
+
+    @method
+    def AddPolyline(self, SafeArrayOfPoints: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """A freeform through the points, closed when the last is the first; fewer than two points raise 1004
+        (tests/fixtures/shape_polyline.json)."""
+        found = _points(SafeArrayOfPoints)
+        if len(found) < 2:
+            raise error(1004, "AddPolyline method of Shapes class failed")
+        closed = len(found) > 2 and found[-1] == found[0]
+        steps: list[tuple[str, tuple[tuple[int, int], ...]]] = [("moveTo", (found[0],))]
+        steps += [("lnTo", (one,)) for one in found[1:len(found) - closed]]
+        if closed:
+            steps.append(("close", ()))
+        return ShapeObject(self.sheet, self._freeform(found, steps))
+
+    @method
+    def AddCurve(self, SafeArrayOfPoints: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """A freeform of Bezier curves: a start and three points for each curve, or 1004
+        (tests/fixtures/shape_polyline.json)."""
+        found = _points(SafeArrayOfPoints)
+        if len(found) < 4 or (len(found) - 1) % 3:
+            raise error(1004, "AddCurve method of Shapes class failed")
+        steps: list[tuple[str, tuple[tuple[int, int], ...]]] = [("moveTo", (found[0],))]
+        steps += [("cubicBezTo", tuple(found[index:index + 3])) for index in range(1, len(found), 3)]
+        return ShapeObject(self.sheet, self._freeform(found, steps))
+
+    def _freeform(self, found: list[tuple[int, int]],
+                  steps: list[tuple[str, tuple[tuple[int, int], ...]]]) -> Shape:
+        """A new freeform over these points, in EMU: its box their bounds and one EMU more each way, kept on the sheet,
+        and its path measured from the bounds' corner."""
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        guard_drawing(self.sheet, "Shapes.AddPolyline")
+        across, down = min(x for x, _ in found), min(y for _, y in found)
+        wide, tall = max(x for x, _ in found) - across + 1, max(y for _, y in found) - down + 1
+        shape = Shape(name=self._free_name("Freeform"), kind="freeform", auto_shape_type=138,
+                      left=max(across, 0) / EMU_PER_POINT, top=max(down, 0) / EMU_PER_POINT,
+                      width=wide / EMU_PER_POINT, height=tall / EMU_PER_POINT, shape_id=self._free_id(),
+                      path=[(command, tuple((x - across, y - down) for x, y in points)) for command, points in steps])
+        self.sheet.shapes_.append(shape)
+        self.sheet.drawing_changed()
+        return shape
 
     @method
     def AddShape(
@@ -1758,6 +1801,16 @@ def _chosen(shapes: VBACollection, index: object) -> ShapeRange:
     items = shapes.vba_items()
     chosen = [shapes.vba_lookup(one, items) for one in wanted]
     return ShapeRange([one for one in chosen if isinstance(one, ShapeObject)])
+
+
+def _points(value: object) -> list[tuple[int, int]]:
+    """A SafeArrayOfPoints, n rows of x and y in points, as EMU."""
+    if not isinstance(value, VBAArray) or value.dimensions != 2 or value.bounds[1][1] - value.bounds[1][0] != 1:
+        raise _unsupported("this array of points")
+    first, last = value.bounds[0]
+    column = value.bounds[1][0]
+    return [(emu(float(to_number(value.get([row, column])))), emu(float(to_number(value.get([row, column + 1])))))
+            for row in range(first, last + 1)]
 
 
 def _number(value: object) -> float:

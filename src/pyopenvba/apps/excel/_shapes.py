@@ -14,7 +14,9 @@ models of the same thing.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -425,6 +427,13 @@ class ShapeRange(VBACollection, Created):
         raise error(-2147024809 if len(self.shapes) == 1 else -2147024891, "The parameter is incorrect.")
 
     @method
+    def Duplicate(self) -> object:
+        """A copy of each shape, after all the sheet's shapes, as one range (tests/fixtures/shape_duplicate.json)."""
+        for shape in self.shapes:
+            shape.guard("Duplicate")
+        return ShapeRange([ShapeObject(shape.sheet, duplicated(shape.sheet, shape.shape)) for shape in self.shapes])
+
+    @method
     def Group(self) -> object:
         raise _unsupported("grouping shapes")
 
@@ -608,6 +617,11 @@ class ShapeObject(_Drawn):
         return EMPTY
 
     @member
+    def ID(self) -> object:
+        """The id the drawing gives the shape, as Excel answers it (tests/fixtures/shape_duplicate.json)."""
+        return VBAInt(self.shape.shape_id, "Long")
+
+    @member
     def HorizontalFlip(self) -> object:
         return VBAInt(-1 if self.shape.flip_h else 0, "Long")
 
@@ -628,7 +642,17 @@ class ShapeObject(_Drawn):
             shape.flip_h = not shape.flip_h
         else:
             shape.flip_v = not shape.flip_v
+        if shape.rotation:
+            # Turning a shape over mirrors its turn: 30 degrees becomes 330 (tests/fixtures/shape_duplicate.json).
+            shape.rotation = -shape.rotation % 360
         return EMPTY
+
+    @method
+    def Duplicate(self) -> object:
+        """A copy of the shape, 12 points right and down from it, on top of the others
+        (tests/fixtures/shape_duplicate.json)."""
+        self.guard("Duplicate")
+        return ShapeObject(self.sheet, duplicated(self.sheet, self.shape))
 
     @method
     def ZOrder(self, ZOrderCmd: object = MISSING) -> object:  # noqa: N803 - native named argument
@@ -1080,6 +1104,30 @@ class ListDrawingObject(_Drawn):
             else:
                 selected.discard(index)
             set_selection(self.sheet, self.shape, sorted(selected))
+
+
+#: Every stem a shape the model makes is named from, so a copy can tell a default name from one given.
+_STEMS = frozenset({*SHAPE_NAMES.values(), "TextBox", "Straight Connector"})
+
+
+def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
+    """Shape.Duplicate: the copy Excel makes, placed 12 points right and down, after every other shape, with the
+    next id. A name of Excel's own making, stem and number, takes the sheet's next one; a name a macro gave is kept
+    as it is (tests/fixtures/shape_duplicate.json)."""
+    if shape.source or shape.kind not in ("shape", "textBox"):
+        raise VBAUnsupportedError("Duplicating this shape is not implemented")
+    found = re.fullmatch(r"(.+) \d+", shape.name)
+    shapes = Shapes(sheet)
+    if found is not None and found.group(1) in _STEMS:
+        name = shapes._free_name(found.group(1))  # pyright: ignore[reportPrivateUsage]
+    else:
+        sheet.shape_count += 1
+        name = shape.name
+    copy = replace(shape, name=name, shape_id=shapes._free_id(),  # pyright: ignore[reportPrivateUsage]
+                   left=shape.left + 12, top=shape.top + 12, children=[], source="", source_at=0)
+    sheet.shapes_.append(copy)
+    sheet.drawing_changed()
+    return copy
 
 
 def _number(value: object) -> float:

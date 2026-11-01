@@ -909,6 +909,9 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     if shape.kind == "shape" and not shape.text:
         # Excel starts an AutoShape's empty paragraph left-aligned.
         body = body.replace("<a:p><a:endParaRPr", '<a:p><a:pPr algn="l"/><a:endParaRPr', 1)
+    if shape.kind == "textBox":
+        # A text box's text runs across, as Excel writes it.
+        body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
     box = ' txBox="1"' if shape.kind == "textBox" else ""
     textlink = "" if line else ' textlink=""'
     identity = _identity(shape)
@@ -927,8 +930,9 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
         f"<xdr:spPr><a:xfrm{turn}>"
         f'<a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/>'
-        f'</a:xfrm><a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom></xdr:spPr>'
-        f"{'' if shape.kind == 'textBox' else _STYLE}{body}"
+        f'</a:xfrm><a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>'
+        f"{_TEXT_BOX_FILL if shape.kind == 'textBox' else ''}</xdr:spPr>"
+        f"{_TEXT_BOX_STYLE if shape.kind == 'textBox' else _STYLE}{body}"
         f"</{element}>"
     )
     left, top, width, height = _turned_box(shape)
@@ -979,6 +983,17 @@ _STYLE = (
     '<a:fillRef idx="1"><a:schemeClr val="accent1"/></a:fillRef>'
     '<a:effectRef idx="0"><a:schemeClr val="accent1"/></a:effectRef>'
     '<a:fontRef idx="minor"><a:schemeClr val="lt1"/></a:fontRef>'
+    "</xdr:style>"
+)
+#: The fill, line and style Excel gives a new text box, taken from one it wrote (tests/fixtures/shape_duplicate.json).
+_TEXT_BOX_FILL = ('<a:solidFill><a:schemeClr val="lt1"/></a:solidFill><a:ln w="9525" cmpd="sng"><a:solidFill>'
+                  '<a:schemeClr val="lt1"><a:shade val="50000"/></a:schemeClr></a:solidFill></a:ln>')
+_TEXT_BOX_STYLE = (
+    "<xdr:style>"
+    '<a:lnRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:lnRef>'
+    '<a:fillRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:fillRef>'
+    '<a:effectRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:effectRef>'
+    '<a:fontRef idx="minor"><a:schemeClr val="dk1"/></a:fontRef>'
     "</xdr:style>"
 )
 

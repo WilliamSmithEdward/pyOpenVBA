@@ -590,6 +590,13 @@ class PivotTable(ExcelObject):
         return EMPTY
 
     @method
+    def ListFormulas(self) -> object:
+        from pyopenvba.apps.excel._pivot_calculated import list_formulas
+
+        list_formulas(self)
+        return EMPTY
+
+    @method
     def SubtotalLocation(self, Location: object) -> object:  # noqa: N803 - native named argument
         from pyopenvba.apps.excel._pivot_forms import subtotal_location_all
 

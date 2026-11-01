@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `PivotTable.ListFormulas` writes Excel's listing of a table's
+  calculated fields and items on a new sheet, laid out, headed and noted
+  as Excel lays it out. 8 live cases agree,
+  `tests/fixtures/pivot_list_formulas.json`.
+
 - `PivotTable.SubtotalLocation` moves every field's subtotals to the top
   or bottom of its group as Excel does, the table laid out again. 9 live
   cases agree, `tests/fixtures/pivot_subtotal_location.json`.

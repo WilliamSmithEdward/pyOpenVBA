@@ -1159,7 +1159,7 @@ class Parser:
         while not self.at_eos():
             words.append(self.advance().text)
         self.end_statement()
-        return A.Unsupported(line=line, text=" ".join(words), reason="a procedure attribute")
+        return A.ProcedureAttribute(line=line, text=" ".join(words))
 
     # Calls and assignments.
 

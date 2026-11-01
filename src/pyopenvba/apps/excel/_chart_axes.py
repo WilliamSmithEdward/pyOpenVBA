@@ -27,6 +27,8 @@ MAX_TITLE_TEXT = 32768
 @dataclass
 class TitleState:
     text: str = "Axis Title"
+    #: False for Excel's automatic title, which the file holds with no text.
+    typed: bool = False
 
 
 @dataclass
@@ -335,7 +337,7 @@ class AxisTitle(Created):
         self.axis.chart.changed()
         if wanted:
             assert self.entry is not None
-            self.entry.text = wanted
+            self.entry.text, self.entry.typed = wanted, True
         else:
             self.axis.entry.title = None
 

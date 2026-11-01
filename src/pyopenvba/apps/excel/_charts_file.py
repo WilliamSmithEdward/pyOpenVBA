@@ -16,7 +16,8 @@ from pyopenvba._xml import attributes, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
-from pyopenvba.apps.excel._charts import MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState, referenced_values
+from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState,
+                                          referenced_values, shown_type)
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
@@ -173,7 +174,8 @@ def read_chart(xml: str, part: str) -> ChartState:
     title = root.find('c:chart/c:title', NS)
     result.title = ''.join(title.itertext()) if title is not None else None
     if title is not None:
-        result.title = ''.join(node.text or '' for node in title.findall('.//a:t', NS)) or 'Chart Title'
+        typed = ''.join(node.text or '' for node in title.findall('.//a:t', NS))
+        result.title, result.title_typed = typed or 'Chart Title', bool(typed)
     result.legend = root.find('c:chart/c:legend', NS) is not None
     read_display(result, root)
     plot = root.find('c:chart/c:plotArea', NS)
@@ -343,21 +345,17 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
                                category_format=source_format(sheet, item.category_reference),
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None))
-    kind = CHART_TYPES.get(chart.state.chart_type)
+    kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
-    xml = chart_part(kind, data, title=chart.state.title, axis_ids=chart.state.axis_ids, blanks=chart.state.blanks,
-                     visible_only=chart.state.visible_only, over_maximum=chart.state.over_maximum,
-                     not_available_as_blank=chart.state.not_available_as_blank)
+    state = chart.state
+    xml = chart_part(kind, data, title=state.title if state.title_typed else None, titled=state.title is not None,
+                     legend=state.legend, axis_ids=state.axis_ids, blanks=state.blanks,
+                     visible_only=state.visible_only, over_maximum=state.over_maximum,
+                     not_available_as_blank=state.not_available_as_blank)
     from pyopenvba.apps.excel._chart_axes_file import generated
 
-    xml = generated(xml, chart.state)
-    if chart.state.title is None:
-        xml = re.sub(r'<c:title>.*?</c:title><c:autoTitleDeleted val="0"/>', '<c:autoTitleDeleted val="1"/>', xml, count=1)
-    if not chart.state.legend:
-        xml = re.sub(r'<c:legend>.*?</c:legend>', '', xml, count=1)
-    if chart.state.chart_type == -4169:
-        xml = xml.replace('<c:scatterStyle val="lineMarker"/>', '<c:scatterStyle val="marker"/>')
+    xml = generated(xml, state)
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)

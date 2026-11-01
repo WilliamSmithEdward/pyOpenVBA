@@ -517,8 +517,8 @@ Chart,ChartColor,property,As Variant,,MISSING,,
 Chart,ChartGroups,method,ChartGroups([Index As Variant]) As Object,,MISSING,,
 Chart,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,MISSING,,
 Chart,ChartStyle,property,As Variant,,MISSING,,
-Chart,ChartTitle,"property, read-only",As ChartTitle,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-Chart,ChartType,property,As XlChartType,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Chart,ChartTitle,"property, read-only",As ChartTitle,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json,"Reading it gives a chart with no title Excel's automatic one, as Excel does. Imported chart content stays read only."
+Chart,ChartType,property,As XlChartType,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json,A line chart with no series reads and is written as line with markers until a series is added. Imported chart content stays read only.
 Chart,ChartWizard,method,"ChartWizard([Source As Variant], [Gallery As Variant], [Format As Variant], [PlotBy As Variant], [CategoryLabels As Variant], [SeriesLabels As Variant], [HasLegend As Variant], [Title As Variant], [CategoryTitle As Variant], [ValueTitle As Variant], [ExtraTitle As Variant])",,MISSING,,
 Chart,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
 Chart,ClearToMatchColorStyle,method,ClearToMatchColorStyle(),,MISSING,,
@@ -565,7 +565,7 @@ Chart,Paste,method,Paste([Type As Variant]),,MISSING,,
 Chart,Perspective,property,As Long,,MISSING,,
 Chart,PivotLayout,"property, read-only",As PivotLayout,,MISSING,,
 Chart,PlotArea,"property, read-only",As PlotArea,,MISSING,,
-Chart,PlotBy,property,As XlRowCol,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
+Chart,PlotBy,property,As XlRowCol,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json,Worked out from the series: columns or rows of value ranges in sheet order with their own names; 0 for literals or reordered series; 1 with none.
 Chart,PlotVisibleOnly,property,As Boolean,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,Written as plotVisOnly; left out of a file it reads True. Imported charts read only.
 Chart,Previous,"property, read-only",As Object,,MISSING,,
 Chart,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
@@ -683,7 +683,7 @@ ChartTitle,ReadingOrder,property,As Long,,MISSING,,
 ChartTitle,Select,method,Select() As Variant,,MISSING,,
 ChartTitle,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 ChartTitle,Shadow,property,As Boolean,,MISSING,,
-ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
+ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json; tests/test_excel_chart_staging.py,"The automatic title reads the sole series' name, else Chart Title; typed text is written as rich text, the automatic title with none."
 ChartTitle,Top,property,As Double,,MISSING,,
 ChartTitle,VerticalAlignment,property,As Variant,,MISSING,,
 ChartTitle,Width,"property, read-only",As Double,,MISSING,,

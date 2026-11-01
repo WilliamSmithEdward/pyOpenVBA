@@ -37,6 +37,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
 from pyopenvba._xml import attributes, escape, escape_text, unescape
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula import _prefixes as prefixes
@@ -863,7 +864,7 @@ def view(table: Table) -> ListObject:
     return table.view
 
 
-class ListObjects(VBACollection, ExcelObject):
+class ListObjects(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = "ListObjects"
 
     def __init__(self, sheet: Worksheet) -> None:

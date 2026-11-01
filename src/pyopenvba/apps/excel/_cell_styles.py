@@ -62,6 +62,7 @@ from pyopenvba.apps.excel._formats import (
     styles_of,
     with_diagonal,
 )
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -384,7 +385,7 @@ def latent(stylesheet: S.Stylesheet) -> S.Latent:
 # --- Workbook.Styles ------------------------------------------------------------------------------------
 
 
-class Styles(VBACollection, ExcelObject):
+class Styles(VBACollection, ItemDefault, ExcelObject):
     """A workbook's cell styles, built-in ones and those added, in the order their names sort."""
 
     vba_type_name = "Styles"

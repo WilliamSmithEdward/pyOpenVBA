@@ -43,6 +43,7 @@ from typing import TYPE_CHECKING, Final
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
 from pyopenvba._xml import attributes, tag_attributes
 from pyopenvba.apps.excel import _dimensions
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._styles import XL_AUTOMATIC
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
@@ -570,7 +571,7 @@ def window_of(book: Workbook) -> Window:
     return book.view.window
 
 
-class Windows(VBACollection, ExcelObject):
+class Windows(VBACollection, ItemDefault, ExcelObject):
     """Application.Windows, front to back, or Workbook.Windows, the one window a workbook has."""
 
     vba_type_name = "Windows"

@@ -274,6 +274,11 @@ def state(sheet: Worksheet, shape: Shape) -> ChartState:
 class ChartObjects(VBACollection, Created):
     vba_type_name = 'ChartObjects'
 
+    @method(name='_Default')
+    def hidden_default(self, *arguments: object) -> object:
+        # A macro reaching the hidden _Default gets 438 (tests/fixtures/hidden_defaults.json).
+        raise error(438, "Object doesn't support this property or method")
+
     def __init__(self, sheet: Worksheet) -> None:
         self.sheet = sheet
 
@@ -1060,6 +1065,11 @@ class ChartGroup(Created):
 
 class SeriesCollection(VBACollection, Created):
     vba_type_name = 'SeriesCollection'
+
+    @method(name='_Default')
+    def hidden_default(self, *arguments: object) -> object:
+        # A macro reaching the hidden _Default gets 438 (tests/fixtures/hidden_defaults.json).
+        raise error(438, "Object doesn't support this property or method")
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart

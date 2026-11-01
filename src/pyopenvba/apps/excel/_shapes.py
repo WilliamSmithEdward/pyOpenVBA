@@ -20,7 +20,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -100,7 +100,7 @@ class _Drawn(Created):
         super().vba_set(name, value, args, named, by_ref=by_ref)
 
 
-class Shapes(VBACollection, Created):
+class Shapes(VBACollection, ItemDefault, Created):
     """The shapes on one worksheet."""
 
     vba_type_name = "Shapes"
@@ -1689,6 +1689,15 @@ class ControlFormat(_Drawn):
             set_value(self.sheet, self.shape, wanted)
         except ValueError as exc:
             raise error(1004, str(exc)) from exc
+
+    @member(name="_Default")
+    def hidden_default(self) -> object:
+        """The hidden _Default: Value, read and set (tests/fixtures/hidden_defaults.json)."""
+        return self.Value()
+
+    @setter("_Default")
+    def _set_hidden_default(self, value: object) -> None:
+        self._set_value(value)
 
 
 class ListDrawingObject(_Drawn):

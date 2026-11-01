@@ -28,7 +28,7 @@ from pyopenvba.exceptions import PowerQueryError, VBAUnsupportedError, VBARuntim
 from pyopenvba.formula._parse import shift_text
 from pyopenvba.formula._prefixes import at_kept, at_shown
 from pyopenvba.formula._r1c1 import from_a1, to_a1
-from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.apps.excel._find import FindState
 from pyopenvba.apps.excel import _arrays, _column_fit, _dimensions, _events, _merges, _names, _precision
 from pyopenvba.apps.excel._styles import applying
@@ -440,6 +440,11 @@ class Application(ExcelObject):
 
     @member
     def Name(self) -> object:
+        return "Microsoft Excel"
+
+    @member(name="_Default")
+    def hidden_default(self) -> object:
+        """The hidden _Default: Name (tests/fixtures/hidden_defaults.json)."""
         return "Microsoft Excel"
 
     @member
@@ -1086,7 +1091,7 @@ def _measure(value: object) -> float:
 # --- workbooks -----------------------------------------------------------------------------
 
 
-class Workbooks(VBACollection, ExcelObject):
+class Workbooks(VBACollection, ItemDefault, ExcelObject):
     """The open workbooks."""
 
     vba_type_name = "Workbooks"
@@ -2311,7 +2316,7 @@ class Workbook(ExcelObject):
         return "\n".join(lines)
 
 
-class Sheets(VBACollection, ExcelObject):
+class Sheets(VBACollection, ItemDefault, ExcelObject):
     """A workbook's sheets, in tab order."""
 
     vba_type_name = "Sheets"
@@ -4423,6 +4428,19 @@ class Range(ExcelObject):
             return cells
         return cells.vba_get("Item", [RowIndex, ColumnIndex])
 
+    # The hidden _Default (tests/fixtures/hidden_defaults.json): read with no index Excel raises 438, read with one it
+    # is Item, and set it is Value.
+
+    @member(name="_Default")
+    def hidden_default(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:  # noqa: N803
+        if RowIndex is MISSING:
+            raise error(438, "Object doesn't support this property or method")
+        return self.Item(RowIndex, ColumnIndex)
+
+    @setter("_Default")
+    def _set_hidden_default(self, value: object) -> None:
+        self.vba_set("Value", value)
+
     @member
     def Item(self, RowIndex: object = MISSING, ColumnIndex: object = MISSING) -> object:
         area = self.first
@@ -6086,7 +6104,7 @@ class Range(ExcelObject):
 _CELL_FIELDS = tuple(Cell.__dataclass_fields__.values())
 
 
-class Areas(VBACollection, ExcelObject):
+class Areas(VBACollection, ItemDefault, ExcelObject):
     """The rectangles a Union made."""
 
     vba_type_name = "Areas"
@@ -6131,7 +6149,7 @@ class NameEntry:
     macro_changed: bool = False
 
 
-class Names(VBACollection, ExcelObject):
+class Names(VBACollection, ItemDefault, ExcelObject):
     """A workbook's defined names."""
 
     vba_type_name = "Names"
@@ -6467,6 +6485,11 @@ class DefinedName(ExcelObject):
 
     @member
     def RefersTo(self) -> object:
+        return self.shown_refers_to()
+
+    @member(name="_Default")
+    def hidden_default(self) -> object:
+        """The hidden _Default: RefersTo, not the name (tests/fixtures/hidden_defaults.json)."""
         return self.shown_refers_to()
 
     @member

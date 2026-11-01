@@ -1,0 +1,292 @@
+{
+ "measured_at": "2026-11-01T00:21:31.252773+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, g As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:D4\").Value = Application.Transpose(Application.Transpose(Array(Array(1, 3, -2, 4), Array(-1, 2, -3, 4), Array(5, 4, 3, 2), Array(2, 2, 2, 2))))\n    On Error GoTo Failed\n    Set g = ws.Range(\"E1\").SparklineGroups.Add(xlSparkLine, \"A1:D1\")\n    Select Case which\n    Case 0\n        Tried = g.Points.Markers.Visible & \" \" & g.Points.Highpoint.Visible & \" \" & g.Points.Lowpoint.Visible & \" \" & g.Points.Firstpoint.Visible & \" \" & g.Points.Lastpoint.Visible & \" \" & g.Points.Negative.Visible\n    Case 1\n        Tried = g.Points.Markers.Color.Color & \" \" & g.Points.Highpoint.Color.Color & \" \" & g.Points.Negative.Color.Color\n    Case 2\n        Tried = TypeName(g.Points) & \" \" & TypeName(g.Points.Markers) & \" \" & TypeName(g.Points.Markers.Color) & \" \" & TypeName(g.Axes) & \" \" & TypeName(g.Axes.Horizontal) & \" \" & TypeName(g.Axes.Vertical) & \" \" & TypeName(g.Axes.Horizontal.Axis) & \" \" & TypeName(g.SeriesColor)\n    Case 3\n        Tried = g.Axes.Horizontal.IsDateAxis\n    Case 4\n        Tried = g.Axes.Horizontal.RightToLeft\n    Case 5\n        Tried = g.Axes.Horizontal.Axis.Visible & \" \" & g.Axes.Horizontal.Axis.Color.Color\n    Case 6\n        Tried = g.Axes.Vertical.MinScaleType & \" \" & g.Axes.Vertical.MaxScaleType\n    Case 7\n        Tried = g.Axes.Vertical.CustomMinScaleValue & \" \" & g.Axes.Vertical.CustomMaxScaleValue\n    Case 8\n        Tried = g.DisplayBlanksAs & \" \" & g.DisplayHidden & \" \" & g.PlotBy\n    Case 9\n        Tried = g.Points.Negative.Visible & \" \" & TypeName(g.Points.Parent)\n    Case 10\n        g.Points.Markers.Visible = True\n        Tried = g.Points.Markers.Visible\n        wb.SaveAs folder & \"\\c10.xlsx\", xlOpenXMLWorkbook\n    Case 11\n        g.Points.Highpoint.Visible = True\n        Tried = g.Points.Highpoint.Visible\n        wb.SaveAs folder & \"\\c11.xlsx\", xlOpenXMLWorkbook\n    Case 12\n        g.Points.Lowpoint.Visible = True\n        Tried = g.Points.Lowpoint.Visible\n        wb.SaveAs folder & \"\\c12.xlsx\", xlOpenXMLWorkbook\n    Case 13\n        g.Points.Firstpoint.Visible = True\n        Tried = g.Points.Firstpoint.Visible\n        wb.SaveAs folder & \"\\c13.xlsx\", xlOpenXMLWorkbook\n    Case 14\n        g.Points.Lastpoint.Visible = True\n        Tried = g.Points.Lastpoint.Visible\n        wb.SaveAs folder & \"\\c14.xlsx\", xlOpenXMLWorkbook\n    Case 15\n        g.Points.Negative.Visible = True\n        Tried = g.Points.Negative.Visible\n        wb.SaveAs folder & \"\\c15.xlsx\", xlOpenXMLWorkbook\n    Case 16\n        g.Points.Markers.Color.Color = vbBlue\n        Tried = g.Points.Markers.Color.Color\n        wb.SaveAs folder & \"\\c16.xlsx\", xlOpenXMLWorkbook\n    Case 17\n        g.Axes.Horizontal.Axis.Visible = True\n        Tried = g.Axes.Horizontal.Axis.Visible\n        wb.SaveAs folder & \"\\c17.xlsx\", xlOpenXMLWorkbook\n    Case 18\n        g.Axes.Horizontal.Axis.Color.Color = vbRed\n        Tried = g.Axes.Horizontal.Axis.Color.Color\n        wb.SaveAs folder & \"\\c18.xlsx\", xlOpenXMLWorkbook\n    Case 19\n        g.Axes.Vertical.MinScaleType = xlSparkScaleGroup\n        Tried = g.Axes.Vertical.MinScaleType\n        wb.SaveAs folder & \"\\c19.xlsx\", xlOpenXMLWorkbook\n    Case 20\n        g.Axes.Vertical.MaxScaleType = xlSparkScaleCustom\n        Tried = g.Axes.Vertical.MaxScaleType\n        wb.SaveAs folder & \"\\c20.xlsx\", xlOpenXMLWorkbook\n    Case 21\n        g.Axes.Vertical.MaxScaleType = xlSparkScaleCustom: g.Axes.Vertical.CustomMaxScaleValue = 7\n        Tried = g.Axes.Vertical.CustomMaxScaleValue\n        wb.SaveAs folder & \"\\c21.xlsx\", xlOpenXMLWorkbook\n    Case 22\n        g.Axes.Vertical.CustomMaxScaleValue = 7\n        Tried = g.Axes.Vertical.CustomMaxScaleValue & \" \" & g.Axes.Vertical.MaxScaleType\n        wb.SaveAs folder & \"\\c22.xlsx\", xlOpenXMLWorkbook\n    Case 23\n        g.Axes.Vertical.CustomMinScaleValue = -2.5\n        Tried = g.Axes.Vertical.CustomMinScaleValue & \" \" & g.Axes.Vertical.MinScaleType\n        wb.SaveAs folder & \"\\c23.xlsx\", xlOpenXMLWorkbook\n    Case 24\n        g.Axes.Vertical.CustomMaxScaleValue = 1E+300\n        Tried = g.Axes.Vertical.CustomMaxScaleValue\n        wb.SaveAs folder & \"\\c24.xlsx\", xlOpenXMLWorkbook\n    Case 25\n        g.Axes.Vertical.MinScaleType = 9\n        Tried = g.Axes.Vertical.MinScaleType\n    Case 26\n        g.DisplayBlanksAs = xlZero\n        Tried = g.DisplayBlanksAs\n        wb.SaveAs folder & \"\\c26.xlsx\", xlOpenXMLWorkbook\n    Case 27\n        g.DisplayBlanksAs = xlInterpolated\n        Tried = g.DisplayBlanksAs\n        wb.SaveAs folder & \"\\c27.xlsx\", xlOpenXMLWorkbook\n    Case 28\n        g.DisplayBlanksAs = xlNotPlotted\n        Tried = g.DisplayBlanksAs\n        wb.SaveAs folder & \"\\c28.xlsx\", xlOpenXMLWorkbook\n    Case 29\n        g.DisplayBlanksAs = 7\n        Tried = g.DisplayBlanksAs\n    Case 30\n        g.DisplayHidden = True\n        Tried = g.DisplayHidden\n        wb.SaveAs folder & \"\\c30.xlsx\", xlOpenXMLWorkbook\n    Case 31\n        g.PlotBy = 1\n        Tried = g.PlotBy\n    Case 32\n        g.Points.Markers.Visible = True: g.Points.Markers.Visible = False\n        Tried = g.Points.Markers.Visible\n        wb.SaveAs folder & \"\\c32.xlsx\", xlOpenXMLWorkbook\n    Case 33\n        g.Points.Markers.Visible = \"x\"\n        Tried = g.Points.Markers.Visible\n    Case 34\n        g.SeriesColor.ThemeColor = 5\n        Tried = g.SeriesColor.Color & \" \" & g.SeriesColor.ThemeColor\n        wb.SaveAs folder & \"\\c34.xlsx\", xlOpenXMLWorkbook\n    Case 35\n        g.SeriesColor.ThemeColor = 5: g.SeriesColor.TintAndShade = 0.4\n        Tried = g.SeriesColor.TintAndShade & \" \" & g.SeriesColor.Color\n        wb.SaveAs folder & \"\\c35.xlsx\", xlOpenXMLWorkbook\n    Case 36\n        g.SeriesColor.TintAndShade = 0.5\n        Tried = g.SeriesColor.TintAndShade & \" \" & g.SeriesColor.Color\n        wb.SaveAs folder & \"\\c36.xlsx\", xlOpenXMLWorkbook\n    Case 37\n        g.SeriesColor.ThemeColor = 5: g.SeriesColor.TintAndShade = -0.25\n        Tried = g.SeriesColor.TintAndShade & \" \" & g.SeriesColor.Color\n        wb.SaveAs folder & \"\\c37.xlsx\", xlOpenXMLWorkbook\n    Case 38\n        g.SeriesColor.ThemeColor = 5: g.SeriesColor.Color = vbRed\n        Tried = g.SeriesColor.ThemeColor & \" \" & g.SeriesColor.Color\n        wb.SaveAs folder & \"\\c38.xlsx\", xlOpenXMLWorkbook\n    Case 39\n        g.SeriesColor.ThemeColor = 0\n        Tried = g.SeriesColor.ThemeColor\n    Case 40\n        g.SeriesColor.ThemeColor = 13\n        Tried = g.SeriesColor.ThemeColor\n    Case 41\n        g.SeriesColor.TintAndShade = 2\n        Tried = g.SeriesColor.TintAndShade\n    Case 42\n        g.Points.Negative.Visible = True: g.Type = xlSparkColumn\n        Tried = g.Type & \" \" & g.Points.Negative.Visible\n        wb.SaveAs folder & \"\\c42.xlsx\", xlOpenXMLWorkbook\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 42\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "",
+   "g.Points.Markers.Visible & \" \" & g.Points.Highpoint.Visible & \" \" & g.Points.Lowpoint.Visible & \" \" & g.Points.Firstpoint.Visible & \" \" & g.Points.Lastpoint.Visible & \" \" & g.Points.Negative.Visible",
+   false,
+   "False False False False False False"
+  ],
+  [
+   "",
+   "g.Points.Markers.Color.Color & \" \" & g.Points.Highpoint.Color.Color & \" \" & g.Points.Negative.Color.Color",
+   false,
+   "208 208 208"
+  ],
+  [
+   "",
+   "TypeName(g.Points) & \" \" & TypeName(g.Points.Markers) & \" \" & TypeName(g.Points.Markers.Color) & \" \" & TypeName(g.Axes) & \" \" & TypeName(g.Axes.Horizontal) & \" \" & TypeName(g.Axes.Vertical) & \" \" & TypeName(g.Axes.Horizontal.Axis) & \" \" & TypeName(g.SeriesColor)",
+   false,
+   "SparkPoints SparkColor FormatColor SparkAxes SparkHorizontalAxis SparkVerticalAxis SparkColor FormatColor"
+  ],
+  [
+   "",
+   "g.Axes.Horizontal.IsDateAxis",
+   false,
+   "False"
+  ],
+  [
+   "",
+   "g.Axes.Horizontal.RightToLeft",
+   false,
+   "Err 438"
+  ],
+  [
+   "",
+   "g.Axes.Horizontal.Axis.Visible & \" \" & g.Axes.Horizontal.Axis.Color.Color",
+   false,
+   "False 0"
+  ],
+  [
+   "",
+   "g.Axes.Vertical.MinScaleType & \" \" & g.Axes.Vertical.MaxScaleType",
+   false,
+   "2 2"
+  ],
+  [
+   "",
+   "g.Axes.Vertical.CustomMinScaleValue & \" \" & g.Axes.Vertical.CustomMaxScaleValue",
+   false,
+   "0 0"
+  ],
+  [
+   "",
+   "g.DisplayBlanksAs & \" \" & g.DisplayHidden & \" \" & g.PlotBy",
+   false,
+   "1 False 0"
+  ],
+  [
+   "",
+   "g.Points.Negative.Visible & \" \" & TypeName(g.Points.Parent)",
+   false,
+   "False SparklineGroup"
+  ],
+  [
+   "g.Points.Markers.Visible = True",
+   "g.Points.Markers.Visible",
+   true,
+   "True"
+  ],
+  [
+   "g.Points.Highpoint.Visible = True",
+   "g.Points.Highpoint.Visible",
+   true,
+   "True"
+  ],
+  [
+   "g.Points.Lowpoint.Visible = True",
+   "g.Points.Lowpoint.Visible",
+   true,
+   "True"
+  ],
+  [
+   "g.Points.Firstpoint.Visible = True",
+   "g.Points.Firstpoint.Visible",
+   true,
+   "True"
+  ],
+  [
+   "g.Points.Lastpoint.Visible = True",
+   "g.Points.Lastpoint.Visible",
+   true,
+   "True"
+  ],
+  [
+   "g.Points.Negative.Visible = True",
+   "g.Points.Negative.Visible",
+   true,
+   "True"
+  ],
+  [
+   "g.Points.Markers.Color.Color = vbBlue",
+   "g.Points.Markers.Color.Color",
+   true,
+   "16711680"
+  ],
+  [
+   "g.Axes.Horizontal.Axis.Visible = True",
+   "g.Axes.Horizontal.Axis.Visible",
+   true,
+   "True"
+  ],
+  [
+   "g.Axes.Horizontal.Axis.Color.Color = vbRed",
+   "g.Axes.Horizontal.Axis.Color.Color",
+   true,
+   "255"
+  ],
+  [
+   "g.Axes.Vertical.MinScaleType = xlSparkScaleGroup",
+   "g.Axes.Vertical.MinScaleType",
+   true,
+   "1"
+  ],
+  [
+   "g.Axes.Vertical.MaxScaleType = xlSparkScaleCustom",
+   "g.Axes.Vertical.MaxScaleType",
+   true,
+   "3"
+  ],
+  [
+   "g.Axes.Vertical.MaxScaleType = xlSparkScaleCustom: g.Axes.Vertical.CustomMaxScaleValue = 7",
+   "g.Axes.Vertical.CustomMaxScaleValue",
+   true,
+   "7"
+  ],
+  [
+   "g.Axes.Vertical.CustomMaxScaleValue = 7",
+   "g.Axes.Vertical.CustomMaxScaleValue & \" \" & g.Axes.Vertical.MaxScaleType",
+   true,
+   "7 2"
+  ],
+  [
+   "g.Axes.Vertical.CustomMinScaleValue = -2.5",
+   "g.Axes.Vertical.CustomMinScaleValue & \" \" & g.Axes.Vertical.MinScaleType",
+   true,
+   "-2.5 2"
+  ],
+  [
+   "g.Axes.Vertical.CustomMaxScaleValue = 1E+300",
+   "g.Axes.Vertical.CustomMaxScaleValue",
+   true,
+   "1E+300"
+  ],
+  [
+   "g.Axes.Vertical.MinScaleType = 9",
+   "g.Axes.Vertical.MinScaleType",
+   false,
+   "Err 1004"
+  ],
+  [
+   "g.DisplayBlanksAs = xlZero",
+   "g.DisplayBlanksAs",
+   true,
+   "2"
+  ],
+  [
+   "g.DisplayBlanksAs = xlInterpolated",
+   "g.DisplayBlanksAs",
+   true,
+   "3"
+  ],
+  [
+   "g.DisplayBlanksAs = xlNotPlotted",
+   "g.DisplayBlanksAs",
+   true,
+   "1"
+  ],
+  [
+   "g.DisplayBlanksAs = 7",
+   "g.DisplayBlanksAs",
+   false,
+   "Err 1004"
+  ],
+  [
+   "g.DisplayHidden = True",
+   "g.DisplayHidden",
+   true,
+   "True"
+  ],
+  [
+   "g.PlotBy = 1",
+   "g.PlotBy",
+   false,
+   "Err 1004"
+  ],
+  [
+   "g.Points.Markers.Visible = True: g.Points.Markers.Visible = False",
+   "g.Points.Markers.Visible",
+   true,
+   "False"
+  ],
+  [
+   "g.Points.Markers.Visible = \"x\"",
+   "g.Points.Markers.Visible",
+   false,
+   "Err 13"
+  ],
+  [
+   "g.SeriesColor.ThemeColor = 5",
+   "g.SeriesColor.Color & \" \" & g.SeriesColor.ThemeColor",
+   true,
+   "8544277 5"
+  ],
+  [
+   "g.SeriesColor.ThemeColor = 5: g.SeriesColor.TintAndShade = 0.4",
+   "g.SeriesColor.TintAndShade & \" \" & g.SeriesColor.Color",
+   true,
+   "0.399975585192419 14791492"
+  ],
+  [
+   "g.SeriesColor.TintAndShade = 0.5",
+   "g.SeriesColor.TintAndShade & \" \" & g.SeriesColor.Color",
+   true,
+   "0.499984740745262 14003854"
+  ],
+  [
+   "g.SeriesColor.ThemeColor = 5: g.SeriesColor.TintAndShade = -0.25",
+   "g.SeriesColor.TintAndShade & \" \" & g.SeriesColor.Color",
+   true,
+   "-0.249977111117893 6375440"
+  ],
+  [
+   "g.SeriesColor.ThemeColor = 5: g.SeriesColor.Color = vbRed",
+   "g.SeriesColor.ThemeColor & \" \" & g.SeriesColor.Color",
+   true,
+   "0 255"
+  ],
+  [
+   "g.SeriesColor.ThemeColor = 0",
+   "g.SeriesColor.ThemeColor",
+   false,
+   "Err 9"
+  ],
+  [
+   "g.SeriesColor.ThemeColor = 13",
+   "g.SeriesColor.ThemeColor",
+   false,
+   "Err 9"
+  ],
+  [
+   "g.SeriesColor.TintAndShade = 2",
+   "g.SeriesColor.TintAndShade",
+   false,
+   "Err 5"
+  ],
+  [
+   "g.Points.Negative.Visible = True: g.Type = xlSparkColumn",
+   "g.Type & \" \" & g.Points.Negative.Visible",
+   true,
+   "2 True"
+  ]
+ ],
+ "groups": {
+  "10": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" markers=\"1\" xr2:uid=\"{1AC56D78-3E59-4731-A585-F4A005624CA7}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "11": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" high=\"1\" xr2:uid=\"{67DB0BA2-047B-4341-84E2-469A515A8168}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "12": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" low=\"1\" xr2:uid=\"{3DE5DC85-3E73-4839-839B-30A9B79084FC}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "13": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" first=\"1\" xr2:uid=\"{F1653210-8373-42BA-8189-76CB799CE721}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "14": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" last=\"1\" xr2:uid=\"{6438306C-CC8B-498F-AF7D-FF98BD35E47C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "15": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" negative=\"1\" xr2:uid=\"{254E39C3-3907-49DB-92BC-90E8EC604C45}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "16": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{F76D8271-6AA0-4826-B092-6D021C19945D}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FF0000FF\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "17": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" displayXAxis=\"1\" xr2:uid=\"{22F0A279-D7B5-4AA6-9CC1-05C8F46CDD15}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "18": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{CF845B2B-8810-4C68-980F-697D33FCEAB5}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FFFF0000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "19": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" minAxisType=\"group\" xr2:uid=\"{19DF1DF1-BC2E-48C3-8086-CC0A09147BA1}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "20": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" maxAxisType=\"custom\" xr2:uid=\"{8C13BE50-4066-4DA6-A8E1-943CDBF2AF4A}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "21": "<x14:sparklineGroup manualMax=\"7\" displayEmptyCellsAs=\"gap\" maxAxisType=\"custom\" xr2:uid=\"{BE897A55-03B0-4D8B-880F-8A942A3FFF78}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "22": "<x14:sparklineGroup manualMax=\"7\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{FE5E8AA3-591A-4771-B67E-01BB3FE4CE71}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "23": "<x14:sparklineGroup manualMin=\"-2.5\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{04E309EB-C92C-44B8-B858-3F5912C74C4C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "24": "<x14:sparklineGroup manualMax=\"1.0000000000000001E+300\" displayEmptyCellsAs=\"gap\" xr2:uid=\"{D11A30AE-D82B-4772-B9D0-D07BF2B55E7B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "26": "<x14:sparklineGroup xr2:uid=\"{70D258C8-F132-4F40-A55C-8F6C86B51DD9}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "27": "<x14:sparklineGroup displayEmptyCellsAs=\"span\" xr2:uid=\"{CD15392A-37F4-4C96-A581-87E2A97717DE}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "28": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{0788241C-D92D-45C3-A122-B6D82152F25B}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "30": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" displayHidden=\"1\" xr2:uid=\"{01542B75-6274-453E-8FC5-F8B6E72FA872}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "32": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{C259511D-D09F-4CC1-9A98-1C18E3617A9C}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "34": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{60BAEA16-79D4-48E6-8D27-C02DE7E2CA03}\"><x14:colorSeries theme=\"4\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "35": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{EBA35E86-D4B4-4128-B67E-BF2AF5E2CE2F}\"><x14:colorSeries theme=\"4\" tint=\"0.39997558519241921\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "36": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{B19848F4-D7AE-4A43-AE74-9CA4BA5AB7DB}\"><x14:colorSeries rgb=\"FF376092\" tint=\"0.499984740745262\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "37": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{61D76AC9-1309-40FA-B372-F017172EE17C}\"><x14:colorSeries theme=\"4\" tint=\"-0.249977111117893\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "38": "<x14:sparklineGroup displayEmptyCellsAs=\"gap\" xr2:uid=\"{9C579CE9-55DD-47CC-9A18-786212C4C02A}\"><x14:colorSeries rgb=\"FFFF0000\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>",
+  "42": "<x14:sparklineGroup type=\"column\" displayEmptyCellsAs=\"gap\" negative=\"1\" xr2:uid=\"{C5D54A8A-800E-4ABF-B603-02F06165C0EA}\"><x14:colorSeries rgb=\"FF376092\"/><x14:colorNegative rgb=\"FFD00000\"/><x14:colorAxis rgb=\"FF000000\"/><x14:colorMarkers rgb=\"FFD00000\"/><x14:colorFirst rgb=\"FFD00000\"/><x14:colorLast rgb=\"FFD00000\"/><x14:colorHigh rgb=\"FFD00000\"/><x14:colorLow rgb=\"FFD00000\"/><x14:sparklines><x14:sparkline><xm:f>Sheet1!A1:D1</xm:f><xm:sqref>E1</xm:sqref></x14:sparkline></x14:sparklines></x14:sparklineGroup>"
+ }
+}

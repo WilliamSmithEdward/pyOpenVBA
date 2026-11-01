@@ -32,10 +32,12 @@ from pyopenvba._xml import escape, escape_text
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, VBAInt, error, to_integer, to_number, to_text
+from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAInt, error, to_bool, to_integer, to_number,
+                                           to_text)
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
+    from pyopenvba.apps.excel._styles import Color
     from pyopenvba.apps.excel._model import Workbook, Worksheet
 
 URI = '{05C60535-1F16-4fd2-B633-F4F36F0B64E0}'
@@ -44,6 +46,8 @@ XM_URI = 'http://schemas.microsoft.com/office/excel/2006/main'
 MAIN = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 #: XlSparkType by the type attribute a file gives it; a line has none.
 TYPES = {1: None, 2: 'column', 3: 'stacked'}
+#: XlDisplayBlanksAs by the displayEmptyCellsAs a file gives it; zero is the schema's default.
+BLANKS = {1: 'gap', 2: 'zero', 3: 'span'}
 #: The group's attributes in the schema's order, as Excel writes them, its revision id last.
 ORDER = ('manualMax', 'manualMin', 'lineWeight', 'type', 'dateAxis', 'displayEmptyCellsAs', 'markers', 'high',
          'low', 'first', 'last', 'negative', 'displayXAxis', 'displayHidden', 'minAxisType', 'maxAxisType',
@@ -387,7 +391,7 @@ class SparklineGroup(ExcelObject):
     @setter('Type')
     def _set_type(self, value: object) -> None:
         kind = _kind(value)
-        if kind == 3 or 'negative' in self.group.attributes:
+        if kind == 3 or self.group.attributes.get('type') == 'stacked':
             raise VBAUnsupportedError('changing a sparkline group to or from win/loss is not implemented')
         if TYPES[kind] is None:
             self.group.attributes.pop('type', None)
@@ -491,18 +495,68 @@ class SparklineGroup(ExcelObject):
 
     @member
     def DisplayBlanksAs(self) -> object:
-        """xlNotPlotted, gaps for empty cells."""
-        if self.group.attributes.get('displayEmptyCellsAs', 'zero') != 'gap':
-            raise VBAUnsupportedError('a sparkline group showing empty cells other than as gaps is not implemented')
-        return VBAInt(1, 'Long')
+        """xlNotPlotted for gaps, xlZero, which a file leaves out, or xlInterpolated for a span."""
+        written = self.group.attributes.get('displayEmptyCellsAs', 'zero')
+        found = next((kind for kind, name in BLANKS.items() if name == written), None)
+        if found is None:
+            raise VBAUnsupportedError('a sparkline group showing empty cells another way is not implemented')
+        return VBAInt(found, 'Long')
+
+    @setter('DisplayBlanksAs')
+    def _set_display_blanks_as(self, value: object) -> None:
+        kind = int(to_integer(value, 'Long'))
+        if kind not in BLANKS:
+            raise error(1004)
+        if BLANKS[kind] == 'zero':
+            self.group.attributes.pop('displayEmptyCellsAs', None)
+        else:
+            self.group.attributes['displayEmptyCellsAs'] = BLANKS[kind]
+        self.group.attributes = _ordered(self.group.attributes)
+        self.edited()
 
     @member
     def DisplayHidden(self) -> object:
         return self.group.attributes.get('displayHidden', '0') in ('1', 'true')
 
+    @setter('DisplayHidden')
+    def _set_display_hidden(self, value: object) -> None:
+        if _flag(value):
+            self.group.attributes['displayHidden'] = '1'
+        else:
+            self.group.attributes.pop('displayHidden', None)
+        self.group.attributes = _ordered(self.group.attributes)
+        self.edited()
+
     @member
     def SeriesColor(self) -> object:
-        return SparkColor(self, 'colorSeries')
+        return SparkFormatColor(self, 'colorSeries')
+
+    @member
+    def Points(self) -> object:
+        return SparkPoints(self)
+
+    @member
+    def PlotBy(self) -> object:
+        """xlSparklineNonSquare for a source that is no square; a set is error 1004 there."""
+        if self._square():
+            raise VBAUnsupportedError('PlotBy of a sparkline group with a square source is not implemented')
+        return VBAInt(0, 'Long')
+
+    @setter('PlotBy')
+    def _set_plot_by(self, value: object) -> None:
+        if self._square():
+            raise VBAUnsupportedError('PlotBy of a sparkline group with a square source is not implemented')
+        raise error(1004)
+
+    def _square(self) -> bool:
+        areas = [line.source.area() for line in self.group.sparklines]
+        rows = max(area.bottom for area in areas) - min(area.top for area in areas) + 1
+        columns = max(area.right for area in areas) - min(area.left for area in areas) + 1
+        return rows == columns and rows > 1
+
+    @member
+    def Axes(self) -> object:
+        return SparkAxes(self)
 
 
 class SparklineObject(ExcelObject):
@@ -556,46 +610,63 @@ class SparklineObject(ExcelObject):
         return EMPTY
 
 
-class SparkColor(ExcelObject):
-    """A group's colour: its RGB, or a theme colour's."""
+def _flag(value: object) -> bool:
+    if value is NULL:
+        raise error(13)
+    return to_bool(value)
 
-    vba_type_name = 'SparkColor'
+
+class SparkFormatColor(ExcelObject):
+    """A group's colour as SeriesColor and each SparkColor's Color give it: an RGB or a theme colour, tinted or not
+    (tests/fixtures/sparkline_points.json)."""
+
+    vba_type_name = 'FormatColor'
 
     def __init__(self, parent: SparklineGroup, element: str) -> None:
         self.parent, self.element = parent, element
 
-    def _attributes(self) -> dict[str, str]:
-        for child in self.parent.group.children:
+    def _found(self) -> int:
+        for place, child in enumerate(self.parent.group.children):
             if child.startswith(f'<x14:{self.element} ') or child == f'<x14:{self.element}/>':
-                return dict(re.findall(r'([\w:]+)="([^"]*)"', child))
+                return place
         raise VBAUnsupportedError(f'a sparkline group with no {self.element} is not implemented')
+
+    def _attributes(self) -> dict[str, str]:
+        return dict(re.findall(r'([\w:]+)="([^"]*)"', self.parent.group.children[self._found()]))
 
     def _write(self, attributes: dict[str, str]) -> None:
         markup = f'<x14:{self.element}' + ''.join(f' {key}="{escape(value)}"' for key, value in attributes.items()) + '/>'
-        children = self.parent.group.children
-        for place, child in enumerate(children):
-            if child.startswith(f'<x14:{self.element} ') or child == f'<x14:{self.element}/>':
-                children[place] = markup
+        self.parent.group.children[self._found()] = markup
         self.parent.edited()
+
+    def _color(self) -> Color:
+        from pyopenvba.apps.excel._styles import Color, tint_n
+
+        attributes = self._attributes()
+        tint = tint_n(attributes['tint']) if 'tint' in attributes else 0
+        if 'rgb' in attributes:
+            return Color('rgb', attributes['rgb'], tint)
+        if 'theme' in attributes:
+            return Color('theme', int(attributes['theme']), tint)
+        raise VBAUnsupportedError('a sparkline colour of this form is not implemented')
 
     @member
     def Parent(self) -> object:
         return self.parent
 
     @member
-    def Color(self) -> object:
-        from pyopenvba.apps.excel._styles import Color, bgr
+    def Application(self) -> object:
+        return self.parent.sheet.book.application
 
-        attributes = self._attributes()
-        if 'rgb' in attributes:
-            return float(bgr(attributes['rgb'][-6:]))
-        if 'theme' in attributes and 'tint' not in attributes:
-            colors = self.parent.sheet.book.stylesheet.colors
-            return float(bgr(colors.rrggbb(Color('theme', int(attributes['theme'])), '000000')))
-        raise VBAUnsupportedError('a sparkline colour of this form is not implemented')
+    @member
+    def Color(self) -> object:
+        from pyopenvba.apps.excel._styles import bgr
+
+        return float(bgr(self.parent.sheet.book.stylesheet.colors.rrggbb(self._color(), '000000')))
 
     @setter('Color')
     def _set_color(self, value: object) -> None:
+        """An RGB, the theme colour and tint gone."""
         from pyopenvba.apps.excel._styles import Color
 
         self._write({'rgb': str(Color.from_bgr(int(to_integer(value, 'Long'))).value)})
@@ -603,13 +674,247 @@ class SparkColor(ExcelObject):
     @member
     def ThemeColor(self) -> object:
         attributes = self._attributes()
-        if 'theme' in attributes:
-            return VBAInt(int(attributes['theme']) + 1, 'Long')
-        return VBAInt(0, 'Long')
+        return VBAInt(int(attributes['theme']) + 1 if 'theme' in attributes else 0, 'Long')
+
+    @setter('ThemeColor')
+    def _set_theme_color(self, value: object) -> None:
+        """One of the theme's 12 colours, error 9 else; the RGB and tint go."""
+        index = int(to_integer(value, 'Long'))
+        if not 1 <= index <= 12:
+            raise error(9, 'Subscript out of range')
+        self._write({'theme': str(index - 1)})
 
     @member
     def TintAndShade(self) -> object:
-        return float(self._attributes().get('tint', '0'))
+        from pyopenvba.apps.excel._styles import TINT_SCALE
+
+        return self._color().tint / TINT_SCALE
+
+    @setter('TintAndShade')
+    def _set_tint_and_shade(self, value: object) -> None:
+        """-1 to 1, error 5 else, kept as Excel keeps it, n / 32767 truncated toward zero."""
+        from pyopenvba.apps.excel._styles import TINT_SCALE, excel_double, tint_of
+
+        tint = float(to_number(value))
+        if not -1 <= tint <= 1:
+            raise error(5, 'Invalid procedure call or argument')
+        attributes = {key: text for key, text in self._attributes().items() if key != 'tint'}
+        n = tint_of(tint)
+        if n:
+            attributes['tint'] = excel_double(n / TINT_SCALE)
+        self._write(attributes)
+
+
+class SparkColor(ExcelObject):
+    """A point's marking or the horizontal axis: whether it shows, and its colour."""
+
+    vba_type_name = 'SparkColor'
+
+    def __init__(self, parent: SparklineGroup, attribute: str, element: str) -> None:
+        self.parent, self.attribute, self.element = parent, attribute, element
+
+    @member
+    def Parent(self) -> object:
+        return self.parent
+
+    @member
+    def Application(self) -> object:
+        return self.parent.sheet.book.application
+
+    @member
+    def Visible(self) -> object:
+        return self.parent.group.attributes.get(self.attribute, '0') in ('1', 'true')
+
+    @setter('Visible')
+    def _set_visible(self, value: object) -> None:
+        if _flag(value):
+            self.parent.group.attributes[self.attribute] = '1'
+        else:
+            self.parent.group.attributes.pop(self.attribute, None)
+        self.parent.group.attributes = _ordered(self.parent.group.attributes)
+        self.parent.edited()
+
+    @member
+    def Color(self) -> object:
+        return SparkFormatColor(self.parent, self.element)
+
+
+class SparkPoints(ExcelObject):
+    vba_type_name = 'SparkPoints'
+
+    def __init__(self, parent: SparklineGroup) -> None:
+        self.parent = parent
+
+    @member
+    def Parent(self) -> object:
+        return self.parent
+
+    @member
+    def Application(self) -> object:
+        return self.parent.sheet.book.application
+
+    @member
+    def Markers(self) -> object:
+        return SparkColor(self.parent, 'markers', 'colorMarkers')
+
+    @member
+    def Highpoint(self) -> object:
+        return SparkColor(self.parent, 'high', 'colorHigh')
+
+    @member
+    def Lowpoint(self) -> object:
+        return SparkColor(self.parent, 'low', 'colorLow')
+
+    @member
+    def Firstpoint(self) -> object:
+        return SparkColor(self.parent, 'first', 'colorFirst')
+
+    @member
+    def Lastpoint(self) -> object:
+        return SparkColor(self.parent, 'last', 'colorLast')
+
+    @member
+    def Negative(self) -> object:
+        return SparkColor(self.parent, 'negative', 'colorNegative')
+
+
+class SparkAxes(ExcelObject):
+    vba_type_name = 'SparkAxes'
+
+    def __init__(self, parent: SparklineGroup) -> None:
+        self.parent = parent
+
+    @member
+    def Parent(self) -> object:
+        return self.parent
+
+    @member
+    def Application(self) -> object:
+        return self.parent.sheet.book.application
+
+    @member
+    def Horizontal(self) -> object:
+        return SparkHorizontalAxis(self.parent)
+
+    @member
+    def Vertical(self) -> object:
+        return SparkVerticalAxis(self.parent)
+
+
+class SparkHorizontalAxis(ExcelObject):
+    vba_type_name = 'SparkHorizontalAxis'
+
+    def __init__(self, parent: SparklineGroup) -> None:
+        self.parent = parent
+
+    @member
+    def Parent(self) -> object:
+        return self.parent
+
+    @member
+    def Application(self) -> object:
+        return self.parent.sheet.book.application
+
+    @member
+    def Axis(self) -> object:
+        """The axis line: displayXAxis, and its colour colorAxis."""
+        return SparkColor(self.parent, 'displayXAxis', 'colorAxis')
+
+    @member
+    def IsDateAxis(self) -> object:
+        return self.parent.group.attributes.get('dateAxis', '0') in ('1', 'true')
+
+    @member
+    def RightToLeft(self) -> object:
+        """Error 438 in Excel, read or set (tests/fixtures/sparkline_points.json)."""
+        raise error(438, "Object doesn't support this property or method")
+
+    @setter('RightToLeft')
+    def _set_right_to_left(self, value: object) -> None:
+        raise error(438, "Object doesn't support this property or method")
+
+
+#: XlSparkScale by the minAxisType or maxAxisType a file gives it; xlSparkScaleSingle has none.
+SCALES = {1: 'group', 2: None, 3: 'custom'}
+
+
+class SparkVerticalAxis(ExcelObject):
+    vba_type_name = 'SparkVerticalAxis'
+
+    def __init__(self, parent: SparklineGroup) -> None:
+        self.parent = parent
+
+    def _scale(self, attribute: str) -> object:
+        written = self.parent.group.attributes.get(attribute, 'individual')
+        found = next((kind for kind, name in SCALES.items() if (name or 'individual') == written), None)
+        if found is None:
+            raise VBAUnsupportedError('a sparkline axis scaled another way is not implemented')
+        return VBAInt(found, 'Long')
+
+    def _set_scale(self, attribute: str, value: object) -> None:
+        kind = int(to_integer(value, 'Long'))
+        if kind not in SCALES:
+            raise error(1004)
+        name = SCALES[kind]
+        if name is None:
+            self.parent.group.attributes.pop(attribute, None)
+        else:
+            self.parent.group.attributes[attribute] = name
+        self.parent.group.attributes = _ordered(self.parent.group.attributes)
+        self.parent.edited()
+
+    def _value(self, attribute: str) -> object:
+        return float(self.parent.group.attributes.get(attribute, '0'))
+
+    def _set_value(self, attribute: str, value: object) -> None:
+        number = float(to_number(value))
+        if number == 0:
+            self.parent.group.attributes.pop(attribute, None)
+        else:
+            # Seventeen digits, as short as they go: 7, -2.5, 1.0000000000000001E+300.
+            self.parent.group.attributes[attribute] = f'{number:.17G}'
+        self.parent.group.attributes = _ordered(self.parent.group.attributes)
+        self.parent.edited()
+
+    @member
+    def Parent(self) -> object:
+        return self.parent
+
+    @member
+    def Application(self) -> object:
+        return self.parent.sheet.book.application
+
+    @member
+    def MinScaleType(self) -> object:
+        return self._scale('minAxisType')
+
+    @setter('MinScaleType')
+    def _set_min_scale_type(self, value: object) -> None:
+        self._set_scale('minAxisType', value)
+
+    @member
+    def MaxScaleType(self) -> object:
+        return self._scale('maxAxisType')
+
+    @setter('MaxScaleType')
+    def _set_max_scale_type(self, value: object) -> None:
+        self._set_scale('maxAxisType', value)
+
+    @member
+    def CustomMinScaleValue(self) -> object:
+        return self._value('manualMin')
+
+    @setter('CustomMinScaleValue')
+    def _set_custom_min(self, value: object) -> None:
+        self._set_value('manualMin', value)
+
+    @member
+    def CustomMaxScaleValue(self) -> object:
+        return self._value('manualMax')
+
+    @setter('CustomMaxScaleValue')
+    def _set_custom_max(self, value: object) -> None:
+        self._set_value('manualMax', value)
 
 
 def written(sheet: Worksheet, xml: str) -> str:

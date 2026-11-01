@@ -917,11 +917,11 @@ Font,ThemeColor,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; 
 Font,ThemeFont,property,As XlThemeFont,,PARTIAL,tests/fixtures/cell_styles/style_changes.json,Read; setting it on a range reports unsupported.
 Font,TintAndShade,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Underline,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Values other than the five styles, True, False and 3 report unsupported."
-FormatColor,Application,"property, read-only",As Application,,MISSING,,
+FormatColor,Application,"property, read-only",As Application,,UNASSESSED,,
 FormatColor,Color,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"The colour as it shows, a theme colour with its tint worked out."
 FormatColor,ColorIndex,property,As XlColorIndex,,MISSING,,
 FormatColor,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-FormatColor,Parent,"property, read-only",As Object,,MISSING,,
+FormatColor,Parent,"property, read-only",As Object,,UNASSESSED,,
 FormatColor,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,0 for an RGB colour.
 FormatColor,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"Kept in 32767ths, as Excel keeps it."
 FormatCondition,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
@@ -2212,13 +2212,39 @@ SortFields,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/sort.jso
 SortFields,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 SortFields,Item,"property, read-only",As SortField,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,"By number from 1; 0 is 1004, past the last 9, text 13."
 SortFields,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,The Sort it was first reached through.
-SparkColor,Application,"property, read-only",As Application,,MISSING,,
-SparkColor,Color,"property, read-only",As FormatColor,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"The colour, read from its RGB or its theme colour; a set writes an RGB."
-SparkColor,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
-SparkColor,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its group.
-SparkColor,ThemeColor,not in the type library,,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,0 for an RGB colour.
-SparkColor,TintAndShade,not in the type library,,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,0 unless the file gives a tint.
-SparkColor,Visible,property,As Boolean,,MISSING,,
+SparkAxes,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The application.
+SparkAxes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,xlCreatorCode.
+SparkAxes,Horizontal,"property, read-only",As SparkHorizontalAxis,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The horizontal axis.
+SparkAxes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its group.
+SparkAxes,Vertical,"property, read-only",As SparkVerticalAxis,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The vertical axis.
+SparkColor,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The application.
+SparkColor,Color,"property, read-only",As FormatColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"Its FormatColor: an RGB or a theme colour, tinted or not; ThemeColor outside 1 to 12 is 9, TintAndShade outside -1 to 1 is 5 and is kept as n / 32767 truncated."
+SparkColor,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,xlCreatorCode.
+SparkColor,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its group.
+SparkColor,Visible,property,As Boolean,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"Its attribute, left out at False; text that is no Boolean is 13."
+SparkHorizontalAxis,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The application.
+SparkHorizontalAxis,Axis,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"The axis line, displayXAxis, its colour colorAxis."
+SparkHorizontalAxis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,xlCreatorCode.
+SparkHorizontalAxis,IsDateAxis,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"dateAxis, False by default."
+SparkHorizontalAxis,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its group.
+SparkHorizontalAxis,RightToLeft,not in the type library,,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"Error 438 in Excel, read or set."
+SparkHorizontalAxis,RightToLeftPlotOrder,property,As Boolean,,MISSING,,
+SparkPoints,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The application.
+SparkPoints,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,xlCreatorCode.
+SparkPoints,Firstpoint,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"first, its colour colorFirst."
+SparkPoints,Highpoint,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"high, its colour colorHigh."
+SparkPoints,Lastpoint,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"last, its colour colorLast."
+SparkPoints,Lowpoint,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"low, its colour colorLow."
+SparkPoints,Markers,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"markers, its colour colorMarkers."
+SparkPoints,Negative,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"negative, its colour colorNegative."
+SparkPoints,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its group.
+SparkVerticalAxis,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The application.
+SparkVerticalAxis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,xlCreatorCode.
+SparkVerticalAxis,CustomMaxScaleValue,property,As Variant,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"manualMax, as CustomMinScaleValue."
+SparkVerticalAxis,CustomMinScaleValue,property,As Variant,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"manualMin, 0 left out, written to 17 digits as short as they go."
+SparkVerticalAxis,MaxScaleType,property,As XlSparkScale,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"maxAxisType, as MinScaleType."
+SparkVerticalAxis,MinScaleType,property,As XlSparkScale,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"minAxisType: xlSparkScaleSingle (left out), Group or Custom; another number 1004."
+SparkVerticalAxis,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its group.
 Sparkline,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The application.
 Sparkline,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
 Sparkline,Location,property,As Range,no setter,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its cell.
@@ -2228,13 +2254,13 @@ Sparkline,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkli
 Sparkline,SourceData,property,As String,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Its source, as the group spells sources; a set is ModifySourceData."
 SparklineGroup,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 SparklineGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The application.
-SparklineGroup,Axes,"property, read-only",As SparkAxes,,MISSING,,
+SparklineGroup,Axes,"property, read-only",As SparkAxes,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its SparkAxes.
 SparklineGroup,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its sparklines.
 SparklineGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
 SparklineGroup,DateRange,property,As String,,MISSING,,
 SparklineGroup,Delete,method,Delete(),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Takes the group away.
-SparklineGroup,DisplayBlanksAs,property,As XlDisplayBlanksAs,no setter,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"xlNotPlotted, gaps; other settings a file gives are unsupported."
-SparklineGroup,DisplayHidden,property,As Boolean,no setter,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"displayHidden, False by default."
+SparklineGroup,DisplayBlanksAs,property,As XlDisplayBlanksAs,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"xlNotPlotted (gap), xlZero (left out of the file) or xlInterpolated (span); another number 1004."
+SparklineGroup,DisplayHidden,property,As Boolean,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"displayHidden, left out at False."
 SparklineGroup,Item,"property, read-only",As Sparkline,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A sparkline; out of range is 1004.
 SparklineGroup,LineWeight,property,As Variant,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"0.75 by default, left out of the file there; 0 to 1584, else 1004."
 SparklineGroup,Location,property,As Range,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Its cells; a set is passed over, as Excel passes it over."
@@ -2243,9 +2269,9 @@ SparklineGroup,ModifyDateRange,method,ModifyDateRange(DateRange As String),,MISS
 SparklineGroup,ModifyLocation,method,ModifyLocation(Location As Range),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"New cells, as many as before."
 SparklineGroup,ModifySourceData,method,ModifySourceData(SourceData As String),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A new source for the same cells.
 SparklineGroup,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The SparklineGroups it was reached through.
-SparklineGroup,PlotBy,property,As XlSparklineRowCol,,MISSING,,
-SparklineGroup,Points,"property, read-only",As SparkPoints,,MISSING,,
-SparklineGroup,SeriesColor,"property, read-only",As FormatColor,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The series' SparkColor.
+SparklineGroup,PlotBy,property,As XlSparklineRowCol,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"xlSparklineNonSquare for a source that is no square, a set error 1004; a square source's is unsupported."
+SparklineGroup,Points,"property, read-only",As SparkPoints,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its SparkPoints.
+SparklineGroup,SeriesColor,"property, read-only",As FormatColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The series' FormatColor.
 SparklineGroup,SourceData,property,As String,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"As given, in capitals, a cell as a range of one, another sheet named; the block its sparklines read. A set is ModifySourceData."
 SparklineGroup,Type,property,As XlSparkType,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"xlSparkLine, xlSparkColumn or xlSparkColumnStacked100; a set between line and column works, another number is 1004, win/loss either way unsupported."
 SparklineGroups,_Default,"property, read-only",As SparklineGroup,,MISSING,,

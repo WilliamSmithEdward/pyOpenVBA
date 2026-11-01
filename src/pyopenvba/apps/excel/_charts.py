@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState
+from pyopenvba.apps.excel._chart_title import (ALIGNMENTS, ORIENTATIONS, READING_ORDERS, VERTICAL,
+                                               VERTICAL_ALIGNMENTS, TitleLook)
 from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
@@ -51,6 +53,9 @@ class ChartState:
     title: str | None = None
     #: False for Excel's automatic title, which the file holds with no text.
     title_typed: bool = False
+    title_look: TitleLook = field(default_factory=TitleLook)
+    #: Set by ChartTitle.Delete, which Excel records as autoTitleDeleted.
+    title_deleted: bool = False
     legend: bool = True
     plot_by: int = 2
     series: list[SeriesState] = field(default_factory=lambda: [])
@@ -419,8 +424,9 @@ class Chart(Created):
         self.admit_change()
         wanted = to_bool(value)
         self.changed()
+        self.state.title_deleted = False
         if not wanted:
-            self.state.title, self.state.title_typed = None, False
+            self.state.title, self.state.title_typed, self.state.title_look = None, False, TitleLook()
         elif self.state.title is None:
             self.state.title = 'Chart Title'
 
@@ -573,6 +579,8 @@ class ChartTitle(Created):
     @member
     def Text(self) -> object:
         state = self.chart.state
+        if state.title_look.formula:
+            return linked_title(self.chart.sheet, state.title_look.formula)
         if state.title is not None and not state.title_typed and len(state.series) == 1:
             # The automatic title of a chart with one series is that series' name.
             return Series(self.chart, state.series[0]).Name()
@@ -584,6 +592,180 @@ class ChartTitle(Created):
         wanted = to_text(value)
         self.chart.changed()
         self.chart.state.title, self.chart.state.title_typed = wanted, True
+        self.chart.state.title_look.formula = ''
+
+    @member
+    def Caption(self) -> object:
+        return self.Text()
+
+    @setter('Caption')
+    def _caption(self, value: object) -> None:
+        self._text(value)
+
+    @member
+    def Formula(self) -> object:
+        look = self.chart.state.title_look
+        return '=' + look.formula if look.formula else self.Text()
+
+    @setter('Formula')
+    def _formula(self, value: object) -> None:
+        self.link(to_text(value), r1c1=False)
+
+    @member
+    def FormulaR1C1(self) -> object:
+        look = self.chart.state.title_look
+        return r1c1_series('=' + look.formula) if look.formula else self.Text()
+
+    @setter('FormulaR1C1')
+    def _formula_r1c1(self, value: object) -> None:
+        self.link(to_text(value), r1c1=True)
+
+    @member
+    def FormulaLocal(self) -> object:
+        return self.Formula()
+
+    @setter('FormulaLocal')
+    def _formula_local(self, value: object) -> None:
+        self._formula(value)
+
+    @member
+    def FormulaR1C1Local(self) -> object:
+        return self.FormulaR1C1()
+
+    @setter('FormulaR1C1Local')
+    def _formula_r1c1_local(self, value: object) -> None:
+        self._formula_r1c1(value)
+
+    def link(self, text: str, *, r1c1: bool) -> None:
+        """Formula: a reference to one cell links the title to it; anything not starting with = is typed text."""
+        self.chart.admit_change()
+        if not text.startswith('='):
+            self._text(text)
+            return
+        found = re.fullmatch(r"=((?:'[^']+'|[^!'=]+))!(?:\$?([A-Za-z]{1,3})\$?(\d+)|R(\d+)C(\d+))", text)
+        if found is None:
+            if re.fullmatch(r"=[^!]*![^!]*", text):
+                raise VBAUnsupportedError('Linking a chart title to this reference is not implemented')
+            raise error(1004, 'Unable to set the Formula property of the ChartTitle class')
+        from pyopenvba._a1 import column_number
+
+        sheet_name = found.group(1)[1:-1].replace("''", "'") if found.group(1).startswith("'") else found.group(1)
+        sheet = next((item for item in self.chart.sheet.book.sheets_ if item.name.lower() == sheet_name.lower()), None)
+        if sheet is None or (found.group(4) is not None) != r1c1:
+            raise VBAUnsupportedError('Linking a chart title to this reference is not implemented')
+        row, column = ((int(found.group(4)), int(found.group(5))) if r1c1
+                       else (int(found.group(3)), column_number(found.group(2).upper())))
+        reference_text = reference(sheet, Area(row, column, row, column))
+        self.chart.changed()
+        self.chart.state.title_typed = False
+        self.chart.state.title_look.formula = reference_text
+
+    def look(self) -> TitleLook:
+        self.chart.admit_read()
+        return self.chart.state.title_look
+
+    def restyle(self) -> TitleLook:
+        self.chart.admit_change()
+        self.chart.changed()
+        return self.chart.state.title_look
+
+    @member
+    def Orientation(self) -> object:
+        rotation = self.look().rotation
+        if rotation == VERTICAL:
+            return VBAInt(VERTICAL, 'Long')
+        named = {angle: number for number, angle in ORIENTATIONS.items()}
+        return VBAInt(named.get(rotation or 0, rotation or 0), 'Long')
+
+    @setter('Orientation')
+    def _orientation(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        angle = VERTICAL if wanted == VERTICAL else ORIENTATIONS.get(wanted, wanted)
+        if angle != VERTICAL and not -90 <= angle <= 90:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        self.restyle().rotation = angle
+
+    @member
+    def HorizontalAlignment(self) -> object:
+        spelled = self.look().alignment or 'ctr'
+        return VBAInt(next(number for number, name in ALIGNMENTS.items() if name == spelled), 'Long')
+
+    @setter('HorizontalAlignment')
+    def _horizontal_alignment(self, value: object) -> None:
+        wanted = ALIGNMENTS.get(int(to_integer(value, 'Long')))
+        if wanted is None:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        look = self.look()
+        if look.rotation == VERTICAL:
+            raise VBAUnsupportedError('Aligning a vertical chart title is not implemented')
+        if not look.rotated():
+            # Excel ignores the alignment of text it has turned.
+            self.restyle().alignment = wanted
+
+    @member
+    def VerticalAlignment(self) -> object:
+        self.look()
+        return VBAInt(-4108, 'Long')
+
+    @setter('VerticalAlignment')
+    def _vertical_alignment(self, value: object) -> None:
+        if int(to_integer(value, 'Long')) not in VERTICAL_ALIGNMENTS:
+            raise VBAUnsupportedError('This chart title vertical alignment is not implemented')
+        self.look()  # Excel keeps a title centred whatever is set.
+
+    @member
+    def ReadingOrder(self) -> object:
+        setting = self.look().right_to_left
+        return VBAInt(next(number for number, value in READING_ORDERS.items() if value is setting), 'Long')
+
+    @setter('ReadingOrder')
+    def _reading_order(self, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        if wanted not in READING_ORDERS:
+            raise VBAUnsupportedError('This chart title reading order is not implemented')
+        self.restyle().right_to_left = READING_ORDERS[wanted]
+
+    @member
+    def Position(self) -> object:
+        self.look()
+        return VBAInt(-4105, 'Long')
+
+    @setter('Position')
+    def _position(self, value: object) -> None:
+        if int(to_integer(value, 'Long')) != -4105:
+            raise VBAUnsupportedError('Placing a chart title requires native layout')
+        self.look()
+
+    @member
+    def IncludeInLayout(self) -> object:
+        return not self.look().overlay
+
+    @setter('IncludeInLayout')
+    def _include_in_layout(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.restyle().overlay = not wanted
+
+    @member
+    def Shadow(self) -> object:
+        return bool(self.look().shadow)
+
+    @setter('Shadow')
+    def _shadow(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.restyle().shadow = wanted
+
+    @method
+    def Delete(self) -> object:
+        self.chart.admit_change()
+        self.chart.changed()
+        state = self.chart.state
+        state.title, state.title_typed, state.title_look, state.title_deleted = None, False, TitleLook(), True
+        return EMPTY
+
+
+def linked_title(sheet: Worksheet, formula: str) -> str:
+    values = referenced_values(sheet, formula)
+    return to_text(values[0]) if values and values[0] is not EMPTY else ''
 
 
 class SeriesCollection(VBACollection, Created):

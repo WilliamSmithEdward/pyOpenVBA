@@ -234,8 +234,8 @@ def chart_part(
     kind: ChartKind,
     series: Sequence[SeriesData],
     *,
-    title: str | None = None,
-    titled: bool = False,
+    title: str = "",
+    title_deleted: bool = False,
     legend: bool = True,
     axis_ids: tuple[int, int] | None = None,
     unique: str | None = None,
@@ -246,8 +246,8 @@ def chart_part(
 ) -> str:
     """A chart part, as Excel writes one of this kind.
 
-    ``titled`` gives the chart a title: ``title`` typed in, or with none
-    Excel's automatic one. ``axis_ids`` and ``unique``, the tail every
+    ``title`` is the chart's title element, if it has one, and
+    ``title_deleted`` says ChartTitle.Delete removed it. ``axis_ids`` and ``unique``, the tail every
     series' id shares, are random, as Excel's are, unless given. The last
     four are the chart's DisplayBlanksAs, PlotVisibleOnly,
     ShowDataLabelsOverMaximum and DisplayValueNotAvailableAsBlank,
@@ -299,7 +299,7 @@ def chart_part(
         )
         axes = ""
     return (
-        f'{_HEAD}{title_markup(title) if titled else ""}<c:autoTitleDeleted val="0"/>'
+        f'{_HEAD}{title}<c:autoTitleDeleted val="{int(title_deleted)}"/>'
         f'<c:plotArea><c:layout/>{plot}{axes}</c:plotArea>{_LEGEND if legend else ""}'
         + _display(blanks, visible_only, over_maximum, not_available_as_blank)
         + _TAIL

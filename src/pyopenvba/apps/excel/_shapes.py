@@ -27,6 +27,7 @@ from pyopenvba.interpreter._values import (
     VBASingle,
     error,
     to_bool,
+    to_integer,
     to_number,
     to_text,
 )
@@ -486,6 +487,45 @@ class ShapeObject(_Drawn):
         self.guard("IncrementTop")
         self.shape.top = max(0.0, self.shape.top + _number(Increment))
         self.sheet.drawing_changed()
+        return EMPTY
+
+    @member
+    def HorizontalFlip(self) -> object:
+        return VBAInt(-1 if self.shape.flip_h else 0, "Long")
+
+    @member
+    def VerticalFlip(self) -> object:
+        return VBAInt(-1 if self.shape.flip_v else 0, "Long")
+
+    @method
+    def Flip(self, FlipCmd: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Turns the shape over, msoFlipHorizontal (0) or msoFlipVertical (1); doing it twice turns it back
+        (tests/fixtures/shape_flip_order.json)."""
+        self.guard("Flip")
+        command = int(to_integer(FlipCmd, "Long"))
+        if command not in (0, 1):
+            raise error(-2147024809, "The parameter is incorrect.")
+        shape = self.restyled()
+        if command == 0:
+            shape.flip_h = not shape.flip_h
+        else:
+            shape.flip_v = not shape.flip_v
+        return EMPTY
+
+    @method
+    def ZOrder(self, ZOrderCmd: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Moves the shape to the front (0) or back (1), or one place forward (2) or back (3), among the sheet's
+        shapes, whose order is the drawing's and the Shapes collection's (tests/fixtures/shape_flip_order.json)."""
+        self.guard("ZOrder")
+        command = int(to_integer(ZOrderCmd, "Long"))
+        if command not in (0, 1, 2, 3):
+            raise error(-2147024809, "The parameter is incorrect.")
+        shapes = self.sheet.shapes_
+        place = next(index for index, one in enumerate(shapes) if one is self.shape)
+        target = {0: len(shapes) - 1, 1: 0, 2: min(place + 1, len(shapes) - 1), 3: max(place - 1, 0)}[command]
+        if target != place:
+            shapes.insert(target, shapes.pop(place))
+            self.sheet.drawing_changed()
         return EMPTY
 
     def guard(self, name: str) -> None:

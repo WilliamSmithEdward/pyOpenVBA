@@ -21,7 +21,7 @@ from pyopenvba.apps.excel._pivot_formulas import Piece, Refused, engine_node, fi
     worked_out
 from pyopenvba.apps.excel._pivots import NS, PivotField, decode_text
 from pyopenvba.exceptions import VBAUnsupportedError
-from pyopenvba.interpreter._objects import VBACollection, member, method
+from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, VBAInt, error, string_order, to_integer, to_text
 
 if TYPE_CHECKING:
@@ -298,6 +298,59 @@ class CalculatedFields(VBACollection, ExcelObject):
     @method
     def Add(self, Name: object, Formula: object, UseStandardFormula: object = MISSING) -> object:
         return add(self.table, Name, Formula)
+
+
+#: The note ListFormulas closes its sheet with, as Excel writes it, a blank row in the middle.
+_NOTE = ('When a cell is updated by more than one formula,',
+         'the value is set by the formula with the last solve order.', '',
+         'To change the solve order for multiple calculated items or fields,',
+         'on the Options tab, in the Calculations group, click Fields, Items, & Sets, and then click Solve Order.')
+
+
+def list_formulas(table: PivotTable) -> None:
+    """PivotTable.ListFormulas: a new sheet, added as Worksheets.Add adds one, listing the table's calculated fields
+    and then its calculated items, each with its solve order, name and formula as text, under bold headings, and
+    Excel's note on solve order; A1 is selected (tests/fixtures/pivot_list_formulas.json)."""
+    from pyopenvba._a1 import Area
+    from pyopenvba.apps.excel._model import Range, Sheets, Worksheet
+    from pyopenvba.apps.excel._pivot_items import CalculatedItems
+    from pyopenvba.apps.excel._protection import writing
+    from pyopenvba.apps.excel._typing import Typed
+
+    owner = table.entry
+    calculated = [(to_text(item.vba_get('Name')), to_text(item.vba_get('Formula')))
+                  for item in CalculatedFields(table).vba_items() if isinstance(item, PivotField)]
+    items: list[tuple[str, str]] = []
+    for index, view in enumerate(owner.root.findall(f'{NS}pivotFields/{NS}pivotField')):
+        field = PivotField(owner, index, view)
+        items += [(to_text(item.vba_get('Name')), to_text(item.vba_get('Formula')))
+                  for item in CalculatedItems(field).vba_items() if isinstance(item, ExcelObject)]
+    sheets = owner.sheet.book.vba_get('Worksheets')
+    assert isinstance(sheets, Sheets)
+    sheet = sheets.Add()
+    assert isinstance(sheet, Worksheet)
+    rows: list[tuple[int, int, object, bool]] = []
+    top = 1
+    for heading, label, entries in (('Calculated Field', 'Field', calculated), ('Calculated Item', 'Item', items)):
+        rows += [(top, 1, heading, True), (top + 1, 1, 'Solve Order', True), (top + 1, 2, label, True),
+                 (top + 1, 3, 'Formula', True)]
+        for order, (name, text) in enumerate(entries, start=1):
+            rows += [(top + 1 + order, 1, float(order), False), (top + 1 + order, 2, name, False),
+                     (top + 1 + order, 3, text, False)]
+        top += 3 + len(entries)
+    top += 1
+    rows.append((top, 1, 'Note:', True))
+    rows += [(top + offset, 2, line, False) for offset, line in enumerate(_NOTE) if line]
+    written = Range(sheet, [Area(1, 1, top + len(_NOTE), 3, sheet.name)])
+    with writing(sheet):
+        for row, column, value, _ in rows:
+            written.store_typed(row, column, Typed(value))
+    for row, column, _, bold in rows:
+        if bold:
+            font = Range(sheet, [Area(row, column, row, column, sheet.name)]).vba_get('Font')
+            assert isinstance(font, VBAObject)
+            font.vba_set('Bold', True)
+    Range(sheet, [Area(1, 1, 1, 1, sheet.name)]).vba_call_by_name('Select', [])
 
 
 class Measures:

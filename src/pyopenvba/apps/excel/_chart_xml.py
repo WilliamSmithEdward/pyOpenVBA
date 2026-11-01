@@ -69,6 +69,9 @@ class SeriesData:
     #: In a column or bar chart, InvertIfNegative; in a pie, Explosion (tests/fixtures/chart_series_more.json).
     invert: bool = False
     explosion: int = 0
+    #: HasDataLabels and HasLeaderLines (tests/fixtures/chart_data_labels.json).
+    labels: bool = False
+    leader_lines: bool = True
 
 
 #: Chart.HasDataTable, as Excel writes the table (tests/fixtures/chart_series_more.json).
@@ -205,6 +208,19 @@ def _reference(element: str, formula: str, cache: str, *, numbers: bool) -> str:
     return f"<c:{element}><c:{kind}><c:f>{escape_text(formula)}</c:f>{cache}</c:{kind}></c:{element}>"
 
 
+def _series_labels(kind: ChartKind, leader_lines: bool) -> str:
+    """A series' dLbls once HasDataLabels is on, as Excel writes them; a pie's or doughnut's extension is empty."""
+    shown = int(leader_lines)
+    extension = ("" if kind in ("pie", "doughnut")
+                 else f'<c15:showLeaderLines val="{shown}"/>')
+    tail = (f'<c:ext uri="{{CE6537A1-D6FC-4f65-9D91-7224C49458BB}}"'
+            ' xmlns:c15="http://schemas.microsoft.com/office/drawing/2012/chart"'
+            + (f">{extension}</c:ext>" if extension else "/>"))
+    return ('<c:dLbls><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr><c:showLegendKey val="0"/>'
+            '<c:showVal val="1"/><c:showCatName val="0"/><c:showSerName val="0"/><c:showPercent val="0"/>'
+            f'<c:showBubbleSize val="0"/><c:showLeaderLines val="{shown}"/><c:extLst>{tail}</c:extLst></c:dLbls>')
+
+
 def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
     identity = index if data.series_id is None else data.series_id
     name = ""
@@ -221,6 +237,9 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         )
         element = "xVal" if kind == "scatter" else "cat"
         categories = _reference(element, data.categories, cache, numbers=data.numeric_categories)
+    if data.labels:
+        # A series' data labels come just before its categories, on every kind (tests/fixtures/chart_data_labels.json).
+        categories = _series_labels(kind, data.leader_lines) + categories
     values = _reference(
         "yVal" if kind == "scatter" else "val",
         data.values,
@@ -313,7 +332,8 @@ def chart_part(
         axes = _value_axis(first, second, position="b", between="midCat", formatted=labelled, gridlines=False)
         axes += _value_axis(second, first, position="l", between="midCat", formatted=bool(series), gridlines=True)
     else:
-        leaders = '<c:showLeaderLines val="1"/>'
+        # The group's leader lines go off once any series' do (tests/fixtures/chart_data_labels.json).
+        leaders = f'<c:showLeaderLines val="{int(all(data.leader_lines for data in series))}"/>'
         hole = '<c:holeSize val="50"/>' if kind == "doughnut" else ""
         plot = (
             f'<c:{kind}Chart><c:varyColors val="1"/>{written}{_LABELS.format(extra=leaders)}'

@@ -1989,9 +1989,9 @@ Series,GeoMappingLevel,property,As XlGeoMappingLevel,,MISSING,,
 Series,GeoProjectionType,property,As XlGeoProjectionType,,MISSING,,
 Series,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Series,Has3DEffect,property,As Boolean,,MISSING,,
-Series,HasDataLabels,property,As Boolean,,MISSING,,
+Series,HasDataLabels,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"The series' dLbls showing values, before its categories, on every kind; setting it either way turns HasLeaderLines off."
 Series,HasErrorBars,property,As Boolean,,MISSING,,
-Series,HasLeaderLines,property,As Boolean,,MISSING,,
+Series,HasLeaderLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"True until data labels are set; written in the series' dLbls, and a pie's or doughnut's own leader lines go off once any series' do."
 Series,InvertColor,property,As Long,,MISSING,,
 Series,InvertColorIndex,property,As Long,,MISSING,,
 Series,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The ser's invertIfNegative on column and bar charts; other kinds take the setting silently and write nothing.

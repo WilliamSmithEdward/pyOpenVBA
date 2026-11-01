@@ -1,0 +1,82 @@
+{
+ "measured_at": "2026-11-01T10:12:10.575766+00:00",
+ "source": "Private log As String\n\nPublic Sub Auto_Open()\n    log = log & \"open;\"\nEnd Sub\n\nPublic Sub Auto_Close()\n    log = log & \"close;\"\nEnd Sub\n\nPublic Sub Auto_Activate()\n    log = log & \"activate;\"\nEnd Sub\n\nPublic Function Probe() As String\n    Dim s As String, other As Workbook\n    Set other = Workbooks.Add\n    On Error Resume Next\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoOpen\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoClose\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoClose\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoActivate\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoActivate\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoDeactivate\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros 0\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoDeactivate\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoOpen\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros \"1\"\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros Which:=xlAutoClose\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros Which:=xlAutoClose\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    other.RunAutoMacros xlAutoOpen\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoOpen\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros 5\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros -1\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    Application.Run \"Auto_Open\"\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoOpen\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    log = \"\": Err.Clear\n    ThisWorkbook.RunAutoMacros xlAutoOpen\n    s = s & \"@@@\" & IIf(Err.Number, \"Err \" & Err.Number, \"ok \" & log)\n    other.Close False\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoOpen",
+   "ok open;"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoClose",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoClose",
+   "ok close;"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoActivate",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoActivate",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoDeactivate",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros 0",
+   "Err 1004"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoDeactivate",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoOpen",
+   "ok open;"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros \"1\"",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros Which:=xlAutoClose",
+   "ok close;"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros Which:=xlAutoClose",
+   "ok "
+  ],
+  [
+   "other.RunAutoMacros xlAutoOpen",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoOpen",
+   "ok open;"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros 5",
+   "Err 1004"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros -1",
+   "Err 1004"
+  ],
+  [
+   "Application.Run \"Auto_Open\"",
+   "ok open;"
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoOpen",
+   "ok "
+  ],
+  [
+   "ThisWorkbook.RunAutoMacros xlAutoOpen",
+   "ok open;"
+  ]
+ ]
+}

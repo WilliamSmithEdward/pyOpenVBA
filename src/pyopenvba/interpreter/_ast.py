@@ -270,6 +270,14 @@ class Label(Stmt):
 
 
 @dataclass(slots=True)
+class ProcedureAttribute(Stmt):
+    """An ``Attribute F.VB_Description = ...`` line inside a procedure: metadata an exported module carries, which
+    VBA never runs."""
+
+    text: str = ""
+
+
+@dataclass(slots=True)
 class OnError(Stmt):
     #: "goto", "resume_next" or "clear" (On Error GoTo 0).
     mode: str = "clear"

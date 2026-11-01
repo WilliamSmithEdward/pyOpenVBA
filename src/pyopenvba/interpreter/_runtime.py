@@ -1672,6 +1672,7 @@ class Interpreter:
             A.Erase: cls._do_erase,
             A.ExitStmt: cls._do_exit,
             A.Label: cls._do_label,
+            A.ProcedureAttribute: cls._do_procedure_attribute,
             A.OnError: cls._do_on_error,
             A.Resume: cls._do_resume,
             A.ErrorStmt: cls._do_error,
@@ -1830,6 +1831,9 @@ class Interpreter:
     def _do_label(self, statement: A.Label, frame: Frame) -> None:
         if statement.name.isdigit():
             frame.line_number = int(statement.name)
+
+    def _do_procedure_attribute(self, statement: A.ProcedureAttribute, frame: Frame) -> None:
+        """Metadata VBA never runs: a procedure's description, help id or shortcut key."""
 
     def _do_on_error(self, statement: A.OnError, frame: Frame) -> None:
         # Every On Error statement clears Err (tests/fixtures/vba_semantics/err_lifetime.json).

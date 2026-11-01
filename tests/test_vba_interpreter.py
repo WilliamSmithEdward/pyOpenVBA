@@ -497,6 +497,20 @@ def test_a_statement_vba_has_and_this_lacks_is_unsupported_not_a_compile_error()
     assert "file I/O" in str(raised.value)
 
 
+def test_a_procedure_attribute_is_metadata_that_never_runs() -> None:
+    """An exported module carries a procedure's description, help id and shortcut key as Attribute lines inside it,
+    which VBA keeps out of the code it runs."""
+    assert value(
+        "Function Main(a, b)\n"
+        'Attribute Main.VB_Description = "Adds two"\n'
+        'Attribute Main.VB_ProcData.VB_Invoke_Func = " \\n14"\n'
+        "Attribute Main.VB_HelpID = 7\n"
+        "    Main = a + b\n"
+        "End Function\n",
+        "Main", 2, 3,
+    ) == 5
+
+
 def test_an_unsupported_statement_still_parses_so_the_module_loads() -> None:
     vba = Interpreter()
     vba.add_module(

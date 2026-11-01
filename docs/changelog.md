@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Shapes can be grouped: `ShapeRange.Group` makes a group in its topmost
+  member's place, named and numbered as Excel names and numbers one, and
+  `Shape.Ungroup` puts the shapes back. `GroupItems` finds a member by
+  name, and a group is saved as Excel writes it. 15 live cases agree,
+  `tests/fixtures/shape_group.json`.
+
+- `Shape.Duplicate`, `ShapeRange.Duplicate` and `Shape.ID` answer as
+  Excel's do. A copy lands 12 points right and down, on top, with the
+  next id, and a name of Excel's own making takes the sheet's next
+  number. Flip now mirrors a shape's rotation. 12 live cases agree,
+  `tests/fixtures/shape_duplicate.json`.
+
 - `Shape.Flip`, `HorizontalFlip`, `VerticalFlip` and `ZOrder` answer as
   Excel's do. ZOrder reorders the drawing, which `Shapes` and
   `ZOrderPosition` follow. 15 live cases agree,
@@ -350,6 +362,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A new text box is saved with the fill, line, style and `vert="horz"`
+  Excel gives one. They were left out.
+
+- `GroupItems` on a shape that is no group raises 1004, as Excel does.
+  It raised -2147024809.
 
 - `Shapes.Range(Array("A", "B"))` takes each name in the array, instead
   of raising 13.

@@ -23,6 +23,7 @@ from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
+    VBAArray,
     VBAInt,
     VBASingle,
     error,
@@ -245,7 +246,10 @@ class Shapes(VBACollection, Created):
         """The shapes an argument names, as a range of them."""
         if Index is MISSING:
             raise error(449)
-        wanted: list[object] = [*Index] if isinstance(Index, list) else [Index]  # type: ignore[misc]
+        if isinstance(Index, VBAArray):
+            wanted: list[object] = list(Index.elements())
+        else:
+            wanted = [*Index] if isinstance(Index, list) else [Index]  # type: ignore[misc]
         items = self.vba_items()
         chosen = [self.vba_lookup(one, items) for one in wanted]
         return ShapeRange([one for one in chosen if isinstance(one, ShapeObject)])
@@ -311,6 +315,108 @@ class ShapeRange(VBACollection, Created):
     def Type(self) -> object:
         kinds = {shape.shape.mso_type for shape in self.shapes}
         return VBAInt(next(iter(kinds)) if len(kinds) == 1 else -2, 'Long')
+
+    def shared(self, name: str) -> object:
+        """What every shape in the range reads for ``name``: the one value they share, or for a measurement they
+        do not share Excel's mixed value, -2147483648 (tests/fixtures/shape_range_properties.json)."""
+        values = [shape.vba_get(name) for shape in self.shapes]
+        if all(value == values[0] for value in values[1:]):
+            return values[0]
+        if isinstance(values[0], VBASingle):
+            return VBASingle(-2147483648.0)
+        raise VBAUnsupportedError(f"A ShapeRange whose shapes differ in {name} is not implemented")
+
+    def spread(self, name: str, value: object) -> None:
+        """A setting given to every shape in the range."""
+        for shape in self.shapes:
+            shape.vba_set(name, value)
+
+    @member
+    def Left(self) -> object:
+        return self.shared("Left")
+
+    @setter("Left")
+    def _left(self, value: object) -> None:
+        self.spread("Left", value)
+
+    @member
+    def Top(self) -> object:
+        return self.shared("Top")
+
+    @setter("Top")
+    def _top(self, value: object) -> None:
+        self.spread("Top", value)
+
+    @member
+    def Width(self) -> object:
+        return self.shared("Width")
+
+    @setter("Width")
+    def _width(self, value: object) -> None:
+        self.spread("Width", value)
+
+    @member
+    def Height(self) -> object:
+        return self.shared("Height")
+
+    @setter("Height")
+    def _height(self, value: object) -> None:
+        self.spread("Height", value)
+
+    @member
+    def Rotation(self) -> object:
+        return self.shared("Rotation")
+
+    @setter("Rotation")
+    def _rotation(self, value: object) -> None:
+        self.spread("Rotation", value)
+
+    @member
+    def Visible(self) -> object:
+        return self.shared("Visible")
+
+    @member
+    def AlternativeText(self) -> object:
+        return self.shared("AlternativeText")
+
+    @setter("AlternativeText")
+    def _alternative_text(self, value: object) -> None:
+        self.spread("AlternativeText", value)
+
+    @member
+    def Title(self) -> object:
+        return self.shared("Title")
+
+    @setter("Title")
+    def _title(self, value: object) -> None:
+        self.spread("Title", value)
+
+    @member
+    def LockAspectRatio(self) -> object:
+        return self.shared("LockAspectRatio")
+
+    @setter("LockAspectRatio")
+    def _lock_aspect(self, value: object) -> None:
+        self.spread("LockAspectRatio", value)
+
+    @member
+    def HorizontalFlip(self) -> object:
+        return self.shared("HorizontalFlip")
+
+    @member
+    def VerticalFlip(self) -> object:
+        return self.shared("VerticalFlip")
+
+    @member
+    def Name(self) -> object:
+        if len(self.shapes) != 1:
+            raise error(-2147024891, "Access denied")
+        return self.shapes[0].vba_get("Name")
+
+    @setter("Name")
+    def _name(self, value: object) -> None:
+        # Excel lets no ShapeRange rename its shapes: one shape is a bad parameter, several access denied.
+        raise error(-2147024809 if len(self.shapes) == 1 else -2147024891, "The parameter is incorrect.")
 
     @method
     def Group(self) -> object:

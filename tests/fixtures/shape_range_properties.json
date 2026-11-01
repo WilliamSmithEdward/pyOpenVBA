@@ -1,0 +1,70 @@
+{
+ "measured_at": "2026-11-01T06:56:29.703740+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, r As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 60, 30).Name = \"A\"\n    ws.Shapes.AddShape(msoShapeRectangle, 100, 40, 80, 20).Name = \"B\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set r = ws.Shapes.Range(Array(\"A\")): s = s & \"|\" & r.Left & \",\" & r.Top & \",\" & r.Width & \",\" & r.Height & \",\" & r.Name & \",\" & r.Visible\n    Case 1\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.Left & \",\" & r.Top & \",\" & r.Width & \",\" & r.Height\n    Case 2\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.Name\n    Case 3\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.Visible & \",\" & r.Rotation & \",\" & r.LockAspectRatio & \",\" & r.HorizontalFlip\n    Case 4\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.AlternativeText & \",\" & r.Title\n    Case 5\n        Set r = ws.Shapes.Range(Array(\"A\")): r.Left = 50: r.Top = 60\n    Case 6\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Left = 50\n    Case 7\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Top = 70\n    Case 8\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Width = 200\n    Case 9\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Height = 100\n    Case 10\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Rotation = 30\n    Case 11\n        Set r = ws.Shapes.Range(Array(\"A\")): r.Name = \"Z\"\n    Case 12\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Name = \"Z\"\n    Case 13\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.AlternativeText = \"both\": s = s & \"|\" & ws.Shapes(1).AlternativeText & \",\" & ws.Shapes(2).AlternativeText & \",\" & r.AlternativeText\n    Case 14\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): ws.Shapes(\"A\").Rotation = 10: s = s & \"|\" & r.Rotation\n    Case 15\n        Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.LockAspectRatio = msoTrue: s = s & \"|\" & r.LockAspectRatio & \",\" & ws.Shapes(2).LockAspectRatio\n    End Select\n    Tried = \"ok\" & s & \"|\" & ws.Shapes(\"A\").Left & \",\" & ws.Shapes(\"A\").Top & \",\" & ws.Shapes(\"A\").Width & \",\" & ws.Shapes(\"A\").Height & \",\" & ws.Shapes(\"A\").Rotation & \",\" & ws.Shapes(\"A\").Visible & \";\" & ws.Shapes(2).Name & \",\" & ws.Shapes(2).Left & \",\" & ws.Shapes(2).Top & \",\" & ws.Shapes(2).Width & \",\" & ws.Shapes(2).Height & \",\" & ws.Shapes(2).Rotation & \",\" & ws.Shapes(2).Visible\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & s\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 15\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\")): s = s & \"|\" & r.Left & \",\" & r.Top & \",\" & r.Width & \",\" & r.Height & \",\" & r.Name & \",\" & r.Visible",
+   "ok|10,10,60,30,A,-1|10,10,60,30,0,-1;B,100,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.Left & \",\" & r.Top & \",\" & r.Width & \",\" & r.Height",
+   "ok|-2.147484E+09,-2.147484E+09,-2.147484E+09,-2.147484E+09|10,10,60,30,0,-1;B,100,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.Name",
+   "Err -2147024891"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.Visible & \",\" & r.Rotation & \",\" & r.LockAspectRatio & \",\" & r.HorizontalFlip",
+   "ok|-1,0,0,0|10,10,60,30,0,-1;B,100,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): s = s & \"|\" & r.AlternativeText & \",\" & r.Title",
+   "ok|,|10,10,60,30,0,-1;B,100,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\")): r.Left = 50: r.Top = 60",
+   "ok|50,60,60,30,0,-1;B,100,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Left = 50",
+   "ok|50,10,60,30,0,-1;B,50,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Top = 70",
+   "ok|10,70,60,30,0,-1;B,100,70,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Width = 200",
+   "ok|10,10,200,30,0,-1;B,100,40,200,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Height = 100",
+   "ok|10,10,60,100,0,-1;B,100,40,80,100,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Rotation = 30",
+   "ok|10,10,60,30,30,-1;B,100,40,80,20,30,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\")): r.Name = \"Z\"",
+   "Err -2147024809"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.Name = \"Z\"",
+   "Err -2147024891"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.AlternativeText = \"both\": s = s & \"|\" & ws.Shapes(1).AlternativeText & \",\" & ws.Shapes(2).AlternativeText & \",\" & r.AlternativeText",
+   "ok|both,both,both|10,10,60,30,0,-1;B,100,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): ws.Shapes(\"A\").Rotation = 10: s = s & \"|\" & r.Rotation",
+   "ok|-2.147484E+09|10,10,60,30,10,-1;B,100,40,80,20,0,-1"
+  ],
+  [
+   "Set r = ws.Shapes.Range(Array(\"A\", \"B\")): r.LockAspectRatio = msoTrue: s = s & \"|\" & r.LockAspectRatio & \",\" & ws.Shapes(2).LockAspectRatio",
+   "ok|-1,-1|10,10,60,30,0,-1;B,100,40,80,20,0,-1"
+  ]
+ ]
+}

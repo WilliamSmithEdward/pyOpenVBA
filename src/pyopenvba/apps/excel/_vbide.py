@@ -51,8 +51,50 @@ def editor_source_parts(source: str) -> tuple[str, str]:
     return prefix + found.group(), body[found.end():]
 
 
+#: A procedure's attribute line, which the editor keeps out of sight with its procedure (see _macro_options).
+_PROCEDURE_ATTRIBUTE = re.compile(r'^Attribute\s+[A-Za-z_]\w*\.\w', re.IGNORECASE)
+_PROCEDURE = re.compile(r'^\s*(?:(?:Public|Private|Friend)\s+)?(?:Static\s+)?'
+                        r'(?:Sub|Function|Property\s+(?:Get|Let|Set))\s+([A-Za-z_]\w*)', re.IGNORECASE)
+
+
 def body_lines(source: str) -> list[str]:
-    return editor_source_parts(source)[1].splitlines()
+    """The lines the editor shows: the module's own attributes and each procedure's left out."""
+    return [line for line in editor_source_parts(source)[1].splitlines() if not _PROCEDURE_ATTRIBUTE.match(line)]
+
+
+def hidden_attributes(source: str) -> dict[str, list[str]]:
+    """Each procedure's attribute lines, by its name, which follow its first line."""
+    found: dict[str, list[str]] = {}
+    current: str | None = None
+    continued = False
+    for line in editor_source_parts(source)[1].splitlines():
+        if _PROCEDURE_ATTRIBUTE.match(line) and current is not None:
+            found.setdefault(current, []).append(line)
+            continue
+        if continued:
+            continued = line.endswith(' _')
+            continue
+        matched = _PROCEDURE.match(line)
+        current = matched[1].casefold() if matched else None
+        continued = matched is not None and line.endswith(' _')
+    return found
+
+
+def with_hidden(header: str, lines: list[str], hidden: dict[str, list[str]]) -> str:
+    """The module's source from the lines the editor shows, each procedure's attributes back after its first line."""
+    if not hidden:
+        return header + '\r\n'.join(lines)
+    written: list[str] = []
+    waiting: list[str] = []
+    for line in lines:
+        written.append(line)
+        matched = _PROCEDURE.match(line)
+        if matched is not None:
+            waiting = hidden.get(matched[1].casefold(), [])
+        if waiting and not line.endswith(' _'):
+            written += waiting
+            waiting = []
+    return header + '\r\n'.join(written)
 
 
 def valid_name(name: str) -> None:
@@ -288,7 +330,7 @@ class VBComponent(VBAObject):
             return self.source
         header = editor_source_parts(self.source)[0]
         lines = self.code_module.editor_lines
-        return header + '\r\n'.join(lines) + ('\r\n' if lines else '')
+        return with_hidden(header, lines, hidden_attributes(self.source)) + ('\r\n' if lines else '')
 
     @member
     def Name(self) -> object:
@@ -376,7 +418,7 @@ class CodeModule(VBAObject):
 
     def edit(self, lines: list[str], *, invalidate: bool = True) -> None:
         header = editor_source_parts(self.component.source)[0]
-        source = header + '\r\n'.join(lines)
+        source = with_hidden(header, lines, hidden_attributes(self.component.source))
         if source != self.component.source or lines != self.lines():
             runtime = self.component.project.book.project_runtime
             if runtime is not None:

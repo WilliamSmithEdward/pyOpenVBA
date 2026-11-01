@@ -416,26 +416,26 @@ AxisTitle,Characters,"property, read-only",As Characters,,MISSING,,
 AxisTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 AxisTitle,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 AxisTitle,Format,"property, read-only",As ChartFormat,,MISSING,,
-AxisTitle,Formula,property,As String,,MISSING,,
-AxisTitle,FormulaLocal,property,As String,,MISSING,,
-AxisTitle,FormulaR1C1,property,As String,,MISSING,,
-AxisTitle,FormulaR1C1Local,property,As String,,MISSING,,
+AxisTitle,Formula,property,As String,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,A one-cell reference links the title (made absolute); text without = is typed; =1+2 raises 1004. Other references refused.
+AxisTitle,FormulaLocal,property,As String,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"Measured under en-US, where it is Formula."
+AxisTitle,FormulaR1C1,property,As String,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,The link spelled R1C1; a set takes an absolute R1C1 cell.
+AxisTitle,FormulaR1C1Local,property,As String,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"Measured under en-US, where it is FormulaR1C1."
 AxisTitle,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 AxisTitle,Height,"property, read-only",As Double,,MISSING,,
-AxisTitle,HorizontalAlignment,property,As Variant,,MISSING,,
-AxisTitle,IncludeInLayout,property,As Boolean,,MISSING,,
+AxisTitle,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"Written as the paragraph's algn once set. Ignored while the title is turned, which an upright axis's title is until its orientation is set."
+AxisTitle,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,False writes overlay 1.
 AxisTitle,Left,property,As Double,,MISSING,,
 AxisTitle,Name,"property, read-only",As String,,MISSING,,
-AxisTitle,Orientation,property,As Variant,,MISSING,,
+AxisTitle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"An upright axis's title reads xlUpward until set, with nothing written. -90 to 90 degrees or the named constants, written as bodyPr rot."
 AxisTitle,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
-AxisTitle,Position,property,As XlChartElementPosition,,MISSING,,
-AxisTitle,ReadingOrder,property,As Long,,MISSING,,
+AxisTitle,Position,property,As XlChartElementPosition,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,Reads automatic. Any other position needs native layout and is refused.
+AxisTitle,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,xlRTL and xlLTR write the paragraph's rtl; xlContext clears it.
 AxisTitle,Select,method,Select() As Variant,,MISSING,,
 AxisTitle,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
-AxisTitle,Shadow,property,As Boolean,,MISSING,,
+AxisTitle,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,True writes Excel's outer shadow; False after it an empty effect list.
 AxisTitle,Text,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 AxisTitle,Top,property,As Double,,MISSING,,
-AxisTitle,VerticalAlignment,property,As Variant,,MISSING,,
+AxisTitle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"Excel accepts a set and keeps the title centred, so it reads xlCenter and writes nothing."
 AxisTitle,Width,"property, read-only",As Double,,MISSING,,
 Border,Application,"property, read-only",As Application,,UNASSESSED,,
 Border,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."

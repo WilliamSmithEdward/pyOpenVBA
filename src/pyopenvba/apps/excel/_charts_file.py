@@ -378,7 +378,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                      not_available_as_blank=state.not_available_as_blank)
     from pyopenvba.apps.excel._chart_axes_file import generated
 
-    xml = generated(xml, state)
+    xml = generated(xml, state, lambda formula: linked_title(sheet, formula))
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)

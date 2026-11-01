@@ -80,7 +80,7 @@ Application,ConvertFormula,method,"ConvertFormula(Formula As Variant, FromRefere
 Application,CopyObjectsWithCells,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Application,Cursor,property,As XlMousePointer,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlDefault, xlNorthwestArrow, xlWait and xlIBeam read back; 0 is xlDefault and other values change nothing, over 28 live settings; the model shows no cursor"
-Application,CursorMovement,property,As Long,,MISSING,,
+Application,CursorMovement,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,1 and 2; any other number reads back as 1. Null and text that is no number change nothing.
 Application,CustomListCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"Excel's four lists of day and month names, then those a macro added in the session."
 Application,CutCopyMode,property,As XlCutCopyMode,,VERIFIED,tests/fixtures/paste.json,"0, 1 after Copy and 2 after Cut; False clears the clipboard."
 Application,DataEntryMode,property,As Long,,MISSING,,
@@ -94,7 +94,7 @@ Application,DecimalSeparator,property,As String,,PARTIAL,tests/test_excel_intern
 Application,DefaultFilePath,property,As String,,MISSING,,
 Application,DefaultPivotTableLayoutOptions,"property, read-only",As DefaultPivotTableLayoutOptions,,MISSING,,
 Application,DefaultSaveFormat,property,As XlFileFormat,,MISSING,,
-Application,DefaultSheetDirection,property,As Long,,MISSING,,
+Application,DefaultSheetDirection,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,xlRTL and xlLTR; xlContext and 0 become xlLTR; other numbers change nothing.
 Application,DefaultWebOptions,"property, read-only",As DefaultWebOptions,,MISSING,,
 Application,DeferAsyncQueries,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads False as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,Excel's own lists error 1004; a number past the last does nothing.
@@ -148,7 +148,7 @@ Application,FlashFillMode,property,As Boolean,,PARTIAL,tests/test_excel_applicat
 Application,FormatStaleValues,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,FormulaBarHeight,property,As Long,,MISSING,,
 Application,GenerateGetPivotData,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
-Application,GenerateTableRefs,property,As XlGenerateTableRefs,,MISSING,,
+Application,GenerateTableRefs,property,As XlGenerateTableRefs,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,0 and 1; anything else changes nothing.
 Application,GetCustomListContents,method,GetCustomListContents(ListNum As Long) As Variant,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,A list from 1; error 13 for a number naming none.
 Application,GetCustomListNum,method,GetCustomListNum(ListArray As Variant) As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"A whole list, case aside, or 0; a range is error 1004."
 Application,GetOpenFilename,method,"GetOpenFilename([FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant], [MultiSelect As Variant]) As Variant",,MISSING,,
@@ -157,7 +157,7 @@ Application,GetSaveAsFilename,method,"GetSaveAsFilename([InitialFilename As Vari
 Application,Goto,method,"Goto([Reference As Variant], [Scroll As Variant])",,PARTIAL,tests/fixtures/windows/windows.json,"Activates the range's sheet and selects the range; with Scroll its first cell goes to the top left of the window or of the pane that scrolls. Without a Reference, which goes back to where the last Goto started, it reports itself."
 Application,Height,property,As Double,,MISSING,,
 Application,Help,method,"Help([HelpFile As Variant], [HelpContextID As Variant])",,MISSING,,
-Application,HighQualityModeForGraphics,property,As Boolean,,MISSING,,
+Application,HighQualityModeForGraphics,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,A switch starting False.
 Application,Hinstance,"property, read-only",As Long,,MISSING,,
 Application,HinstancePtr,"property, read-only",As Variant,,MISSING,,
 Application,Hwnd,"property, read-only",As Long,,MISSING,,
@@ -170,7 +170,7 @@ Application,Intersect,method,"Intersect(Arg1 As Range, Arg2 As Range, [Arg3 As V
 Application,IsSandboxed,"property, read-only",As Boolean,,MISSING,,
 Application,Iteration,property,As Boolean,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"Reads and sets the setting from a logical, a number or text, other text being error 13; turned on in automatic mode it works loops out at once. Every calculation then works each loop out over and over, a sheet at a time in the order the sheets were made and row by row, until no number changes by MaxChange or MaxIterations passes are done. calcPr iterate saved, and brought by the first workbook opened; 56 live probes and three saved workbooks."
 Application,LanguageSettings,"property, read-only",As LanguageSettings,,MISSING,,
-Application,LargeOperationCellThousandCount,property,As Long,,MISSING,,
+Application,LargeOperationCellThousandCount,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,1 and up; starts as the measuring machine's Excel had it.
 Application,Left,property,As Double,,MISSING,,
 Application,LibraryPath,"property, read-only",As String,,MISSING,,
 Application,MacroOptions,method,"MacroOptions([Macro As Variant], [Description As Variant], [HasMenu As Variant], [MenuText As Variant], [HasShortcutKey As Variant], [ShortcutKey As Variant], [Category As Variant], [StatusBar As Variant], [HelpContextID As Variant], [HelpFile As Variant], [ArgumentDescriptions As Variant])",,PARTIAL,tests/fixtures/macro_options.json; tests/test_excel_macro_options.py,"Description, HelpContextID, ShortcutKey and a Category of 0 to 14 as attribute lines in the procedure, kept out of the editor's sight; an unknown macro, a key that is no letter and category 40 are 1004. A category by name, ArgumentDescriptions, StatusBar, HelpFile, menus and a workbook-qualified macro are unsupported."
@@ -184,7 +184,7 @@ Application,MaxChange,property,As Double,,VERIFIED,tests/fixtures/iteration.json
 Application,MaxIterations,property,As Long,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"1 to 32767, rounded as a Long is; outside that error 1004, overflow error 6, the setting kept. calcPr iterateCount saved where not 100, and brought by the first workbook opened."
 Application,MaxSupportedCompatibilityVersion,"property, read-only",As Long,,MISSING,,
 Application,MeasurementUnit,property,As Long,no setter,PARTIAL,tests/fixtures/application_members.json,"xlInches, as US English Windows has it; setting it is not implemented."
-Application,MergeInstances,property,As Boolean,,MISSING,,
+Application,MergeInstances,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,A switch starting True.
 Application,MouseAvailable,"property, read-only",As Boolean,,MISSING,,
 Application,MoveAfterReturn,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,MoveAfterReturnDirection,property,As XlDirection,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"The four directions read back, 1 to 4 as down, right, up and left, any other number as set and 65536 more where it is not positive, over 36 live settings"
@@ -195,7 +195,7 @@ Application,NetworkTemplatesPath,"property, read-only",As String,,MISSING,,
 Application,NewWorkbook,event,NewWorkbook(Wb As Workbook),,MISSING,,
 Application,NextLetter,method,NextLetter() As Workbook,,MISSING,,
 Application,ODBCErrors,"property, read-only",As ODBCErrors,,MISSING,,
-Application,ODBCTimeout,property,As Long,,MISSING,,
+Application,ODBCTimeout,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,0 and up; starts as the measuring machine's Excel had it.
 Application,OLEDBErrors,"property, read-only",As OLEDBErrors,,MISSING,,
 Application,OnKey,method,"OnKey(Key As String, [Procedure As Variant])",,MISSING,,
 Application,OnRepeat,method,"OnRepeat(Text As String, Procedure As String)",,MISSING,,
@@ -1898,10 +1898,10 @@ Range,SetCellDataTypeFromCell,method,SetCellDataTypeFromCell(SourceCell As Range
 Range,SetPhonetic,method,SetPhonetic(),,MISSING,,
 Range,Show,method,Show() As Variant,,MISSING,,
 Range,ShowCard,method,ShowCard(),,MISSING,,
-Range,ShowDependents,method,ShowDependents([Remove As Variant]) As Variant,,MISSING,,
+Range,ShowDependents,method,ShowDependents([Remove As Variant]) As Variant,,PARTIAL,tests/fixtures/tracer_arrows.json; tests/test_excel_tracer_arrows.py,"Answers True, with or without dependents; 1004 on a protected sheet. Draws no arrows."
 Range,ShowDetail,property,As Variant,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
-Range,ShowErrors,method,ShowErrors() As Variant,,MISSING,,
-Range,ShowPrecedents,method,ShowPrecedents([Remove As Variant]) As Variant,,MISSING,,
+Range,ShowErrors,method,ShowErrors() As Variant,,PARTIAL,tests/fixtures/tracer_arrows.json; tests/test_excel_tracer_arrows.py,"From a cell holding an error, answers the cell the error starts in, through the first cell each reads that holds one; any other range answers itself. 1004 on a protected sheet."
+Range,ShowPrecedents,method,ShowPrecedents([Remove As Variant]) As Variant,,PARTIAL,tests/fixtures/tracer_arrows.json; tests/test_excel_tracer_arrows.py,"Answers True, with or without precedents; 1004 on a protected sheet. Draws no arrows."
 Range,ShrinkToFit,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,Sort,method,"Sort([Key1 As Variant], [Order1 As XlSortOrder], [Key2 As Variant], [Type As Variant], [Order2 As XlSortOrder], [Key3 As Variant], [Order3 As XlSortOrder], [Header As XlYesNoGuess], [OrderCustom As Variant], [MatchCase As Variant], [Orientation As XlSortOrientation], [SortMethod As XlSortMethod], [DataOption1 As XlSortDataOption], [DataOption2 As XlSortDataOption], [DataOption3 As XlSortDataOption], [SubField1 As Variant]) As Variant",no SubField1,PARTIAL,tests/fixtures/sort.json; tests/fixtures/sort_order.json; tests/fixtures/sort_text.json; tests/fixtures/sort_keys.json; tests/fixtures/sort_keys_cjk.json; tests/fixtures/custom_orders.json; tests/fixtures/autofilter_edits.json; tests/fixtures/cse_array_edits.json,"Up to three keys, orders, headers kept, guessed or not, case, orientation and text as numbers, in Excel's order for text in Latin, Greek and Cyrillic with their accents, marks, punctuation and symbols, and in kana, kanji, CJK symbols and full-width forms, kanji in Japanese order under ExcelApplication(locale=""ja-JP""), which is Windows' word sort; other scripts, iteration marks, text that begins with a combining mark, merged cells and several areas report themselves unsupported. On a filtered sheet the visible rows sort among themselves."""""""
 Range,SortSpecial,method,"SortSpecial([SortMethod As XlSortMethod], [Key1 As Variant], [Order1 As XlSortOrder], [Type As Variant], [Key2 As Variant], [Order2 As XlSortOrder], [Key3 As Variant], [Order3 As XlSortOrder], [Header As XlYesNoGuess], [OrderCustom As Variant], [MatchCase As Variant], [Orientation As XlSortOrientation], [DataOption1 As XlSortDataOption], [DataOption2 As XlSortDataOption], [DataOption3 As XlSortDataOption]) As Variant",,MISSING,,
@@ -2039,7 +2039,7 @@ SeriesCollection,NewSeries,method,NewSeries() As Series,,PARTIAL,tests/fixtures/
 SeriesCollection,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,Its chart.
 SeriesCollection,Paste,method,"Paste([Rowcol As XlRowCol], [SeriesLabels As Variant], [CategoryLabels As Variant], [Replace As Variant], [NewSeries As Variant]) As Variant",,MISSING,,
 Shape,Adjustments,"property, read-only",As Adjustments,,MISSING,,
-Shape,AlternativeText,property,As String,,MISSING,,
+Shape,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as cNvPr descr; empty removes it. Changing a loaded shape's is refused.
 Shape,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Shape,Apply,method,Apply(),,MISSING,,
 Shape,AutoShapeType,property,As MsoAutoShapeType,no setter,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2057,7 +2057,7 @@ Shape,Copy,method,Copy(),,UNASSESSED,,
 Shape,CopyPicture,method,"CopyPicture([Appearance As Variant], [Format As Variant])",,MISSING,,
 Shape,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Shape,Cut,method,Cut(),,MISSING,,
-Shape,Decorative,property,As MsoTriState,,MISSING,,
+Shape,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as the adec:decorative extension after the creation id. Changing a loaded shape's is refused.
 Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
 Shape,Duplicate,method,Duplicate() As Shape,,MISSING,,
@@ -2073,14 +2073,14 @@ Shape,Height,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; 
 Shape,HorizontalFlip,"property, read-only",As MsoTriState,,MISSING,,
 Shape,Hyperlink,"property, read-only",As Hyperlink,,MISSING,,
 Shape,ID,"property, read-only",As Long,,MISSING,,
-Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,MISSING,,
-Shape,IncrementRotation,method,IncrementRotation(Increment As Single),,MISSING,,
-Shape,IncrementTop,method,IncrementTop(Increment As Single),,MISSING,,
+Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's left edge."
+Shape,IncrementRotation,method,IncrementRotation(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Adds to Rotation as given.
+Shape,IncrementTop,method,IncrementTop(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's top edge."
 Shape,Left,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Line,"property, read-only",As LineFormat,,MISSING,,
 Shape,LinkFormat,"property, read-only",As LinkFormat,,MISSING,,
-Shape,LockAspectRatio,property,As MsoTriState,,MISSING,,
-Shape,Locked,property,As Boolean,,MISSING,,
+Shape,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as spLocks noChangeAspect; msoFalse after it leaves an empty spLocks.
+Shape,Locked,property,As Boolean,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,False writes clientData fLocksWithSheet 0.
 Shape,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 Shape,Name,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Nodes,"property, read-only",As ShapeNodes,,MISSING,,
@@ -2094,7 +2094,7 @@ Shape,Placement,property,As XlPlacement,no setter,PARTIAL,tests/fixtures/excel_m
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
 Shape,RerouteConnections,method,RerouteConnections(),,MISSING,,
-Shape,Rotation,property,As Single,,MISSING,,
+Shape,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,The file keeps the angle as given; reads wrap it into 0 to 360. Between 45 and 135 or 225 and 315 degrees the anchor holds the box turned on its centre.
 Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
 Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
 Shape,Select,method,Select([Replace As Variant]),,UNASSESSED,,
@@ -2107,7 +2107,7 @@ Shape,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
 Shape,TextFrame,"property, read-only",As TextFrame,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,TextFrame2,"property, read-only",As TextFrame2,,UNASSESSED,,
 Shape,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
-Shape,Title,property,As String,,MISSING,,
+Shape,Title,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,Written as cNvPr title. Changing a loaded shape's is refused.
 Shape,Top,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2738,8 +2738,8 @@ Workbook,ReadOnlyRecommended,property,As Boolean,,PARTIAL,tests/fixtures/workboo
 Workbook,RefreshAll,method,RefreshAll(),,PARTIAL,tests/test_excel_pivot_shared_caches.py; tests/fixtures/pivot_shared_caches; tests/test_excel_calculate_order.py; tests/fixtures/calculate_order.json,"Refreshes the workbook's queries, then every pivot cache a table uses from the last to the first, passing over one whose EnableRefresh is off without an error, and calculates once after them all. Other connections, background refresh and the order of queries against pivot caches are unmeasured."
 Workbook,RejectAllChanges,method,"RejectAllChanges([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
 Workbook,ReloadAs,method,ReloadAs(Encoding As MsoEncoding),,MISSING,,
-Workbook,RemoveDocumentInformation,method,RemoveDocumentInformation(RemoveDocInfoType As XlRemoveDocInfoType),,MISSING,,
-Workbook,RemovePersonalInformation,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as the workbookPr's filterPrivacy and read back; setting it leaves the workbook unsaved. The model's saves remove nothing for it.
+Workbook,RemoveDocumentInformation,method,RemoveDocumentInformation(RemoveDocInfoType As XlRemoveDocInfoType),,PARTIAL,tests/fixtures/remove_document_information.json; tests/test_excel_remove_document_information.py,"Document properties and All empty the built-in properties, drop custom ones and turn RemovePersonalInformation on; a save then writes no last author. Unknown numbers are error 5. Workbooks holding comments, and kinds not measured, are refused."
+Workbook,RemovePersonalInformation,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py; tests/fixtures/remove_document_information.json,"Saved as the workbookPr's filterPrivacy and read back. While on, a save writes the author, last author, manager and company empty, though the open workbook still reads them."
 Workbook,RemoveUser,method,RemoveUser(Index As Long),,MISSING,,
 Workbook,Reply,method,Reply(),,MISSING,,
 Workbook,ReplyAll,method,ReplyAll(),,MISSING,,
@@ -2878,7 +2878,7 @@ Worksheet,Cells,"property, read-only",As Range,,UNASSESSED,,
 Worksheet,Change,event,Change(Target As Range),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for writes of Value, Formula and the rest, clears, inserts and deletes, Copy, FillDown, AutoFill, DataSeries and Replace, with the cells as Target, as Excel raises it; Sort, Merge and formats raise none (see _events)."
 Worksheet,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Worksheet,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
-Worksheet,CircleInvalid,method,CircleInvalid(),,MISSING,,
+Worksheet,CircleInvalid,method,CircleInvalid(),,PARTIAL,tests/fixtures/tracer_arrows.json; tests/test_excel_tracer_arrows.py,"Answers Empty, protected sheet or not. Draws no circles."
 Worksheet,CircularReference,"property, read-only",As Range,,VERIFIED,tests/fixtures/iteration.json; tests/fixtures/self_reference.json; tests/test_excel_iteration.py,"A cell of a loop on the sheet, or Nothing with none or with Iteration on. A loop is found through the cells a formula reads as it is worked out, so ROWS, ROW, CELL(""address""), FORMULATEXT, an IF branch not taken and a MATCH stopping before the cell close none. Of two cells of one loop, or two loops on a sheet, Excel names either run to run; the model names the latest that closed one."
 Worksheet,ClearArrows,method,ClearArrows(),,PARTIAL,tests/fixtures/clear_arrows.json; tests/test_excel_clear_arrows.py,"Takes away tracer arrows, which the model never draws; error 1004 on a protected sheet."
 Worksheet,ClearCircles,method,ClearCircles(),,PARTIAL,tests/fixtures/clear_arrows.json; tests/test_excel_clear_arrows.py,"Takes away validation circles, which the model never draws, protected sheet or not."

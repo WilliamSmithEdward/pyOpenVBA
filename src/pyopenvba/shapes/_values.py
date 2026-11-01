@@ -209,6 +209,15 @@ class Shape:
     #: Word only: the anchor's relativeHeight, which is the order Word
     #: reports its floating shapes in.  It rises as shapes are added.
     z_order: int = 0
+    #: Excel: AlternativeText and Title, kept as the file's descr and title.
+    description: str = ""
+    title: str = ""
+    decorative: bool = False
+    #: Excel: Rotation as given, which the file keeps unwrapped; reads wrap it into 0 to 360.
+    rotation: float = 0.0
+    #: Excel: LockAspectRatio once set, None until then; Locked.
+    lock_aspect: bool | None = None
+    locked: bool = True
 
     @property
     def mso_type(self) -> int:

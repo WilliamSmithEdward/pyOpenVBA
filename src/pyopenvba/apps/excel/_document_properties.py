@@ -31,7 +31,7 @@ import re
 import sys
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Final
 
 from pyopenvba._a1 import Area, quote_sheet, split_sheet
@@ -397,6 +397,8 @@ class Properties:
     custom: list[Custom] = field(default_factory=_custom)
     #: True where the file's custom.xml holds a value of a type the model does not read: the part is kept as it is.
     opaque: bool = False
+    #: True once RemoveDocumentInformation took the document properties away: a save then writes no last author.
+    last_author_removed: bool = False
 
 
 def state(book: Workbook) -> Properties:
@@ -914,13 +916,49 @@ def stamp(book: Workbook) -> Properties:
     Excel's application and security."""
     found = state(book)
     saved = to_utc(_now(book))
-    found.builtin[LAST_AUTHOR] = book.application.user_name
+    found.builtin[LAST_AUTHOR] = None if found.last_author_removed else book.application.user_name
     found.builtin[SAVED] = saved
     if found.builtin[CREATED] is None:
         found.builtin[CREATED] = saved
     found.builtin[APPLICATION] = "Microsoft Excel"
     found.builtin[SECURITY] = VBAInt(0, "Long")
     return found
+
+
+#: XlRemoveDocInfoType: Comments 1, RemovePersonalInformation 4, the rest through InlineWebExtensions, and All 99.
+REMOVALS: Final = frozenset({1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 99})
+
+
+def remove_information(book: Workbook, kind: object) -> None:
+    """Workbook.RemoveDocumentInformation, as measured (tests/fixtures/remove_document_information.json).
+
+    Document properties (8) and All (99) empty every built-in text property a value was given, drop the custom
+    properties, take the last author away and turn RemovePersonalInformation on; RemovePersonalInformation (4) turns
+    it on. Comments (1) and defined-name comments (18) were measured on a workbook holding neither and change nothing
+    there; a workbook holding comments, and the other kinds, are refused. Anything else is error 5.
+    """
+    from pyopenvba.interpreter._values import error, to_integer
+
+    wanted = int(to_integer(kind, "Long"))
+    if wanted not in REMOVALS:
+        raise error(5)
+    if wanted in (1, 99) and any(getattr(sheet, "notes", None) for sheet in book.sheets_):
+        raise VBAUnsupportedError("Removing the comments of a workbook is not implemented")
+    if wanted in (18, 99) and any(entry.comment for entry in book.names_.entries):
+        raise VBAUnsupportedError("Removing defined name comments is not implemented")
+    if wanted not in (1, 4, 8, 18, 99):
+        raise VBAUnsupportedError("This kind of document information removal is not implemented")
+    if wanted in (4, 8, 99):
+        book.remove_personal = True
+    if wanted in (8, 99):
+        found = state(book)
+        for index, (_name, kind_of, _element) in enumerate(BUILTIN):
+            if kind_of == STRING and found.builtin[index] is not None and index != APPLICATION:
+                found.builtin[index] = ""
+        found.builtin[LAST_AUTHOR] = None
+        found.last_author_removed = True
+        if not found.opaque:
+            found.custom.clear()
 
 
 def write(book: Workbook, package: OpcFile) -> None:
@@ -932,8 +970,16 @@ def write(book: Workbook, package: OpcFile) -> None:
             resolved = _resolved(book, entry.link) if entry.link else None
             if resolved is not None:
                 entry.kind, entry.value = resolved
-    package.write(CORE_PART, _core(found).encode("utf-8"))
-    package.write(APP_PART, _app(book, found).encode("utf-8"))
+    written = found
+    if book.remove_personal:
+        # A workbook that removes personal information is saved with no author, last author, manager or company,
+        # though the open workbook still reads them (tests/fixtures/remove_document_information.json).
+        written = replace(found, builtin=list(found.builtin))
+        for slot in (AUTHOR, LAST_AUTHOR, _AT["Manager"], COMPANY):
+            if written.builtin[slot] is not None:
+                written.builtin[slot] = ""
+    package.write(CORE_PART, _core(written).encode("utf-8"))
+    package.write(APP_PART, _app(book, written).encode("utf-8"))
     _related(package, CORE_PART)
     _related(package, APP_PART)
     if found.opaque:

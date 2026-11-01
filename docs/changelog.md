@@ -7,6 +7,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Shape.Flip`, `HorizontalFlip`, `VerticalFlip` and `ZOrder` answer as
+  Excel's do. ZOrder reorders the drawing, which `Shapes` and
+  `ZOrderPosition` follow. 15 live cases agree,
+  `tests/fixtures/shape_flip_order.json`.
+
+- ShapeRange's Left, Top, Width, Height, Rotation, AlternativeText,
+  Title, LockAspectRatio, the flips and Name answer as Excel's do. A
+  read answers the value the shapes share, or Excel's mixed value where
+  their measurements differ, and a set reaches every shape. 16 live
+  cases agree, `tests/fixtures/shape_range_properties.json`.
+
+- Shapes can be hidden and shown: `Shape.Visible` and
+  `ShapeRange.Visible` read and set as Excel's do, written as the
+  shape's `hidden`. 10 live cases agree, `tests/fixtures/shape_visible.json`.
+
 - `Chart.Legend` and a `Legend` object answer as Excel's do: Position,
   IncludeInLayout, Shadow and Delete. A chart without a legend raises
   1004. 17 live cases agree, `tests/fixtures/chart_legend.json`.
@@ -335,6 +350,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- `Shapes.Range(Array("A", "B"))` takes each name in the array, instead
+  of raising 13.
 
 - A Range given to `Series.Values`, `Series.XValues` or
   `Axis.CategoryNames` by Let links the series to its cells, as in

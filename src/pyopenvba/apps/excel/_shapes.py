@@ -81,6 +81,8 @@ FORM_CONTROLS: dict[int, str] = {
 #: Measured rather than assumed: it is not 1004 but the HRESULT behind
 #: "The item with the specified name wasn't found".
 ERR_NO_SUCH_SHAPE = -2147024809
+#: Placement's xlMoveAndSize, xlMove and xlFreeFloating as the anchor's editAs (tests/fixtures/chart_object_more.json).
+PLACEMENTS = ("", "oneCell", "absolute")
 
 
 class _Drawn(Created):
@@ -705,8 +707,9 @@ class ShapeObject(_Drawn):
 
     @member
     def Placement(self) -> object:
-        """xlMoveAndSize, which is what a new shape gets."""
-        return VBAInt(1, "Long")
+        """xlMoveAndSize, xlMove or xlFreeFloating, as the anchor's editAs holds it; a new shape gets
+        xlMoveAndSize."""
+        return VBAInt(PLACEMENTS.index(self.shape.edit_as) + 1, "Long")
 
     # -- where it is
 

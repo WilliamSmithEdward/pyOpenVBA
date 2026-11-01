@@ -514,7 +514,7 @@ Chart,Calculate,event,Calculate(),,MISSING,,
 Chart,CategoryLabelLevel,property,As XlCategoryLabelLevel,,MISSING,,
 Chart,ChartArea,"property, read-only",As ChartArea,,MISSING,,
 Chart,ChartColor,property,As Variant,,MISSING,,
-Chart,ChartGroups,method,ChartGroups([Index As Variant]) As Object,,MISSING,,
+Chart,ChartGroups,method,ChartGroups([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"The chart's one group, or it by index; any index but 1 raises 1004."
 Chart,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,MISSING,,
 Chart,ChartStyle,property,As Variant,,MISSING,,
 Chart,ChartTitle,"property, read-only",As ChartTitle,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json,"Reading it gives a chart with no title Excel's automatic one, as Excel does. Imported chart content stays read only."
@@ -606,6 +606,50 @@ Chart,Tab,"property, read-only",As Tab,,MISSING,,
 Chart,Unprotect,method,Unprotect([Password As Variant]),,MISSING,,
 Chart,Visible,property,As XlSheetVisibility,,MISSING,,
 Chart,Walls,"property, read-only",As Walls,,MISSING,,
+ChartGroup,Application,"property, read-only",As Application,,MISSING,,
+ChartGroup,AxisGroup,property,As XlAxisGroup,,MISSING,,
+ChartGroup,BinsCountValue,property,As Long,,MISSING,,
+ChartGroup,BinsOverflowEnabled,property,As Boolean,,MISSING,,
+ChartGroup,BinsOverflowValue,property,As Double,,MISSING,,
+ChartGroup,BinsType,property,As XlBinsType,,MISSING,,
+ChartGroup,BinsUnderflowEnabled,property,As Boolean,,MISSING,,
+ChartGroup,BinsUnderflowValue,property,As Double,,MISSING,,
+ChartGroup,BinWidthValue,property,As Double,,MISSING,,
+ChartGroup,BubbleScale,property,As Long,,MISSING,,
+ChartGroup,CategoryCollection,method,CategoryCollection([Index As Variant]) As Object,,MISSING,,
+ChartGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
+ChartGroup,DoughnutHoleSize,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"10 to 90, a doughnut's holeSize, 50 until set; other kinds read 0 and keep it unwritten. Out of range raises 1004."
+ChartGroup,DownBars,"property, read-only",As DownBars,,MISSING,,
+ChartGroup,DropLines,"property, read-only",As DropLines,,MISSING,,
+ChartGroup,FirstSliceAngle,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"0 to 360, a pie's or doughnut's firstSliceAng; out of range raises 1004."
+ChartGroup,FullCategoryCollection,method,FullCategoryCollection([Index As Variant]) As Object,,MISSING,,
+ChartGroup,GapWidth,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"150 until set, 0 to 500, a bar or column chart's gapWidth; other kinds keep it unwritten. Out of range raises 1004."
+ChartGroup,Has3DShading,property,As Boolean,,MISSING,,
+ChartGroup,HasDropLines,property,As Boolean,,MISSING,,
+ChartGroup,HasHiLoLines,property,As Boolean,,MISSING,,
+ChartGroup,HasRadarAxisLabels,property,As Boolean,,MISSING,,
+ChartGroup,HasSeriesLines,property,As Boolean,,MISSING,,
+ChartGroup,HasUpDownBars,property,As Boolean,,MISSING,,
+ChartGroup,HiLoLines,"property, read-only",As HiLoLines,,MISSING,,
+ChartGroup,Index,"property, read-only",As Long,,MISSING,,
+ChartGroup,Overlap,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"A bar or column chart's overlap after its gap width, -100 to 100; lines, areas and scatter charts read 100. Setting it on those is refused."
+ChartGroup,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,The Chart.
+ChartGroup,RadarAxisLabels,"property, read-only",As TickLabels,,MISSING,,
+ChartGroup,SecondPlotSize,property,As Long,,MISSING,,
+ChartGroup,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,MISSING,,
+ChartGroup,SeriesLines,"property, read-only",As SeriesLines,,MISSING,,
+ChartGroup,ShowNegativeBubbles,property,As Boolean,,MISSING,,
+ChartGroup,SizeRepresents,property,As XlSizeRepresents,,MISSING,,
+ChartGroup,SplitType,property,As XlChartSplitType,,MISSING,,
+ChartGroup,SplitValue,property,As Variant,,MISSING,,
+ChartGroup,UpBars,"property, read-only",As UpBars,,MISSING,,
+ChartGroup,VaryByCategories,property,As Boolean,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,The group's varyColors; True on pies and doughnuts until set.
+ChartGroups,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+ChartGroups,Application,"property, read-only",As Application,,MISSING,,
+ChartGroups,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,1 for a chart of one kind.
+ChartGroups,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
+ChartGroups,Item,method,Item(Index As Variant) As ChartGroup,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,The group at 1; any other index raises 1004.
+ChartGroups,Parent,"property, read-only",As Object,,MISSING,,
 ChartObject,Activate,method,Activate() As Variant,,MISSING,,
 ChartObject,Application,"property, read-only",As Application,,MISSING,,
 ChartObject,BottomRightCell,"property, read-only",As Range,,MISSING,,

@@ -40,8 +40,6 @@ def run(app: ExcelApplication, tmp_path_factory: pytest.TempPathFactory) -> tupl
 
 @pytest.mark.parametrize('index', range(len(RECORD['cases'])))
 def test_each_case_as_excel_answered(run: tuple[list[str], Path], index: int) -> None:
-    if 'ColumnWidth' in RECORD['cases'][index][0]:
-        pytest.skip('a chart object does not yet move with the columns it is placed over')
     assert run[0][index] == RECORD['cases'][index][1]
 
 

@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Shapes and chart objects follow the cells under them as Excel moves
+  them when column widths, row heights, hidden columns and rows or the
+  standard width change. xlMoveAndSize keeps the cells under both corners
+  and how far into them the corners are. xlMove keeps the top left one
+  and its size. xlFreeFloating stays put. Shape.Placement can now be set,
+  and TopLeftCell answers the cell a shape is anchored to, hidden or not.
+  Measured in `tests/fixtures/shape_cell_moves.json`.
+
 - ChartObject.RoundedCorners and ChartObject.Shadow, read, set, saved
   and read back as Excel writes them. ChartObject answers TopLeftCell,
   BottomRightCell and Application. ChartGroup answers Application,

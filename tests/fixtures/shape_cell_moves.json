@@ -1,0 +1,174 @@
+{
+ "measured_at": "2026-11-01T21:10:59.959626+00:00",
+ "source": "Private Function Where(ByVal sh As Object) As String\n    Where = sh.Left & \",\" & sh.Top & \",\" & sh.Width & \",\" & sh.Height & \",\" & sh.TopLeftCell.Address(0, 0) & \",\" & sh.BottomRightCell.Address(0, 0)\nEnd Function\n\nPrivate Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Shape, co As ChartObject\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set sh = ws.Shapes.AddShape(msoShapeRectangle, 110, 20, 120, 40)\n    Set co = ws.ChartObjects.Add(70, 50, 150, 60)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n    Case 1\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"A:B\").ColumnWidth = 20\n    Case 2\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"C\").ColumnWidth = 30\n    Case 3\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"E\").ColumnWidth = 30\n    Case 4\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"C\").ColumnWidth = 2\n    Case 5\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"C\").ColumnWidth = 0\n    Case 6\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"A:Z\").ColumnWidth = 3\n    Case 7\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Rows(\"1:2\").RowHeight = 40\n    Case 8\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Rows(\"3\").RowHeight = 50\n    Case 9\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Rows(\"2\").RowHeight = 3\n    Case 10\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"B\").Hidden = True\n    Case 11\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Rows(\"2\").Hidden = True\n    Case 12\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.Columns(\"C\").AutoFit\n    Case 13\n        sh.Placement = xlMoveAndSize: co.Placement = xlMoveAndSize\n        ws.StandardWidth = 12\n    Case 14\n        sh.Placement = xlMove: co.Placement = xlMove\n    Case 15\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"A:B\").ColumnWidth = 20\n    Case 16\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"C\").ColumnWidth = 30\n    Case 17\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"E\").ColumnWidth = 30\n    Case 18\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"C\").ColumnWidth = 2\n    Case 19\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"C\").ColumnWidth = 0\n    Case 20\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"A:Z\").ColumnWidth = 3\n    Case 21\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Rows(\"1:2\").RowHeight = 40\n    Case 22\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Rows(\"3\").RowHeight = 50\n    Case 23\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Rows(\"2\").RowHeight = 3\n    Case 24\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"B\").Hidden = True\n    Case 25\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Rows(\"2\").Hidden = True\n    Case 26\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.Columns(\"C\").AutoFit\n    Case 27\n        sh.Placement = xlMove: co.Placement = xlMove\n        ws.StandardWidth = 12\n    Case 28\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n    Case 29\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"A:B\").ColumnWidth = 20\n    Case 30\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"C\").ColumnWidth = 30\n    Case 31\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"E\").ColumnWidth = 30\n    Case 32\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"C\").ColumnWidth = 2\n    Case 33\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"C\").ColumnWidth = 0\n    Case 34\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"A:Z\").ColumnWidth = 3\n    Case 35\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Rows(\"1:2\").RowHeight = 40\n    Case 36\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Rows(\"3\").RowHeight = 50\n    Case 37\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Rows(\"2\").RowHeight = 3\n    Case 38\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"B\").Hidden = True\n    Case 39\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Rows(\"2\").Hidden = True\n    Case 40\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.Columns(\"C\").AutoFit\n    Case 41\n        sh.Placement = xlFreeFloating: co.Placement = xlFreeFloating\n        ws.StandardWidth = 12\n    End Select\n    Tried = \"ok \" & Where(sh) & \"|\" & Where(co)\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 41\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "xlMoveAndSize: ",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"A:B\").ColumnWidth = 20",
+   "ok 231.5,20,120,40,C2,E5|130.75,50,210.75,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"C\").ColumnWidth = 30",
+   "ok 110,20,233.25,40,C2,E5|70,50,263.25,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"E\").ColumnWidth = 30",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"C\").ColumnWidth = 2",
+   "ok 110,20,86.25,40,C2,E5|70,50,116.25,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"C\").ColumnWidth = 0",
+   "ok 96,20,86,40,C2,E5|70,50,102,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"A:Z\").ColumnWidth = 3",
+   "ok 53,20,44.25,40,C2,E5|39.25,50,58.5,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(\"1:2\").RowHeight = 40",
+   "ok 110,44.75,120,64.75,C2,E5|70,99.5,150,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(\"3\").RowHeight = 50",
+   "ok 110,20,120,74.5,C2,E5|70,84.5,150,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(\"2\").RowHeight = 3",
+   "ok 110,17.75,120,30.25,C2,E5|70,38,150,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"B\").Hidden = True",
+   "ok 62,20,120,40,C2,E5|48,50,124,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(\"2\").Hidden = True",
+   "ok 110,15,120,30,C2,E5|70,35,150,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"C\").AutoFit",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlMoveAndSize: ws.StandardWidth = 12",
+   "ok 147.5,20,157.5,40,C2,E5|88.75,50,206.25,60,B4,E8"
+  ],
+  [
+   "xlMove: ",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlMove: ws.Columns(\"A:B\").ColumnWidth = 20",
+   "ok 231.5,20,120,40,C2,E5|130.75,50,150,60,B4,D8"
+  ],
+  [
+   "xlMove: ws.Columns(\"C\").ColumnWidth = 30",
+   "ok 110,20,120,40,C2,C5|70,50,150,60,B4,C8"
+  ],
+  [
+   "xlMove: ws.Columns(\"E\").ColumnWidth = 30",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlMove: ws.Columns(\"C\").ColumnWidth = 2",
+   "ok 110,20,120,40,C2,F5|70,50,150,60,B4,F8"
+  ],
+  [
+   "xlMove: ws.Columns(\"C\").ColumnWidth = 0",
+   "ok 96,20,120,40,C2,F5|70,50,150,60,B4,F8"
+  ],
+  [
+   "xlMove: ws.Columns(\"A:Z\").ColumnWidth = 3",
+   "ok 53,20,120,40,C2,I5|39.25,50,150,60,B4,J8"
+  ],
+  [
+   "xlMove: ws.Rows(\"1:2\").RowHeight = 40",
+   "ok 110,44.75,120,40,C2,E3|70,99.5,150,60,B4,E8"
+  ],
+  [
+   "xlMove: ws.Rows(\"3\").RowHeight = 50",
+   "ok 110,20,120,40,C2,E3|70,84.5,150,60,B4,E8"
+  ],
+  [
+   "xlMove: ws.Rows(\"2\").RowHeight = 3",
+   "ok 110,17.75,120,40,C2,E5|70,38,150,60,B4,E8"
+  ],
+  [
+   "xlMove: ws.Columns(\"B\").Hidden = True",
+   "ok 62,20,120,40,C2,E5|48,50,150,60,B4,F8"
+  ],
+  [
+   "xlMove: ws.Rows(\"2\").Hidden = True",
+   "ok 110,15,120,40,C2,E5|70,35,150,60,B4,E8"
+  ],
+  [
+   "xlMove: ws.Columns(\"C\").AutoFit",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlMove: ws.StandardWidth = 12",
+   "ok 147.5,20,120,40,C2,E5|88.75,50,150,60,B4,D8"
+  ],
+  [
+   "xlFreeFloating: ",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"A:B\").ColumnWidth = 20",
+   "ok 110,20,120,40,B2,C5|70,50,150,60,A4,C8"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"C\").ColumnWidth = 30",
+   "ok 110,20,120,40,C2,C5|70,50,150,60,B4,C8"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"E\").ColumnWidth = 30",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"C\").ColumnWidth = 2",
+   "ok 110,20,120,40,C2,F5|70,50,150,60,B4,F8"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"C\").ColumnWidth = 0",
+   "ok 110,20,120,40,D2,F5|70,50,150,60,B4,F8"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"A:Z\").ColumnWidth = 3",
+   "ok 110,20,120,40,F2,L5|70,50,150,60,D4,L8"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(\"1:2\").RowHeight = 40",
+   "ok 110,20,120,40,C1,E2|70,50,150,60,B2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(\"3\").RowHeight = 50",
+   "ok 110,20,120,40,C2,E3|70,50,150,60,B3,E6"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(\"2\").RowHeight = 3",
+   "ok 110,20,120,40,C3,E5|70,50,150,60,B5,E9"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"B\").Hidden = True",
+   "ok 110,20,120,40,D2,F5|70,50,150,60,C4,F8"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(\"2\").Hidden = True",
+   "ok 110,20,120,40,C3,E6|70,50,150,60,B5,E9"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"C\").AutoFit",
+   "ok 110,20,120,40,C2,E5|70,50,150,60,B4,E8"
+  ],
+  [
+   "xlFreeFloating: ws.StandardWidth = 12",
+   "ok 110,20,120,40,B2,D5|70,50,150,60,B4,D8"
+  ]
+ ]
+}

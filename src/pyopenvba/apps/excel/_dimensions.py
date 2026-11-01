@@ -31,7 +31,8 @@ from __future__ import annotations
 import copy
 import math
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Generator, Iterable
+from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from typing import TYPE_CHECKING
@@ -47,7 +48,9 @@ from pyopenvba.interpreter._values import EMPTY, NULL, error, to_number
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Cell, Range, Worksheet
+    from pyopenvba.apps.excel._shape_anchors import Anchor
     from pyopenvba.apps.excel._styles import Font, Side, Style
+    from pyopenvba.shapes._values import Shape
 
 #: Points in a pixel on the display the model emulates.
 PIXEL = 0.75
@@ -282,6 +285,13 @@ class SheetDimensions:
         self.standard: int | None = None
         #: What changed since the file was read, so an untouched part is written back as it came.
         self.changed_rows: set[int] = set()
+        #: The anchors of the shapes that follow their cells, held while a row or column changes size, and whether
+        #: a change to many of them is under way (see hold_shapes).
+        self.held_shapes: list[tuple[Shape, Anchor]] | None = None
+        self.sizing_all = False
+        #: By shape: the anchor it was last placed by and the box that gave it, which TopLeftCell answers from while
+        #: the shape stays there (see _shape_anchors.anchored_cell).
+        self.kept_anchors: dict[int, tuple[Anchor, tuple[float, float, float, float]]] = {}
         self.columns_changed = False
         self.format_changed = False
         #: Rows were inserted or deleted, so no row's old start tag is where it was.
@@ -712,7 +722,37 @@ class SheetDimensions:
         record = self.rows.get(row)
         return self.all_rows is not None or (record is not None and record.height is not None)
 
+    def hold_shapes(self) -> None:
+        """Before a row or column changes size: where the shapes that follow their cells are anchored, once for each
+        change (tests/fixtures/shape_cell_moves.json)."""
+        if self.held_shapes is None and self.sheet.shapes_:
+            from pyopenvba.apps.excel._shape_anchors import anchors
+
+            self.held_shapes = anchors(self.sheet)
+
+    def place_shapes(self) -> None:
+        """After it: those shapes put back over the cells they were anchored to."""
+        if self.sizing_all:
+            return
+        held, self.held_shapes = self.held_shapes, None
+        if held:
+            from pyopenvba.apps.excel._shape_anchors import placed
+
+            placed(self.sheet, held)
+
+    @contextmanager
+    def all_at_once(self) -> Generator[None, None, None]:
+        """A change to many rows or columns, which moves the shapes once it is done."""
+        self.hold_shapes()
+        self.sizing_all = True
+        try:
+            yield
+        finally:
+            self.sizing_all = False
+        self.place_shapes()
+
     def touch_row(self, row: int) -> RowRecord:
+        self.hold_shapes()
         record = self.rows.get(row)
         if record is None:
             record = self.rows[row] = RowRecord()
@@ -725,6 +765,7 @@ class SheetDimensions:
         if record is not None and record.empty() and not self.zero_height:
             del self.rows[row]
         self.changed_rows.add(row)
+        self.place_shapes()
 
     def set_row_height(self, row: int, quarters: int) -> None:
         record = self.touch_row(row)
@@ -747,21 +788,23 @@ class SheetDimensions:
 
     def hide_rows_to_the_end(self, top: int) -> None:
         """Every row from one down hidden: Excel hides rows by default and lists the ones above as shown."""
-        self.zero_height = True
-        for row in range(1, top):
-            self.rows.setdefault(row, RowRecord())
-            self.changed_rows.add(row)
-        for row in [row for row in self.rows if row >= top]:
-            self.rows[row].hidden = True
-            self.changed_rows.add(row)
-        self.format_changed = True
+        with self.all_at_once():
+            self.zero_height = True
+            for row in range(1, top):
+                self.rows.setdefault(row, RowRecord())
+                self.changed_rows.add(row)
+            for row in [row for row in self.rows if row >= top]:
+                self.rows[row].hidden = True
+                self.changed_rows.add(row)
+            self.format_changed = True
 
     def show_every_row(self) -> None:
-        self.zero_height = False
-        for row, record in list(self.rows.items()):
-            record.hidden = False
-            self.settle_row(row)
-        self.format_changed = True
+        with self.all_at_once():
+            self.zero_height = False
+            for row, record in list(self.rows.items()):
+                record.hidden = False
+                self.settle_row(row)
+            self.format_changed = True
 
     def hide_every_column(self) -> None:
         """Every column hidden: the standard width becomes 0, and each column keeps the width it showed, hidden.
@@ -770,14 +813,15 @@ class SheetDimensions:
         from all of them.
         """
         before = self.standard_width()
-        for column in range(1, MAX_COLUMNS + 1):
-            record = self.touch_column(column)
-            if record.custom and record.width:
-                self.kept_columns.add(column)
-            else:
-                record.width, record.width_as_read = before, ""
-            record.custom, record.hidden = False, True
-        self.set_standard_width(0)
+        with self.all_at_once():
+            for column in range(1, MAX_COLUMNS + 1):
+                record = self.touch_column(column)
+                if record.custom and record.width:
+                    self.kept_columns.add(column)
+                else:
+                    record.width, record.width_as_read = before, ""
+                record.custom, record.hidden = False, True
+            self.set_standard_width(0)
 
     def keep_row_height(self, row: int) -> None:
         """UseStandardHeight = False: the row keeps the height it shows now."""
@@ -799,11 +843,12 @@ class SheetDimensions:
 
     def size_all_rows(self, quarters: int) -> None:
         """Every row sized at once, which Excel keeps as the sheet's default rather than row by row."""
-        self.all_rows = quarters
-        for row, record in list(self.rows.items()):
-            record.height, record.hidden, record.height_as_read = None, False, ""
-            self.settle_row(row)
-        self.format_changed = True
+        with self.all_at_once():
+            self.all_rows = quarters
+            for row, record in list(self.rows.items()):
+                record.height, record.hidden, record.height_as_read = None, False, ""
+                self.settle_row(row)
+            self.format_changed = True
 
     # -- columns
 
@@ -847,6 +892,7 @@ class SheetDimensions:
         return record is not None and record.custom
 
     def touch_column(self, column: int) -> ColumnRecord:
+        self.hold_shapes()
         record = self.columns.get(column)
         if record is None:
             record = self.columns[column] = ColumnRecord()
@@ -855,14 +901,14 @@ class SheetDimensions:
 
     def settle_column(self, column: int) -> None:
         record = self.columns.get(column)
-        if record is None:
-            return
-        if record.style is None and not record.custom and not record.hidden and \
-                record.width == self.standard_width():
-            # The standard width stated beside a format that has gone says nothing: Excel drops it.
-            record.width, record.width_as_read = None, ""
-        if record.empty():
-            del self.columns[column]
+        if record is not None:
+            if record.style is None and not record.custom and not record.hidden and \
+                    record.width == self.standard_width():
+                # The standard width stated beside a format that has gone says nothing: Excel drops it.
+                record.width, record.width_as_read = None, ""
+            if record.empty():
+                del self.columns[column]
+        self.place_shapes()
 
     def set_column_width(self, column: int, pixels: int) -> None:
         record = self.touch_column(column)
@@ -916,16 +962,19 @@ class SheetDimensions:
         self.settle_column(column)
 
     def set_standard_width(self, pixels: int) -> None:
+        self.hold_shapes()
         self.standard = pixels
         self.format_changed = True
+        self.place_shapes()
 
     def size_all_columns(self, pixels: int) -> None:
         """Every column sized at once: the standard width changes, and no column keeps its own."""
-        self.set_standard_width(pixels)
-        for column in list(self.columns):
-            record = self.touch_column(column)
-            record.width, record.custom, record.hidden, record.width_as_read = None, False, False, ""
-            self.settle_column(column)
+        with self.all_at_once():
+            self.set_standard_width(pixels)
+            for column in list(self.columns):
+                record = self.touch_column(column)
+                record.width, record.custom, record.hidden, record.width_as_read = None, False, False, ""
+                self.settle_column(column)
 
     # -- where things are
 

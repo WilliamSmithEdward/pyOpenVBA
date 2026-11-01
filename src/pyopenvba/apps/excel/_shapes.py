@@ -755,6 +755,14 @@ class ShapeObject(_Drawn):
         xlMoveAndSize."""
         return VBAInt(PLACEMENTS.index(self.shape.edit_as) + 1, "Long")
 
+    @setter("Placement")
+    def _set_placement(self, value: object) -> None:
+        # tests/fixtures/shape_cell_moves.json
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (1, 2, 3):
+            raise VBAUnsupportedError(f"Shape.Placement {wanted} is not implemented")
+        self.restyled().edit_as = PLACEMENTS[wanted - 1]
+
     # -- where it is
 
     @member
@@ -798,6 +806,10 @@ class ShapeObject(_Drawn):
             for name, value in changes.items():
                 setattr(shape, name, value)
         self.sheet.drawing_changed()
+
+    def placed_by_cells(self, **changes: float) -> None:
+        """The shape moved, and sized, with the cells under it (see _shape_anchors)."""
+        self._placed(**changes)
 
     def restyled(self) -> Shape:
         """The shape, for a change a save writes, into the markup a loaded shape keeps as well
@@ -963,13 +975,26 @@ class ShapeObject(_Drawn):
 
     @member
     def TopLeftCell(self) -> object:
-        return self._cell_at(self.shape.left, self.shape.top)
+        return self._anchored("top left") or self._cell_at(self.shape.left, self.shape.top)
 
     @member
     def BottomRightCell(self) -> object:
-        return self._cell_at(
+        return self._anchored("bottom right") or self._cell_at(
             self.shape.left + self.shape.width, self.shape.top + self.shape.height
         )
+
+    def _anchored(self, corner: str) -> object:
+        """The cell a corner was anchored to when the shape last moved with its cells, hidden or not
+        (tests/fixtures/shape_cell_moves.json)."""
+        from pyopenvba._a1 import Area
+        from pyopenvba.apps.excel._model import Range
+        from pyopenvba.apps.excel._shape_anchors import anchored_cell
+
+        found = anchored_cell(self.sheet, self.shape, corner)
+        if found is None:
+            return None
+        column, row = found
+        return Range(self.sheet, [Area(row, column, row, column, self.sheet.name)])
 
     # -- what it does
 

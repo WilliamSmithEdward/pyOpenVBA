@@ -676,7 +676,7 @@ ChartObject,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/ch
 ChartObject,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The chart area's outer shadow, read and set; turned off it leaves an empty effects list, as Excel writes it."
 ChartObject,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Top,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObject,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The cell under the chart's top left corner, as Shape.TopLeftCell; the chart does not yet move with column widths changed under it."
+ChartObject,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py; tests/fixtures/shape_cell_moves.json,"The cell under the chart's top left corner, as Shape.TopLeftCell; the chart moves with its cells by its Placement."
 ChartObject,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as the frame's hidden."
 ChartObject,Width,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,ZOrder,"property, read-only",As Long,,MISSING,,
@@ -2109,7 +2109,7 @@ Shape,Apply,method,Apply(),,MISSING,,
 Shape,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_range_more.json,"Reads the AutoShape type; setting it swaps the saved preset geometry, for new AutoShapes of the types the model can write."
 Shape,BackgroundStyle,property,As MsoBackgroundStyleIndex,,MISSING,,
 Shape,BlackWhiteMode,property,As MsoBlackWhiteMode,,MISSING,,
-Shape,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
+Shape,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"The cell under the shape's bottom right corner; after a shape that sizes with its cells has moved with them, the cell it is anchored to."
 Shape,Callout,"property, read-only",As CalloutFormat,,MISSING,,
 Shape,Chart,"property, read-only",As Chart,,UNASSESSED,,
 Shape,Child,"property, read-only",As MsoTriState,,MISSING,,
@@ -2154,7 +2154,7 @@ Shape,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_memb
 Shape,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,The group a shape is in; a shape in none raises 1004.
 Shape,PickUp,method,PickUp(),,MISSING,,
 Shape,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
-Shape,Placement,property,As XlPlacement,no setter,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
+Shape,Placement,property,As XlPlacement,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"Read and set as the anchor's editAs. xlMoveAndSize moves and sizes the shape with the columns and rows under it, xlMove moves it, xlFreeFloating leaves it; values other than 1 to 3 are not implemented. Row heights that change by themselves, with fonts or wrapped text, do not move shapes yet."
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
 Shape,RerouteConnections,method,RerouteConnections(),,MISSING,,
@@ -2173,7 +2173,7 @@ Shape,TextFrame2,"property, read-only",As TextFrame2,,UNASSESSED,,
 Shape,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
 Shape,Title,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"Written as cNvPr title, on new and loaded shapes; empty removes it."
 Shape,Top,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
+Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"The cell under the shape's top left corner; after the shape has moved with its cells, the cell it is anchored to, hidden or not."
 Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Ungroup,method,Ungroup() As ShapeRange,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"The members back in the group's place, answered as a ShapeRange; a shape that is no group raises -2147024891. A group loaded from a file is refused."
 Shape,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipV is set.

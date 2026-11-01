@@ -539,6 +539,38 @@ def relevel(sheet: Worksheet, rows: dict[int, int], columns: dict[int, int], sho
     return bool(plans) and _commit_plans(sheet, plans, notify=False)
 
 
+def apply_outline_styles(target: Range) -> None:
+    """Range.ApplyOutlineStyles: each summary row in the range takes RowLevel_n and each summary column ColLevel_n,
+    n being its own outline level. A summary is the row (column) beside a deeper one on the side its detail lies,
+    below (right of) it unless the outline says otherwise. The styles are made in level order and given top to
+    bottom, as Excel makes and gives them (tests/fixtures/outline_styles.json)."""
+    from pyopenvba.apps.excel._cell_styles import find
+    from pyopenvba.apps.excel._model import Range
+
+    sheet = target.sheet
+    found: list[tuple[bool, int, int]] = []
+    for rows in (True, False):
+        records = _records(sheet, rows)
+        step = -1 if _flag(sheet, 'summaryBelow' if rows else 'summaryRight', True) else 1
+        for area in target.areas:
+            first, last = (area.top, area.bottom) if rows else (area.left, area.right)
+            for number in range(first, last + 1):
+                own = _depth(records.get(number))
+                if _depth(records.get(number + step)) > own:
+                    found.append((rows, number, own + 1))
+    if not found:
+        return
+    names = {(rows, level): f"{'Row' if rows else 'Col'}Level_{level}" for rows, _number, level in found}
+    for key in sorted(names, key=lambda key: (not key[0], key[1])):
+        find(sheet.book, names[key])
+    for rows, number, level in sorted(found, key=lambda item: (not item[0], item[1])):
+        for area in target.areas:
+            cells = (Area(number, area.left, number, area.right, sheet.name) if rows
+                     else Area(area.top, number, area.bottom, number, sheet.name))
+            if (area.top <= number <= area.bottom) if rows else (area.left <= number <= area.right):
+                Range(sheet, [cells]).vba_set('Style', names[(rows, level)])
+
+
 def summary_below(sheet: Worksheet) -> bool:
     """Whether the sheet's summary rows go below their detail, as Outline.SummaryRow has it."""
     return _flag(sheet, 'summaryBelow', True)

@@ -598,6 +598,7 @@ class ChartObject(Created):
 
     @member
     def Left(self) -> object:
+        self.sheet.dims.settle_shapes()
         return float(self.shape.left)
 
     @setter('Left')
@@ -606,6 +607,7 @@ class ChartObject(Created):
 
     @member
     def Top(self) -> object:
+        self.sheet.dims.settle_shapes()
         return float(self.shape.top)
 
     @setter('Top')
@@ -614,6 +616,7 @@ class ChartObject(Created):
 
     @member
     def Width(self) -> object:
+        self.sheet.dims.settle_shapes()
         return float(self.shape.width)
 
     @setter('Width')
@@ -622,6 +625,7 @@ class ChartObject(Created):
 
     @member
     def Height(self) -> object:
+        self.sheet.dims.settle_shapes()
         return float(self.shape.height)
 
     @setter('Height')

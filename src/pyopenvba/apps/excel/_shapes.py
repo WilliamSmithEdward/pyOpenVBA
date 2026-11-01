@@ -767,6 +767,7 @@ class ShapeObject(_Drawn):
 
     @member
     def Left(self) -> object:
+        self.sheet.dims.settle_shapes()
         return VBASingle(self.shape.left)
 
     @setter("Left")
@@ -775,6 +776,7 @@ class ShapeObject(_Drawn):
 
     @member
     def Top(self) -> object:
+        self.sheet.dims.settle_shapes()
         return VBASingle(self.shape.top)
 
     @setter("Top")
@@ -959,6 +961,7 @@ class ShapeObject(_Drawn):
 
     @member
     def Width(self) -> object:
+        self.sheet.dims.settle_shapes()
         return VBASingle(self.shape.width)
 
     @setter("Width")
@@ -967,6 +970,7 @@ class ShapeObject(_Drawn):
 
     @member
     def Height(self) -> object:
+        self.sheet.dims.settle_shapes()
         return VBASingle(self.shape.height)
 
     @setter("Height")
@@ -975,10 +979,12 @@ class ShapeObject(_Drawn):
 
     @member
     def TopLeftCell(self) -> object:
+        self.sheet.dims.settle_shapes()
         return self._anchored("top left") or self._cell_at(self.shape.left, self.shape.top)
 
     @member
     def BottomRightCell(self) -> object:
+        self.sheet.dims.settle_shapes()
         return self._anchored("bottom right") or self._cell_at(
             self.shape.left + self.shape.width, self.shape.top + self.shape.height
         )

@@ -964,6 +964,8 @@ def _write_shapes(book: Workbook, package: OpcFile) -> None:
     from pyopenvba.apps.excel import _charts_file
 
     for sheet in book.sheets_:
+        # Rows grown by their fonts move the shapes over them before they are written.
+        sheet.dims.settle_shapes()
         _charts_file.refresh(sheet, package)
         if not sheet.drawing_dirty:
             continue

@@ -4774,6 +4774,13 @@ class Range(ExcelObject):
 
         return read_level(self)
 
+    @method
+    def ApplyOutlineStyles(self) -> object:
+        from pyopenvba.apps.excel._outline import apply_outline_styles
+
+        apply_outline_styles(self)
+        return True
+
     @setter('OutlineLevel')
     def _set_outline_level(self, value: object) -> None:
         from pyopenvba.apps.excel._outline import set_level

@@ -623,6 +623,19 @@ class Chart(Created):
         # An embedded chart's own name cannot be set: Excel raises 7.
         raise error(7, 'Out of memory')
 
+    # An embedded chart's hidden members (tests/fixtures/hidden_members.json): _CodeName raises -2147467259, and
+    # _Evaluate takes no name, 450; what it answers given none is not measured.
+
+    @member(name='_CodeName')
+    def hidden_code_name(self) -> object:
+        raise error(-2147467259, 'Automation error\nUnspecified error')
+
+    @member(name='_Evaluate')
+    def hidden_evaluate(self, *arguments: object) -> object:
+        if arguments:
+            raise error(450, 'Wrong number of arguments or invalid property assignment')
+        raise VBAUnsupportedError("An embedded chart's _Evaluate read without a name is not implemented")
+
     @setter('HasLegend')
     def _legend(self, value: object) -> None:
         self.admit_change()

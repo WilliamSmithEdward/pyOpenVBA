@@ -1330,7 +1330,8 @@ class Parser:
                     # space is the only thing that separates them.
                     return target
                 self.advance()
-                if self.token.kind != "ident":
+                # A name in brackets is a member VBA could not spell otherwise, such as ws.[_CodeName].
+                if self.token.kind not in ("ident", "bracket"):
                     self.fail(f"expected a member name after '.' but found {self.token.text!r}")
                 target = A.Member(line=self.token.line, target=target, name=self.advance().text)
                 continue

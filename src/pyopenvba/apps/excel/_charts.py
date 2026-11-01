@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 import math
+import re
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_reference
@@ -39,6 +40,10 @@ class SeriesState:
     series_id: int = -1
     #: The first group of the series' unique id; -1 to take its series_id.
     unique: int = -1
+    smooth: bool = False
+    marker: int = -4142
+    #: MarkerSize once given; until then 9 for an automatic marker and 5 for the rest.
+    marker_size: int | None = None
 
 @dataclass
 class ChartState:
@@ -133,8 +138,39 @@ def plotted_before(sheet: Worksheet) -> int:
 
 
 def shown_type(chart: ChartState) -> int:
-    """The type a chart reads and is written as: a line chart with no series is one with markers until it has one."""
-    return 65 if chart.chart_type == 4 and not chart.series else chart.chart_type
+    """The type a chart reads and is written as. A line chart follows its first series: with markers (65) unless that
+    series has none, and with markers while it has no series at all."""
+    if chart.chart_type in (4, 65):
+        return 4 if chart.series and chart.series[0].marker == MARKER_NONE else 65
+    return chart.chart_type
+
+
+#: Series.MarkerStyle and the symbol the file spells it with; automatic has no symbol of its own.
+MARKER_AUTOMATIC, MARKER_NONE = -4105, -4142
+#: An imported series whose marker symbol the model does not read.
+MARKER_UNREAD = 0
+MARKER_SYMBOLS = {MARKER_AUTOMATIC: '', MARKER_NONE: 'none', 1: 'square', 2: 'diamond', 3: 'triangle', -4168: 'x',
+                  5: 'star', 8: 'circle', 9: 'plus', -4118: 'dot', -4115: 'dash', -4147: 'picture'}
+#: Older marker numbers MarkerStyle still takes: 0 for none, and Excel 4's x, short bar and long bar.
+MARKER_ALIASES = {0: MARKER_NONE, 4: -4168, 6: -4118, 7: -4115}
+#: The marker an automatic series shows, by its idx; MarkerSize fixes it.
+AUTOMATIC_MARKERS = (2, 1, 3, -4168, 5, 8, 9, -4118, -4115)
+
+
+def default_marker(chart: ChartState) -> int:
+    """The marker a new series takes: automatic in a chart drawn with markers, none otherwise."""
+    return MARKER_AUTOMATIC if chart.chart_type in (65, -4169) else MARKER_NONE
+
+
+def marker_markup(entry: SeriesState) -> str:
+    """The series' marker element: none for an automatic marker, a symbol for the rest, with its size where it has
+    one."""
+    symbol = MARKER_SYMBOLS[entry.marker]
+    if not symbol:
+        return ''
+    if symbol in ('none', 'picture'):
+        return f'<c:marker><c:symbol val="{symbol}"/></c:marker>'
+    return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{entry.marker_size or 5}"/></c:marker>'
 
 
 def plot_by(chart: ChartState) -> int:
@@ -367,6 +403,12 @@ class Chart(Created):
         transition(self, wanted)
         self.changed()
         self.state.chart_type = wanted
+        # A line chart turns every marker off; one with markers, or a scatter chart, turns those that were off back on.
+        for entry in self.state.series:
+            if wanted == 4:
+                entry.marker = MARKER_NONE
+            elif wanted in (65, -4169) and entry.marker == MARKER_NONE:
+                entry.marker = MARKER_AUTOMATIC
 
     @member
     def HasTitle(self) -> object:
@@ -516,6 +558,7 @@ class Chart(Created):
         self.state.plot_by = orientation
         for index, series in enumerate(series_plan):
             series.unique = self.state.unique_base + index
+            series.marker = default_marker(self.state)
         self.state.next_unique = self.state.unique_base + len(series_plan)
         self.state.series[:] = series_plan
         return EMPTY
@@ -569,7 +612,8 @@ class SeriesCollection(VBACollection, Created):
         series_id = 0
         while series_id in used:
             series_id += 1
-        entry = SeriesState(series_id=series_id, unique=self.chart.state.next_unique)
+        entry = SeriesState(series_id=series_id, unique=self.chart.state.next_unique,
+                            marker=default_marker(self.chart.state))
         self.chart.changed()
         self.chart.state.next_unique += 1
         self.chart.state.series.append(entry)
@@ -695,6 +739,86 @@ class Series(Created):
         categories = self.entry.category_reference or literal_array(self.entry.categories)
         values = self.entry.value_reference or literal_array(self.entry.values)
         return f'=SERIES({name},{categories},{values},{order})'
+
+    @member
+    def FormulaR1C1(self) -> object:
+        return r1c1_series(str(self.Formula()))
+
+    @member
+    def FormulaLocal(self) -> object:
+        return self.Formula()
+
+    @member
+    def FormulaR1C1Local(self) -> object:
+        return self.FormulaR1C1()
+
+    def lines(self) -> SeriesState:
+        """The series, where its chart draws lines or markers; Excel raises 1004 for the other kinds."""
+        self.position()
+        if CHART_TYPES.get(shown_type(self.chart.state)) not in ('line', 'lineMarkers', 'scatter'):
+            raise error(1004, 'Unable to get the property of the Series class')
+        if self.entry.marker == MARKER_UNREAD:
+            raise VBAUnsupportedError("Reading this imported series' marker is not implemented")
+        return self.entry
+
+    @member
+    def Smooth(self) -> object:
+        return self.lines().smooth
+
+    @setter('Smooth')
+    def _smooth(self, value: object) -> None:
+        entry = self.lines()
+        wanted = to_bool(value)
+        self.chart.changed()
+        entry.smooth = wanted
+
+    @member
+    def MarkerStyle(self) -> object:
+        return VBAInt(self.lines().marker, 'Long')
+
+    @setter('MarkerStyle')
+    def _marker_style(self, value: object) -> None:
+        entry = self.lines()
+        wanted = int(to_integer(value, 'Long'))
+        wanted = MARKER_ALIASES.get(wanted, wanted)
+        if wanted not in MARKER_SYMBOLS:
+            raise error(1004, 'Unable to set the MarkerStyle property of the Series class')
+        self.chart.changed()
+        entry.marker = wanted
+
+    @member
+    def MarkerSize(self) -> object:
+        entry = self.lines()
+        size = entry.marker_size or (9 if entry.marker == MARKER_AUTOMATIC else 5)
+        return VBAInt(size, 'Long')
+
+    @setter('MarkerSize')
+    def _marker_size(self, value: object) -> None:
+        entry = self.lines()
+        wanted = int(to_integer(value, 'Long'))
+        if not 2 <= wanted <= 72:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        identity = entry.series_id if entry.series_id >= 0 else self.position() - 1
+        if entry.marker == MARKER_AUTOMATIC and identity >= len(AUTOMATIC_MARKERS):
+            raise VBAUnsupportedError('The automatic marker of a series past the ninth is not implemented')
+        self.chart.changed()
+        entry.marker_size = wanted
+        if entry.marker == MARKER_AUTOMATIC:
+            entry.marker = AUTOMATIC_MARKERS[identity]
+
+
+def r1c1_series(formula: str) -> str:
+    """A SERIES formula with its absolute A1 references spelled R1C1, as FormulaR1C1 answers."""
+    from pyopenvba._a1 import column_number
+
+    def cell(found: re.Match[str]) -> str:
+        if not (found.group(1) and found.group(3)):
+            raise VBAUnsupportedError('Relative references in a series formula are not implemented')
+        return f'R{found.group(4)}C{column_number(found.group(2))}'
+
+    parts = re.split(r'("(?:[^"]|"")*"|\{[^}]*\})', formula)
+    return ''.join(part if part.startswith(('"', '{')) else re.sub(
+        r"(?<=[!:,(])(\$?)([A-Z]{1,3})(\$?)(\d+)(?![\w(])", cell, part) for part in parts)
 
 
 def quoted(value: str) -> str:

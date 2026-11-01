@@ -17,6 +17,7 @@ from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState,
+                                          MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           referenced_values, shown_type)
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
@@ -237,6 +238,17 @@ def read_chart(xml: str, part: str) -> ChartState:
             val = series.find('c:yVal', NS)
         item.category_reference, item.categories = _data(cat)
         item.value_reference, item.values = _data(val)
+        smooth = series.find('c:smooth', NS)
+        item.smooth = smooth is not None and smooth.get('val', '1') in ('1', 'true')
+        symbol = series.find('c:marker/c:symbol', NS)
+        if symbol is None:
+            item.marker = MARKER_AUTOMATIC if kind in ('lineChart', 'scatterChart') else MARKER_NONE
+        else:
+            spelled = {name: number for number, name in MARKER_SYMBOLS.items() if name}
+            item.marker = spelled.get(symbol.get('val', ''), MARKER_UNREAD)
+        size = series.find('c:marker/c:size', NS)
+        if size is not None and re.fullmatch(r'[0-9]{1,2}', size.get('val', '')) and 2 <= int(size.get('val', '')) <= 72:
+            item.marker_size = int(size.get('val', ''))
         result.series.append(item)
     if result.series and result.series[0].value_reference:
         try:
@@ -345,7 +357,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
                                category_format=source_format(sheet, item.category_reference),
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
-                               unique_id=item.unique if item.unique >= 0 else None))
+                               unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
+                               smooth=item.smooth))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')

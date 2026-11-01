@@ -1,0 +1,231 @@
+{
+ "measured_at": "2026-11-01T09:09:42.412594+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, r As Object, sh As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Shapes.AddShape(msoShapeRectangle, 100, 50, 120, 60).Name = \"A\"\n    ws.Shapes.AddShape(msoShapeOval, 250, 80, 60, 40).Name = \"B\"\n    ws.Shapes.AddShape(msoShapeRectangle, 50, 200, 40, 30).Name = \"C\"\n    Set r = ws.Shapes.Range(Array(\"A\", \"B\"))\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        r.IncrementLeft 10\n    Case 1\n        r.IncrementLeft -120\n    Case 2\n        r.IncrementTop 15.5\n    Case 3\n        r.IncrementTop -70\n    Case 4\n        r.IncrementRotation 30\n    Case 5\n        r.IncrementRotation -400\n    Case 6\n        ws.Shapes(\"A\").Rotation = 10: r.IncrementRotation 5\n    Case 7\n        r.Flip msoFlipHorizontal\n    Case 8\n        r.Flip msoFlipVertical\n    Case 9\n        r.Flip 2\n    Case 10\n        ws.Shapes(\"A\").Rotation = 30: r.Flip msoFlipHorizontal\n    Case 11\n        r.ZOrder msoSendToBack\n    Case 12\n        r.ZOrder msoBringToFront\n    Case 13\n        ws.Shapes.Range(Array(\"B\", \"C\")).ZOrder msoSendToBack\n    Case 14\n        r.ZOrder msoBringForward\n    Case 15\n        r.ZOrder msoSendBackward\n    Case 16\n        ws.Shapes.Range(Array(\"A\", \"C\")).ZOrder msoBringForward\n    Case 17\n        r.ZOrder 6\n    Case 18\n        s = r.Decorative\n    Case 19\n        r.Decorative = msoTrue\n    Case 20\n        ws.Shapes(\"A\").Decorative = msoTrue: s = r.Decorative\n    Case 21\n        s = r.AutoShapeType\n    Case 22\n        s = ws.Shapes.Range(Array(\"A\", \"C\")).AutoShapeType\n    Case 23\n        r.AutoShapeType = msoShapeOval\n    Case 24\n        r.AutoShapeType = msoShapeRoundedRectangle\n    End Select\n    For Each sh In ws.Shapes: s = s & \"|\" & sh.Name & \",\" & sh.Left & \",\" & sh.Top & \",\" & sh.Width & \",\" & sh.Height & \",\" & sh.Rotation & \",\" & sh.HorizontalFlip & \",\" & sh.VerticalFlip & \",\" & sh.Decorative & \",\" & sh.AutoShapeType & \",\" & sh.ZOrderPosition: Next\n    Tried = \"ok \" & s\nDone:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    For i = 0 To 24\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "r.IncrementLeft 10",
+   "ok |A,110,50,120,60,0,0,0,0,1,1|B,260,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.IncrementLeft -120",
+   "ok |A,0,50,120,60,0,0,0,0,1,1|B,130,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.IncrementTop 15.5",
+   "ok |A,100,65.5,120,60,0,0,0,0,1,1|B,250,95.5,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.IncrementTop -70",
+   "ok |A,100,0,120,60,0,0,0,0,1,1|B,250,10,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.IncrementRotation 30",
+   "ok |A,100,50,120,60,30,0,0,0,1,1|B,250,80,60,40,30,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.IncrementRotation -400",
+   "ok |A,100,50,120,60,320,0,0,0,1,1|B,250,80,60,40,320,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Rotation = 10: r.IncrementRotation 5",
+   "ok |A,100,50,120,60,15,0,0,0,1,1|B,250,80,60,40,5,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.Flip msoFlipHorizontal",
+   "ok |A,100,50,120,60,0,-1,0,0,1,1|B,250,80,60,40,0,-1,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.Flip msoFlipVertical",
+   "ok |A,100,50,120,60,0,0,-1,0,1,1|B,250,80,60,40,0,0,-1,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.Flip 2",
+   "Err -2147024809",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Rotation = 30: r.Flip msoFlipHorizontal",
+   "ok |A,100,50,120,60,330,-1,0,0,1,1|B,250,80,60,40,0,-1,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.ZOrder msoSendToBack",
+   "ok |A,100,50,120,60,0,0,0,0,1,1|B,250,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.ZOrder msoBringToFront",
+   "ok |C,50,200,40,30,0,0,0,0,1,1|A,100,50,120,60,0,0,0,0,1,2|B,250,80,60,40,0,0,0,0,9,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "ws.Shapes.Range(Array(\"B\", \"C\")).ZOrder msoSendToBack",
+   "ok |B,250,80,60,40,0,0,0,0,9,1|C,50,200,40,30,0,0,0,0,1,2|A,100,50,120,60,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.ZOrder msoBringForward",
+   "ok |C,50,200,40,30,0,0,0,0,1,1|A,100,50,120,60,0,0,0,0,1,2|B,250,80,60,40,0,0,0,0,9,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.ZOrder msoSendBackward",
+   "ok |A,100,50,120,60,0,0,0,0,1,1|B,250,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"C\")).ZOrder msoBringForward",
+   "ok |B,250,80,60,40,0,0,0,0,9,1|A,100,50,120,60,0,0,0,0,1,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.ZOrder 6",
+   "Err -2147024809",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "s = r.Decorative",
+   "ok 0|A,100,50,120,60,0,0,0,0,1,1|B,250,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.Decorative = msoTrue",
+   "ok |A,100,50,120,60,0,0,0,-1,1,1|B,250,80,60,40,0,0,0,-1,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Decorative = msoTrue: s = r.Decorative",
+   "ok -2|A,100,50,120,60,0,0,0,-1,1,1|B,250,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "s = r.AutoShapeType",
+   "ok -2|A,100,50,120,60,0,0,0,0,1,1|B,250,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "s = ws.Shapes.Range(Array(\"A\", \"C\")).AutoShapeType",
+   "ok 1|A,100,50,120,60,0,0,0,0,1,1|B,250,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.AutoShapeType = msoShapeOval",
+   "ok |A,100,50,120,60,0,0,0,0,9,1|B,250,80,60,40,0,0,0,0,9,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"ellipse\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ],
+  [
+   "r.AutoShapeType = msoShapeRoundedRectangle",
+   "ok |A,100,50,120,60,0,0,0,0,5,1|B,250,80,60,40,0,0,0,0,5,2|C,50,200,40,30,0,0,0,0,1,3",
+   [
+    "<a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"roundRect\"><a:avLst/></a:prstGeom>",
+    "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"
+   ]
+  ]
+ ]
+}

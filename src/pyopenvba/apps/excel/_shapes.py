@@ -429,6 +429,81 @@ class ShapeRange(VBACollection, Created):
     def VerticalFlip(self) -> object:
         return self.shared("VerticalFlip")
 
+    # -- tests/fixtures/shape_range_more.json: each shape on its own, -2 where they differ
+
+    def _either(self, name: str) -> object:
+        values = {int(to_number(shape.vba_get(name))) for shape in self.shapes}
+        return VBAInt(values.pop() if len(values) == 1 else -2, "Long")
+
+    @member
+    def Decorative(self) -> object:
+        return self._either("Decorative")
+
+    @setter("Decorative")
+    def _decorative(self, value: object) -> None:
+        self.spread("Decorative", value)
+
+    @member
+    def AutoShapeType(self) -> object:
+        return self._either("AutoShapeType")
+
+    @setter("AutoShapeType")
+    def _auto_shape_type(self, value: object) -> None:
+        self.spread("AutoShapeType", value)
+
+    @method
+    def IncrementLeft(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
+        for shape in self.shapes:
+            shape.IncrementLeft(Increment)
+        return EMPTY
+
+    @method
+    def IncrementTop(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
+        for shape in self.shapes:
+            shape.IncrementTop(Increment)
+        return EMPTY
+
+    @method
+    def IncrementRotation(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
+        for shape in self.shapes:
+            shape.IncrementRotation(Increment)
+        return EMPTY
+
+    @method
+    def Flip(self, FlipCmd: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """Each shape turned over where it stands, its rotation mirrored."""
+        for shape in self.shapes:
+            shape.Flip(FlipCmd)
+        return EMPTY
+
+    @method
+    def ZOrder(self, ZOrderCmd: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The shapes moved as one block, in their own order: to the front or back, or one step forward or back,
+        where none steps past another shape of the range."""
+        command = int(to_integer(ZOrderCmd, "Long"))
+        if command not in (0, 1, 2, 3):
+            raise error(-2147024809, "The parameter is incorrect.")
+        if not self.shapes:
+            return EMPTY
+        sheet = self.shapes[0].sheet
+        for shape in self.shapes:
+            shape.guard("ZOrder")
+        order = sheet.shapes_
+        chosen = [any(one is shape.shape for shape in self.shapes) for one in order]
+        if command in (0, 1):
+            moved = [one for one, pick in zip(order, chosen, strict=True) if pick]
+            rest = [one for one, pick in zip(order, chosen, strict=True) if not pick]
+            sheet.shapes_ = rest + moved if command == 0 else moved + rest
+        else:
+            step = 1 if command == 2 else -1
+            places = range(len(order) - 2, -1, -1) if step == 1 else range(1, len(order))
+            for place in places:
+                if chosen[place] and not chosen[place + step]:
+                    order[place], order[place + step] = order[place + step], order[place]
+                    chosen[place], chosen[place + step] = chosen[place + step], chosen[place]
+        sheet.drawing_changed()
+        return EMPTY
+
     @member
     def Name(self) -> object:
         if len(self.shapes) != 1:
@@ -603,6 +678,16 @@ class ShapeObject(_Drawn):
     def AutoShapeType(self) -> object:
         """Which AutoShape it is, which a text box answers as a rectangle."""
         return VBAInt(getattr(self.shape, "auto_shape_type", 1), "Long")
+
+    @setter("AutoShapeType")
+    def _auto_shape_type(self, value: object) -> None:
+        """Another AutoShape in the same place, which only swaps the saved preset geometry
+        (tests/fixtures/shape_range_more.json)."""
+        wanted = int(to_number(value))
+        if self.shape.source or self.shape.kind != "shape" or wanted not in PRESET_GEOMETRY:
+            raise _unsupported("this AutoShapeType")
+        self.shape.auto_shape_type = wanted
+        self.restyled().geometry = PRESET_GEOMETRY[wanted]
 
     @member
     def ZOrderPosition(self) -> object:

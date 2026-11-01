@@ -240,14 +240,50 @@ def plotted_before(sheet: Worksheet) -> int:
     if not isinstance(selection, Range):
         return 0
     area = selection.first
-    if len(selection.areas) == 1 and (area.top, area.left) == (area.bottom, area.right):
+    region = len(selection.areas) == 1 and (area.top, area.left) == (area.bottom, area.right)
+    if region:
         area = current_region(sheet, area.top, area.left)
-        if (area.top, area.left) == (area.bottom, area.right) and Range(sheet, [area]).Value() is EMPTY:
-            return 0
     height, width = area.bottom - area.top + 1, area.right - area.left + 1
     if height * width > MAX_CHART_POINTS:
         raise VBAUnsupportedError('Chart source data exceeds the supported cell budget')
-    return len(plan_series(sheet, area, 1 if width >= height else 2))
+    if region:
+        # A current region loses its rows and columns blank right across, a selected block does not
+        # (tests/fixtures/chart_add_plotted.json).
+        found = trimmed(sheet, area)
+        if found is None:
+            return 0
+        area = found
+    return len(plan_series(sheet, area, guessed_orientation(sheet, area)))
+
+
+def trimmed(sheet: Worksheet, area: Area) -> Area | None:
+    """The block without the rows and columns at its edges that are blank right across; None if nothing is left."""
+    from pyopenvba.apps.excel._model import Range
+
+    def blank(part: Area) -> bool:
+        return all(Range(sheet, [Area(row, column, row, column)]).Value() is EMPTY
+                   for row in range(part.top, part.bottom + 1) for column in range(part.left, part.right + 1))
+
+    top, left, bottom, right = area.top, area.left, area.bottom, area.right
+    while top <= bottom and blank(Area(top, left, top, right)):
+        top += 1
+    while bottom >= top and blank(Area(bottom, left, bottom, right)):
+        bottom -= 1
+    if top > bottom:
+        return None
+    while left <= right and blank(Area(top, left, bottom, left)):
+        left += 1
+    while right >= left and blank(Area(top, right, bottom, right)):
+        right -= 1
+    return Area(top, left, bottom, right)
+
+
+def guessed_orientation(sheet: Worksheet, area: Area) -> int:
+    """How a block is plotted when nothing says: by rows (1) unless what its labels leave is taller than wide
+    (tests/fixtures/chart_add_plotted.json)."""
+    rows, columns = label_block(sheet, area)
+    height, width = area.bottom - area.top + 1 - rows, area.right - area.left + 1 - columns
+    return 1 if width >= height else 2
 
 
 def shown_type(chart: ChartState) -> int:
@@ -850,7 +886,8 @@ class Chart(Created):
             raise VBAUnsupportedError('Chart source data exceeds the supported cell budget')
         if PlotBy is NULL:
             raise error(13)
-        orientation = (1 if width >= height else 2) if PlotBy is MISSING else int(to_integer(PlotBy, 'Long'))
+        orientation = (guessed_orientation(Source.sheet, area) if PlotBy is MISSING
+                       else int(to_integer(PlotBy, 'Long')))
         if orientation not in (1, 2):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.admit_change()

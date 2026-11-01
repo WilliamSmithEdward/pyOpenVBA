@@ -299,7 +299,11 @@ class Shapes(VBACollection, Created):
         return f"{stem} {self.sheet.shape_count}"
 
     def _free_id(self) -> int:
-        return max((one.shape_id for one in self.sheet.shapes_), default=1) + 1
+        # A group's members keep their ids, which no new shape may take.
+        drawn = [*self.sheet.shapes_]
+        for one in drawn:
+            drawn.extend(one.children)
+        return max((one.shape_id for one in drawn), default=1) + 1
 
 
 class ShapeRange(VBACollection, Created):
@@ -435,7 +439,32 @@ class ShapeRange(VBACollection, Created):
 
     @method
     def Group(self) -> object:
-        raise _unsupported("grouping shapes")
+        """One group of these shapes, as Excel makes it (tests/fixtures/shape_group.json).
+
+        It takes the place of its topmost member and holds them in the order the sheet does, whatever order the
+        range named them in. Its box is theirs together, its name "Group" and the sheet's next number, its id the
+        next one. Fewer than two shapes raise 1004."""
+        if len(self.shapes) < 2:
+            raise error(1004, "Grouping needs two shapes or more")
+        sheet = self.shapes[0].sheet
+        for shape in self.shapes:
+            shape.guard("Group")
+            if (shape.shape.source or shape.shape.kind not in ("shape", "textBox", "line") or shape.shape.rotation
+                    or shape.shape.flip_h or shape.shape.flip_v):
+                raise _unsupported("grouping this shape")
+        members = [one for one in sheet.shapes_ if any(one is shape.shape for shape in self.shapes)]
+        shapes = Shapes(sheet)
+        left = min(one.left for one in members)
+        top = min(one.top for one in members)
+        group = Shape(name=shapes._free_name("Group"), kind="group", shape_id=shapes._free_id(),  # pyright: ignore[reportPrivateUsage]
+                      left=left, top=top, width=max(one.left + one.width for one in members) - left,
+                      height=max(one.top + one.height for one in members) - top, children=members)
+        place = max(index for index, one in enumerate(sheet.shapes_) if any(one is member for member in members))
+        place -= len(members) - 1
+        sheet.shapes_ = [one for one in sheet.shapes_ if not any(one is member for member in members)]
+        sheet.shapes_.insert(place, group)
+        sheet.drawing_changed()
+        return ShapeObject(sheet, group)
 
     @method
     def Delete(self) -> object:
@@ -743,8 +772,23 @@ class ShapeObject(_Drawn):
     @member
     def GroupItems(self) -> object:
         if self.shape.kind != "group":
-            raise error(ERR_NO_SUCH_SHAPE, "this shape is not a group")
+            raise error(1004, "this shape is not a group")
         return GroupItems(self.sheet, self.shape)
+
+    @method
+    def Ungroup(self) -> object:
+        """The group's shapes put back in its place, in its order, answered as one range; a shape that is no
+        group raises -2147024891 (tests/fixtures/shape_group.json)."""
+        if self.shape.kind != "group":
+            raise error(-2147024891, "Access denied")
+        self.guard("Ungroup")
+        if self.shape.source:
+            raise _unsupported("ungrouping a group loaded from a file")
+        members = self.shape.children
+        place = self._position() - 1
+        self.sheet.shapes_[place:place + 1] = members
+        self.sheet.drawing_changed()
+        return ShapeRange([ShapeObject(self.sheet, one) for one in members])
 
     @method
     def Delete(self) -> object:
@@ -802,6 +846,14 @@ class GroupItems(VBACollection, Created):
 
     def vba_items(self) -> list[object]:
         return [ShapeObject(self.sheet, one) for one in self.group.children]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        if isinstance(index, str):
+            for shape in self.group.children:
+                if shape.name.lower() == index.lower():
+                    return ShapeObject(self.sheet, shape)
+            raise error(ERR_NO_SUCH_SHAPE, f"the group holds no shape called {index}")
+        return super().vba_lookup(index, items)
 
 
 class TextFrame(Created):

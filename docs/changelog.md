@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Inserting and deleting rows, columns and cells on a sheet with merged
+  cells. The model refused this before. A merged area moves, grows and
+  shrinks as a reference to it would, and one left with a single cell is
+  unmerged. A merged area wholly inside a shifting band of cells moves
+  with it, and one the moving cells cut through is unmerged, its value
+  staying with its cell. Excel asks before that unless DisplayAlerts is
+  off, and the model reports that case as not implemented. Measured in
+  `tests/fixtures/merge_structure_edits.json`.
+
 - Inserting and deleting whole rows and columns on a sheet with shapes
   or chart objects. The model refused this before. Shapes move with the
   lines by their Placement. A shape that sizes with its cells grows when

@@ -56,6 +56,58 @@ def unmerge(target: Range) -> None:
         sheet.touched()
 
 
+def _mapped(area: Area, *, rows: bool, start: int, count: int, delete: bool) -> Area | None:
+    """A merged area once lines are inserted or deleted across it, as a reference to it would follow; None when
+    no more than one of its cells is left, which is no merge at all (tests/fixtures/merge_structure_edits.json)."""
+    from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS
+    from pyopenvba.apps.excel._editing import interval
+
+    low, high = (area.top, area.bottom) if rows else (area.left, area.right)
+    result = interval(low, high, start, count, delete, MAX_ROWS if rows else MAX_COLUMNS)
+    if result is None:
+        return None
+    moved = (Area(result[0], area.left, result[1], area.right, area.sheet) if rows
+             else Area(area.top, result[0], area.bottom, result[1], area.sheet))
+    return moved if moved.rows * moved.columns > 1 else None
+
+
+def lines_planned(sheet: Worksheet, *, rows: bool, start: int, count: int, delete: bool) -> list[Area]:
+    """The sheet's merged areas after whole rows or columns go in or out: each moves, grows or shrinks with them
+    (tests/fixtures/merge_structure_edits.json)."""
+    return [moved for moved in (_mapped(area, rows=rows, start=start, count=count, delete=delete)
+                                for area in sheet.merged_areas) if moved is not None]
+
+
+def shift_planned(sheet: Worksheet, band: tuple[int, int], *, vertical: bool, start: int, count: int,
+                  delete: bool) -> list[Area]:
+    """The sheet's merged areas after cells in a band shift: one wholly inside the band moves as with whole lines,
+    and one the moving cells cut through is unmerged, its value staying with its cell; Excel asks first unless
+    DisplayAlerts is off (tests/fixtures/merge_structure_edits.json)."""
+    planned: list[Area] = []
+    for area in sheet.merged_areas:
+        low, high = (area.left, area.right) if vertical else (area.top, area.bottom)
+        reach = area.bottom if vertical else area.right
+        if high < band[0] or low > band[1] or reach < start:
+            planned.append(area)
+        elif band[0] <= low and high <= band[1]:
+            moved = _mapped(area, rows=vertical, start=start, count=count, delete=delete)
+            if moved is not None:
+                planned.append(moved)
+        elif sheet.book.application.display_alerts:
+            raise VBAUnsupportedError("A cell shift that unmerges merged cells with DisplayAlerts on, where Excel "
+                                      "asks first, is not implemented")
+    return planned
+
+
+def replaced(sheet: Worksheet, planned: list[Area]) -> None:
+    """The sheet's merged areas set to what an edit planned."""
+    if planned != sheet.merged_areas:
+        sheet.merged_areas = planned
+        sheet.merges_dirty = True
+        sheet.dims.invalidate_growth()
+        sheet.touched()
+
+
 def merge(target: Range, across: bool) -> None:
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Merge on multiple areas is not implemented")

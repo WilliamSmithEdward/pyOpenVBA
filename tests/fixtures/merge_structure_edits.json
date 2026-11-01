@@ -1,0 +1,118 @@
+{
+ "measured_at": "2026-11-01T22:13:12.683782+00:00",
+ "source": "Private Function Merges(ByVal ws As Worksheet) As String\n    Dim c As Range, s As String\n    For Each c In ws.Range(\"A1:H10\")\n        If c.MergeCells Then\n            If c.Address = c.MergeArea.Cells(1, 1).Address Then s = s & \"|\" & c.MergeArea.Address(0, 0) & \"=\" & c.Value\n        End If\n    Next\n    s = s & \" values\"\n    For Each c In ws.Range(\"A1:F8\")\n        If Not IsEmpty(c.Value) Then s = s & \" \" & c.Address(0, 0) & \"=\" & c.Value\n    Next\n    Merges = s\nEnd Function\n\nPrivate Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"B2\").Value = \"m\": ws.Range(\"B2:C3\").Merge\n    ws.Range(\"E5\").Value = \"n\": ws.Range(\"E5:E6\").Merge\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n    Case 1\n        ws.Rows(1).Insert\n    Case 2\n        ws.Rows(3).Insert\n    Case 3\n        ws.Rows(2).Insert\n    Case 4\n        ws.Rows(4).Insert\n    Case 5\n        ws.Rows(\"3:4\").Insert\n    Case 6\n        ws.Rows(1).Delete\n    Case 7\n        ws.Rows(2).Delete\n    Case 8\n        ws.Rows(3).Delete\n    Case 9\n        ws.Rows(\"2:3\").Delete\n    Case 10\n        ws.Rows(\"1:2\").Delete\n    Case 11\n        ws.Rows(\"3:5\").Delete\n    Case 12\n        ws.Columns(1).Insert\n    Case 13\n        ws.Columns(3).Insert\n    Case 14\n        ws.Columns(2).Delete\n    Case 15\n        ws.Columns(\"B:C\").Delete\n    Case 16\n        ws.Columns(\"C:E\").Delete\n    Case 17\n        ws.Range(\"A1\").Insert xlShiftDown\n    Case 18\n        ws.Range(\"B1\").Insert xlShiftDown\n    Case 19\n        ws.Range(\"B1:C1\").Insert xlShiftDown\n    Case 20\n        ws.Range(\"B1:D1\").Insert xlShiftDown\n    Case 21\n        ws.Range(\"A2\").Insert xlShiftToRight\n    Case 22\n        ws.Range(\"A2:A3\").Insert xlShiftToRight\n    Case 23\n        ws.Range(\"B4\").Delete xlShiftUp\n    Case 24\n        ws.Range(\"B2:C3\").Delete xlShiftUp\n    Case 25\n        ws.Range(\"B2:C2\").Delete xlShiftUp\n    Case 26\n        ws.Range(\"B2\").EntireRow.Insert\n    Case 27\n        ws.Range(\"B2:C3\").EntireColumn.Delete\n    End Select\n    Tried = \"ok \" & Merges(ws)\nDone:\n    wb.Close False\n    Application.DisplayAlerts = True\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Merges(ws)\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 27\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "",
+   "ok |B2:C3=m|E5:E6=n values B2=m E5=n"
+  ],
+  [
+   "ws.Rows(1).Insert",
+   "ok |B3:C4=m|E6:E7=n values B3=m E6=n"
+  ],
+  [
+   "ws.Rows(3).Insert",
+   "ok |B2:C4=m|E6:E7=n values B2=m E6=n"
+  ],
+  [
+   "ws.Rows(2).Insert",
+   "ok |B3:C4=m|E6:E7=n values B3=m E6=n"
+  ],
+  [
+   "ws.Rows(4).Insert",
+   "ok |B2:C3=m|E6:E7=n values B2=m E6=n"
+  ],
+  [
+   "ws.Rows(\"3:4\").Insert",
+   "ok |B2:C5=m|E7:E8=n values B2=m E7=n"
+  ],
+  [
+   "ws.Rows(1).Delete",
+   "ok |B1:C2=m|E4:E5=n values B1=m E4=n"
+  ],
+  [
+   "ws.Rows(2).Delete",
+   "ok |B2:C2=|E4:E5=n values E4=n"
+  ],
+  [
+   "ws.Rows(3).Delete",
+   "ok |B2:C2=m|E4:E5=n values B2=m E4=n"
+  ],
+  [
+   "ws.Rows(\"2:3\").Delete",
+   "ok |E3:E4=n values E3=n"
+  ],
+  [
+   "ws.Rows(\"1:2\").Delete",
+   "ok |B1:C1=|E3:E4=n values E3=n"
+  ],
+  [
+   "ws.Rows(\"3:5\").Delete",
+   "ok |B2:C2=m values B2=m"
+  ],
+  [
+   "ws.Columns(1).Insert",
+   "ok |C2:D3=m|F5:F6=n values C2=m F5=n"
+  ],
+  [
+   "ws.Columns(3).Insert",
+   "ok |B2:D3=m|F5:F6=n values B2=m F5=n"
+  ],
+  [
+   "ws.Columns(2).Delete",
+   "ok |B2:B3=|D5:D6=n values D5=n"
+  ],
+  [
+   "ws.Columns(\"B:C\").Delete",
+   "ok |C5:C6=n values C5=n"
+  ],
+  [
+   "ws.Columns(\"C:E\").Delete",
+   "ok |B2:B3=m values B2=m"
+  ],
+  [
+   "ws.Range(\"A1\").Insert xlShiftDown",
+   "ok |B2:C3=m|E5:E6=n values B2=m E5=n"
+  ],
+  [
+   "ws.Range(\"B1\").Insert xlShiftDown",
+   "ok |E5:E6=n values B3=m E5=n"
+  ],
+  [
+   "ws.Range(\"B1:C1\").Insert xlShiftDown",
+   "ok |B3:C4=m|E5:E6=n values B3=m E5=n"
+  ],
+  [
+   "ws.Range(\"B1:D1\").Insert xlShiftDown",
+   "ok |B3:C4=m|E5:E6=n values B3=m E5=n"
+  ],
+  [
+   "ws.Range(\"A2\").Insert xlShiftToRight",
+   "ok |E5:E6=n values C2=m E5=n"
+  ],
+  [
+   "ws.Range(\"A2:A3\").Insert xlShiftToRight",
+   "ok |C2:D3=m|E5:E6=n values C2=m E5=n"
+  ],
+  [
+   "ws.Range(\"B4\").Delete xlShiftUp",
+   "ok |B2:C3=m|E5:E6=n values B2=m E5=n"
+  ],
+  [
+   "ws.Range(\"B2:C3\").Delete xlShiftUp",
+   "ok |E5:E6=n values E5=n"
+  ],
+  [
+   "ws.Range(\"B2:C2\").Delete xlShiftUp",
+   "ok |B2:C2=|E5:E6=n values E5=n"
+  ],
+  [
+   "ws.Range(\"B2\").EntireRow.Insert",
+   "ok |B3:C4=m|E6:E7=n values B3=m E6=n"
+  ],
+  [
+   "ws.Range(\"B2:C3\").EntireColumn.Delete",
+   "ok |C5:C6=n values C5=n"
+  ]
+ ]
+}

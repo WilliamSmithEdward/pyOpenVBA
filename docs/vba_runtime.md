@@ -1013,9 +1013,10 @@ columns; a new row takes the height of the row above it, and a new column the
 width of the one to its left.
 Shapes and chart objects move with the rows and columns by their Placement, and
 one that sizes with its cells is deleted with the last of them
-(`tests/fixtures/shape_structure_moves.json`). Sheets containing merges are
-explicitly unsupported; several areas of whole rows or columns are deleted the
-last first. CopyOrigin, relative name context,
+(`tests/fixtures/shape_structure_moves.json`). Merged areas move, grow and
+shrink as a reference to them would, and one left with a single cell is
+unmerged (`tests/fixtures/merge_structure_edits.json`). Several areas of whole
+rows or columns are deleted the last first. CopyOrigin, relative name context,
 and table/validation/chart metadata updates remain incomplete.
 
 **Inserting and deleting cells.** `Insert` and `Delete` with a `Shift` move
@@ -1037,8 +1038,12 @@ layouts).
   through a shift up or down, a whole-row one through a shift across.
 * Inserted cells take the formats of the cells above them, or to their
   left, as an inserted row does.
-* Several areas, merges, shapes, and rows or columns with formats of their
-  own report themselves unsupported.
+* A merged area wholly inside the shifting band moves with it, and one the
+  moving cells cut through is unmerged, its value staying with its cell;
+  Excel asks first unless DisplayAlerts is off, and that case reports itself
+  unsupported. Shapes wholly inside the band move with it, the rest stay put.
+* Several areas, and rows or columns with formats of their own, report
+  themselves unsupported.
 
 **Explicit-destination copies.** `Range.Copy Destination:=...` snapshots the
 source before writing, so overlapping copies preserve the original values.

@@ -2052,6 +2052,31 @@ class Workbook(ExcelObject):
         self.ink_comments = to_bool(value)
 
     @method
+    def EnableConnections(self) -> object:
+        """Turns on the data connections a file opened with them off; the model refreshes none
+        (tests/fixtures/workbook_small_methods.json)."""
+        return EMPTY
+
+    @method
+    def ConvertComments(self) -> object:
+        """Turns the notes into threaded comments: with no notes it changes nothing. Excel turns each note into a
+        threaded comment, which the model does not hold, so a workbook with notes is refused
+        (tests/fixtures/workbook_small_methods.json)."""
+        if any(sheet.notes for sheet in self.sheets_):
+            raise VBAUnsupportedError("Converting notes into threaded comments is not implemented")
+        return EMPTY
+
+    @member
+    def CanCheckIn(self) -> object:
+        """False: the model opens no workbook checked out of a server (tests/fixtures/workbook_small_methods.json)."""
+        return False
+
+    @method
+    def ExclusiveAccess(self) -> object:
+        """Error 1004: the model has no shared workbooks to take back (tests/fixtures/workbook_small_methods.json)."""
+        raise error(1004, "ExclusiveAccess method of Workbook class failed")
+
+    @method
     def RemoveDocumentInformation(self, RemoveDocInfoType: object = MISSING) -> object:  # noqa: N803 - native name
         from pyopenvba.apps.excel._document_properties import remove_information
 
@@ -3127,6 +3152,17 @@ class Worksheet(ExcelObject):
         """Circles the cells their validation rejects, which the model never draws, protected sheet or not
         (tests/fixtures/tracer_arrows.json)."""
         return EMPTY
+
+    @member
+    def EnableFormatConditionsCalculation(self) -> object:
+        """True whatever is set, and nothing is saved (tests/fixtures/format_conditions_calculation.json)."""
+        return True
+
+    @setter("EnableFormatConditionsCalculation")
+    def _set_format_conditions_calculation(self, value: object) -> None:
+        if value is NULL:
+            raise error(13)
+        to_bool(value)  # Excel takes any Boolean, and keeps reading True; anything else is a type mismatch.
 
     @member
     def ProtectContents(self) -> object:

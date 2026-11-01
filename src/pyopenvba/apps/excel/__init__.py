@@ -41,6 +41,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, to_text
 from pyopenvba.shapes import Shape
 from pyopenvba.apps.excel._named_api import NamedRange, NamedRangeAPI
 from pyopenvba.apps.excel._model import Names
+from pyopenvba.apps.excel import _pivot_properties as _pivot_properties  # noqa: F401 - registers pivot members
 
 __all__ = [
     "Application",

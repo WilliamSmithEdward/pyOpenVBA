@@ -430,6 +430,25 @@ class PivotTable(ExcelObject):
         return self.report_metadata
 
     @method
+    def GetData(self, Name: object = MISSING) -> object:
+        """The value the table shows for a name picking a data field and items (see _pivot_data_name)."""
+        from pyopenvba.apps.excel._pivot_data_name import picked
+
+        report = self.report()
+        if report is None or Name is MISSING:
+            raise error(1004)
+        if not report.readable:
+            raise VBAUnsupportedError('GetData on a cube or unsupported report layout')
+        value, chosen = picked(report, to_text(Name))
+        cell = report.cell(value, chosen)
+        shown = (EMPTY if cell is None else
+                 Range(self.sheet, [Area(cell.row, cell.column, cell.row, cell.column, self.sheet.name)]).vba_value())
+        if shown is EMPTY:
+            # A cell showing no value, items with no records together, is error 1004 too.
+            raise error(1004)
+        return shown
+
+    @method
     def GetPivotData(self, DataField: object = MISSING,
                      Field1: object = MISSING, Item1: object = MISSING,
                      Field2: object = MISSING, Item2: object = MISSING,

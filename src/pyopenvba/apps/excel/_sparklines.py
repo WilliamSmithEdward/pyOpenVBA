@@ -104,6 +104,8 @@ class Group:
     #: Its colours and anything else before its sparklines, as markup in its order.
     children: list[str]
     sparklines: list[Sparkline] = field(default_factory=list[Sparkline])
+    #: Its date range: the sheet named, None for its own, and the reference as given, in capitals.
+    dates: tuple[str | None, str] | None = None
 
 
 @dataclass
@@ -142,6 +144,12 @@ def _loaded(sheet: Worksheet) -> list[Group]:
             children: list[str] = []
             group = Group({_prefixed(key): value for key, value in found.attrib.items()}, children)
             for child in found:
+                if child.tag == xm + 'f':
+                    dates = _dates(child.text or '', sheet.name)
+                    if dates is None:
+                        raise VBAUnsupportedError('a sparkline date range that is no range is not implemented')
+                    group.dates = dates
+                    continue
                 if child.tag != x14 + 'sparklines':
                     children.append(_markup(child))
                     continue
@@ -162,7 +170,8 @@ def _loaded(sheet: Worksheet) -> list[Group]:
 
 
 def _prefixed(key: str) -> str:
-    return 'xr2:' + key.split('}', 1)[1] if key.startswith('{http://schemas.microsoft.com/office/spreadsheetml/2015') else key
+    revision = '{http://schemas.microsoft.com/office/spreadsheetml/2015'
+    return 'xr2:' + key.split('}', 1)[1] if key.startswith(revision) else key
 
 
 def _markup(element: XmlElement) -> str:
@@ -185,6 +194,19 @@ def _source(text: str, own: str) -> Source | None:
     return Source(None if sheet is None or sheet == own else sheet, first, last)
 
 
+def _dates(text: str, own: str) -> tuple[str | None, str] | None:
+    """A date range as given: its sheet, None for the group's own, and its reference in capitals, a cell kept a
+    cell (tests/fixtures/sparkline_dates.json)."""
+    found = _REFERENCE.fullmatch(text.strip())
+    if found is None:
+        return None
+    sheet = found['sheet']
+    if sheet is not None and sheet.startswith("'"):
+        sheet = sheet[1:-1].replace("''", "'")
+    reference = found['c1'].upper() + found['r1'] + (':' + found['c2'].upper() + found['r2'] if found['c2'] else '')
+    return (None if sheet is None or sheet == own else sheet), reference
+
+
 def touches(sheet: Worksheet) -> bool:
     """Whether a sparkline sits on the sheet or reads from it."""
     for other in sheet.book.sheets_:
@@ -193,6 +215,9 @@ def touches(sheet: Worksheet) -> bool:
             return True
         if any(line.source.sheet is not None and line.source.sheet.casefold() == sheet.name.casefold()
                for group in groups for line in group.sparklines):
+            return True
+        if any(group.dates is not None and group.dates[0] is not None
+               and group.dates[0].casefold() == sheet.name.casefold() for group in groups):
             return True
     return False
 
@@ -495,6 +520,34 @@ class SparklineGroup(ExcelObject):
     def _set_source_data(self, value: object) -> None:
         self.ModifySourceData(value)
 
+    @member
+    def DateRange(self) -> object:
+        """The date range as given, the group's own sheet left out; none is error 1004
+        (tests/fixtures/sparkline_dates.json)."""
+        if self.group.dates is None:
+            raise error(1004)
+        sheet, reference = self.group.dates
+        return reference if sheet is None else f'{_quoted(sheet)}!{reference}'
+
+    @setter('DateRange')
+    def _set_date_range(self, value: object) -> None:
+        self.ModifyDateRange(value)
+
+    @method
+    def ModifyDateRange(self, DateRange: object = MISSING) -> object:
+        """A new date range, which makes the horizontal axis a date axis; text that is no reference is error 1004,
+        and a sheet the workbook does not have is left out, as Excel leaves it out."""
+        found = _dates(to_text(DateRange), self.sheet.name)
+        if found is None:
+            raise error(1004)
+        if found[0] is not None and _book_sheet(self.sheet.book, found[0]) is None:
+            found = (None, found[1])
+        self.group.dates = found
+        self.group.attributes['dateAxis'] = '1'
+        self.group.attributes = _ordered(self.group.attributes)
+        self.edited()
+        return EMPTY
+
     @method
     def ModifySourceData(self, SourceData: object = MISSING) -> object:
         cells = [line.at for line in self.group.sparklines]
@@ -697,7 +750,8 @@ class SparkFormatColor(ExcelObject):
         return dict(re.findall(r'([\w:]+)="([^"]*)"', self.parent.group.children[self._found()]))
 
     def _write(self, attributes: dict[str, str]) -> None:
-        markup = f'<x14:{self.element}' + ''.join(f' {key}="{escape(value)}"' for key, value in attributes.items()) + '/>'
+        written = ''.join(f' {key}="{escape(value)}"' for key, value in attributes.items())
+        markup = f'<x14:{self.element}{written}/>'
         self.parent.group.children[self._found()] = markup
         self.parent.edited()
 
@@ -887,6 +941,20 @@ class SparkHorizontalAxis(ExcelObject):
         return self.parent.group.attributes.get('dateAxis', '0') in ('1', 'true')
 
     @member
+    def RightToLeftPlotOrder(self) -> object:
+        return self.parent.group.attributes.get('rightToLeft', '0') in ('1', 'true')
+
+    @setter('RightToLeftPlotOrder')
+    def _set_right_to_left_plot_order(self, value: object) -> None:
+        """rightToLeft, left out at False (tests/fixtures/sparkline_dates.json)."""
+        if _flag(value):
+            self.parent.group.attributes['rightToLeft'] = '1'
+        else:
+            self.parent.group.attributes.pop('rightToLeft', None)
+        self.parent.group.attributes = _ordered(self.parent.group.attributes)
+        self.parent.edited()
+
+    @member
     def RightToLeft(self) -> object:
         """Error 438 in Excel, read or set (tests/fixtures/sparkline_points.json)."""
         raise error(438, "Object doesn't support this property or method")
@@ -1016,9 +1084,12 @@ def written(sheet: Worksheet, xml: str) -> str:
 
 def _group_markup(sheet: Worksheet, group: Group) -> str:
     attributes = ''.join(f' {key}="{escape(value)}"' for key, value in _ordered(group.attributes).items())
+    dates = ''
+    if group.dates is not None:
+        dates = f'<xm:f>{escape_text(_quoted(group.dates[0] or sheet.name) + "!" + group.dates[1])}</xm:f>'
     lines = ''.join(f'<x14:sparkline><xm:f>{escape_text(line.source.formula(sheet.name))}</xm:f>'
                     f'<xm:sqref>{_cell_name(line.at)}</xm:sqref></x14:sparkline>' for line in group.sparklines)
-    return f'<x14:sparklineGroup{attributes}>{"".join(group.children)}<x14:sparklines>{lines}</x14:sparklines>' \
+    return f'<x14:sparklineGroup{attributes}>{"".join(group.children)}{dates}<x14:sparklines>{lines}</x14:sparklines>' \
            '</x14:sparklineGroup>'
 
 

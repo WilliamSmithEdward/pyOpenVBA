@@ -2228,7 +2228,7 @@ SparkHorizontalAxis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fi
 SparkHorizontalAxis,IsDateAxis,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"dateAxis, False by default."
 SparkHorizontalAxis,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its group.
 SparkHorizontalAxis,RightToLeft,not in the type library,,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"Error 438 in Excel, read or set."
-SparkHorizontalAxis,RightToLeftPlotOrder,property,As Boolean,,MISSING,,
+SparkHorizontalAxis,RightToLeftPlotOrder,property,As Boolean,,PARTIAL,tests/fixtures/sparkline_dates.json; tests/test_excel_sparkline_dates.py,"rightToLeft, left out at False."
 SparkPoints,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The application.
 SparkPoints,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,xlCreatorCode.
 SparkPoints,Firstpoint,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"first, its colour colorFirst."
@@ -2257,7 +2257,7 @@ SparklineGroup,Application,"property, read-only",As Application,,PARTIAL,tests/f
 SparklineGroup,Axes,"property, read-only",As SparkAxes,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its SparkAxes.
 SparklineGroup,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its sparklines.
 SparklineGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
-SparklineGroup,DateRange,property,As String,,MISSING,,
+SparklineGroup,DateRange,property,As String,,PARTIAL,tests/fixtures/sparkline_dates.json; tests/test_excel_sparkline_dates.py,"The date range as given, in capitals, the group's own sheet left out; none is 1004. A set is ModifyDateRange."
 SparklineGroup,Delete,method,Delete(),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Takes the group away.
 SparklineGroup,DisplayBlanksAs,property,As XlDisplayBlanksAs,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"xlNotPlotted (gap), xlZero (left out of the file) or xlInterpolated (span); another number 1004."
 SparklineGroup,DisplayHidden,property,As Boolean,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"displayHidden, left out at False."
@@ -2265,7 +2265,7 @@ SparklineGroup,Item,"property, read-only",As Sparkline,,PARTIAL,tests/fixtures/s
 SparklineGroup,LineWeight,property,As Variant,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"0.75 by default, left out of the file there; 0 to 1584, else 1004."
 SparklineGroup,Location,property,As Range,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Its cells; a set is passed over, as Excel passes it over."
 SparklineGroup,Modify,method,"Modify(Location As Range, SourceData As String)",,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,New cells and source.
-SparklineGroup,ModifyDateRange,method,ModifyDateRange(DateRange As String),,MISSING,,
+SparklineGroup,ModifyDateRange,method,ModifyDateRange(DateRange As String),,PARTIAL,tests/fixtures/sparkline_dates.json; tests/test_excel_sparkline_dates.py,"A new date range, written before the sparklines, the axis a date axis; text that is no reference is 1004, a sheet the workbook lacks left out."
 SparklineGroup,ModifyLocation,method,ModifyLocation(Location As Range),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"New cells, as many as before."
 SparklineGroup,ModifySourceData,method,ModifySourceData(SourceData As String),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A new source for the same cells.
 SparklineGroup,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The SparklineGroups it was reached through.

@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Stacked and 100% stacked charts: ChartType takes xlColumnStacked,
+  xlColumnStacked100, xlBarStacked, xlBarStacked100, xlLineStacked,
+  xlLineStacked100, xlLineMarkersStacked, xlLineMarkersStacked100,
+  xlAreaStacked and xlAreaStacked100, and they are written, saved and
+  read back as Excel writes them. Stacking a column or bar chart sets its
+  Overlap to 100, and unstacking it sets 0. A 100% chart's value axis
+  shows percentages. A stacked line chart follows its first series'
+  marker as a plain line chart does. Measured in
+  `tests/fixtures/chart_stacked.json`.
+
 - Series answers Parent, Application, AxisGroup, ChartType, Type,
   PlotColorIndex, IsFiltered, HasErrorBars, Has3DEffect, Shadow, BarShape,
   PictureType, PictureUnit2, InvertColorIndex and InvertColor, as Excel
@@ -498,6 +508,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A series NewSeries made, with no values yet, is saved with no values
+  element, as Excel saves it. It was written with an empty list of
+  values.
 
 - SetSourceData with no PlotBy plots by rows unless what the block's
   labels leave is taller than wide, as Excel does. It went by the whole

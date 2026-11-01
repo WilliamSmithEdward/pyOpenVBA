@@ -16,7 +16,7 @@ from pyopenvba._xml import attributes, escape as escape_attribute, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, DATA_TABLE, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
-from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState,
+from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           category_levels, linked_title, referenced_values, shown_cells, shown_type)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
@@ -214,12 +214,19 @@ def read_chart(xml: str, part: str) -> ChartState:
     _read_group(result, entry)
     grouping = entry.find('c:grouping', NS)
     group = grouping.attrib.get('val', '') if grouping is not None else ''
-    if kind == 'barChart' and group == 'clustered':
+    # Each kind's types by how it groups its series: clustered or standard, stacked, 100% stacked
+    # (tests/fixtures/chart_stacked.json).
+    stacking = {'clustered': 0, 'standard': 0, 'stacked': 1, 'percentStacked': 2}.get(group)
+    if kind == 'barChart' and stacking is not None and group != 'standard':
         direction = entry.find('c:barDir', NS)
-        result.chart_type = 57 if direction is not None and direction.attrib.get('val') == 'bar' else 51
-    elif kind == 'lineChart' and group == 'standard':
+        across = direction is not None and direction.attrib.get('val') == 'bar'
+        result.chart_type = ((57, 58, 59) if across else (51, 52, 53))[stacking]
+    elif kind == 'lineChart' and stacking is not None and group != 'clustered':
         marker = entry.find('c:marker', NS)
-        result.chart_type = 65 if marker is not None and marker.attrib.get('val') == '1' else 4
+        marked = marker is not None and marker.attrib.get('val') == '1'
+        result.chart_type = ((65, 66, 67) if marked else (4, 63, 64))[stacking]
+    elif kind == 'areaChart' and group in ('stacked', 'percentStacked'):
+        result.chart_type = 76 if group == 'stacked' else 77
     elif kind == 'scatterChart':
         style = entry.find('c:scatterStyle', NS)
         scatter = style.attrib.get('val', '') if style is not None else ''
@@ -487,7 +494,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                           deleted=state.legend_deleted)
                      if state.legend else "", axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,
-                     not_available_as_blank=state.not_available_as_blank)
+                     not_available_as_blank=state.not_available_as_blank,
+                     grouping=STACKED.get(shown_type(state), ''))
     from pyopenvba.apps.excel._chart_axes_file import generated
 
     xml = generated(xml, state, lambda formula: linked_title(sheet, formula), dated_categories(sheet, state))
@@ -505,6 +513,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)
+    # A series with no values yet, as NewSeries makes one, has no values element (tests/fixtures/chart_stacked.json).
+    xml = re.sub(r'<c:(val|yVal)><c:numLit><c:formatCode>[^<]*</c:formatCode><c:ptCount val="0"/></c:numLit>'
+                 r'</c:\1>', '', xml)
     return xml
 
 def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:

@@ -7,6 +7,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Rows that grow with a larger font move and size the shapes over them,
+  by their Placement, as Excel moves them. Measured in
+  `tests/fixtures/shape_structure_moves.json`.
+
 - Inserting and deleting rows, columns and cells on a sheet with merged
   cells. The model refused this before. A merged area moves, grows and
   shrinks as a reference to it would, and one left with a single cell is

@@ -2154,7 +2154,7 @@ Shape,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_memb
 Shape,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,The group a shape is in; a shape in none raises 1004.
 Shape,PickUp,method,PickUp(),,MISSING,,
 Shape,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
-Shape,Placement,property,As XlPlacement,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"Read and set as the anchor's editAs. xlMoveAndSize moves and sizes the shape with the columns and rows under it, xlMove moves it, xlFreeFloating leaves it; values other than 1 to 3 are not implemented. Row heights that change by themselves, with fonts or wrapped text, do not move shapes yet."
+Shape,Placement,property,As XlPlacement,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json; tests/fixtures/shape_structure_moves.json,"Read and set as the anchor's editAs. xlMoveAndSize moves and sizes the shape with the columns and rows under it, rows grown by their fonts included, xlMove moves it, xlFreeFloating leaves it; values other than 1 to 3 are not implemented. Rows grown by wrapped text are not measured."
 Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
 Shape,RerouteConnections,method,RerouteConnections(),,MISSING,,

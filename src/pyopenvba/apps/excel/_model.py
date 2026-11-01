@@ -2603,9 +2603,11 @@ class Worksheet(ExcelObject):
         return root is not None and "xmlns:xr=" in root.group(0)
 
     def drawing_changed(self) -> None:
-        """A shape was added, moved, renamed or deleted."""
+        """A shape was added, moved, renamed or deleted: where the shapes are anchored now is remembered, for rows
+        that grow by their fonts to move them by."""
         self.drawing_dirty = True
         self.book.saved = False
+        self.dims.remember_shapes()
 
     def column_width_points(self, column: int) -> float:
         """How wide a column is in points, which a shape's cell needs: none when hidden."""

@@ -49,6 +49,7 @@ def _start(sizes: Sizes, index: int) -> float:
 
 def anchors(sheet: Worksheet) -> list[tuple[Shape, Anchor]]:
     """The anchors of the sheet's shapes that follow their cells."""
+    sheet.dims.settle_shapes()
     widths, heights = sheet.column_width_points, sheet.row_height_points
     held: list[tuple[Shape, Anchor]] = []
     for shape in sheet.shapes_:
@@ -65,6 +66,14 @@ def anchors(sheet: Worksheet) -> list[tuple[Shape, Anchor]]:
 def placed(sheet: Worksheet, held: list[tuple[Shape, Anchor]], *, rewrite: bool = False) -> None:
     """Each shape put back over the cells it was anchored to. ``rewrite`` says the cells themselves moved, so that a
     loaded shape's anchor in the file no longer holds and is written again."""
+    sheet.dims.placing = True
+    try:
+        _place(sheet, held, rewrite)
+    finally:
+        sheet.dims.placing = False
+
+
+def _place(sheet: Worksheet, held: list[tuple[Shape, Anchor]], rewrite: bool) -> None:
     from pyopenvba.apps.excel._shapes import ShapeObject
 
     widths, heights = sheet.column_width_points, sheet.row_height_points
@@ -93,6 +102,32 @@ def placed(sheet: Worksheet, held: list[tuple[Shape, Anchor]], *, rewrite: bool 
                 setattr(shape, name, value)
         else:
             ShapeObject(sheet, shape).placed_by_cells(**changes)
+
+
+def remembered(sheet: Worksheet) -> None:
+    """Each shape that follows its cells remembered with where it is anchored now."""
+    if sheet.dims.placing:
+        return
+    kept: dict[int, tuple[Anchor, tuple[float, float, float, float]]] = {}
+    for shape, anchor in anchors(sheet):
+        kept[id(shape)] = (anchor, (shape.left, shape.top, shape.width, shape.height))
+    sheet.dims.kept_anchors = kept
+
+
+def replaced(sheet: Worksheet) -> None:
+    """After row heights are worked out again, each shape still where its remembered anchor put it, put back by
+    that anchor: rows grown by their fonts move the shapes over them (tests/fixtures/shape_structure_moves.json)."""
+    held: list[tuple[Shape, Anchor]] = []
+    for shape in sheet.shapes_:
+        kept = sheet.dims.kept_anchors.get(id(shape))
+        if kept is None or shape.edit_as == 'absolute':
+            continue
+        anchor, box = kept
+        if all(abs(was - now) <= 1e-9 for was, now in zip(box, (shape.left, shape.top, shape.width, shape.height),
+                                                          strict=True)):
+            held.append((shape, anchor))
+    if held:
+        placed(sheet, held)
 
 
 def lines_edited(sheet: Worksheet, held: list[tuple[Shape, Anchor]], *, rows: bool, start: int, count: int,
@@ -134,7 +169,7 @@ def anchored_cell(sheet: Worksheet, shape: Shape, corner: str) -> tuple[int, int
     """The column and row of the cell under a shape's corner, "top left" or "bottom right", as the anchor it was last
     placed by holds it, which may be hidden; None once the shape has moved since, or if it never was."""
     kept = sheet.dims.kept_anchors.get(id(shape))
-    if kept is None:
+    if kept is None or shape.edit_as == 'absolute':
         return None
     anchor, box = kept
     if any(abs(held - now) > 1e-9 for held, now in zip(box, (shape.left, shape.top, shape.width, shape.height),

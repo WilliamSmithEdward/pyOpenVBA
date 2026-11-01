@@ -292,6 +292,8 @@ class SheetDimensions:
         #: By shape: the anchor it was last placed by and the box that gave it, which TopLeftCell answers from while
         #: the shape stays there (see _shape_anchors.anchored_cell).
         self.kept_anchors: dict[int, tuple[Anchor, tuple[float, float, float, float]]] = {}
+        #: Whether shapes are being put back over their cells, which is no move of theirs to remember.
+        self.placing = False
         self.columns_changed = False
         self.format_changed = False
         #: Rows were inserted or deleted, so no row's old start tag is where it was.
@@ -497,18 +499,44 @@ class SheetDimensions:
     def fonts_changed(self, row: int) -> None:
         """A cell in a row changed its value or its format, or went away, or the row's format changed."""
         self._touched.add(row)
-        self._grown_valid = False
+        self.invalidate_growth()
 
     def column_fonts_changed(self) -> None:
         """A column's format changed, which every row without a format of its own shows."""
         self._columns_touched = True
-        self._grown_valid = False
+        self.invalidate_growth()
 
     def invalidate_growth(self) -> None:
-        """Something that decides which fonts count changed: a merge."""
+        """Something that decides which fonts count changed: a merge. Rows that grow move the shapes over them, so
+        where those are anchored is held first, while the heights are still the ones they were placed by
+        (tests/fixtures/shape_structure_moves.json)."""
+        if self._grown_valid and self.sheet.shapes_:
+            self.remember_shapes()
         self._grown_valid = False
 
+    def remember_shapes(self) -> None:
+        """Where each shape that follows its cells is anchored now, which rows that grow by their fonts later move
+        it by (see settle_shapes)."""
+        from pyopenvba.apps.excel._shape_anchors import remembered
+
+        remembered(self.sheet)
+
+    def settle_shapes(self) -> None:
+        """Rows grown by their fonts since a shape was placed, worked out, and the shapes moved with them; for
+        anything about to read where a shape is."""
+        if not self._grown_valid and self.kept_anchors:
+            self._settle()
+
     def _settle(self) -> None:
+        if self._grown_valid:
+            return
+        self._work_out_growth()
+        if self.kept_anchors:
+            from pyopenvba.apps.excel._shape_anchors import replaced
+
+            replaced(self.sheet)
+
+    def _work_out_growth(self) -> None:
         """Work out how tall each row's fonts and borders make it, and the standard row the column formats make.
 
         Every position of a row shows a font: its cell's, else the row's
@@ -518,8 +546,6 @@ class SheetDimensions:
         or heavier line along a row's bottom, and a thick or double line
         along its top, draw it a pixel taller (see :func:`_edge_flags`).
         """
-        if self._grown_valid:
-            return
         self._grown_valid = True
         self._grown.clear()
         self._unmeasured.clear()

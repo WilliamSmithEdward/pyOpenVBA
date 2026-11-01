@@ -292,7 +292,6 @@ def read(sheet: Worksheet, comments: str, vml: str) -> None:
         sheet.notes[key] = Note(text=text, author=author, visible=visible, name=f"Comment {shape_id - start}",
                                 shape_id=shape_id, anchor=corners, width=width, height=height, uid=uid,
                                 comment_xml=markup, shape_xml=shape)
-    sheet.shape_count = max([sheet.shape_count, *(note.shape_id - start for note in sheet.notes.values())])
 
 
 __all__ = ["COMMENTS_RELATIONSHIP", "COMMENTS_TYPE", "NOTE_SHAPE_TYPE", "comments_part", "decoded", "empty_vml",

@@ -1,0 +1,136 @@
+{
+ "measured_at": "2026-11-01T02:05:18.911045+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, ch As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\"))\n    ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3))\n    Set ch = ws.ChartObjects.Add(100, 10, 300, 200).Chart\n    ch.SetSourceData ws.Range(\"A1:B4\")\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n    Case 1\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = xlZero\n    Case 2\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = xlInterpolated\n    Case 3\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.ChartType = xlArea\n    Case 4\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = xlZero: ch.ChartType = xlArea\n    Case 5\n        ch.ChartType = xlArea: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = xlInterpolated: ch.ChartType = xlColumnClustered\n    Case 6\n        ch.ChartType = xlArea: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.ChartType = xlLine\n    Case 7\n        ch.ChartType = xlPie: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = xlZero\n    Case 8\n        ch.ChartType = xlXYScatter: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n    Case 9\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = 0\n    Case 10\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = 4\n    Case 11\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = -1\n    Case 12\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = 9: ch.ChartType = xlLine\n    Case 13\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = \"2\"\n    Case 14\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = 2.6\n    Case 15\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = 2.5\n    Case 16\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayValueNotAvailableAsBlank = False\n    Case 17\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayValueNotAvailableAsBlank = False: ch.DisplayValueNotAvailableAsBlank = True\n    Case 18\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.PlotVisibleOnly = 0: ch.ShowDataLabelsOverMaximum = -1\n    Case 19\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.PlotVisibleOnly = False: ch.PlotVisibleOnly = \"True\"\n    Case 20\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.PlotVisibleOnly = \"x\"\n    Case 21\n        ch.ChartType = xlColumnClustered: s = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n        ch.DisplayBlanksAs = \"x\"\n    End Select\n    Tried = \"ok\" & s & \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & s\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 21\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n\nPublic Function Reopen(ByVal path As String) As String\n    Dim wb As Workbook, ch As Object\n    Set wb = Workbooks.Open(path)\n    Set ch = wb.Worksheets(1).ChartObjects(1).Chart\n    Reopen = \"|\" & ch.DisplayBlanksAs & \",\" & ch.PlotVisibleOnly & \",\" & ch.ShowDataLabelsOverMaximum & \",\" & ch.DisplayValueNotAvailableAsBlank\n    wb.Close False\nEnd Function\n",
+ "strips": {
+  "absent": [
+   "<c:plotVisOnly[^>]*/>|<c:dispBlanksAs[^>]*/>|<c:showDLblsOverMax[^>]*/>|<c:extLst><c:ext uri=\"\\{56B9EC1D[^\"]*\"[^>]*>.*?</c:ext></c:extLst>",
+   ""
+  ],
+  "no val": [
+   "<(c:plotVisOnly|c:dispBlanksAs|c:showDLblsOverMax|c16r3:dispNaAsBlank) val=\"[^\"]*\"/>",
+   "<\\1/>"
+  ]
+ },
+ "cases": [
+  [
+   "xlColumnClustered: ",
+   "ok|1,True,False,True|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = xlZero",
+   "ok|1,True,False,True|2,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"zero\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = xlInterpolated",
+   "ok|1,True,False,True|3,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"span\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.ChartType = xlArea",
+   "ok|1,True,False,True|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = xlZero: ch.ChartType = xlArea",
+   "ok|1,True,False,True|2,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"zero\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlArea: ch.DisplayBlanksAs = xlInterpolated: ch.ChartType = xlColumnClustered",
+   "ok|1,True,False,True|3,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"span\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlArea: ch.ChartType = xlLine",
+   "ok|1,True,False,True|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlPie: ch.DisplayBlanksAs = xlZero",
+   "ok|1,True,False,True|2,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"zero\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlXYScatter: ",
+   "ok|1,True,False,True|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = 0",
+   "ok|1,True,False,True|0,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = 4",
+   "ok|1,True,False,True|4,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = -1",
+   "ok|1,True,False,True|-1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = 9: ch.ChartType = xlLine",
+   "ok|1,True,False,True|9,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = \"2\"",
+   "ok|1,True,False,True|2,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"zero\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = 2.6",
+   "ok|1,True,False,True|3,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"span\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = 2.5",
+   "ok|1,True,False,True|2,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"zero\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayValueNotAvailableAsBlank = False",
+   "ok|1,True,False,True|1,True,False,False",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayValueNotAvailableAsBlank = False: ch.DisplayValueNotAvailableAsBlank = True",
+   "ok|1,True,False,True|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.PlotVisibleOnly = 0: ch.ShowDataLabelsOverMaximum = -1",
+   "ok|1,True,False,True|1,False,True,True",
+   "<c:plotVisOnly val=\"0\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"1\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.PlotVisibleOnly = False: ch.PlotVisibleOnly = \"True\"",
+   "ok|1,True,False,True|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.PlotVisibleOnly = \"x\"",
+   "Err 13|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ],
+  [
+   "xlColumnClustered: ch.DisplayBlanksAs = \"x\"",
+   "Err 13|1,True,False,True",
+   "<c:plotVisOnly val=\"1\"/><c:dispBlanksAs val=\"gap\"/><c:showDLblsOverMax val=\"0\"/><c:extLst><c:ext uri=\"{56B9EC1D-385E-4148-901F-78D8002777C0}\" xmlns:c16r3=\"http://schemas.microsoft.com/office/drawing/2017/03/chart\"><c16r3:dataDisplayOptions16><c16r3:dispNaAsBlank val=\"1\"/></c16r3:dataDisplayOptions16></c:ext></c:extLst>"
+  ]
+ ],
+ "reopened": [
+  [
+   "absent",
+   "|2,True,True,False"
+  ],
+  [
+   "no val",
+   "|2,True,True,False"
+  ]
+ ]
+}

@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, NoReturn
 from pyopenvba._xml import attributes, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
-from pyopenvba.apps.excel._chart_xml import CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
+from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
 from pyopenvba.apps.excel._charts import MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState, referenced_values
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 NS = {'c': 'http://schemas.openxmlformats.org/drawingml/2006/chart',
       'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
 REL_CHART = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart'
+C16R3 = 'http://schemas.microsoft.com/office/drawing/2017/03/chart'
 
 # Shared with the pivot reader: constructing a node does not parse XML.
 XmlElement = ET.Element
@@ -148,6 +149,24 @@ def read(sheet: Worksheet, package: OpcFile) -> None:
             xml = package.read(part).decode('utf-8')
             sheet.chart_states[shape.shape_id] = read_chart(xml, part)
 
+def read_display(result: ChartState, root: ET.Element) -> None:
+    """The chart's display options as Excel reads them: an element left out, or written with no val, reads as
+    DisplayBlanksAs 2, PlotVisibleOnly and ShowDataLabelsOverMaximum True, DisplayValueNotAvailableAsBlank False."""
+    def flag(path: str, fallback: bool, namespaces: dict[str, str]) -> bool | None:
+        node = root.find(path, namespaces)
+        text = node.get('val') if node is not None else None
+        return fallback if text is None else {'1': True, 'true': True, '0': False, 'false': False}.get(text)
+
+    blanks = root.find('c:chart/c:dispBlanksAs', NS)
+    text = blanks.get('val') if blanks is not None else None
+    result.blanks = 2 if text is None else {spelled: value for value, spelled in BLANKS.items()}.get(text, 0)
+    flags = (flag('c:chart/c:plotVisOnly', True, NS), flag('c:chart/c:showDLblsOverMax', True, NS),
+             flag('c:chart/c:extLst/c:ext/c16r3:dataDisplayOptions16/c16r3:dispNaAsBlank', False, NS | {'c16r3': C16R3}))
+    if text not in (None, *BLANKS.values()) or None in flags:
+        result.display_readable = False
+        return
+    result.visible_only, result.over_maximum, result.not_available_as_blank = (bool(value) for value in flags)
+
 def read_chart(xml: str, part: str) -> ChartState:
     root = xml_tree(xml)
     result = ChartState(part=part, original=xml, dirty=False, chart_type=0)
@@ -156,6 +175,7 @@ def read_chart(xml: str, part: str) -> ChartState:
     if title is not None:
         result.title = ''.join(node.text or '' for node in title.findall('.//a:t', NS)) or 'Chart Title'
     result.legend = root.find('c:chart/c:legend', NS) is not None
+    read_display(result, root)
     plot = root.find('c:chart/c:plotArea', NS)
     if plot is None:
         return result
@@ -326,7 +346,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     kind = CHART_TYPES.get(chart.state.chart_type)
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
-    xml = chart_part(kind, data, title=chart.state.title, axis_ids=chart.state.axis_ids)
+    xml = chart_part(kind, data, title=chart.state.title, axis_ids=chart.state.axis_ids, blanks=chart.state.blanks,
+                     visible_only=chart.state.visible_only, over_maximum=chart.state.over_maximum,
+                     not_available_as_blank=chart.state.not_available_as_blank)
     from pyopenvba.apps.excel._chart_axes_file import generated
 
     xml = generated(xml, chart.state)

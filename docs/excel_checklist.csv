@@ -531,8 +531,8 @@ Chart,DataTable,"property, read-only",As DataTable,,MISSING,,
 Chart,Deactivate,event,Deactivate(),,MISSING,,
 Chart,Delete,method,Delete(),,MISSING,,
 Chart,DepthPercent,property,As Long,,MISSING,,
-Chart,DisplayBlanksAs,property,As XlDisplayBlanksAs,,MISSING,,
-Chart,DisplayValueNotAvailableAsBlank,property,As Boolean,,MISSING,,
+Chart,DisplayBlanksAs,property,As XlDisplayBlanksAs,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,"Any Long is kept and read back; only 1 to 3 reach the file. 1 for every new chart, kept through ChartType. Imported charts read only."
+Chart,DisplayValueNotAvailableAsBlank,property,As Boolean,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,False drops the dataDisplayOptions16 extension; left out of a file it reads False. Imported charts read only.
 Chart,Elevation,property,As Long,,MISSING,,
 Chart,Evaluate,method,Evaluate(Name As Variant) As Variant,,MISSING,,
 Chart,Export,method,"Export(Filename As String, [FilterName As Variant], [Interactive As Variant]) As Boolean",,MISSING,,
@@ -566,7 +566,7 @@ Chart,Perspective,property,As Long,,MISSING,,
 Chart,PivotLayout,"property, read-only",As PivotLayout,,MISSING,,
 Chart,PlotArea,"property, read-only",As PlotArea,,MISSING,,
 Chart,PlotBy,property,As XlRowCol,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-Chart,PlotVisibleOnly,property,As Boolean,,MISSING,,
+Chart,PlotVisibleOnly,property,As Boolean,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,Written as plotVisOnly; left out of a file it reads True. Imported charts read only.
 Chart,Previous,"property, read-only",As Object,,MISSING,,
 Chart,PrintedCommentPages,"property, read-only",As Long,,MISSING,,
 Chart,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant])",,MISSING,,
@@ -596,7 +596,7 @@ Chart,SetSourceData,method,"SetSourceData(Source As Range, [PlotBy As Variant])"
 Chart,Shapes,"property, read-only",As Shapes,,MISSING,,
 Chart,ShowAllFieldButtons,property,As Boolean,,MISSING,,
 Chart,ShowAxisFieldButtons,property,As Boolean,,MISSING,,
-Chart,ShowDataLabelsOverMaximum,property,As Boolean,,MISSING,,
+Chart,ShowDataLabelsOverMaximum,property,As Boolean,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,Written as showDLblsOverMax; left out of a file it reads True. Imported charts read only.
 Chart,ShowExpandCollapseEntireFieldButtons,property,As Boolean,,MISSING,,
 Chart,ShowLegendFieldButtons,property,As Boolean,,MISSING,,
 Chart,ShowReportFilterFieldButtons,property,As Boolean,,MISSING,,

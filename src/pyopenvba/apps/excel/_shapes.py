@@ -34,7 +34,17 @@ from pyopenvba.interpreter._values import (
     to_number,
     to_text,
 )
-from pyopenvba.shapes._values import PRESET_GEOMETRY, SHAPE_NAMES, Shape
+from pyopenvba.shapes._values import (
+    PRESET_GEOMETRY,
+    SHAPE_NAMES,
+    Box,
+    Shape,
+    child_space,
+    emu,
+    to_child,
+    to_sheet,
+    union,
+)
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -114,6 +124,11 @@ class Shapes(VBACollection, Created):
             for shape in self.sheet.shapes_:
                 if shape.name.lower() == index.lower():
                     return ShapeObject(self.sheet, shape)
+            # A shape inside a group answers to its name too (tests/fixtures/shape_group_items.json).
+            for group in self.sheet.shapes_:
+                for shape in group.children:
+                    if shape.name.lower() == index.lower():
+                        return ShapeObject(self.sheet, shape)
             for key, note in self.sheet.notes.items():
                 if note.name.lower() == index.lower():
                     from pyopenvba.apps.excel._notes import NoteShape
@@ -246,15 +261,7 @@ class Shapes(VBACollection, Created):
     @method
     def Range(self, Index: object = MISSING) -> object:
         """The shapes an argument names, as a range of them."""
-        if Index is MISSING:
-            raise error(449)
-        if isinstance(Index, VBAArray):
-            wanted: list[object] = list(Index.elements())
-        else:
-            wanted = [*Index] if isinstance(Index, list) else [Index]  # type: ignore[misc]
-        items = self.vba_items()
-        chosen = [self.vba_lookup(one, items) for one in wanted]
-        return ShapeRange([one for one in chosen if isinstance(one, ShapeObject)])
+        return _chosen(self, Index)
 
     @method
     def SelectAll(self) -> object:
@@ -299,10 +306,12 @@ class Shapes(VBACollection, Created):
         return f"{stem} {self.sheet.shape_count}"
 
     def _free_id(self) -> int:
-        # A group's members keep their ids, which no new shape may take.
+        # A group's members keep their ids, which no new shape may take, and an ungrouped group keeps its own
+        # while its shapes could be regrouped (tests/fixtures/shape_group_items.json).
         drawn = [*self.sheet.shapes_]
         for one in drawn:
             drawn.extend(one.children)
+        drawn += [one.former_group for one in drawn if one.former_group is not None]
         return max((one.shape_id for one in drawn), default=1) + 1
 
 
@@ -446,25 +455,42 @@ class ShapeRange(VBACollection, Created):
         next one. Fewer than two shapes raise 1004."""
         if len(self.shapes) < 2:
             raise error(1004, "Grouping needs two shapes or more")
-        sheet = self.shapes[0].sheet
         for shape in self.shapes:
             shape.guard("Group")
             if (shape.shape.source or shape.shape.kind not in ("shape", "textBox", "line") or shape.shape.rotation
                     or shape.shape.flip_h or shape.shape.flip_v):
                 raise _unsupported("grouping this shape")
-        members = [one for one in sheet.shapes_ if any(one is shape.shape for shape in self.shapes)]
-        shapes = Shapes(sheet)
-        left = min(one.left for one in members)
-        top = min(one.top for one in members)
-        group = Shape(name=shapes._free_name("Group"), kind="group", shape_id=shapes._free_id(),  # pyright: ignore[reportPrivateUsage]
-                      left=left, top=top, width=max(one.left + one.width for one in members) - left,
-                      height=max(one.top + one.height for one in members) - top, children=members)
-        place = max(index for index, one in enumerate(sheet.shapes_) if any(one is member for member in members))
-        place -= len(members) - 1
-        sheet.shapes_ = [one for one in sheet.shapes_ if not any(one is member for member in members)]
-        sheet.shapes_.insert(place, group)
-        sheet.drawing_changed()
-        return ShapeObject(sheet, group)
+        return ShapeObject(self.shapes[0].sheet, grouped(self.shapes[0].sheet, [one.shape for one in self.shapes]))
+
+    @method
+    def Regroup(self) -> object:
+        """The group Ungroup took these shapes out of, made again with the next name and id; shapes that came out
+        of no group raise 1004 (tests/fixtures/shape_group_items.json)."""
+        former = self.shapes[0].shape.former_group if self.shapes else None
+        if former is None or any(one.shape.former_group is not former for one in self.shapes):
+            raise error(1004, "These shapes were not ungrouped together")
+        sheet = self.shapes[0].sheet
+        members = [one for one in sheet.shapes_ if one.former_group is former]
+        # After a member moves Excel writes the members inside the old group's child space, where the saved file
+        # draws them elsewhere than Excel answers; that is left unmodelled.
+        moved = tuple(map(emu, union([_box(one) for one in members]))) != tuple(map(emu, _box(former)))
+        if len(members) != len(self.shapes) or former.child_box is not None or moved:
+            raise _unsupported("regrouping shapes moved since they were ungrouped")
+        return ShapeObject(sheet, grouped(sheet, members))
+
+    @method
+    def Ungroup(self) -> object:
+        """Every group in the range ungrouped, their shapes answered as one range; shapes that are not groups are
+        passed over, and a range with no group raises 1004 (tests/fixtures/shape_group_items.json)."""
+        groups = [one for one in self.shapes if one.shape.kind == "group"]
+        if not groups:
+            raise error(1004, "There is no group to ungroup")
+        members: list[ShapeObject] = []
+        for group in groups:
+            ungrouped = group.Ungroup()
+            assert isinstance(ungrouped, ShapeRange)
+            members += ungrouped.shapes
+        return ShapeRange(members)
 
     @method
     def Delete(self) -> object:
@@ -562,8 +588,7 @@ class ShapeObject(_Drawn):
 
     @setter("Left")
     def _set_left(self, value: object) -> None:
-        self.shape.left = _number(value)
-        self.sheet.drawing_changed()
+        self._placed(left=_number(value))
 
     @member
     def Top(self) -> object:
@@ -571,7 +596,32 @@ class ShapeObject(_Drawn):
 
     @setter("Top")
     def _set_top(self, value: object) -> None:
-        self.shape.top = _number(value)
+        self._placed(top=_number(value))
+
+    def _placed(self, **changes: float) -> None:
+        """The shape given a new left, top, width or height (tests/fixtures/shape_group_items.json).
+
+        A new group carries its members with it, scaled with it, and keeps its child space as it was. A member of
+        one moves inside that child space, which then becomes the members' boxes together, and the group's box
+        follows at the scale it had."""
+        shape = self.shape
+        group = parent_group(self.sheet, shape)
+        if shape.kind == "group" and not shape.source:
+            inside = [to_child(shape, _box(one)) for one in shape.children]
+            shape.child_box = child_space(shape)
+            _set_box(shape, (changes.get("left", shape.left), changes.get("top", shape.top),
+                             changes.get("width", shape.width), changes.get("height", shape.height)))
+            for one, held in zip(shape.children, inside, strict=True):
+                _set_box(one, to_sheet(shape, held))
+        elif group is not None and not group.source:
+            for name, value in changes.items():
+                setattr(shape, name, value)
+            space = union([to_child(group, _box(one)) for one in group.children])
+            _set_box(group, to_sheet(group, space))
+            group.child_box = space
+        else:
+            for name, value in changes.items():
+                setattr(shape, name, value)
         self.sheet.drawing_changed()
 
     def restyled(self) -> Shape:
@@ -634,15 +684,13 @@ class ShapeObject(_Drawn):
     def IncrementLeft(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
         self.guard("IncrementLeft")
         # Excel stops a shape at the sheet's edge.
-        self.shape.left = max(0.0, self.shape.left + _number(Increment))
-        self.sheet.drawing_changed()
+        self._placed(left=max(0.0, self.shape.left + _number(Increment)))
         return EMPTY
 
     @method
     def IncrementTop(self, Increment: object = MISSING) -> object:  # noqa: N803 - native named argument
         self.guard("IncrementTop")
-        self.shape.top = max(0.0, self.shape.top + _number(Increment))
-        self.sheet.drawing_changed()
+        self._placed(top=max(0.0, self.shape.top + _number(Increment)))
         return EMPTY
 
     @member
@@ -728,8 +776,7 @@ class ShapeObject(_Drawn):
 
     @setter("Width")
     def _set_width(self, value: object) -> None:
-        self.shape.width = _number(value)
-        self.sheet.drawing_changed()
+        self._placed(width=_number(value))
 
     @member
     def Height(self) -> object:
@@ -737,8 +784,7 @@ class ShapeObject(_Drawn):
 
     @setter("Height")
     def _set_height(self, value: object) -> None:
-        self.shape.height = _number(value)
-        self.sheet.drawing_changed()
+        self._placed(height=_number(value))
 
     @member
     def TopLeftCell(self) -> object:
@@ -785,10 +831,20 @@ class ShapeObject(_Drawn):
         if self.shape.source:
             raise _unsupported("ungrouping a group loaded from a file")
         members = self.shape.children
+        for one in members:
+            one.former_group = self.shape
         place = self._position() - 1
         self.sheet.shapes_[place:place + 1] = members
         self.sheet.drawing_changed()
         return ShapeRange([ShapeObject(self.sheet, one) for one in members])
+
+    @member
+    def ParentGroup(self) -> object:
+        """The group a shape is in; a shape in none raises 1004 (tests/fixtures/shape_group_items.json)."""
+        group = parent_group(self.sheet, self.shape)
+        if group is None:
+            raise error(1004, "This shape is in no group")
+        return ShapeObject(self.sheet, group)
 
     @method
     def Delete(self) -> object:
@@ -796,6 +852,10 @@ class ShapeObject(_Drawn):
         from pyopenvba.apps.excel._radios import deleting
 
         guard_drawing(self.sheet, "Shape.Delete")
+        group = parent_group(self.sheet, self.shape)
+        if group is not None:
+            self._left_group(group)
+            return EMPTY
         deleting(self.sheet, self.shape)
         if self.shape.kind == 'chart':
             chart = self.sheet.chart_states.pop(self.shape.shape_id, None)
@@ -804,6 +864,21 @@ class ShapeObject(_Drawn):
         self.sheet.shapes_ = [one for one in self.sheet.shapes_ if one is not self.shape]
         self.sheet.drawing_changed()
         return EMPTY
+
+    def _left_group(self, group: Shape) -> None:
+        """A member deleted from its group (tests/fixtures/shape_group_items.json): the last one left takes the
+        group's place, or the group's child space becomes the rest's boxes together, its box following."""
+        if group.source:
+            raise _unsupported("deleting a shape inside a group loaded from a file")
+        group.children = [one for one in group.children if one is not self.shape]
+        if len(group.children) == 1:
+            place = [index for index, one in enumerate(self.sheet.shapes_) if one is group][0]
+            self.sheet.shapes_[place] = group.children[0]
+        else:
+            space = union([to_child(group, _box(one)) for one in group.children])
+            _set_box(group, to_sheet(group, space))
+            group.child_box = space
+        self.sheet.drawing_changed()
 
     @method
     def Select(self, Replace: object = MISSING) -> object:
@@ -846,6 +921,15 @@ class GroupItems(VBACollection, Created):
 
     def vba_items(self) -> list[object]:
         return [ShapeObject(self.sheet, one) for one in self.group.children]
+
+    @member
+    def Parent(self) -> object:
+        """The group itself, as Excel answers it (tests/fixtures/shape_group_items.json)."""
+        return ShapeObject(self.sheet, self.group)
+
+    @method
+    def Range(self, Index: object = MISSING) -> object:
+        return _chosen(self, Index)
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         if isinstance(index, str):
@@ -1176,10 +1260,59 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
         sheet.shape_count += 1
         name = shape.name
     copy = replace(shape, name=name, shape_id=shapes._free_id(),  # pyright: ignore[reportPrivateUsage]
-                   left=shape.left + 12, top=shape.top + 12, children=[], source="", source_at=0)
+                   left=shape.left + 12, top=shape.top + 12, children=[], source="", source_at=0, former_group=None)
     sheet.shapes_.append(copy)
     sheet.drawing_changed()
     return copy
+
+
+def grouped(sheet: Worksheet, shapes: list[Shape]) -> Shape:
+    """A new group of these shapes, as Excel makes one (tests/fixtures/shape_group.json).
+
+    It takes the place of its topmost member and holds them in the order the sheet does. Its box is theirs
+    together, its name "Group" and the sheet's next number, its id the next one."""
+    members = [one for one in sheet.shapes_ if any(one is shape for shape in shapes)]
+    made = Shapes(sheet)
+    group = Shape(name=made._free_name("Group"), kind="group", shape_id=made._free_id(),  # pyright: ignore[reportPrivateUsage]
+                  children=members)
+    _set_box(group, union([_box(one) for one in members]))
+    place = max(index for index, one in enumerate(sheet.shapes_) if any(one is member for member in members))
+    place -= len(members) - 1
+    sheet.shapes_ = [one for one in sheet.shapes_ if not any(one is member for member in members)]
+    sheet.shapes_.insert(place, group)
+    for one in members:
+        one.former_group = None
+    sheet.drawing_changed()
+    return group
+
+
+def parent_group(sheet: Worksheet, shape: Shape) -> Shape | None:
+    """The group on the sheet that holds this shape, if one does."""
+    for group in sheet.shapes_:
+        if any(one is shape for one in group.children):
+            return group
+    return None
+
+
+def _box(shape: Shape) -> Box:
+    return (shape.left, shape.top, shape.width, shape.height)
+
+
+def _set_box(shape: Shape, box: Box) -> None:
+    shape.left, shape.top, shape.width, shape.height = box
+
+
+def _chosen(shapes: VBACollection, index: object) -> ShapeRange:
+    """Shapes.Range and GroupShapes.Range: the shapes an argument names, as a range of them."""
+    if index is MISSING:
+        raise error(449)
+    if isinstance(index, VBAArray):
+        wanted: list[object] = list(index.elements())
+    else:
+        wanted = [*index] if isinstance(index, list) else [index]  # type: ignore[misc]
+    items = shapes.vba_items()
+    chosen = [shapes.vba_lookup(one, items) for one in wanted]
+    return ShapeRange([one for one in chosen if isinstance(one, ShapeObject)])
 
 
 def _number(value: object) -> float:

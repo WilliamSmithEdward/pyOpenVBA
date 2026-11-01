@@ -23,12 +23,12 @@ from __future__ import annotations
 
 import re
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import PRESET_GEOMETRY, ControlInfo, Shape, emu, points
+from pyopenvba.shapes._values import PRESET_GEOMETRY, ControlInfo, Shape, child_space, emu, points, to_child
 
 #: The anchors a sheet's drawing is made of.
 ANCHORS = ("xdr:twoCellAnchor", "xdr:oneCellAnchor", "xdr:absoluteAnchor", "mc:AlternateContent")
@@ -915,13 +915,18 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
 def _new_element(shape: Shape) -> str:
     """A new shape's own element, which an anchor or a group holds."""
     if shape.kind == "group":
-        # A new group's child space is its own box (tests/fixtures/shape_group.json).
-        at = f'x="{emu(shape.left)}" y="{emu(shape.top)}"'
-        size = f'cx="{emu(shape.width)}" cy="{emu(shape.height)}"'
+        # The members sit in the group's child space, which a move or a resize of the group leaves alone
+        # (tests/fixtures/shape_group.json, tests/fixtures/shape_group_items.json).
+        across, down, wide, tall = child_space(shape)
+        members = ""
+        for one in shape.children:
+            left, top, width, height = to_child(shape, (one.left, one.top, one.width, one.height))
+            members += _new_element(replace(one, left=left, top=top, width=width, height=height))
         return (
             f"<xdr:grpSp><xdr:nvGrpSpPr>{_identity(shape)}<xdr:cNvGrpSpPr/></xdr:nvGrpSpPr>"
-            f"<xdr:grpSpPr><a:xfrm><a:off {at}/><a:ext {size}/><a:chOff {at}/><a:chExt {size}/></a:xfrm>"
-            f"</xdr:grpSpPr>{''.join(_new_element(one) for one in shape.children)}</xdr:grpSp>"
+            f'<xdr:grpSpPr><a:xfrm><a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
+            f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/><a:chOff x="{emu(across)}" y="{emu(down)}"/>'
+            f'<a:chExt cx="{emu(wide)}" cy="{emu(tall)}"/></a:xfrm></xdr:grpSpPr>{members}</xdr:grpSp>'
         )
     line = shape.kind == "line"
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")

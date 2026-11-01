@@ -223,6 +223,11 @@ class Shape:
     flip_v: bool = False
     #: Excel: Visible msoFalse, the cNvPr's hidden.
     hidden: bool = False
+    #: Excel: a new group's child space (chOff and chExt) in points, None while it is the group's own box. Its
+    #: members are held where the sheet shows them and mapped into it when written.
+    child_box: tuple[float, float, float, float] | None = None
+    #: Excel: the group Ungroup took this shape out of, which Regroup puts back together.
+    former_group: Shape | None = field(default=None, compare=False)
 
     @property
     def mso_type(self) -> int:
@@ -246,3 +251,36 @@ def points(emu: str | int | float) -> float:
 def emu(value: float) -> int:
     """Points as the EMU the file holds, rounded as Office rounds."""
     return int(round(value * EMU_PER_POINT))
+
+
+Box = tuple[float, float, float, float]
+
+
+def child_space(group: Shape) -> Box:
+    """A group's child space: where its members sit in the file, against its own box on the sheet."""
+    return group.child_box or (group.left, group.top, group.width, group.height)
+
+
+def to_child(group: Shape, box: Box) -> Box:
+    """A box on the sheet, as the group's child space holds it."""
+    across, down, wide, tall = child_space(group)
+    x_scale = wide / group.width if group.width else 1.0
+    y_scale = tall / group.height if group.height else 1.0
+    return (across + (box[0] - group.left) * x_scale, down + (box[1] - group.top) * y_scale, box[2] * x_scale,
+            box[3] * y_scale)
+
+
+def to_sheet(group: Shape, box: Box) -> Box:
+    """A box in the group's child space, as the sheet shows it."""
+    across, down, wide, tall = child_space(group)
+    x_scale = group.width / wide if wide else 1.0
+    y_scale = group.height / tall if tall else 1.0
+    return (group.left + (box[0] - across) * x_scale, group.top + (box[1] - down) * y_scale, box[2] * x_scale,
+            box[3] * y_scale)
+
+
+def union(boxes: list[Box]) -> Box:
+    """The smallest box holding all of these."""
+    left = min(one[0] for one in boxes)
+    top = min(one[1] for one in boxes)
+    return (left, top, max(one[0] + one[2] for one in boxes) - left, max(one[1] + one[3] for one in boxes) - top)

@@ -21,7 +21,8 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, column_number
 from pyopenvba._xml import attributes
-from pyopenvba.apps.excel import _arrays, _data_tables, _hyperlinks, _shared, _spills, _tables, _validation, _windows
+from pyopenvba.apps.excel import (_arrays, _data_tables, _hyperlinks, _merges, _shared, _spills, _tables, _validation,
+                                  _windows)
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._parse import split_sheet, tokenize
 from pyopenvba.interpreter._values import error
@@ -108,8 +109,6 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
         raise VBAUnsupportedError('Structural edits on an advanced-filtered sheet are not implemented')
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
-    if sheet.merged_areas:
-        raise VBAUnsupportedError("Whole-row/column edits on sheets with merges are not implemented")
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
     refuse_sparklines(sheet, "Inserting or deleting rows or columns on")
@@ -154,7 +153,9 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     from pyopenvba.apps.excel._shape_anchors import anchors, lines_edited
 
     held = anchors(sheet)
+    merges = _merges.lines_planned(sheet, rows=rows, start=start, count=count, delete=delete)
     sheet.cells_ = moved
+    _merges.replaced(sheet, merges)
     for owner, cell, text in formulas:
         cell.formula = text
         owner.touched()
@@ -238,8 +239,6 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     sheet = target.sheet
     if sheet.advanced_filter is not None:
         raise VBAUnsupportedError('Cell shifts on an advanced-filtered sheet are not implemented')
-    if sheet.merged_areas:
-        raise VBAUnsupportedError("shifting cells on a sheet with merges is not implemented")
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
     refuse_sparklines(sheet, "Shifting cells on")
@@ -298,8 +297,10 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     carried = [(shape, anchor) for shape, anchor in anchors(sheet)
                if (band[0] <= anchor.column and anchor.right_column <= band[1] if vertical
                    else band[0] <= anchor.row and anchor.bottom_row <= band[1])]
+    merges = _merges.shift_planned(sheet, band, vertical=vertical, start=start, count=count, delete=delete)
     # All validation precedes mutation.
     sheet.cells_ = moved
+    _merges.replaced(sheet, merges)
     for owner, cell, text in formulas:
         cell.formula = text
         owner.touched()

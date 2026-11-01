@@ -2051,6 +2051,15 @@ class Workbook(ExcelObject):
         """A Boolean as VBA passes it; the workbook stays saved."""
         self.ink_comments = to_bool(value)
 
+    @method
+    def RemoveDocumentInformation(self, RemoveDocInfoType: object = MISSING) -> object:  # noqa: N803 - native name
+        from pyopenvba.apps.excel._document_properties import remove_information
+
+        if RemoveDocInfoType is MISSING:
+            raise error(449)
+        remove_information(self, RemoveDocInfoType)
+        return EMPTY
+
     @member
     def RemovePersonalInformation(self) -> object:
         return self.remove_personal

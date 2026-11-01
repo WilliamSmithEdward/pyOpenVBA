@@ -752,6 +752,15 @@ ConditionValue,Modify,method,"Modify(newtype As XlConditionValueTypes, [newvalue
 ConditionValue,Parent,"property, read-only",As Object,,MISSING,,
 ConditionValue,Type,"property, read-only",As XlConditionValueTypes,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 ConditionValue,Value,"property, read-only",As Variant,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
+Connections,_Default,"property, read-only",As WorkbookConnection,,MISSING,,
+Connections,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+Connections,Add2,method,"Add2(Name As String, Description As String, ConnectionString As Variant, CommandText As Variant, [lCmdtype As Variant], [CreateModelConnection As Variant], [ImportRelationships As Variant]) As WorkbookConnection",,MISSING,,
+Connections,AddFromFile,method,"AddFromFile(Filename As String, [CreateModelConnection As Variant], [ImportRelationships As Variant]) As WorkbookConnection",,MISSING,,
+Connections,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
+Connections,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,How many the file keeps.
+Connections,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
+Connections,Item,method,Item(Index As Variant) As WorkbookConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"By number from 1 or by name, any case; anything else error 9."
+Connections,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The workbook.
 ControlFormat,_Default,property,As Long,,MISSING,,
 ControlFormat,AddItem,method,"AddItem(Text As String, [Index As Variant])",,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_arrays.json,
 ControlFormat,Application,"property, read-only",As Application,,MISSING,,
@@ -1206,6 +1215,44 @@ NegativeBarFormat,Color,"property, read-only",As Object,,PARTIAL,tests/fixtures/
 NegativeBarFormat,ColorType,property,As XlDataBarNegativeColorType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 NegativeBarFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 NegativeBarFormat,Parent,"property, read-only",As Object,,MISSING,,
+OLEDBConnection,ADOConnection,"property, read-only",As Object,,MISSING,,
+OLEDBConnection,AlwaysUseConnectionFile,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,onlyUseConnectionFile.
+OLEDBConnection,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
+OLEDBConnection,BackgroundQuery,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,background.
+OLEDBConnection,CalculatedMembers,"property, read-only",As CalculatedMembers,,MISSING,,
+OLEDBConnection,CancelRefresh,method,CancelRefresh(),,MISSING,,
+OLEDBConnection,CommandText,property,As Variant,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,dbPr's command.
+OLEDBConnection,CommandType,property,As XlCmdType,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"dbPr's commandType, 2 by default."
+OLEDBConnection,Connection,property,As Variant,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,OLEDB; then dbPr's connection.
+OLEDBConnection,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
+OLEDBConnection,EnableRefresh,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,True.
+OLEDBConnection,IsConnected,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
+OLEDBConnection,LocalConnection,property,As Variant,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004.
+OLEDBConnection,LocaleID,property,As Long,,MISSING,,
+OLEDBConnection,MaintainConnection,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,keepAlive.
+OLEDBConnection,MakeConnection,method,MakeConnection(),,MISSING,,
+OLEDBConnection,MaxDrillthroughRecords,property,As Long,,MISSING,,
+OLEDBConnection,OLAP,"property, read-only",As Boolean,,MISSING,,
+OLEDBConnection,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Its connection.
+OLEDBConnection,Reconnect,method,Reconnect(),,MISSING,,
+OLEDBConnection,Refresh,method,Refresh(),,MISSING,,
+OLEDBConnection,RefreshDate,"property, read-only",As Date,,MISSING,,
+OLEDBConnection,Refreshing,"property, read-only",As Boolean,,MISSING,,
+OLEDBConnection,RefreshOnFileOpen,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,refreshOnLoad.
+OLEDBConnection,RefreshPeriod,property,As Long,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"interval, 0 by default."
+OLEDBConnection,RetrieveInOfficeUILang,property,As Boolean,,MISSING,,
+OLEDBConnection,RobustConnect,property,As XlRobustConnect,,MISSING,,
+OLEDBConnection,SaveAsODC,method,"SaveAsODC(ODCFileName As String, [Description As Variant], [Keywords As Variant])",,MISSING,,
+OLEDBConnection,SavePassword,property,As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,savePassword.
+OLEDBConnection,ServerCredentialsMethod,property,As XlCredentialsMethod,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCredentialsMethodIntegrated; other methods unsupported.
+OLEDBConnection,ServerFillColor,property,As Boolean,,MISSING,,
+OLEDBConnection,ServerFontStyle,property,As Boolean,,MISSING,,
+OLEDBConnection,ServerNumberFormat,property,As Boolean,,MISSING,,
+OLEDBConnection,ServerSSOApplicationID,property,As String,,MISSING,,
+OLEDBConnection,ServerTextColor,property,As Boolean,,MISSING,,
+OLEDBConnection,SourceConnectionFile,property,As String,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"odcFile, empty by default."
+OLEDBConnection,SourceDataFile,property,As String,,MISSING,,
+OLEDBConnection,UseLocalConnection,property,As Boolean,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
 Outline,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,AutomaticStyles,property,As Boolean,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Outline,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
@@ -2228,7 +2275,7 @@ SparkHorizontalAxis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fi
 SparkHorizontalAxis,IsDateAxis,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"dateAxis, False by default."
 SparkHorizontalAxis,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its group.
 SparkHorizontalAxis,RightToLeft,not in the type library,,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"Error 438 in Excel, read or set."
-SparkHorizontalAxis,RightToLeftPlotOrder,property,As Boolean,,MISSING,,
+SparkHorizontalAxis,RightToLeftPlotOrder,property,As Boolean,,PARTIAL,tests/fixtures/sparkline_dates.json; tests/test_excel_sparkline_dates.py,"rightToLeft, left out at False."
 SparkPoints,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,The application.
 SparkPoints,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,xlCreatorCode.
 SparkPoints,Firstpoint,"property, read-only",As SparkColor,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"first, its colour colorFirst."
@@ -2257,7 +2304,7 @@ SparklineGroup,Application,"property, read-only",As Application,,PARTIAL,tests/f
 SparklineGroup,Axes,"property, read-only",As SparkAxes,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,Its SparkAxes.
 SparklineGroup,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Its sparklines.
 SparklineGroup,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
-SparklineGroup,DateRange,property,As String,,MISSING,,
+SparklineGroup,DateRange,property,As String,,PARTIAL,tests/fixtures/sparkline_dates.json; tests/test_excel_sparkline_dates.py,"The date range as given, in capitals, the group's own sheet left out; none is 1004. A set is ModifyDateRange."
 SparklineGroup,Delete,method,Delete(),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Takes the group away.
 SparklineGroup,DisplayBlanksAs,property,As XlDisplayBlanksAs,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"xlNotPlotted (gap), xlZero (left out of the file) or xlInterpolated (span); another number 1004."
 SparklineGroup,DisplayHidden,property,As Boolean,,PARTIAL,tests/fixtures/sparkline_points.json; tests/test_excel_sparkline_points.py,"displayHidden, left out at False."
@@ -2265,7 +2312,7 @@ SparklineGroup,Item,"property, read-only",As Sparkline,,PARTIAL,tests/fixtures/s
 SparklineGroup,LineWeight,property,As Variant,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"0.75 by default, left out of the file there; 0 to 1584, else 1004."
 SparklineGroup,Location,property,As Range,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Its cells; a set is passed over, as Excel passes it over."
 SparklineGroup,Modify,method,"Modify(Location As Range, SourceData As String)",,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,New cells and source.
-SparklineGroup,ModifyDateRange,method,ModifyDateRange(DateRange As String),,MISSING,,
+SparklineGroup,ModifyDateRange,method,ModifyDateRange(DateRange As String),,PARTIAL,tests/fixtures/sparkline_dates.json; tests/test_excel_sparkline_dates.py,"A new date range, written before the sparklines, the axis a date axis; text that is no reference is 1004, a sheet the workbook lacks left out."
 SparklineGroup,ModifyLocation,method,ModifyLocation(Location As Range),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"New cells, as many as before."
 SparklineGroup,ModifySourceData,method,ModifySourceData(SourceData As String),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,A new source for the same cells.
 SparklineGroup,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The SparklineGroups it was reached through.
@@ -2279,13 +2326,13 @@ SparklineGroups,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 SparklineGroups,Add,method,"Add(Type As XlSparkType, SourceData As String) As SparklineGroup",,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"Line, column or win/loss sparklines, one for each cell of a row or column, each a row of the source where it has as many, else a column; a cell holding one takes the new one. An unknown type, a block of cells, a source that does not fit or is no reference: 1004."
 SparklineGroups,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The application.
 SparklineGroups,Clear,method,Clear(),,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,"The range's sparklines go, a group left with none too."
-SparklineGroups,ClearGroups,method,ClearGroups(),,MISSING,,
+SparklineGroups,ClearGroups,method,ClearGroups(),,PARTIAL,tests/fixtures/sparkline_grouping.json; tests/test_excel_sparkline_grouping.py,"Every group the range reaches goes, its sparklines outside the range too."
 SparklineGroups,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The groups the range reaches.
 SparklineGroups,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,xlCreatorCode.
-SparklineGroups,Group,method,Group(Location As Range),,MISSING,,
+SparklineGroups,Group,method,Group(Location As Range),,PARTIAL,tests/fixtures/sparkline_grouping.json; tests/test_excel_sparkline_grouping.py,The range's sparklines in one group with the settings of the group Location holds; a Location outside the range is 1004; part of a group unsupported.
 SparklineGroups,Item,"property, read-only",As SparklineGroup,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,Newest first; out of range is 1004.
 SparklineGroups,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sparklines.json; tests/test_excel_sparklines.py,The range.
-SparklineGroups,Ungroup,method,Ungroup(),,MISSING,,
+SparklineGroups,Ungroup,method,Ungroup(),,PARTIAL,tests/fixtures/sparkline_grouping.json; tests/test_excel_sparkline_grouping.py,"Each of the range's sparklines in a group of its own, newest last in the range's order, its old group keeping the rest."
 Style,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
 Style,AddIndent,property,As Boolean,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json; tests/fixtures/cell_styles/style_changes.json,Read and set; each cell that follows the style follows it while the style includes the part.
 Style,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,
@@ -2574,7 +2621,7 @@ Workbook,Colors,property,As Variant,,PARTIAL,tests/test_excel_workbook_colors.py
 Workbook,CommandBars,"property, read-only",As CommandBars,,MISSING,,
 Workbook,CompatibilityVersion,property,As Long,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
 Workbook,ConflictResolution,property,As XlSaveConflictResolution,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
-Workbook,Connections,"property, read-only",As Connections,,MISSING,,
+Workbook,Connections,"property, read-only",As Connections,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The data connections xl/connections.xml keeps; read only.
 Workbook,ConnectionsDisabled,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
 Workbook,Container,"property, read-only",As Object,,MISSING,,
 Workbook,ContentTypeProperties,"property, read-only",As MetaProperties,,MISSING,,
@@ -2756,6 +2803,25 @@ Workbook,XmlImport,method,"XmlImport(Url As String, ImportMap As XmlMap, [Overwr
 Workbook,XmlImportXml,method,"XmlImportXml(Data As String, ImportMap As XmlMap, [Overwrite As Variant], [Destination As Variant]) As XlXmlImportResult",,MISSING,,
 Workbook,XmlMaps,"property, read-only",As XmlMaps,,MISSING,,
 Workbook,XmlNamespaces,"property, read-only",As XmlNamespaces,,MISSING,,
+WorkbookConnection,_Default,property,As String,,MISSING,,
+WorkbookConnection,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The application.
+WorkbookConnection,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlCreatorCode.
+WorkbookConnection,DataFeedConnection,"property, read-only",As DataFeedConnection,,MISSING,,
+WorkbookConnection,Delete,method,Delete(),,MISSING,,
+WorkbookConnection,Description,property,As String,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,"description, empty where none."
+WorkbookConnection,InModel,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,False.
+WorkbookConnection,ModelConnection,"property, read-only",As ModelConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
+WorkbookConnection,ModelTables,"property, read-only",As ModelTables,,MISSING,,
+WorkbookConnection,Name,property,As String,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,name.
+WorkbookConnection,ODBCConnection,"property, read-only",As ODBCConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
+WorkbookConnection,OLEDBConnection,"property, read-only",As OLEDBConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Its OLEDBConnection.
+WorkbookConnection,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,The workbook.
+WorkbookConnection,Ranges,"property, read-only",As Ranges,,MISSING,,
+WorkbookConnection,Refresh,method,Refresh(),,MISSING,,
+WorkbookConnection,RefreshWithRefreshAll,property,As Boolean,no setter,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,True; a connection with an extension unsupported.
+WorkbookConnection,TextConnection,"property, read-only",As TextConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
+WorkbookConnection,Type,"property, read-only",As XlConnectionType,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,xlConnectionTypeOLEDB for the file's type 5; other types unsupported.
+WorkbookConnection,WorksheetDataConnection,"property, read-only",As WorksheetDataConnection,,PARTIAL,tests/fixtures/connections.json; tests/test_excel_connections.py,Error 1004 on an OLE DB connection.
 WorkbookQuery,_Default,property,As String,no setter,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,Its name.
 WorkbookQuery,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,The application.
 WorkbookQuery,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."

@@ -7,6 +7,22 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A sparkline group's `DateRange` and `ModifyDateRange`, and its axis's
+  `RightToLeftPlotOrder`, answer as Excel's do. A date range reads as
+  given, makes the axis a date axis, and a save writes it before the
+  sparklines. 16 live cases agree, `tests/fixtures/sparkline_dates.json`.
+
+- `SparklineGroups.ClearGroups`, `Group` and `Ungroup` answer as Excel's
+  do. Group joins the range's sparklines under the settings of
+  Location's group, and Ungroup gives each its own group. 13 live cases
+  agree, `tests/fixtures/sparkline_grouping.json`.
+
+- `Range.SavedAsArray` answers as Excel's does: True for a cell of a CSE
+  array or of a spill. `HasRichDataType`, `LinkedDataTypeState`, `MDX`,
+  `Summary`, `QueryTable`, `ServerActions` and `CommentThreaded` answer
+  as they do on cells with no data types, queries or threaded comments.
+  64 live reads agree, `tests/fixtures/range_small_reads.json`.
+
 - A sparkline group's `Points`, `Axes`, `DisplayBlanksAs`,
   `DisplayHidden` and `PlotBy` answer as Excel's do. Each point's
   marking shows or hides and takes a colour. The vertical axis takes
@@ -22,7 +38,7 @@ All notable changes to pyOpenVBA are documented here. This project follows
   weight and series colour, and `Modify` and its kin move it. `Clear`,
   `Delete` and `Range.Clear` take sparklines away. A save writes them in
   the worksheet's extension as Excel does, and a reopened file gives them
-  back. 49 live cases and 12 saves agree, `tests/fixtures/sparklines.json`.
+  back. 48 live cases and 12 saves agree, `tests/fixtures/sparklines.json`.
   The model does not move a sparkline, so these report themselves
   unsupported on a sheet a sparkline sits on or reads:
   - inserting or deleting rows, columns or cells

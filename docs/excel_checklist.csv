@@ -500,7 +500,7 @@ Characters,Text,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.tx
 Chart,_CodeName,property,As String,no setter,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,An embedded chart raises -2147467259.
 Chart,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"An embedded chart raises 450 given a name; read without one is refused, not measured."
 Chart,Activate,event,Activate(),,MISSING,,
-Chart,Application,"property, read-only",As Application,,MISSING,,
+Chart,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 Chart,ApplyChartTemplate,method,ApplyChartTemplate(Filename As String),,MISSING,,
 Chart,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant])",,MISSING,,
 Chart,ApplyLayout,method,"ApplyLayout(Layout As Long, [ChartType As Variant])",,MISSING,,
@@ -606,8 +606,8 @@ Chart,Tab,"property, read-only",As Tab,,MISSING,,
 Chart,Unprotect,method,Unprotect([Password As Variant]),,MISSING,,
 Chart,Visible,property,As XlSheetVisibility,,MISSING,,
 Chart,Walls,"property, read-only",As Walls,,MISSING,,
-ChartGroup,Application,"property, read-only",As Application,,MISSING,,
-ChartGroup,AxisGroup,property,As XlAxisGroup,,MISSING,,
+ChartGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
+ChartGroup,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
 ChartGroup,BinsCountValue,property,As Long,,MISSING,,
 ChartGroup,BinsOverflowEnabled,property,As Boolean,,MISSING,,
 ChartGroup,BinsOverflowValue,property,As Double,,MISSING,,
@@ -631,12 +631,12 @@ ChartGroup,HasRadarAxisLabels,property,As Boolean,,MISSING,,
 ChartGroup,HasSeriesLines,property,As Boolean,,MISSING,,
 ChartGroup,HasUpDownBars,property,As Boolean,,MISSING,,
 ChartGroup,HiLoLines,"property, read-only",As HiLoLines,,MISSING,,
-ChartGroup,Index,"property, read-only",As Long,,MISSING,,
+ChartGroup,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads 1, the one group the model draws."
 ChartGroup,Overlap,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"A bar or column chart's overlap after its gap width, -100 to 100; lines, areas and scatter charts read 100. Setting it on those is refused."
 ChartGroup,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,The Chart.
 ChartGroup,RadarAxisLabels,"property, read-only",As TickLabels,,MISSING,,
 ChartGroup,SecondPlotSize,property,As Long,,MISSING,,
-ChartGroup,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,MISSING,,
+ChartGroup,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The chart's series, all of them in the one group."
 ChartGroup,SeriesLines,"property, read-only",As SeriesLines,,MISSING,,
 ChartGroup,ShowNegativeBubbles,property,As Boolean,,MISSING,,
 ChartGroup,SizeRepresents,property,As XlSizeRepresents,,MISSING,,
@@ -651,8 +651,8 @@ ChartGroups,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/s
 ChartGroups,Item,method,Item(Index As Variant) As ChartGroup,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,The group at 1; any other index raises 1004.
 ChartGroups,Parent,"property, read-only",As Object,,MISSING,,
 ChartObject,Activate,method,Activate() As Variant,,MISSING,,
-ChartObject,Application,"property, read-only",As Application,,MISSING,,
-ChartObject,BottomRightCell,"property, read-only",As Range,,MISSING,,
+ChartObject,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
+ChartObject,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The cell under the chart's bottom right corner, as Shape.BottomRightCell."
 ChartObject,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart on top of the sheet's shapes; answers True.
 ChartObject,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Copy,method,Copy() As Variant,,MISSING,,
@@ -670,13 +670,13 @@ ChartObject,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel
 ChartObject,Placement,property,As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"xlMoveAndSize, xlMove or xlFreeFloating as the anchor's editAs; other values raise -2147467259."
 ChartObject,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as clientData's fPrintsWithSheet."
 ChartObject,ProtectChartObject,property,As Boolean,,MISSING,,
-ChartObject,RoundedCorners,property,As Boolean,,MISSING,,
+ChartObject,RoundedCorners,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The chart part's roundedCorners, read and set; a part without one has rounded corners."
 ChartObject,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
 ChartObject,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart behind the sheet's shapes; answers Empty.
-ChartObject,Shadow,property,As Boolean,,MISSING,,
+ChartObject,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The chart area's outer shadow, read and set; turned off it leaves an empty effects list, as Excel writes it."
 ChartObject,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Top,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObject,TopLeftCell,"property, read-only",As Range,,MISSING,,
+ChartObject,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The cell under the chart's top left corner, as Shape.TopLeftCell; the chart does not yet move with column widths changed under it."
 ChartObject,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as the frame's hidden."
 ChartObject,Width,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,ZOrder,"property, read-only",As Long,,MISSING,,
@@ -704,7 +704,7 @@ ChartObjects,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
 ChartObjects,Top,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Width,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
-ChartTitle,Application,"property, read-only",As Application,,MISSING,,
+ChartTitle,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartTitle,Caption,property,As String,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,Reads and sets as Text.
 ChartTitle,Characters,"property, read-only",As Characters,,MISSING,,
 ChartTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -719,9 +719,9 @@ ChartTitle,Height,"property, read-only",As Double,,MISSING,,
 ChartTitle,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Written as the paragraph's algn once set. Ignored while the title is turned, as Excel ignores it; refused on vertical titles."
 ChartTitle,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,False writes overlay 1.
 ChartTitle,Left,property,As Double,,MISSING,,
-ChartTitle,Name,"property, read-only",As String,,MISSING,,
+ChartTitle,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads ""Title""."
 ChartTitle,Orientation,property,As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"-90 to 90 degrees or the named constants, written as bodyPr rot; xlVertical as wordArtVert. Out of range raises -2147467259."
-ChartTitle,Parent,"property, read-only",As Object,,MISSING,,
+ChartTitle,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Chart.
 ChartTitle,Position,property,As XlChartElementPosition,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,Reads automatic. Any other position needs native layout and is refused.
 ChartTitle,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,xlRTL and xlLTR write the paragraph's rtl; xlContext clears it.
 ChartTitle,Select,method,Select() As Variant,,MISSING,,
@@ -1141,7 +1141,7 @@ Legend,Height,property,As Double,,MISSING,,
 Legend,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,False writes overlay 1.
 Legend,Left,property,As Double,,MISSING,,
 Legend,LegendEntries,method,LegendEntries([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"The entries still shown, or one by index; out of range raises -2147467259."
-Legend,Name,"property, read-only",As String,,MISSING,,
+Legend,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads ""Legend""."
 Legend,Parent,"property, read-only",As Object,,UNASSESSED,,
 Legend,Position,property,As XlLegendPosition,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"Written as legendPos: b, t, l, r, tr. xlLegendPositionCustom and other numbers raise -2147467259, as in Excel."
 Legend,Select,method,Select() As Variant,,MISSING,,

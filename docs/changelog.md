@@ -7,6 +7,80 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A sparkline group's `Points`, `Axes`, `DisplayBlanksAs`,
+  `DisplayHidden` and `PlotBy` answer as Excel's do. Each point's
+  marking shows or hides and takes a colour. The vertical axis takes
+  group, single or custom scales with their values, and the horizontal
+  axis line shows or hides. `SeriesColor` and each point's colour are
+  FormatColors, reading and setting an RGB, a theme colour and its tint.
+  A save writes each setting into the group as Excel does. 43 live cases
+  agree, `tests/fixtures/sparkline_points.json`.
+
+- Sparklines come to the model with `Range.SparklineGroups`, as Excel
+  has them. `Add` makes line, column or win/loss sparklines for a row or
+  column of cells. A group reads and sets its type, source, cells, line
+  weight and series colour, and `Modify` and its kin move it. `Clear`,
+  `Delete` and `Range.Clear` take sparklines away. A save writes them in
+  the worksheet's extension as Excel does, and a reopened file gives them
+  back. 49 live cases and 12 saves agree, `tests/fixtures/sparklines.json`.
+  The model does not move a sparkline, so these report themselves
+  unsupported on a sheet a sparkline sits on or reads:
+  - inserting or deleting rows, columns or cells
+  - copying, cutting, pasting, sorting or filling
+  - copying, renaming or deleting the sheet
+
+- `PivotTable.GetData` answers as Excel's does for a name picking a data
+  field and items, quoted or not, in any order and case, with
+  `field[item]` and Grand Total. 33 live names agree,
+  `tests/fixtures/pivot_get_data.json`.
+
+- Small properties of pivot tables, caches, fields and items answer as
+  Excel's do on a pivot table over a worksheet range. 81 members, among
+  them SmallGrid, PrintDrillIndicators, ShowPageMultipleItemLabel,
+  PageFieldStyle, VacatedStyle, MissingItemsLimit, a field's DragTo*,
+  IncludeNewItemsInFilter, EnableItemSelection and ShowAllItems, and an
+  item's RecordCount. A save writes each flag to the pivot table's or
+  cache's part as Excel does, left out at its default. What only an OLAP
+  or external source has is error 1004. 185 live cases agree,
+  `tests/fixtures/pivot_properties.json`. These report themselves
+  unsupported:
+  - `DisplayMemberPropertyTooltips` set to True, which stopped Excel's
+    automation when it was measured
+  - `ShowAllItems` True on a row or column field
+  - a cache whose source is not a worksheet range
+
+- 35 small members answer as Excel's do. `Application` comes to pivot,
+  shape, pane and conditional-format objects, and `Parent` to Shape,
+  Shapes and Panes. PivotTable, PivotField and PivotItem read their name
+  as their default member, and `PTCondition` is False on a range's rules.
+  `Validation.IMEMode` reads xlIMEModeNoControl and ignores a set, as on a
+  machine with no East Asian input method. 31 live cases agree,
+  `tests/fixtures/object_members.json`.
+
+- `Range.LocationInTable` answers as Excel's does. Every cell of 595
+  pivot tables in 23 workbooks agrees, `tests/fixtures/location_in_table/`.
+
+- `Application.FindFormat` and `ReplaceFormat` work with `Range.Find` and
+  `Range.Replace`, as Excel's do. Find with SearchFormat finds a cell
+  whose own format holds every property set. Replace with ReplaceFormat
+  puts the format into each cell it changes, and with nothing sought it
+  restyles the cells it finds. The CellFormat keeps a font's Bold,
+  Italic, Name, Size, Underline and colour, an interior's colour and
+  pattern, and NumberFormat, Locked, FormulaHidden, HorizontalAlignment,
+  WrapText and IndentLevel. 54 live cases agree,
+  `tests/fixtures/find_format.json`. These report themselves unsupported:
+  - Borders
+  - setting the alignment and merge properties that read Null
+  - a format search over more than a million cells
+
+- `Worksheet.ClearArrows` and `ClearCircles` answer as Excel's do. There
+  is never anything to clear, since the model draws no arrows or circles,
+  and ClearArrows on a protected sheet is error 1004.
+  `tests/fixtures/clear_arrows.json`.
+
+- `Sheets.Add2` gives error 445 on a workbook's sheets, as Excel's does,
+  and adds no sheet. `tests/fixtures/sheets_add2.json`.
+
 - `AutoFilter.Sort` keeps the sheet filter's own sort settings apart
   from `Worksheet.Sort`, as Excel does. Its range and header row are the
   filter's, so `SetRange` is error 1004 and a `Header` of xlNo error 5.

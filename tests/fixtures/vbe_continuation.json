@@ -1,0 +1,86 @@
+{
+ "measured_at": "2026-11-01T01:31:28.433012+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, m As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set m = wb.VBProject.VBComponents.Add(1).CodeModule\n    Select Case which\n    Case 0\n        m.AddFromString \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\"\n    Case 1\n        m.AddFromString \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf\n    Case 2\n        m.AddFromString \"Function G( _\" & vbCrLf & \"x, _\" & vbCrLf & \"y)\" & vbCrLf & \"End Function\" & vbCrLf\n    Case 3\n        m.AddFromString \"Sub A( _\" & vbCrLf & \")\" & vbCrLf & \"End Sub\" & vbCrLf & \"Sub B( _\" & vbCrLf & \")\" & vbCrLf & \"End Sub\" & vbCrLf\n    Case 4\n        m.AddFromString \"Sub A()\" & vbCrLf & \"x = 1 + _\" & vbCrLf & \"2\" & vbCrLf & \"End Sub\" & vbCrLf\n    Case 5\n        m.InsertLines 1, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf\n    Case 6\n        m.AddFromString \"Dim a As _\" & vbCrLf & \"Long\" & vbCrLf\n    Case 7\n        m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.AddFromString \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\"\n    Case 8\n        m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 3, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\"\n    Case 9\n        m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 3, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf\n    Case 10\n        m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 1, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf\n    Case 11\n        m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 2, \"x = 1 + _\" & vbCrLf & \"2\"\n    Case 12\n        m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\" & vbCrLf: m.InsertLines 2, \"x = 1 + _\" & vbCrLf & \"2\"\n    Case 13\n        m.InsertLines 1, \"x = 1 + _\"\n    Case 14\n        m.InsertLines 1, \"Sub A( _\" & vbCrLf & \")\" & vbCrLf & \"End Sub\": m.DeleteLines 1, 1\n    Case 15\n        m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\" & vbCrLf\n    End Select\n    Tried = m.CountOfLines\n    wb.SaveAs folder & \"\\c\" & which & \".xlsm\", xlOpenXMLWorkbookMacroEnabled\n    wb.Close False\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 15\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "m.AddFromString \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\"",
+   "4",
+   "Attribute VB_Name = \"Module1\"\r\nFunction G( _\r\nx)\r\nEnd Function\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf",
+   "5",
+   "Attribute VB_Name = \"Module1\"\r\nFunction G( _\r\nx)\r\nEnd Function\r\n\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Function G( _\" & vbCrLf & \"x, _\" & vbCrLf & \"y)\" & vbCrLf & \"End Function\" & vbCrLf",
+   "6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction G( _\r\nx, _\r\ny)\r\nEnd Function\r\n\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A( _\" & vbCrLf & \")\" & vbCrLf & \"End Sub\" & vbCrLf & \"Sub B( _\" & vbCrLf & \")\" & vbCrLf & \"End Sub\" & vbCrLf",
+   "8",
+   "Attribute VB_Name = \"Module1\"\r\nSub A( _\r\n)\r\nEnd Sub\r\nSub B( _\r\n)\r\nEnd Sub\r\n\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"x = 1 + _\" & vbCrLf & \"2\" & vbCrLf & \"End Sub\" & vbCrLf",
+   "6",
+   "Attribute VB_Name = \"Module1\"\r\nSub A()\r\nx = 1 + _\r\n2\r\nEnd Sub\r\n\r\n\r\n"
+  ],
+  [
+   "m.InsertLines 1, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf",
+   "5",
+   "Attribute VB_Name = \"Module1\"\r\nFunction G( _\r\nx)\r\nEnd Function\r\n\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Dim a As _\" & vbCrLf & \"Long\" & vbCrLf",
+   "4",
+   "Attribute VB_Name = \"Module1\"\r\nDim a As _\r\nLong\r\n\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.AddFromString \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\"",
+   "5",
+   "Attribute VB_Name = \"Module1\"\r\nFunction G( _\r\nx)\r\nEnd Function\r\nSub A()\r\nEnd Sub\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 3, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\"",
+   "6",
+   "Attribute VB_Name = \"Module1\"\r\nSub A()\r\nEnd Sub\r\nFunction G( _\r\nx)\r\nEnd Function\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 3, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf",
+   "7",
+   "Attribute VB_Name = \"Module1\"\r\nSub A()\r\nEnd Sub\r\nFunction G( _\r\nx)\r\nEnd Function\r\n\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 1, \"Function G( _\" & vbCrLf & \"x)\" & vbCrLf & \"End Function\" & vbCrLf",
+   "6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction G( _\r\nx)\r\nEnd Function\r\n\r\nSub A()\r\nEnd Sub\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\": m.InsertLines 2, \"x = 1 + _\" & vbCrLf & \"2\"",
+   "4",
+   "Attribute VB_Name = \"Module1\"\r\nSub A()\r\nx = 1 + _\r\n2\r\nEnd Sub\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\" & vbCrLf: m.InsertLines 2, \"x = 1 + _\" & vbCrLf & \"2\"",
+   "5",
+   "Attribute VB_Name = \"Module1\"\r\nSub A()\r\nx = 1 + _\r\n2\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "m.InsertLines 1, \"x = 1 + _\"",
+   "2",
+   "Attribute VB_Name = \"Module1\"\r\nx = 1 + _\r\n\r\n"
+  ],
+  [
+   "m.InsertLines 1, \"Sub A( _\" & vbCrLf & \")\" & vbCrLf & \"End Sub\": m.DeleteLines 1, 1",
+   "3",
+   "Attribute VB_Name = \"Module1\"\r\n)\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "m.AddFromString \"Sub A()\" & vbCrLf & \"End Sub\" & vbCrLf",
+   "3",
+   "Attribute VB_Name = \"Module1\"\r\nSub A()\r\nEnd Sub\r\n\r\n"
+  ]
+ ]
+}

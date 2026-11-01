@@ -265,6 +265,11 @@ def read_chart(xml: str, part: str) -> ChartState:
         size = series.find('c:marker/c:size', NS)
         if size is not None and re.fullmatch(r'[0-9]{1,2}', size.get('val', '')) and 2 <= int(size.get('val', '')) <= 72:
             item.marker_size = int(size.get('val', ''))
+        look = series.find('c:marker/c:spPr', NS)
+        if look is not None:
+            item.marker_back = _marker_colour(look)
+            line = look.find('a:ln', NS)
+            item.marker_fore = _marker_colour(line) if line is not None else None
         invert = series.find('c:invertIfNegative', NS)
         item.invert_if_negative = invert is not None and invert.get('val', '1') in ('1', 'true')
         explosion = series.find('c:explosion', NS)
@@ -279,6 +284,20 @@ def read_chart(xml: str, part: str) -> ChartState:
         except ValueError:
             pass
     return result
+
+def _marker_colour(node: ET.Element) -> str | None:
+    """A marker's fill or line colour as SeriesState keeps it: RRGGBB, "none", None when the element names none, or
+    "?" for a fill the model does not read."""
+    fills = [child for child in node if child.tag.rpartition('}')[2].endswith('Fill')]
+    if not fills:
+        return None
+    kind = fills[0].tag.rpartition('}')[2]
+    if kind == 'noFill':
+        return 'none'
+    colour = fills[0].find('a:srgbClr', NS) if kind == 'solidFill' else None
+    value = colour.get('val', '') if colour is not None else ''
+    return value.upper() if colour is not None and len(colour) == 0 and re.fullmatch(r'[0-9A-Fa-f]{6}', value) else '?'
+
 
 def _data(node: ET.Element | None) -> tuple[str, list[object]]:
     if node is None:

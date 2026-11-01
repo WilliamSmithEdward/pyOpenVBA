@@ -270,6 +270,17 @@ def read_chart(xml: str, part: str) -> ChartState:
             item.marker_back = _marker_colour(look)
             line = look.find('a:ln', NS)
             item.marker_fore = _marker_colour(line) if line is not None else None
+        labels = series.find('c:dLbls', NS)
+        if labels is not None:
+            shown = labels.find('c:showVal', NS)
+            item.data_labels = shown is not None and shown.get('val', '1') in ('1', 'true')
+            leaders = labels.find('c:showLeaderLines', NS)
+            item.leader_lines = leaders is not None and leaders.get('val', '1') in ('1', 'true')
+        else:
+            # A pie's own leader lines, which its series follow until they have labels of their own.
+            leaders = entry.find('c:dLbls/c:showLeaderLines', NS)
+            if leaders is not None:
+                item.leader_lines = leaders.get('val', '1') in ('1', 'true')
         invert = series.find('c:invertIfNegative', NS)
         item.invert_if_negative = invert is not None and invert.get('val', '1') in ('1', 'true')
         explosion = series.find('c:explosion', NS)
@@ -398,7 +409,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                category_format=source_format(sheet, item.category_reference),
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
-                               smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion))
+                               smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion,
+                               labels=item.data_labels, leader_lines=item.leader_lines))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')

@@ -47,6 +47,9 @@ class SeriesState:
     marker_size: int | None = None
     invert_if_negative: bool = False
     explosion: int = 0
+    #: HasDataLabels, and HasLeaderLines, which turning the labels on turns off (tests/fixtures/chart_data_labels.json).
+    data_labels: bool = False
+    leader_lines: bool = True
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
     #: imported marker filled in a way the model does not read (tests/fixtures/chart_marker_colours.json).
     marker_fore: str | None = None
@@ -1067,6 +1070,32 @@ class Series(Created):
         if CHART_TYPES.get(shown_type(self.chart.state)) in ('column', 'bar'):
             self.chart.changed()
             self.entry.invert_if_negative = wanted
+
+    @member
+    def HasDataLabels(self) -> object:
+        self.position()
+        return self.entry.data_labels
+
+    @setter('HasDataLabels')
+    def _has_data_labels(self, value: object) -> None:
+        self.position()
+        wanted = to_bool(value)
+        self.chart.changed()
+        self.entry.data_labels = wanted
+        # Excel turns the series' leader lines off whichever way the labels go.
+        self.entry.leader_lines = False
+
+    @member
+    def HasLeaderLines(self) -> object:
+        self.position()
+        return self.entry.leader_lines
+
+    @setter('HasLeaderLines')
+    def _has_leader_lines(self, value: object) -> None:
+        self.position()
+        wanted = to_bool(value)
+        self.chart.changed()
+        self.entry.leader_lines = wanted
 
     @member
     def Explosion(self) -> object:

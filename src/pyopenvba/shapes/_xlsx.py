@@ -258,6 +258,9 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
     shape.decorative = re.search(r'<adec:decorative\b[^>]*\bval="1"', markup) is not None
     turned = _ROTATION.search(markup)
     shape.rotation = int(turned.group(1)) / 60000 if turned else 0.0
+    transform = re.search(r"<a:xfrm\b([^>]*)>", markup)
+    shape.flip_h = transform is not None and re.search(r'\bflipH="(?:1|true)"', transform.group(1)) is not None
+    shape.flip_v = transform is not None and re.search(r'\bflipV="(?:1|true)"', transform.group(1)) is not None
     locks = re.search(r"<a:spLocks\b([^>]*)/?>", markup)
     if locks is not None:
         shape.lock_aspect = re.search(r'\bnoChangeAspect="(?:1|true)"', locks.group(1)) is not None
@@ -914,7 +917,7 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
         else f"<xdr:nvSpPr>{identity}<xdr:cNvSpPr{box}>{locks}</xdr:cNvSpPr></xdr:nvSpPr>".replace(
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
     )
-    turn = f' rot="{round(shape.rotation * 60000)}"' if shape.rotation else ""
+    turn = _xfrm_attributes(shape)
     inner = (
         f"<{element}{macro}{textlink}>"
         f"{properties}"
@@ -1095,15 +1098,21 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
     if shape.locked != was.locked:
         client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
         markup = re.sub(r"<xdr:clientData\b[^>]*/>", client, markup, count=1)
-    if shape.rotation != was.rotation:
-        turn = f' rot="{round(shape.rotation * 60000)}"' if shape.rotation else ""
+    if (shape.rotation, shape.flip_h, shape.flip_v) != (was.rotation, was.flip_h, was.flip_v):
         found = re.search(r"<a:xfrm\b[^>]*>", markup)
         if found is not None:
-            tag = re.sub(r'\srot="[^"]*"', "", found.group()).replace("<a:xfrm", "<a:xfrm" + turn, 1)
+            tag = re.sub(r'\s(?:rot|flipH|flipV)="[^"]*"', "", found.group())
+            tag = tag.replace("<a:xfrm", "<a:xfrm" + _xfrm_attributes(shape), 1)
             markup = markup[: found.start()] + tag + markup[found.end():]
         if _turned_box(shape) != _turned_box(was):
             markup = _moved(markup, shape, was, grid)
     return markup
+
+
+def _xfrm_attributes(shape: Shape) -> str:
+    """The xfrm's rot, flipH and flipV, in that order, each only where it is set (tests/fixtures/shape_flip_order.json)."""
+    return ((f' rot="{round(shape.rotation * 60000)}"' if shape.rotation else "")
+            + (' flipH="1"' if shape.flip_h else "") + (' flipV="1"' if shape.flip_v else ""))
 
 
 def geometry_for(mso_type: int) -> str:

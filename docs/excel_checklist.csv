@@ -2062,7 +2062,7 @@ Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tes
 Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
 Shape,Duplicate,method,Duplicate() As Shape,,MISSING,,
 Shape,Fill,"property, read-only",As FillFormat,,MISSING,,
-Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,MISSING,,
+Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,"Turns flipH or flipV over, written after rot; twice turns it back. Other commands raise -2147024809."
 Shape,FormControlType,"property, read-only",As XlFormControl,,MISSING,,
 Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
 Shape,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
@@ -2070,7 +2070,7 @@ Shape,GroupItems,"property, read-only",As GroupShapes,,UNASSESSED,,
 Shape,HasChart,"property, read-only",As MsoTriState,,UNASSESSED,,
 Shape,HasSmartArt,"property, read-only",As MsoTriState,,MISSING,,
 Shape,Height,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,HorizontalFlip,"property, read-only",As MsoTriState,,MISSING,,
+Shape,HorizontalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipH is set.
 Shape,Hyperlink,"property, read-only",As Hyperlink,,MISSING,,
 Shape,ID,"property, read-only",As Long,,MISSING,,
 Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's left edge."
@@ -2112,11 +2112,11 @@ Shape,Top,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tes
 Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Ungroup,method,Ungroup() As ShapeRange,,MISSING,,
-Shape,VerticalFlip,"property, read-only",As MsoTriState,,MISSING,,
+Shape,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipV is set.
 Shape,Vertices,"property, read-only",As Variant,,MISSING,,
 Shape,Visible,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Width,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,MISSING,,
+Shape,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,"Moves the shape to the front or back, or one place, in the drawing's order, which Shapes and ZOrderPosition follow. Other commands raise -2147024809."
 Shape,ZOrderPosition,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 ShapeRange,_Default,method,_Default(Index As Variant) As Shape,,MISSING,,
 ShapeRange,_NewEnum,"property, read-only",As IUnknown,,MISSING,,

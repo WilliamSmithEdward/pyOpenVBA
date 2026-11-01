@@ -218,6 +218,9 @@ class Shape:
     #: Excel: LockAspectRatio once set, None until then; Locked.
     lock_aspect: bool | None = None
     locked: bool = True
+    #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
+    flip_h: bool = False
+    flip_v: bool = False
 
     @property
     def mso_type(self) -> int:

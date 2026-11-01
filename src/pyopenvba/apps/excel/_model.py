@@ -1761,6 +1761,13 @@ class Workbook(ExcelObject):
         return self.names_ if Index is MISSING else self.names_.vba_get("Item", [Index])
 
     @member
+    def Connections(self) -> object:
+        """The data connections the file keeps (see _connections)."""
+        from pyopenvba.apps.excel._connections import Connections
+
+        return Connections(self)
+
+    @member
     def Queries(self, Index: object = MISSING) -> object:
         return self.queries_ if Index is MISSING else self.queries_.vba_get("Item", [Index])
 

@@ -305,8 +305,12 @@ def chart_part(
     visible_only: bool = True,
     over_maximum: bool = False,
     not_available_as_blank: bool = True,
+    grouping: str = "",
 ) -> str:
     """A chart part, as Excel writes one of this kind.
+
+    ``grouping`` is "stacked" or "percentStacked" for a column, bar, line or area chart that stacks its series, which
+    a 100% stacked chart's value axis shows as percentages (tests/fixtures/chart_stacked.json).
 
     ``title`` is the chart's title element, if it has one, and
     ``title_deleted`` says ChartTitle.Delete removed it. ``axis_ids`` and ``unique``, the tail every
@@ -324,7 +328,8 @@ def chart_part(
     if kind in ("column", "bar"):
         direction = "col" if kind == "column" else "bar"
         plot = (
-            f'<c:barChart><c:barDir val="{direction}"/><c:grouping val="clustered"/><c:varyColors val="0"/>'
+            f'<c:barChart><c:barDir val="{direction}"/><c:grouping val="{grouping or "clustered"}"/>'
+            '<c:varyColors val="0"/>'
             f'{written}{_LABELS.format(extra="")}<c:gapWidth val="150"/>{axes_ids}</c:barChart>'
         )
         axes = _category_axis(first, second, position="b" if kind == "column" else "l", formatted=labelled)
@@ -333,14 +338,14 @@ def chart_part(
     elif kind in ("line", "lineMarkers"):
         markers = '<c:marker val="1"/>' if kind == "lineMarkers" else ""
         plot = (
-            f'<c:lineChart><c:grouping val="standard"/><c:varyColors val="0"/>{written}'
+            f'<c:lineChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
             f'{_LABELS.format(extra="")}{markers}<c:smooth val="0"/>{axes_ids}</c:lineChart>'
         )
         axes = _category_axis(first, second, position="b", formatted=labelled)
         axes += _value_axis(second, first, position="l", between="between", formatted=bool(series), gridlines=True)
     elif kind == "area":
         plot = (
-            f'<c:areaChart><c:grouping val="standard"/><c:varyColors val="0"/>{written}'
+            f'<c:areaChart><c:grouping val="{grouping or "standard"}"/><c:varyColors val="0"/>{written}'
             f'{_LABELS.format(extra="")}{axes_ids}</c:areaChart>'
         )
         axes = _category_axis(first, second, position="b", formatted=labelled)
@@ -361,6 +366,9 @@ def chart_part(
             f'<c:firstSliceAng val="0"/>{hole}</c:{kind}Chart>'
         )
         axes = ""
+    if grouping == "percentStacked":
+        category, _, value = axes.partition("<c:valAx>")
+        axes = category + "<c:valAx>" + value.replace(_NUMBER_FORMAT, _NUMBER_FORMAT.replace("General", "0%"), 1)
     return (
         f'{_HEAD}{title}<c:autoTitleDeleted val="{int(title_deleted)}"/>'
         f'<c:plotArea><c:layout/>{plot}{axes}</c:plotArea>{legend}'

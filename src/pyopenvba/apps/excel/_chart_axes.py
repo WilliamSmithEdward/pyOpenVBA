@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import Chart
     from pyopenvba.apps.excel._model import Worksheet
 
-SUPPORTED = {51, 57, 4, 65, 1, -4169, 5, -4120}
+SUPPORTED = {51, 57, 4, 65, 1, -4169, 5, -4120, 52, 53, 58, 59, 63, 64, 66, 67, 76, 77}
 NO_AXES = {5, -4120}
 MAX_TITLE_TEXT = 32768
 
@@ -608,7 +608,9 @@ class Axis(Created):
     @member
     def AxisBetweenCategories(self) -> object:
         entry = self.kind_only(False)
-        return entry.between if entry.between is not None else self.chart.state.chart_type != 1
+        from pyopenvba.apps.excel._charts import CHART_TYPES
+
+        return entry.between if entry.between is not None else CHART_TYPES.get(self.chart.state.chart_type) != 'area'
 
     @setter("AxisBetweenCategories")
     def _between(self, value: object) -> None:
@@ -744,7 +746,9 @@ class AxisTitle(TitleMembers):
 
     def title_angle(self) -> int:
         # The title of an axis drawn upright reads upward until its orientation is set.
-        upright = (self.axis.entry.kind == 1) == (self.axis.chart.state.chart_type == 57)
+        from pyopenvba.apps.excel._charts import CHART_TYPES
+
+        upright = (self.axis.entry.kind == 1) == (CHART_TYPES.get(self.axis.chart.state.chart_type) == 'bar')
         return 90 if upright else 0
 
     @member

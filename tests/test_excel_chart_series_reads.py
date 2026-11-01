@@ -21,13 +21,9 @@ ANSWERED = ['Parent', 'Application', 'Creator', 'AxisGroup', 'ChartType', 'Type'
             'InvertColor', 'Shadow']
 
 
-#: Kinds of chart the model does not make yet.
-UNMADE = {'xlColumnStacked'}
-#: The probe as recorded, reading only the members the model answers, on the kinds it makes.
+#: The probe as recorded, reading only the members the model answers.
 SOURCE = re.sub(r'    names = Array\(.*\n    names = Split\(.*\n',
-                '    names = Array(' + ', '.join(f'"{name}"' for name in ANSWERED) + ')\n',
-                re.sub(r'    s = s & "@@@" & Tried\((' + '|'.join(UNMADE) + r')\)\n', '    s = s & "@@@"\n',
-                       RECORD['source']))
+                '    names = Array(' + ', '.join(f'"{name}"' for name in ANSWERED) + ')\n', RECORD['source'])
 
 
 def _recorded(answer: str) -> list[dict[str, str]]:
@@ -46,7 +42,5 @@ def answers() -> list[str]:
 
 @pytest.mark.parametrize('index', range(len(RECORD['cases'])))
 def test_each_kind_as_excel_answered(answers: list[str], index: int) -> None:
-    if RECORD['cases'][index][0] in UNMADE:
-        pytest.skip('the model does not make this kind of chart')
     got = [dict(zip(ANSWERED, one.split(','), strict=True)) for one in answers[index].split('|')]
     assert got == _recorded(RECORD['cases'][index][1])

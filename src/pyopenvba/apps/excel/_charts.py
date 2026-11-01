@@ -28,7 +28,11 @@ MAX_CHART_SERIES = 1024
 MAX_CHART_REFERENCE_TEXT = 32_768
 
 CHART_TYPES = {51: 'column', 57: 'bar', 4: 'line', 65: 'lineMarkers', 5: 'pie', -4120: 'doughnut',
-               -4169: 'scatter', 1: 'area'}
+               -4169: 'scatter', 1: 'area', 52: 'column', 53: 'column', 58: 'bar', 59: 'bar', 63: 'line', 64: 'line',
+               66: 'lineMarkers', 67: 'lineMarkers', 76: 'area', 77: 'area'}
+#: The stacked types, and how the file groups their series (tests/fixtures/chart_stacked.json).
+STACKED = {52: 'stacked', 53: 'percentStacked', 58: 'stacked', 59: 'percentStacked', 63: 'stacked',
+           64: 'percentStacked', 66: 'stacked', 67: 'percentStacked', 76: 'stacked', 77: 'percentStacked'}
 #: Series.Type for each kind: the gallery constants xlArea, xlBar, xlColumn, xlLine, xlPie, xlDoughnut and xlXYScatter
 #: (tests/fixtures/chart_series_reads.json).
 SERIES_KINDS = {'column': 3, 'bar': 2, 'line': 4, 'lineMarkers': 4, 'pie': 5, 'doughnut': -4120, 'scatter': -4169,
@@ -293,9 +297,16 @@ def guessed_orientation(sheet: Worksheet, area: Area) -> int:
 def shown_type(chart: ChartState) -> int:
     """The type a chart reads and is written as. A line chart follows its first series: with markers (65) unless that
     series has none, and with markers while it has no series at all."""
-    if chart.chart_type in (4, 65):
-        return 4 if chart.series and chart.series[0].marker == MARKER_NONE else 65
+    for plain, marked in LINE_PAIRS:
+        if chart.chart_type in (plain, marked):
+            return plain if chart.series and chart.series[0].marker == MARKER_NONE else marked
     return chart.chart_type
+
+
+#: Each line chart type and its type with markers: plain, stacked and 100% stacked (tests/fixtures/chart_stacked.json).
+LINE_PAIRS = ((4, 65), (63, 66), (64, 67))
+#: The types drawn with markers.
+MARKED_TYPES = (65, 66, 67, -4169)
 
 
 #: Series.MarkerStyle and the symbol the file spells it with; automatic has no symbol of its own.
@@ -312,7 +323,7 @@ AUTOMATIC_MARKERS = (2, 1, 3, -4168, 5, 8, 9, -4118, -4115)
 
 def default_marker(chart: ChartState) -> int:
     """The marker a new series takes: automatic in a chart drawn with markers, none otherwise."""
-    return MARKER_AUTOMATIC if chart.chart_type in (65, -4169) else MARKER_NONE
+    return MARKER_AUTOMATIC if chart.chart_type in MARKED_TYPES else MARKER_NONE
 
 
 def marker_markup(entry: SeriesState) -> str:
@@ -690,12 +701,16 @@ class Chart(Created):
         self.admit_change()
         transition(self, wanted)
         self.changed()
+        if CHART_TYPES[wanted] in ('column', 'bar') and (wanted in STACKED) != (self.state.chart_type in STACKED):
+            # Stacking a column or bar chart overlaps its bars fully, and unstacking it parts them
+            # (tests/fixtures/chart_stacked.json).
+            self.state.overlap = 100 if wanted in STACKED else 0
         self.state.chart_type = wanted
         # A line chart turns every marker off; one with markers, or a scatter chart, turns those that were off back on.
         for entry in self.state.series:
-            if wanted == 4:
+            if wanted in (plain for plain, _ in LINE_PAIRS):
                 entry.marker = MARKER_NONE
-            elif wanted in (65, -4169) and entry.marker == MARKER_NONE:
+            elif wanted in MARKED_TYPES and entry.marker == MARKER_NONE:
                 entry.marker = MARKER_AUTOMATIC
 
     @member

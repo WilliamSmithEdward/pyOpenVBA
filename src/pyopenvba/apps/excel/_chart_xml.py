@@ -77,6 +77,9 @@ class SeriesData:
     #: HasDataLabels and HasLeaderLines (tests/fixtures/chart_data_labels.json).
     labels: bool = False
     leader_lines: bool = True
+    #: The series' errBars elements, written between its data labels and its categories
+    #: (tests/fixtures/chart_error_bars.json).
+    error_bars: str = ""
 
 
 #: Chart.HasDataTable, as Excel writes the table (tests/fixtures/chart_series_more.json).
@@ -258,6 +261,7 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         )
         element = "xVal" if kind == "scatter" else "cat"
         categories = _reference(element, data.categories, cache, numbers=data.numeric_categories)
+    categories = data.error_bars + categories
     if data.labels:
         # A series' data labels come just before its categories, on every kind (tests/fixtures/chart_data_labels.json).
         categories = _series_labels(kind, data.leader_lines) + categories

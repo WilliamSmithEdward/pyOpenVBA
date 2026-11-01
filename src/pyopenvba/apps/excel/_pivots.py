@@ -229,6 +229,17 @@ def refuse_1904_dates(cache: PivotCache) -> None:
 class PivotCache(ExcelObject):
     vba_type_name = 'PivotCache'
 
+    # A cache over a list, not OLAP and not refreshed on a timer, refuses both with 1004
+    # (tests/fixtures/pivot_olap_members.json).
+
+    @method
+    def ResetTimer(self) -> object:
+        raise error(1004, 'ResetTimer method of PivotCache class failed')
+
+    @method
+    def MakeConnection(self) -> object:
+        raise error(1004, 'MakeConnection method of PivotCache class failed')
+
     @member
     def Application(self) -> object:
         return self.book.application
@@ -325,6 +336,25 @@ class PivotCache(ExcelObject):
 
 class PivotTable(ExcelObject):
     vba_type_name = 'PivotTable'
+
+    # What-if changes belong to an OLAP table; a table over a list refuses each with 1004
+    # (tests/fixtures/pivot_olap_members.json).
+
+    @method
+    def AllocateChanges(self) -> object:
+        raise error(1004, 'AllocateChanges method of PivotTable class failed')
+
+    @method
+    def CommitChanges(self) -> object:
+        raise error(1004, 'CommitChanges method of PivotTable class failed')
+
+    @method
+    def DiscardChanges(self) -> object:
+        raise error(1004, 'DiscardChanges method of PivotTable class failed')
+
+    @method
+    def RefreshDataSourceValues(self) -> object:
+        raise error(1004, 'RefreshDataSourceValues method of PivotTable class failed')
 
     def __init__(self, sheet: Worksheet, cache: PivotCache, root: XmlElement,
                  report_owner: PivotTable | None = None) -> None:
@@ -1007,6 +1037,12 @@ class PivotTable(ExcelObject):
 class PivotField(ExcelObject):
     vba_type_name = 'PivotField'
 
+    @method
+    def DrillTo(self, Field: object = MISSING) -> object:  # noqa: N803 - native named argument
+        # Drilling belongs to an OLAP hierarchy; Excel raises -2147319765 on a list's field
+        # (tests/fixtures/pivot_olap_members.json).
+        raise error(-2147319765, 'Element not found.')
+
     def __init__(self, table: PivotTable, index: int, root: XmlElement, data: bool = False) -> None:
         self.table, self.index, self.root, self.data = table, index, root, data
 
@@ -1552,6 +1588,11 @@ class PivotItem(ExcelObject):
     returns as its CurrentPage, its place in the field's list from 1, and the value's place in the cache."""
 
     vba_type_name = 'PivotItem'
+
+    @method
+    def DrillTo(self, Field: object = MISSING) -> object:  # noqa: N803 - native named argument
+        # As PivotField.DrillTo (tests/fixtures/pivot_olap_members.json).
+        raise error(-2147319765, 'Element not found.')
 
     def __init__(self, field: PivotField, root: XmlElement | None, position: int, x: int = -1) -> None:
         self.field, self.root, self.position, self.x = field, root, position, x

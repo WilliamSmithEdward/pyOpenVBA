@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- The pivot members that belong to OLAP tables raise the errors Excel's
+  do on a table over a list: PivotCache's `ResetTimer` and
+  `MakeConnection`, `DrillTo` on fields and items, PivotTable's
+  what-if changes and `RefreshDataSourceValues`, and PivotCell's
+  `AllocateChange` and `DiscardChange`. 11 live cases agree,
+  `tests/fixtures/pivot_olap_members.json`.
+
 - `PivotFilter.Order` reads -1 and refuses a new order with error 5, as
   Excel's does on a table that is not OLAP, and `PivotItems.Add` adds an
   item no record holds, saved as Excel saves it. 11 live cases agree,

@@ -22,7 +22,7 @@ from pyopenvba.apps.excel._pivot_forms import KINDS, compact_captions, label_col
 from pyopenvba.apps.excel._pivot_reports import EVERY, GAP, PivotLine, axis_lines
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.interpreter._objects import member
+from pyopenvba.interpreter._objects import member, method
 from pyopenvba.interpreter._values import NULL, VBAInt, error, to_integer
 
 if TYPE_CHECKING:
@@ -278,6 +278,17 @@ class PivotCell(ExcelObject):
     """A cell of a pivot table, as Range.PivotCell gives it."""
 
     vba_type_name = 'PivotCell'
+
+    # What-if changes belong to an OLAP table; a cell of a table over a list refuses both with 1004
+    # (tests/fixtures/pivot_olap_members.json).
+
+    @method
+    def AllocateChange(self) -> object:
+        raise error(1004, 'AllocateChange method of PivotCell class failed')
+
+    @method
+    def DiscardChange(self) -> object:
+        raise error(1004, 'DiscardChange method of PivotCell class failed')
 
     def __init__(self, table: pivots.PivotTable, found: Role, cell: _model.Range) -> None:
         self.table, self.found, self.cell = table, found, cell

@@ -7,6 +7,60 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Chart.DisplayBlanksAs`, `PlotVisibleOnly`, `ShowDataLabelsOverMaximum`
+  and `DisplayValueNotAvailableAsBlank` answer as Excel's do, and a save
+  writes them as Excel does. 24 live cases agree,
+  `tests/fixtures/chart_display.json`.
+
+- `Axis.MajorTickMark`, `MinorTickMark`, `TickLabelPosition`,
+  `HasMajorGridlines`, `HasMinorGridlines`, `Crosses` and `CrossesAt`
+  answer as Excel's do. Crosses is written on the other axis, and
+  crossing at the maximum moves that axis to the far side. Line and
+  area charts now have axes. 36 live cases agree,
+  `tests/fixtures/chart_axis_lines.json`.
+
+- `Axis.MinorUnit`, `ScaleType`, `LogBase`, `DisplayUnit`,
+  `DisplayUnitCustom`, `HasDisplayUnitLabel`, `AxisBetweenCategories`,
+  `TickLabelSpacing` and `TickMarkSpacing` answer as Excel's do. 37
+  live cases agree, `tests/fixtures/chart_axis_scale.json`.
+
+- Series ids are numbered as Excel numbers them: past the series
+  `ChartObjects.Add` would have plotted from the selection, and
+  NewSeries takes the next one. 17 live cases agree,
+  `tests/fixtures/chart_series_ids.json`.
+
+- `Series.Smooth`, `MarkerStyle`, `MarkerSize`, `FormulaR1C1`,
+  `FormulaLocal` and `FormulaR1C1Local` answer as Excel's do. A line
+  chart's type follows its first series' marker. 50 live cases agree,
+  `tests/fixtures/chart_series_lines.json`.
+
+- Thirteen `ChartTitle` members and eleven `AxisTitle` members answer as
+  Excel's do: Caption, Delete, the Formula forms that link a title to
+  a cell, Orientation, the alignments, ReadingOrder, Position,
+  IncludeInLayout and Shadow. A setting is written only once set. 45
+  and 25 live cases agree, `tests/fixtures/chart_title.json` and
+  `tests/fixtures/chart_axis_title.json`.
+
+- `Shape.AlternativeText`, `Title`, `Decorative`, `Rotation`,
+  `IncrementRotation`, `IncrementLeft`, `IncrementTop`,
+  `LockAspectRatio` and `Locked` answer as Excel's do on shapes the
+  model makes. 18 live cases agree, `tests/fixtures/shape_properties.json`.
+
+- Seven more `Application` settings answer as Excel's do:
+  `MergeInstances`, `HighQualityModeForGraphics`, `GenerateTableRefs`,
+  `CursorMovement`, `DefaultSheetDirection`,
+  `LargeOperationCellThousandCount` and `ODBCTimeout`.
+  `tests/fixtures/application_settings.json`.
+
+- `Range.ShowPrecedents`, `ShowDependents` and `ShowErrors`, and
+  `Worksheet.CircleInvalid`, answer as Excel's do. ShowErrors answers
+  the cell an error starts in. 36 live cases agree,
+  `tests/fixtures/tracer_arrows.json`.
+
+- `Workbook.RemoveDocumentInformation` answers as Excel's does for
+  document properties, personal information and All. 10 live cases
+  agree, `tests/fixtures/remove_document_information.json`.
+
 - `Application.MacroOptions` answers as Excel's does. It writes a macro's
   description, help id, shortcut key and category as attribute lines in
   the procedure, which the VBE keeps out of `CodeModule`'s lines, and a
@@ -254,6 +308,21 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- Charts made through `ChartObjects.Add` are saved with the chart part
+  Excel writes for them, which carries no formatting of its own, in
+  place of the styled `Shapes.AddChart2` template. `PlotBy` is worked
+  out from the series, `ChartTitle` gives a chart without a title its
+  automatic one instead of raising 1004, and an empty line chart reads
+  as one with markers. 50 live cases agree,
+  `tests/fixtures/chart_markup.json`.
+
+- A new shape carries the creation id Excel gives every drawing object,
+  and an AutoShape's empty paragraph is left-aligned, as Excel writes
+  them.
+
+- A workbook with `RemovePersonalInformation` on is saved with no
+  author, last author, manager or company, as Excel saves it.
 
 - A module whose procedures carry attribute lines, as an exported module
   or `MacroOptions` leaves them, now runs: the lines are metadata VBA

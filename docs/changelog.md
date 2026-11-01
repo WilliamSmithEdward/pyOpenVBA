@@ -7,6 +7,26 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Application.MacroOptions` answers as Excel's does. It writes a macro's
+  description, help id, shortcut key and category as attribute lines in
+  the procedure, which the VBE keeps out of `CodeModule`'s lines, and a
+  save writes the module as Excel does. 22 live cases agree,
+  `tests/fixtures/macro_options.json`. A category by name,
+  ArgumentDescriptions, StatusBar, HelpFile and the menu options report
+  themselves unsupported.
+
+- `Workbook.Connections` reads the data connections a file keeps, as
+  Excel does: each connection's name, description and type, and an OLE
+  DB connection's connection string, command and settings. 35 live
+  reads agree, `tests/fixtures/connections.json`. The model refreshes,
+  adds and changes no connection.
+
+- Twenty more `Application` and `Parent` members answer as Excel's do,
+  among them those of the pivot collections, `Queries` and
+  `SeriesCollection`. `DisplayFormat.MergeCells` and `Style`, a colour
+  scale FormatColor's `ColorIndex`, and `PivotTables.Add` join them.
+  15 live reads agree, `tests/fixtures/collection_members.json`.
+
 - A sparkline group's `DateRange` and `ModifyDateRange`, and its axis's
   `RightToLeftPlotOrder`, answer as Excel's do. A date range reads as
   given, makes the axis a date axis, and a save writes it before the
@@ -234,6 +254,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A module whose procedures carry attribute lines, as an exported module
+  or `MacroOptions` leaves them, now runs: the lines are metadata VBA
+  never runs, instead of an unsupported statement.
+
+- `CodeModule.InsertLines` and `AddFromString` leave a blank line after
+  text that goes on with ` _` at the end of a module, as Excel's VBE
+  does. 16 live cases agree, `tests/fixtures/vbe_continuation.json`.
+
+- `VBComponent.Export` writes each procedure's attribute lines with it,
+  and `VBComponents.Import` keeps them with their procedures, out of
+  `CodeModule`'s lines, as Excel's VBE does.
+  `tests/fixtures/vbe_import_attributes.json`.
 
 - `AutoFilter.ShowAllData` on a sheet filter with no criteria does
   nothing, as Excel's does, instead of raising error 1004.

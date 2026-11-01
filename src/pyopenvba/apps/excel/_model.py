@@ -3746,6 +3746,64 @@ class Range(ExcelObject):
         return _arrays.has_array(self)
 
     @member
+    def SavedAsArray(self) -> object:
+        """Whether the cell is part of an array: one entered with Ctrl+Shift+Enter, or what a dynamic-array formula
+        spills (tests/fixtures/range_small_reads.json)."""
+        from pyopenvba.apps.excel._spills import has_spill
+
+        whole, part = _arrays.met(self.sheet, self.areas)
+        if not self.single:
+            if not whole and not part and not has_spill(self):
+                return False
+            raise VBAUnsupportedError("SavedAsArray of several cells meeting an array is not implemented")
+        return bool(whole or part) or has_spill(self) is True
+
+    @member
+    def HasRichDataType(self) -> object:
+        """False: the model holds no linked or rich data types (tests/fixtures/range_small_reads.json)."""
+        return False
+
+    @member
+    def LinkedDataTypeState(self) -> object:
+        """xlLinkedDataTypeStateNone (tests/fixtures/range_small_reads.json)."""
+        return VBAInt(0, "Long")
+
+    @member
+    def MDX(self) -> object:
+        """An OLAP pivot cell's; empty for one cell elsewhere, error 1004 for several
+        (tests/fixtures/range_small_reads.json)."""
+        if not self.single:
+            raise error(1004)
+        from pyopenvba.apps.excel._pivot_cells import owner
+
+        if owner(self.sheet, self.first.top, self.first.left) is not None:
+            raise VBAUnsupportedError("Range.MDX in a pivot table is not implemented")
+        return ""
+
+    @member
+    def Summary(self) -> object:
+        """Error 1004 outside a list of the kind Summary reads (tests/fixtures/range_small_reads.json)."""
+        raise error(1004)
+
+    @member
+    def QueryTable(self) -> object:
+        """Error 1004: the model holds no query tables (tests/fixtures/range_small_reads.json)."""
+        raise error(1004)
+
+    @member
+    def ServerActions(self) -> object:
+        """Error 1004 outside a server's list (tests/fixtures/range_small_reads.json)."""
+        raise error(1004)
+
+    @member
+    def CommentThreaded(self) -> object:
+        """Nothing: the model holds no threaded comments; several cells are error 5
+        (tests/fixtures/range_small_reads.json)."""
+        if not self.single:
+            raise error(5)
+        return NOTHING
+
+    @member
     def CurrentArray(self) -> object:
         return Range(self.sheet, [_arrays.current_array(self)])
 

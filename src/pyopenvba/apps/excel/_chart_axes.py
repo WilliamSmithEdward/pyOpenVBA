@@ -54,6 +54,22 @@ class AxisState:
     #: Where the other axis crosses this one: autoZero, max, min, or custom at ``crosses_at``.
     crosses: str | None = "autoZero"
     crosses_at: float = 0.0
+    minor: float | None = None
+    #: None for a linear scale.
+    log_base: float | None = None
+    #: A DISPLAY_UNITS key, or None for none; DisplayUnitCustom's value; whether the unit is labelled.
+    display_unit: int | None = None
+    display_custom: float = 1.0
+    display_label: bool = False
+    #: AxisBetweenCategories once set; until then the chart's kind decides.
+    between: bool | None = None
+    label_skip: int | None = None
+    mark_skip: int | None = None
+
+
+#: Axis.DisplayUnit and how the file spells it.
+DISPLAY_UNITS = {-2: "hundreds", -3: "thousands", -4: "tenThousands", -5: "hundredThousands", -6: "millions",
+                 -7: "tenMillions", -8: "hundredMillions", -9: "billions", -10: "trillions", -4114: "custom"}
 
 
 TICK_MARKS = {-4142: "none", 2: "in", 3: "out", 4: "cross"}
@@ -385,6 +401,175 @@ class Axis(Created):
             raise VBAUnsupportedError("Crossing a category axis between categories is not implemented")
         self.chart.changed()
         self.entry.crosses, self.entry.crosses_at = "custom", wanted
+
+    def kind_only(self, numeric: bool) -> AxisState:
+        """The axis, where the member belongs to its kind; Excel raises -2147467259 on the other kind of axis."""
+        self.read()
+        if self.entry.numeric != numeric:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        return self.entry
+
+    @member
+    def MinorUnit(self) -> object:
+        entry = self.kind_only(True)
+        if entry.minor is None:
+            raise VBAUnsupportedError("Effective automatic chart scales require native layout")
+        return entry.minor
+
+    @setter("MinorUnit")
+    def _minor(self, value: object) -> None:
+        entry = self.kind_only(True)
+        self.change()
+        if value is NULL:
+            raise error(13)
+        wanted = float(to_number(value))
+        if not math.isfinite(wanted):
+            raise VBAUnsupportedError("Nonfinite chart scales are not implemented")
+        if wanted <= 0:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        self.chart.changed()
+        entry.minor = wanted
+
+    @member
+    def MinorUnitIsAuto(self) -> object:
+        return self.kind_only(True).minor is None
+
+    @setter("MinorUnitIsAuto")
+    def _minor_auto(self, value: object) -> None:
+        entry = self.kind_only(True)
+        self.change()
+        wanted = to_bool(value)
+        if not wanted and entry.minor is None:
+            raise VBAUnsupportedError("Freezing an effective automatic chart scale requires native layout")
+        self.chart.changed()
+        if wanted:
+            entry.minor = None
+
+    @member
+    def ScaleType(self) -> object:
+        return VBAInt(-4132 if self.kind_only(True).log_base is None else -4133, "Long")
+
+    @setter("ScaleType")
+    def _scale_type(self, value: object) -> None:
+        entry = self.kind_only(True)
+        self.change()
+        wanted = int(to_integer(value, "Long"))
+        self.chart.changed()
+        # Anything but xlScaleLinear makes the scale logarithmic, in tens until LogBase says otherwise.
+        entry.log_base = None if wanted == -4132 else entry.log_base or 10.0
+
+    @member
+    def LogBase(self) -> object:
+        return self.kind_only(True).log_base or 10.0
+
+    @setter("LogBase")
+    def _log_base(self, value: object) -> None:
+        entry = self.kind_only(True)
+        self.change()
+        wanted = float(to_number(value))
+        if not 2 <= wanted <= 1000:
+            raise error(1004, "Unable to set the LogBase property of the Axis class")
+        self.chart.changed()
+        entry.log_base = wanted
+
+    @member
+    def DisplayUnit(self) -> object:
+        unit = self.kind_only(True).display_unit
+        return VBAInt(-4142 if unit is None else unit, "Long")
+
+    @setter("DisplayUnit")
+    def _display_unit(self, value: object) -> None:
+        entry = self.kind_only(True)
+        self.change()
+        wanted = int(to_integer(value, "Long"))
+        if wanted != -4142 and wanted not in DISPLAY_UNITS:
+            return  # Excel takes any other number and changes nothing.
+        self.chart.changed()
+        entry.display_unit = None if wanted == -4142 else wanted
+        entry.display_label = wanted != -4142
+
+    @member
+    def DisplayUnitCustom(self) -> object:
+        return self.kind_only(True).display_custom
+
+    @setter("DisplayUnitCustom")
+    def _display_custom(self, value: object) -> None:
+        entry = self.kind_only(True)
+        self.change()
+        wanted = float(to_number(value))
+        if not math.isfinite(wanted) or wanted <= 0:
+            raise VBAUnsupportedError("This custom chart display unit is not implemented")
+        self.chart.changed()
+        if entry.display_unit is None:
+            entry.display_label = True
+        entry.display_unit, entry.display_custom = -4114, wanted
+
+    @member
+    def HasDisplayUnitLabel(self) -> object:
+        return self.kind_only(True).display_label
+
+    @setter("HasDisplayUnitLabel")
+    def _display_label(self, value: object) -> None:
+        entry = self.kind_only(True)
+        self.change()
+        wanted = to_bool(value)
+        if entry.display_unit is not None:
+            # Without a display unit Excel has no label to show and keeps it off.
+            self.chart.changed()
+            entry.display_label = wanted
+
+    @member
+    def AxisBetweenCategories(self) -> object:
+        entry = self.kind_only(False)
+        return entry.between if entry.between is not None else self.chart.state.chart_type != 1
+
+    @setter("AxisBetweenCategories")
+    def _between(self, value: object) -> None:
+        entry = self.kind_only(False)
+        self.change()
+        wanted = to_bool(value)
+        self.chart.changed()
+        entry.between = wanted
+
+    def set_skip(self, field: str, value: object) -> None:
+        entry = self.kind_only(False)
+        self.change()
+        wanted = int(to_integer(value, "Long"))
+        if wanted < 1:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        self.chart.changed()
+        setattr(entry, field, wanted)
+
+    @member
+    def TickLabelSpacing(self) -> object:
+        return VBAInt(self.kind_only(False).label_skip or 1, "Long")
+
+    @setter("TickLabelSpacing")
+    def _label_skip(self, value: object) -> None:
+        self.set_skip("label_skip", value)
+
+    @member
+    def TickLabelSpacingIsAuto(self) -> object:
+        return self.kind_only(False).label_skip is None
+
+    @setter("TickLabelSpacingIsAuto")
+    def _label_skip_auto(self, value: object) -> None:
+        entry = self.kind_only(False)
+        self.change()
+        wanted = to_bool(value)
+        if not wanted and entry.label_skip is None:
+            raise VBAUnsupportedError("Freezing the automatic tick label spacing requires native layout")
+        self.chart.changed()
+        if wanted:
+            entry.label_skip = None
+
+    @member
+    def TickMarkSpacing(self) -> object:
+        return VBAInt(self.kind_only(False).mark_skip or 1, "Long")
+
+    @setter("TickMarkSpacing")
+    def _mark_skip(self, value: object) -> None:
+        self.set_skip("mark_skip", value)
 
 
 class AxisTitle(TitleMembers):

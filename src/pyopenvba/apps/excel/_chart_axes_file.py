@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel._chart_axes import (
     CROSSINGS,
+    DISPLAY_UNITS,
     LABEL_POSITIONS,
     NO_AXES,
     SUPPORTED,
@@ -87,8 +88,6 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
         if element.tag != wanted_tag or len(scalings) != 1:
             return
         scaling = scalings[0]
-        if scaling.find("c:logBase", NS) is not None:
-            return
         orientations = scaling.findall("c:orientation", NS)
         if len(orientations) > 1:
             return
@@ -175,6 +174,30 @@ def read_lines(axis: AxisState, other: AxisState, element: Element) -> None:
     axis.label_position = spelled("tickLblPos", LABEL_POSITIONS)
     axis.major_gridlines = element.find("c:majorGridlines", NS) is not None
     axis.minor_gridlines = element.find("c:minorGridlines", NS) is not None
+
+    def number(path: str) -> float | None:
+        node = element.find(path, NS)
+        try:
+            value = float(node.attrib["val"]) if node is not None else None
+        except (KeyError, ValueError, OverflowError):
+            return None
+        return value if value is not None and math.isfinite(value) and value > 0 else None
+
+    axis.minor = number("c:minorUnit")
+    axis.log_base = number("c:scaling/c:logBase")
+    for field, path in (("label_skip", "c:tickLblSkip"), ("mark_skip", "c:tickMarkSkip")):
+        skip = number(path)
+        setattr(axis, field, int(skip) if skip is not None and skip.is_integer() else None)
+    built_in = element.find("c:dispUnits/c:builtInUnit", NS)
+    named = {name: number for number, name in DISPLAY_UNITS.items()}
+    if built_in is not None and built_in.attrib.get("val") in named:
+        axis.display_unit = named[built_in.attrib["val"]]
+    elif number("c:dispUnits/c:custUnit") is not None:
+        axis.display_unit, axis.display_custom = -4114, number("c:dispUnits/c:custUnit") or 1.0
+    axis.display_label = axis.display_unit is not None and element.find("c:dispUnits/c:dispUnitsLbl", NS) is not None
+    between = element.find("c:crossBetween", NS)
+    if between is not None and between.attrib.get("val") in ("between", "midCat"):
+        other.between = between.attrib["val"] == "between"
     other.crosses = spelled("crosses", CROSSINGS)
     custom = element.find("c:crossesAt", NS)
     if custom is not None:
@@ -222,7 +245,10 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
         raw = re.sub(r'(<c:axPos val="[bltr]"/>)(?:<c:majorGridlines/>)?', lambda found: found.group(1) + gridlines,
                      raw, count=1)
         orientation = "maxMin" if axis.reverse else "minMax"
-        scaling = '<c:scaling><c:orientation val="' + orientation + '"/>'
+        scaling = "<c:scaling>"
+        if axis.log_base is not None:
+            scaling += '<c:logBase val="' + format_number(axis.log_base) + '"/>'
+        scaling += '<c:orientation val="' + orientation + '"/>'
         for field, tag in [("maximum", "max"), ("minimum", "min")]:
             value = getattr(axis, field)
             if value is not None:
@@ -237,9 +263,25 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
             marker = re.search(r"<c:(?:numFmt|majorTickMark)\b", raw)
             if marker is not None:
                 raw = raw[: marker.start()] + title + raw[marker.start() :]
+        skips = "".join(f'<c:{tag} val="{value}"/>' for tag, value in (
+            ("tickLblSkip", axis.label_skip), ("tickMarkSkip", axis.mark_skip)) if value is not None)
+        raw = raw.replace("<c:noMultiLvlLbl ", skips + "<c:noMultiLvlLbl ", 1)
+        if not other.numeric and other.between is not None:
+            # The category axis says whether the value axis crosses between categories or on them.
+            between = "between" if other.between else "midCat"
+            raw = re.sub(r'<c:crossBetween val="[^"]*"/>', f'<c:crossBetween val="{between}"/>', raw, count=1)
+        tail = ""
         if axis.major is not None:
+            tail += '<c:majorUnit val="' + format_number(axis.major) + '"/>'
+        if axis.minor is not None:
+            tail += '<c:minorUnit val="' + format_number(axis.minor) + '"/>'
+        if axis.display_unit is not None:
+            unit = (f'<c:custUnit val="{format_number(axis.display_custom)}"/>' if axis.display_unit == -4114
+                    else f'<c:builtInUnit val="{DISPLAY_UNITS[axis.display_unit]}"/>')
+            tail += f'<c:dispUnits>{unit}{"<c:dispUnitsLbl/>" if axis.display_label else ""}</c:dispUnits>'
+        if tail:
             end = raw.rfind("</c:")
-            raw = raw[:end] + '<c:majorUnit val="' + format_number(axis.major) + '"/>' + raw[end:]
+            raw = raw[:end] + tail + raw[end:]
         return raw
 
     return re.sub(r"<c:(?:catAx|valAx)>.*?</c:(?:catAx|valAx)>", update, xml)

@@ -22,6 +22,7 @@ Every layout here was read from a workbook Excel saved, in
 from __future__ import annotations
 
 import re
+import uuid
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 
@@ -238,7 +239,30 @@ def _shape_of(
     )
     if kind == "group":
         shape.children = _members(markup, grid)
+    _read_settings(shape, markup, anchor)
     return shape
+
+
+_CNVPR_OPEN = re.compile(r"<xdr:cNvPr\b([^>]*?)/?>")
+_ROTATION = re.compile(r"<a:xfrm\b[^>]*?\brot=\"(-?[0-9]{1,10})\"")
+
+
+def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
+    """AlternativeText, Title, Decorative, Rotation, LockAspectRatio and Locked, as the file holds them."""
+    identity = _CNVPR_OPEN.search(markup)
+    if identity is not None:
+        for field_name, attribute in (("description", "descr"), ("title", "title")):
+            found = re.search(rf'\b{attribute}="([^"]*)"', identity.group(1))
+            if found is not None:
+                setattr(shape, field_name, unescape(found.group(1)))
+    shape.decorative = re.search(r'<adec:decorative\b[^>]*\bval="1"', markup) is not None
+    turned = _ROTATION.search(markup)
+    shape.rotation = int(turned.group(1)) / 60000 if turned else 0.0
+    locks = re.search(r"<a:spLocks\b([^>]*)/?>", markup)
+    if locks is not None:
+        shape.lock_aspect = re.search(r'\bnoChangeAspect="(?:1|true)"', locks.group(1)) is not None
+    client = re.search(r"<xdr:clientData\b([^>]*)/?>", anchor)
+    shape.locked = client is None or re.search(r'\bfLocksWithSheet="(?:0|false)"', client.group(1)) is None
 
 
 def _anchor_box(anchor: str, grid: SheetGrid | None) -> tuple[float, float, float, float] | None:
@@ -876,30 +900,62 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
+    if shape.kind == "shape" and not shape.text:
+        # Excel starts an AutoShape's empty paragraph left-aligned.
+        body = body.replace("<a:p><a:endParaRPr", '<a:p><a:pPr algn="l"/><a:endParaRPr', 1)
     box = ' txBox="1"' if shape.kind == "textBox" else ""
     textlink = "" if line else ' textlink=""'
-    identity = f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(shape.name)}"/>'
+    identity = _identity(shape)
+    locks = "" if shape.lock_aspect is None else (
+        '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>")
     properties = (
         f"<xdr:nvCxnSpPr>{identity}<xdr:cNvCxnSpPr/></xdr:nvCxnSpPr>"
         if line
-        else f"<xdr:nvSpPr>{identity}<xdr:cNvSpPr{box}/></xdr:nvSpPr>"
+        else f"<xdr:nvSpPr>{identity}<xdr:cNvSpPr{box}>{locks}</xdr:cNvSpPr></xdr:nvSpPr>".replace(
+            f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
     )
+    turn = f' rot="{round(shape.rotation * 60000)}"' if shape.rotation else ""
     inner = (
         f"<{element}{macro}{textlink}>"
         f"{properties}"
-        "<xdr:spPr><a:xfrm>"
+        f"<xdr:spPr><a:xfrm{turn}>"
         f'<a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/>'
         f'</a:xfrm><a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom></xdr:spPr>'
         f"{'' if shape.kind == 'textBox' else _STYLE}{body}"
         f"</{element}>"
     )
+    left, top, width, height = shape.left, shape.top, shape.width, shape.height
+    if 45 <= shape.rotation % 360 < 135 or 225 <= shape.rotation % 360 < 315:
+        # Turned nearer upright than flat, the shape is anchored by its box turned on its centre.
+        left, top, width, height = left + (width - height) / 2, top + (height - width) / 2, height, width
+    client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
     return (
         "<xdr:twoCellAnchor>"
-        f"{_corner_markup('from', grid, shape.left, shape.top)}"
-        f"{_corner_markup('to', grid, shape.left + shape.width, shape.top + shape.height)}"
-        f"{inner}<xdr:clientData/></xdr:twoCellAnchor>"
+        f"{_corner_markup('from', grid, left, top)}"
+        f"{_corner_markup('to', grid, left + width, top + height)}"
+        f"{inner}{client}</xdr:twoCellAnchor>"
     )
+
+
+def _identity(shape: Shape) -> str:
+    """A new shape's cNvPr: its id, name, alternative text and title, and the creation id Excel gives every shape."""
+    described = f' descr="{escape(shape.description)}"' if shape.description else ""
+    titled = f' title="{escape(shape.title)}"' if shape.title else ""
+    creation = "{" + str(uuid.uuid4()).upper() + "}"
+    extensions = (
+        '<a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">'
+        f'<a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{creation}"/>'
+        "</a:ext>"
+    )
+    if shape.decorative:
+        extensions += (
+            '<a:ext uri="{C183D7F6-B498-43B3-948B-1728B52AA6E4}">'
+            '<adec:decorative xmlns:adec="http://schemas.microsoft.com/office/drawing/2017/decorative" val="1"/>'
+            "</a:ext>"
+        )
+    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(shape.name)}"{described}{titled}>'
+            f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
 
 
 def _corner_markup(which: str, grid: SheetGrid, across: float, down: float) -> str:

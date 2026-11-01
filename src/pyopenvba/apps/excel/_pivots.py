@@ -13,6 +13,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_area
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_tree
 from pyopenvba.apps.excel._xstring import decode as decode_text
@@ -156,7 +157,7 @@ class _Collection(VBACollection, ExcelObject):
         return self.parent
 
 
-class PivotCaches(_Collection):
+class PivotCaches(_Collection, ItemDefault):
     vba_type_name = 'PivotCaches'
 
     @method

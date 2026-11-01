@@ -14,6 +14,7 @@ from collections.abc import Callable, Sequence
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.apps.excel._pivot_create import encoded, node
@@ -266,7 +267,7 @@ def delete(field: PivotField) -> None:
     _changed(cache)
 
 
-class CalculatedFields(VBACollection, ExcelObject):
+class CalculatedFields(VBACollection, ItemDefault, ExcelObject):
     """A table's calculated fields, in its cache's order."""
 
     vba_type_name = 'CalculatedFields'

@@ -1252,7 +1252,7 @@ class TableSlicers(VBACollection, ExcelObject):
         return self.owner.sheet.book.application
 
 
-class ListColumns(VBACollection, ExcelObject):
+class ListColumns(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = "ListColumns"
 
     def __init__(self, table: Table) -> None:
@@ -1375,7 +1375,7 @@ class ListColumn(ExcelObject):
         return EMPTY
 
 
-class ListRows(VBACollection, ExcelObject):
+class ListRows(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = "ListRows"
 
     def __init__(self, table: Table) -> None:

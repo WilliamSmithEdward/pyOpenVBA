@@ -40,6 +40,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
 
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._conditional import NS, PointRule, Rule, guard
 from pyopenvba.apps.excel._conditional_extension import (
@@ -375,7 +376,7 @@ class IconSetCondition(PointRule):
         self.touched()
 
 
-class IconCriteria(VBACollection, ExcelObject):
+class IconCriteria(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = 'IconCriteria'
 
     def __init__(self, owner: IconSetCondition) -> None:
@@ -471,7 +472,7 @@ class IconCriterion(ExcelObject):
 # --- Workbook.IconSets ---------------------------------------------------------------------------------------
 
 
-class IconSets(VBACollection, ExcelObject):
+class IconSets(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = 'IconSets'
 
     def __init__(self, book: Workbook) -> None:

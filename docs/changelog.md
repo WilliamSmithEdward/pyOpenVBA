@@ -7,11 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
-- The hidden `_Default` members answer as Excel's do: a collection's
-  finds an item as Item does, Range's, Name's, Application's and
-  ControlFormat's stand for Item and Value, RefersTo, Name and Value,
-  and the chart collections' raise 438. 21 live cases agree,
-  `tests/fixtures/hidden_defaults.json`.
+- The hidden `_Default` members answer as Excel's do in code that
+  declares its types: a collection's finds an item as Item does, on 25
+  collections from Shapes to PivotFilters, and Range's, Name's,
+  Application's and ControlFormat's stand for Item and Value, RefersTo,
+  Name and Value. Bound late, through an Object, Excel raises 438
+  instead, which the model does not tell apart. 37 live cases agree,
+  `tests/fixtures/hidden_defaults.json` and
+  `tests/fixtures/hidden_defaults_more.json`.
 
 - The hidden members `_Evaluate` and `_CodeName` answer as Excel's do:
   Application's `_Evaluate` as Evaluate, a sheet's both as the error

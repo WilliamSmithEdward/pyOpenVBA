@@ -30,6 +30,7 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
@@ -425,7 +426,7 @@ class Comment(ExcelObject):
         return VBAInt(_CREATOR, "Long")
 
 
-class Comments(VBACollection, ExcelObject):
+class Comments(VBACollection, ItemDefault, ExcelObject):
     """A sheet's notes, row by row."""
 
     vba_type_name = "Comments"

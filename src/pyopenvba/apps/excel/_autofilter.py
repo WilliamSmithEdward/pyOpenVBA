@@ -103,6 +103,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, parse_reference, quote_sheet
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, NameEntry, Range
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.formula._display import UndisplayableError, shown
@@ -1543,7 +1544,7 @@ class FilterInterior(ExcelObject):
         return VBAInt(self.pattern, "Long")
 
 
-class Filters(VBACollection, ExcelObject):
+class Filters(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = "Filters"
 
     def __init__(self, owner: AutoFilter) -> None:

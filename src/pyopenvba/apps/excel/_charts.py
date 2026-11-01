@@ -14,7 +14,7 @@ from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
-from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 from pyopenvba.shapes._values import Shape, emu, points
@@ -271,13 +271,8 @@ def state(sheet: Worksheet, shape: Shape) -> ChartState:
     return sheet.chart_states[shape.shape_id]
 
 
-class ChartObjects(VBACollection, Created):
+class ChartObjects(VBACollection, ItemDefault, Created):
     vba_type_name = 'ChartObjects'
-
-    @method(name='_Default')
-    def hidden_default(self, *arguments: object) -> object:
-        # A macro reaching the hidden _Default gets 438 (tests/fixtures/hidden_defaults.json).
-        raise error(438, "Object doesn't support this property or method")
 
     def __init__(self, sheet: Worksheet) -> None:
         self.sheet = sheet
@@ -1063,13 +1058,8 @@ class ChartGroup(Created):
         self._set('hole', value, 10, 90)
 
 
-class SeriesCollection(VBACollection, Created):
+class SeriesCollection(VBACollection, ItemDefault, Created):
     vba_type_name = 'SeriesCollection'
-
-    @method(name='_Default')
-    def hidden_default(self, *arguments: object) -> object:
-        # A macro reaching the hidden _Default gets 438 (tests/fixtures/hidden_defaults.json).
-        raise error(438, "Object doesn't support this property or method")
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart

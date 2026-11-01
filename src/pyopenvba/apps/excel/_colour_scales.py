@@ -44,6 +44,7 @@ from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from pyopenvba.apps.excel import _styles as styles
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._conditional import NS, PointRule, Rule, RuleObject, changed, formula_anchor, guard
 from pyopenvba.apps.excel._conditional_extension import (
@@ -283,7 +284,7 @@ class ColorScale(PointRule):
         return ColorScaleCriteria(self)
 
 
-class ColorScaleCriteria(VBACollection, ExcelObject):
+class ColorScaleCriteria(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = 'ColorScaleCriteria'
 
     def __init__(self, owner: ColorScale) -> None:

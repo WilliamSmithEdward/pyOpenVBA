@@ -7,6 +7,16 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Workbook.RunAutoMacros` runs `Auto_Open` and `Auto_Close` as Excel
+  does, down to Excel doing nothing on the call after one that ran a
+  macro. Auto_Activate and Auto_Deactivate run nothing. A 19-step live
+  sequence agrees, `tests/fixtures/run_auto_macros.json`.
+
+- ChartObject's `Visible`, `Locked`, `PrintObject`, `Placement`,
+  `BringToFront` and `SendToBack`, and ChartObjects' `Left`, `Top`,
+  `Width`, `Height` and `Visible`, answer as Excel's do. 22 live cases
+  agree, `tests/fixtures/chart_object_more.json`.
+
 - ShapeRange's `IncrementLeft`, `IncrementTop`, `IncrementRotation`,
   `Flip`, `ZOrder`, `Decorative` and `AutoShapeType` answer as Excel's
   do, and `Shape.AutoShapeType` can be set. ZOrder moves the range as
@@ -387,6 +397,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- `Shape.Placement` reads the anchor's `editAs`, and a loaded shape
+  keeps its `editAs` and `fPrintsWithSheet` when changed and saved. It
+  always answered xlMoveAndSize.
 
 - A new rectangle keeps the left-aligned paragraph Excel gives it after
   its text is set. It was dropped.

@@ -1,0 +1,18 @@
+{
+"file": "pivots/native-page.xlsx",
+"dump": "Private Function Where(c As Object) As String\n    Dim kind As String\n    On Error Resume Next\n    kind = c.PivotCell.PivotCellType\n    If Err.Number <> 0 Then kind = \"E\" & Err.Number\n    Err.Clear\n    Where = c.LocationInTable\n    If Err.Number <> 0 Then Where = \"E\" & Err.Number\n    Where = Where & \"|\" & kind\nEnd Function\n\nPublic Function Dump(path As String) As String\n    Dim wb As Object, ws As Object, pt As Object, c As Object, whole As Object\n    Dim tables() As String, cells() As String, n As Long, k As Long\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Open(path)\n    ReDim tables(0 To 0)\n    For Each ws In wb.Worksheets\n        For Each pt In ws.PivotTables\n            Set whole = pt.TableRange2\n            ReDim cells(0 To whole.Cells.Count + 1)\n            k = 0\n            For Each c In whole.Cells\n                cells(k) = c.Address(False, False) & \"=\" & Where(c)\n                k = k + 1\n            Next\n            cells(k) = \"whole=\" & Where(pt.TableRange1)\n            cells(k + 1) = \"beside=\" & Where(ws.Cells(whole.Row, whole.Column + whole.Columns.Count))\n            ReDim Preserve tables(0 To n)\n            tables(n) = ws.Name & \"!\" & pt.Name & \"^\" & Join(cells, \"~\")\n            n = n + 1\n        Next\n    Next\n    wb.Close False\n    Dump = Join(tables, \"`\")\nEnd Function\n",
+"tables": {
+"Sheet1!Summary": [
+"E1=2|5",
+"F1=6|6",
+"E2=E1004|E1004",
+"F2=E1004|E1004",
+"E3=7|4",
+"F3=E1004|E1004",
+"E4=8|0",
+"F4=E1004|E1004",
+"whole=E94|4",
+"beside=E1004|E1004"
+]
+}
+}

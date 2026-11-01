@@ -3050,6 +3050,20 @@ class Worksheet(ExcelObject):
         unprotect(self, Password)
         return EMPTY
 
+    @method
+    def ClearArrows(self) -> object:
+        """Takes away tracer arrows, which the model never draws; on a protected sheet error 1004
+        (tests/fixtures/clear_arrows.json)."""
+        if self.protection is not None and self.protection.contents:
+            raise error(1004, "ClearArrows method of Worksheet class failed")
+        return EMPTY
+
+    @method
+    def ClearCircles(self) -> object:
+        """Takes away validation circles, which the model never draws, protected sheet or not
+        (tests/fixtures/clear_arrows.json)."""
+        return EMPTY
+
     @member
     def ProtectContents(self) -> object:
         return self.protection is not None and self.protection.contents
@@ -3771,6 +3785,13 @@ class Range(ExcelObject):
         from pyopenvba.apps.excel._pivot_cells import pivot_cell
 
         return pivot_cell(self)
+
+    @member
+    def LocationInTable(self) -> object:
+        """Where in a pivot table the range's cells are (see _pivot_cells)."""
+        from pyopenvba.apps.excel._pivot_cells import location_in_table
+
+        return location_in_table(self)
 
     @member
     def PivotTable(self) -> object:

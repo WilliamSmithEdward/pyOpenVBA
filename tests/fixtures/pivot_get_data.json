@@ -1,0 +1,138 @@
+{
+ "measured_at": "2026-10-31T23:25:32.050371+00:00",
+ "source": "Private Function Tried(ByVal pt As Object, ByVal n As String) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    v = pt.GetData(n)\n    Tried = TypeName(v) & \":\" & CStr(v)\n    Exit Function\nFailed:\n    Tried = \"E\" & Err.Number\nEnd Function\n\nPublic Function Probe() As String\n    Dim wb As Workbook, ws As Worksheet, pt As Object, s As String\n    Dim n As Variant\n    Application.DisplayAlerts = False\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:D5\").Value = Application.Transpose(Application.Transpose(Array(Array(\"k\", \"p\", \"v\", \"q\"), Array(\"a\", \"x\", 1, \"m\"), Array(\"b\", \"y\", 2, \"n\"), Array(\"a\", \"y\", 3, \"m\"), Array(\"c\", \"x\", 4, \"n\"))))\n    Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:D5\")).CreatePivotTable(ws.Range(\"I3\"), \"PT\")\n    pt.PivotFields(\"k\").Orientation = xlRowField\n    pt.PivotFields(\"p\").Orientation = xlColumnField\n    pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum\n    pt.AddDataField pt.PivotFields(\"q\"), \"Count of q\", xlCount\n    For Each n In Array(\"Sum of v\", \"'Sum of v'\", \"'Sum of v' a\", \"Sum of v a\", \"'Sum of v' k[a]\", \"'Sum of v' k['a']\", \"a\", \"'Sum of v' 'a'\", \"'Sum of v' x\", \"'Sum of v' a x\", \"'Sum of v' 'Grand Total'\", \"'Sum of v' zz\", \"\", \"'Count of q'\", \"'Count of q' b\", \"'Sum of v' A\", \"'sum of v' a\", \"Sum of v[a]\", \"'Sum of v' a y\", \"'Sum of v' k[a] p[x]\", \"'Sum of v' x a\", \"'Sum of v' b x\", \"'Sum of v' x y\", \"'Sum of v' a a\", \"'Sum of v' k[zz]\", \"'Sum of v' zz[a]\", \"'Sum of v' 'a\", \"'Sum of v' k[a\", \"v\", \"v a\", \"'Sum of v' Grand Total\", \"'Sum of v' grand total x\", \"Count of q Sum of v\")\n        s = s & \"~\" & Tried(pt, CStr(n))\n    Next\n    wb.Close False\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 2)\nEnd Function\n",
+ "names": [
+  [
+   "Sum of v",
+   "Double:10"
+  ],
+  [
+   "'Sum of v'",
+   "Double:10"
+  ],
+  [
+   "'Sum of v' a",
+   "Double:4"
+  ],
+  [
+   "Sum of v a",
+   "Double:4"
+  ],
+  [
+   "'Sum of v' k[a]",
+   "Double:4"
+  ],
+  [
+   "'Sum of v' k['a']",
+   "Double:4"
+  ],
+  [
+   "a",
+   "E1004"
+  ],
+  [
+   "'Sum of v' 'a'",
+   "Double:4"
+  ],
+  [
+   "'Sum of v' x",
+   "Double:5"
+  ],
+  [
+   "'Sum of v' a x",
+   "Double:1"
+  ],
+  [
+   "'Sum of v' 'Grand Total'",
+   "Double:10"
+  ],
+  [
+   "'Sum of v' zz",
+   "E1004"
+  ],
+  [
+   "",
+   "E1004"
+  ],
+  [
+   "'Count of q'",
+   "Double:4"
+  ],
+  [
+   "'Count of q' b",
+   "Double:1"
+  ],
+  [
+   "'Sum of v' A",
+   "Double:4"
+  ],
+  [
+   "'sum of v' a",
+   "Double:4"
+  ],
+  [
+   "Sum of v[a]",
+   "E1004"
+  ],
+  [
+   "'Sum of v' a y",
+   "Double:3"
+  ],
+  [
+   "'Sum of v' k[a] p[x]",
+   "Double:1"
+  ],
+  [
+   "'Sum of v' x a",
+   "Double:1"
+  ],
+  [
+   "'Sum of v' b x",
+   "E1004"
+  ],
+  [
+   "'Sum of v' x y",
+   "E1004"
+  ],
+  [
+   "'Sum of v' a a",
+   "Double:4"
+  ],
+  [
+   "'Sum of v' k[zz]",
+   "E1004"
+  ],
+  [
+   "'Sum of v' zz[a]",
+   "E1004"
+  ],
+  [
+   "'Sum of v' 'a",
+   "E1004"
+  ],
+  [
+   "'Sum of v' k[a",
+   "E1004"
+  ],
+  [
+   "v",
+   "Double:10"
+  ],
+  [
+   "v a",
+   "Double:4"
+  ],
+  [
+   "'Sum of v' Grand Total",
+   "Double:10"
+  ],
+  [
+   "'Sum of v' grand total x",
+   "Double:5"
+  ],
+  [
+   "Count of q Sum of v",
+   "E1004"
+  ]
+ ]
+}

@@ -202,6 +202,15 @@ class Font(ExcelObject):
     def after_set(self, member: str) -> None:
         self.target.note_formatted()
 
+    @member
+    def Background(self) -> object:
+        """A chart text's: on cells Null, and a set is passed over (tests/fixtures/object_members.json)."""
+        return NULL
+
+    @setter("Background")
+    def _set_background(self, value: object) -> None:
+        to_integer(value, "Long")
+
     def _fonts(self) -> list[S.Font]:
         """Every font the range shows: each position's format's, and that of each run of a cell's text in a font
         of its own (see _rich_text)."""
@@ -693,6 +702,15 @@ class Interior(ExcelObject):
 
     def after_set(self, member: str) -> None:
         self.target.note_formatted()
+
+    @member
+    def InvertIfNegative(self) -> object:
+        """A chart series' fill's: on cells error 1004, read or set (tests/fixtures/object_members.json)."""
+        raise error(1004, "Unable to get the InvertIfNegative property of the Interior class")
+
+    @setter("InvertIfNegative")
+    def _set_invert_if_negative(self, value: object) -> None:
+        raise error(1004, "Unable to set the InvertIfNegative property of the Interior class")
 
     def _fills(self) -> list[S.Fill]:
         fills = list({style.fill: None for style in styles_of(self.target)})

@@ -100,7 +100,7 @@ def main() -> None:
             if saved:
                 with zipfile.ZipFile(Path(folder) / saved) as package:
                     sheet = package.read('xl/worksheets/sheet1.xml').decode('utf-8')
-                found = re.search(r'<sortState\b.*?(?:</sortState>|/>)', sheet, re.DOTALL)
+                found = re.search(r'<sortState\b[^>]*/>|<sortState\b.*?</sortState>', sheet, re.DOTALL)
                 parts[saved] = found.group(0) if found else ''
     record = {'measured_at': datetime.now(timezone.utc).isoformat(), 'source': source,
               'cases': [[statements, read, saved, answer]

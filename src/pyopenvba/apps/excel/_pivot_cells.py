@@ -23,7 +23,7 @@ from pyopenvba.apps.excel._pivot_reports import EVERY, GAP, PivotLine, axis_line
 from pyopenvba.apps.excel._pivots import NS
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import member
-from pyopenvba.interpreter._values import error
+from pyopenvba.interpreter._values import NULL, VBAInt, error, to_integer
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts_file import XmlElement
@@ -350,6 +350,73 @@ def pivot_cell(target: _model.Range) -> PivotCell:
     if found is None:
         raise _unable('PivotCell', 'Range')
     return PivotCell(*found)
+
+
+#: LocationInTable of a pivot field's own button by the field's orientation: xlRowHeader, xlColumnHeader, xlPageHeader.
+_HEADERS = {1: -4153, 2: -4110, 3: 2}
+#: LocationInTable of an item, subtotal or custom subtotal by its field's orientation: xlRowItem, xlColumnItem.
+_ITEMS = {1: 4, 2: 5}
+#: LocationInTable of a blank cell by its field's orientation, inside that field's area and outside it.
+_BLANKS = {1: ('RowRange', -4153, 3), 2: ('ColumnRange', -4110, 3)}
+
+
+def _within(table: pivots.PivotTable, name: str, row: int, column: int) -> bool:
+    try:
+        found = table.vba_get(name)
+    except VBARuntimeError:
+        return False
+    return isinstance(found, _model.Range) and any(area.contains(row, column) for area in found.areas)
+
+
+def _location(sheet: Worksheet, row: int, column: int) -> int:
+    """LocationInTable of one cell: by what it stands for and its field's orientation, the values area's body
+    first (tests/fixtures/location_in_table/)."""
+    found = owner(sheet, row, column)
+    field = _field(*found) if found is not None else None
+    if found is None or field is None:
+        raise _unable('LocationInTable', 'Range')
+    table, place = found
+    kind = int(place.kind)
+    orientation = int(to_integer(field.vba_get('Orientation'), 'Long'))
+    if kind == 6:
+        return 6
+    if kind == 5 and orientation in _HEADERS:
+        return _HEADERS[orientation]
+    if kind == 8:
+        return 3
+    if _within(table, 'DataBodyRange', row, column) or kind == 0:
+        return 8
+    if kind in (1, 2, 7) and orientation in _ITEMS:
+        return _ITEMS[orientation]
+    if kind == 3 or (kind in (4, 9) and orientation == 4):
+        return 7
+    if kind == 4 and orientation == 1:
+        return 4
+    if kind == 9 and orientation in _BLANKS:
+        area, inside, outside = _BLANKS[orientation]
+        return inside if _within(table, area, row, column) else outside
+    raise VBAUnsupportedError('Range.LocationInTable of a pivot cell of this kind is not implemented')
+
+
+def location_in_table(target: _model.Range) -> object:
+    """Range.LocationInTable: where in a pivot table its cells are; Null where they differ, a cell that is no pivot
+    cell with a field among them, and error 1004 where none is one (tests/fixtures/location_in_table/)."""
+    if len(target.areas) == 1 and target.single:
+        return VBAInt(_location(target.sheet, target.first.top, target.first.left), 'Long')
+    if sum(area.rows * area.columns for area in target.areas) > 1 << 20:
+        raise VBAUnsupportedError('Range.LocationInTable of more than a million cells is not implemented')
+    found: set[int | None] = set()
+    for area in target.areas:
+        for row in range(area.top, area.bottom + 1):
+            for column in range(area.left, area.right + 1):
+                try:
+                    found.add(_location(target.sheet, row, column))
+                except VBARuntimeError:
+                    found.add(None)
+    if found == {None}:
+        raise _unable('LocationInTable', 'Range')
+    only = found.pop() if len(found) == 1 else None
+    return NULL if only is None else VBAInt(only, 'Long')
 
 
 def pivot_table(target: _model.Range) -> pivots.PivotTable:

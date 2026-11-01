@@ -215,6 +215,10 @@ def refuse_1904_dates(cache: PivotCache) -> None:
 class PivotCache(ExcelObject):
     vba_type_name = 'PivotCache'
 
+    @member
+    def Application(self) -> object:
+        return self.book.application
+
     def __init__(self, book: Workbook, part: str, root: XmlElement, index: int) -> None:
         self.book, self.part, self.root, self.index = book, part, root, index
         self.pending_source: object = None
@@ -323,6 +327,19 @@ class PivotTable(ExcelObject):
         #: ManualUpdate, which no file keeps.
         self.manual = False
 
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member(default=True, name="_Default")
+    def _Default(self) -> object:
+        """Its name, which Value reads too (tests/fixtures/object_members.json)."""
+        return self.vba_get("Name")
+
+    @member
+    def Value(self) -> object:
+        return self.vba_get("Name")
+
     @method
     def RefreshTable(self) -> object:
         from pyopenvba.apps.excel._pivot_refresh import refresh
@@ -411,6 +428,25 @@ class PivotTable(ExcelObject):
             self.report_metadata = read_report(self, lambda identifier: formats.get(identifier, 'General'))
             self.report_loaded = True
         return self.report_metadata
+
+    @method
+    def GetData(self, Name: object = MISSING) -> object:
+        """The value the table shows for a name picking a data field and items (see _pivot_data_name)."""
+        from pyopenvba.apps.excel._pivot_data_name import picked
+
+        report = self.report()
+        if report is None or Name is MISSING:
+            raise error(1004)
+        if not report.readable:
+            raise VBAUnsupportedError('GetData on a cube or unsupported report layout')
+        value, chosen = picked(report, to_text(Name))
+        cell = report.cell(value, chosen)
+        shown = (EMPTY if cell is None else
+                 Range(self.sheet, [Area(cell.row, cell.column, cell.row, cell.column, self.sheet.name)]).vba_value())
+        if shown is EMPTY:
+            # A cell showing no value, items with no records together, is error 1004 too.
+            raise error(1004)
+        return shown
 
     @method
     def GetPivotData(self, DataField: object = MISSING,
@@ -946,6 +982,19 @@ class PivotField(ExcelObject):
     def __init__(self, table: PivotTable, index: int, root: XmlElement, data: bool = False) -> None:
         self.table, self.index, self.root, self.data = table, index, root, data
 
+    @member
+    def Application(self) -> object:
+        return self.table.sheet.book.application
+
+    @member(default=True, name="_Default")
+    def _Default(self) -> object:
+        """Its name, which Value reads too (tests/fixtures/object_members.json)."""
+        return self.vba_get("Name")
+
+    @member
+    def Value(self) -> object:
+        return self.vba_get("Name")
+
     def check_alive(self) -> None:
         if self.data and self.root not in self.table.root.findall(f'{NS}dataFields/{NS}dataField'):
             raise error(424)
@@ -1469,6 +1518,15 @@ class PivotItem(ExcelObject):
 
     def __init__(self, field: PivotField, root: XmlElement | None, position: int, x: int = -1) -> None:
         self.field, self.root, self.position, self.x = field, root, position, x
+
+    @member
+    def Application(self) -> object:
+        return self.field.table.sheet.book.application
+
+    @member(default=True, name="_Default")
+    def _Default(self) -> object:
+        """Its name (tests/fixtures/object_members.json)."""
+        return self.vba_get("Name")
 
     @member
     def Name(self) -> object:

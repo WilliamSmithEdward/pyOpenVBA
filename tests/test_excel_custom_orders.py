@@ -49,7 +49,7 @@ def _conditions(sort_state: str) -> list[dict[str, str]]:
 def test_each_save_keeps_the_sort_state_excel_wrote(run: tuple[list[str], Path], saved: str) -> None:
     with zipfile.ZipFile(run[1] / saved) as package:
         sheet = package.read('xl/worksheets/sheet1.xml').decode('utf-8')
-    found = re.search(r'<sortState\b.*?(?:</sortState>|/>)', sheet, re.DOTALL)
+    found = re.search(r'<sortState\b[^>]*/>|<sortState\b.*?</sortState>', sheet, re.DOTALL)
     assert _conditions(found.group(0) if found else '') == _conditions(RECORD['parts'][saved])
 
 

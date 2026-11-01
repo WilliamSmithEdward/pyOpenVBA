@@ -1,0 +1,160 @@
+{
+ "measured_at": "2026-10-31T22:55:57.395067+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, pt As Object, fc As Object, t10 As Object, av As Object\n    Dim cs As Object, db As Object, ic As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:B5\").Value = Application.Transpose(Application.Transpose(Array(Array(\"k\", \"v\"), Array(\"a\", 1), Array(\"b\", 2), Array(\"a\", 3), Array(\"c\", 4))))\n    Set pt = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B5\")).CreatePivotTable(ws.Range(\"I1\"), \"PT\")\n    pt.PivotFields(\"k\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum\n    ws.Shapes.AddShape msoShapeRectangle, 10, 10, 50, 20\n    ws.Range(\"D1:D5\").Value = Application.Transpose(Array(1, 2, 3, 4, 5))\n    Set fc = ws.Range(\"D1:D5\").FormatConditions.Add(xlCellValue, xlGreater, \"=2\")\n    Set t10 = ws.Range(\"D1:D5\").FormatConditions.AddTop10\n    Set av = ws.Range(\"D1:D5\").FormatConditions.AddAboveAverage\n    Set cs = ws.Range(\"D1:D5\").FormatConditions.AddColorScale(3)\n    Set db = ws.Range(\"D1:D5\").FormatConditions.AddDatabar\n    Set ic = ws.Range(\"D1:D5\").FormatConditions.AddIconSetCondition\n    ws.Range(\"F1\").Validation.Add xlValidateWholeNumber, xlValidAlertStop, xlBetween, \"1\", \"5\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Tried = TypeName(pt.Application) & \" \" & TypeName(pt.PivotFields(1).Application) & \" \" & TypeName(pt.PivotFields(1).PivotItems(1).Application) & \" \" & TypeName(pt.PivotCache.Application)\n    Case 1\n        Tried = pt.Value & \" \" & pt & \" \" & TypeName(pt.Value)\n    Case 2\n        Tried = pt.PivotFields(1).Value & \" \" & pt.PivotFields(1) & \" \" & pt.PivotFields(1).PivotItems(1)\n    Case 3\n        Tried = TypeName(ws.Shapes(1).Application) & \" \" & TypeName(ws.Shapes(1).Parent) & \" \" & TypeName(ws.Shapes.Application) & \" \" & TypeName(ws.Shapes.Parent) & \" \" & (ws.Shapes.Parent Is ws)\n    Case 4\n        Tried = TypeName(ActiveWindow.Panes.Application) & \" \" & TypeName(ActiveWindow.Panes.Parent) & \" \" & ActiveWindow.Panes.Count\n    Case 5\n        Tried = TypeName(fc.Application) & \" \" & fc.PTCondition\n    Case 6\n        Tried = TypeName(t10.Application) & \" \" & t10.PTCondition & \" \" & t10.CalcFor\n    Case 7\n        Tried = TypeName(av.Application) & \" \" & av.PTCondition & \" \" & av.CalcFor\n    Case 8\n        Tried = TypeName(cs.Application) & \" \" & cs.PTCondition\n    Case 9\n        Tried = TypeName(db.Application) & \" \" & db.PTCondition\n    Case 10\n        Tried = TypeName(ic.Application) & \" \" & ic.PTCondition\n    Case 11\n        Tried = TypeName(ws.Range(\"D1:D5\").FormatConditions.AddUniqueValues.Application) & \" \" & ws.Range(\"D1:D5\").FormatConditions(7).PTCondition\n    Case 12\n        Tried = TypeName(ic.IconCriteria.Application)\n    Case 13\n        Tried = TypeName(ic.IconSet.Application)\n    Case 14\n        Tried = TypeName(ic.IconCriteria(1).Application)\n    Case 15\n        Tried = ws.Range(\"F1\").Validation.IMEMode\n    Case 16\n        Tried = ws.Range(\"F1\").Font.Background\n    Case 17\n        Tried = ws.Range(\"F1\").Interior.InvertIfNegative\n    Case 18\n        Tried = TypeName(ws.Range(\"F1\").Font.Background)\n    Case 19\n        ws.Range(\"F1\").Validation.IMEMode = xlIMEModeOn\n        Tried = ws.Range(\"F1\").Validation.IMEMode\n        wb.SaveAs folder & \"\\ime.xlsx\", xlOpenXMLWorkbook\n    Case 20\n        ws.Range(\"F1\").Validation.IMEMode = xlIMEModeHiragana\n        Tried = ws.Range(\"F1\").Validation.IMEMode\n        wb.SaveAs folder & \"\\hiragana.xlsx\", xlOpenXMLWorkbook\n    Case 21\n        ws.Range(\"F1\").Validation.IMEMode = 11\n        Tried = ws.Range(\"F1\").Validation.IMEMode\n    Case 22\n        ws.Range(\"F1\").Validation.IMEMode = -1\n        Tried = ws.Range(\"F1\").Validation.IMEMode\n    Case 23\n        ws.Range(\"F1\").Validation.IMEMode = xlIMEModeOn\n        ws.Range(\"F1\").Validation.IMEMode = xlIMEModeNoControl\n        Tried = ws.Range(\"F1\").Validation.IMEMode\n        wb.SaveAs folder & \"\\back.xlsx\", xlOpenXMLWorkbook\n    Case 24\n        ws.Range(\"F1\").Validation.Delete\n        Tried = ws.Range(\"F1\").Validation.IMEMode\n    Case 25\n        Tried = ws.Range(\"G1\").Validation.IMEMode\n    Case 26\n        ws.Range(\"F1\").Font.Background = xlBackgroundOpaque\n        Tried = TypeName(ws.Range(\"F1\").Font.Background)\n    Case 27\n        ws.Range(\"F1\").Interior.InvertIfNegative = True\n        Tried = ws.Range(\"F1\").Interior.InvertIfNegative\n    End Select\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim s As String, i As Long\n    Application.DisplayAlerts = False\n    For i = 0 To 27\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "reads": [
+  [
+   "TypeName(pt.Application) & \" \" & TypeName(pt.PivotFields(1).Application) & \" \" & TypeName(pt.PivotFields(1).PivotItems(1).Application) & \" \" & TypeName(pt.PivotCache.Application)",
+   "Application Application Application Application"
+  ],
+  [
+   "pt.Value & \" \" & pt & \" \" & TypeName(pt.Value)",
+   "PT PT String"
+  ],
+  [
+   "pt.PivotFields(1).Value & \" \" & pt.PivotFields(1) & \" \" & pt.PivotFields(1).PivotItems(1)",
+   "k k a"
+  ],
+  [
+   "TypeName(ws.Shapes(1).Application) & \" \" & TypeName(ws.Shapes(1).Parent) & \" \" & TypeName(ws.Shapes.Application) & \" \" & TypeName(ws.Shapes.Parent) & \" \" & (ws.Shapes.Parent Is ws)",
+   "Application Worksheet Application Worksheet True"
+  ],
+  [
+   "TypeName(ActiveWindow.Panes.Application) & \" \" & TypeName(ActiveWindow.Panes.Parent) & \" \" & ActiveWindow.Panes.Count",
+   "Application Window 1"
+  ],
+  [
+   "TypeName(fc.Application) & \" \" & fc.PTCondition",
+   "Application False"
+  ],
+  [
+   "TypeName(t10.Application) & \" \" & t10.PTCondition & \" \" & t10.CalcFor",
+   "Application False 0"
+  ],
+  [
+   "TypeName(av.Application) & \" \" & av.PTCondition & \" \" & av.CalcFor",
+   "Application False 0"
+  ],
+  [
+   "TypeName(cs.Application) & \" \" & cs.PTCondition",
+   "Application False"
+  ],
+  [
+   "TypeName(db.Application) & \" \" & db.PTCondition",
+   "Application False"
+  ],
+  [
+   "TypeName(ic.Application) & \" \" & ic.PTCondition",
+   "Application False"
+  ],
+  [
+   "TypeName(ws.Range(\"D1:D5\").FormatConditions.AddUniqueValues.Application) & \" \" & ws.Range(\"D1:D5\").FormatConditions(7).PTCondition",
+   "Application False"
+  ],
+  [
+   "TypeName(ic.IconCriteria.Application)",
+   "Err 438"
+  ],
+  [
+   "TypeName(ic.IconSet.Application)",
+   "Application"
+  ],
+  [
+   "TypeName(ic.IconCriteria(1).Application)",
+   "Err 438"
+  ],
+  [
+   "ws.Range(\"F1\").Validation.IMEMode",
+   "0"
+  ],
+  [
+   "ws.Range(\"F1\").Font.Background",
+   "Err 94"
+  ],
+  [
+   "ws.Range(\"F1\").Interior.InvertIfNegative",
+   "Err 1004"
+  ],
+  [
+   "TypeName(ws.Range(\"F1\").Font.Background)",
+   "Null"
+  ]
+ ],
+ "edits": [
+  [
+   [
+    "ws.Range(\"F1\").Validation.IMEMode = xlIMEModeOn"
+   ],
+   "ws.Range(\"F1\").Validation.IMEMode",
+   "ime.xlsx",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"F1\").Validation.IMEMode = xlIMEModeHiragana"
+   ],
+   "ws.Range(\"F1\").Validation.IMEMode",
+   "hiragana.xlsx",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"F1\").Validation.IMEMode = 11"
+   ],
+   "ws.Range(\"F1\").Validation.IMEMode",
+   "",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"F1\").Validation.IMEMode = -1"
+   ],
+   "ws.Range(\"F1\").Validation.IMEMode",
+   "",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"F1\").Validation.IMEMode = xlIMEModeOn",
+    "ws.Range(\"F1\").Validation.IMEMode = xlIMEModeNoControl"
+   ],
+   "ws.Range(\"F1\").Validation.IMEMode",
+   "back.xlsx",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"F1\").Validation.Delete"
+   ],
+   "ws.Range(\"F1\").Validation.IMEMode",
+   "",
+   "0"
+  ],
+  [
+   [],
+   "ws.Range(\"G1\").Validation.IMEMode",
+   "",
+   "0"
+  ],
+  [
+   [
+    "ws.Range(\"F1\").Font.Background = xlBackgroundOpaque"
+   ],
+   "TypeName(ws.Range(\"F1\").Font.Background)",
+   "",
+   "Null"
+  ],
+  [
+   [
+    "ws.Range(\"F1\").Interior.InvertIfNegative = True"
+   ],
+   "ws.Range(\"F1\").Interior.InvertIfNegative",
+   "",
+   "Err 1004"
+  ]
+ ],
+ "parts": {
+  "ime.xlsx": "<dataValidation type=\"whole\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"F1\" xr:uid=\"{7B0394B8-3D5C-48AE-8E10-032744EFAD4C}\">",
+  "hiragana.xlsx": "<dataValidation type=\"whole\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"F1\" xr:uid=\"{401A1DFD-1F0E-4C33-8C68-0CE2A2E5A0F8}\">",
+  "back.xlsx": "<dataValidation type=\"whole\" allowBlank=\"1\" showInputMessage=\"1\" showErrorMessage=\"1\" sqref=\"F1\" xr:uid=\"{7671BBD7-4435-4AAE-825A-AD6E4D67D4F4}\">"
+ }
+}

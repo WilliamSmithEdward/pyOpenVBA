@@ -1,0 +1,830 @@
+{
+ "measured_at": "2026-11-01T08:50:42.425853+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, tf As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    With ws.Shapes.AddShape(msoShapeRectangle, 100, 50, 120, 60): .Name = \"R\": .TextFrame.Characters.Text = \"Hi\": End With\n    With ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 250, 50, 120, 60): .Name = \"T\": .TextFrame.Characters.Text = \"Hi\": End With\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        \n    Case 1\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginLeft = 10\n    Case 2\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginTop = 3.5\n    Case 3\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginRight = 0\n    Case 4\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginBottom = 20\n    Case 5\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginLeft = -1\n    Case 6\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginLeft = 10: tf.AutoMargins = True\n    Case 7\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.AutoMargins = False\n    Case 8\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.AutoMargins = True: tf.MarginTop = 2\n    Case 9\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter\n    Case 10\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignRight\n    Case 11\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignLeft\n    Case 12\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignJustify\n    Case 13\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignDistributed\n    Case 14\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignGeneral\n    Case 15\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = 5\n    Case 16\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignCenter\n    Case 17\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignBottom\n    Case 18\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignTop\n    Case 19\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignJustify\n    Case 20\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignDistributed\n    Case 21\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = 5\n    Case 22\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 1\n    Case 23\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 2\n    Case 24\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 3\n    Case 25\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 4\n    Case 26\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 5\n    Case 27\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 6\n    Case 28\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 7\n    Case 29\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4171\n    Case 30\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4170\n    Case 31\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4166\n    Case 32\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4128\n    Case 33\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowClip\n    Case 34\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowOverflow\n    Case 35\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalOverflow = 2\n    Case 36\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowClip\n    Case 37\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowEllipsis\n    Case 38\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow\n    Case 39\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = 3\n    Case 40\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlRTL\n    Case 41\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlLTR\n    Case 42\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlContext\n    Case 43\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = 5\n    Case 44\n        Set tf = ws.Shapes(\"R\").TextFrame: s = tf.AutoMargins\n    Case 45\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.AutoMargins = True: s = tf.AutoMargins\n    Case 46\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = 7\n    Case 47\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter: tf.ReadingOrder = xlRTL\n    Case 48\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 2: tf.Orientation = 1\n    Case 49\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlRTL: tf.ReadingOrder = xlLTR\n    Case 50\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.MarginLeft = 10: tf.Orientation = 2: tf.VerticalAlignment = xlVAlignBottom: tf.HorizontalAlignment = xlHAlignCenter\n    Case 51\n        Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.VerticalOverflow = xlOartVerticalOverflowClip\n    Case 52\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginLeft = 10\n    Case 53\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginTop = 3.5\n    Case 54\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginRight = 0\n    Case 55\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginBottom = 20\n    Case 56\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginLeft = -1\n    Case 57\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginLeft = 10: tf.AutoMargins = True\n    Case 58\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.AutoMargins = False\n    Case 59\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.AutoMargins = True: tf.MarginTop = 2\n    Case 60\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter\n    Case 61\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignRight\n    Case 62\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignLeft\n    Case 63\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignJustify\n    Case 64\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignDistributed\n    Case 65\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignGeneral\n    Case 66\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = 5\n    Case 67\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignCenter\n    Case 68\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignBottom\n    Case 69\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignTop\n    Case 70\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignJustify\n    Case 71\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignDistributed\n    Case 72\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = 5\n    Case 73\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 1\n    Case 74\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 2\n    Case 75\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 3\n    Case 76\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 4\n    Case 77\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 5\n    Case 78\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 6\n    Case 79\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 7\n    Case 80\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4171\n    Case 81\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4170\n    Case 82\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4166\n    Case 83\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4128\n    Case 84\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowClip\n    Case 85\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowOverflow\n    Case 86\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalOverflow = 2\n    Case 87\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowClip\n    Case 88\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowEllipsis\n    Case 89\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow\n    Case 90\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = 3\n    Case 91\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlRTL\n    Case 92\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlLTR\n    Case 93\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlContext\n    Case 94\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = 5\n    Case 95\n        Set tf = ws.Shapes(\"T\").TextFrame: s = tf.AutoMargins\n    Case 96\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.AutoMargins = True: s = tf.AutoMargins\n    Case 97\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = 7\n    Case 98\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter: tf.ReadingOrder = xlRTL\n    Case 99\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 2: tf.Orientation = 1\n    Case 100\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlRTL: tf.ReadingOrder = xlLTR\n    Case 101\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.MarginLeft = 10: tf.Orientation = 2: tf.VerticalAlignment = xlVAlignBottom: tf.HorizontalAlignment = xlHAlignCenter\n    Case 102\n        Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.VerticalOverflow = xlOartVerticalOverflowClip\n    End Select\n    For Each sh In ws.Shapes: Set tf = sh.TextFrame: s = s & \"|\" & sh.Name & \",\" & tf.MarginLeft & \",\" & tf.MarginTop & \",\" & tf.MarginRight & \",\" & tf.MarginBottom & \",\" & tf.HorizontalAlignment & \",\" & tf.VerticalAlignment & \",\" & tf.Orientation & \",\" & tf.HorizontalOverflow & \",\" & tf.VerticalOverflow & \",\" & tf.ReadingOrder: Next\n    Tried = \"ok \" & s\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 102\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginLeft = 10",
+   "ok |R,10,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" lIns=\"127000\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginTop = 3.5",
+   "ok |R,7.2,3.5,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" tIns=\"44450\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginRight = 0",
+   "ok |R,7.2,3.6,0,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rIns=\"0\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginBottom = 20",
+   "ok |R,7.2,3.6,7.2,20,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" bIns=\"254000\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginLeft = -1",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.MarginLeft = 10: tf.AutoMargins = True",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" lIns=\"127000\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.AutoMargins = False",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.AutoMargins = True: tf.MarginTop = 2",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter",
+   "ok |R,7.2,3.6,7.2,3.6,-4108,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"ctr\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignRight",
+   "ok |R,7.2,3.6,7.2,3.6,-4152,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"r\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignLeft",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignJustify",
+   "ok |R,7.2,3.6,7.2,3.6,-4130,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"just\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignDistributed",
+   "ok |R,7.2,3.6,7.2,3.6,-4117,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"justLow\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignGeneral",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = 5",
+   "ok |R,7.2,3.6,7.2,3.6,-4117,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"justLow\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignCenter",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignBottom",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4107,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"b\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignTop",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignJustify",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = xlVAlignDistributed",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalAlignment = 5",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 1",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 2",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,2,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert270\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 3",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,3,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 4",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,4,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"eaVert\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 5",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,5,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"mongolianVert\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 6",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,6,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"wordArtVert\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 7",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4171",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4170",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4166",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = -4128",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowClip",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowOverflow",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,0,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr rot=\"0\" spcFirstLastPara=\"0\" vertOverflow=\"clip\" horzOverflow=\"overflow\" vert=\"horz\" wrap=\"square\" lIns=\"91440\" tIns=\"45720\" rIns=\"91440\" bIns=\"45720\" numCol=\"1\" spcCol=\"0\" rtlCol=\"0\" fromWordArt=\"0\" anchor=\"t\" anchorCtr=\"0\" forceAA=\"0\" compatLnSpc=\"1\"><a:prstTxWarp prst=\"textNoShape\"><a:avLst/></a:prstTxWarp><a:noAutofit/></a:bodyPr><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalOverflow = 2",
+   "Err -2147467259",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowClip",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowEllipsis",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,2,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr rot=\"0\" spcFirstLastPara=\"0\" vertOverflow=\"ellipsis\" horzOverflow=\"clip\" vert=\"horz\" wrap=\"square\" lIns=\"91440\" tIns=\"45720\" rIns=\"91440\" bIns=\"45720\" numCol=\"1\" spcCol=\"0\" rtlCol=\"0\" fromWordArt=\"0\" anchor=\"t\" anchorCtr=\"0\" forceAA=\"0\" compatLnSpc=\"1\"><a:prstTxWarp prst=\"textNoShape\"><a:avLst/></a:prstTxWarp><a:noAutofit/></a:bodyPr><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,0,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr rot=\"0\" spcFirstLastPara=\"0\" vertOverflow=\"overflow\" horzOverflow=\"clip\" vert=\"horz\" wrap=\"square\" lIns=\"91440\" tIns=\"45720\" rIns=\"91440\" bIns=\"45720\" numCol=\"1\" spcCol=\"0\" rtlCol=\"0\" fromWordArt=\"0\" anchor=\"t\" anchorCtr=\"0\" forceAA=\"0\" compatLnSpc=\"1\"><a:prstTxWarp prst=\"textNoShape\"><a:avLst/></a:prstTxWarp><a:noAutofit/></a:bodyPr><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = 3",
+   "Err -2147467259",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlRTL",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-5004|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\" rtl=\"1\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlLTR",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-5003|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\" rtl=\"0\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlContext",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = 5",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: s = tf.AutoMargins",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.AutoMargins = True: s = tf.AutoMargins",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = 7",
+   "ok |R,7.2,3.6,7.2,3.6,-4108,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"ctr\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter: tf.ReadingOrder = xlRTL",
+   "ok |R,7.2,3.6,7.2,3.6,-4108,-4160,1,1,1,-5004|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"ctr\" rtl=\"1\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.Orientation = 2: tf.Orientation = 1",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.ReadingOrder = xlRTL: tf.ReadingOrder = xlLTR",
+   "ok |R,7.2,3.6,7.2,3.6,-4152,-4160,1,1,1,-5003|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"r\" rtl=\"0\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.MarginLeft = 10: tf.Orientation = 2: tf.VerticalAlignment = xlVAlignBottom: tf.HorizontalAlignment = xlHAlignCenter",
+   "ok |R,10,3.6,7.2,3.6,-4108,-4107,2,1,0,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr rot=\"0\" spcFirstLastPara=\"0\" vertOverflow=\"overflow\" horzOverflow=\"clip\" vert=\"vert270\" wrap=\"square\" lIns=\"127000\" tIns=\"45720\" rIns=\"91440\" bIns=\"45720\" numCol=\"1\" spcCol=\"0\" rtlCol=\"0\" fromWordArt=\"0\" anchor=\"b\" anchorCtr=\"0\" forceAA=\"0\" compatLnSpc=\"1\"><a:prstTxWarp prst=\"textNoShape\"><a:avLst/></a:prstTxWarp><a:noAutofit/></a:bodyPr><a:pPr algn=\"ctr\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"R\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.VerticalOverflow = xlOartVerticalOverflowClip",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr rot=\"0\" spcFirstLastPara=\"0\" vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" wrap=\"square\" lIns=\"91440\" tIns=\"45720\" rIns=\"91440\" bIns=\"45720\" numCol=\"1\" spcCol=\"0\" rtlCol=\"0\" fromWordArt=\"0\" anchor=\"t\" anchorCtr=\"0\" forceAA=\"0\" compatLnSpc=\"1\"><a:prstTxWarp prst=\"textNoShape\"><a:avLst/></a:prstTxWarp><a:noAutofit/></a:bodyPr><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginLeft = 10",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,10,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" lIns=\"127000\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginTop = 3.5",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.5,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" tIns=\"44450\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginRight = 0",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,0,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rIns=\"0\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginBottom = 20",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,20,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" bIns=\"254000\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginLeft = -1",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.MarginLeft = 10: tf.AutoMargins = True",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" lIns=\"127000\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.AutoMargins = False",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.AutoMargins = True: tf.MarginTop = 2",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4108,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"ctr\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignRight",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4152,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"r\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignLeft",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignJustify",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4130,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"just\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignDistributed",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4117,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"justLow\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignGeneral",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = 5",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4117,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"justLow\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignCenter",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"ctr\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignBottom",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4107,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"b\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignTop",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignJustify",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"ctr\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = xlVAlignDistributed",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"ctr\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalAlignment = 5",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4108,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"ctr\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 1",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 2",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,2,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert270\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 3",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,3,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"vert\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 4",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,4,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"eaVert\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 5",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,5,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"mongolianVert\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 6",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,6,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"wordArtVert\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 7",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4171",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4170",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4166",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = -4128",
+   "Err -2147024809",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowClip",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalOverflow = xlOartHorizontalOverflowOverflow",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,0,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"overflow\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalOverflow = 2",
+   "Err -2147467259",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowClip",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowEllipsis",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,2,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"ellipsis\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,0,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"overflow\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = 3",
+   "Err -2147467259",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlRTL",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4152,-4160,1,1,1,-5004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr rtl=\"1\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlLTR",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-5003",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr rtl=\"0\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlContext",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = 5",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: s = tf.AutoMargins",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.AutoMargins = True: s = tf.AutoMargins",
+   "Err 1004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = 7",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4108,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"ctr\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.HorizontalAlignment = xlHAlignCenter: tf.ReadingOrder = xlRTL",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4108,-4160,1,1,1,-5004",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"ctr\" rtl=\"1\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.Orientation = 2: tf.Orientation = 1",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.ReadingOrder = xlRTL: tf.ReadingOrder = xlLTR",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-5003",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/><a:pPr rtl=\"0\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.MarginLeft = 10: tf.Orientation = 2: tf.VerticalAlignment = xlVAlignBottom: tf.HorizontalAlignment = xlHAlignCenter",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,10,3.6,7.2,3.6,-4108,-4107,2,1,0,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"overflow\" horzOverflow=\"clip\" vert=\"vert270\" lIns=\"127000\" rtlCol=\"0\" anchor=\"b\"/><a:pPr algn=\"ctr\"/>"
+   ]
+  ],
+  [
+   "Set tf = ws.Shapes(\"T\").TextFrame: tf.VerticalOverflow = xlOartVerticalOverflowOverflow: tf.VerticalOverflow = xlOartVerticalOverflowClip",
+   "ok |R,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2|T,7.2,3.6,7.2,3.6,-4131,-4160,1,1,1,-2",
+   [
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" rtlCol=\"0\" anchor=\"t\"/><a:pPr algn=\"l\"/>",
+    "<a:bodyPr vertOverflow=\"clip\" horzOverflow=\"clip\" vert=\"horz\" rtlCol=\"0\" anchor=\"t\"/>"
+   ]
+  ]
+ ]
+}

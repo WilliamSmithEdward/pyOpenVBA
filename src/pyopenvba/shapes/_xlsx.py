@@ -28,7 +28,7 @@ from html.parser import HTMLParser
 
 from pyopenvba._xml import escape, unescape
 from pyopenvba.shapes import _drawingml as dml
-from pyopenvba.shapes._values import PRESET_GEOMETRY, ControlInfo, Shape, child_space, emu, points, to_child
+from pyopenvba.shapes._values import PRESET_GEOMETRY, ControlInfo, Shape, TextLook, child_space, emu, points, to_child
 
 #: The anchors a sheet's drawing is made of.
 ANCHORS = ("xdr:twoCellAnchor", "xdr:oneCellAnchor", "xdr:absoluteAnchor", "mc:AlternateContent")
@@ -932,12 +932,15 @@ def _new_element(shape: Shape) -> str:
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
-    if shape.kind == "shape" and not shape.text:
-        # Excel starts an AutoShape's empty paragraph left-aligned.
-        body = body.replace("<a:p><a:endParaRPr", '<a:p><a:pPr algn="l"/><a:endParaRPr', 1)
+    if shape.kind == "shape":
+        # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
+        # (tests/fixtures/text_frame.json).
+        body = body.replace("<a:p>", '<a:p><a:pPr algn="l"/>', 1)
     if shape.kind == "textBox":
         # A text box's text runs across, as Excel writes it.
         body = body.replace('horzOverflow="clip" rtlCol=', 'horzOverflow="clip" vert="horz" rtlCol=', 1)
+    if shape.text_look is not None and body:
+        body = _laid_out(body, shape.text_look)
     box = ' txBox="1"' if shape.kind == "textBox" else ""
     textlink = "" if line else ' textlink=""'
     identity = _identity(shape)
@@ -961,6 +964,30 @@ def _new_element(shape: Shape) -> str:
         f"{_TEXT_BOX_STYLE if shape.kind == 'textBox' else _STYLE}{body}"
         f"</{element}>"
     )
+
+
+def _laid_out(body: str, look: TextLook) -> str:
+    """A new shape's txBody with the layout TextFrame gave it: bodyPr's attributes in the schema's order, and each
+    paragraph's algn and rtl (tests/fixtures/text_frame.json)."""
+    insets = "".join(f' {name}="{emu(value)}"' for name, value in zip(("lIns", "tIns", "rIns", "bIns"), look.margins)
+                     if value is not None)
+    overflow = f'vertOverflow="{look.vertical_overflow}" horzOverflow="{look.horizontal_overflow}"'
+    if look.full:
+        # Every attribute, each margin spelled out, as Excel writes an AutoShape whose overflow has changed.
+        insets = "".join(f' {name}="{emu(value if value is not None else default)}"' for name, value, default in zip(
+            ("lIns", "tIns", "rIns", "bIns"), look.margins, (7.2, 3.6, 7.2, 3.6)))
+        head = (f'<a:bodyPr rot="0" spcFirstLastPara="0" {overflow} vert="{look.vert or "horz"}" wrap="square"'
+                f'{insets} numCol="1" spcCol="0" rtlCol="0" fromWordArt="0" anchor="{look.anchor}" anchorCtr="0"'
+                ' forceAA="0" compatLnSpc="1"><a:prstTxWarp prst="textNoShape"><a:avLst/></a:prstTxWarp>'
+                "<a:noAutofit/></a:bodyPr>")
+    else:
+        vert = f' vert="{look.vert}"' if look.vert else ""
+        head = f'<a:bodyPr {overflow}{vert}{insets} rtlCol="0" anchor="{look.anchor}"/>'
+    body = re.sub(r"<a:bodyPr\b[^>]*/>", lambda _: head, body, count=1)
+    settings = (f' algn="{look.align}"' if look.align else "") + (
+        "" if look.rtl is None else f' rtl="{1 if look.rtl else 0}"')
+    paragraph = f"<a:p><a:pPr{settings}/>" if settings else "<a:p>"
+    return re.sub(r"<a:p>(?:<a:pPr\b[^>]*/>)?", lambda _: paragraph, body)
 
 
 def _identity(shape: Shape) -> str:

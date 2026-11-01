@@ -412,6 +412,10 @@ class CodeModule(VBAObject):
         lines = self.lines()
         position = min(line - 1, len(lines))
         added = to_text(String).replace('\r\n', '\n').replace('\r', '\n').split('\n')
+        if position == len(lines) and any(one.endswith(' _') for one in added):
+            # Text that goes on with " _" at the end of the module leaves a blank line after it
+            # (tests/fixtures/vbe_continuation.json).
+            added.append('')
         self.edit(lines[:position] + added + lines[position:])
         return EMPTY
 

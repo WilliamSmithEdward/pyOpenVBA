@@ -2720,8 +2720,8 @@ Workbook,ReadOnlyRecommended,property,As Boolean,,PARTIAL,tests/fixtures/workboo
 Workbook,RefreshAll,method,RefreshAll(),,PARTIAL,tests/test_excel_pivot_shared_caches.py; tests/fixtures/pivot_shared_caches; tests/test_excel_calculate_order.py; tests/fixtures/calculate_order.json,"Refreshes the workbook's queries, then every pivot cache a table uses from the last to the first, passing over one whose EnableRefresh is off without an error, and calculates once after them all. Other connections, background refresh and the order of queries against pivot caches are unmeasured."
 Workbook,RejectAllChanges,method,"RejectAllChanges([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
 Workbook,ReloadAs,method,ReloadAs(Encoding As MsoEncoding),,MISSING,,
-Workbook,RemoveDocumentInformation,method,RemoveDocumentInformation(RemoveDocInfoType As XlRemoveDocInfoType),,MISSING,,
-Workbook,RemovePersonalInformation,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as the workbookPr's filterPrivacy and read back; setting it leaves the workbook unsaved. The model's saves remove nothing for it.
+Workbook,RemoveDocumentInformation,method,RemoveDocumentInformation(RemoveDocInfoType As XlRemoveDocInfoType),,PARTIAL,tests/fixtures/remove_document_information.json; tests/test_excel_remove_document_information.py,"Document properties and All empty the built-in properties, drop custom ones and turn RemovePersonalInformation on; a save then writes no last author. Unknown numbers are error 5. Workbooks holding comments, and kinds not measured, are refused."
+Workbook,RemovePersonalInformation,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py; tests/fixtures/remove_document_information.json,"Saved as the workbookPr's filterPrivacy and read back. While on, a save writes the author, last author, manager and company empty, though the open workbook still reads them."
 Workbook,RemoveUser,method,RemoveUser(Index As Long),,MISSING,,
 Workbook,Reply,method,Reply(),,MISSING,,
 Workbook,ReplyAll,method,ReplyAll(),,MISSING,,

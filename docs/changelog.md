@@ -492,6 +492,20 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- SetSourceData reads a block's labels as Excel does. Several label
+  columns make categories of several levels, written as Excel writes
+  them, and several header rows make a name of several cells; by rows
+  the two swap. A blank top left corner sets how many rows and columns
+  label the rest. Otherwise the labels run to the last text or date in
+  the bottom row, and the names to the last in the right column. Before,
+  only one first row or column of text labelled, so a second text column
+  became a series. Series.Name reads a name's cells with a space between,
+  and XValues reads each point's levels the same way. Categories with
+  text among them read every cell as it shows, a blank as "". Numbers
+  with a blank among them raise the error Excel raises. A cell of text in
+  a series' values is cached as 0, where saving raised a type mismatch.
+  Measured in `tests/fixtures/chart_multilevel_categories.json`.
+
 - Comments and form controls are named by their place in the sheet's VML
   ids, as Excel names them: a button after "Comment 1" is "Button 2".
   Rectangles, charts and other drawing shapes keep a count of their own,

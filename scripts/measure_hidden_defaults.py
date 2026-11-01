@@ -21,14 +21,14 @@ from pyvbaharness import ExcelSession, HarnessConfig
 OUT = Path(__file__).resolve().parents[1] / 'tests/fixtures/hidden_defaults.json'
 CASES = [
     's = ws.Shapes.[_Default](1).Name & "," & ws.Shapes.[_Default]("Box").Name & "," & ws.Shapes(1).Name',
-    's = TypeName(ws.ChartObjects.[_Default](1)) & "," & ws.ChartObjects.[_Default](1).Name',
+    'Set co = ws.ChartObjects: s = TypeName(co.[_Default](1)) & "," & co.[_Default](1).Name',
     's = wb.Sheets.[_Default](1).Name & "," & wb.Worksheets.[_Default](1).Name',
     's = (Workbooks.[_Default](wb.Name) Is wb)',
     's = wb.Names.[_Default]("Total").RefersTo',
     's = (Windows.[_Default](1).Caption = ActiveWindow.Caption)',
     's = wb.Styles.[_Default]("Normal").Name',
-    's = ch.SeriesCollection.[_Default](1).Name',
-    's = ch.Axes.[_Default](xlValue).Type',
+    'Set sc = ch.SeriesCollection: s = sc.[_Default](1).Name',
+    'Set ax = ch.Axes: s = ax.[_Default](xlValue).Type',
     's = ws.Range("A1:B1,D1").Areas.[_Default](2).Address',
     's = ws.Range("A1").Borders.[_Default](xlEdgeTop).LineStyle',
     's = (wb.PivotCaches.Count = 0)',
@@ -46,7 +46,8 @@ CASES = [
 
 def _probe() -> str:
     lines = ['Private Function Tried(ByVal which As Long) As String',
-             '    Dim wb As Workbook, ws As Worksheet, ch As Object, s As String',
+             '    Dim wb As Workbook, ws As Worksheet, ch As Chart, s As String, co As ChartObjects, sc As SeriesCollection',
+             '    Dim ax As Axes',
              '    Set wb = Workbooks.Add(xlWBATWorksheet)', '    Set ws = wb.Worksheets(1)',
              '    ws.Range("A1").Value = 4: ws.Range("B1").Value = 5',
              '    ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 30).Name = "Box"',

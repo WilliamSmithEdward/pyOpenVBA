@@ -41,6 +41,7 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Final
 
 from pyopenvba._a1 import Area
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
@@ -493,7 +494,7 @@ class Hyperlink(ExcelObject):
         return VBAInt(_CREATOR, "Long")
 
 
-class Hyperlinks(VBACollection, ExcelObject):
+class Hyperlinks(VBACollection, ItemDefault, ExcelObject):
     """A sheet's links, or the ones a range holds, in the order the sheet lists them."""
 
     vba_type_name = "Hyperlinks"

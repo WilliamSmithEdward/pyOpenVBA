@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
-from pyopenvba.apps.excel._creator import Created
+from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (EMPTY, MISSING, NULL, VBAArray, VBAInt, error, to_bool, to_integer, to_number,
                                            to_text)
@@ -131,13 +131,8 @@ def axis(chart: Chart, kind: object, group: object = MISSING) -> Axis:
     return Axis(chart, states(chart)[kind_number], valid=chart.state.chart_type not in NO_AXES)
 
 
-class Axes(VBACollection, Created):
+class Axes(VBACollection, ItemDefault, Created):
     vba_type_name = "Axes"
-
-    @method(name="_Default")
-    def hidden_default(self, *arguments: object) -> object:
-        # A macro reaching the hidden _Default gets 438 (tests/fixtures/hidden_defaults.json).
-        raise error(438, "Object doesn't support this property or method")
 
     def __init__(self, chart: Chart) -> None:
         self.chart = chart

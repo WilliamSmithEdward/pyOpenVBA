@@ -1,0 +1,70 @@
+{
+ "measured_at": "2026-11-01T17:20:30.084006+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, pt As PivotTable, ch As Chart, s As String\n    Dim cm As Comments, hl As Hyperlinks, lc As ListColumns, lr As ListRows, hp As HPageBreaks\n    Dim fc As FormatConditions, csc As ColorScaleCriteria, ic As IconCriteria, cp As CustomProperties\n    Dim fl As Filters, cf As CalculatedFields, pf As PivotFilters, co As ChartObjects\n    Dim sc As SeriesCollection, ax As Axes\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"data\"\n    ws.Range(\"A1:C1\").Value = Array(\"Region\", \"Product\", \"Amount\")\n    ws.Range(\"A2:C2\").Value = Array(\"East\", \"Pen\", 10)\n    ws.Range(\"A3:C3\").Value = Array(\"West\", \"Ink\", 20)\n    ws.Range(\"A4:C4\").Value = Array(\"East\", \"Pad\", 30)\n    Set ch = ws.ChartObjects.Add(300, 10, 200, 100).Chart\n    ch.SetSourceData ws.Range(\"C1:C4\")\n    ws.Range(\"A1\").AddComment \"note\"\n    ws.Hyperlinks.Add ws.Range(\"B1\"), \"https://example.com/\"\n    ws.Range(\"E1:F1\").Value = Array(\"x\", \"y\"): ws.Range(\"E2:F3\").Value = 1\n    ws.ListObjects.Add xlSrcRange, ws.Range(\"E1:F3\"), , xlYes\n    ws.HPageBreaks.Add ws.Range(\"A10\")\n    ws.Range(\"C2:C4\").FormatConditions.Add xlCellValue, xlGreater, \"15\"\n    ws.Range(\"C2:C4\").FormatConditions.AddColorScale 3\n    ws.Range(\"C2:C4\").FormatConditions.AddIconSetCondition\n    ws.CustomProperties.Add \"Owner\", \"me\"\n    ws.Range(\"A1:C4\").AutoFilter 1, \"East\"\n    Set pt = wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\").CreatePivotTable(wb.Worksheets.Add.Range(\"A3\"), \"P\")\n    pt.PivotFields(\"Region\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Sum of Amount\", xlSum\n    pt.CalculatedFields.Add \"Bonus\", \"=Amount*0.1\"\n    pt.PivotFields(\"Region\").PivotFilters.Add2 xlCaptionBeginsWith, Value1:=\"E\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set cm = ws.Comments: s = cm.[_Default](1).Text & \"|\" & cm(1).Text\n    Case 1\n        Set hl = ws.Hyperlinks: s = hl.[_Default](1).Address\n    Case 2\n        Set lc = ws.ListObjects(1).ListColumns: s = lc.[_Default](2).Name & \"|\" & lc.[_Default](\"y\").Index\n    Case 3\n        Set lr = ws.ListObjects(1).ListRows: s = lr.[_Default](1).Index\n    Case 4\n        Set fc = ws.Range(\"C2:C4\").FormatConditions: s = fc.[_Default](1).Type & \"|\" & fc(1).Type\n    Case 5\n        Set csc = ws.Range(\"C2:C4\").FormatConditions(2).ColorScaleCriteria: s = csc.[_Default](1).Type\n    Case 6\n        Set ic = ws.Range(\"C2:C4\").FormatConditions(3).IconCriteria: s = ic.[_Default](2).Type\n    Case 7\n        Set cp = ws.CustomProperties: s = cp.[_Default](1).Name\n    Case 8\n        Set fl = ws.AutoFilter.Filters: s = fl.[_Default](1).On\n    Case 9\n        Set cf = pt.CalculatedFields: s = cf.[_Default](1).Name\n    Case 10\n        Set pf = pt.PivotFields(\"Region\").PivotFilters: s = pf.[_Default](1).FilterType\n    Case 11\n        Set co = ws.ChartObjects: s = co.[_Default](1).Name\n    Case 12\n        Set sc = ch.SeriesCollection: s = sc.[_Default](1).Name\n    Case 13\n        Set ax = ch.Axes: s = ax.[_Default](xlValue).Type\n    Case 14\n        Set cm = ws.Comments: s = TypeName(cm.[_Default](5))\n    Case 15\n        Set hl = ws.Hyperlinks: s = TypeName(hl.[_Default](0))\n    End Select\n    Tried = \"ok \" & s\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 15\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "Set cm = ws.Comments: s = cm.[_Default](1).Text & \"|\" & cm(1).Text",
+   "ok note|note"
+  ],
+  [
+   "Set hl = ws.Hyperlinks: s = hl.[_Default](1).Address",
+   "ok https://example.com/"
+  ],
+  [
+   "Set lc = ws.ListObjects(1).ListColumns: s = lc.[_Default](2).Name & \"|\" & lc.[_Default](\"y\").Index",
+   "ok y|2"
+  ],
+  [
+   "Set lr = ws.ListObjects(1).ListRows: s = lr.[_Default](1).Index",
+   "ok 1"
+  ],
+  [
+   "Set fc = ws.Range(\"C2:C4\").FormatConditions: s = fc.[_Default](1).Type & \"|\" & fc(1).Type",
+   "ok 1|1"
+  ],
+  [
+   "Set csc = ws.Range(\"C2:C4\").FormatConditions(2).ColorScaleCriteria: s = csc.[_Default](1).Type",
+   "ok 1"
+  ],
+  [
+   "Set ic = ws.Range(\"C2:C4\").FormatConditions(3).IconCriteria: s = ic.[_Default](2).Type",
+   "ok 3"
+  ],
+  [
+   "Set cp = ws.CustomProperties: s = cp.[_Default](1).Name",
+   "ok Owner"
+  ],
+  [
+   "Set fl = ws.AutoFilter.Filters: s = fl.[_Default](1).On",
+   "ok True"
+  ],
+  [
+   "Set cf = pt.CalculatedFields: s = cf.[_Default](1).Name",
+   "ok Bonus"
+  ],
+  [
+   "Set pf = pt.PivotFields(\"Region\").PivotFilters: s = pf.[_Default](1).FilterType",
+   "ok 17"
+  ],
+  [
+   "Set co = ws.ChartObjects: s = co.[_Default](1).Name",
+   "ok Chart 1"
+  ],
+  [
+   "Set sc = ch.SeriesCollection: s = sc.[_Default](1).Name",
+   "ok Amount"
+  ],
+  [
+   "Set ax = ch.Axes: s = ax.[_Default](xlValue).Type",
+   "ok 2"
+  ],
+  [
+   "Set cm = ws.Comments: s = TypeName(cm.[_Default](5))",
+   "Err 1004"
+  ],
+  [
+   "Set hl = ws.Hyperlinks: s = TypeName(hl.[_Default](0))",
+   "Err 9"
+  ]
+ ]
+}

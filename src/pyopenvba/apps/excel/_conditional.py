@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area, column_letter, parse_area
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._charts_file import XmlElement, xml_bytes, xml_parser, xml_tree
 from pyopenvba.apps.excel._conditional_predicates import (
     PREDICATE_TYPES,
@@ -592,7 +593,7 @@ def _made(target: Range, Type: object, Operator: object, Formula1: object, Formu
     return root
 
 
-class FormatConditions(VBACollection, ExcelObject):
+class FormatConditions(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = 'FormatConditions'
 
     def __init__(self, target: Range) -> None:

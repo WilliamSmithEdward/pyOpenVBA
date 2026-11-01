@@ -37,6 +37,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._autofilter import PERIODS, Criterion, Seen, file_number, made_criterion, period_bounds
 from pyopenvba.apps.excel._charts_file import XmlElement
 from pyopenvba.apps.excel._model import ExcelObject
@@ -431,7 +432,7 @@ def _day_text(serial: float) -> str:
     return (EPOCH + dt.timedelta(days=math.floor(serial))).isoformat()
 
 
-class PivotFilters(VBACollection, ExcelObject):
+class PivotFilters(VBACollection, ItemDefault, ExcelObject):
     vba_type_name = 'PivotFilters'
 
     def __init__(self, field: PivotField) -> None:

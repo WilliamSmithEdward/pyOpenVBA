@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._relationships import in_office_order
 from pyopenvba._xml import attributes, escape
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
@@ -117,7 +118,7 @@ def _changed(sheet: Worksheet) -> None:
     sheet.book.custom_properties_changed = True
 
 
-class CustomProperties(VBACollection, ExcelObject):
+class CustomProperties(VBACollection, ItemDefault, ExcelObject):
     """A sheet's custom properties."""
 
     vba_type_name = "CustomProperties"

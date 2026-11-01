@@ -111,6 +111,10 @@ class ChartState:
     #: False when an imported chart spells one of the four display options in a way the model does not read.
     display_readable: bool = True
     data_table: bool = False
+    #: The chart object's RoundedCorners, and its Shadow: None until set, which a shadow turned off differs from in
+    #: the file (tests/fixtures/chart_object_reads.json).
+    rounded: bool = False
+    shadow: bool | None = None
 
 
 def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
@@ -557,6 +561,42 @@ class ChartObject(Created):
         return ShapeRange([ShapeObject(self.sheet, self.shape)])
 
     @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member
+    def TopLeftCell(self) -> object:
+        return ShapeObject(self.sheet, self.shape).vba_get('TopLeftCell', [])
+
+    @member
+    def BottomRightCell(self) -> object:
+        return ShapeObject(self.sheet, self.shape).vba_get('BottomRightCell', [])
+
+    @member
+    def RoundedCorners(self) -> object:
+        return Chart(self.sheet, self.shape).state.rounded
+
+    @setter('RoundedCorners')
+    def _rounded_corners(self, value: object) -> None:
+        self._look('rounded', value)
+
+    @member
+    def Shadow(self) -> object:
+        return bool(Chart(self.sheet, self.shape).state.shadow)
+
+    @setter('Shadow')
+    def _shadow(self, value: object) -> None:
+        self._look('shadow', value)
+
+    def _look(self, field_name: str, value: object) -> None:
+        """RoundedCorners or Shadow, which the chart part holds (tests/fixtures/chart_object_reads.json)."""
+        chart = Chart(self.sheet, self.shape)
+        wanted = to_bool(value)
+        chart.admit_change()
+        chart.changed()
+        setattr(chart.state, field_name, wanted)
+
+    @member
     def Left(self) -> object:
         return float(self.shape.left)
 
@@ -690,6 +730,10 @@ class Chart(Created):
     @member
     def Parent(self) -> object:
         return ChartObject(self.sheet, self.shape)
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
 
     @member
     def ChartType(self) -> object:
@@ -946,6 +990,21 @@ class ChartTitle(TitleMembers):
         self.chart.admit_change()
         return self.chart.sheet
 
+    @member
+    def Parent(self) -> object:
+        self.chart.admit_read()
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        # tests/fixtures/chart_object_reads.json
+        self.chart.admit_read()
+        return 'Title'
+
     def title_link(self, formula: str) -> None:
         self.chart.changed()
         self.chart.state.title_typed = False
@@ -1007,6 +1066,12 @@ class Legend(Created):
     @member
     def Parent(self) -> object:
         return self.chart
+
+    @member
+    def Name(self) -> object:
+        # tests/fixtures/chart_object_reads.json
+        self.shown()
+        return 'Legend'
 
     @member
     def Application(self) -> object:
@@ -1149,6 +1214,27 @@ class ChartGroup(Created):
     @member
     def Parent(self) -> object:
         return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def AxisGroup(self) -> object:
+        # The one group the model draws is on the primary axes (tests/fixtures/chart_object_reads.json).
+        self._kind()
+        return VBAInt(1, 'Long')
+
+    @member
+    def Index(self) -> object:
+        self._kind()
+        return VBAInt(1, 'Long')
+
+    @method
+    def SeriesCollection(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The chart's series, every one of them in the group (tests/fixtures/chart_object_reads.json)."""
+        self._kind()
+        return self.chart.SeriesCollection(Index)
 
     @member
     def GapWidth(self) -> object:

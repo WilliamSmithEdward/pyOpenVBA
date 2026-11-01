@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- ChartObject.RoundedCorners and ChartObject.Shadow, read, set, saved
+  and read back as Excel writes them. ChartObject answers TopLeftCell,
+  BottomRightCell and Application. ChartGroup answers Application,
+  AxisGroup, Index and SeriesCollection, ChartTitle answers Application,
+  Parent and Name, and Legend answers Name. Measured in
+  `tests/fixtures/chart_object_reads.json`.
+
 - Chart trendlines: Series.Trendlines, Trendlines.Add and the Trendline
   object, written and read back as Excel writes them. Add takes every
   type with its order, period, forward, intercept, display flags and

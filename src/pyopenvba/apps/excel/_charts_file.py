@@ -204,6 +204,11 @@ def read_chart(xml: str, part: str) -> ChartState:
                     and deleted.get('val', '1') in ('1', 'true')):
                 result.legend_deleted.append(int(index.get('val', '')))
     read_display(result, root)
+    # A part that leaves roundedCorners out has rounded corners, as the file format's default says.
+    rounded = root.find('c:roundedCorners', NS)
+    result.rounded = rounded is None or rounded.get('val', '1') in ('1', 'true')
+    effects = root.find('c:spPr/a:effectLst', NS)
+    result.shadow = None if effects is None else effects.find('a:outerShdw', NS) is not None
     plot = root.find('c:chart/c:plotArea', NS)
     if plot is None:
         return result
@@ -517,6 +522,13 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     if state.data_table:
         # The data table closes the plot area, after the axes, on every kind (tests/fixtures/chart_series_more.json).
         xml = xml.replace('</c:plotArea>', DATA_TABLE + '</c:plotArea>', 1)
+    if state.rounded:
+        xml = xml.replace('<c:roundedCorners val="0"/>', '<c:roundedCorners val="1"/>', 1)
+    if state.shadow is not None:
+        # The chart area's shadow, as ChartObject.Shadow gives it, and its empty effects once turned off
+        # (tests/fixtures/chart_object_reads.json).
+        look = CHART_SHADOW if state.shadow else '<c:spPr><a:effectLst/></c:spPr>'
+        xml = xml.replace('</c:chart><c:printSettings>', '</c:chart>' + look + '<c:printSettings>', 1)
     # Chart builder references become literal caches when the series was assigned an array.
     xml = re.sub(r'<c:numRef><c:f></c:f><c:numCache>(.*?)</c:numCache></c:numRef>', r'<c:numLit>\1</c:numLit>', xml)
     xml = re.sub(r'<c:strRef><c:f></c:f><c:strCache>(.*?)</c:strCache></c:strRef>', r'<c:strLit>\1</c:strLit>', xml)
@@ -524,6 +536,11 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     xml = re.sub(r'<c:(val|yVal)><c:numLit><c:formatCode>[^<]*</c:formatCode><c:ptCount val="0"/></c:numLit>'
                  r'</c:\1>', '', xml)
     return xml
+
+#: The chart area's look once ChartObject.Shadow is on (tests/fixtures/chart_object_reads.json).
+CHART_SHADOW = ('<c:spPr><a:effectLst><a:outerShdw dist="35921" dir="2700000" algn="br"><a:srgbClr val="000000"/>'
+                '</a:outerShdw></a:effectLst></c:spPr>')
+
 
 def read_error_bars(series: ET.Element, ns: dict[str, str]) -> list[ErrorBarState]:
     """A loaded series' error bars, as far as what they read goes: an imported chart is not changed, so a bar's

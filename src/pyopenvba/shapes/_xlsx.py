@@ -954,7 +954,7 @@ def _new_element(shape: Shape) -> str:
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
     element = "xdr:cxnSp" if line else "xdr:sp"
-    if shape.kind == "shape":
+    if shape.kind in ("shape", "freeform"):
         # Excel starts an AutoShape's paragraph left-aligned and keeps it so once text is set
         # (tests/fixtures/text_frame.json).
         body = body.replace("<a:p>", '<a:p><a:pPr algn="l"/>', 1)
@@ -975,17 +975,34 @@ def _new_element(shape: Shape) -> str:
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
     )
     turn = _xfrm_attributes(shape)
+    geometry = f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>'
+    style = _TEXT_BOX_STYLE if shape.kind == "textBox" else _STYLE
+    if shape.kind == "freeform":
+        geometry = _free_geometry(shape)
+        # An open path is drawn as a line, a closed one filled as an AutoShape is (tests/fixtures/shape_polyline.json).
+        if not any(command == "close" for command, _ in shape.path):
+            style = _OPEN_STYLE
     return (
         f"<{element}{macro}{textlink}>"
         f"{properties}"
         f"<xdr:spPr><a:xfrm{turn}>"
         f'<a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/>'
-        f'</a:xfrm><a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>'
+        f"</a:xfrm>{geometry}"
         f"{_TEXT_BOX_FILL if shape.kind == 'textBox' else ''}</xdr:spPr>"
-        f"{_TEXT_BOX_STYLE if shape.kind == 'textBox' else _STYLE}{body}"
+        f"{style}{body}"
         f"</{element}>"
     )
+
+
+def _free_geometry(shape: Shape) -> str:
+    """A freeform's custGeom: its path as wide and tall as the shape, in EMU (tests/fixtures/shape_polyline.json)."""
+    steps = "".join(
+        "<a:close/>" if command == "close" else
+        f"<a:{command}>" + "".join(f'<a:pt x="{x}" y="{y}"/>' for x, y in points) + f"</a:{command}>"
+        for command, points in shape.path)
+    return ('<a:custGeom><a:avLst/><a:gdLst/><a:ahLst/><a:cxnLst/><a:rect l="0" t="0" r="0" b="0"/><a:pathLst>'
+            f'<a:path w="{emu(shape.width)}" h="{emu(shape.height)}">{steps}</a:path></a:pathLst></a:custGeom>')
 
 
 def _laid_out(body: str, look: TextLook) -> str:
@@ -1037,7 +1054,11 @@ def _identity(shape: Shape) -> str:
             "</a:ext>"
         )
     hidden = ' hidden="1"' if shape.hidden else ""
-    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(shape.name)}"{described}{titled}{hidden}>'
+    name = shape.name
+    if shape.kind == "freeform":
+        # A freeform Excel named reads "Freeform 1" but is saved as "Freeform: Shape 1" (tests/fixtures/shape_polyline.json).
+        name = re.sub(r"^Freeform (\d+)$", r"Freeform: Shape \1", name)
+    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(name)}"{described}{titled}{hidden}>'
             f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
 
 
@@ -1058,6 +1079,15 @@ _STYLE = (
     '<a:fillRef idx="1"><a:schemeClr val="accent1"/></a:fillRef>'
     '<a:effectRef idx="0"><a:schemeClr val="accent1"/></a:effectRef>'
     '<a:fontRef idx="minor"><a:schemeClr val="lt1"/></a:fontRef>'
+    "</xdr:style>"
+)
+#: The style Excel gives an open freeform, drawn as a line (tests/fixtures/shape_polyline.json).
+_OPEN_STYLE = (
+    "<xdr:style>"
+    '<a:lnRef idx="2"><a:schemeClr val="accent1"/></a:lnRef>'
+    '<a:fillRef idx="0"><a:schemeClr val="accent1"/></a:fillRef>'
+    '<a:effectRef idx="1"><a:schemeClr val="accent1"/></a:effectRef>'
+    '<a:fontRef idx="minor"><a:schemeClr val="tx1"/></a:fontRef>'
     "</xdr:style>"
 )
 #: The fill, line and style Excel gives a new text box, taken from one it wrote (tests/fixtures/shape_duplicate.json).

@@ -27,6 +27,7 @@ ShapeKind = str
 KINDS: frozenset[str] = frozenset(
     {
         "shape",  # an AutoShape: msoAutoShape
+        "freeform",  # AddPolyline or AddCurve: msoFreeform
         "textBox",  # msoTextBox
         "line",  # a line or connector: msoLine
         "picture",  # msoPicture
@@ -45,6 +46,7 @@ KINDS: frozenset[str] = frozenset(
 #: held to the number Office itself reported.
 MSO_TYPE: dict[str, int] = {
     "shape": 1,
+    "freeform": 5,
     "group": 6,
     "formControl": 8,
     "line": 9,
@@ -270,6 +272,9 @@ class Shape:
     former_group: Shape | None = field(default=None, compare=False)
     #: Excel: the text layout TextFrame set on a new shape, None while it is the one Excel starts with.
     text_look: TextLook | None = None
+    #: Excel: a new freeform's path, each step its command (moveTo, lnTo, cubicBezTo or close) and its points in EMU
+    #: from the path's corner (tests/fixtures/shape_polyline.json).
+    path: list[tuple[str, tuple[tuple[int, int], ...]]] = field(default_factory=lambda: [])
 
     @property
     def mso_type(self) -> int:

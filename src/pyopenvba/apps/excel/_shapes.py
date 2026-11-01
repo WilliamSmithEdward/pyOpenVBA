@@ -373,7 +373,13 @@ class ShapeRange(VBACollection, Created):
 
     @member
     def Visible(self) -> object:
-        return self.shared("Visible")
+        values = {int(to_integer(shape.vba_get("Visible"), "Long")) for shape in self.shapes}
+        # Shapes that differ read msoTriStateMixed (tests/fixtures/shape_visible.json).
+        return VBAInt(values.pop() if len(values) == 1 else -2, "Long")
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        self.spread("Visible", value)
 
     @member
     def AlternativeText(self) -> object:
@@ -497,7 +503,13 @@ class ShapeObject(_Drawn):
 
     @member
     def Visible(self) -> object:
-        return VBAInt(-1, "Long")
+        return VBAInt(0 if self.shape.hidden else -1, "Long")
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        # Any number but 0 shows the shape, as Excel takes it (tests/fixtures/shape_visible.json).
+        wanted = to_bool(value)
+        self.restyled().hidden = not wanted
 
     @member
     def Placement(self) -> object:

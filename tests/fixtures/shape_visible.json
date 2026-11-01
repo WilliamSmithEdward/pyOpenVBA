@@ -1,0 +1,86 @@
+{
+ "measured_at": "2026-11-01T07:00:24.951736+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, s As String, path As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 60, 30).Name = \"A\"\n    ws.Shapes.AddShape(msoShapeRectangle, 100, 40, 80, 20).Name = \"B\"\n    path = folder & \"\\c\" & which & \".xlsx\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n    Case 1\n        ws.Shapes(\"A\").Visible = msoFalse\n    Case 2\n        ws.Shapes(\"A\").Visible = False\n    Case 3\n        ws.Shapes(\"A\").Visible = msoFalse: ws.Shapes(\"A\").Visible = msoTrue\n    Case 4\n        ws.Shapes(\"A\").Visible = 0\n    Case 5\n        ws.Shapes(\"A\").Visible = 5\n    Case 6\n        ws.Shapes(\"A\").Visible = \"x\"\n    Case 7\n        ws.Shapes.Range(Array(\"A\", \"B\")).Visible = msoFalse\n    Case 8\n        ws.Shapes(\"A\").Visible = msoFalse: s = s & \"|\" & ws.Shapes.Range(Array(\"A\", \"B\")).Visible\n    Case 9\n        ws.Shapes(\"A\").Visible = msoFalse: ws.Shapes(\"A\").AlternativeText = \"d\"\n    End Select\n    s = \"ok\" & s & \"|\" & ws.Shapes(\"A\").Visible & \",\" & ws.Shapes(\"B\").Visible\nSaved:\n    wb.SaveAs path, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    Set ws = wb.Worksheets(1)\n    s = s & \"|\" & ws.Shapes(\"A\").Visible & \",\" & ws.Shapes(\"B\").Visible\n    wb.Close False\n    Tried = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 9\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "",
+   "ok|-1,-1|-1,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = msoFalse",
+   "ok|0,-1|0,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\" hidden=\"1\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = False",
+   "ok|0,-1|0,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\" hidden=\"1\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = msoFalse: ws.Shapes(\"A\").Visible = msoTrue",
+   "ok|-1,-1|-1,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = 0",
+   "ok|0,-1|0,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\" hidden=\"1\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = 5",
+   "ok|-1,-1|-1,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = \"x\"",
+   "Err 13|-1,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\")).Visible = msoFalse",
+   "ok|0,0|0,0",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\" hidden=\"1\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\" hidden=\"1\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = msoFalse: s = s & \"|\" & ws.Shapes.Range(Array(\"A\", \"B\")).Visible",
+   "ok|-2|0,-1|0,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\" hidden=\"1\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ],
+  [
+   "ws.Shapes(\"A\").Visible = msoFalse: ws.Shapes(\"A\").AlternativeText = \"d\"",
+   "ok|0,-1|0,-1",
+   [
+    "<xdr:cNvPr id=\"2\" name=\"A\" descr=\"d\" hidden=\"1\">",
+    "<xdr:cNvPr id=\"3\" name=\"B\">"
+   ]
+  ]
+ ]
+}

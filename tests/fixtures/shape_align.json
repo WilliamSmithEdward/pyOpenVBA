@@ -1,0 +1,122 @@
+{
+ "measured_at": "2026-11-01T08:46:57.041669+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, s As String, i As Long\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Shapes.AddShape(msoShapeRectangle, 100, 50, 120, 60).Name = \"A\"\n    ws.Shapes.AddShape(msoShapeRectangle, 250, 80, 60, 40).Name = \"B\"\n    ws.Shapes.AddShape(msoShapeRectangle, 50, 200, 40, 30).Name = \"C\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 0, msoFalse\n    Case 1\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 1, msoFalse\n    Case 2\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 2, msoFalse\n    Case 3\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 3, msoFalse\n    Case 4\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 4, msoFalse\n    Case 5\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 5, msoFalse\n    Case 6\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 0, msoTrue\n    Case 7\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 1, msoTrue\n    Case 8\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 2, msoTrue\n    Case 9\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 3, msoTrue\n    Case 10\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 4, msoTrue\n    Case 11\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 5, msoTrue\n    Case 12\n        ws.Shapes.Range(Array(\"A\", \"B\")).Align msoAlignCenters, msoFalse\n    Case 13\n        ws.Shapes.Range(Array(\"B\")).Align msoAlignLefts, msoFalse\n    Case 14\n        ws.Shapes.Range(Array(\"B\")).Align msoAlignRights, msoTrue\n    Case 15\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 6, msoFalse\n    Case 16\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align msoAlignLefts, 5\n    Case 17\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align msoAlignRights, 1\n    Case 18\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align msoAlignRights, -2\n    Case 19\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeVertically, 1\n    Case 20\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeHorizontally, msoFalse\n    Case 21\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeVertically, msoFalse\n    Case 22\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeHorizontally, msoTrue\n    Case 23\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeVertically, msoTrue\n    Case 24\n        ws.Shapes.Range(Array(\"A\", \"B\")).Distribute msoDistributeHorizontally, msoFalse\n    Case 25\n        ws.Shapes.Range(Array(\"A\", \"B\")).Distribute msoDistributeHorizontally, msoTrue\n    Case 26\n        ws.Shapes.Range(Array(\"B\")).Distribute msoDistributeVertically, msoTrue\n    Case 27\n        ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute 2, msoFalse\n    Case 28\n        ws.Shapes(\"C\").Left = 260: ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeHorizontally, msoFalse\n    End Select\n    For i = 1 To ws.Shapes.Count: s = s & \"|\" & ws.Shapes(i).Name & \",\" & ws.Shapes(i).Left & \",\" & ws.Shapes(i).Top & \",\" & ws.Shapes(i).Width & \",\" & ws.Shapes(i).Height: Next\n    Tried = \"ok\" & s\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 28\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 0, msoFalse",
+   "ok|A,50,50,120,60|B,50,80,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 1, msoFalse",
+   "ok|A,120,50,120,60|B,150,80,60,40|C,160,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 2, msoFalse",
+   "ok|A,190,50,120,60|B,250,80,60,40|C,270,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 3, msoFalse",
+   "ok|A,100,50,120,60|B,250,50,60,40|C,50,50,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 4, msoFalse",
+   "ok|A,100,110,120,60|B,250,120,60,40|C,50,125,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 5, msoFalse",
+   "ok|A,100,170,120,60|B,250,190,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 0, msoTrue",
+   "ok|A,50,50,120,60|B,50,80,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 1, msoTrue",
+   "ok|A,120,50,120,60|B,150,80,60,40|C,160,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 2, msoTrue",
+   "ok|A,190,50,120,60|B,250,80,60,40|C,270,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 3, msoTrue",
+   "ok|A,100,50,120,60|B,250,50,60,40|C,50,50,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 4, msoTrue",
+   "ok|A,100,110,120,60|B,250,120,60,40|C,50,125,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 5, msoTrue",
+   "ok|A,100,170,120,60|B,250,190,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\")).Align msoAlignCenters, msoFalse",
+   "ok|A,145,50,120,60|B,175,80,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"B\")).Align msoAlignLefts, msoFalse",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"B\")).Align msoAlignRights, msoTrue",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align 6, msoFalse",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align msoAlignLefts, 5",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align msoAlignRights, 1",
+   "ok|A,190,50,120,60|B,250,80,60,40|C,270,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Align msoAlignRights, -2",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeVertically, 1",
+   "ok|A,100,50,120,60|B,250,135,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeHorizontally, msoFalse",
+   "ok|A,110,50,120,60|B,250,80,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeVertically, msoFalse",
+   "ok|A,100,50,120,60|B,250,135,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeHorizontally, msoTrue",
+   "ok|A,110,50,120,60|B,250,80,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeVertically, msoTrue",
+   "ok|A,100,50,120,60|B,250,135,60,40|C,50,200,40,30"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\")).Distribute msoDistributeHorizontally, msoFalse",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\")).Distribute msoDistributeHorizontally, msoTrue",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"B\")).Distribute msoDistributeVertically, msoTrue",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute 2, msoFalse",
+   "Err -2147024809"
+  ],
+  [
+   "ws.Shapes(\"C\").Left = 260: ws.Shapes.Range(Array(\"A\", \"B\", \"C\")).Distribute msoDistributeHorizontally, msoFalse",
+   "ok|A,100,50,120,60|B,210,80,60,40|C,260,200,40,30"
+  ]
+ ]
+}

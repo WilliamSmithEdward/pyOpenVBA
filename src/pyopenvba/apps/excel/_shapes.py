@@ -463,6 +463,48 @@ class ShapeRange(VBACollection, Created):
         return ShapeObject(self.shapes[0].sheet, grouped(self.shapes[0].sheet, [one.shape for one in self.shapes]))
 
     @method
+    def Align(self, AlignCmd: object = MISSING, RelativeTo: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        """The shapes lined up on the edge or the middle of their box together (tests/fixtures/shape_align.json).
+
+        Excel aligns to the shapes whatever RelativeTo says, takes msoTrue, msoFalse and msoCTrue there and raises
+        -2147024809 for anything else, a command it lacks, or a single shape."""
+        command = int(to_number(AlignCmd))
+        if command not in range(6) or int(to_number(RelativeTo)) not in (-1, 0, 1) or len(self.shapes) < 2:
+            raise error(-2147024809, "The parameter is incorrect.")
+        for shape in self.shapes:
+            shape.guard("Align")
+        across = command < 3
+        boxes = [_box(one.shape) for one in self.shapes]
+        start = min(box[0 if across else 1] for box in boxes)
+        end = max(box[0 if across else 1] + box[2 if across else 3] for box in boxes)
+        for shape, box in zip(self.shapes, boxes, strict=True):
+            size = box[2 if across else 3]
+            place = (start, (start + end) / 2 - size / 2, end - size)[command % 3]
+            shape.vba_set("Left" if across else "Top", place)
+        return EMPTY
+
+    @method
+    def Distribute(self, DistributeCmd: object = MISSING, RelativeTo: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        """The shapes spaced evenly, in order of their left or top edges, between the first one's start and the
+        last one's end, which stay put (tests/fixtures/shape_align.json). Fewer than three shapes, a command Excel
+        lacks or a RelativeTo other than msoTrue, msoFalse and msoCTrue raise -2147024809."""
+        command = int(to_number(DistributeCmd))
+        if command not in (0, 1) or int(to_number(RelativeTo)) not in (-1, 0, 1) or len(self.shapes) < 3:
+            raise error(-2147024809, "The parameter is incorrect.")
+        for shape in self.shapes:
+            shape.guard("Distribute")
+        edge, size = (0, 2) if command == 0 else (1, 3)
+        ordered = sorted(((_box(one.shape), one) for one in self.shapes), key=lambda pair: pair[0][edge])
+        start = ordered[0][0][edge]
+        gap = (ordered[-1][0][edge] + ordered[-1][0][size] - start - sum(box[size] for box, _ in ordered)) / (
+            len(ordered) - 1)
+        place = start
+        for box, shape in ordered:
+            shape.vba_set("Left" if command == 0 else "Top", place)
+            place += box[size] + gap
+        return EMPTY
+
+    @method
     def Regroup(self) -> object:
         """The group Ungroup took these shapes out of, made again with the next name and id; shapes that came out
         of no group raise 1004 (tests/fixtures/shape_group_items.json)."""

@@ -2060,9 +2060,9 @@ Shape,Cut,method,Cut(),,MISSING,,
 Shape,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,Written as the adec:decorative extension; turning it off leaves val 0. Turning it on clears AlternativeText and Title.
 Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
-Shape,Duplicate,method,Duplicate() As Shape,,MISSING,,
+Shape,Duplicate,method,Duplicate() As Shape,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy 12 points right and down, on top, with the next id; a default name takes the sheet's next number, a given one is kept. Shapes loaded from a file, charts, controls and groups are refused."
 Shape,Fill,"property, read-only",As FillFormat,,MISSING,,
-Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,"Turns flipH or flipV over, written after rot; twice turns it back. Other commands raise -2147024809."
+Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/fixtures/shape_duplicate.json,"Turns flipH or flipV over, written after rot, and mirrors the rotation (30 becomes 330); twice turns it back. Other commands raise -2147024809."
 Shape,FormControlType,"property, read-only",As XlFormControl,,MISSING,,
 Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
 Shape,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
@@ -2072,7 +2072,7 @@ Shape,HasSmartArt,"property, read-only",As MsoTriState,,MISSING,,
 Shape,Height,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,HorizontalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipH is set.
 Shape,Hyperlink,"property, read-only",As Hyperlink,,MISSING,,
-Shape,ID,"property, read-only",As Long,,MISSING,,
+Shape,ID,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"The id the drawing gives the shape: 2 for the first, rising with each."
 Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's left edge."
 Shape,IncrementRotation,method,IncrementRotation(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,Adds to Rotation and lands inside 0 to 360.
 Shape,IncrementTop,method,IncrementTop(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's top edge."
@@ -2139,7 +2139,7 @@ ShapeRange,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sm
 ShapeRange,Decorative,property,As MsoTriState,,MISSING,,
 ShapeRange,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt,
 ShapeRange,Distribute,method,"Distribute(DistributeCmd As MsoDistributeCmd, RelativeTo As MsoTriState)",,MISSING,,
-ShapeRange,Duplicate,method,Duplicate() As ShapeRange,,MISSING,,
+ShapeRange,Duplicate,method,Duplicate() As ShapeRange,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy of each shape, after every other shape, as one ShapeRange."
 ShapeRange,Fill,"property, read-only",As FillFormat,,MISSING,,
 ShapeRange,Flip,method,Flip(FlipCmd As MsoFlipCmd),,MISSING,,
 ShapeRange,Glow,"property, read-only",As GlowFormat,,MISSING,,

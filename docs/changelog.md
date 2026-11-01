@@ -492,6 +492,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Comments and form controls are named by their place in the sheet's VML
+  ids, as Excel names them: a button after "Comment 1" is "Button 2".
+  Rectangles, charts and other drawing shapes keep a count of their own,
+  so a chart after a comment is "Chart 1" and a rectangle after a button
+  is "Rectangle 1" with id 2. A comment's box answers `ID` too. Measured
+  in `tests/fixtures/comment_shape_names.json`.
+
 - A member name in brackets after a dot, such as `ws.[_CodeName]`, is
   read as VBA reads it. It was a compile error.
 

@@ -176,6 +176,15 @@ def next_shape_id(sheet: Worksheet) -> int:
     return sheet.vml_last_id
 
 
+def next_named(sheet: Worksheet, stem: str) -> tuple[str, int]:
+    """The name and id the sheet's next note or form control takes. Its name is numbered by its place in the sheet's
+    block of VML ids, so notes and controls share one sequence and leave the drawing shapes' count alone: a button
+    after "Comment 1" is "Button 2", and a rectangle after both is "Rectangle 1"
+    (tests/fixtures/comment_shape_names.json)."""
+    shape_id = next_shape_id(sheet)
+    return f"{stem} {shape_id - vml_block(sheet) * BLOCK}", shape_id
+
+
 def note_at(sheet: Worksheet, row: int, column: int) -> Note | None:
     return sheet.notes.get((row, column))
 
@@ -203,9 +212,9 @@ def in_order(sheet: Worksheet) -> list[tuple[tuple[int, int], Note]]:
 
 def add(sheet: Worksheet, row: int, column: int, text: str) -> Note:
     """A new note on the cell, written by the application's user."""
-    sheet.shape_count += 1
-    note = Note(text=text, author=sheet.book.application.user_name, name=f"Comment {sheet.shape_count}",
-                shape_id=next_shape_id(sheet), anchor=placed(sheet, row, column),
+    name, shape_id = next_named(sheet, "Comment")
+    note = Note(text=text, author=sheet.book.application.user_name, name=name,
+                shape_id=shape_id, anchor=placed(sheet, row, column),
                 uid="{" + str(uuid.uuid4()).upper() + "}")
     sheet.notes[(row, column)] = note
     changed(sheet)
@@ -309,8 +318,8 @@ def cut(source: Worksheet, area: Area, target: Worksheet, down: int, across: int
     for (row, column), note in moving.items():
         at = (row + down, column + across)
         if target is not source:
-            target.shape_count += 1
-            note = replace(note, name=f"Comment {target.shape_count}", shape_id=next_shape_id(target))
+            name, shape_id = next_named(target, "Comment")
+            note = replace(note, name=name, shape_id=shape_id)
         target.notes[at] = replace(note, anchor=placed(target, *at), shape_xml="")
     changed(source)
     changed(target)
@@ -322,9 +331,9 @@ def copied(target: Worksheet, notes: dict[tuple[int, int], Note], landing: list[
     off the note it had (tests/fixtures/excel_model/, notes.json)."""
     clear(target, landing)
     for (row, column), note in notes.items():
-        target.shape_count += 1
+        name, shape_id = next_named(target, "Comment")
         target.notes[(row, column)] = replace(
-            note, name=f"Comment {target.shape_count}", shape_id=next_shape_id(target),
+            note, name=name, shape_id=shape_id,
             anchor=placed(target, row, column), uid="{" + str(uuid.uuid4()).upper() + "}", comment_xml="",
             shape_xml="")
     if notes:
@@ -481,6 +490,11 @@ class NoteShape(ExcelObject):
     @member
     def Type(self) -> object:
         return VBAInt(_MSO_COMMENT, "Long")
+
+    @member
+    def ID(self) -> object:
+        """The id of the note's box among the sheet's VML shapes, 1025 on (tests/fixtures/comment_shape_names.json)."""
+        return VBAInt(self.note.shape_id, "Long")
 
     @member
     def Left(self) -> object:

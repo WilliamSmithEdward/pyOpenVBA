@@ -272,12 +272,14 @@ class Shapes(VBACollection, ItemDefault, Created):
         from pyopenvba.apps.excel._radios import creation_group
 
         first_button = creation_group(self.sheet, wanted, _number(Left), _number(Top), _number(Width), _number(Height))
-        shape = self._made(
-            kind="formControl",
-            geometry="rect",
-            stem=FORM_CONTROLS.get(wanted, "Button"),
-            box=(Left, Top, Width, Height),
-        )
+        # A control is numbered in the sheet's block of VML ids, 1025 on in the first sheet to have one, apart from
+        # the drawing shapes, which start at 2, and in one sequence with the sheet's notes (tests/fixtures/notes.json).
+        # The VML names it by that number too, and Excel will not open a file where the two disagree.
+        from pyopenvba.apps.excel._notes import next_named
+
+        stem = FORM_CONTROLS.get(wanted, "Button")
+        name, identifier = next_named(self.sheet, stem)
+        shape = self._made(kind="formControl", geometry="rect", stem=stem, box=(Left, Top, Width, Height), name=name)
         shape.control = ControlInfo(kind=FORM_CONTROLS.get(wanted, "Button").replace(" ", ""))
         if wanted in (2, 6):
             shape.control.kind = "Drop" if wanted == 2 else "List"
@@ -289,12 +291,7 @@ class Shapes(VBACollection, ItemDefault, Created):
             shape.control.first_button = first_button
         if wanted in (8, 9):
             shape.control.maximum = 100 if wanted == 8 else 30000
-        # A control is numbered in the sheet's block of VML ids, 1025 on in the first sheet to have one, apart from
-        # the drawing shapes, which start at 2, and in one sequence with the sheet's notes (tests/fixtures/notes.json).
-        # The VML names it by that number too, and Excel will not open a file where the two disagree.
-        from pyopenvba.apps.excel._notes import next_shape_id
-
-        shape.shape_id = next_shape_id(self.sheet)
+        shape.shape_id = identifier
         if wanted == 7:
             from pyopenvba.apps.excel._radios import groups
 
@@ -321,10 +318,11 @@ class Shapes(VBACollection, ItemDefault, Created):
         geometry: str,
         stem: str,
         box: tuple[object, object, object, object] | tuple[float, float, float, float],
+        name: str | None = None,
     ) -> Shape:
         left, top, width, height = (_number(one) for one in box)
         shape = Shape(
-            name=self._free_name(stem),
+            name=self._free_name(stem) if name is None else name,
             kind=kind,
             geometry=geometry,
             left=left,
@@ -359,7 +357,9 @@ class Shapes(VBACollection, ItemDefault, Created):
         for one in drawn:
             drawn.extend(one.children)
         drawn += [one.former_group for one in drawn if one.former_group is not None]
-        return max((one.shape_id for one in drawn), default=1) + 1
+        # A form control's id is in the VML's block, and drawing shapes go on counting from 2 past it
+        # (tests/fixtures/comment_shape_names.json).
+        return max((one.shape_id for one in drawn if one.kind != "formControl"), default=1) + 1
 
 
 class ShapeRange(VBACollection, Created):

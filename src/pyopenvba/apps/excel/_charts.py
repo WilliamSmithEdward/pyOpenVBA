@@ -47,6 +47,10 @@ class SeriesState:
     marker_size: int | None = None
     invert_if_negative: bool = False
     explosion: int = 0
+    #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
+    #: imported marker filled in a way the model does not read (tests/fixtures/chart_marker_colours.json).
+    marker_fore: str | None = None
+    marker_back: str | None = None
 
 @dataclass
 class ChartState:
@@ -177,11 +181,23 @@ def marker_markup(entry: SeriesState) -> str:
     """The series' marker element: none for an automatic marker, a symbol for the rest, with its size where it has
     one."""
     symbol = MARKER_SYMBOLS[entry.marker]
+    look = marker_look(entry)
     if not symbol:
-        return ''
+        return f'<c:marker>{look}</c:marker>' if look else ''
     if symbol in ('none', 'picture'):
-        return f'<c:marker><c:symbol val="{symbol}"/></c:marker>'
-    return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{entry.marker_size or 5}"/></c:marker>'
+        return f'<c:marker><c:symbol val="{symbol}"/>{look}</c:marker>'
+    return f'<c:marker><c:symbol val="{symbol}"/><c:size val="{entry.marker_size or 5}"/>{look}</c:marker>'
+
+
+def marker_look(entry: SeriesState) -> str:
+    """The marker's spPr: its background as the fill, its foreground as the line, as Excel writes them
+    (tests/fixtures/chart_marker_colours.json)."""
+    fill = {None: '', 'none': '<a:noFill/>'}.get(
+        entry.marker_back, f'<a:solidFill><a:srgbClr val="{entry.marker_back}"/></a:solidFill>')
+    line = {None: '', 'none': '<a:ln w="12700"><a:noFill/></a:ln>'}.get(
+        entry.marker_fore,
+        f'<a:ln><a:solidFill><a:srgbClr val="{entry.marker_fore}"/></a:solidFill><a:prstDash val="solid"/></a:ln>')
+    return f'<c:spPr>{fill}{line}</c:spPr>' if fill or line else ''
 
 
 def plot_by(chart: ChartState) -> int:
@@ -1091,6 +1107,92 @@ class Series(Created):
             raise error(1004, 'Unable to set the MarkerStyle property of the Series class')
         self.chart.changed()
         entry.marker = wanted
+
+    # -- the marker's colours (tests/fixtures/chart_marker_colours.json)
+
+    def _colour(self, field_name: str) -> str | None:
+        found: str | None = getattr(self.lines(), field_name)
+        if found == '?':
+            raise VBAUnsupportedError("Reading this imported marker's colour is not implemented")
+        return found
+
+    def _recoloured(self, field_name: str, wanted: str | None) -> None:
+        entry = self.lines()
+        self.chart.changed()
+        setattr(entry, field_name, wanted)
+        if wanted is not None and entry.marker == MARKER_NONE:
+            # A series drawn without markers takes automatic ones once given a marker colour.
+            entry.marker = MARKER_AUTOMATIC
+
+    def _read_colour(self, field_name: str) -> object:
+        found = self._colour(field_name)
+        if found is None or found == 'none':
+            return VBAInt(-1 if found is None else -2, 'Long')
+        return VBAInt(int(found[4:6] + found[2:4] + found[0:2], 16), 'Long')
+
+    def _set_colour(self, field_name: str, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        if wanted == -1:
+            self._recoloured(field_name, None)
+            return
+        if wanted < 0:
+            raise VBAUnsupportedError(f'Marker colour {wanted} is not implemented')
+        # Excel keeps the low 24 bits: 16777216 is black.
+        blue, green, red = (wanted >> 16) & 255, (wanted >> 8) & 255, wanted & 255
+        self._recoloured(field_name, f'{red:02X}{green:02X}{blue:02X}')
+
+    def _read_index(self, field_name: str) -> object:
+        found = self._colour(field_name)
+        if found is None or found == 'none':
+            # An automatic marker colour answers slot 2.
+            return VBAInt(2 if found is None else -4142, 'Long')
+        return VBAInt(self.chart.sheet.book.stylesheet.colors.nearest(found), 'Long')
+
+    def _set_index(self, field_name: str, value: object) -> None:
+        wanted = int(to_integer(value, 'Long'))
+        if wanted in (-4105, -4142):
+            self._recoloured(field_name, None if wanted == -4105 else 'none')
+            return
+        palette = self.chart.sheet.book.stylesheet.colors.indexed
+        if wanted == 57:
+            # One past the 56 slots, Excel writes black: the system foreground.
+            self._recoloured(field_name, '000000')
+            return
+        if not 1 <= wanted <= 56 or wanted + 7 >= len(palette):
+            raise VBAUnsupportedError(f'Marker colour index {wanted} is not implemented')
+        self._recoloured(field_name, palette[wanted + 7])
+
+    @member
+    def MarkerForegroundColor(self) -> object:
+        return self._read_colour('marker_fore')
+
+    @setter('MarkerForegroundColor')
+    def _marker_foreground_color(self, value: object) -> None:
+        self._set_colour('marker_fore', value)
+
+    @member
+    def MarkerBackgroundColor(self) -> object:
+        return self._read_colour('marker_back')
+
+    @setter('MarkerBackgroundColor')
+    def _marker_background_color(self, value: object) -> None:
+        self._set_colour('marker_back', value)
+
+    @member
+    def MarkerForegroundColorIndex(self) -> object:
+        return self._read_index('marker_fore')
+
+    @setter('MarkerForegroundColorIndex')
+    def _marker_foreground_color_index(self, value: object) -> None:
+        self._set_index('marker_fore', value)
+
+    @member
+    def MarkerBackgroundColorIndex(self) -> object:
+        return self._read_index('marker_back')
+
+    @setter('MarkerBackgroundColorIndex')
+    def _marker_background_color_index(self, value: object) -> None:
+        self._set_index('marker_back', value)
 
     @member
     def MarkerSize(self) -> object:

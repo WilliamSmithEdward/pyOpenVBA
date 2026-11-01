@@ -1011,8 +1011,11 @@ on other sheets. Insertion refuses to discard occupied cells at the grid edge.
 Row heights, column widths and hidden rows and columns move with the rows and
 columns; a new row takes the height of the row above it, and a new column the
 width of the one to its left.
-Sheets containing merges or shapes are explicitly unsupported; several areas of
-whole rows or columns are deleted the last first. CopyOrigin, relative name context,
+Shapes and chart objects move with the rows and columns by their Placement, and
+one that sizes with its cells is deleted with the last of them
+(`tests/fixtures/shape_structure_moves.json`). Sheets containing merges are
+explicitly unsupported; several areas of whole rows or columns are deleted the
+last first. CopyOrigin, relative name context,
 and table/validation/chart metadata updates remain incomplete.
 
 **Inserting and deleting cells.** `Insert` and `Delete` with a `Shift` move

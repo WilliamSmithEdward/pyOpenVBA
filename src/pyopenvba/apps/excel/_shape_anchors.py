@@ -62,8 +62,9 @@ def anchors(sheet: Worksheet) -> list[tuple[Shape, Anchor]]:
     return held
 
 
-def placed(sheet: Worksheet, held: list[tuple[Shape, Anchor]]) -> None:
-    """Each shape put back over the cells it was anchored to."""
+def placed(sheet: Worksheet, held: list[tuple[Shape, Anchor]], *, rewrite: bool = False) -> None:
+    """Each shape put back over the cells it was anchored to. ``rewrite`` says the cells themselves moved, so that a
+    loaded shape's anchor in the file no longer holds and is written again."""
     from pyopenvba.apps.excel._shapes import ShapeObject
 
     widths, heights = sheet.column_width_points, sheet.row_height_points
@@ -81,6 +82,9 @@ def placed(sheet: Worksheet, held: list[tuple[Shape, Anchor]]) -> None:
         wanted = {'left': left, 'top': top, 'width': width, 'height': height}
         sheet.dims.kept_anchors[id(shape)] = (anchor, (left, top, width, height))
         changes = {name: value for name, value in wanted.items() if abs(getattr(shape, name) - value) > 1e-9}
+        if rewrite and shape.source:
+            ShapeObject(sheet, shape).placed_by_cells(**wanted)
+            continue
         if not changes:
             continue
         if shape.source:
@@ -89,6 +93,41 @@ def placed(sheet: Worksheet, held: list[tuple[Shape, Anchor]]) -> None:
                 setattr(shape, name, value)
         else:
             ShapeObject(sheet, shape).placed_by_cells(**changes)
+
+
+def lines_edited(sheet: Worksheet, held: list[tuple[Shape, Anchor]], *, rows: bool, start: int, count: int,
+                 delete: bool) -> None:
+    """The shapes put back after whole rows or columns were inserted or deleted (tests/fixtures/
+    shape_structure_moves.json). A corner in a deleted line goes to the start of the line after them; a shape that
+    sizes with its cells and so has nothing left between its corners is deleted, as Excel deletes it."""
+    from pyopenvba.apps.excel._editing import interval
+    from pyopenvba.apps.excel._shapes import ShapeObject
+
+    limit = MAX_ROWS if rows else MAX_COLUMNS
+
+    def mapped(line: int, offset: float) -> tuple[int, float]:
+        result = interval(line, line, start, count, delete, limit)
+        return (start, 0.0) if result is None else (result[0], offset)
+
+    moved: list[tuple[Shape, Anchor]] = []
+    for shape, anchor in held:
+        if rows:
+            row, down = mapped(anchor.row, anchor.down)
+            bottom_row, bottom_down = mapped(anchor.bottom_row, anchor.bottom_down)
+            anchor = Anchor(anchor.column, anchor.across, row, down, anchor.right_column, anchor.right_across,
+                            bottom_row, bottom_down)
+        else:
+            column, across = mapped(anchor.column, anchor.across)
+            right_column, right_across = mapped(anchor.right_column, anchor.right_across)
+            anchor = Anchor(column, across, anchor.row, anchor.down, right_column, right_across, anchor.bottom_row,
+                            anchor.bottom_down)
+        collapsed = ((anchor.row, anchor.down) == (anchor.bottom_row, anchor.bottom_down) if rows
+                     else (anchor.column, anchor.across) == (anchor.right_column, anchor.right_across))
+        if shape.edit_as == '' and collapsed:
+            ShapeObject(sheet, shape).Delete()
+            continue
+        moved.append((shape, anchor))
+    placed(sheet, moved, rewrite=True)
 
 
 def anchored_cell(sheet: Worksheet, shape: Shape, corner: str) -> tuple[int, int] | None:

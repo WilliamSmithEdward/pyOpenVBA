@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Inserting and deleting whole rows and columns on a sheet with shapes
+  or chart objects. The model refused this before. Shapes move with the
+  lines by their Placement. A shape that sizes with its cells grows when
+  lines go in through it, and is deleted with the last line it spans. A
+  shape that only moves goes to the start of the next line when its own
+  is deleted. Inserting or deleting cells moves only the shapes wholly
+  inside the shifted band. Measured in
+  `tests/fixtures/shape_structure_moves.json`.
+
 - Shapes and chart objects follow the cells under them as Excel moves
   them when column widths, row heights, hidden columns and rows or the
   standard width change. xlMoveAndSize keeps the cells under both corners

@@ -356,6 +356,45 @@ class PivotTable(ExcelObject):
     def RefreshDataSourceValues(self) -> object:
         raise error(1004, 'RefreshDataSourceValues method of PivotTable class failed')
 
+    # -- tests/fixtures/pivot_table_more.json
+
+    @method
+    def ConvertToFormulas(self, ConvertFilters: object = MISSING) -> object:  # noqa: N803 - native named argument
+        # Cube formulas belong to an OLAP table; a table over a list refuses with 1004.
+        raise error(1004, 'ConvertToFormulas method of PivotTable class failed')
+
+    @method
+    def ChangeConnection(self, conn: object = MISSING) -> object:
+        from pyopenvba.apps.excel._connections import WorkbookConnection
+
+        # A table over a list takes no connection: 5 for a connection, 13 for anything else.
+        raise error(5 if isinstance(conn, WorkbookConnection) else 13)
+
+    @method
+    def ChangePivotCache(self, PivotCache: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The table drawn again from another cache's source, which takes the place of its own: anything but a cache
+        raises 1004, its own cache 5; the workbook counts no more caches than before."""
+        from pyopenvba.apps.excel._pivot_refresh import cache_tables, refresh
+
+        table = self.entry
+        # The argument keeps Excel's name, PivotCache, which hides the class; the table's own cache gives it.
+        if not isinstance(PivotCache, type(table.cache)):
+            raise error(1004, 'ChangePivotCache method of PivotTable class failed')
+        if PivotCache is table.cache:
+            raise error(5)
+        old = table.cache
+        source = PivotCache.root.find(NS + 'cacheSource')
+        current = old.root.find(NS + 'cacheSource')
+        if PivotCache.index != 0 or source is None or current is None or len(cache_tables(old)) != 1:
+            raise VBAUnsupportedError('ChangePivotCache to a cache in use, or from one shared, is not implemented')
+        # The new cache comes to stand where the old one did: its source replaces the old one's, and the table is
+        # laid out again from it.
+        place = list(old.root).index(current)
+        old.root[place] = deepcopy(source)
+        old.source_text = PivotCache.source_text
+        refresh(old)
+        return EMPTY
+
     def __init__(self, sheet: Worksheet, cache: PivotCache, root: XmlElement,
                  report_owner: PivotTable | None = None) -> None:
         self.sheet, self.cache, self.root = sheet, cache, root

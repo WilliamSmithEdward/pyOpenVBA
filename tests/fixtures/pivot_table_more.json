@@ -1,0 +1,38 @@
+{
+ "measured_at": "2026-11-01T15:52:39.186038+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, pt As Object, c As Range, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Name = \"data\"\n    ws.Range(\"A1:C1\").Value = Array(\"Region\", \"Product\", \"Amount\")\n    ws.Range(\"A2:C2\").Value = Array(\"East\", \"Pen\", 10)\n    ws.Range(\"A3:C3\").Value = Array(\"West\", \"Ink\", 20)\n    ws.Range(\"A4:C4\").Value = Array(\"North\", \"Pad\", 5)\n    Set ws = wb.Worksheets.Add(After:=ws)\n    ws.Name = \"report\"\n    Set pt = wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R3C3\").CreatePivotTable(ws.Range(\"A3\"), \"P\")\n    pt.PivotFields(\"Region\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"Amount\"), \"Sum of Amount\", xlSum\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        pt.ConvertToFormulas False\n    Case 1\n        pt.ConvertToFormulas True\n    Case 2\n        pt.ChangeConnection ws\n    Case 3\n        pt.ChangePivotCache wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\")\n    Case 4\n        s = TypeName(pt.ChangePivotCache(wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\")))\n    Case 5\n        pt.ChangePivotCache \"data!R1C1:R4C3\"\n    Case 6\n        pt.ChangePivotCache wb.PivotCaches(1)\n    Case 7\n        pt.ChangePivotCache wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\"): s = pt.PivotCache.SourceData\n    End Select\n    Tried = \"ok \" & s\nRead:\n    Tried = Tried & \"|caches=\" & wb.PivotCaches.Count\n    For Each c In pt.TableRange1.Cells: Tried = Tried & \"|\" & c.Text: Next\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Read\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 7\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "pt.ConvertToFormulas False",
+   "Err 1004|caches=1|Row Labels|Sum of Amount|East|10|West|20|Grand Total|30"
+  ],
+  [
+   "pt.ConvertToFormulas True",
+   "Err 1004|caches=1|Row Labels|Sum of Amount|East|10|West|20|Grand Total|30"
+  ],
+  [
+   "pt.ChangeConnection ws",
+   "Err 13|caches=1|Row Labels|Sum of Amount|East|10|West|20|Grand Total|30"
+  ],
+  [
+   "pt.ChangePivotCache wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\")",
+   "ok |caches=1|Row Labels|Sum of Amount|East|10|West|20|North|5|Grand Total|35"
+  ],
+  [
+   "s = TypeName(pt.ChangePivotCache(wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\")))",
+   "ok Empty|caches=1|Row Labels|Sum of Amount|East|10|West|20|North|5|Grand Total|35"
+  ],
+  [
+   "pt.ChangePivotCache \"data!R1C1:R4C3\"",
+   "Err 1004|caches=1|Row Labels|Sum of Amount|East|10|West|20|Grand Total|30"
+  ],
+  [
+   "pt.ChangePivotCache wb.PivotCaches(1)",
+   "Err 5|caches=1|Row Labels|Sum of Amount|East|10|West|20|Grand Total|30"
+  ],
+  [
+   "pt.ChangePivotCache wb.PivotCaches.Create(xlDatabase, \"data!R1C1:R4C3\"): s = pt.PivotCache.SourceData",
+   "ok data!R1C1:R4C3|caches=1|Row Labels|Sum of Amount|East|10|West|20|North|5|Grand Total|35"
+  ]
+ ]
+}

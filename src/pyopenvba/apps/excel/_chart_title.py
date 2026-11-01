@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape_text
+from pyopenvba.apps.excel._chart_xml import shadow_markup
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, setter
@@ -24,8 +25,6 @@ VERTICAL = -4166
 #: ChartTitle.ReadingOrder: xlContext leaves it to the text, xlRTL and xlLTR set it.
 READING_ORDERS = {-5002: None, -5004: True, -5003: False}
 VERTICAL_ALIGNMENTS = (-4160, -4108, -4107, -4130, -4117)
-_SHADOW = ('<c:spPr><a:effectLst><a:outerShdw dist="35921" dir="2700000" algn="br"><a:srgbClr val="000000"/>'
-           '</a:outerShdw></a:effectLst></c:spPr>')
 
 
 @dataclass
@@ -248,7 +247,7 @@ def title_element(look: TitleLook, *, text: str | None, linked_text: str = '') -
                       f'<c:pt idx="0"><c:v>{escape_text(linked_text)}</c:v></c:pt></c:strCache></c:strRef></c:tx>')
         if formatted:
             properties = f'<c:txPr>{body}<a:lstStyle/><a:p>{paragraph}<a:endParaRPr lang="en-US"/></a:p></c:txPr>'
-    shadow = '' if look.shadow is None else _SHADOW if look.shadow else '<c:spPr><a:effectLst/></c:spPr>'
+    shadow = shadow_markup(look.shadow)
     return f'<c:title>{source}<c:overlay val="{int(look.overlay)}"/>{shadow}{properties}</c:title>'
 
 

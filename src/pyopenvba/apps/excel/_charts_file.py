@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, NoReturn
 from pyopenvba._xml import attributes, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
-from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
+from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           linked_title, referenced_values, shown_type)
@@ -182,7 +182,17 @@ def read_chart(xml: str, part: str) -> ChartState:
         result.title_look = read_look(title, NS)
     deleted = root.find('c:chart/c:autoTitleDeleted', NS)
     result.title_deleted = title is None and deleted is not None and deleted.get('val', '1') in ('1', 'true')
-    result.legend = root.find('c:chart/c:legend', NS) is not None
+    legend = root.find('c:chart/c:legend', NS)
+    result.legend = legend is not None
+    if legend is not None:
+        position = legend.find('c:legendPos', NS)
+        if position is not None and position.get('val', 'r') in ('b', 't', 'l', 'r', 'tr'):
+            result.legend_position = position.get('val', 'r')
+        overlay = legend.find('c:overlay', NS)
+        result.legend_overlay = overlay is not None and overlay.get('val', '1') in ('1', 'true')
+        effects = legend.find('c:spPr/a:effectLst', NS)
+        if effects is not None:
+            result.legend_shadow = effects.find('a:outerShdw', NS) is not None
     read_display(result, root)
     plot = root.find('c:chart/c:plotArea', NS)
     if plot is None:
@@ -373,7 +383,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         look = state.title_look
         title = title_element(look, text=state.title if state.title_typed else None,
                               linked_text=linked_title(sheet, look.formula) if look.formula else '')
-    xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted, legend=state.legend, axis_ids=state.axis_ids, blanks=state.blanks,
+    xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted,
+                     legend=legend_markup(state.legend_position, overlay=state.legend_overlay, shadow=state.legend_shadow)
+                     if state.legend else "", axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,
                      not_available_as_blank=state.not_available_as_blank)
     from pyopenvba.apps.excel._chart_axes_file import generated

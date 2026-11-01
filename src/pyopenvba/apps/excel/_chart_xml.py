@@ -111,7 +111,19 @@ _TAIL = (
     ' footer="0.3"/><c:pageSetup/></c:printSettings></c:chartSpace>'
 )
 
-_LEGEND = '<c:legend><c:legendPos val="r"/><c:overlay val="0"/></c:legend>'
+_SHADOW = ('<c:spPr><a:effectLst><a:outerShdw dist="35921" dir="2700000" algn="br"><a:srgbClr val="000000"/>'
+           '</a:outerShdw></a:effectLst></c:spPr>')
+
+
+def shadow_markup(shadow: bool | None) -> str:
+    """A title's or legend's Shadow: Excel's outer shadow, an empty effect list once turned off, nothing if never
+    set."""
+    return '' if shadow is None else _SHADOW if shadow else '<c:spPr><a:effectLst/></c:spPr>'
+
+
+def legend_markup(position: str = 'r', *, overlay: bool = False, shadow: bool | None = None) -> str:
+    return (f'<c:legend><c:legendPos val="{position}"/><c:overlay val="{int(overlay)}"/>{shadow_markup(shadow)}'
+            '</c:legend>')
 
 _LABELS = (
     '<c:dLbls><c:showLegendKey val="0"/><c:showVal val="0"/><c:showCatName val="0"/><c:showSerName val="0"/>'
@@ -236,7 +248,7 @@ def chart_part(
     *,
     title: str = "",
     title_deleted: bool = False,
-    legend: bool = True,
+    legend: str = "",
     axis_ids: tuple[int, int] | None = None,
     unique: str | None = None,
     blanks: int = 1,
@@ -300,7 +312,7 @@ def chart_part(
         axes = ""
     return (
         f'{_HEAD}{title}<c:autoTitleDeleted val="{int(title_deleted)}"/>'
-        f'<c:plotArea><c:layout/>{plot}{axes}</c:plotArea>{_LEGEND if legend else ""}'
+        f'<c:plotArea><c:layout/>{plot}{axes}</c:plotArea>{legend}'
         + _display(blanks, visible_only, over_maximum, not_available_as_blank)
         + _TAIL
     )

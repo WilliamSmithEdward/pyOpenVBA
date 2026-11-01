@@ -7,6 +7,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `ShapeRange.Align` and `ShapeRange.Distribute` answer as Excel's do.
+  Align lines the shapes up on an edge or the middle of their box
+  together, whatever RelativeTo says. Distribute spaces them evenly
+  between the first and last in order of their edges. 29 live cases
+  agree, `tests/fixtures/shape_align.json`.
+
+- Groups move, size and come apart as Excel's do. Moving or sizing a
+  group carries its shapes, and moving a shape inside one regrows it in
+  the group's child space. `ParentGroup`, `Regroup`,
+  `ShapeRange.Ungroup` and `GroupShapes.Parent` and `Range` answer, and
+  `Shapes("name")` finds a shape inside a group. 22 live cases agree,
+  `tests/fixtures/shape_group_items.json`.
+
 - Shapes can be grouped: `ShapeRange.Group` makes a group in its topmost
   member's place, named and numbered as Excel names and numbers one, and
   `Shape.Ungroup` puts the shapes back. `GroupItems` finds a member by

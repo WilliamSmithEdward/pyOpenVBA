@@ -635,6 +635,13 @@ class SeriesCollection(VBACollection, Created):
         self.chart.admit_read()
         return [Series(self.chart, entry) for entry in self.chart.state.series]
 
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        position = int(to_integer(index, 'Long'))
+        if 1 <= position <= len(items):
+            return items[position - 1]
+        # Excel answers a series it does not have with 1004, not a subscript error.
+        raise error(1004, 'Invalid Parameter')
+
     @member
     def Parent(self) -> object:
         return self.chart
@@ -737,7 +744,7 @@ class Series(Created):
                   for value in self.values()]
         return VBAArray([(1, len(values))], items=values)
 
-    @setter('Values')
+    @setter('Values', objects=True)
     def _values(self, value: object) -> None:
         self.position()
         self.chart.admit_change()
@@ -752,7 +759,7 @@ class Series(Created):
                   for value in self.categories()]
         return VBAArray([(1, len(values))], items=values)
 
-    @setter('XValues')
+    @setter('XValues', objects=True)
     def _categories(self, value: object) -> None:
         self.position()
         self.chart.admit_change()

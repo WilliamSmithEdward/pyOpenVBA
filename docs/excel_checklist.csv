@@ -364,13 +364,13 @@ Axis,AxisTitle,"property, read-only",As AxisTitle,,PARTIAL,tests/test_excel_char
 Axis,BaseUnit,property,As XlTimeUnit,,MISSING,,
 Axis,BaseUnitIsAuto,property,As Boolean,,MISSING,,
 Axis,Border,"property, read-only",As Border,,MISSING,,
-Axis,CategoryNames,property,As Variant,,MISSING,,
+Axis,CategoryNames,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_names.json; tests/test_excel_chart_axis_names.py,"Category axes; reads the first series' categories as a 1-based array. An array gives every series literal categories, a Range links them; other values raise 1004."
 Axis,CategorySortOrder,property,As XlCategorySortOrder,,MISSING,,
 Axis,CategoryType,property,As XlCategoryType,,MISSING,,
 Axis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Axis,Crosses,property,As XlAxisCrosses,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Written on the other axis's element. xlMaximum moves that axis to the far side, and with reversal brings it back. Automatic resets CrossesAt."
 Axis,CrossesAt,property,As Double,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"A set makes the crossing custom. Reads 0 when automatic. Reads at xlMaximum or xlMinimum need the drawn scale and are refused, as are crossings between categories."
-Axis,Delete,method,Delete() As Variant,,MISSING,,
+Axis,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_axis_names.json; tests/test_excel_chart_axis_names.py,As HasAxis = False; the Axis object stays readable.
 Axis,DisplayUnit,property,As XlDisplayUnit,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Built-in units and xlCustom written as dispUnits with a label; xlNone removes it; other numbers change nothing.
 Axis,DisplayUnitCustom,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"A set makes the unit custom, written as custUnit. Reads 1 until set."
 Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,MISSING,,

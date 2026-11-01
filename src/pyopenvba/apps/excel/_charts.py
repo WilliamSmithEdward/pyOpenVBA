@@ -45,6 +45,8 @@ class SeriesState:
     marker: int = -4142
     #: MarkerSize once given; until then 9 for an automatic marker and 5 for the rest.
     marker_size: int | None = None
+    invert_if_negative: bool = False
+    explosion: int = 0
 
 @dataclass
 class ChartState:
@@ -78,6 +80,7 @@ class ChartState:
     not_available_as_blank: bool = True
     #: False when an imported chart spells one of the four display options in a way the model does not read.
     display_readable: bool = True
+    data_table: bool = False
 
 
 def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesState]:
@@ -560,6 +563,29 @@ class Chart(Created):
     def HasLegend(self) -> object:
         return self.state.legend
 
+    @member
+    def HasDataTable(self) -> object:
+        """Whether the chart shows a data table, on any kind, a pie's included (tests/fixtures/chart_series_more.json)."""
+        self.admit_read()
+        return self.state.data_table
+
+    @setter('HasDataTable')
+    def _has_data_table(self, value: object) -> None:
+        self.admit_change()
+        wanted = to_bool(value)
+        self.changed()
+        self.state.data_table = wanted
+
+    @member
+    def Name(self) -> object:
+        """The sheet's name and the chart object's, as Excel answers it (tests/fixtures/chart_series_more.json)."""
+        return f'{self.sheet.name} {self.shape.name}'
+
+    @setter('Name')
+    def _chart_name(self, value: object) -> None:
+        # An embedded chart's own name cannot be set: Excel raises 7.
+        raise error(7, 'Out of memory')
+
     @setter('HasLegend')
     def _legend(self, value: object) -> None:
         self.admit_change()
@@ -1009,6 +1035,37 @@ class Series(Created):
         if self.entry.marker == MARKER_UNREAD:
             raise VBAUnsupportedError("Reading this imported series' marker is not implemented")
         return self.entry
+
+    # -- tests/fixtures/chart_series_more.json
+
+    @member
+    def InvertIfNegative(self) -> object:
+        self.position()
+        return self.entry.invert_if_negative
+
+    @setter('InvertIfNegative')
+    def _invert_if_negative(self, value: object) -> None:
+        self.position()
+        wanted = to_bool(value)
+        # A chart of another kind takes the setting without a word and writes nothing.
+        if CHART_TYPES.get(shown_type(self.chart.state)) in ('column', 'bar'):
+            self.chart.changed()
+            self.entry.invert_if_negative = wanted
+
+    @member
+    def Explosion(self) -> object:
+        self.position()
+        return VBAInt(self.entry.explosion, 'Long')
+
+    @setter('Explosion')
+    def _explosion(self, value: object) -> None:
+        self.position()
+        wanted = int(to_integer(value, 'Long'))
+        # Only a pie takes it, a doughnut no more than a column chart.
+        if CHART_TYPES.get(shown_type(self.chart.state)) != 'pie' or wanted < 0:
+            raise error(1004, 'Unable to set the Explosion property of the Series class')
+        self.chart.changed()
+        self.entry.explosion = wanted
 
     @member
     def Smooth(self) -> object:

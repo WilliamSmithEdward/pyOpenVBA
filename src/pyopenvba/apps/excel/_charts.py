@@ -69,6 +69,8 @@ class ChartState:
     legend_position: str = 'r'
     legend_overlay: bool = False
     legend_shadow: bool | None = None
+    #: The legend entries deleted, by series or, in a pie, point index (tests/fixtures/chart_legend_entries.json).
+    legend_deleted: list[int] = field(default_factory=lambda: [])
     plot_by: int = 2
     series: list[SeriesState] = field(default_factory=lambda: [])
     part: str = ''
@@ -617,6 +619,7 @@ class Chart(Created):
         if not wanted:
             # A legend taken away comes back as new.
             self.state.legend_position, self.state.legend_overlay, self.state.legend_shadow = 'r', False, None
+            self.state.legend_deleted = []
         self.state.legend = wanted
 
     @member
@@ -874,6 +877,64 @@ class Legend(Created):
     def Delete(self) -> object:
         self.shown()
         self.chart.vba_set('HasLegend', False)
+        return EMPTY
+
+    @method
+    def Clear(self) -> object:
+        """Takes the legend away, as Delete does (tests/fixtures/chart_legend_entries.json)."""
+        return self.Delete()
+
+    @method
+    def LegendEntries(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        self.shown()
+        entries = LegendEntries(self)
+        return entries if Index is MISSING else entries.vba_lookup(Index, entries.vba_items())
+
+
+class LegendEntries(VBACollection, Created):
+    """The legend's entries still shown: one per series, or in a pie or doughnut one per point
+    (tests/fixtures/chart_legend_entries.json)."""
+
+    vba_type_name = 'LegendEntries'
+
+    def __init__(self, legend: Legend) -> None:
+        self.legend = legend
+
+    def vba_items(self) -> list[object]:
+        state = self.legend.shown()
+        if CHART_TYPES.get(shown_type(state)) in ('pie', 'doughnut'):
+            first = state.series[0] if state.series else None
+            total = len(Series(self.legend.chart, first).values()) if first is not None else 0
+        else:
+            total = len(state.series)
+        return [LegendEntry(self.legend, index) for index in range(total) if index not in state.legend_deleted]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        position = int(to_number(index))
+        if not 1 <= position <= len(items):
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        return items[position - 1]
+
+
+class LegendEntry(Created):
+    vba_type_name = 'LegendEntry'
+
+    def __init__(self, legend: Legend, index: int) -> None:
+        self.legend, self.index = legend, index
+
+    @member
+    def Parent(self) -> object:
+        return self.legend
+
+    @method
+    def Delete(self) -> object:
+        """The entry gone from the legend, answering nothing; deleting the last one takes the legend away and raises
+        1004."""
+        state = self.legend.change()
+        if len(LegendEntries(self.legend).vba_items()) <= 1:
+            self.legend.chart.vba_set('HasLegend', False)
+            raise error(1004, 'Delete method of LegendEntry class failed')
+        state.legend_deleted.append(self.index)
         return EMPTY
 
 

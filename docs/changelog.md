@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Legend.LegendEntries`, `LegendEntry.Delete` and `Legend.Clear`
+  answer as Excel's do. A legend lists one entry per series, or per
+  point in a pie, a deleted one is saved as a `legendEntry`, and
+  deleting the last takes the legend away. 13 live cases agree,
+  `tests/fixtures/chart_legend_entries.json`.
+
 - ControlFormat's `DropDownLines`, `Enabled`, `ListIndex`, `LockedText`
   and `PrintObject` answer as Excel's do on new drop-downs, list boxes,
   check boxes and buttons, and are saved where Excel saves them. A new

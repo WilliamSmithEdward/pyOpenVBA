@@ -193,6 +193,11 @@ def read_chart(xml: str, part: str) -> ChartState:
         effects = legend.find('c:spPr/a:effectLst', NS)
         if effects is not None:
             result.legend_shadow = effects.find('a:outerShdw', NS) is not None
+        for entry in legend.findall('c:legendEntry', NS):
+            index, deleted = entry.find('c:idx', NS), entry.find('c:delete', NS)
+            if (index is not None and re.fullmatch(r'[0-9]{1,6}', index.get('val', '')) and deleted is not None
+                    and deleted.get('val', '1') in ('1', 'true')):
+                result.legend_deleted.append(int(index.get('val', '')))
     read_display(result, root)
     plot = root.find('c:chart/c:plotArea', NS)
     if plot is None:
@@ -430,7 +435,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         title = title_element(look, text=state.title if state.title_typed else None,
                               linked_text=linked_title(sheet, look.formula) if look.formula else '')
     xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted,
-                     legend=legend_markup(state.legend_position, overlay=state.legend_overlay, shadow=state.legend_shadow)
+                     legend=legend_markup(state.legend_position, overlay=state.legend_overlay, shadow=state.legend_shadow,
+                                          deleted=state.legend_deleted)
                      if state.legend else "", axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,
                      not_available_as_blank=state.not_available_as_blank)

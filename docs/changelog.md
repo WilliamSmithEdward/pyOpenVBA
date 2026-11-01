@@ -492,6 +492,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- SetSourceData with no PlotBy plots by rows unless what the block's
+  labels leave is taller than wide, as Excel does. It went by the whole
+  block, so three label columns and one column of numbers made three
+  series where Excel makes one. ChartObjects.Add counts the series it
+  plots from the selection the same way, so later unique ids are numbered
+  as Excel numbers them. A current region loses rows and columns that are
+  blank right across, which a selected block keeps. Measured in
+  `tests/fixtures/chart_add_plotted.json`.
+
 - SetSourceData reads a block's labels as Excel does. Several label
   columns make categories of several levels, written as Excel writes
   them, and several header rows make a name of several cells; by rows

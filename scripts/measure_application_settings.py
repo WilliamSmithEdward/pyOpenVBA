@@ -79,6 +79,15 @@ SETTINGS: dict[str, list[str]] = {
                                                                      "301", "-300", "-301"])],
     "Caption": ['"My caption"', '""', "5", "True", *after('"x"', ["Null", "Empty"]), "String(300, \"c\")",
                 "String(200, \"d\")", "String(201, \"e\")"],
+    "MergeInstances": FLAG_VALUES,
+    "HighQualityModeForGraphics": FLAG_VALUES,
+    "GenerateTableRefs": ["1", "0", *after("1", ["2", "-1", '"0"', "Null", '"abc"', "0.6", "1.5", "Empty"])],
+    "CursorMovement": ["2", "1", *after("2", ["0", "3", "-1", '"1"', "Null", "1.5", '"abc"', "Empty"])],
+    "DefaultSheetDirection": ["-5004", "-5003", *after("-5004", ["-5002", "0", "1", '"-5003"', "Null", '"abc"',
+                                                                "Empty"])],
+    "LargeOperationCellThousandCount": ["1000", "1", *after("500", ["0", "-1", "2147483", "2147484", "1.5", '"7"',
+                                                                    "Null", '"abc"', "Empty"])],
+    "ODBCTimeout": ["30", "0", *after("10", ["-1", "1.5", "100000", '"7"', "Null", '"abc"', "Empty"])],
 }
 
 PROBE = '''Private Function Shown(value As Variant) As String

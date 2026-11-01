@@ -3093,6 +3093,17 @@ class Worksheet(ExcelObject):
         return EMPTY
 
     @member
+    def EnableFormatConditionsCalculation(self) -> object:
+        """True whatever is set, and nothing is saved (tests/fixtures/format_conditions_calculation.json)."""
+        return True
+
+    @setter("EnableFormatConditionsCalculation")
+    def _set_format_conditions_calculation(self, value: object) -> None:
+        if value is NULL:
+            raise error(13)
+        to_bool(value)  # Excel takes any Boolean, and keeps reading True; anything else is a type mismatch.
+
+    @member
     def ProtectContents(self) -> object:
         return self.protection is not None and self.protection.contents
 

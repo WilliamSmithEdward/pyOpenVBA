@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 from xml.parsers import expat
 from typing import TYPE_CHECKING, NoReturn
 
-from pyopenvba._xml import attributes, escape as escape_attribute, unescape
+from pyopenvba._xml import attributes, escape as escape_attribute, escape_text, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, DATA_TABLE, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
@@ -20,6 +20,7 @@ from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           category_levels, linked_title, referenced_values, shown_cells, shown_type)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
+from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
@@ -258,6 +259,7 @@ def read_chart(xml: str, part: str) -> ChartState:
         raise VBAUnsupportedError('Ambiguous chart series identity/order is not implemented')
     for _order, identity, series in sorted(ordered, key=lambda item: item[0]):
         item = SeriesState(series_id=identity)
+        item.error_bars = read_error_bars(series, NS)
         name_ref = series.find('c:tx/c:strRef/c:f', NS)
         item.name_reference = name_ref.text or '' if name_ref is not None else ''
         name = series.find('c:tx/c:v', NS)
@@ -479,7 +481,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),
                                smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion,
-                               labels=item.data_labels, leader_lines=item.leader_lines))
+                               labels=item.data_labels, leader_lines=item.leader_lines,
+                               error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(shown_type(chart.state), ''),
+                                                            lambda element, given: _bar_values(sheet, element, given))))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
@@ -517,6 +521,35 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     xml = re.sub(r'<c:(val|yVal)><c:numLit><c:formatCode>[^<]*</c:formatCode><c:ptCount val="0"/></c:numLit>'
                  r'</c:\1>', '', xml)
     return xml
+
+def read_error_bars(series: ET.Element, ns: dict[str, str]) -> list[ErrorBarState]:
+    """A loaded series' error bars, as far as what they read goes: an imported chart is not changed, so a bar's
+    look and a custom bar's values stay in the part as they are (tests/fixtures/chart_error_bars.json)."""
+    bars: list[ErrorBarState] = []
+    for node in series.findall('c:errBars', ns):
+        def value(name: str) -> str:
+            found = node.find('c:' + name, ns)
+            return found.get('val', '') if found is not None else ''
+
+        amount_text = value('val')
+        try:
+            amount = float(amount_text) if amount_text else None
+        except ValueError:
+            amount = None
+        bars.append(ErrorBarState(direction=value('errDir') or 'y', include=value('errBarType') or 'both',
+                                  kind=value('errValType') or 'fixedVal', amount=amount,
+                                  no_cap=value('noEndCap') in ('1', 'true')))
+    return bars
+
+
+def _bar_values(sheet: Worksheet, element: str, given: tuple[str, list[object]]) -> str:
+    """A custom error bar's plus or minus element: a reference with its values cached, or the values given as a
+    literal, which markup's last step spells (tests/fixtures/chart_error_bars.json)."""
+    formula, values = given
+    cached = [_number(value) for value in (referenced_values(sheet, formula) if formula else values)]
+    return (f'<c:{element}><c:numRef><c:f>{escape_text(formula)}</c:f>'
+            f'{cache_markup(cached, numeric=True, code=source_format(sheet, formula))}</c:numRef></c:{element}>')
+
 
 def write(sheet: Worksheet, package: OpcFile, drawing: str) -> None:
     retained = {chart.part for owner in sheet.book.sheets_ for identifier, chart in owner.chart_states.items()

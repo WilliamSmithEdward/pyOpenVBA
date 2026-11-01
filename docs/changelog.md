@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Chart error bars: Series.ErrorBar, Series.HasErrorBars and the
+  ErrorBars object's Parent, Name, EndStyle and Delete, written and read
+  back as Excel writes them. ErrorBar takes every Include and Type,
+  custom values from ranges, arrays or numbers among them. HasErrorBars
+  makes a fixed bar of the value axis' major unit, 1 on scatter, pie and
+  doughnut charts. It is refused over an automatic major unit, which
+  needs Excel's layout. Measured in `tests/fixtures/chart_error_bars.json`.
+
 - Stacked and 100% stacked charts: ChartType takes xlColumnStacked,
   xlColumnStacked100, xlBarStacked, xlBarStacked100, xlLineStacked,
   xlLineStacked100, xlLineMarkersStacked, xlLineMarkersStacked100,

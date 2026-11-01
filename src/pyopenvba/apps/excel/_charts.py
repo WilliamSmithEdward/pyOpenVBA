@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState
+from pyopenvba.apps.excel._chart_error_bars import ErrorBars, ErrorBarState, error_bar, has_error_bars, set_has_error_bars
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -62,6 +63,8 @@ class SeriesState:
     #: imported marker filled in a way the model does not read (tests/fixtures/chart_marker_colours.json).
     marker_fore: str | None = None
     marker_back: str | None = None
+    #: Its Y error bar and, in a scatter chart, its X one (tests/fixtures/chart_error_bars.json).
+    error_bars: list[ErrorBarState] = field(default_factory=lambda: [])
 
 @dataclass
 class ChartState:
@@ -1300,8 +1303,22 @@ class Series(Created):
 
     @member
     def HasErrorBars(self) -> object:
+        return has_error_bars(self)
+
+    @setter('HasErrorBars')
+    def _has_error_bars(self, value: object) -> None:
+        set_has_error_bars(self, to_bool(value))
+
+    @method
+    def ErrorBar(self, Direction: object = MISSING, Include: object = MISSING, Type: object = MISSING,
+                 Amount: object = MISSING, MinusValues: object = MISSING) -> object:
+        error_bar(self, Direction, Include, Type, Amount, MinusValues)
+        return EMPTY
+
+    @member
+    def ErrorBars(self) -> object:
         self.position()
-        return False
+        return ErrorBars(self)
 
     @member
     def Has3DEffect(self) -> object:

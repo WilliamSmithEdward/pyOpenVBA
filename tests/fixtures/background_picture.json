@@ -1,0 +1,140 @@
+{
+ "measured_at": "2026-11-01T05:08:34.874881+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Object, v As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 1\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.SetBackgroundPicture folder & \"\\bg.png\"\n    Case 1\n        ws.SetBackgroundPicture folder & \"\\bg.png\": ws.SetBackgroundPicture \"\"\n    Case 2\n        ws.SetBackgroundPicture folder & \"\\missing.png\"\n    Case 3\n        ws.SetBackgroundPicture folder & \"\\bg.png\": wb.Worksheets.Add(After:=ws).SetBackgroundPicture folder & \"\\bg.png\"\n    Case 4\n        ws.Range(\"A1\").AddComment \"n\": ws.SetBackgroundPicture folder & \"\\bg.png\"\n    Case 5\n        ws.SetBackgroundPicture \"\"\n    Case 6\n        v = TypeName(ws.SetBackgroundPicture(folder & \"\\bg.png\"))\n    End Select\n    Tried = \"ok \" & v\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 6\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "ws.SetBackgroundPicture folder & \"\\bg.png\"",
+   "ok ",
+   {
+    "xl/worksheets/sheet1.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><picture r:id=\"rId1\"/></worksheet>",
+     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/></Relationships>"
+    ],
+    "media": [
+     [
+      "xl/media/image1.png",
+      true
+     ]
+    ],
+    "defaults": [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>",
+     "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>",
+     "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+    ]
+   }
+  ],
+  [
+   "ws.SetBackgroundPicture folder & \"\\bg.png\": ws.SetBackgroundPicture \"\"",
+   "ok ",
+   {
+    "xl/worksheets/sheet1.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+     ""
+    ],
+    "media": [],
+    "defaults": [
+     "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>",
+     "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+    ]
+   }
+  ],
+  [
+   "ws.SetBackgroundPicture folder & \"\\missing.png\"",
+   "Err 1004",
+   {
+    "xl/worksheets/sheet1.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+     ""
+    ],
+    "media": [],
+    "defaults": [
+     "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>",
+     "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+    ]
+   }
+  ],
+  [
+   "ws.SetBackgroundPicture folder & \"\\bg.png\": wb.Worksheets.Add(After:=ws).SetBackgroundPicture folder & \"\\bg.png\"",
+   "ok ",
+   {
+    "xl/worksheets/sheet1.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><picture r:id=\"rId1\"/></worksheet>",
+     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/></Relationships>"
+    ],
+    "xl/worksheets/sheet2.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><picture r:id=\"rId1\"/></worksheet>",
+     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/></Relationships>"
+    ],
+    "media": [
+     [
+      "xl/media/image1.png",
+      true
+     ]
+    ],
+    "defaults": [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>",
+     "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>",
+     "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+    ]
+   }
+  ],
+  [
+   "ws.Range(\"A1\").AddComment \"n\": ws.SetBackgroundPicture folder & \"\\bg.png\"",
+   "ok ",
+   {
+    "xl/worksheets/sheet1.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><legacyDrawing r:id=\"rId1\"/><picture r:id=\"rId2\"/></worksheet>",
+     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments\" Target=\"../comments1.xml\"/><Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing\" Target=\"../drawings/vmlDrawing1.vml\"/></Relationships>"
+    ],
+    "media": [
+     [
+      "xl/media/image1.png",
+      true
+     ]
+    ],
+    "defaults": [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>",
+     "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>",
+     "<Default Extension=\"vml\" ContentType=\"application/vnd.openxmlformats-officedocument.vmlDrawing\"/>",
+     "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+    ]
+   }
+  ],
+  [
+   "ws.SetBackgroundPicture \"\"",
+   "ok ",
+   {
+    "xl/worksheets/sheet1.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/></worksheet>",
+     ""
+    ],
+    "media": [],
+    "defaults": [
+     "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>",
+     "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+    ]
+   }
+  ],
+  [
+   "v = TypeName(ws.SetBackgroundPicture(folder & \"\\bg.png\"))",
+   "ok Empty",
+   {
+    "xl/worksheets/sheet1.xml": [
+     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/><picture r:id=\"rId1\"/></worksheet>",
+     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" Target=\"../media/image1.png\"/></Relationships>"
+    ],
+    "media": [
+     [
+      "xl/media/image1.png",
+      true
+     ]
+    ],
+    "defaults": [
+     "<Default Extension=\"png\" ContentType=\"image/png\"/>",
+     "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>",
+     "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+    ]
+   }
+  ]
+ ]
+}

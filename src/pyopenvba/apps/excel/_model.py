@@ -2500,6 +2500,9 @@ class Worksheet(ExcelObject):
         #: The notes on the sheet's cells, which VBA calls comments, by cell in the order they were made (see
         #: _notes); True once one is added, changed, moved or removed, so a save writes them again.
         self.notes: dict[tuple[int, int], Note] = {}
+        #: The PNG SetBackgroundPicture gave the sheet, None for none; True once it changed, so a save writes it.
+        self.background: bytes | None = None
+        self.background_changed = False
         self.notes_changed = False
         #: The sheet's hyperlinks in the order Worksheet.Hyperlinks lists them (see _hyperlinks); True once one is
         #: added, changed, moved or removed, so a save writes them again.
@@ -3090,6 +3093,24 @@ class Worksheet(ExcelObject):
     def ClearCircles(self) -> object:
         """Takes away validation circles, which the model never draws, protected sheet or not
         (tests/fixtures/clear_arrows.json)."""
+        return EMPTY
+
+    @method
+    def SetBackgroundPicture(self, Filename: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The sheet's background picture: a PNG file's bytes, kept as they are, or none for an empty name. A file
+        that is not there is error 1004 (tests/fixtures/background_picture.json)."""
+        if Filename is MISSING:
+            raise error(449)
+        name = to_text(Filename)
+        if not name:
+            self.background, self.background_changed = None, True
+            return EMPTY
+        path = Path(name)
+        if not path.is_file():
+            raise error(1004, "Method 'SetBackgroundPicture' of object '_Worksheet' failed")
+        if path.suffix.lower() != ".png":
+            raise VBAUnsupportedError("A background picture other than PNG is not implemented")
+        self.background, self.background_changed = path.read_bytes(), True
         return EMPTY
 
     @member

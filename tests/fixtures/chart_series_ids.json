@@ -1,0 +1,258 @@
+{
+ "measured_at": "2026-11-01T02:56:52.084734+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, ch As Object\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6))\n    Case 1\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"F10\").Select\n    Case 2\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"B3\").Select\n    Case 3\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"A1:B4\").Select\n    Case 4\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"B1:C4\").Select\n    Case 5\n        ws.Range(\"A1:D4\").Value = 1: ws.Range(\"A1:D1\").Value = Array(\"k\", \"v\", \"w\", \"x\")\n    Case 6\n        ws.Range(\"A1:D4\").Value = 1: ws.Range(\"A1:D1\").Value = Array(\"k\", \"v\", \"w\", \"x\"): ws.Range(\"A1:B4\").Select\n    Case 7\n        ws.Range(\"A1:E3\").Value = 2: ws.Range(\"B1:E1\").Value = Array(\"p\", \"q\", \"r\", \"s\")\n    Case 8\n        ws.Range(\"C3\").Value = 9\n    Case 9\n        ws.Range(\"C3\").Value = 9: ws.Range(\"C3\").Select\n    Case 10\n    Case 11\n    Case 12\n    Case 13\n    Case 14\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6))\n    Case 15\n        ws.Range(\"A1:E3\").Value = 2: ws.Range(\"B1:E1\").Value = Array(\"p\", \"q\", \"r\", \"s\"): ws.Range(\"H9\").Select\n    Case 16\n        ws.Range(\"H9\").Select\n    End Select\n    Set ch = ws.ChartObjects.Add(100, 10, 300, 200).Chart\n    Tried = \"ok \" & ch.SeriesCollection.Count\n    Select Case which\n    Case 0\n        ch.SetSourceData ws.Range(\"A1:C4\")\n    Case 1\n        ch.SetSourceData ws.Range(\"A1:C4\")\n    Case 2\n        ch.SetSourceData ws.Range(\"A1:B4\")\n    Case 3\n        ch.SetSourceData ws.Range(\"A1:C4\")\n    Case 4\n        ch.SetSourceData ws.Range(\"A1:C4\")\n    Case 5\n        ch.SetSourceData ws.Range(\"A1:B4\")\n    Case 6\n        ch.SetSourceData ws.Range(\"A1:B4\")\n    Case 7\n        ch.SetSourceData ws.Range(\"A1:B3\")\n    Case 8\n        ch.SetSourceData ws.Range(\"C3\")\n    Case 9\n        ch.SetSourceData ws.Range(\"C3\")\n    Case 10\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SetSourceData ws.Range(\"A1:C4\")\n    Case 11\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SetSourceData ws.Range(\"A1:B4\")\n    Case 12\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SeriesCollection.NewSeries.Values = \"=Sheet1!$B$2:$B$4\"\n    Case 13\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SeriesCollection(1).Delete: ch.SeriesCollection.NewSeries.Values = \"=Sheet1!$B$2:$B$4\"\n    Case 14\n        ch.SeriesCollection.NewSeries.Values = \"=Sheet1!$B$2:$B$4\"\n    Case 15\n        ch.SetSourceData ws.Range(\"A1:E3\"): Tried = Tried & \" \" & ch.SeriesCollection(1).Formula\n    Case 16\n        ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"A1\").Value = 7: ch.SetSourceData ws.Range(\"A1:C4\"): Tried = Tried & \" \" & ch.SeriesCollection(1).Formula\n    End Select\n    Tried = Tried & \" \" & ch.SeriesCollection.Count\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 16\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)) || ch.SetSourceData ws.Range(\"A1:C4\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     2
+    ],
+    [
+     1,
+     1,
+     3
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"F10\").Select || ch.SetSourceData ws.Range(\"A1:C4\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"B3\").Select || ch.SetSourceData ws.Range(\"A1:B4\")",
+   "ok 0 1",
+   [
+    [
+     0,
+     0,
+     2
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"A1:B4\").Select || ch.SetSourceData ws.Range(\"A1:C4\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     1
+    ],
+    [
+     1,
+     1,
+     2
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"B1:C4\").Select || ch.SetSourceData ws.Range(\"A1:C4\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     2
+    ],
+    [
+     1,
+     1,
+     3
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:D4\").Value = 1: ws.Range(\"A1:D1\").Value = Array(\"k\", \"v\", \"w\", \"x\") || ch.SetSourceData ws.Range(\"A1:B4\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     3
+    ],
+    [
+     1,
+     1,
+     4
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:D4\").Value = 1: ws.Range(\"A1:D1\").Value = Array(\"k\", \"v\", \"w\", \"x\"): ws.Range(\"A1:B4\").Select || ch.SetSourceData ws.Range(\"A1:B4\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     2
+    ],
+    [
+     1,
+     1,
+     3
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:E3\").Value = 2: ws.Range(\"B1:E1\").Value = Array(\"p\", \"q\", \"r\", \"s\") || ch.SetSourceData ws.Range(\"A1:B3\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     2
+    ],
+    [
+     1,
+     1,
+     3
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"C3\").Value = 9 || ch.SetSourceData ws.Range(\"C3\")",
+   "ok 0 1",
+   [
+    [
+     0,
+     0,
+     0
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"C3\").Value = 9: ws.Range(\"C3\").Select || ch.SetSourceData ws.Range(\"C3\")",
+   "ok 0 1",
+   [
+    [
+     0,
+     0,
+     1
+    ]
+   ]
+  ],
+  [
+   " || ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SetSourceData ws.Range(\"A1:C4\")",
+   "ok 0 2",
+   [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1
+    ]
+   ]
+  ],
+  [
+   " || ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SetSourceData ws.Range(\"A1:B4\")",
+   "ok 0 1",
+   [
+    [
+     0,
+     0,
+     0
+    ]
+   ]
+  ],
+  [
+   " || ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SeriesCollection.NewSeries.Values = \"=Sheet1!$B$2:$B$4\"",
+   "ok 0 3",
+   [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1
+    ],
+    [
+     2,
+     2,
+     2
+    ]
+   ]
+  ],
+  [
+   " || ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ch.SetSourceData ws.Range(\"A1:C4\"): ch.SeriesCollection(1).Delete: ch.SeriesCollection.NewSeries.Values = \"=Sheet1!$B$2:$B$4\"",
+   "ok 0 2",
+   [
+    [
+     1,
+     0,
+     1
+    ],
+    [
+     0,
+     1,
+     2
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)) || ch.SeriesCollection.NewSeries.Values = \"=Sheet1!$B$2:$B$4\"",
+   "ok 0 1",
+   [
+    [
+     0,
+     0,
+     2
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"A1:E3\").Value = 2: ws.Range(\"B1:E1\").Value = Array(\"p\", \"q\", \"r\", \"s\"): ws.Range(\"H9\").Select || ch.SetSourceData ws.Range(\"A1:E3\"): Tried = Tried & \" \" & ch.SeriesCollection(1).Formula",
+   "ok 0 =SERIES(,Sheet1!$A$1:$E$1,Sheet1!$A$2:$E$2,1) 2",
+   [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1
+    ]
+   ]
+  ],
+  [
+   "ws.Range(\"H9\").Select || ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\")): ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3)): ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6)): ws.Range(\"A1\").Value = 7: ch.SetSourceData ws.Range(\"A1:C4\"): Tried = Tried & \" \" & ch.SeriesCollection(1).Formula",
+   "ok 0 =SERIES(Sheet1!$B$1,Sheet1!$A$2:$A$4,Sheet1!$B$2:$B$4,1) 2",
+   [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1
+    ]
+   ]
+  ]
+ ]
+}

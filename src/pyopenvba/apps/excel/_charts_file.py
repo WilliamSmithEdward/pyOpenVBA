@@ -344,7 +344,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                categories=item.category_reference or ('' if item.categories else None),
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
                                category_format=source_format(sheet, item.category_reference),
-                               numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None))
+                               numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
+                               unique_id=item.unique if item.unique >= 0 else None))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')

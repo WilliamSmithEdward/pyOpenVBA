@@ -1,0 +1,246 @@
+{
+ "measured_at": "2026-11-01T21:49:13.613417+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Shape\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set sh = ws.Shapes.AddShape(msoShapeRectangle, 110, 20, 120, 40)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"A1\").Font.Size = 30\n    Case 1\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"A3\").Font.Size = 30\n    Case 2\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"A3\").WrapText = True: ws.Range(\"A3\").Value = \"one two three four five six seven\"\n    Case 3\n        sh.Placement = xlMoveAndSize\n        ws.Rows(1).Insert\n    Case 4\n        sh.Placement = xlMoveAndSize\n        ws.Rows(3).Insert\n    Case 5\n        sh.Placement = xlMoveAndSize\n        ws.Rows(\"3:4\").Insert\n    Case 6\n        sh.Placement = xlMoveAndSize\n        ws.Rows(1).Delete\n    Case 7\n        sh.Placement = xlMoveAndSize\n        ws.Rows(3).Delete\n    Case 8\n        sh.Placement = xlMoveAndSize\n        ws.Rows(\"2:5\").Delete\n    Case 9\n        sh.Placement = xlMoveAndSize\n        ws.Columns(1).Insert\n    Case 10\n        sh.Placement = xlMoveAndSize\n        ws.Columns(4).Insert\n    Case 11\n        sh.Placement = xlMoveAndSize\n        ws.Columns(1).Delete\n    Case 12\n        sh.Placement = xlMoveAndSize\n        ws.Columns(4).Delete\n    Case 13\n        sh.Placement = xlMoveAndSize\n        ws.Columns(\"C:E\").Delete\n    Case 14\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"A3\").EntireRow.Insert\n    Case 15\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"D1\").Insert xlShiftToRight\n    Case 16\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"D3\").Insert xlShiftToRight\n    Case 17\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"D3\").Insert xlShiftDown\n    Case 18\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"D3\").Delete xlShiftUp\n    Case 19\n        sh.Placement = xlMoveAndSize\n        ws.Range(\"A3:Z3\").Insert xlShiftDown\n    Case 20\n        sh.Placement = xlMove\n        ws.Range(\"A1\").Font.Size = 30\n    Case 21\n        sh.Placement = xlMove\n        ws.Range(\"A3\").Font.Size = 30\n    Case 22\n        sh.Placement = xlMove\n        ws.Range(\"A3\").WrapText = True: ws.Range(\"A3\").Value = \"one two three four five six seven\"\n    Case 23\n        sh.Placement = xlMove\n        ws.Rows(1).Insert\n    Case 24\n        sh.Placement = xlMove\n        ws.Rows(3).Insert\n    Case 25\n        sh.Placement = xlMove\n        ws.Rows(\"3:4\").Insert\n    Case 26\n        sh.Placement = xlMove\n        ws.Rows(1).Delete\n    Case 27\n        sh.Placement = xlMove\n        ws.Rows(3).Delete\n    Case 28\n        sh.Placement = xlMove\n        ws.Rows(\"2:5\").Delete\n    Case 29\n        sh.Placement = xlMove\n        ws.Columns(1).Insert\n    Case 30\n        sh.Placement = xlMove\n        ws.Columns(4).Insert\n    Case 31\n        sh.Placement = xlMove\n        ws.Columns(1).Delete\n    Case 32\n        sh.Placement = xlMove\n        ws.Columns(4).Delete\n    Case 33\n        sh.Placement = xlMove\n        ws.Columns(\"C:E\").Delete\n    Case 34\n        sh.Placement = xlMove\n        ws.Range(\"A3\").EntireRow.Insert\n    Case 35\n        sh.Placement = xlMove\n        ws.Range(\"D1\").Insert xlShiftToRight\n    Case 36\n        sh.Placement = xlMove\n        ws.Range(\"D3\").Insert xlShiftToRight\n    Case 37\n        sh.Placement = xlMove\n        ws.Range(\"D3\").Insert xlShiftDown\n    Case 38\n        sh.Placement = xlMove\n        ws.Range(\"D3\").Delete xlShiftUp\n    Case 39\n        sh.Placement = xlMove\n        ws.Range(\"A3:Z3\").Insert xlShiftDown\n    Case 40\n        sh.Placement = xlFreeFloating\n        ws.Range(\"A1\").Font.Size = 30\n    Case 41\n        sh.Placement = xlFreeFloating\n        ws.Range(\"A3\").Font.Size = 30\n    Case 42\n        sh.Placement = xlFreeFloating\n        ws.Range(\"A3\").WrapText = True: ws.Range(\"A3\").Value = \"one two three four five six seven\"\n    Case 43\n        sh.Placement = xlFreeFloating\n        ws.Rows(1).Insert\n    Case 44\n        sh.Placement = xlFreeFloating\n        ws.Rows(3).Insert\n    Case 45\n        sh.Placement = xlFreeFloating\n        ws.Rows(\"3:4\").Insert\n    Case 46\n        sh.Placement = xlFreeFloating\n        ws.Rows(1).Delete\n    Case 47\n        sh.Placement = xlFreeFloating\n        ws.Rows(3).Delete\n    Case 48\n        sh.Placement = xlFreeFloating\n        ws.Rows(\"2:5\").Delete\n    Case 49\n        sh.Placement = xlFreeFloating\n        ws.Columns(1).Insert\n    Case 50\n        sh.Placement = xlFreeFloating\n        ws.Columns(4).Insert\n    Case 51\n        sh.Placement = xlFreeFloating\n        ws.Columns(1).Delete\n    Case 52\n        sh.Placement = xlFreeFloating\n        ws.Columns(4).Delete\n    Case 53\n        sh.Placement = xlFreeFloating\n        ws.Columns(\"C:E\").Delete\n    Case 54\n        sh.Placement = xlFreeFloating\n        ws.Range(\"A3\").EntireRow.Insert\n    Case 55\n        sh.Placement = xlFreeFloating\n        ws.Range(\"D1\").Insert xlShiftToRight\n    Case 56\n        sh.Placement = xlFreeFloating\n        ws.Range(\"D3\").Insert xlShiftToRight\n    Case 57\n        sh.Placement = xlFreeFloating\n        ws.Range(\"D3\").Insert xlShiftDown\n    Case 58\n        sh.Placement = xlFreeFloating\n        ws.Range(\"D3\").Delete xlShiftUp\n    Case 59\n        sh.Placement = xlFreeFloating\n        ws.Range(\"A3:Z3\").Insert xlShiftDown\n    End Select\n    If ws.Shapes.Count = 0 Then\n        Tried = \"ok gone\"\n    Else\n        Tried = \"ok \" & sh.Left & \",\" & sh.Top & \",\" & sh.Width & \",\" & sh.Height & \",\" & sh.TopLeftCell.Address(0, 0) & \",\" & sh.BottomRightCell.Address(0, 0)\n    End If\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 59\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "xlMoveAndSize: ws.Range(\"A1\").Font.Size = 30",
+   "ok 110,44,120,40,C2,E5"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"A3\").Font.Size = 30",
+   "ok 110,20,120,64,C2,E5"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"A3\").WrapText = True: ws.Range(\"A3\").Value = \"one two three four five six seven\"",
+   "ok 110,20,120,85,C2,E5"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(1).Insert",
+   "ok 110,35,120,40,C3,E6"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(3).Insert",
+   "ok 110,20,120,55,C2,E6"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(\"3:4\").Insert",
+   "ok 110,20,120,70,C2,E7"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(1).Delete",
+   "ok 110,5,120,40,C1,E4"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(3).Delete",
+   "ok 110,20,120,25,C2,E4"
+  ],
+  [
+   "xlMoveAndSize: ws.Rows(\"2:5\").Delete",
+   "ok gone"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(1).Insert",
+   "ok 158,20,120,40,D2,F5"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(4).Insert",
+   "ok 110,20,168,40,C2,F5"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(1).Delete",
+   "ok 62,20,120,40,B2,D5"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(4).Delete",
+   "ok 110,20,72,40,C2,D5"
+  ],
+  [
+   "xlMoveAndSize: ws.Columns(\"C:E\").Delete",
+   "ok gone"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"A3\").EntireRow.Insert",
+   "ok 110,20,120,55,C2,E6"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"D1\").Insert xlShiftToRight",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"D3\").Insert xlShiftToRight",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"D3\").Insert xlShiftDown",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"D3\").Delete xlShiftUp",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMoveAndSize: ws.Range(\"A3:Z3\").Insert xlShiftDown",
+   "ok 110,20,120,55,C2,E6"
+  ],
+  [
+   "xlMove: ws.Range(\"A1\").Font.Size = 30",
+   "ok 110,44,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Range(\"A3\").Font.Size = 30",
+   "ok 110,20,120,40,C2,E3"
+  ],
+  [
+   "xlMove: ws.Range(\"A3\").WrapText = True: ws.Range(\"A3\").Value = \"one two three four five six seven\"",
+   "ok 110,20,120,40,C2,E3"
+  ],
+  [
+   "xlMove: ws.Rows(1).Insert",
+   "ok 110,35,120,40,C3,E6"
+  ],
+  [
+   "xlMove: ws.Rows(3).Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Rows(\"3:4\").Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Rows(1).Delete",
+   "ok 110,5,120,40,C1,E4"
+  ],
+  [
+   "xlMove: ws.Rows(3).Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Rows(\"2:5\").Delete",
+   "ok 110,15,120,40,C2,E4"
+  ],
+  [
+   "xlMove: ws.Columns(1).Insert",
+   "ok 158,20,120,40,D2,F5"
+  ],
+  [
+   "xlMove: ws.Columns(4).Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Columns(1).Delete",
+   "ok 62,20,120,40,B2,D5"
+  ],
+  [
+   "xlMove: ws.Columns(4).Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Columns(\"C:E\").Delete",
+   "ok 96,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Range(\"A3\").EntireRow.Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Range(\"D1\").Insert xlShiftToRight",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Range(\"D3\").Insert xlShiftToRight",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Range(\"D3\").Insert xlShiftDown",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Range(\"D3\").Delete xlShiftUp",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlMove: ws.Range(\"A3:Z3\").Insert xlShiftDown",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"A1\").Font.Size = 30",
+   "ok 110,20,120,40,C1,E3"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"A3\").Font.Size = 30",
+   "ok 110,20,120,40,C2,E3"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"A3\").WrapText = True: ws.Range(\"A3\").Value = \"one two three four five six seven\"",
+   "ok 110,20,120,40,C2,E3"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(1).Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(3).Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(\"3:4\").Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(1).Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(3).Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Rows(\"2:5\").Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(1).Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(4).Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(1).Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(4).Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Columns(\"C:E\").Delete",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"A3\").EntireRow.Insert",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"D1\").Insert xlShiftToRight",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"D3\").Insert xlShiftToRight",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"D3\").Insert xlShiftDown",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"D3\").Delete xlShiftUp",
+   "ok 110,20,120,40,C2,E5"
+  ],
+  [
+   "xlFreeFloating: ws.Range(\"A3:Z3\").Insert xlShiftDown",
+   "ok 110,20,120,40,C2,E5"
+  ]
+ ]
+}

@@ -108,8 +108,8 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
         raise VBAUnsupportedError('Structural edits on an advanced-filtered sheet are not implemented')
     if len(target.areas) != 1:
         raise VBAUnsupportedError("Structural edits of multiple areas are not implemented")
-    if sheet.merged_areas or sheet.shapes_:
-        raise VBAUnsupportedError("Whole-row/column edits on sheets with merges or shapes are not implemented")
+    if sheet.merged_areas:
+        raise VBAUnsupportedError("Whole-row/column edits on sheets with merges are not implemented")
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
     refuse_sparklines(sheet, "Inserting or deleting rows or columns on")
@@ -151,6 +151,9 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
                        rows=rows, start=start, count=count, delete=delete)
         names.append((entry, text))
     # All validation/conversion precedes mutation.
+    from pyopenvba.apps.excel._shape_anchors import anchors, lines_edited
+
+    held = anchors(sheet)
     sheet.cells_ = moved
     for owner, cell, text in formulas:
         cell.formula = text
@@ -173,10 +176,16 @@ def edit(target: Range, *, delete: bool, below: bool = False, laid: bool = False
     _hyperlinks.moved(sheet, lambda text: rewrite(text, sheet.name, sheet.name, rows=rows, start=start, count=count,
                                                   delete=delete))
     _windows.edited(sheet, rows=rows, start=start, count=count, delete=delete)
-    if rows:
-        sheet.dims.shift_rows(start, count, delete, below=below)
-    else:
-        sheet.dims.shift_columns(start, count, delete, below=below)
+    # The lines' sizes move with them: the shapes follow their cells once, below, not line by line.
+    sheet.dims.sizing_all = True
+    try:
+        if rows:
+            sheet.dims.shift_rows(start, count, delete, below=below)
+        else:
+            sheet.dims.shift_columns(start, count, delete, below=below)
+    finally:
+        sheet.dims.sizing_all, sheet.dims.held_shapes = False, None
+    lines_edited(sheet, held, rows=rows, start=start, count=count, delete=delete)
     from pyopenvba.apps.excel import _page_breaks
     from pyopenvba.apps.excel._notes import lines_moved
 
@@ -229,8 +238,8 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     sheet = target.sheet
     if sheet.advanced_filter is not None:
         raise VBAUnsupportedError('Cell shifts on an advanced-filtered sheet are not implemented')
-    if sheet.merged_areas or sheet.shapes_:
-        raise VBAUnsupportedError("shifting cells on a sheet with merges or shapes is not implemented")
+    if sheet.merged_areas:
+        raise VBAUnsupportedError("shifting cells on a sheet with merges is not implemented")
     from pyopenvba.apps.excel._sparklines import refuse as refuse_sparklines
 
     refuse_sparklines(sheet, "Shifting cells on")
@@ -282,6 +291,13 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
     from pyopenvba.apps.excel._autofilter import filter_shifted
 
     follow = filter_shifted(sheet, shift)
+    from pyopenvba.apps.excel._shape_anchors import anchors, lines_edited
+
+    # Only a shape whose columns, for a shift up or down, or rows, across, all lie in the band moves with the cells,
+    # as whole lines would move it; the rest stay put (tests/fixtures/shape_structure_moves.json).
+    carried = [(shape, anchor) for shape, anchor in anchors(sheet)
+               if (band[0] <= anchor.column and anchor.right_column <= band[1] if vertical
+                   else band[0] <= anchor.row and anchor.bottom_row <= band[1])]
     # All validation precedes mutation.
     sheet.cells_ = moved
     for owner, cell, text in formulas:
@@ -305,6 +321,8 @@ def shift_cells(target: Range, area: Area, *, delete: bool, vertical: bool, thro
         # Measured: inserted cells take the formats of the cells above them, or to their left, or with
         # xlFormatFromRightOrBelow those below or to their right.
         _inherit_formats(sheet, rows=vertical, start=start, count=count, band=band, below=below)
+    if carried:
+        lines_edited(sheet, carried, rows=vertical, start=start, count=count, delete=delete)
     follow()
     _spills.restore(sheet, caches)
     sheet.shape_changed()

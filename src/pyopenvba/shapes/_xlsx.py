@@ -256,6 +256,9 @@ def _read_settings(shape: Shape, markup: str, anchor: str) -> None:
             if found is not None:
                 setattr(shape, field_name, unescape(found.group(1)))
     shape.decorative = re.search(r'<adec:decorative\b[^>]*\bval="1"', markup) is not None
+    # A form control's drawing is hidden for its own reasons; Visible reads only a shape's own hidden.
+    shape.hidden = (shape.kind != "formControl" and identity is not None
+                    and re.search(r'\bhidden="(?:1|true)"', identity.group(1)) is not None)
     turned = _ROTATION.search(markup)
     shape.rotation = int(turned.group(1)) / 60000 if turned else 0.0
     transform = re.search(r"<a:xfrm\b([^>]*)>", markup)
@@ -954,7 +957,8 @@ def _identity(shape: Shape) -> str:
             '<adec:decorative xmlns:adec="http://schemas.microsoft.com/office/drawing/2017/decorative" val="1"/>'
             "</a:ext>"
         )
-    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(shape.name)}"{described}{titled}>'
+    hidden = ' hidden="1"' if shape.hidden else ""
+    return (f'<xdr:cNvPr id="{shape.shape_id}" name="{escape(shape.name)}"{described}{titled}{hidden}>'
             f"<a:extLst>{extensions}</a:extLst></xdr:cNvPr>")
 
 
@@ -1072,14 +1076,14 @@ def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> 
     """A loaded shape's markup with the settings a macro changed patched in, as Excel patches them
     (tests/fixtures/loaded_shape/cases.json): descr and title on cNvPr, the decorative extension (val 0 once
     turned off, as Excel leaves it), xfrm's rot and the anchor it turns, spLocks, and clientData's fLocksWithSheet."""
-    if (shape.description, shape.title) != (was.description, was.title):
+    if (shape.description, shape.title, shape.hidden) != (was.description, was.title, was.hidden):
         found = _CNVPR_OPEN.search(markup)
         if found is not None:
-            attributes = re.sub(r'\s(?:descr|title)="[^"]*"', "", found.group(1))
+            attributes = re.sub(r'\s(?:descr|title|hidden)="[^"]*"', "", found.group(1))
             name = re.search(r'\bname="[^"]*"', attributes)
             at = name.end() if name is not None else len(attributes)
             added = (f' descr="{escape(shape.description)}"' if shape.description else "") + (
-                f' title="{escape(shape.title)}"' if shape.title else "")
+                f' title="{escape(shape.title)}"' if shape.title else "") + (' hidden="1"' if shape.hidden else "")
             attributes = attributes[:at] + added + attributes[at:]
             markup = markup[: found.start(1)] + attributes + markup[found.end(1):]
     if shape.decorative != was.decorative:

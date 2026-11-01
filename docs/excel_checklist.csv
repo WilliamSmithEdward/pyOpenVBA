@@ -2114,7 +2114,7 @@ Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_m
 Shape,Ungroup,method,Ungroup() As ShapeRange,,MISSING,,
 Shape,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipV is set.
 Shape,Vertices,"property, read-only",As Variant,,MISSING,,
-Shape,Visible,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
+Shape,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"0 hides the shape, written as cNvPr hidden after descr and title; any other number shows it; text that is no number is error 13. Read back once reopened."
 Shape,Width,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,"Moves the shape to the front or back, or one place, in the drawing's order, which Shapes and ZOrderPosition follow. Other commands raise -2147024809."
 Shape,ZOrderPosition,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2185,7 +2185,7 @@ ShapeRange,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/ex
 ShapeRange,Ungroup,method,Ungroup() As ShapeRange,,MISSING,,
 ShapeRange,VerticalFlip,"property, read-only",As MsoTriState,,UNASSESSED,,
 ShapeRange,Vertices,"property, read-only",As Variant,,MISSING,,
-ShapeRange,Visible,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared value. Setting it is not implemented.
+ShapeRange,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"Reads the shapes' shared value, or msoTriStateMixed (-2) where they differ; a set reaches every shape."
 ShapeRange,Width,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set sizes every shape."
 ShapeRange,ZOrder,method,ZOrder(ZOrderCmd As MsoZOrderCmd),,MISSING,,
 ShapeRange,ZOrderPosition,"property, read-only",As Long,,MISSING,,

@@ -221,6 +221,8 @@ class Shape:
     #: Excel: HorizontalFlip and VerticalFlip, the xfrm's flipH and flipV.
     flip_h: bool = False
     flip_v: bool = False
+    #: Excel: Visible msoFalse, the cNvPr's hidden.
+    hidden: bool = False
 
     @property
     def mso_type(self) -> int:

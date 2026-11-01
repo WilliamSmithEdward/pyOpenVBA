@@ -625,11 +625,11 @@ ChartGroup,FirstSliceAngle,property,As Long,,PARTIAL,tests/fixtures/chart_groups
 ChartGroup,FullCategoryCollection,method,FullCategoryCollection([Index As Variant]) As Object,,MISSING,,
 ChartGroup,GapWidth,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"150 until set, 0 to 500, a bar or column chart's gapWidth; other kinds keep it unwritten. Out of range raises 1004."
 ChartGroup,Has3DShading,property,As Boolean,,MISSING,,
-ChartGroup,HasDropLines,property,As Boolean,,MISSING,,
-ChartGroup,HasHiLoLines,property,As Boolean,,MISSING,,
+ChartGroup,HasDropLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_group_lines.json; tests/test_excel_chart_group_lines.py,"Read and set on any kind; written as dropLines in line and area charts only, so other kinds keep it until saved. The DropLines object is not implemented."
+ChartGroup,HasHiLoLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_group_lines.json; tests/test_excel_chart_group_lines.py,Read and set on any kind; written as hiLowLines in line charts only. The HiLoLines object is not implemented.
 ChartGroup,HasRadarAxisLabels,property,As Boolean,,MISSING,,
-ChartGroup,HasSeriesLines,property,As Boolean,,MISSING,,
-ChartGroup,HasUpDownBars,property,As Boolean,,MISSING,,
+ChartGroup,HasSeriesLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_group_lines.json; tests/test_excel_chart_group_lines.py,Read and set on any kind; written as serLines in stacked column and bar charts only. The SeriesLines object is not implemented.
+ChartGroup,HasUpDownBars,property,As Boolean,,PARTIAL,tests/fixtures/chart_group_lines.json; tests/test_excel_chart_group_lines.py,Read and set on any kind; written as upDownBars with a gap width of 150 in line charts only. The UpBars and DownBars objects are not implemented.
 ChartGroup,HiLoLines,"property, read-only",As HiLoLines,,MISSING,,
 ChartGroup,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads 1, the one group the model draws."
 ChartGroup,Overlap,property,As Long,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"A bar or column chart's overlap after its gap width, -100 to 100; lines, areas and scatter charts read 100. Setting it on those is refused."

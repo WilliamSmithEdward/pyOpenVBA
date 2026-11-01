@@ -92,6 +92,12 @@ class ChartState:
     vary: bool | None = None
     first_slice: int = 0
     hole: int | None = None
+    #: HasDropLines, HasHiLoLines, HasUpDownBars and HasSeriesLines, which only some kinds draw
+    #: (tests/fixtures/chart_group_lines.json).
+    drop_lines: bool = False
+    hi_lo_lines: bool = False
+    up_down_bars: bool = False
+    series_lines: bool = False
     plot_by: int = 2
     series: list[SeriesState] = field(default_factory=lambda: [])
     part: str = ''
@@ -1272,6 +1278,50 @@ class ChartGroup(Created):
         self.chart.admit_change()
         self.chart.changed()
         self.chart.state.vary = wanted
+
+    def _flag(self, field_name: str, value: object) -> None:
+        """One of the group's lines or bars on or off; a kind that does not draw it keeps it and writes nothing
+        (tests/fixtures/chart_group_lines.json)."""
+        wanted = to_bool(value)
+        self.chart.admit_change()
+        self.chart.changed()
+        setattr(self.chart.state, field_name, wanted)
+
+    @member
+    def HasDropLines(self) -> object:
+        self._kind()
+        return self.chart.state.drop_lines
+
+    @setter('HasDropLines')
+    def _has_drop_lines(self, value: object) -> None:
+        self._flag('drop_lines', value)
+
+    @member
+    def HasHiLoLines(self) -> object:
+        self._kind()
+        return self.chart.state.hi_lo_lines
+
+    @setter('HasHiLoLines')
+    def _has_hi_lo_lines(self, value: object) -> None:
+        self._flag('hi_lo_lines', value)
+
+    @member
+    def HasUpDownBars(self) -> object:
+        self._kind()
+        return self.chart.state.up_down_bars
+
+    @setter('HasUpDownBars')
+    def _has_up_down_bars(self, value: object) -> None:
+        self._flag('up_down_bars', value)
+
+    @member
+    def HasSeriesLines(self) -> object:
+        self._kind()
+        return self.chart.state.series_lines
+
+    @setter('HasSeriesLines')
+    def _has_series_lines(self, value: object) -> None:
+        self._flag('series_lines', value)
 
     @member
     def FirstSliceAngle(self) -> object:

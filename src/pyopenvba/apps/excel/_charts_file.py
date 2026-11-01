@@ -382,6 +382,10 @@ def _read_group(result: ChartState, group: ET.Element) -> None:
     result.overlap = overlap if overlap is not None else result.overlap
     result.first_slice = first if first is not None else result.first_slice
     result.hole = hole
+    result.drop_lines = group.find('c:dropLines', NS) is not None
+    result.hi_lo_lines = group.find('c:hiLowLines', NS) is not None
+    result.up_down_bars = group.find('c:upDownBars', NS) is not None
+    result.series_lines = group.find('c:serLines', NS) is not None
 
 
 def _grouped(xml: str, state: ChartState, kind: str) -> str:
@@ -395,6 +399,23 @@ def _grouped(xml: str, state: ChartState, kind: str) -> str:
     xml = xml.replace('<c:firstSliceAng val="0"/>', f'<c:firstSliceAng val="{state.first_slice}"/>', 1)
     if state.hole is not None:
         xml = xml.replace('<c:holeSize val="50"/>', f'<c:holeSize val="{state.hole}"/>', 1)
+    # Drop lines in line and area charts, high-low lines and up-down bars in line charts, series lines in stacked
+    # column and bar charts, each just before the group's own marker and smooth flags, or its axes
+    # (tests/fixtures/chart_group_lines.json).
+    lined = kind in ('line', 'lineMarkers')
+    extra = ('<c:dropLines/>' if state.drop_lines and (lined or kind == 'area') else '')
+    if lined:
+        extra += '<c:hiLowLines/>' if state.hi_lo_lines else ''
+        extra += ('<c:upDownBars><c:gapWidth val="150"/><c:upBars/><c:downBars/></c:upDownBars>'
+                  if state.up_down_bars else '')
+    if kind in ('column', 'bar') and shown_type(state) in STACKED and state.series_lines:
+        extra += '<c:serLines/>'
+    if extra:
+        if lined:
+            xml = re.sub(r'(?:<c:marker val="1"/>)?<c:smooth val="0"/>(?=<c:axId)', lambda found: extra + found.group(0),
+                         xml, count=1)
+        else:
+            xml = xml.replace('<c:axId', extra + '<c:axId', 1)
     return xml
 
 

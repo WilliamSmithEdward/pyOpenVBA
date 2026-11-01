@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- ChartGroup.HasDropLines, HasHiLoLines, HasUpDownBars and
+  HasSeriesLines, read, set, saved and read back as Excel writes them.
+  Drop lines are written in line and area charts, high-low lines and
+  up-down bars in line charts, and series lines in stacked column and bar
+  charts. Other kinds keep the setting and write nothing. Measured in
+  `tests/fixtures/chart_group_lines.json`.
+
 - Workbook.FullNameURLEncoded, which reads FullName for any workbook on a
   local disk, spaces, # and % unencoded. Measured in
   `tests/fixtures/full_name_url_encoded.json`.

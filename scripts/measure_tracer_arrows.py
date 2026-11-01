@@ -51,6 +51,10 @@ CASES = [
     'ws.Protect: ws.Range("A1").ShowDependents: v = "done"',
     'ws.Protect: ws.Range("E1").ShowErrors: v = "done"',
     'ws.Range("C1").ShowDependents: ws.Range("E1").ShowErrors: v = "done"',
+    'ws.Range("G1").Formula = "=NA()": ws.Range("H1").Formula = "=D1+G1": v = ws.Range("H1").ShowErrors.Address',
+    'ws.Range("G1").Formula = "=NA()": ws.Range("H1").Formula = "=G1+D1": v = ws.Range("H1").ShowErrors.Address',
+    'ws.Range("G1").Formula = "=NA()": ws.Range("H1").Formula = "=SUM(D1:G1)": v = ws.Range("H1").ShowErrors.Address',
+    'ws.Range("H1").Formula = "=E1*2": v = ws.Range("H1").ShowErrors.Address',
 ]
 
 

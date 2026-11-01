@@ -869,6 +869,19 @@ class Application(ExcelObject):
         return convert_formula(self, Formula, FromReferenceStyle, ToReferenceStyle, ToAbsolute, RelativeTo)
 
     @method
+    def MacroOptions(self, Macro: object = MISSING, Description: object = MISSING, HasMenu: object = MISSING,
+                     MenuText: object = MISSING, HasShortcutKey: object = MISSING, ShortcutKey: object = MISSING,
+                     Category: object = MISSING, StatusBar: object = MISSING, HelpContextID: object = MISSING,
+                     HelpFile: object = MISSING, ArgumentDescriptions: object = MISSING) -> object:
+        """A macro's description, help id, shortcut key and category, as attribute lines (see _macro_options)."""
+        from pyopenvba.apps.excel._macro_options import macro_options
+
+        return macro_options(self, "" if Macro is MISSING else Macro, Description, HasShortcutKey, ShortcutKey,
+                             Category, HelpContextID,
+                             {"HasMenu": HasMenu, "MenuText": MenuText, "StatusBar": StatusBar,
+                              "HelpFile": HelpFile, "ArgumentDescriptions": ArgumentDescriptions})
+
+    @method
     def Run(self, Macro: object = MISSING, *args: object) -> object:
         from pyopenvba.apps.excel._projects import run_macro
 

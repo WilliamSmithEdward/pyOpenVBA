@@ -1,0 +1,116 @@
+{
+ "measured_at": "2026-11-01T01:26:07.133542+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    wb.VBProject.VBComponents.Add(1).CodeModule.AddFromString Replace(\"Function F(a, b)\\n    F = a + b\\nEnd Function\\nSub S()\\nEnd Sub\\n\", \"\\n\", vbCrLf)\n    wb.Activate\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Application.MacroOptions Macro:=\"F\", Description:=\"Adds two\"\n    Case 1\n        Application.MacroOptions Macro:=\"F\", Category:=5\n    Case 2\n        Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"q\"\n    Case 3\n        Application.MacroOptions Macro:=\"S\", Description:=\"Does it\", HasShortcutKey:=True, ShortcutKey:=\"Q\"\n    Case 4\n        Application.MacroOptions Macro:=\"F\", Description:=\"Adds\", Category:=14\n    Case 5\n        Application.MacroOptions Macro:=\"F\", HelpContextID:=7\n    Case 6\n        Application.MacroOptions Macro:=\"F\", Description:=\"x\": Application.MacroOptions Macro:=\"F\", Description:=\"\"\n    Case 7\n        Application.MacroOptions Macro:=\"F\", Description:=\"d\", HelpContextID:=3, Category:=2\n    Case 8\n        Application.MacroOptions Macro:=\"Module1.F\", Description:=\"d\"\n    Case 9\n        Application.MacroOptions Macro:=\"Zzz\", Description:=\"d\"\n    Case 10\n        Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"q\": Application.MacroOptions Macro:=\"S\", Description:=\"later\"\n    Case 11\n        Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"q\": Application.MacroOptions Macro:=\"S\", HasShortcutKey:=False\n    Case 12\n        Application.MacroOptions Macro:=\"F\", Category:=5: Application.MacroOptions Macro:=\"F\", Description:=\"d\"\n    Case 13\n        Application.MacroOptions Macro:=\"S\", ShortcutKey:=\"q\"\n    Case 14\n        Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True\n    Case 15\n        Application.MacroOptions Macro:=\"F\", Category:=0\n    Case 16\n        Application.MacroOptions Macro:=\"F\", Category:=40\n    Case 17\n        Application.MacroOptions Macro:=\"F\"\n    Case 18\n        Application.MacroOptions Macro:=\"F\", Description:=\"say \"\"hi\"\"\"\n    Case 19\n        Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"ab\"\n    Case 20\n        Application.MacroOptions Macro:=\"F\", Description:=\"d\": wb.VBProject.VBComponents(\"Module1\").CodeModule.InsertLines 1, \"Dim top As Long\"\n    Case 21\n        Application.MacroOptions Macro:=\"S\", Description:=\"d\": wb.VBProject.VBComponents(\"Module1\").CodeModule.DeleteLines 1, 3\n    End Select\n    Tried = \"ok \" & wb.VBProject.VBComponents(\"Module1\").CodeModule.CountOfLines\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsm\", xlOpenXMLWorkbookMacroEnabled\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number & \" \" & Err.Description\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 21\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "Application.MacroOptions Macro:=\"F\", Description:=\"Adds two\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_Description = \"Adds two\"\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Category:=5",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n5\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"q\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nAttribute S.VB_ProcData.VB_Invoke_Func = \"q\\n14\"\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", Description:=\"Does it\", HasShortcutKey:=True, ShortcutKey:=\"Q\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nAttribute S.VB_Description = \"Does it\"\r\nAttribute S.VB_ProcData.VB_Invoke_Func = \"Q\\n14\"\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Description:=\"Adds\", Category:=14",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_Description = \"Adds\"\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", HelpContextID:=7",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_HelpID = 7\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Description:=\"x\": Application.MacroOptions Macro:=\"F\", Description:=\"\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Description:=\"d\", HelpContextID:=3, Category:=2",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_Description = \"d\"\r\nAttribute F.VB_HelpID = 3\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n2\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"Module1.F\", Description:=\"d\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_Description = \"d\"\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"Zzz\", Description:=\"d\"",
+   "Err 1004 Method 'MacroOptions' of object '_Application' failed",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"q\": Application.MacroOptions Macro:=\"S\", Description:=\"later\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nAttribute S.VB_Description = \"later\"\r\nAttribute S.VB_ProcData.VB_Invoke_Func = \"q\\n14\"\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"q\": Application.MacroOptions Macro:=\"S\", HasShortcutKey:=False",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nAttribute S.VB_ProcData.VB_Invoke_Func = \"q\\n14\"\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Category:=5: Application.MacroOptions Macro:=\"F\", Description:=\"d\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_Description = \"d\"\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n5\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", ShortcutKey:=\"q\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nAttribute S.VB_ProcData.VB_Invoke_Func = \"q\\n14\"\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nAttribute S.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Category:=0",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n0\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Category:=40",
+   "Err 1004 Method 'MacroOptions' of object '_Application' failed",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Description:=\"say \"\"hi\"\"\"",
+   "ok 6",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\nAttribute F.VB_Description = \"say \"\"hi\"\"\"\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", HasShortcutKey:=True, ShortcutKey:=\"ab\"",
+   "Err 1004 Shortcut key must be a letter.",
+   "Attribute VB_Name = \"Module1\"\r\nFunction F(a, b)\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"F\", Description:=\"d\": wb.VBProject.VBComponents(\"Module1\").CodeModule.InsertLines 1, \"Dim top As Long\"",
+   "ok 7",
+   "Attribute VB_Name = \"Module1\"\r\nDim top As Long\r\nFunction F(a, b)\r\nAttribute F.VB_Description = \"d\"\r\nAttribute F.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\n    F = a + b\r\nEnd Function\r\nSub S()\r\nEnd Sub\r\n\r\n"
+  ],
+  [
+   "Application.MacroOptions Macro:=\"S\", Description:=\"d\": wb.VBProject.VBComponents(\"Module1\").CodeModule.DeleteLines 1, 3",
+   "ok 3",
+   "Attribute VB_Name = \"Module1\"\r\nSub S()\r\nAttribute S.VB_Description = \"d\"\r\nAttribute S.VB_ProcData.VB_Invoke_Func = \" \\n14\"\r\nEnd Sub\r\n\r\n"
+  ]
+ ]
+}

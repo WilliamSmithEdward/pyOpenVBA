@@ -173,7 +173,7 @@ Application,LanguageSettings,"property, read-only",As LanguageSettings,,MISSING,
 Application,LargeOperationCellThousandCount,property,As Long,,MISSING,,
 Application,Left,property,As Double,,MISSING,,
 Application,LibraryPath,"property, read-only",As String,,MISSING,,
-Application,MacroOptions,method,"MacroOptions([Macro As Variant], [Description As Variant], [HasMenu As Variant], [MenuText As Variant], [HasShortcutKey As Variant], [ShortcutKey As Variant], [Category As Variant], [StatusBar As Variant], [HelpContextID As Variant], [HelpFile As Variant], [ArgumentDescriptions As Variant])",,MISSING,,
+Application,MacroOptions,method,"MacroOptions([Macro As Variant], [Description As Variant], [HasMenu As Variant], [MenuText As Variant], [HasShortcutKey As Variant], [ShortcutKey As Variant], [Category As Variant], [StatusBar As Variant], [HelpContextID As Variant], [HelpFile As Variant], [ArgumentDescriptions As Variant])",,PARTIAL,tests/fixtures/macro_options.json; tests/test_excel_macro_options.py,"Description, HelpContextID, ShortcutKey and a Category of 0 to 14 as attribute lines in the procedure, kept out of the editor's sight; an unknown macro, a key that is no letter and category 40 are 1004. A category by name, ArgumentDescriptions, StatusBar, HelpFile, menus and a workbook-qualified macro are unsupported."
 Application,MailLogoff,method,MailLogoff(),,MISSING,,
 Application,MailLogon,method,"MailLogon([Name As Variant], [Password As Variant], [DownloadNewMail As Variant])",,MISSING,,
 Application,MailSession,"property, read-only",As Variant,,MISSING,,

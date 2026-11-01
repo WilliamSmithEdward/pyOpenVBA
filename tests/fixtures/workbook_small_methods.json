@@ -1,0 +1,38 @@
+{
+ "measured_at": "2026-11-01T04:38:54.384024+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Object, ws As Object, v As Variant\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        wb.EnableConnections: v = \"done\"\n    Case 1\n        v = TypeName(wb.EnableConnections)\n    Case 2\n        wb.ConvertComments: v = \"done\"\n    Case 3\n        v = CStr(wb.CanCheckIn)\n    Case 4\n        wb.SaveAs folder & \"\\c4.xlsx\", xlOpenXMLWorkbook\n        v = CStr(wb.CanCheckIn)\n    Case 5\n        v = CStr(wb.ExclusiveAccess)\n    Case 6\n        wb.SaveAs folder & \"\\c6.xlsx\", xlOpenXMLWorkbook\n        v = CStr(wb.ExclusiveAccess)\n    Case 7\n        wb.SaveAs folder & \"\\c7.xlsx\", xlOpenXMLWorkbook\n        wb.EnableConnections: v = \"done\"\n    End Select\n    Tried = \"ok \" & v\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 7\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "new: wb.EnableConnections: v = \"done\"",
+   "ok done"
+  ],
+  [
+   "new: v = TypeName(wb.EnableConnections)",
+   "ok Empty"
+  ],
+  [
+   "new: wb.ConvertComments: v = \"done\"",
+   "ok done"
+  ],
+  [
+   "new: v = CStr(wb.CanCheckIn)",
+   "ok False"
+  ],
+  [
+   "saved: v = CStr(wb.CanCheckIn)",
+   "ok False"
+  ],
+  [
+   "new: v = CStr(wb.ExclusiveAccess)",
+   "Err 1004"
+  ],
+  [
+   "saved: v = CStr(wb.ExclusiveAccess)",
+   "Err 1004"
+  ],
+  [
+   "saved: wb.EnableConnections: v = \"done\"",
+   "ok done"
+  ]
+ ]
+}

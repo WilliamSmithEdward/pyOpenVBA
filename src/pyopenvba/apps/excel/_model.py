@@ -2051,6 +2051,31 @@ class Workbook(ExcelObject):
         """A Boolean as VBA passes it; the workbook stays saved."""
         self.ink_comments = to_bool(value)
 
+    @method
+    def EnableConnections(self) -> object:
+        """Turns on the data connections a file opened with them off; the model refreshes none
+        (tests/fixtures/workbook_small_methods.json)."""
+        return EMPTY
+
+    @method
+    def ConvertComments(self) -> object:
+        """Turns the notes into threaded comments: with no notes it changes nothing. Excel turns each note into a
+        threaded comment, which the model does not hold, so a workbook with notes is refused
+        (tests/fixtures/workbook_small_methods.json)."""
+        if any(sheet.notes for sheet in self.sheets_):
+            raise VBAUnsupportedError("Converting notes into threaded comments is not implemented")
+        return EMPTY
+
+    @member
+    def CanCheckIn(self) -> object:
+        """False: the model opens no workbook checked out of a server (tests/fixtures/workbook_small_methods.json)."""
+        return False
+
+    @method
+    def ExclusiveAccess(self) -> object:
+        """Error 1004: the model has no shared workbooks to take back (tests/fixtures/workbook_small_methods.json)."""
+        raise error(1004, "ExclusiveAccess method of Workbook class failed")
+
     @member
     def RemovePersonalInformation(self) -> object:
         return self.remove_personal

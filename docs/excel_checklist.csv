@@ -2605,7 +2605,7 @@ Workbook,BreakLink,method,"BreakLink(Name As String, Type As XlLinkType)",,PARTI
 Workbook,BuiltinDocumentProperties,"property, read-only",As Object,,PARTIAL,tests/test_excel_document_properties.py; tests/fixtures/document_properties; scripts/measure_document_properties.py; tests/test_live_excel_model_gate.py,"The 34 built-in properties, a file's or a new workbook's, saved to docProps core.xml and app.xml with the sheets and named ranges listed as Excel lists them; a chart sheet's heading is not written, the model holding none."
 Workbook,Calculate,not in the type library,,,UNASSESSED,,
 Workbook,CalculationVersion,"property, read-only",As Long,,VERIFIED,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"191029 for a new workbook; a file's calcId of 191028 or more as it is, kept and saved; a lower one, none or fullCalcOnLoad worked out in full as the file opens and 191029 from then on, or under manual calculation the file's calcId and values until the next Calculate, over 10 files opened each way"
-Workbook,CanCheckIn,method,CanCheckIn() As Boolean,,MISSING,,
+Workbook,CanCheckIn,method,CanCheckIn() As Boolean,,PARTIAL,tests/fixtures/workbook_small_methods.json; tests/test_excel_workbook_small_methods.py,"False, saved or not."
 Workbook,CaseSensitive,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 450 to set.
 Workbook,ChangeFileAccess,method,"ChangeFileAccess(Mode As XlFileAccess, [WritePassword As Variant], [Notify As Variant])",,MISSING,,
 Workbook,ChangeHistoryDuration,property,As Long,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"0 for a workbook that is not shared; a set changes nothing, as in Excel."
@@ -2625,7 +2625,7 @@ Workbook,Connections,"property, read-only",As Connections,,PARTIAL,tests/fixture
 Workbook,ConnectionsDisabled,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
 Workbook,Container,"property, read-only",As Object,,MISSING,,
 Workbook,ContentTypeProperties,"property, read-only",As MetaProperties,,MISSING,,
-Workbook,ConvertComments,method,ConvertComments(),,MISSING,,
+Workbook,ConvertComments,method,ConvertComments(),,PARTIAL,tests/fixtures/workbook_small_methods.json; tests/test_excel_workbook_small_methods.py,"Changes nothing on a workbook without notes. Excel turns each note into a threaded comment, which the model does not hold, so a workbook with notes is refused."
 Workbook,CreateBackup,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 1004 to set.
 Workbook,CreateForecastSheet,method,"CreateForecastSheet(Timeline As Range, Values As Range, [ForecastStart As Variant], [ForecastEnd As Variant], [ConfInt As Variant], [Seasonality As Variant], [DataCompletion As Variant], [Aggregation As Variant], [ChartType As Variant], [ShowStatsTable As Variant])",,MISSING,,
 Workbook,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -2645,14 +2645,14 @@ Workbook,DocumentInspectors,"property, read-only",As DocumentInspectors,,MISSING
 Workbook,DocumentLibraryVersions,"property, read-only",As DocumentLibraryVersions,,MISSING,,
 Workbook,DoNotPromptForConvert,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
 Workbook,EnableAutoRecover,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as fileRecoveryPr's autoRecover and read back; the workbook stays saved.
-Workbook,EnableConnections,method,EnableConnections(),,MISSING,,
+Workbook,EnableConnections,method,EnableConnections(),,PARTIAL,tests/fixtures/workbook_small_methods.json; tests/test_excel_workbook_small_methods.py,Changes nothing: the model refreshes no connections.
 Workbook,EncryptionProvider,property,As String,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
 Workbook,EndReview,method,EndReview(),,MISSING,,
 Workbook,EnvelopeVisible,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"False; a set, which hung Excel when measured, reports unsupported."
 Workbook,Excel4IntlMacroSheets,"property, read-only",As Sheets,,MISSING,,
 Workbook,Excel4MacroSheets,"property, read-only",As Sheets,,MISSING,,
 Workbook,Excel8CompatibilityMode,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
-Workbook,ExclusiveAccess,method,ExclusiveAccess() As Boolean,,MISSING,,
+Workbook,ExclusiveAccess,method,ExclusiveAccess() As Boolean,,PARTIAL,tests/fixtures/workbook_small_methods.json; tests/test_excel_workbook_small_methods.py,Error 1004 on a workbook that is not shared.
 Workbook,ExportAsFixedFormat,method,"ExportAsFixedFormat(Type As XlFixedFormatType, [Filename As Variant], [Quality As Variant], [IncludeDocProperties As Variant], [IgnorePrintAreas As Variant], [From As Variant], [To As Variant], [OpenAfterPublish As Variant], [FixedFormatExtClassPtr As Variant], [WorkIdentity As Variant])",,MISSING,,
 Workbook,ExternalCodeServiceTimeout,property,As Long,,MISSING,,
 Workbook,FileFormat,"property, read-only",As XlFileFormat,,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/text_files.json,"51/52 values and Long type measured including failed saves; a text file opened answers xlCSV, xlCSVUTF8, xlUnicodeText, 65 or xlCurrentPlatformText as Excel does. Saving in those formats is not implemented."

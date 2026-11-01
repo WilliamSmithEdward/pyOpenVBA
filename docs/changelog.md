@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `PivotTable.ChangePivotCache` draws a table again from another
+  cache's source as Excel does, and `ConvertToFormulas` and
+  `ChangeConnection` raise Excel's errors on a table over a list. 8
+  live cases agree, `tests/fixtures/pivot_table_more.json`.
+
 - The pivot members that belong to OLAP tables raise the errors Excel's
   do on a table over a list: PivotCache's `ResetTimer` and
   `MakeConnection`, `DrillTo` on fields and items, PivotTable's

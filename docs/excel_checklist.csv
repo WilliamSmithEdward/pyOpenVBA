@@ -358,7 +358,7 @@ Axes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_me
 Axes,Item,method,"Item(Type As XlAxisType, [AxisGroup As XlAxisGroup]) As Axis",,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axes,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,Application,"property, read-only",As Application,,MISSING,,
-Axis,AxisBetweenCategories,property,As Boolean,,MISSING,,
+Axis,AxisBetweenCategories,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"Category axes; written as the value axis's crossBetween. False by default in area charts, True otherwise."
 Axis,AxisGroup,"property, read-only",As XlAxisGroup,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,AxisTitle,"property, read-only",As AxisTitle,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,BaseUnit,property,As XlTimeUnit,,MISSING,,
@@ -371,18 +371,18 @@ Axis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_me
 Axis,Crosses,property,As XlAxisCrosses,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Written on the other axis's element. xlMaximum moves that axis to the far side, and with reversal brings it back. Automatic resets CrossesAt."
 Axis,CrossesAt,property,As Double,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"A set makes the crossing custom. Reads 0 when automatic. Reads at xlMaximum or xlMinimum need the drawn scale and are refused, as are crossings between categories."
 Axis,Delete,method,Delete() As Variant,,MISSING,,
-Axis,DisplayUnit,property,As XlDisplayUnit,,MISSING,,
-Axis,DisplayUnitCustom,property,As Double,,MISSING,,
+Axis,DisplayUnit,property,As XlDisplayUnit,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Built-in units and xlCustom written as dispUnits with a label; xlNone removes it; other numbers change nothing.
+Axis,DisplayUnitCustom,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"A set makes the unit custom, written as custUnit. Reads 1 until set."
 Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,MISSING,,
 Axis,Format,"property, read-only",As ChartFormat,,MISSING,,
 Axis,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
-Axis,HasDisplayUnitLabel,property,As Boolean,,MISSING,,
+Axis,HasDisplayUnitLabel,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,On when a display unit is set; False drops dispUnitsLbl. Without a unit a set changes nothing.
 Axis,HasMajorGridlines,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,True on the value axis of a new chart. Written as a bare majorGridlines element. Imported charts read only.
 Axis,HasMinorGridlines,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,Written as a bare minorGridlines element after the major ones. Imported charts read only.
 Axis,HasTitle,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,Height,"property, read-only",As Double,,MISSING,,
 Axis,Left,"property, read-only",As Double,,MISSING,,
-Axis,LogBase,property,As Double,,MISSING,,
+Axis,LogBase,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"2 to 1000, else 1004; a set makes the scale logarithmic. Reads 10 until set."
 Axis,MajorGridlines,"property, read-only",As Gridlines,,MISSING,,
 Axis,MajorTickMark,property,As XlTickMark,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Out by default; none, in, out and cross. Other values raise -2147467259. Imported charts read only."
 Axis,MajorUnit,property,As Double,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
@@ -394,19 +394,19 @@ Axis,MinimumScale,property,As Double,,PARTIAL,tests/test_excel_chart_axes.py,"Me
 Axis,MinimumScaleIsAuto,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,MinorGridlines,"property, read-only",As Gridlines,,MISSING,,
 Axis,MinorTickMark,property,As XlTickMark,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"None by default; none, in, out and cross. Other values raise -2147467259. Imported charts read only."
-Axis,MinorUnit,property,As Double,,MISSING,,
-Axis,MinorUnitIsAuto,property,As Boolean,,MISSING,,
+Axis,MinorUnit,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Value axes; written as minorUnit. Zero or less raises -2147467259. The automatic value needs native layout and is refused.
+Axis,MinorUnitIsAuto,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,True clears MinorUnit. Value axes only.
 Axis,MinorUnitScale,property,As XlTimeUnit,,MISSING,,
 Axis,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,ReversePlotOrder,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
-Axis,ScaleType,property,As XlScaleType,,MISSING,,
+Axis,ScaleType,property,As XlScaleType,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"Anything but xlScaleLinear makes the scale logarithmic, written as logBase 10 until LogBase is set."
 Axis,Select,method,Select() As Variant,,MISSING,,
 Axis,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 Axis,TickLabelPosition,property,As XlTickLabelPosition,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Next to by default; high, low, next to and none. Other values raise -2147467259. Imported charts read only."
 Axis,TickLabels,"property, read-only",As TickLabels,,MISSING,,
-Axis,TickLabelSpacing,property,As Long,,MISSING,,
-Axis,TickLabelSpacingIsAuto,property,As Boolean,,MISSING,,
-Axis,TickMarkSpacing,property,As Long,,MISSING,,
+Axis,TickLabelSpacing,property,As Long,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Category axes; written as tickLblSkip. Below 1 raises -2147467259.
+Axis,TickLabelSpacingIsAuto,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,True clears TickLabelSpacing; freezing the automatic spacing needs native layout.
+Axis,TickMarkSpacing,property,As Long,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Category axes; written as tickMarkSkip. Below 1 raises -2147467259.
 Axis,Top,"property, read-only",As Double,,MISSING,,
 Axis,Type,property,As XlAxisType,no setter,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,Width,"property, read-only",As Double,,MISSING,,

@@ -201,7 +201,7 @@ def test_unknown_imported_axis_metadata_keeps_read_and_write_admission_closed(tm
         for entry in original.infolist():
             raw = original.read(entry.filename)
             if entry.filename == "xl/charts/chart1.xml":
-                raw = raw.replace(b"<c:scaling>", b'<c:scaling><c:logBase val="10"/>', 1)
+                raw = raw.replace(b"<c:scaling>", b'<c:scaling><c:orientation val="minMax"/>', 1)
             result.writestr(entry, raw)
     before = target.read_bytes()
     app = ExcelApplication.open(target, with_vba=False)
@@ -209,6 +209,22 @@ def test_unknown_imported_axis_metadata_keeps_read_and_write_admission_closed(tm
     with pytest.raises(VBAUnsupportedError, match="rich imported"):
         chart.Axes(2)
     assert target.read_bytes() == before
+
+
+def test_imported_logarithmic_axis_reads_its_base(tmp_path: Path) -> None:
+    from zipfile import ZipFile
+
+    target = tmp_path / "log-axis.xlsx"
+    with ZipFile(ROOT / "manual-scale.xlsx") as original, ZipFile(target, "w") as result:
+        for entry in original.infolist():
+            raw = original.read(entry.filename)
+            if entry.filename == "xl/charts/chart1.xml":
+                head, tail = raw.split(b"<c:valAx>", 1)
+                raw = head + b"<c:valAx>" + tail.replace(b"<c:scaling>", b'<c:scaling><c:logBase val="2"/>', 1)
+            result.writestr(entry, raw)
+    app = ExcelApplication.open(target, with_vba=False)
+    axis = app.workbook.sheets_[0].ChartObjects().vba_get("Item", [1]).Chart().Axes(2)
+    assert (axis.ScaleType(), axis.LogBase()) == (-4133, 2.0)
 
 
 def test_detached_axis_and_title_cannot_mutate_chart_storage() -> None:

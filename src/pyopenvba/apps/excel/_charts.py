@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
-from pyopenvba.apps.excel._shapes import ShapeObject, ShapeRange, Shapes
+from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.apps.excel._creator import Created
@@ -277,6 +277,73 @@ class ChartObjects(VBACollection, Created):
         self.sheet.chart_states[shape.shape_id] = ChartState(unique_base=base, next_unique=base)
         return ChartObject(self.sheet, shape)
 
+    # -- every chart at once (tests/fixtures/chart_object_more.json)
+
+    def _shared(self, name: str) -> object:
+        values = [item.vba_get(name) for item in self.vba_items() if isinstance(item, ChartObject)]
+        if not values or any(value != values[0] for value in values[1:]):
+            raise VBAUnsupportedError(f'ChartObjects.{name} over charts that differ, or none, is not implemented')
+        return values[0]
+
+    def _spread(self, name: str, value: object) -> None:
+        for item in self.vba_items():
+            assert isinstance(item, ChartObject)
+            item.vba_set(name, value)
+
+    @member
+    def Left(self) -> object:
+        return self._shared('Left')
+
+    @setter('Left')
+    def _left(self, value: object) -> None:
+        self._spread('Left', value)
+
+    @member
+    def Top(self) -> object:
+        return self._shared('Top')
+
+    @setter('Top')
+    def _top(self, value: object) -> None:
+        self._spread('Top', value)
+
+    @member
+    def Width(self) -> object:
+        return self._shared('Width')
+
+    @setter('Width')
+    def _width(self, value: object) -> None:
+        self._spread('Width', value)
+
+    @member
+    def Height(self) -> object:
+        return self._shared('Height')
+
+    @setter('Height')
+    def _height(self, value: object) -> None:
+        self._spread('Height', value)
+
+    @member
+    def Visible(self) -> object:
+        return self._shared('Visible')
+
+    @setter('Visible')
+    def _visible(self, value: object) -> None:
+        self._spread('Visible', value)
+
+    # Excel's ChartObjects takes none of these three settings: 445, the object does not support this action.
+
+    @setter('Locked')
+    def _locked(self, value: object) -> None:
+        raise error(445, 'Object doesn\'t support this action')
+
+    @setter('PrintObject')
+    def _print_object(self, value: object) -> None:
+        raise error(445, 'Object doesn\'t support this action')
+
+    @setter('Placement')
+    def _placement(self, value: object) -> None:
+        raise error(445, 'Object doesn\'t support this action')
+
     @method
     def Delete(self) -> object:
         for item in self.vba_items():
@@ -361,6 +428,62 @@ class ChartObject(Created):
     @method
     def Delete(self) -> object:
         return ShapeObject(self.sheet, self.shape).Delete()
+
+    # -- tests/fixtures/chart_object_more.json
+
+    def _changed(self, name: str) -> Shape:
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        guard_drawing(self.sheet, f'ChartObject.{name}')
+        self.sheet.drawing_changed()
+        return self.shape
+
+    @member
+    def Visible(self) -> object:
+        return not self.shape.hidden
+
+    @setter('Visible')
+    def _visible(self, value: object) -> None:
+        self._changed('Visible').hidden = not to_bool(value)
+
+    @member
+    def Locked(self) -> object:
+        return self.shape.locked
+
+    @setter('Locked')
+    def _locked(self, value: object) -> None:
+        self._changed('Locked').locked = to_bool(value)
+
+    @member
+    def PrintObject(self) -> object:
+        return self.shape.prints
+
+    @setter('PrintObject')
+    def _print_object(self, value: object) -> None:
+        self._changed('PrintObject').prints = to_bool(value)
+
+    @member
+    def Placement(self) -> object:
+        return VBAInt(PLACEMENTS.index(self.shape.edit_as) + 1, 'Long')
+
+    @setter('Placement')
+    def _placement(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in (1, 2, 3):
+            raise error(-2147467259, 'Unspecified error')
+        self._changed('Placement').edit_as = PLACEMENTS[wanted - 1]
+
+    @method
+    def BringToFront(self) -> object:
+        """The chart on top of the sheet's shapes; Excel answers True."""
+        ShapeObject(self.sheet, self.shape).ZOrder(0)
+        return True
+
+    @method
+    def SendToBack(self) -> object:
+        """The chart behind the sheet's shapes; unlike BringToFront, Excel answers nothing."""
+        ShapeObject(self.sheet, self.shape).ZOrder(1)
+        return EMPTY
 
 
 class Chart(Created):

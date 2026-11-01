@@ -609,7 +609,7 @@ Chart,Walls,"property, read-only",As Walls,,MISSING,,
 ChartObject,Activate,method,Activate() As Variant,,MISSING,,
 ChartObject,Application,"property, read-only",As Application,,MISSING,,
 ChartObject,BottomRightCell,"property, read-only",As Range,,MISSING,,
-ChartObject,BringToFront,method,BringToFront() As Variant,,MISSING,,
+ChartObject,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart on top of the sheet's shapes; answers True.
 ChartObject,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Copy,method,Copy() As Variant,,MISSING,,
 ChartObject,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
@@ -620,20 +620,20 @@ ChartObject,Duplicate,method,Duplicate() As Object,,MISSING,,
 ChartObject,Height,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Left,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObject,Locked,property,As Boolean,,MISSING,,
+ChartObject,Locked,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as clientData's fLocksWithSheet."
 ChartObject,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObject,Placement,property,As Variant,,MISSING,,
-ChartObject,PrintObject,property,As Boolean,,MISSING,,
+ChartObject,Placement,property,As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"xlMoveAndSize, xlMove or xlFreeFloating as the anchor's editAs; other values raise -2147467259."
+ChartObject,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as clientData's fPrintsWithSheet."
 ChartObject,ProtectChartObject,property,As Boolean,,MISSING,,
 ChartObject,RoundedCorners,property,As Boolean,,MISSING,,
 ChartObject,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
-ChartObject,SendToBack,method,SendToBack() As Variant,,MISSING,,
+ChartObject,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart behind the sheet's shapes; answers Empty.
 ChartObject,Shadow,property,As Boolean,,MISSING,,
 ChartObject,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,Top,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,TopLeftCell,"property, read-only",As Range,,MISSING,,
-ChartObject,Visible,property,As Boolean,,MISSING,,
+ChartObject,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as the frame's hidden."
 ChartObject,Width,property,As Double,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObject,ZOrder,"property, read-only",As Long,,MISSING,,
 ChartObjects,_Default,method,_Default(Index As Variant) As Object,,MISSING,,
@@ -647,19 +647,19 @@ ChartObjects,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/
 ChartObjects,Cut,method,Cut() As Variant,,MISSING,,
 ChartObjects,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Duplicate,method,Duplicate() As Object,,MISSING,,
-ChartObjects,Height,property,As Double,,MISSING,,
+ChartObjects,Height,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObjects,Left,property,As Double,,MISSING,,
-ChartObjects,Locked,property,As Boolean,,MISSING,,
+ChartObjects,Left,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
+ChartObjects,Locked,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
 ChartObjects,Parent,"property, read-only",As Object,,MISSING,,
-ChartObjects,Placement,property,As Variant,,MISSING,,
-ChartObjects,PrintObject,property,As Boolean,,MISSING,,
+ChartObjects,Placement,property,As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
+ChartObjects,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
 ChartObjects,ProtectChartObject,property,As Boolean,,MISSING,,
 ChartObjects,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
 ChartObjects,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
-ChartObjects,Top,property,As Double,,MISSING,,
-ChartObjects,Visible,property,As Boolean,,MISSING,,
-ChartObjects,Width,property,As Double,,MISSING,,
+ChartObjects,Top,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
+ChartObjects,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
+ChartObjects,Width,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartTitle,Application,"property, read-only",As Application,,MISSING,,
 ChartTitle,Caption,property,As String,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,Reads and sets as Text.
 ChartTitle,Characters,"property, read-only",As Characters,,MISSING,,

@@ -860,6 +860,11 @@ class Application(ExcelObject):
     def Evaluate(self, Name: object = MISSING) -> object:
         return self.evaluate_text(to_text(Name))
 
+    @method(name="_Evaluate")
+    def hidden_evaluate(self, Name: object = MISSING) -> object:  # noqa: N803 - native named argument
+        """The hidden twin of Evaluate, answering as it does (tests/fixtures/hidden_members.json)."""
+        return self.Evaluate(Name)
+
     @method
     def ConvertFormula(self, Formula: object = MISSING, FromReferenceStyle: object = MISSING,
                        ToReferenceStyle: object = MISSING, ToAbsolute: object = MISSING,
@@ -3117,6 +3122,25 @@ class Worksheet(ExcelObject):
 
         with evaluation_origin(self.book.application, "evaluate"):
             return evaluated(self, to_text(Name))
+
+    # A sheet's hidden _Evaluate and _CodeName take no arguments and answer #NAME?, so that a name given to
+    # _Evaluate raises 450 and a value given to _CodeName 424 (tests/fixtures/hidden_members.json).
+
+    @member(name="_Evaluate")
+    def hidden_evaluate(self, *arguments: object) -> object:
+        if arguments:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        return VBAErrorValue(2029)
+
+    @member(name="_CodeName")
+    def hidden_code_name(self, *arguments: object) -> object:
+        if arguments:
+            raise error(450, "Wrong number of arguments or invalid property assignment")
+        return VBAErrorValue(2029)
+
+    @setter("_CodeName")
+    def _set_hidden_code_name(self, value: object) -> None:
+        raise error(424, "Object required")
 
     # -- protection (see _protection)
 

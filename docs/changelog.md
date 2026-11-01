@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- The hidden members `_Evaluate` and `_CodeName` answer as Excel's do:
+  Application's `_Evaluate` as Evaluate, a sheet's both as the error
+  value #NAME?, and an embedded chart's with Excel's errors. 14 live
+  cases agree, `tests/fixtures/hidden_members.json`.
+
 - `Window.ActivateNext` and `Window.ActivatePrevious` step through the
   workbook windows as Excel does: next swaps the front two, previous
   brings the back one forward. 8 live cases agree,
@@ -477,6 +482,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A member name in brackets after a dot, such as `ws.[_CodeName]`, is
+  read as VBA reads it. It was a compile error.
 
 - Pivot table, pivot cache and chart parts close an empty element with
   `/>`, as Excel writes it. They were written with ` />`.

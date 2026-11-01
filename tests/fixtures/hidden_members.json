@@ -1,0 +1,62 @@
+{
+ "measured_at": "2026-11-01T16:33:39.963267+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Object, ch As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 4\n    Set ch = ws.ChartObjects.Add(100, 10, 200, 100).Chart\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        s = ws.[_Evaluate](\"A1*2\") & \",\" & ws.Evaluate(\"A1*2\")\n    Case 1\n        s = TypeName(ws.[_Evaluate](\"A1\"))\n    Case 2\n        s = ws.[_Evaluate](\"SUM(1,2)\")\n    Case 3\n        s = ws.[_CodeName] & \"\"\n    Case 4\n        s = CStr(ws.[_CodeName]) & \"|\" & CStr(ws.[_Evaluate])\n    Case 5\n        s = Application.[_Evaluate](\"2*3\") & \",\" & Application.Evaluate(\"2*3\")\n    Case 6\n        s = ch.[_Evaluate](\"1+1\")\n    Case 7\n        s = ch.[_CodeName]\n    Case 8\n        ws.[_CodeName] = \"Data\": s = ws.CodeName\n    Case 9\n        s = TypeName(ws.[_Evaluate](\"1/0\"))\n    Case 10\n        s = TypeName(ws.[_CodeName])\n    Case 11\n        s = TypeName(ws.[_Evaluate])\n    Case 12\n        s = TypeName(Application.[_Evaluate](\"A1\")) & \",\" & Application.[_Evaluate](\"SUM(1,2)\")\n    Case 13\n        s = TypeName(ch.[_CodeName])\n    End Select\n    Tried = \"ok \" & s\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 13\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "s = ws.[_Evaluate](\"A1*2\") & \",\" & ws.Evaluate(\"A1*2\")",
+   "Err 450"
+  ],
+  [
+   "s = TypeName(ws.[_Evaluate](\"A1\"))",
+   "Err 450"
+  ],
+  [
+   "s = ws.[_Evaluate](\"SUM(1,2)\")",
+   "Err 450"
+  ],
+  [
+   "s = ws.[_CodeName] & \"\"",
+   "Err 13"
+  ],
+  [
+   "s = CStr(ws.[_CodeName]) & \"|\" & CStr(ws.[_Evaluate])",
+   "ok Error 2029|Error 2029"
+  ],
+  [
+   "s = Application.[_Evaluate](\"2*3\") & \",\" & Application.Evaluate(\"2*3\")",
+   "ok 6,6"
+  ],
+  [
+   "s = ch.[_Evaluate](\"1+1\")",
+   "Err 450"
+  ],
+  [
+   "s = ch.[_CodeName]",
+   "Err -2147467259"
+  ],
+  [
+   "ws.[_CodeName] = \"Data\": s = ws.CodeName",
+   "Err 424"
+  ],
+  [
+   "s = TypeName(ws.[_Evaluate](\"1/0\"))",
+   "Err 450"
+  ],
+  [
+   "s = TypeName(ws.[_CodeName])",
+   "ok Error"
+  ],
+  [
+   "s = TypeName(ws.[_Evaluate])",
+   "ok Error"
+  ],
+  [
+   "s = TypeName(Application.[_Evaluate](\"A1\")) & \",\" & Application.[_Evaluate](\"SUM(1,2)\")",
+   "ok Range,3"
+  ],
+  [
+   "s = TypeName(ch.[_CodeName])",
+   "Err -2147467259"
+  ]
+ ]
+}

@@ -364,13 +364,13 @@ Axis,AxisTitle,"property, read-only",As AxisTitle,,PARTIAL,tests/test_excel_char
 Axis,BaseUnit,property,As XlTimeUnit,,MISSING,,
 Axis,BaseUnitIsAuto,property,As Boolean,,MISSING,,
 Axis,Border,"property, read-only",As Border,,MISSING,,
-Axis,CategoryNames,property,As Variant,,MISSING,,
+Axis,CategoryNames,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_names.json; tests/test_excel_chart_axis_names.py,"Category axes; reads the first series' categories as a 1-based array. An array gives every series literal categories, a Range links them; other values raise 1004."
 Axis,CategorySortOrder,property,As XlCategorySortOrder,,MISSING,,
 Axis,CategoryType,property,As XlCategoryType,,MISSING,,
 Axis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Axis,Crosses,property,As XlAxisCrosses,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Written on the other axis's element. xlMaximum moves that axis to the far side, and with reversal brings it back. Automatic resets CrossesAt."
 Axis,CrossesAt,property,As Double,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"A set makes the crossing custom. Reads 0 when automatic. Reads at xlMaximum or xlMinimum need the drawn scale and are refused, as are crossings between categories."
-Axis,Delete,method,Delete() As Variant,,MISSING,,
+Axis,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_axis_names.json; tests/test_excel_chart_axis_names.py,As HasAxis = False; the Axis object stays readable.
 Axis,DisplayUnit,property,As XlDisplayUnit,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Built-in units and xlCustom written as dispUnits with a label; xlNone removes it; other numbers change nothing.
 Axis,DisplayUnitCustom,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"A set makes the unit custom, written as custUnit. Reads 1 until set."
 Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,MISSING,,
@@ -549,7 +549,7 @@ Chart,HasTitle,property,As Boolean,,PARTIAL,tests/fixtures/excel_chart_objects.j
 Chart,HeightPercent,property,As Long,,MISSING,,
 Chart,Hyperlinks,"property, read-only",As Hyperlinks,,MISSING,,
 Chart,Index,"property, read-only",As Long,,MISSING,,
-Chart,Legend,"property, read-only",As Legend,,MISSING,,
+Chart,Legend,"property, read-only",As Legend,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"Position (bottom, top, left, right, corner; custom refused as by Excel), IncludeInLayout, Shadow and Delete. 1004 when the chart has no legend; HasLegend = False resets it."
 Chart,Location,method,"Location(Where As XlChartLocation, [Name As Variant]) As Chart",,MISSING,,
 Chart,MailEnvelope,"property, read-only",As MsoEnvelope,,MISSING,,
 Chart,MouseDown,event,"MouseDown(Button As Long, Shift As Long, x As Long, y As Long)",,MISSING,,
@@ -1087,6 +1087,24 @@ Interior,PatternThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_for
 Interior,PatternTintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic pattern colour or an unfilled cell reports unsupported.
 Interior,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic colour reports unsupported.
+Legend,Application,"property, read-only",As Application,,UNASSESSED,,
+Legend,Clear,method,Clear() As Variant,,MISSING,,
+Legend,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+Legend,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"As HasLegend = False, which resets the legend."
+Legend,Format,"property, read-only",As ChartFormat,,MISSING,,
+Legend,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Legend,Height,property,As Double,,MISSING,,
+Legend,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,False writes overlay 1.
+Legend,Left,property,As Double,,MISSING,,
+Legend,LegendEntries,method,LegendEntries([Index As Variant]) As Object,,MISSING,,
+Legend,Name,"property, read-only",As String,,MISSING,,
+Legend,Parent,"property, read-only",As Object,,UNASSESSED,,
+Legend,Position,property,As XlLegendPosition,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"Written as legendPos: b, t, l, r, tr. xlLegendPositionCustom and other numbers raise -2147467259, as in Excel."
+Legend,Select,method,Select() As Variant,,MISSING,,
+Legend,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Legend,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,True writes Excel's outer shadow; False after it an empty effect list.
+Legend,Top,property,As Double,,MISSING,,
+Legend,Width,property,As Double,,MISSING,,
 LinearGradient,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,The application.
 LinearGradient,ColorStops,"property, read-only",As ColorStops,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,Its colour stops.
 LinearGradient,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,xlCreatorCode.

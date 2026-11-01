@@ -56,6 +56,10 @@ class ChartState:
     #: Set by ChartTitle.Delete, which Excel records as autoTitleDeleted.
     title_deleted: bool = False
     legend: bool = True
+    #: The legend's Position as the file spells it, IncludeInLayout turned round, and Shadow once set.
+    legend_position: str = 'r'
+    legend_overlay: bool = False
+    legend_shadow: bool | None = None
     plot_by: int = 2
     series: list[SeriesState] = field(default_factory=lambda: [])
     part: str = ''
@@ -438,7 +442,17 @@ class Chart(Created):
         self.admit_change()
         wanted = to_bool(value)
         self.changed()
+        if not wanted:
+            # A legend taken away comes back as new.
+            self.state.legend_position, self.state.legend_overlay, self.state.legend_shadow = 'r', False, None
         self.state.legend = wanted
+
+    @member
+    def Legend(self) -> object:
+        self.admit_read()
+        if not self.state.legend:
+            raise error(1004, 'Unable to get the Legend property of the Chart class')
+        return Legend(self)
 
     @member
     def ChartTitle(self) -> object:
@@ -625,6 +639,72 @@ def linked_title(sheet: Worksheet, formula: str) -> str:
     return to_text(values[0]) if values and values[0] is not EMPTY else ''
 
 
+#: Legend.Position and how the file spells it; xlLegendPositionCustom needs native layout, and Excel refuses it.
+LEGEND_POSITIONS = {-4107: 'b', -4160: 't', -4131: 'l', -4152: 'r', 2: 'tr'}
+
+
+class Legend(Created):
+    vba_type_name = 'Legend'
+
+    def __init__(self, chart: Chart) -> None:
+        self.chart = chart
+
+    def shown(self) -> ChartState:
+        self.chart.admit_read()
+        if not self.chart.state.legend:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        return self.chart.state
+
+    def change(self) -> ChartState:
+        state = self.shown()
+        self.chart.changed()
+        return state
+
+    @member
+    def Parent(self) -> object:
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def Position(self) -> object:
+        spelled = self.shown().legend_position
+        return VBAInt(next(number for number, name in LEGEND_POSITIONS.items() if name == spelled), 'Long')
+
+    @setter('Position')
+    def _position(self, value: object) -> None:
+        wanted = LEGEND_POSITIONS.get(int(to_integer(value, 'Long')))
+        if wanted is None:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        self.change().legend_position = wanted
+
+    @member
+    def IncludeInLayout(self) -> object:
+        return not self.shown().legend_overlay
+
+    @setter('IncludeInLayout')
+    def _include_in_layout(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.change().legend_overlay = not wanted
+
+    @member
+    def Shadow(self) -> object:
+        return bool(self.shown().legend_shadow)
+
+    @setter('Shadow')
+    def _shadow(self, value: object) -> None:
+        wanted = to_bool(value)
+        self.change().legend_shadow = wanted
+
+    @method
+    def Delete(self) -> object:
+        self.shown()
+        self.chart.vba_set('HasLegend', False)
+        return EMPTY
+
+
 class SeriesCollection(VBACollection, Created):
     vba_type_name = 'SeriesCollection'
 
@@ -634,6 +714,13 @@ class SeriesCollection(VBACollection, Created):
     def vba_items(self) -> list[object]:
         self.chart.admit_read()
         return [Series(self.chart, entry) for entry in self.chart.state.series]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        position = int(to_integer(index, 'Long'))
+        if 1 <= position <= len(items):
+            return items[position - 1]
+        # Excel answers a series it does not have with 1004, not a subscript error.
+        raise error(1004, 'Invalid Parameter')
 
     @member
     def Parent(self) -> object:
@@ -737,7 +824,7 @@ class Series(Created):
                   for value in self.values()]
         return VBAArray([(1, len(values))], items=values)
 
-    @setter('Values')
+    @setter('Values', objects=True)
     def _values(self, value: object) -> None:
         self.position()
         self.chart.admit_change()
@@ -752,7 +839,7 @@ class Series(Created):
                   for value in self.categories()]
         return VBAArray([(1, len(values))], items=values)
 
-    @setter('XValues')
+    @setter('XValues', objects=True)
     def _categories(self, value: object) -> None:
         self.position()
         self.chart.admit_change()

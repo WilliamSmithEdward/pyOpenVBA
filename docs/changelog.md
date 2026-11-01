@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `Window.ActivateNext` and `Window.ActivatePrevious` step through the
+  workbook windows as Excel does: next swaps the front two, previous
+  brings the back one forward. 8 live cases agree,
+  `tests/fixtures/window_activate_next.json`.
+
 - `PivotTable.ChangePivotCache` draws a table again from another
   cache's source as Excel does, and `ConvertToFormulas` and
   `ChangeConnection` raise Excel's errors on a table over a list. 8

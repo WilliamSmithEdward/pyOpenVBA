@@ -1068,23 +1068,13 @@ class GroupItems(VBACollection, Created):
         return super().vba_lookup(index, items)
 
 
-class TextFrame(Created):
-    """A shape's text, reached the way a macro reaches it."""
-
-    vba_type_name = "TextFrame"
+class _TextLayout(Created):
+    """What TextFrame and TextFrame2 share of a shape's text layout: its margins and orientation, as
+    tests/fixtures/text_frame.json and tests/fixtures/text_frame2.json measured them on a new rectangle and text
+    box."""
 
     def __init__(self, shape: ShapeObject) -> None:
         self.owner = shape
-
-    @member
-    def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
-        return Characters(self.owner)
-
-    @member
-    def AutoSize(self) -> object:
-        return VBAInt(0, "Long")
-
-    # -- the layout, as tests/fixtures/text_frame.json measured it on a new rectangle and text box
 
     def _look(self) -> TextLook:
         """The shape's text layout, which a loaded shape's markup holds and the model does not read yet."""
@@ -1143,6 +1133,34 @@ class TextFrame(Created):
         self._set_margin(3, value)
 
     @member
+    def Orientation(self) -> object:
+        return VBAInt(_ORIENTATIONS.index(self._look().vert or "horz") + 1, "Long")
+
+    @setter("Orientation")
+    def _orientation(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in range(1, 7):
+            raise error(-2147024809, "The parameter is incorrect.")
+        look = self._look()
+        if wanted == 1 and look.vert is None:
+            return
+        self._changed().vert = _ORIENTATIONS[wanted - 1]
+
+
+class TextFrame(_TextLayout):
+    """A shape's text, reached the way a macro reaches it."""
+
+    vba_type_name = "TextFrame"
+
+    @member
+    def Characters(self, Start: object = MISSING, Length: object = MISSING) -> object:
+        return Characters(self.owner)
+
+    @member
+    def AutoSize(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
     def AutoMargins(self) -> object:
         # Excel raises 1004 for AutoMargins either way, on a rectangle and a text box alike.
         raise error(1004, "Unable to get the AutoMargins property of the TextFrame class")
@@ -1178,20 +1196,6 @@ class TextFrame(Created):
         if wanted not in anchors:
             raise _unsupported(f"VerticalAlignment {wanted}")
         self._changed().anchor = anchors[wanted]
-
-    @member
-    def Orientation(self) -> object:
-        return VBAInt(_ORIENTATIONS.index(self._look().vert or "horz") + 1, "Long")
-
-    @setter("Orientation")
-    def _orientation(self, value: object) -> None:
-        wanted = int(to_number(value))
-        if wanted not in range(1, 7):
-            raise error(-2147024809, "The parameter is incorrect.")
-        look = self._look()
-        if wanted == 1 and look.vert is None:
-            return
-        self._changed().vert = _ORIENTATIONS[wanted - 1]
 
     @member
     def HorizontalOverflow(self) -> object:
@@ -1246,13 +1250,12 @@ _ALIGN_SET = {-4131: "l", -4108: "ctr", -4152: "r", -4130: "just", -4117: "justL
 _ORIENTATIONS = ("horz", "vert270", "vert", "eaVert", "mongolianVert", "wordArtVert")
 
 
-class TextFrame2(Created):
-    """The newer way to the same text."""
+class TextFrame2(_TextLayout):
+    """The newer way to the same text (tests/fixtures/text_frame2.json).
+
+    A text box writes each of these settings as given; a rectangle leaves out one set back to its default."""
 
     vba_type_name = "TextFrame2"
-
-    def __init__(self, shape: ShapeObject) -> None:
-        self.owner = shape
 
     @member
     def TextRange(self) -> object:
@@ -1261,6 +1264,74 @@ class TextFrame2(Created):
     @member
     def HasText(self) -> object:
         return VBAInt(-1 if self.owner.shape.text else 0, "Long")
+
+    def _given(self, value: str | bool, default: str | bool) -> str | bool | None:
+        """What the file holds for a setting: a rectangle drops one set back to its default."""
+        return None if value == default and self.owner.shape.kind == "shape" else value
+
+    @member
+    def AutoSize(self) -> object:
+        return VBAInt(2 if self._look().autofit == "norm" else 0, "Long")
+
+    @setter("AutoSize")
+    def _auto_size(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted == 1:
+            raise _unsupported("fitting a shape to its text")
+        if wanted not in (0, 2):
+            raise error(-2147024809, "The parameter is incorrect.")
+        given = self._given("norm" if wanted == 2 else "no", "no")
+        self._changed().autofit = given if isinstance(given, str) else None
+
+    @member
+    def HorizontalAnchor(self) -> object:
+        return VBAInt(2 if self._look().anchor_center else 1, "Long")
+
+    @setter("HorizontalAnchor")
+    def _horizontal_anchor(self, value: object) -> None:
+        wanted = int(to_number(value))
+        if wanted not in (1, 2):
+            raise error(-2147024809, "The parameter is incorrect.")
+        given = self._given(wanted == 2, False)
+        self._changed().anchor_center = given if isinstance(given, bool) else None
+
+    @member
+    def VerticalAnchor(self) -> object:
+        return VBAInt({"t": 1, "ctr": 3, "b": 4}[self._look().anchor], "Long")
+
+    @setter("VerticalAnchor")
+    def _vertical_anchor(self, value: object) -> None:
+        # The baseline anchors, 2 and 5, raise like any value Excel lacks.
+        anchors = {1: "t", 3: "ctr", 4: "b"}
+        wanted = int(to_number(value))
+        if wanted not in anchors:
+            raise error(-2147024809, "The parameter is incorrect.")
+        self._changed().anchor = anchors[wanted]
+
+    @member
+    def NoTextRotation(self) -> object:
+        return VBAInt(-1 if self._look().upright else 0, "Long")
+
+    @setter("NoTextRotation")
+    def _no_text_rotation(self, value: object) -> None:
+        self._changed().upright = to_bool(value)
+
+    @member
+    def WordWrap(self) -> object:
+        return VBAInt(0 if self._look().wrap == "none" else -1, "Long")
+
+    @setter("WordWrap")
+    def _word_wrap(self, value: object) -> None:
+        given = self._given("square" if to_bool(value) else "none", "square")
+        self._changed().wrap = given if isinstance(given, str) else None
+
+    @method
+    def DeleteText(self) -> object:
+        """The text gone, its empty paragraph left without a size, as Excel leaves it."""
+        look = self._changed()
+        self.owner.shape.text = ""
+        look.deleted = True
+        return EMPTY
 
 
 class Characters(_Drawn):

@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- ShapeRange's `IncrementLeft`, `IncrementTop`, `IncrementRotation`,
+  `Flip`, `ZOrder`, `Decorative` and `AutoShapeType` answer as Excel's
+  do, and `Shape.AutoShapeType` can be set. ZOrder moves the range as
+  one block in its own order. 25 live cases agree,
+  `tests/fixtures/shape_range_more.json`.
+
+- TextFrame's margins, `HorizontalAlignment`, `VerticalAlignment`,
+  `Orientation`, `HorizontalOverflow`, `VerticalOverflow` and
+  `ReadingOrder` answer as Excel's do on new shapes, written into the
+  saved `bodyPr` and paragraphs, and `AutoMargins` raises 1004 as it
+  does in Excel. 103 live cases agree, `tests/fixtures/text_frame.json`.
+
 - `ShapeRange.Align` and `ShapeRange.Distribute` answer as Excel's do.
   Align lines the shapes up on an edge or the middle of their box
   together, whatever RelativeTo says. Distribute spaces them evenly
@@ -375,6 +387,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A new rectangle keeps the left-aligned paragraph Excel gives it after
+  its text is set. It was dropped.
 
 - A new text box is saved with the fill, line, style and `vert="horz"`
   Excel gives one. They were left out.

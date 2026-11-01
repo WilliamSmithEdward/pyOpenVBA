@@ -12,7 +12,7 @@ import xml.etree.ElementTree as ET
 from xml.parsers import expat
 from typing import TYPE_CHECKING, NoReturn
 
-from pyopenvba._xml import attributes, unescape
+from pyopenvba._xml import attributes, escape as escape_attribute, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, DATA_TABLE, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
@@ -339,6 +339,15 @@ def _number(value: object) -> float | None:
         return None
     return float(to_number(value))
 
+def dated_categories(sheet: Worksheet, state: ChartState) -> bool:
+    """Whether the chart's categories are dates, which gives an automatic category axis a time scale: the first
+    series' categories are cells formatted as dates (tests/fixtures/chart_category_type.json)."""
+    from pyopenvba.apps.excel._typing import is_date_format
+
+    first = next((entry for entry in state.series if entry.category_reference), None)
+    return first is not None and is_date_format(source_format(sheet, first.category_reference))
+
+
 def source_format(sheet: Worksheet, formula: str) -> str:
     from pyopenvba.apps.excel._model import Range
 
@@ -427,7 +436,14 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                      not_available_as_blank=state.not_available_as_blank)
     from pyopenvba.apps.excel._chart_axes_file import generated
 
-    xml = generated(xml, state, lambda formula: linked_title(sheet, formula))
+    xml = generated(xml, state, lambda formula: linked_title(sheet, formula), dated_categories(sheet, state))
+    if data and data[0].numeric_categories and data[0].category_format != 'General':
+        # A category axis over numbers shows them in their cells' format, dates as dates
+        # (tests/fixtures/chart_category_type.json).
+        code = escape_attribute(data[0].category_format)
+        xml = re.sub(r'<c:(catAx|dateAx)>.*?</c:\1>', lambda found: found.group(0).replace(
+            '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1),
+            xml, count=1)
     if state.data_table:
         # The data table closes the plot area, after the axes, on every kind (tests/fixtures/chart_series_more.json).
         xml = xml.replace('</c:plotArea>', DATA_TABLE + '</c:plotArea>', 1)

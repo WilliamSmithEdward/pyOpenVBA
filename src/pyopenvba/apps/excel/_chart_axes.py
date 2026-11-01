@@ -66,6 +66,12 @@ class AxisState:
     between: bool | None = None
     label_skip: int | None = None
     mark_skip: int | None = None
+    #: A category axis's CategoryType (xlAutomaticScale, xlCategoryScale or xlTimeScale), its BaseUnit once set,
+    #: whether BaseUnitIsAuto still holds, and MajorUnitScale once set (tests/fixtures/chart_category_type.json).
+    category_type: int = -4105
+    base_unit: int | None = None
+    base_auto: bool = True
+    major_scale: int | None = None
 
 
 #: Axis.DisplayUnit and how the file spells it.
@@ -163,10 +169,90 @@ class Axis(Created):
         self.read()
         self.chart.admit_change()
 
-    def scale(self) -> None:
+    def scale(self, field: str = "") -> None:
         self.read()
-        if not self.entry.numeric:
+        # A time-scale category axis takes a major unit as a value axis does (tests/fixtures/chart_category_type.json).
+        if not self.entry.numeric and not (field == "major" and self.timed()):
             raise error(440, "Automation error")
+
+    def timed(self) -> bool:
+        """Whether this is a category axis on a time scale: set to one, or automatic over dates."""
+        from pyopenvba.apps.excel._charts_file import dated_categories
+
+        if self.entry.numeric or self.chart.state.original:
+            return False
+        kind = self.entry.category_type
+        return kind == 3 or kind == -4105 and dated_categories(self.chart.sheet, self.chart.state)
+
+    def category(self) -> AxisState:
+        """The category axis these settings belong to; on a value axis Excel raises -2147467259."""
+        self.read()
+        if self.entry.numeric:
+            raise error(-2147467259, "Unspecified error")
+        if self.chart.state.original:
+            raise VBAUnsupportedError("Reading an imported chart's category scale is not implemented")
+        return self.entry
+
+    @member
+    def CategoryType(self) -> object:
+        return VBAInt(self.category().category_type, "Long")
+
+    @setter("CategoryType")
+    def _category_type(self, value: object) -> None:
+        entry = self.category()
+        self.change()
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (-4105, 2, 3):
+            raise error(1004, "Unable to set the CategoryType property of the Axis class")
+        self.chart.changed()
+        entry.category_type = wanted
+        entry.base_auto = False
+
+    @member
+    def BaseUnit(self) -> object:
+        return VBAInt(self.category().base_unit or 0, "Long")
+
+    @setter("BaseUnit")
+    def _base_unit(self, value: object) -> None:
+        entry = self.category()
+        self.change()
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (0, 1, 2):
+            raise error(-2147467259, "Unspecified error")
+        self.chart.changed()
+        entry.base_unit, entry.base_auto = wanted, False
+
+    @member
+    def BaseUnitIsAuto(self) -> object:
+        return self.category().base_auto
+
+    @setter("BaseUnitIsAuto")
+    def _base_unit_auto(self, value: object) -> None:
+        entry = self.category()
+        self.change()
+        wanted = to_bool(value)
+        if not wanted:
+            raise VBAUnsupportedError("Turning BaseUnitIsAuto off by itself is not implemented")
+        self.chart.changed()
+        entry.base_unit, entry.base_auto = None, True
+
+    @member
+    def MajorUnitScale(self) -> object:
+        entry = self.category()
+        if entry.major_scale is None or entry.major is None:
+            # Left alone, Excel works the scale out from the chart's automatic scale.
+            raise VBAUnsupportedError("An automatic time scale's MajorUnitScale requires native layout")
+        return VBAInt(entry.major_scale, "Long")
+
+    @setter("MajorUnitScale")
+    def _major_unit_scale(self, value: object) -> None:
+        entry = self.category()
+        self.change()
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in (0, 1, 2) or entry.major is None or not self.timed():
+            raise VBAUnsupportedError("MajorUnitScale without a major unit on a time axis is not implemented")
+        self.chart.changed()
+        entry.major_scale = wanted
 
     @member
     def Parent(self) -> object:
@@ -221,19 +307,19 @@ class Axis(Created):
         self.entry.reverse = wanted
 
     def number(self, field: str) -> float:
-        self.scale()
+        self.scale(field)
         value = getattr(self.entry, field)
         if value is None:
             raise VBAUnsupportedError("Effective automatic chart scales require native layout")
         return value
 
     def set_number(self, field: str, value: object) -> None:
-        self.scale()
+        self.scale(field)
         self.change()
         if value is NULL:
             raise error(13)
         wanted = float(to_number(value))
-        self.scale()
+        self.scale(field)
         self.change()
         if not math.isfinite(wanted):
             raise VBAUnsupportedError("Nonfinite chart scales are not implemented")

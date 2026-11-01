@@ -16,7 +16,7 @@ from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
+from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
 from pyopenvba.shapes._values import Shape, emu, points
 
 if TYPE_CHECKING:
@@ -103,11 +103,15 @@ def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesSt
     def text_axis(values: list[object]) -> bool:
         return bool(values) and all(isinstance(item, str) or item is EMPTY for item in values) and any(
             isinstance(item, str) and bool(item) for item in values)
+
+    def label_axis(values: list[object]) -> bool:
+        # Dates label the categories as text does (tests/fixtures/chart_category_type.json).
+        return text_axis(values) or bool(values) and all(isinstance(item, VBADate) for item in values)
     series_plan: list[SeriesState] = []
     if orientation == 2:
         names = text_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
         top = area.top + names
-        labels = text_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
+        labels = label_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
         if width - labels > MAX_CHART_SERIES:
             raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
         for column in range(area.left + labels, area.right + 1):
@@ -121,7 +125,7 @@ def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesSt
     else:
         names = text_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
         left = area.left + names
-        labels = text_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
+        labels = label_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
         if height - labels > MAX_CHART_SERIES:
             raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
         for row in range(area.top + labels, area.bottom + 1):

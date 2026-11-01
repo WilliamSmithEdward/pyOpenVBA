@@ -7,6 +7,15 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A chart's category axis takes `CategoryType`, `BaseUnit`,
+  `BaseUnitIsAuto` and, with a major unit, `MajorUnitScale` as Excel's
+  does. A time scale, chosen or automatic over dates, is saved as a
+  date axis. 17 live cases agree, `tests/fixtures/chart_category_type.json`.
+
+- `Series.HasDataLabels` and `HasLeaderLines` answer as Excel's do on
+  every chart kind, and a loaded chart reads its labels from its file.
+  23 live cases agree, `tests/fixtures/chart_data_labels.json`.
+
 - A series' marker colours answer as Excel's do:
   `MarkerForegroundColor`, `MarkerBackgroundColor` and their ColorIndex
   forms, written in the marker's `spPr`. A colour given to a series
@@ -414,6 +423,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- `SetSourceData` takes a first column or row of dates as the chart's
+  categories, as Excel does, and the category axis shows them in their
+  cells' format. It made them a series.
 
 - `Shape.Placement` reads the anchor's `editAs`, and a loaded shape
   keeps its `editAs` and `fPrintsWithSheet` when changed and saved. It

@@ -162,6 +162,13 @@ _LINK_FONT: Final = ('<font><u/><sz val="11"/><color theme="10"/><name val="{min
                      '<scheme val="minor"/></font>')
 #: The standard styles' places in Excel's order, Normal being 0, by name in lower case.
 _RANKS: Final = {name.casefold(): rank for rank, (name, *_) in enumerate(STANDARD, start=1)}
+#: The outline styles Range.ApplyOutlineStyles gives summary rows and columns, by name in lower case: builtinId 1
+#: for RowLevel_1 to 7 and 2 for ColLevel_1 to 7, their level, and the font they include, bold at level 1, italic
+#: at 2 and a copy of the Normal font below (tests/fixtures/outline_styles.json).
+OUTLINE: Final = {f"{kind}level_{level}": (f"{kind.title()}Level_{level}", builtin, level - 1,
+                                           _font('theme="1"', bold=level == 1, italic=level == 2) if level <= 2
+                                           else None)
+                  for kind, builtin in (("row", 1), ("col", 2)) for level in range(1, 8)}
 #: The theme typefaces Excel writes with family 2, the only ones a built-in style is written in here.
 _SWISS: Final = frozenset({"Aptos", "Aptos Narrow", "Aptos Display", "Calibri", "Calibri Light"})
 
@@ -188,6 +195,18 @@ def _normal(stylesheet: S.Stylesheet) -> S.CellStyle:
 def _built_in(stylesheet: S.Stylesheet, name: str) -> S.CellStyle | None:
     """A standard built-in style the file does not hold, as Excel defines it under the workbook's theme."""
     rank = _RANKS.get(name.casefold())
+    outline = OUTLINE.get(name.casefold())
+    if outline is not None:
+        title, builtin, level, font = outline
+        if any(entry.builtin == builtin and entry.level == level for entry in stylesheet.cell_styles):
+            return None
+        if font is None:
+            value = stylesheet.opening_font
+        else:
+            value = S.parse_font(font.replace("{minor}", _typeface(stylesheet.theme_fonts[1])))
+        own = S.Style(number_format=stylesheet.number_formats[0], font=value, fill=S.parse_fill(_NO_FILL),
+                      border=S.parse_border(_NO_BORDER))
+        return S.CellStyle(own, frozenset({"font"}), name=title, builtin=builtin, level=level)
     if rank is None:
         return None
     title, builtin, letters, number, font, fill, border = STANDARD[rank - 1]

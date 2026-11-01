@@ -1,0 +1,46 @@
+{
+ "measured_at": "2026-11-01T04:36:36.835975+00:00",
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Object, s As String, path As String, calc As Long\n    calc = Application.Calculation\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 1\n    path = folder & \"\\c\" & which & \".xlsx\"\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n    Case 1\n        ws.EnableFormatConditionsCalculation = False\n    Case 2\n        ws.EnableFormatConditionsCalculation = False: ws.EnableFormatConditionsCalculation = True\n    Case 3\n        ws.EnableFormatConditionsCalculation = 0\n    Case 4\n        ws.EnableFormatConditionsCalculation = \"False\"\n    Case 5\n        ws.EnableFormatConditionsCalculation = Null\n    Case 6\n        ws.EnableFormatConditionsCalculation = \"abc\"\n    Case 7\n        Application.Calculation = xlCalculationManual: ws.EnableFormatConditionsCalculation = False\n    End Select\n    s = \"ok|\" & ws.EnableFormatConditionsCalculation\nSaved:\n    Application.Calculation = calc\n    wb.SaveAs path, xlOpenXMLWorkbook\n    wb.Close False\n    Set wb = Workbooks.Open(path)\n    s = s & \"|\" & wb.Worksheets(1).EnableFormatConditionsCalculation\n    wb.Close False\n    Tried = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 7\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "",
+   "ok|True|True",
+   ""
+  ],
+  [
+   "ws.EnableFormatConditionsCalculation = False",
+   "ok|True|True",
+   ""
+  ],
+  [
+   "ws.EnableFormatConditionsCalculation = False: ws.EnableFormatConditionsCalculation = True",
+   "ok|True|True",
+   ""
+  ],
+  [
+   "ws.EnableFormatConditionsCalculation = 0",
+   "ok|True|True",
+   ""
+  ],
+  [
+   "ws.EnableFormatConditionsCalculation = \"False\"",
+   "ok|True|True",
+   ""
+  ],
+  [
+   "ws.EnableFormatConditionsCalculation = Null",
+   "Err 13|True",
+   ""
+  ],
+  [
+   "ws.EnableFormatConditionsCalculation = \"abc\"",
+   "Err 13|True",
+   ""
+  ],
+  [
+   "Application.Calculation = xlCalculationManual: ws.EnableFormatConditionsCalculation = False",
+   "ok|True|True",
+   ""
+  ]
+ ]
+}

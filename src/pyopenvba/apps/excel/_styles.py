@@ -865,6 +865,8 @@ class CellStyle:
     name: str = ""
     #: Excel's builtinId, None for a style a user made.
     builtin: int | None = None
+    #: The iLevel of an outline style (builtinId 1 or 2), None for the rest.
+    level: int | None = None
     #: Its xf in the file's cellStyleXfs, once the file holds it.
     xf: int | None = None
     #: Where it comes in Excel's own order of its standard built-in styles, which a save writes new ones in;
@@ -1009,6 +1011,8 @@ class Stylesheet:
                 entry.name = _unescape(found.get("name", ""))
                 builtin = found.get("builtinId", "")
                 entry.builtin = int(builtin) if builtin.isdigit() else None
+                level = found.get("iLevel", "")
+                entry.level = int(level) if level.isdigit() else None
                 entry.custom = found.get("customBuiltin", "0") in ("1", "true")
                 entry.deleted = found.get("hidden", "0") in ("1", "true") and entry.builtin is not None
                 self._named.append((place, element))
@@ -1815,6 +1819,8 @@ def _cell_style_element(entry: CellStyle, place: int) -> str:
     element = f'<cellStyle name="{_escape(entry.name)}" xfId="{place}"'
     if entry.builtin is not None:
         element += f' builtinId="{entry.builtin}"'
+        if entry.level is not None:
+            element += f' iLevel="{entry.level}"'
         if entry.deleted:
             element += ' hidden="1"'
         if entry.custom:

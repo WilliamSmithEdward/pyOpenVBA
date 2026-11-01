@@ -397,7 +397,10 @@ class VBComponent(VBAObject):
             lines.extend(f'Attribute {name} = {attributes.get(name.casefold(), value)}' for name, value in defaults.items())
         excluded = {'vb_name', 'vb_base', 'vb_templatederived', 'vb_customizable', 'vb_globalnamespace', 'vb_creatable', 'vb_predeclaredid', 'vb_exposed'}
         lines.extend(line for line in header.splitlines() if line.startswith('Attribute ') and line.split()[1].casefold() not in excluded)
-        lines.extend(self.code_module.lines())
+        shown = self.code_module.lines()
+        if shown:
+            # Each procedure's attributes go out with it (tests/fixtures/vbe_import_attributes.json).
+            lines.extend(with_hidden('', shown, hidden_attributes(self.source)).split('\r\n'))
         text = '\r\n'.join(lines) + '\r\n'
         try:
             Path(to_text(FileName)).write_bytes(encode_mbcs(text, encoding_for_codepage(self.project.code_page)))
@@ -454,6 +457,10 @@ class CodeModule(VBAObject):
         lines = self.lines()
         position = min(line - 1, len(lines))
         added = to_text(String).replace('\r\n', '\n').replace('\r', '\n').split('\n')
+        if position == len(lines) and any(one.endswith(' _') for one in added):
+            # Text that goes on with " _" at the end of the module leaves a blank line after it
+            # (tests/fixtures/vbe_continuation.json).
+            added.append('')
         self.edit(lines[:position] + added + lines[position:])
         return EMPTY
 
@@ -465,7 +472,11 @@ class CodeModule(VBAObject):
         return EMPTY
 
     def load_file_text(self, text: str, *, rename: bool = False) -> None:
-        attributes = [line for line in text.splitlines() if line.startswith('Attribute ')]
+        # The module's own attributes head it; a procedure's stay with their procedure, out of the editor's sight
+        # (tests/fixtures/vbe_import_attributes.json).
+        attributes = [line for line in text.splitlines()
+                      if line.startswith('Attribute ') and not _PROCEDURE_ATTRIBUTE.match(line)]
+        hidden = hidden_attributes(text)
         if rename:
             found = next((re.search(r'^Attribute VB_Name\s*=\s*"([^"]*)"', line) for line in attributes if line.startswith('Attribute VB_Name')), None)
             if found is not None:
@@ -480,6 +491,9 @@ class CodeModule(VBAObject):
             position = int(self.CountOfDeclarationLines())
             lines = self.lines()
             self.edit(lines[:position] + body + lines[position:])
+        if hidden:
+            merged = {**hidden_attributes(self.component.source), **hidden}
+            self.component.source = with_hidden(editor_source_parts(self.component.source)[0], self.lines(), merged)
 
     @method
     def AddFromFile(self, FileName: object) -> object:

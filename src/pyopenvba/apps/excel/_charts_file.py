@@ -21,6 +21,7 @@ from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED
                                           category_levels, linked_title, referenced_values, shown_cells, shown_type)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
+from pyopenvba.apps.excel._chart_trendlines import TYPES as TRENDLINE_TYPES, TrendlineState, markup as trendlines_markup
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
@@ -260,6 +261,7 @@ def read_chart(xml: str, part: str) -> ChartState:
     for _order, identity, series in sorted(ordered, key=lambda item: item[0]):
         item = SeriesState(series_id=identity)
         item.error_bars = read_error_bars(series, NS)
+        item.trendlines = read_trendlines(series, NS)
         name_ref = series.find('c:tx/c:strRef/c:f', NS)
         item.name_reference = name_ref.text or '' if name_ref is not None else ''
         name = series.find('c:tx/c:v', NS)
@@ -483,7 +485,8 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                smooth=item.smooth, invert=item.invert_if_negative, explosion=item.explosion,
                                labels=item.data_labels, leader_lines=item.leader_lines,
                                error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(shown_type(chart.state), ''),
-                                                            lambda element, given: _bar_values(sheet, element, given))))
+                                                            lambda element, given: _bar_values(sheet, element, given)),
+                               trendlines=trendlines_markup(item.trendlines)))
     kind = CHART_TYPES.get(shown_type(chart.state))
     if kind not in CHART_KINDS:
         raise ValueError(f'Chart type {chart.state.chart_type} has no chart writer')
@@ -540,6 +543,30 @@ def read_error_bars(series: ET.Element, ns: dict[str, str]) -> list[ErrorBarStat
                                   kind=value('errValType') or 'fixedVal', amount=amount,
                                   no_cap=value('noEndCap') in ('1', 'true')))
     return bars
+
+
+def read_trendlines(series: ET.Element, ns: dict[str, str]) -> list[TrendlineState]:
+    """A loaded series' trendlines, as far as what they read goes (tests/fixtures/chart_trendlines.json)."""
+    lines: list[TrendlineState] = []
+    for node in series.findall('c:trendline', ns):
+        def value(name: str) -> str:
+            found = node.find('c:' + name, ns)
+            return found.get('val', '') if found is not None else ''
+
+        def number(name: str) -> float | None:
+            try:
+                return float(value(name)) if value(name) else None
+            except ValueError:
+                return None
+
+        kind = value('trendlineType')
+        name = node.find('c:name', ns)
+        lines.append(TrendlineState(
+            kind=kind if kind in TRENDLINE_TYPES.values() else 'linear', order=int(number('order') or 2),
+            period=int(number('period') or 2), forward=number('forward') or 0.0, intercept=number('intercept'),
+            name=name.text or '' if name is not None else None, equation=value('dispEq') in ('1', 'true'),
+            r_squared=value('dispRSqr') in ('1', 'true')))
+    return lines
 
 
 def _bar_values(sheet: Worksheet, element: str, given: tuple[str, list[object]]) -> str:

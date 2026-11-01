@@ -2027,15 +2027,15 @@ Scenarios,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sce
 Scenarios,Item,method,Item(Index As Variant) As Scenario,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,By number or by name ignoring case; one that is not there is 1004.
 Scenarios,Merge,method,Merge(Source As Variant) As Variant,,MISSING,,
 Scenarios,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,The sheet.
-Series,Application,"property, read-only",As Application,,MISSING,,
+Series,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The Application.
 Series,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,MISSING,,
 Series,ApplyPictToEnd,property,As Boolean,,MISSING,,
 Series,ApplyPictToFront,property,As Boolean,,MISSING,,
 Series,ApplyPictToSides,property,As Boolean,,MISSING,,
-Series,AxisGroup,property,As XlAxisGroup,,MISSING,,
-Series,BarShape,property,As XlBarShape,,MISSING,,
+Series,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
+Series,BarShape,property,As XlBarShape,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlBox; the setter is not implemented.
 Series,BubbleSizes,property,As Variant,,MISSING,,
-Series,ChartType,property,As XlChartType,,MISSING,,
+Series,ChartType,property,As XlChartType,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads the chart's own type; a series of another type (a combination chart) is not implemented.
 Series,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 Series,Copy,method,Copy() As Variant,,MISSING,,
 Series,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -2052,14 +2052,14 @@ Series,FormulaR1C1Local,property,As String,no setter,PARTIAL,tests/fixtures/char
 Series,GeoMappingLevel,property,As XlGeoMappingLevel,,MISSING,,
 Series,GeoProjectionType,property,As XlGeoProjectionType,,MISSING,,
 Series,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
-Series,Has3DEffect,property,As Boolean,,MISSING,,
+Series,Has3DEffect,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False.
 Series,HasDataLabels,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"The series' dLbls showing values, before its categories, on every kind; setting it either way turns HasLeaderLines off."
-Series,HasErrorBars,property,As Boolean,,MISSING,,
+Series,HasErrorBars,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; error bars are not implemented.
 Series,HasLeaderLines,property,As Boolean,,PARTIAL,tests/fixtures/chart_data_labels.json; tests/test_excel_chart_data_labels.py,"True until data labels are set; written in the series' dLbls, and a pie's or doughnut's own leader lines go off once any series' do."
-Series,InvertColor,property,As Long,,MISSING,,
-Series,InvertColorIndex,property,As Long,,MISSING,,
+Series,InvertColor,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"Reads white, 16777215; the setter is not implemented."
+Series,InvertColorIndex,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 2; the setter is not implemented.
 Series,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_more.json; tests/test_excel_chart_series_more.py,The ser's invertIfNegative on column and bar charts; other kinds take the setting silently and write nothing.
-Series,IsFiltered,property,As Boolean,,MISSING,,
+Series,IsFiltered,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; filtering a series out is not implemented.
 Series,LeaderLines,"property, read-only",As LeaderLines,,MISSING,,
 Series,MarkerBackgroundColor,property,As Long,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The marker's fill colour; -1 while automatic, -2 for none. Setting it writes the marker's fill and gives a series without markers automatic ones. Line and scatter charts only; others raise 1004."
 Series,MarkerBackgroundColorIndex,property,As XlColorIndex,,PARTIAL,tests/fixtures/chart_marker_colours.json; tests/test_excel_chart_marker_colours.py,"The palette slot nearest the fill colour; 2 while automatic, -4142 for none. Slots 1 to 56, 57 for black, none and automatic can be set."
@@ -2068,12 +2068,12 @@ Series,MarkerForegroundColorIndex,property,As XlColorIndex,,PARTIAL,tests/fixtur
 Series,MarkerSize,property,As Long,,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,"2 to 72, else -2147467259. Reads 9 for an automatic marker and 5 otherwise; a set fixes an automatic marker to the series' own. Refused past the ninth series."
 Series,MarkerStyle,property,As XlMarkerStyle,,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,"Line and scatter series. The first series decides xlLine or xlLineMarkers. 0, 4, 6 and 7 take older meanings; others raise 1004."
 Series,Name,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete
-Series,Parent,"property, read-only",As Object,,MISSING,,
+Series,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The chart's ChartGroup.
 Series,ParentDataLabelOption,property,As XlParentDataLabelOptions,,MISSING,,
 Series,Paste,method,Paste() As Variant,,MISSING,,
-Series,PictureType,property,As XlChartPictureType,,MISSING,,
-Series,PictureUnit2,property,As Double,,MISSING,,
-Series,PlotColorIndex,"property, read-only",As Long,,MISSING,,
+Series,PictureType,property,As XlChartPictureType,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads xlStretch; the setter is not implemented.
+Series,PictureUnit2,property,As Double,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 0; the setter is not implemented.
+Series,PlotColorIndex,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The series' idx plus 1.
 Series,PlotOrder,property,As Long,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,Points,method,Points([Index As Variant]) As Object,,MISSING,,
 Series,QuartileCalculationInclusiveMedian,property,As Boolean,,MISSING,,
@@ -2084,10 +2084,10 @@ Series,SeriesColorMaxGradientStop,"property, read-only",As ChartSeriesGradientSt
 Series,SeriesColorMidGradientStop,"property, read-only",As ChartSeriesGradientStopData,,MISSING,,
 Series,SeriesColorMinGradientStop,"property, read-only",As ChartSeriesGradientStopData,,MISSING,,
 Series,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
-Series,Shadow,property,As Boolean,,MISSING,,
+Series,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads False; the setter is not implemented.
 Series,Smooth,property,As Boolean,,PARTIAL,tests/fixtures/chart_series_lines.json; tests/test_excel_chart_series_lines.py,Line and scatter series; 1004 on other kinds. Kept through ChartType.
 Series,Trendlines,method,Trendlines([Index As Variant]) As Object,,MISSING,,
-Series,Type,property,As Long,,MISSING,,
+Series,Type,property,As Long,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,"The gallery constant of the chart's kind: xlColumn for any column chart, xlLine with markers or without."
 Series,Values,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit
 Series,ValueSortOrder,property,As XlValueSortOrder,,MISSING,,
 Series,XValues,property,As Variant,,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/test_excel_chart_staging.py; tests/test_excel_chart_lifecycle.py,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete; Source/setter failure staging and bounded data admission; cross-workbook/multi-area range limitations remain explicit; category readback returns independent array storage

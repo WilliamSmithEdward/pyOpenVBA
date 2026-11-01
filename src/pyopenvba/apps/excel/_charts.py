@@ -29,6 +29,10 @@ MAX_CHART_REFERENCE_TEXT = 32_768
 
 CHART_TYPES = {51: 'column', 57: 'bar', 4: 'line', 65: 'lineMarkers', 5: 'pie', -4120: 'doughnut',
                -4169: 'scatter', 1: 'area'}
+#: Series.Type for each kind: the gallery constants xlArea, xlBar, xlColumn, xlLine, xlPie, xlDoughnut and xlXYScatter
+#: (tests/fixtures/chart_series_reads.json).
+SERIES_KINDS = {'column': 3, 'bar': 2, 'line': 4, 'lineMarkers': 4, 'pie': 5, 'doughnut': -4120, 'scatter': -4169,
+                'area': 1}
 
 @dataclass
 class SeriesState:
@@ -1238,6 +1242,89 @@ class Series(Created):
                 and not any(entry is self.entry for entry in self.chart.state.series)):
             raise error(440, 'Automation error')
         return super().vba_call_by_name(name, args, assignment=assignment, by_ref=by_ref)
+
+    @member
+    def Parent(self) -> object:
+        self.position()
+        return ChartGroup(self.chart)
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def AxisGroup(self) -> object:
+        # Every series the model plots is on the primary axes (tests/fixtures/chart_series_reads.json).
+        self.position()
+        return VBAInt(1, 'Long')
+
+    @member
+    def ChartType(self) -> object:
+        """The chart's own type, which every series of a chart of one kind shares
+        (tests/fixtures/chart_series_reads.json)."""
+        self.position()
+        return VBAInt(shown_type(self.chart.state), 'Long')
+
+    @member
+    def Type(self) -> object:
+        """The series' kind as the old gallery constants number it: xlColumn 3 for any column chart, xlLine 4 with
+        markers or without (tests/fixtures/chart_series_reads.json)."""
+        self.position()
+        return VBAInt(SERIES_KINDS[CHART_TYPES[shown_type(self.chart.state)]], 'Long')
+
+    @member
+    def PlotColorIndex(self) -> object:
+        """Which of the theme's colours an automatic series takes, from 1 (tests/fixtures/chart_series_reads.json)."""
+        position = self.position()
+        return VBAInt(self.entry.series_id + 1 if self.entry.series_id >= 0 else position, 'Long')
+
+    @member
+    def IsFiltered(self) -> object:
+        self.position()
+        return False
+
+    @member
+    def HasErrorBars(self) -> object:
+        self.position()
+        return False
+
+    @member
+    def Has3DEffect(self) -> object:
+        self.position()
+        return False
+
+    @member
+    def Shadow(self) -> object:
+        self.position()
+        return False
+
+    @member
+    def BarShape(self) -> object:
+        # xlBox (tests/fixtures/chart_series_reads.json).
+        self.position()
+        return VBAInt(0, 'Long')
+
+    @member
+    def PictureType(self) -> object:
+        # xlStretch (tests/fixtures/chart_series_reads.json).
+        self.position()
+        return VBAInt(1, 'Long')
+
+    @member
+    def PictureUnit2(self) -> object:
+        self.position()
+        return 0.0
+
+    @member
+    def InvertColorIndex(self) -> object:
+        self.position()
+        return VBAInt(2, 'Long')
+
+    @member
+    def InvertColor(self) -> object:
+        # White, the fill InvertIfNegative gives a negative bar (tests/fixtures/chart_series_reads.json).
+        self.position()
+        return VBAInt(16777215, 'Long')
 
     @member
     def PlotOrder(self) -> object:

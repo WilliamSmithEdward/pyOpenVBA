@@ -1,0 +1,70 @@
+{
+ "measured_at": "2026-11-01T19:20:41.962314+00:00",
+ "source": "Private Function Safe(ByVal target As Object, ByVal name As String) As String\n    Dim v As Variant\n    On Error GoTo Failed\n    If IsObject(CallByName(target, name, VbGet)) Then\n        Safe = TypeName(CallByName(target, name, VbGet))\n    Else\n        v = CallByName(target, name, VbGet): Safe = TypeName(v) & \":\" & CStr(v)\n    End If\n    Exit Function\nFailed:\n    Safe = \"E\" & Err.Number\nEnd Function\n\nPrivate Function Tried(ByVal kind As Long) As String\n    Dim wb As Workbook, ws As Worksheet, ch As Object, i As Long, j As Long, s As String, t As String\n    Dim names As Variant\n    names = Array(\"Parent\", \"Application\", \"Creator\", \"AxisGroup\", \"ChartType\", \"Type\", \"IsFiltered\", \"HasErrorBars\", \"Has3DEffect\", \"BarShape\", \"PlotColorIndex\", \"PictureType\", \"PictureUnit2\")\n    names = Split(Join(names, \",\") & \",InvertColorIndex,InvertColor,ApplyPictToFront,ApplyPictToSides,ApplyPictToEnd,Shadow,ValueSortOrder,QuartileCalculationInclusiveMedian,GeoMappingLevel,GeoProjectionType,RegionLabelOption,ParentDataLabelOption,SeriesColorGradientStyle\", \",\")\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set ch = ws.ChartObjects.Add(100, 10, 300, 200).Chart\n    ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\"))\n    ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3))\n    ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6))\n    ch.SetSourceData ws.Range(\"A1:C4\")\n    ch.ChartType = kind\n    For i = 1 To 2\n        t = \"\"\n        For j = LBound(names) To UBound(names)\n            t = t & \",\" & Safe(ch.SeriesCollection(i), names(j))\n        Next\n        s = s & \"|\" & Mid(t, 2)\n    Next\n    Tried = Mid(s, 2)\n    wb.Close False\nEnd Function\n\nPublic Function Probe() As String\n    Dim s As String\n    s = s & \"@@@\" & Tried(xlColumnClustered)\n    s = s & \"@@@\" & Tried(xlColumnStacked)\n    s = s & \"@@@\" & Tried(xlBarClustered)\n    s = s & \"@@@\" & Tried(xlLine)\n    s = s & \"@@@\" & Tried(xlLineMarkers)\n    s = s & \"@@@\" & Tried(xlPie)\n    s = s & \"@@@\" & Tried(xlDoughnut)\n    s = s & \"@@@\" & Tried(xlArea)\n    s = s & \"@@@\" & Tried(xlXYScatter)\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "names": [
+  "Parent",
+  "Application",
+  "Creator",
+  "AxisGroup",
+  "ChartType",
+  "Type",
+  "IsFiltered",
+  "HasErrorBars",
+  "Has3DEffect",
+  "BarShape",
+  "PlotColorIndex",
+  "PictureType",
+  "PictureUnit2",
+  "InvertColorIndex",
+  "InvertColor",
+  "ApplyPictToFront",
+  "ApplyPictToSides",
+  "ApplyPictToEnd",
+  "Shadow",
+  "ValueSortOrder",
+  "QuartileCalculationInclusiveMedian",
+  "GeoMappingLevel",
+  "GeoProjectionType",
+  "RegionLabelOption",
+  "ParentDataLabelOption",
+  "SeriesColorGradientStyle"
+ ],
+ "cases": [
+  [
+   "xlColumnClustered",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:51,Long:3,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:51,Long:3,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlColumnStacked",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:52,Long:3,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:52,Long:3,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlBarClustered",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:57,Long:2,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:57,Long:2,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlLine",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:4,Long:4,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:4,Long:4,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlLineMarkers",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:65,Long:4,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:65,Long:4,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlPie",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:5,Long:5,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:5,Long:5,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlDoughnut",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:-4120,Long:-4120,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:-4120,Long:-4120,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlArea",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:1,Long:1,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:1,Long:1,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ],
+  [
+   "xlXYScatter",
+   "ChartGroup,Application,Long:1480803660,Long:1,Long:-4169,Long:-4169,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:1,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445|ChartGroup,Application,Long:1480803660,Long:1,Long:-4169,Long:-4169,Boolean:False,Boolean:False,Boolean:False,Long:0,Long:2,Long:1,Double:0,Long:2,Long:16777215,E440,E440,E440,Boolean:False,E445,E445,E445,E445,E445,E445,E445"
+  ]
+ ]
+}

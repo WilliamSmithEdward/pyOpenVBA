@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Series answers Parent, Application, AxisGroup, ChartType, Type,
+  PlotColorIndex, IsFiltered, HasErrorBars, Has3DEffect, Shadow, BarShape,
+  PictureType, PictureUnit2, InvertColorIndex and InvertColor, as Excel
+  reads them on each kind of chart the model makes. Type uses the old
+  gallery constants, so any column chart reads xlColumn. Measured in
+  `tests/fixtures/chart_series_reads.json`.
+
 - The hidden `_Default` members answer as Excel's do in code that
   declares its types: a collection's finds an item as Item does, on 25
   collections from Shapes to PivotFilters, and Range's, Name's,

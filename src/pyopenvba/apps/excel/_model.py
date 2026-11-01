@@ -1718,6 +1718,12 @@ class Workbook(ExcelObject):
         return str(Path(self.path) / self.name) if self.path else self.name
 
     @member
+    def FullNameURLEncoded(self) -> object:
+        """FullName, as it is for every workbook on a local disk, spaces, # and % unencoded
+        (tests/fixtures/full_name_url_encoded.json)."""
+        return self.FullName()
+
+    @member
     def Path(self) -> object:
         return self.path
 

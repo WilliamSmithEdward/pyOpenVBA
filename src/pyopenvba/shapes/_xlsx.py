@@ -925,10 +925,7 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
         f"{'' if shape.kind == 'textBox' else _STYLE}{body}"
         f"</{element}>"
     )
-    left, top, width, height = shape.left, shape.top, shape.width, shape.height
-    if 45 <= shape.rotation % 360 < 135 or 225 <= shape.rotation % 360 < 315:
-        # Turned nearer upright than flat, the shape is anchored by its box turned on its centre.
-        left, top, width, height = left + (width - height) / 2, top + (height - width) / 2, height, width
+    left, top, width, height = _turned_box(shape)
     client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
     return (
         "<xdr:twoCellAnchor>"
@@ -1024,7 +1021,7 @@ def _markup_for(shape: Shape, grid: SheetGrid | None = None) -> str:
         # Excel-authored controls can also carry a hidden DrawingML
         # caption. Excel prefers it to VML when both exist.
         markup = dml.replace_text(markup, shape.text, "xdr:txBody")
-    return markup
+    return _restyled(markup, shape, was, grid)
 
 
 def _shape_of_source(shape: Shape) -> Shape | None:
@@ -1048,9 +1045,65 @@ def _moved(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None = None)
     if span is None or finish is None:
         return out
     grid = grid or SheetGrid()
-    start = _corner_markup("from", grid, shape.left, shape.top)
-    end = _corner_markup("to", grid, shape.left + shape.width, shape.top + shape.height)
+    left, top, width, height = _turned_box(shape)
+    start = _corner_markup("from", grid, left, top)
+    end = _corner_markup("to", grid, left + width, top + height)
     return out[: span[0]] + start + out[span[1] : finish[0]] + end + out[finish[1] :]
+
+
+def _turned_box(shape: Shape) -> tuple[float, float, float, float]:
+    """The box a shape is anchored by: its own, or, turned nearer upright than flat (45 to 135 degrees, or 225 to
+    315), the same box turned on its centre (tests/fixtures/shape_properties.json)."""
+    left, top, width, height = shape.left, shape.top, shape.width, shape.height
+    if 45 <= shape.rotation % 360 < 135 or 225 <= shape.rotation % 360 < 315:
+        return left + (width - height) / 2, top + (height - width) / 2, height, width
+    return left, top, width, height
+
+
+_ADEC_URI = "{C183D7F6-B498-43B3-948B-1728B52AA6E4}"
+_ADEC = ('<a:ext uri="' + _ADEC_URI + '"><adec:decorative '
+         'xmlns:adec="http://schemas.microsoft.com/office/drawing/2017/decorative" val="{value}"/></a:ext>')
+
+
+def _restyled(markup: str, shape: Shape, was: Shape, grid: SheetGrid | None) -> str:
+    """A loaded shape's markup with the settings a macro changed patched in, as Excel patches them
+    (tests/fixtures/loaded_shape/cases.json): descr and title on cNvPr, the decorative extension (val 0 once
+    turned off, as Excel leaves it), xfrm's rot and the anchor it turns, spLocks, and clientData's fLocksWithSheet."""
+    if (shape.description, shape.title) != (was.description, was.title):
+        found = _CNVPR_OPEN.search(markup)
+        if found is not None:
+            attributes = re.sub(r'\s(?:descr|title)="[^"]*"', "", found.group(1))
+            name = re.search(r'\bname="[^"]*"', attributes)
+            at = name.end() if name is not None else len(attributes)
+            added = (f' descr="{escape(shape.description)}"' if shape.description else "") + (
+                f' title="{escape(shape.title)}"' if shape.title else "")
+            attributes = attributes[:at] + added + attributes[at:]
+            markup = markup[: found.start(1)] + attributes + markup[found.end(1):]
+    if shape.decorative != was.decorative:
+        value = "1" if shape.decorative else "0"
+        if re.search(r"<adec:decorative\b", markup):
+            markup = re.sub(r'(<adec:decorative\b[^>]*\bval=")[^"]*"', rf'\g<1>{value}"', markup, count=1)
+        elif "</a:extLst></xdr:cNvPr>" in markup:
+            markup = markup.replace("</a:extLst></xdr:cNvPr>", _ADEC.replace("{value}", value)
+                                    + "</a:extLst></xdr:cNvPr>", 1)
+    if shape.lock_aspect != was.lock_aspect:
+        locks = '<a:spLocks noChangeAspect="1"/>' if shape.lock_aspect else "<a:spLocks/>"
+        if re.search(r"<a:spLocks\b", markup):
+            markup = re.sub(r"<a:spLocks\b[^>]*/>", locks, markup, count=1)
+        else:
+            markup = re.sub(r"<xdr:cNvSpPr([^>]*)/>", rf"<xdr:cNvSpPr\1>{locks}</xdr:cNvSpPr>", markup, count=1)
+    if shape.locked != was.locked:
+        client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
+        markup = re.sub(r"<xdr:clientData\b[^>]*/>", client, markup, count=1)
+    if shape.rotation != was.rotation:
+        turn = f' rot="{round(shape.rotation * 60000)}"' if shape.rotation else ""
+        found = re.search(r"<a:xfrm\b[^>]*>", markup)
+        if found is not None:
+            tag = re.sub(r'\srot="[^"]*"', "", found.group()).replace("<a:xfrm", "<a:xfrm" + turn, 1)
+            markup = markup[: found.start()] + tag + markup[found.end():]
+        if _turned_box(shape) != _turned_box(was):
+            markup = _moved(markup, shape, was, grid)
+    return markup
 
 
 def geometry_for(mso_type: int) -> str:

@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- A series' marker colours answer as Excel's do:
+  `MarkerForegroundColor`, `MarkerBackgroundColor` and their ColorIndex
+  forms, written in the marker's `spPr`. A colour given to a series
+  without markers turns its markers to automatic, as in Excel. 17 live
+  cases agree, `tests/fixtures/chart_marker_colours.json`.
+
 - `Series.InvertIfNegative`, `Series.Explosion`, `Chart.HasDataTable`
   and `Chart.Name` answer as Excel's do, and a loaded chart reads the
   first three from its file. 23 live cases agree,

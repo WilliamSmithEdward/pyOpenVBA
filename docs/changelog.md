@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- ControlFormat's `DropDownLines`, `Enabled`, `ListIndex`, `LockedText`
+  and `PrintObject` answer as Excel's do on new drop-downs, list boxes,
+  check boxes and buttons, and are saved where Excel saves them. A new
+  control now carries Excel's own defaults: a drop-down names its lines
+  only once set, lists lock no text, and only a button starts unprinted.
+  40 live cases agree, `tests/fixtures/control_format_more.json`.
+
 - A chart's category axis takes `CategoryType`, `BaseUnit`,
   `BaseUnitIsAuto` and, with a major unit, `MajorUnitScale` as Excel's
   does. A time scale, chosen or automatic over dates, is saved as a

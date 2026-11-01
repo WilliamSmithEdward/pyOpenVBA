@@ -164,6 +164,12 @@ class ControlInfo:
     first_button: bool = False
     #: Runtime group-box shape id (0 for the sheet); reconstructed on open.
     radio_group: int | None = None
+    #: DropDownLines once set, Enabled turned round, PrintObject once set (a button starts False, the rest True), and
+    #: LockedText (tests/fixtures/control_format_more.json).
+    drop_lines: int | None = None
+    disabled: bool = False
+    print_object: bool | None = None
+    lock_text: bool = True
 
 
 @dataclass(slots=True)

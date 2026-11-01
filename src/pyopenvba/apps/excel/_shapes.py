@@ -38,6 +38,7 @@ from pyopenvba.shapes._values import (
     PRESET_GEOMETRY,
     SHAPE_NAMES,
     Box,
+    ControlInfo,
     Shape,
     TextLook,
     child_space,
@@ -1541,6 +1542,87 @@ class ControlFormat(_Drawn):
         from pyopenvba.apps.excel._controls import set_link
 
         set_link(self.sheet, self.shape, to_text(value))
+
+    # -- tests/fixtures/control_format_more.json, on new drop-downs, list boxes, check boxes and buttons
+
+    def _settings(self, *kinds: str) -> ControlInfo:
+        """The control's settings, for the kinds that have this one; the rest raise 438."""
+        from pyopenvba.shapes._xlsx import CONTROL_KINDS
+
+        control = self.shape.control
+        kind = CONTROL_KINDS.get(control.kind if control else "Button", "Button")
+        if control is None or kind not in kinds:
+            if kind in ("Drop", "List", "Checkbox", "Button"):
+                raise error(438, "Object doesn't support this property or method")
+            raise VBAUnsupportedError(f"This setting of a {kind} control is not implemented")
+        if self.shape.source:
+            raise VBAUnsupportedError("This setting of a control loaded from a file is not implemented")
+        return control
+
+    def _changed(self, *kinds: str) -> ControlInfo:
+        from pyopenvba.apps.excel._protection import guard_drawing
+
+        control = self._settings(*kinds)
+        guard_drawing(self.sheet, "ControlFormat")
+        self.sheet.drawing_changed()
+        return control
+
+    @member
+    def DropDownLines(self) -> object:
+        lines = self._settings("Drop").drop_lines
+        return VBAInt(8 if lines is None else lines, "Long")
+
+    @setter("DropDownLines")
+    def _drop_down_lines(self, value: object) -> None:
+        wanted = int(to_number(value))
+        control = self._settings("Drop")
+        if not 0 <= wanted <= 32767:
+            raise error(1004, "Unable to set the DropDownLines property of the ControlFormat class")
+        self._changed("Drop")
+        control.drop_lines = wanted
+
+    @member
+    def Enabled(self) -> object:
+        return not self._settings("Drop", "List", "Checkbox", "Button").disabled
+
+    @setter("Enabled")
+    def _enabled(self, value: object) -> None:
+        wanted = to_bool(value)
+        self._changed("Drop", "List", "Checkbox", "Button").disabled = not wanted
+
+    @member
+    def PrintObject(self) -> object:
+        from pyopenvba.shapes._xlsx import CONTROL_KINDS
+
+        control = self._settings("Drop", "List", "Checkbox", "Button")
+        if control.print_object is None:
+            # A button starts out not printing; the other controls print.
+            return CONTROL_KINDS.get(control.kind, "Button") != "Button"
+        return control.print_object
+
+    @setter("PrintObject")
+    def _print_object(self, value: object) -> None:
+        wanted = to_bool(value)
+        self._changed("Drop", "List", "Checkbox", "Button").print_object = wanted
+
+    @member
+    def LockedText(self) -> object:
+        return self._settings("Checkbox", "Button").lock_text
+
+    @setter("LockedText")
+    def _locked_text(self, value: object) -> None:
+        wanted = to_bool(value)
+        self._changed("Checkbox", "Button").lock_text = wanted
+
+    @member
+    def ListIndex(self) -> object:
+        self._settings("Drop", "List")
+        return self.Value()
+
+    @setter("ListIndex")
+    def _list_index(self, value: object) -> None:
+        self._settings("Drop", "List")
+        self._set_value(value)
 
     @member
     def Value(self) -> object:

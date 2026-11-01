@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Chart trendlines: Series.Trendlines, Trendlines.Add and the Trendline
+  object, written and read back as Excel writes them. Add takes every
+  type with its order, period, forward, intercept, display flags and
+  name, and Backward is ignored as Excel ignores it. A trendline's
+  automatic name is its type and the series' name, such as
+  "2 per. Mov. Avg. (Sales)". Measured in
+  `tests/fixtures/chart_trendlines.json`.
+
 - Chart error bars: Series.ErrorBar, Series.HasErrorBars and the
   ErrorBars object's Parent, Name, EndStyle and Delete, written and read
   back as Excel writes them. ErrorBar takes every Include and Type,

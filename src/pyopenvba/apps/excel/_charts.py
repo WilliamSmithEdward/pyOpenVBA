@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState
 from pyopenvba.apps.excel._chart_error_bars import ErrorBars, ErrorBarState, error_bar, has_error_bars, set_has_error_bars
+from pyopenvba.apps.excel._chart_trendlines import Trendlines, TrendlineState
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -65,6 +66,8 @@ class SeriesState:
     marker_back: str | None = None
     #: Its Y error bar and, in a scatter chart, its X one (tests/fixtures/chart_error_bars.json).
     error_bars: list[ErrorBarState] = field(default_factory=lambda: [])
+    #: Its trendlines, in the order they were added (tests/fixtures/chart_trendlines.json).
+    trendlines: list[TrendlineState] = field(default_factory=lambda: [])
 
 @dataclass
 class ChartState:
@@ -1319,6 +1322,12 @@ class Series(Created):
     def ErrorBars(self) -> object:
         self.position()
         return ErrorBars(self)
+
+    @method
+    def Trendlines(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        self.position()
+        lines = Trendlines(self)
+        return lines if Index is MISSING else lines.vba_lookup(Index, lines.vba_items())
 
     @member
     def Has3DEffect(self) -> object:

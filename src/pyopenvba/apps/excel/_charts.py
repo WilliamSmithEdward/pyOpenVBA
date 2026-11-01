@@ -395,6 +395,14 @@ class SeriesCollection(VBACollection, Created):
         self.chart.admit_read()
         return [Series(self.chart, entry) for entry in self.chart.state.series]
 
+    @member
+    def Parent(self) -> object:
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
     @method
     def NewSeries(self) -> object:
         self.chart.admit_change()

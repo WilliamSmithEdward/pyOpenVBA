@@ -480,6 +480,10 @@ class IconSets(VBACollection, ExcelObject):
     def vba_items(self) -> list[object]:
         return [IconSet(self.book, number, len(icons)) for number, (_, icons) in SETS.items()]
 
+    @member
+    def Application(self) -> object:
+        return self.book.application
+
     def vba_lookup(self, index: object, items: list[object]) -> object:
         position = int(to_integer(index, 'Long'))
         if not 1 <= position <= len(items):

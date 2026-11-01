@@ -255,6 +255,16 @@ class DisplayFormat(ExcelObject):
         return self.sheet.book.application
 
     @member
+    def MergeCells(self) -> object:
+        """The range's own MergeCells, which no conditional format changes (tests/fixtures/collection_members.json)."""
+        return self.target.vba_get('MergeCells')
+
+    @member
+    def Style(self) -> object:
+        """The range's own Style, which no conditional format changes (tests/fixtures/collection_members.json)."""
+        return self.target.vba_get('Style')
+
+    @member
     def Font(self) -> object:
         return _DisplayFont(self.target)
 

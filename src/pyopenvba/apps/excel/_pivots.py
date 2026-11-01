@@ -133,6 +133,10 @@ class _Collection(VBACollection, ExcelObject):
         self.parent = parent
         self.items = items
 
+    @member
+    def Application(self) -> object:
+        return self.parent.vba_get('Application')
+
     def vba_items(self) -> list[object]:
         return self.items
 
@@ -170,6 +174,16 @@ class PivotCaches(_Collection):
 
 class PivotTables(_Collection):
     vba_type_name = 'PivotTables'
+
+    @method
+    def Add(self, PivotCache: object = MISSING, TableDestination: object = MISSING, TableName: object = MISSING,
+            ReadData: object = MISSING, DefaultVersion: object = MISSING) -> object:
+        """PivotCache.CreatePivotTable's table (tests/fixtures/collection_members.json)."""
+        from pyopenvba.apps.excel import _pivots
+
+        if not isinstance(PivotCache, _pivots.PivotCache) or TableDestination is MISSING:
+            raise error(1004)
+        return PivotCache.CreatePivotTable(TableDestination, TableName, ReadData, DefaultVersion)
 
 
 class PivotItemList(_Collection):

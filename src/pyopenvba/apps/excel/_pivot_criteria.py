@@ -451,6 +451,10 @@ class PivotFilters(VBACollection, ExcelObject):
     def Parent(self) -> object:
         return self.field
 
+    @member
+    def Application(self) -> object:
+        return self.field.table.sheet.book.application
+
     @method
     def Add(self, Type: object, DataField: object = MISSING, Value1: object = MISSING, Value2: object = MISSING,
             Order: object = MISSING, Name: object = MISSING, Description: object = MISSING,

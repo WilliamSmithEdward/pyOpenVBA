@@ -97,6 +97,10 @@ class Axes(VBACollection, Created):
     def vba_items(self) -> list[object]:
         return [Axis(self.chart, entry) for entry in states(self.chart).values() if entry.present]
 
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
     @member(default=True)
     def Item(self, Type: object, AxisGroup: object = MISSING) -> object:  # noqa: N803 - native named arguments
         return axis(self.chart, Type, AxisGroup)

@@ -91,7 +91,7 @@ def test_series_budget_preserves_source_state(monkeypatch: pytest.MonkeyPatch) -
     before = snapshot(chart)
     monkeypatch.setattr(_charts, 'MAX_CHART_SERIES', 2)
     with pytest.raises(VBAUnsupportedError, match='series budget'):
-        chart.SetSourceData(chart.sheet.Range('A1:C2'), 2)
+        chart.SetSourceData(chart.sheet.Range('A1:D2'), 2)
     assert snapshot(chart) == before
 
 

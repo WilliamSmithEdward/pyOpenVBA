@@ -99,9 +99,14 @@ class ChartState:
     data_table: bool = False
 
 
-def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesState]:
-    """The series SetSourceData makes from a block of cells, by rows (1) or columns (2). A first row or column of text
-    names the series or labels the categories; the corner cell takes no part in deciding either."""
+def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
+    """How many of a block's top rows and left columns label the rest, as SetSourceData reads it
+    (tests/fixtures/chart_multilevel_categories.json).
+
+    A blank top left corner says so itself: its blank cells along the top row and down the left column, one where
+    they run the whole way. Otherwise the left columns run to the last text or date in the bottom row, and the top
+    rows to the last in the right column, whatever the cells before them hold. Either way at least one row and one
+    column are left for the values."""
     from pyopenvba.apps.excel._model import Range
 
     height, width = area.bottom - area.top + 1, area.right - area.left + 1
@@ -109,43 +114,120 @@ def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesSt
     def value(row: int, column: int) -> object:
         return Range(sheet, [Area(row, column, row, column)]).Value()
 
-    def text_axis(values: list[object]) -> bool:
-        return bool(values) and all(isinstance(item, str) or item is EMPTY for item in values) and any(
-            isinstance(item, str) and bool(item) for item in values)
+    def labelling(item: object) -> bool:
+        # Dates label as text does (tests/fixtures/chart_category_type.json).
+        return isinstance(item, str) and bool(item) or isinstance(item, VBADate)
 
-    def label_axis(values: list[object]) -> bool:
-        # Dates label the categories as text does (tests/fixtures/chart_category_type.json).
-        return text_axis(values) or bool(values) and all(isinstance(item, VBADate) for item in values)
+    def run(cells: list[object], blank: bool) -> int:
+        if blank:
+            count = next((index for index, item in enumerate(cells) if item is not EMPTY), len(cells))
+            return 1 if count == len(cells) else count
+        return max((index + 1 for index, item in enumerate(cells) if labelling(item)), default=0)
+
+    blank = value(area.top, area.left) is EMPTY
+    rows = run([value(row, area.left if blank else area.right) for row in range(area.top, area.bottom + 1)], blank)
+    columns = run([value(area.top if blank else area.bottom, column)
+                   for column in range(area.left, area.right + 1)], blank)
+    return min(rows, height - 1), min(columns, width - 1)
+
+
+def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesState]:
+    """The series SetSourceData makes from a block of cells, by rows (1) or columns (2). The rows and columns
+    label_block finds name the series and label the categories, more than one of either making a name or categories
+    of several levels (tests/fixtures/chart_multilevel_categories.json)."""
+    rows, columns = label_block(sheet, area)
     series_plan: list[SeriesState] = []
     if orientation == 2:
-        names = text_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
-        top = area.top + names
-        labels = label_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
-        if width - labels > MAX_CHART_SERIES:
+        top, left = area.top + rows, area.left + columns
+        if area.right - left + 1 > MAX_CHART_SERIES:
             raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
-        for column in range(area.left + labels, area.right + 1):
+        for column in range(left, area.right + 1):
             series = SeriesState(series_id=len(series_plan))
-            if names:
-                series.name_reference = reference(sheet, Area(area.top, column, area.top, column))
+            if rows:
+                series.name_reference = reference(sheet, Area(area.top, column, top - 1, column))
             series.value_reference = reference(sheet, Area(top, column, area.bottom, column))
-            if labels:
-                series.category_reference = reference(sheet, Area(top, area.left, area.bottom, area.left))
+            if columns:
+                series.category_reference = reference(sheet, Area(top, area.left, area.bottom, left - 1))
             series_plan.append(series)
     else:
-        names = text_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
-        left = area.left + names
-        labels = label_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
-        if height - labels > MAX_CHART_SERIES:
+        top, left = area.top + rows, area.left + columns
+        if area.bottom - top + 1 > MAX_CHART_SERIES:
             raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
-        for row in range(area.top + labels, area.bottom + 1):
+        for row in range(top, area.bottom + 1):
             series = SeriesState(series_id=len(series_plan))
-            if names:
-                series.name_reference = reference(sheet, Area(row, area.left, row, area.left))
+            if columns:
+                series.name_reference = reference(sheet, Area(row, area.left, row, left - 1))
             series.value_reference = reference(sheet, Area(row, left, row, area.right))
-            if labels:
-                series.category_reference = reference(sheet, Area(area.top, left, area.top, area.right))
+            if rows:
+                series.category_reference = reference(sheet, Area(area.top, left, top - 1, area.right))
             series_plan.append(series)
     return series_plan
+
+
+def shown_cells(sheet: Worksheet, formula: str) -> list[list[str]]:
+    """A reference's cells, row by row, as their formats show them whatever their columns' width: how a chart's
+    cache holds a name or categories of several cells (tests/fixtures/chart_multilevel_categories.json)."""
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.formula._display import UndisplayableError, displayed
+
+    area = parse_reference(formula)[0]
+    owner = sheet.book.sheet_named(area.sheet) if area.sheet else sheet
+    grid: list[list[str]] = []
+    for row in range(area.top, area.bottom + 1):
+        texts: list[str] = []
+        for column in range(area.left, area.right + 1):
+            cell = Range(owner, [Area(row, column, row, column)])
+            value = cell.Value2()
+            try:
+                texts.append('' if value is EMPTY else displayed(
+                    value, to_text(cell.NumberFormat()), epoch_1904=owner.book.epoch_1904,
+                    locale=owner.book.application.locale).text if isinstance(value, (bool, str, int, float))
+                    else to_text(value))
+            except UndisplayableError:
+                texts.append(to_text(value))
+        grid.append(texts)
+    return grid
+
+
+def category_levels(sheet: Worksheet, entry: SeriesState) -> list[list[str]] | None:
+    """A series' categories when they take several rows or columns, one list of texts for each level, the outer
+    first; None for categories of one level. Its points run along the side as long as its values, down the rows
+    where both sides are (tests/fixtures/chart_multilevel_categories.json)."""
+    if not entry.category_reference:
+        return None
+    try:
+        areas = parse_reference(entry.category_reference)
+    except ValueError:
+        return None
+    if len(areas) != 1:
+        return None
+    area = areas[0]
+    height, width = area.bottom - area.top + 1, area.right - area.left + 1
+    if height * width > MAX_CHART_POINTS:
+        raise VBAUnsupportedError('Chart references exceed the supported cell budget')
+    points = len(referenced_values(sheet, entry.value_reference)) if entry.value_reference else len(entry.values)
+    down = height == points if (height == points) != (width == points) else height >= width
+    if (width if down else height) == 1:
+        return None
+    grid = shown_cells(sheet, entry.category_reference)
+    return [list(level) for level in zip(*grid, strict=True)] if down else grid
+
+
+def joined_categories(levels: list[list[str]]) -> list[str]:
+    """What XValues reads of categories of several levels: each point's texts, the outer first and blanks left out,
+    an outer level's blank taking the text above it (tests/fixtures/chart_multilevel_categories.json)."""
+    carried = [''] * len(levels)
+    texts: list[str] = []
+    for index in range(len(levels[0])):
+        parts: list[str] = []
+        for depth, level in enumerate(levels):
+            text = level[index]
+            if depth < len(levels) - 1:
+                carried[depth] = text = text or carried[depth]
+            if text:
+                parts.append(text)
+        texts.append(' '.join(parts))
+    return texts
 
 
 def plotted_before(sheet: Worksheet) -> int:
@@ -1155,6 +1237,11 @@ class Series(Created):
         self.position()
         if self.entry.name_reference:
             values = referenced_values(self.chart.sheet, self.entry.name_reference)
+            if len(values) > 1:
+                # A name of several cells reads their texts with a space between (tests/fixtures/
+                # chart_multilevel_categories.json).
+                return ' '.join(text for row in shown_cells(self.chart.sheet, self.entry.name_reference)
+                                for text in row if text)
             return to_text(values[0]) if values else ''
         identity = self.entry.series_id + 1 if self.entry.series_id >= 0 else self.position()
         return self.entry.name if self.entry.name is not None else f'Series{identity}'
@@ -1188,8 +1275,17 @@ class Series(Created):
 
     @member
     def XValues(self) -> object:
+        values = self.categories()
+        if self.entry.category_reference and category_levels(self.chart.sheet, self.entry) is None:
+            # Categories with text among them read every cell as it shows, a blank as ""; numbers with a blank among
+            # them cannot be read at all (tests/fixtures/chart_multilevel_categories.json).
+            if any(isinstance(value, str) for value in values):
+                values = [text for row in shown_cells(self.chart.sheet, self.entry.category_reference)
+                          for text in row]
+            elif any(value is EMPTY for value in values):
+                raise error(-2147467259, 'Automation error\nUnspecified error ')
         values = [float(value) if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) else value
-                  for value in self.categories()]
+                  for value in values]
         return VBAArray([(1, len(values))], items=values)
 
     @setter('XValues', objects=True)
@@ -1208,6 +1304,9 @@ class Series(Created):
     def categories(self) -> list[object]:
         self.position()
         if self.entry.category_reference:
+            levels = category_levels(self.chart.sheet, self.entry)
+            if levels is not None:
+                return list(joined_categories(levels))
             return referenced_values(self.chart.sheet, self.entry.category_reference)
         return self.entry.categories or [float(index + 1) for index in range(len(self.values()))]
 

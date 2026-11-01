@@ -55,9 +55,14 @@ class SeriesData:
     value_format: str = "General"
     name: str | None = None
     name_cache: str | None = None
+    #: A name of several cells: each cell's text, which its cache holds point by point.
+    name_points: Sequence[str] = ()
     categories: str | None = None
     #: The categories as they show, or as numbers when every one is a number.
     category_cache: Sequence[str | float | None] = ()
+    #: Categories of several levels, each level's texts, the outer first (tests/fixtures/
+    #: chart_multilevel_categories.json).
+    category_levels: Sequence[Sequence[str]] = ()
     category_format: str = "General"
     numeric_categories: bool = False
     series_id: int | None = None
@@ -230,11 +235,22 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
     identity = index if data.series_id is None else data.series_id
     name = ""
     if data.name is not None:
-        name = f"<c:tx><c:strRef><c:f>{escape_text(data.name)}</c:f>{_string_cache([data.name_cache])}</c:strRef></c:tx>"
+        cache = _string_cache(list(data.name_points) if data.name_points else [data.name_cache])
+        name = f"<c:tx><c:strRef><c:f>{escape_text(data.name)}</c:f>{cache}</c:strRef></c:tx>"
     elif data.name_cache is not None:
         name = f'<c:tx><c:v>{escape_text(data.name_cache)}</c:v></c:tx>'
     categories = ""
-    if data.categories is not None:
+    if data.categories and data.category_levels:
+        # Excel writes the inner level first, each with a point for every cell that is not blank.
+        levels = "".join(
+            "<c:lvl>" + "".join(f'<c:pt idx="{index}"><c:v>{escape_text(text)}</c:v></c:pt>'
+                                for index, text in enumerate(level) if text) + "</c:lvl>"
+            for level in reversed(data.category_levels))
+        categories = (f"<c:{'xVal' if kind == 'scatter' else 'cat'}><c:multiLvlStrRef>"
+                      f"<c:f>{escape_text(data.categories)}</c:f><c:multiLvlStrCache>"
+                      f'<c:ptCount val="{len(data.category_levels[0])}"/>{levels}</c:multiLvlStrCache>'
+                      f"</c:multiLvlStrRef></c:{'xVal' if kind == 'scatter' else 'cat'}>")
+    elif data.categories is not None:
         cache = (
             _number_cache(list(data.category_cache), data.category_format)
             if data.numeric_categories

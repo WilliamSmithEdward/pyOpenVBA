@@ -18,7 +18,7 @@ from pyopenvba._a1 import parse_reference
 from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, DATA_TABLE, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
-                                          linked_title, referenced_values, shown_type)
+                                          category_levels, linked_title, referenced_values, shown_cells, shown_type)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
@@ -346,6 +346,9 @@ def _data(node: ET.Element | None) -> tuple[str, list[object]]:
 def _number(value: object) -> float | None:
     if value is EMPTY or isinstance(value, VBAErrorValue):
         return None
+    if isinstance(value, str):
+        # A cell of text plots, and is cached, as 0 (tests/fixtures/chart_multilevel_categories.json).
+        return 0.0
     return float(to_number(value))
 
 def _read_group(result: ChartState, group: ET.Element) -> None:
@@ -385,7 +388,10 @@ def dated_categories(sheet: Worksheet, state: ChartState) -> bool:
     from pyopenvba.apps.excel._typing import is_date_format
 
     first = next((entry for entry in state.series if entry.category_reference), None)
-    return first is not None and is_date_format(source_format(sheet, first.category_reference))
+    # Categories of several levels keep a text axis, dates among them or not (tests/fixtures/
+    # chart_multilevel_categories.json).
+    return (first is not None and category_levels(sheet, first) is None
+            and is_date_format(source_format(sheet, first.category_reference)))
 
 
 def source_format(sheet: Worksheet, formula: str) -> str:
@@ -449,12 +455,19 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     for item in chart.state.series:
         series = Series(chart, item)
         categories = series.categories()
-        numeric = bool(categories) and all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in categories)
+        levels = category_levels(sheet, item) or []
+        # Blanks leave categories numbers, all of them blank too (tests/fixtures/chart_multilevel_categories.json).
+        numeric = not levels and bool(categories) and all(
+            value is EMPTY or isinstance(value, (int, float)) and not isinstance(value, bool) for value in categories)
+        name_points = [text for row in shown_cells(sheet, item.name_reference) for text in row] if (
+            item.name_reference and len(referenced_values(sheet, item.name_reference)) > 1) else []
         data.append(SeriesData(values=item.value_reference, value_cache=[_number(value) for value in series.values()],
                                value_format=source_format(sheet, item.value_reference),
                                name=item.name_reference or None, name_cache=to_text(series.Name()) if item.name_reference else item.name,
+                               name_points=name_points,
                                categories=item.category_reference or ('' if item.categories else None),
                                category_cache=[_number(value) if numeric else to_text(value) for value in categories],
+                               category_levels=levels,
                                category_format=source_format(sheet, item.category_reference),
                                numeric_categories=numeric, series_id=item.series_id if item.series_id >= 0 else None,
                                unique_id=item.unique if item.unique >= 0 else None, marker=marker_markup(item),

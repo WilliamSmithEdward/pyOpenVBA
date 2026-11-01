@@ -1,0 +1,90 @@
+{
+ "measured_at": "2026-11-01T16:56:12.512644+00:00",
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, ch As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    ws.Range(\"A1\").Value = 4: ws.Range(\"B1\").Value = 5\n    ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 50, 30).Name = \"Box\"\n    Set ch = ws.ChartObjects.Add(100, 10, 200, 100).Chart\n    ch.SetSourceData ws.Range(\"A1:B1\")\n    wb.Names.Add \"Total\", \"=Sheet1!$A$1\"\n    ws.Range(\"D1:E3\").Value = 1: ws.Range(\"D1\").Value = \"x\": ws.Range(\"E1\").Value = \"y\"\n    ws.ListObjects.Add xlSrcRange, ws.Range(\"D1:E3\"), , xlYes\n    ws.Range(\"G1:G3\").Value = Application.Transpose(Array(\"a\", \"b\", \"c\"))\n    With ws.Shapes.AddFormControl(xlDropDown, 10, 150, 80, 20): .Name = \"Drop\": .ControlFormat.ListFillRange = \"$G$1:$G$3\": End With\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        s = ws.Shapes.[_Default](1).Name & \",\" & ws.Shapes.[_Default](\"Box\").Name & \",\" & ws.Shapes(1).Name\n    Case 1\n        s = TypeName(ws.ChartObjects.[_Default](1)) & \",\" & ws.ChartObjects.[_Default](1).Name\n    Case 2\n        s = wb.Sheets.[_Default](1).Name & \",\" & wb.Worksheets.[_Default](1).Name\n    Case 3\n        s = (Workbooks.[_Default](wb.Name) Is wb)\n    Case 4\n        s = wb.Names.[_Default](\"Total\").RefersTo\n    Case 5\n        s = (Windows.[_Default](1).Caption = ActiveWindow.Caption)\n    Case 6\n        s = wb.Styles.[_Default](\"Normal\").Name\n    Case 7\n        s = ch.SeriesCollection.[_Default](1).Name\n    Case 8\n        s = ch.Axes.[_Default](xlValue).Type\n    Case 9\n        s = ws.Range(\"A1:B1,D1\").Areas.[_Default](2).Address\n    Case 10\n        s = ws.Range(\"A1\").Borders.[_Default](xlEdgeTop).LineStyle\n    Case 11\n        s = (wb.PivotCaches.Count = 0)\n    Case 12\n        s = ws.ListObjects.[_Default](1).Name\n    Case 13\n        s = ws.Range(\"A1\").[_Default] & \",\" & ws.Range(\"A1:B1\").Cells(2).[_Default]\n    Case 14\n        ws.Range(\"C1\").[_Default] = 7: s = ws.Range(\"C1\").Value\n    Case 15\n        s = ws.Range(\"A1:B1\").[_Default](1, 2)\n    Case 16\n        s = wb.Names(\"Total\").[_Default] & \"|\" & wb.Names(\"Total\").Name\n    Case 17\n        s = Application.[_Default] & \"|\" & Application.Name\n    Case 18\n        s = ws.Shapes(\"Drop\").ControlFormat.[_Default] & \"|\" & ws.Shapes(\"Drop\").ControlFormat.Value\n    Case 19\n        ws.Shapes(\"Drop\").ControlFormat.[_Default] = 2: s = ws.Shapes(\"Drop\").ControlFormat.Value\n    Case 20\n        s = TypeName(ws.Shapes.[_Default](9))\n    End Select\n    Tried = \"ok \" & s\nDone:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Done\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 20\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "s = ws.Shapes.[_Default](1).Name & \",\" & ws.Shapes.[_Default](\"Box\").Name & \",\" & ws.Shapes(1).Name",
+   "ok Box,Box,Box"
+  ],
+  [
+   "s = TypeName(ws.ChartObjects.[_Default](1)) & \",\" & ws.ChartObjects.[_Default](1).Name",
+   "Err 438"
+  ],
+  [
+   "s = wb.Sheets.[_Default](1).Name & \",\" & wb.Worksheets.[_Default](1).Name",
+   "ok Sheet1,Sheet1"
+  ],
+  [
+   "s = (Workbooks.[_Default](wb.Name) Is wb)",
+   "ok True"
+  ],
+  [
+   "s = wb.Names.[_Default](\"Total\").RefersTo",
+   "ok =Sheet1!$A$1"
+  ],
+  [
+   "s = (Windows.[_Default](1).Caption = ActiveWindow.Caption)",
+   "ok True"
+  ],
+  [
+   "s = wb.Styles.[_Default](\"Normal\").Name",
+   "ok Normal"
+  ],
+  [
+   "s = ch.SeriesCollection.[_Default](1).Name",
+   "Err 438"
+  ],
+  [
+   "s = ch.Axes.[_Default](xlValue).Type",
+   "Err 438"
+  ],
+  [
+   "s = ws.Range(\"A1:B1,D1\").Areas.[_Default](2).Address",
+   "ok $D$1"
+  ],
+  [
+   "s = ws.Range(\"A1\").Borders.[_Default](xlEdgeTop).LineStyle",
+   "ok -4142"
+  ],
+  [
+   "s = (wb.PivotCaches.Count = 0)",
+   "ok True"
+  ],
+  [
+   "s = ws.ListObjects.[_Default](1).Name",
+   "ok Table1"
+  ],
+  [
+   "s = ws.Range(\"A1\").[_Default] & \",\" & ws.Range(\"A1:B1\").Cells(2).[_Default]",
+   "Err 438"
+  ],
+  [
+   "ws.Range(\"C1\").[_Default] = 7: s = ws.Range(\"C1\").Value",
+   "ok 7"
+  ],
+  [
+   "s = ws.Range(\"A1:B1\").[_Default](1, 2)",
+   "ok 5"
+  ],
+  [
+   "s = wb.Names(\"Total\").[_Default] & \"|\" & wb.Names(\"Total\").Name",
+   "ok =Sheet1!$A$1|Total"
+  ],
+  [
+   "s = Application.[_Default] & \"|\" & Application.Name",
+   "ok Microsoft Excel|Microsoft Excel"
+  ],
+  [
+   "s = ws.Shapes(\"Drop\").ControlFormat.[_Default] & \"|\" & ws.Shapes(\"Drop\").ControlFormat.Value",
+   "ok 0|0"
+  ],
+  [
+   "ws.Shapes(\"Drop\").ControlFormat.[_Default] = 2: s = ws.Shapes(\"Drop\").ControlFormat.Value",
+   "ok 2"
+  ],
+  [
+   "s = TypeName(ws.Shapes.[_Default](9))",
+   "Err -2147024809"
+  ]
+ ]
+}

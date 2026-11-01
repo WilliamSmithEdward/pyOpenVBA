@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING, Final
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel import _row_formats
 from pyopenvba.apps.excel import _styles as S
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.apps.excel._visible import visible_areas
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -1233,7 +1234,7 @@ class Border(ExcelObject):
         return self.target.sheet.book.application
 
 
-class Borders(VBACollection, ExcelObject):
+class Borders(VBACollection, ItemDefault, ExcelObject):
     """A range's borders: Borders(xlEdgeTop) is one, a property set here sets the edges and insides."""
 
     vba_type_name = "Borders"

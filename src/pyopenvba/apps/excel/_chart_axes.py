@@ -134,6 +134,11 @@ def axis(chart: Chart, kind: object, group: object = MISSING) -> Axis:
 class Axes(VBACollection, Created):
     vba_type_name = "Axes"
 
+    @method(name="_Default")
+    def hidden_default(self, *arguments: object) -> object:
+        # A macro reaching the hidden _Default gets 438 (tests/fixtures/hidden_defaults.json).
+        raise error(438, "Object doesn't support this property or method")
+
     def __init__(self, chart: Chart) -> None:
         self.chart = chart
 

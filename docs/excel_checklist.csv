@@ -978,8 +978,8 @@ GroupShapes,Application,"property, read-only",As Application,,MISSING,,
 GroupShapes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 GroupShapes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 GroupShapes,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,A member by number or by name.
-GroupShapes,Parent,"property, read-only",As Object,,MISSING,,
-GroupShapes,Range,"property, read-only",As ShapeRange,,MISSING,,
+GroupShapes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The group, a Shape."
+GroupShapes,Range,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The members an index, a name or an array names, as a ShapeRange."
 HPageBreak,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The application.
 HPageBreak,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,xlCreatorCode.
 HPageBreak,Delete,method,Delete(),,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,Takes the break away.
@@ -2087,7 +2087,7 @@ Shape,Nodes,"property, read-only",As ShapeNodes,,MISSING,,
 Shape,OLEFormat,"property, read-only",As OLEFormat,,MISSING,,
 Shape,OnAction,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The sheet.
-Shape,ParentGroup,"property, read-only",As Shape,,MISSING,,
+Shape,ParentGroup,"property, read-only",As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,The group a shape is in; a shape in none raises 1004.
 Shape,PickUp,method,PickUp(),,MISSING,,
 Shape,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
 Shape,Placement,property,As XlPlacement,no setter,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2165,7 +2165,7 @@ ShapeRange,ParentGroup,"property, read-only",As Shape,,MISSING,,
 ShapeRange,PickUp,method,PickUp(),,MISSING,,
 ShapeRange,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
 ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
-ShapeRange,Regroup,method,Regroup() As Shape,,MISSING,,
+ShapeRange,Regroup,method,Regroup() As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The ungrouped shapes made a group again, with the next name and id; shapes from no group raise 1004. Regrouping after a member moved, or part of the shapes, is refused."
 ShapeRange,RerouteConnections,method,RerouteConnections(),,MISSING,,
 ShapeRange,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set turns every shape."
 ShapeRange,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
@@ -2182,7 +2182,7 @@ ShapeRange,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
 ShapeRange,Title,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared text; a set gives every shape the text. Differing texts are refused.
 ShapeRange,Top,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set moves every shape."
 ShapeRange,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ShapeRange,Ungroup,method,Ungroup() As ShapeRange,,MISSING,,
+ShapeRange,Ungroup,method,Ungroup() As ShapeRange,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"Every group in the range ungrouped, other shapes passed over, the members as one range; no group raises 1004."
 ShapeRange,VerticalFlip,"property, read-only",As MsoTriState,,UNASSESSED,,
 ShapeRange,Vertices,"property, read-only",As Variant,,MISSING,,
 ShapeRange,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"Reads the shapes' shared value, or msoTriStateMixed (-2) where they differ; a set reaches every shape."

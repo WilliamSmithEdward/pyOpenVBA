@@ -61,6 +61,8 @@ class SeriesData:
     category_format: str = "General"
     numeric_categories: bool = False
     series_id: int | None = None
+    #: The first group of its unique id, when that is not its series_id.
+    unique_id: int | None = None
 
 
 # -- the pieces every kind shares ----------------------------------------
@@ -216,7 +218,8 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         f'<c:ser><c:idx val="{identity}"/><c:order val="{index}"/>{name}{body}'
         '<c:extLst><c:ext uri="{C3380CC4-5D6E-409C-BE32-E72D297353CC}"'
         ' xmlns:c16="http://schemas.microsoft.com/office/drawing/2014/chart">'
-        f'<c16:uniqueId val="{{{identity:08X}{unique}}}"/></c:ext></c:extLst></c:ser>'
+        f'<c16:uniqueId val="{{{identity if data.unique_id is None else data.unique_id:08X}{unique}}}"/>'
+        '</c:ext></c:extLst></c:ser>'
     )
 
 

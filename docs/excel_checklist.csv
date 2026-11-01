@@ -368,8 +368,8 @@ Axis,CategoryNames,property,As Variant,,MISSING,,
 Axis,CategorySortOrder,property,As XlCategorySortOrder,,MISSING,,
 Axis,CategoryType,property,As XlCategoryType,,MISSING,,
 Axis,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Axis,Crosses,property,As XlAxisCrosses,,MISSING,,
-Axis,CrossesAt,property,As Double,,MISSING,,
+Axis,Crosses,property,As XlAxisCrosses,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Written on the other axis's element. xlMaximum moves that axis to the far side, and with reversal brings it back. Automatic resets CrossesAt."
+Axis,CrossesAt,property,As Double,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"A set makes the crossing custom. Reads 0 when automatic. Reads at xlMaximum or xlMinimum need the drawn scale and are refused, as are crossings between categories."
 Axis,Delete,method,Delete() As Variant,,MISSING,,
 Axis,DisplayUnit,property,As XlDisplayUnit,,MISSING,,
 Axis,DisplayUnitCustom,property,As Double,,MISSING,,
@@ -377,14 +377,14 @@ Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,MISSING,,
 Axis,Format,"property, read-only",As ChartFormat,,MISSING,,
 Axis,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Axis,HasDisplayUnitLabel,property,As Boolean,,MISSING,,
-Axis,HasMajorGridlines,property,As Boolean,,MISSING,,
-Axis,HasMinorGridlines,property,As Boolean,,MISSING,,
+Axis,HasMajorGridlines,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,True on the value axis of a new chart. Written as a bare majorGridlines element. Imported charts read only.
+Axis,HasMinorGridlines,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,Written as a bare minorGridlines element after the major ones. Imported charts read only.
 Axis,HasTitle,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,Height,"property, read-only",As Double,,MISSING,,
 Axis,Left,"property, read-only",As Double,,MISSING,,
 Axis,LogBase,property,As Double,,MISSING,,
 Axis,MajorGridlines,"property, read-only",As Gridlines,,MISSING,,
-Axis,MajorTickMark,property,As XlTickMark,,MISSING,,
+Axis,MajorTickMark,property,As XlTickMark,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Out by default; none, in, out and cross. Other values raise -2147467259. Imported charts read only."
 Axis,MajorUnit,property,As Double,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,MajorUnitIsAuto,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,MajorUnitScale,property,As XlTimeUnit,,MISSING,,
@@ -393,7 +393,7 @@ Axis,MaximumScaleIsAuto,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes
 Axis,MinimumScale,property,As Double,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,MinimumScaleIsAuto,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
 Axis,MinorGridlines,"property, read-only",As Gridlines,,MISSING,,
-Axis,MinorTickMark,property,As XlTickMark,,MISSING,,
+Axis,MinorTickMark,property,As XlTickMark,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"None by default; none, in, out and cross. Other values raise -2147467259. Imported charts read only."
 Axis,MinorUnit,property,As Double,,MISSING,,
 Axis,MinorUnitIsAuto,property,As Boolean,,MISSING,,
 Axis,MinorUnitScale,property,As XlTimeUnit,,MISSING,,
@@ -402,7 +402,7 @@ Axis,ReversePlotOrder,property,As Boolean,,PARTIAL,tests/test_excel_chart_axes.p
 Axis,ScaleType,property,As XlScaleType,,MISSING,,
 Axis,Select,method,Select() As Variant,,MISSING,,
 Axis,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
-Axis,TickLabelPosition,property,As XlTickLabelPosition,,MISSING,,
+Axis,TickLabelPosition,property,As XlTickLabelPosition,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,"Next to by default; high, low, next to and none. Other values raise -2147467259. Imported charts read only."
 Axis,TickLabels,"property, read-only",As TickLabels,,MISSING,,
 Axis,TickLabelSpacing,property,As Long,,MISSING,,
 Axis,TickLabelSpacingIsAuto,property,As Boolean,,MISSING,,

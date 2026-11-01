@@ -19,7 +19,7 @@ from pyopenvba.interpreter._values import EMPTY, MISSING, NULL, VBAInt, error, t
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import Chart
 
-SUPPORTED = {51, 57, -4169, 5, -4120}
+SUPPORTED = {51, 57, 4, 65, 1, -4169, 5, -4120}
 NO_AXES = {5, -4120}
 MAX_TITLE_TEXT = 32768
 
@@ -42,6 +42,20 @@ class AxisState:
     maximum: float | None = None
     major: float | None = None
     title: TitleState | None = None
+    # The rest as the file spells them; None where an imported file spells them in a way the model does not read.
+    major_tick: str | None = "out"
+    minor_tick: str | None = "none"
+    label_position: str | None = "nextTo"
+    major_gridlines: bool = False
+    minor_gridlines: bool = False
+    #: Where the other axis crosses this one: autoZero, max, min, or custom at ``crosses_at``.
+    crosses: str | None = "autoZero"
+    crosses_at: float = 0.0
+
+
+TICK_MARKS = {-4142: "none", 2: "in", 3: "out", 4: "cross"}
+LABEL_POSITIONS = {-4127: "high", -4134: "low", 4: "nextTo", -4142: "none"}
+CROSSINGS = {-4105: "autoZero", 2: "max", 4: "min", -4114: "custom"}
 
 
 def states(chart: Chart) -> dict[int, AxisState]:
@@ -57,6 +71,7 @@ def states(chart: Chart) -> dict[int, AxisState]:
                 identifier,
                 present=chart.state.chart_type not in NO_AXES,
                 numeric=kind == 2 or chart.state.chart_type == -4169,
+                major_gridlines=kind == 2,
             )
     return chart.state.axes
 
@@ -274,6 +289,99 @@ class Axis(Created):
     @setter("MajorUnitIsAuto")
     def _major_auto(self, value: object) -> None:
         self.set_automatic("major", value)
+
+    def spelled(self, field: str, names: dict[int, str]) -> object:
+        self.read()
+        value = getattr(self.entry, field)
+        if value is None:
+            raise VBAUnsupportedError("Reading this imported chart axis setting is not implemented")
+        return VBAInt(next(number for number, name in names.items() if name == value), "Long")
+
+    def set_spelled(self, field: str, names: dict[int, str], value: object) -> None:
+        self.change()
+        wanted = names.get(int(to_integer(value, "Long")))
+        if wanted is None:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        self.chart.changed()
+        setattr(self.entry, field, wanted)
+
+    @member
+    def MajorTickMark(self) -> object:
+        return self.spelled("major_tick", TICK_MARKS)
+
+    @setter("MajorTickMark")
+    def _major_tick(self, value: object) -> None:
+        self.set_spelled("major_tick", TICK_MARKS, value)
+
+    @member
+    def MinorTickMark(self) -> object:
+        return self.spelled("minor_tick", TICK_MARKS)
+
+    @setter("MinorTickMark")
+    def _minor_tick(self, value: object) -> None:
+        self.set_spelled("minor_tick", TICK_MARKS, value)
+
+    @member
+    def TickLabelPosition(self) -> object:
+        return self.spelled("label_position", LABEL_POSITIONS)
+
+    @setter("TickLabelPosition")
+    def _label_position(self, value: object) -> None:
+        self.set_spelled("label_position", LABEL_POSITIONS, value)
+
+    @member
+    def HasMajorGridlines(self) -> object:
+        self.read()
+        return self.entry.major_gridlines
+
+    @setter("HasMajorGridlines")
+    def _major_gridlines(self, value: object) -> None:
+        self.change()
+        wanted = to_bool(value)
+        self.chart.changed()
+        self.entry.major_gridlines = wanted
+
+    @member
+    def HasMinorGridlines(self) -> object:
+        self.read()
+        return self.entry.minor_gridlines
+
+    @setter("HasMinorGridlines")
+    def _minor_gridlines(self, value: object) -> None:
+        self.change()
+        wanted = to_bool(value)
+        self.chart.changed()
+        self.entry.minor_gridlines = wanted
+
+    @member
+    def Crosses(self) -> object:
+        return self.spelled("crosses", CROSSINGS)
+
+    @setter("Crosses")
+    def _crosses(self, value: object) -> None:
+        self.set_spelled("crosses", CROSSINGS, value)
+        if self.entry.crosses == "autoZero":
+            self.entry.crosses_at = 0.0
+
+    @member
+    def CrossesAt(self) -> object:
+        self.read()
+        if self.entry.crosses in ("max", "min") or self.entry.crosses is None:
+            raise VBAUnsupportedError("Where an axis crosses at its drawn maximum or minimum requires native layout")
+        return self.entry.crosses_at
+
+    @setter("CrossesAt")
+    def _crosses_at(self, value: object) -> None:
+        self.change()
+        if value is NULL:
+            raise error(13)
+        wanted = float(to_number(value))
+        if not math.isfinite(wanted):
+            raise VBAUnsupportedError("Nonfinite chart axis crossings are not implemented")
+        if not self.entry.numeric and not wanted.is_integer():
+            raise VBAUnsupportedError("Crossing a category axis between categories is not implemented")
+        self.chart.changed()
+        self.entry.crosses, self.entry.crosses_at = "custom", wanted
 
 
 class AxisTitle(Created):

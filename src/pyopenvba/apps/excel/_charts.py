@@ -37,6 +37,8 @@ class SeriesState:
     category_reference: str = ''
     value_reference: str = ''
     series_id: int = -1
+    #: The first group of the series' unique id; -1 to take its series_id.
+    unique: int = -1
 
 @dataclass
 class ChartState:
@@ -53,6 +55,9 @@ class ChartState:
     axes_readable: bool = True
     axes: dict[int, AxisState] = field(default_factory=lambda: {})
     axis_ids: tuple[int, int] = (10000001, 10000002)
+    #: Where SetSourceData starts numbering unique ids, and the next one NewSeries takes.
+    unique_base: int = 0
+    next_unique: int = 0
     #: DisplayBlanksAs, any Long; the file holds only 1 to 3.
     blanks: int = 1
     visible_only: bool = True
@@ -60,6 +65,71 @@ class ChartState:
     not_available_as_blank: bool = True
     #: False when an imported chart spells one of the four display options in a way the model does not read.
     display_readable: bool = True
+
+
+def plan_series(sheet: Worksheet, area: Area, orientation: int) -> list[SeriesState]:
+    """The series SetSourceData makes from a block of cells, by rows (1) or columns (2). A first row or column of text
+    names the series or labels the categories; the corner cell takes no part in deciding either."""
+    from pyopenvba.apps.excel._model import Range
+
+    height, width = area.bottom - area.top + 1, area.right - area.left + 1
+
+    def value(row: int, column: int) -> object:
+        return Range(sheet, [Area(row, column, row, column)]).Value()
+
+    def text_axis(values: list[object]) -> bool:
+        return bool(values) and all(isinstance(item, str) or item is EMPTY for item in values) and any(
+            isinstance(item, str) and bool(item) for item in values)
+    series_plan: list[SeriesState] = []
+    if orientation == 2:
+        names = text_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
+        top = area.top + names
+        labels = text_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
+        if width - labels > MAX_CHART_SERIES:
+            raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
+        for column in range(area.left + labels, area.right + 1):
+            series = SeriesState(series_id=len(series_plan))
+            if names:
+                series.name_reference = reference(sheet, Area(area.top, column, area.top, column))
+            series.value_reference = reference(sheet, Area(top, column, area.bottom, column))
+            if labels:
+                series.category_reference = reference(sheet, Area(top, area.left, area.bottom, area.left))
+            series_plan.append(series)
+    else:
+        names = text_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
+        left = area.left + names
+        labels = text_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
+        if height - labels > MAX_CHART_SERIES:
+            raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
+        for row in range(area.top + labels, area.bottom + 1):
+            series = SeriesState(series_id=len(series_plan))
+            if names:
+                series.name_reference = reference(sheet, Area(row, area.left, row, area.left))
+            series.value_reference = reference(sheet, Area(row, left, row, area.right))
+            if labels:
+                series.category_reference = reference(sheet, Area(area.top, left, area.top, area.right))
+            series_plan.append(series)
+    return series_plan
+
+
+def plotted_before(sheet: Worksheet) -> int:
+    """How many series ChartObjects.Add would plot, and drops: those of the selection, or of the active cell's current
+    region, as SetSourceData plots them by default. Excel numbers later series' unique ids past them."""
+    from pyopenvba.apps.excel._model import Range
+    from pyopenvba.apps.excel._region import current_region
+
+    selection = sheet.selection
+    if not isinstance(selection, Range):
+        return 0
+    area = selection.first
+    if len(selection.areas) == 1 and (area.top, area.left) == (area.bottom, area.right):
+        area = current_region(sheet, area.top, area.left)
+        if (area.top, area.left) == (area.bottom, area.right) and Range(sheet, [area]).Value() is EMPTY:
+            return 0
+    height, width = area.bottom - area.top + 1, area.right - area.left + 1
+    if height * width > MAX_CHART_POINTS:
+        raise VBAUnsupportedError('Chart source data exceeds the supported cell budget')
+    return len(plan_series(sheet, area, 1 if width >= height else 2))
 
 
 def shown_type(chart: ChartState) -> int:
@@ -159,7 +229,8 @@ class ChartObjects(VBACollection, Created):
             width, height = 360, 216
         left, top, width, height = (float(VBASingle(points(emu(value)))) for value in (left, top, width, height))
         shape = Shapes(self.sheet).new_chart_shape(left, top, width, height)
-        self.sheet.chart_states[shape.shape_id] = ChartState()
+        base = plotted_before(self.sheet)
+        self.sheet.chart_states[shape.shape_id] = ChartState(unique_base=base, next_unique=base)
         return ChartObject(self.sheet, shape)
 
     @method
@@ -440,42 +511,12 @@ class Chart(Created):
         if orientation not in (1, 2):
             raise error(-2147467259, 'Automation error\nUnspecified error ')
         self.admit_change()
-        def value(row: int, column: int) -> object:
-            return Range(Source.sheet, [Area(row, column, row, column)]).Value()
-        def text_axis(values: list[object]) -> bool:
-            return bool(values) and all(isinstance(item, str) or item is EMPTY for item in values) and any(
-                isinstance(item, str) and bool(item) for item in values)
-        series_plan: list[SeriesState] = []
-        if orientation == 2:
-            names = text_axis([value(area.top, col) for col in range(area.left + (width > 1), area.right + 1)])
-            top = area.top + names
-            labels = text_axis([value(row, area.left) for row in range(top, area.bottom + 1)])
-            if width - labels > MAX_CHART_SERIES:
-                raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
-            for column in range(area.left + labels, area.right + 1):
-                series = SeriesState(series_id=len(series_plan))
-                if names:
-                    series.name_reference = reference(Source.sheet, Area(area.top, column, area.top, column))
-                series.value_reference = reference(Source.sheet, Area(top, column, area.bottom, column))
-                if labels:
-                    series.category_reference = reference(Source.sheet, Area(top, area.left, area.bottom, area.left))
-                series_plan.append(series)
-        else:
-            names = text_axis([value(row, area.left) for row in range(area.top + (height > 1), area.bottom + 1)])
-            left = area.left + names
-            labels = text_axis([value(area.top, col) for col in range(left, area.right + 1)])
-            if height - labels > MAX_CHART_SERIES:
-                raise VBAUnsupportedError('Chart source data exceeds the supported series budget')
-            for row in range(area.top + labels, area.bottom + 1):
-                series = SeriesState(series_id=len(series_plan))
-                if names:
-                    series.name_reference = reference(Source.sheet, Area(row, area.left, row, area.left))
-                series.value_reference = reference(Source.sheet, Area(row, left, row, area.right))
-                if labels:
-                    series.category_reference = reference(Source.sheet, Area(area.top, left, area.top, area.right))
-                series_plan.append(series)
+        series_plan = plan_series(Source.sheet, area, orientation)
         self.changed()
         self.state.plot_by = orientation
+        for index, series in enumerate(series_plan):
+            series.unique = self.state.unique_base + index
+        self.state.next_unique = self.state.unique_base + len(series_plan)
         self.state.series[:] = series_plan
         return EMPTY
 
@@ -528,8 +569,9 @@ class SeriesCollection(VBACollection, Created):
         series_id = 0
         while series_id in used:
             series_id += 1
-        entry = SeriesState(series_id=series_id)
+        entry = SeriesState(series_id=series_id, unique=self.chart.state.next_unique)
         self.chart.changed()
+        self.chart.state.next_unique += 1
         self.chart.state.series.append(entry)
         return Series(self.chart, entry)
 

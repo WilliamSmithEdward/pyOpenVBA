@@ -6,7 +6,15 @@ import math
 import re
 from typing import TYPE_CHECKING
 
-from pyopenvba.apps.excel._chart_axes import NO_AXES, SUPPORTED, AxisState, TitleState
+from pyopenvba.apps.excel._chart_axes import (
+    CROSSINGS,
+    LABEL_POSITIONS,
+    NO_AXES,
+    SUPPORTED,
+    TICK_MARKS,
+    AxisState,
+    TitleState,
+)
 from pyopenvba.apps.excel._chart_xml import format_number, title_markup
 
 if TYPE_CHECKING:
@@ -32,7 +40,8 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
     owned_plots = charts[0].findall("c:plotArea", NS)
     if len(owned_plots) != 1 or owned_plots[0] is not plot:
         return
-    known_plots = {"{" + NS["c"] + "}" + name for name in ("barChart", "scatterChart", "pieChart", "doughnutChart")}
+    known_plots = {"{" + NS["c"] + "}" + name for name in (
+        "barChart", "lineChart", "areaChart", "scatterChart", "pieChart", "doughnutChart")}
     if series_plot.tag not in known_plots or not any(child is series_plot for child in plot):
         return
     if result.chart_type not in SUPPORTED:
@@ -141,9 +150,39 @@ def read(result: ChartState, root: Element, plot: Element, series_plot: Element)
             text = "".join(node.text or "" for node in runs)
             entry.title = TitleState(text or "Axis Title", typed=bool(text))
         axes[kind] = entry
+    for kind, own in enumerate(identifiers, 1):
+        assert own is not None
+        read_lines(axes[kind], axes[3 - kind], definitions[own])
     result.axes = axes
     result.axis_ids = (axes[1].identifier, axes[2].identifier)
     result.axes_readable = True
+
+
+def read_lines(axis: AxisState, other: AxisState, element: Element) -> None:
+    """Tick marks, label position and gridlines from the axis's own element, and the other axis's Crosses, which this
+    element holds. Anything left out or spelled otherwise reads as unsupported rather than guessed."""
+
+    def spelled(tag: str, names: dict[int, str]) -> str | None:
+        node = element.find("c:" + tag, NS)
+        value = node.attrib.get("val") if node is not None else None
+        return value if value in names.values() else None
+
+    axis.major_tick = spelled("majorTickMark", TICK_MARKS)
+    axis.minor_tick = spelled("minorTickMark", TICK_MARKS)
+    axis.label_position = spelled("tickLblPos", LABEL_POSITIONS)
+    axis.major_gridlines = element.find("c:majorGridlines", NS) is not None
+    axis.minor_gridlines = element.find("c:minorGridlines", NS) is not None
+    other.crosses = spelled("crosses", CROSSINGS)
+    custom = element.find("c:crossesAt", NS)
+    if custom is not None:
+        try:
+            value = float(custom.attrib["val"])
+        except (KeyError, ValueError, OverflowError):
+            value = math.nan
+        if other.crosses is None and math.isfinite(value):
+            other.crosses, other.crosses_at = "custom", value
+        else:
+            other.crosses = None
 
 
 FAR_SIDE = {"b": "t", "t": "b", "l": "r", "r": "l"}
@@ -162,10 +201,23 @@ def generated(xml: str, result: ChartState) -> str:
             return raw
         axis = by_identifier[int(identifier.group(1))]
         raw = raw.replace('<c:delete val="0"/>', '<c:delete val="' + ("0" if axis.present else "1") + '"/>', 1)
-        if any(other.reverse for other in result.axes.values() if other is not axis):
-            # An axis crosses the other at its start, so reversing that one moves this to the far side.
+        other = next(entry for entry in result.axes.values() if entry is not axis)
+        if other.reverse != (other.crosses == "max"):
+            # An axis crosses the other at its start: reversing that one, or crossing at its maximum, moves this to
+            # the far side, and doing both brings it back.
             raw = re.sub(r'<c:axPos val="([bltr])"/>', lambda found: '<c:axPos val="' + FAR_SIDE[found.group(1)] + '"/>',
                          raw, count=1)
+        # This axis's element says where it crosses the other, which is the other's Crosses.
+        crossing = (f'<c:crossesAt val="{format_number(other.crosses_at)}"/>' if other.crosses == "custom"
+                    else f'<c:crosses val="{other.crosses or "autoZero"}"/>')
+        raw = raw.replace('<c:crosses val="autoZero"/>', crossing, 1)
+        for tag, value in (("majorTickMark", axis.major_tick), ("minorTickMark", axis.minor_tick),
+                           ("tickLblPos", axis.label_position)):
+            raw = re.sub(f'<c:{tag} val="[^"]*"/>', f'<c:{tag} val="{value}"/>', raw, count=1)
+        gridlines = ("<c:majorGridlines/>" if axis.major_gridlines else "") + (
+            "<c:minorGridlines/>" if axis.minor_gridlines else "")
+        raw = re.sub(r'(<c:axPos val="[bltr]"/>)(?:<c:majorGridlines/>)?', lambda found: found.group(1) + gridlines,
+                     raw, count=1)
         orientation = "maxMin" if axis.reverse else "minMax"
         scaling = '<c:scaling><c:orientation val="' + orientation + '"/>'
         for field, tag in [("maximum", "max"), ("minimum", "min")]:

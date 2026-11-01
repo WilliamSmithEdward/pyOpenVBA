@@ -348,6 +348,68 @@ class SparklineGroups(VBACollection, ExcelObject):
         self.sheet.book.saved = False
         return EMPTY
 
+    def _edited(self) -> None:
+        state(self.sheet).changed = True
+        self.sheet.book.saved = False
+
+    @method
+    def ClearGroups(self) -> object:
+        """Every group the range reaches goes, its sparklines outside the range too
+        (tests/fixtures/sparkline_grouping.json)."""
+        reached = self._reached()
+        if reached:
+            found = state(self.sheet)
+            found.groups = [group for group in found.groups if group not in reached]
+            self._edited()
+        return EMPTY
+
+    @method
+    def Group(self, Location: object = MISSING) -> object:
+        """The range's sparklines in one group, with the settings of the group Location's cell holds; a Location
+        outside the range or holding none is error 1004 (tests/fixtures/sparkline_grouping.json)."""
+        if not isinstance(Location, Range) or Location.sheet is not self.sheet or not Location.single:
+            raise error(1004)
+        at = (Location.first.top, Location.first.left)
+        if not _inside(self.target, at):
+            raise error(1004)
+        found = state(self.sheet)
+        model = next((group for group in found.groups if any(line.at == at for line in group.sparklines)), None)
+        if model is None:
+            raise error(1004)
+        reached = [group for group in found.groups if any(_inside(self.target, line.at) for line in group.sparklines)]
+        if any(not _inside(self.target, line.at) for group in reached for line in group.sparklines):
+            raise VBAUnsupportedError('grouping part of a sparkline group is not implemented')
+        # Oldest group first, each in its own order, in the place of Location's group.
+        model.sparklines = [line for group in reached for line in group.sparklines]
+        found.groups = [group for group in found.groups if group is model or group not in reached]
+        self._edited()
+        return EMPTY
+
+    @method
+    def Ungroup(self) -> object:
+        """Each of the range's sparklines in a group of its own with its group's settings, the newest last in the
+        range's order, its old group keeping the rest (tests/fixtures/sparkline_grouping.json)."""
+        found = state(self.sheet)
+        made: list[Group] = []
+        for group in list(found.groups):
+            taken = [line for line in group.sparklines if _inside(self.target, line.at)]
+            if not taken or len(group.sparklines) == 1:
+                if taken:
+                    raise VBAUnsupportedError('ungrouping a group of one sparkline is not implemented')
+                continue
+            group.sparklines = [line for line in group.sparklines if line not in taken]
+            for line in taken:
+                attributes = dict(group.attributes)
+                if 'xr2:uid' in attributes:
+                    attributes['xr2:uid'] = '{' + str(uuid.uuid4()).upper() + '}'
+                made.append(Group(attributes, list(group.children), [line]))
+        if made:
+            found.groups = [group for group in found.groups if group.sparklines]
+            made.sort(key=lambda group: group.sparklines[0].at)
+            found.groups.extend(made)
+            self._edited()
+        return EMPTY
+
 
 class SparklineGroup(ExcelObject):
     vba_type_name = 'SparklineGroup'

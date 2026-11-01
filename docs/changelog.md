@@ -7,6 +7,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `PivotTable.SubtotalLocation` moves every field's subtotals to the top
+  or bottom of its group as Excel does, the table laid out again. 9 live
+  cases agree, `tests/fixtures/pivot_subtotal_location.json`.
+
 - `Shapes.AddPolyline` and `Shapes.AddCurve` draw freeforms as Excel
   does, saved with Excel's custom geometry, box and style, a closed
   polyline filled and an open one drawn as a line. 10 live cases

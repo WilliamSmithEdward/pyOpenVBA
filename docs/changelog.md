@@ -7,6 +7,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Workbook.FullNameURLEncoded, which reads FullName for any workbook on a
+  local disk, spaces, # and % unencoded. Measured in
+  `tests/fixtures/full_name_url_encoded.json`.
+
 - Rows that grow with a larger font move and size the shapes over them,
   by their Placement, as Excel moves them. Measured in
   `tests/fixtures/shape_structure_moves.json`.

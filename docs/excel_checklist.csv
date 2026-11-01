@@ -2743,7 +2743,7 @@ Workbook,FollowHyperlink,method,"FollowHyperlink(Address As String, [SubAddress 
 Workbook,ForceFullCalculation,property,As Boolean,,PARTIAL,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"False until set, taken as a Boolean is, the workbook kept saved, and saved and read as calcPr forceFullCalc; True holds every workbook to full calculation until the application quits, every edit and calculation working every formula out and xlPending for good, as Excel does; whether a workbook it works out under automatic calculation, not the one edited, goes unsaved is not measured"
 Workbook,ForwardMailer,method,ForwardMailer(),,MISSING,,
 Workbook,FullName,"property, read-only",As String,,UNASSESSED,,
-Workbook,FullNameURLEncoded,"property, read-only",As String,,MISSING,,
+Workbook,FullNameURLEncoded,"property, read-only",As String,,PARTIAL,tests/fixtures/full_name_url_encoded.json; tests/test_excel_full_name_url_encoded.py,"FullName, spaces, # and % unencoded, as it is for any workbook on a local disk; workbooks on web servers are not modelled."
 Workbook,GetWorkflowTasks,method,GetWorkflowTasks() As WorkflowTasks,,MISSING,,
 Workbook,GetWorkflowTemplates,method,GetWorkflowTemplates() As WorkflowTemplates,,MISSING,,
 Workbook,HasPassword,"property, read-only",As Boolean,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,False; error 1004 to set. Workbook.Password is not implemented.

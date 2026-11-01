@@ -2415,27 +2415,27 @@ TextFrame,ReadingOrder,property,As Long,,PARTIAL,tests/fixtures/text_frame.json;
 TextFrame,VerticalAlignment,property,As XlVAlign,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's anchor; justify, distributed and 5 centre. Other values are refused."
 TextFrame,VerticalOverflow,property,As XlOartVerticalOverflow,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"bodyPr's vertOverflow, ellipsis too; 3 raises -2147467259. A rectangle whose overflow changes writes bodyPr in full."
 TextFrame2,Application,"property, read-only",As Object,,MISSING,,
-TextFrame2,AutoSize,property,As MsoAutoSize,,MISSING,,
+TextFrame2,AutoSize,property,As MsoAutoSize,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"None or text to fit shape, as bodyPr's noAutofit or normAutofit; 3 raises -2147024809. Shape to fit text, which resizes the shape, is refused."
 TextFrame2,Column,"property, read-only",As TextColumn2,,MISSING,,
 TextFrame2,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-TextFrame2,DeleteText,method,DeleteText(),,MISSING,,
+TextFrame2,DeleteText,method,DeleteText(),,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"The text gone, its empty paragraph's end left without a size."
 TextFrame2,HasText,"property, read-only",As MsoTriState,,UNASSESSED,,
-TextFrame2,HorizontalAnchor,property,As MsoHorizontalAnchor,,MISSING,,
-TextFrame2,MarginBottom,property,As Single,,MISSING,,
-TextFrame2,MarginLeft,property,As Single,,MISSING,,
-TextFrame2,MarginRight,property,As Single,,MISSING,,
-TextFrame2,MarginTop,property,As Single,,MISSING,,
-TextFrame2,NoTextRotation,property,As MsoTriState,,MISSING,,
-TextFrame2,Orientation,property,As MsoTextOrientation,,MISSING,,
+TextFrame2,HorizontalAnchor,property,As MsoHorizontalAnchor,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"None or center, as bodyPr's anchorCtr; others raise -2147024809."
+TextFrame2,MarginBottom,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same margin TextFrame reads and sets; negative raises -2147024809. New rectangles and text boxes only.
+TextFrame2,MarginLeft,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same margin TextFrame reads and sets; negative raises -2147024809. New rectangles and text boxes only.
+TextFrame2,MarginRight,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same margin TextFrame reads and sets; negative raises -2147024809. New rectangles and text boxes only.
+TextFrame2,MarginTop,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same margin TextFrame reads and sets; negative raises -2147024809. New rectangles and text boxes only.
+TextFrame2,NoTextRotation,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's upright; any value but 0 turns it on.
+TextFrame2,Orientation,property,As MsoTextOrientation,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same orientation TextFrame reads and sets; 7 raises -2147024809.
 TextFrame2,Parent,"property, read-only",As Object,,MISSING,,
 TextFrame2,PathFormat,property,As MsoPathFormat,,MISSING,,
 TextFrame2,Ruler,"property, read-only",As Ruler2,,MISSING,,
 TextFrame2,TextRange,"property, read-only",As TextRange2,,UNASSESSED,,
 TextFrame2,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
-TextFrame2,VerticalAnchor,property,As MsoVerticalAnchor,,MISSING,,
+TextFrame2,VerticalAnchor,property,As MsoVerticalAnchor,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"Top, middle or bottom, the anchor TextFrame's VerticalAlignment reads; the baseline anchors and others raise -2147024809."
 TextFrame2,WarpFormat,property,As MsoWarpFormat,,MISSING,,
 TextFrame2,WordArtformat,property,As MsoPresetTextEffect,,MISSING,,
-TextFrame2,WordWrap,property,As MsoTriState,,MISSING,,
+TextFrame2,WordWrap,property,As MsoTriState,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,bodyPr's wrap; any value but 0 wraps.
 Top10,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Top10,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native conditional API projections preserve stored XML: measured escaped-space/hyphen number-format spelling and row-first generic applicability on plain loads (including measured FileFormat52 packages without VBA), raw statistical applicability, and serialized ordering on VBA-bearing macro-enabled imports. Native plain-load and VBA-bearing load controls cover family-specific area projection, full ordered population keys and loaded group identity; generic supplied union order is retained after ModifyAppliesToRange."
 Top10,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Foreign statistical border-color lookups select the matching group and compact captured child position while every rule retains its own stored style. Worksheet.Copy initializes independent dense groups and recaptures child order by priority. Three initial copy-context snapshots, broader retained-proxy behavior and post-deletion contexts remain partial; foreign reads of absent group members report unsupported because native defaults are inconsistent. Missing group identities retain error 440. A worksheet-local group member/rank index is invalidated on successful mutations; repeated foreign reads and failed mutation staging have count-based/atomicity controls."
@@ -3378,3 +3378,9 @@ WorksheetFunction,ZTest,method,"ZTest(Arg1 As Variant, Arg2 As Double, [Arg3 As 
 _Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 _Part,Application,not in the type library,,,UNASSESSED,,
 _Part,Creator,not in the type library,,,UNASSESSED,,
+_TextLayout,Creator,not in the type library,,,UNASSESSED,,
+_TextLayout,MarginBottom,not in the type library,,,UNASSESSED,,
+_TextLayout,MarginLeft,not in the type library,,,UNASSESSED,,
+_TextLayout,MarginRight,not in the type library,,,UNASSESSED,,
+_TextLayout,MarginTop,not in the type library,,,UNASSESSED,,
+_TextLayout,Orientation,not in the type library,,,UNASSESSED,,

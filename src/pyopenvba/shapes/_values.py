@@ -185,6 +185,14 @@ class TextLook:
     rtl: bool | None = None
     #: Once an AutoShape's overflow has changed, Excel writes bodyPr with every attribute and a text warp.
     full: bool = False
+    #: TextFrame2 (tests/fixtures/text_frame2.json): bodyPr's autofit child, "norm" or "no"; its anchorCtr; its
+    #: upright; its wrap, "square" or "none"; each None while the file leaves it out.
+    autofit: str | None = None
+    anchor_center: bool | None = None
+    upright: bool = False
+    wrap: str | None = None
+    #: DeleteText leaves the empty paragraph's end without a size.
+    deleted: bool = False
 
 
 @dataclass(slots=True)

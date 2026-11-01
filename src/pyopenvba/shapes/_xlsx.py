@@ -985,8 +985,16 @@ def _laid_out(body: str, look: TextLook) -> str:
                 "<a:noAutofit/></a:bodyPr>")
     else:
         vert = f' vert="{look.vert}"' if look.vert else ""
-        head = f'<a:bodyPr {overflow}{vert}{insets} rtlCol="0" anchor="{look.anchor}"/>'
+        wrap = f' wrap="{look.wrap}"' if look.wrap else ""
+        centred = "" if look.anchor_center is None else f' anchorCtr="{1 if look.anchor_center else 0}"'
+        upright = ' upright="1"' if look.upright else ""
+        attributes = f'{overflow}{vert}{wrap}{insets} rtlCol="0" anchor="{look.anchor}"{centred}{upright}'
+        # TextFrame2's AutoSize is bodyPr's one child (tests/fixtures/text_frame2.json).
+        head = (f"<a:bodyPr {attributes}><a:{look.autofit}Autofit/></a:bodyPr>" if look.autofit
+                else f"<a:bodyPr {attributes}/>")
     body = re.sub(r"<a:bodyPr\b[^>]*/>", lambda _: head, body, count=1)
+    if look.deleted:
+        body = body.replace('<a:endParaRPr lang="en-US" sz="1100"/>', '<a:endParaRPr lang="en-US"/>')
     settings = (f' algn="{look.align}"' if look.align else "") + (
         "" if look.rtl is None else f' rtl="{1 if look.rtl else 0}"')
     paragraph = f"<a:p><a:pPr{settings}/>" if settings else "<a:p>"

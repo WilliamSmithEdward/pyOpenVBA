@@ -80,7 +80,7 @@ Application,ConvertFormula,method,"ConvertFormula(Formula As Variant, FromRefere
 Application,CopyObjectsWithCells,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Application,Cursor,property,As XlMousePointer,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"xlDefault, xlNorthwestArrow, xlWait and xlIBeam read back; 0 is xlDefault and other values change nothing, over 28 live settings; the model shows no cursor"
-Application,CursorMovement,property,As Long,,MISSING,,
+Application,CursorMovement,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,1 and 2; any other number reads back as 1. Null and text that is no number change nothing.
 Application,CustomListCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"Excel's four lists of day and month names, then those a macro added in the session."
 Application,CutCopyMode,property,As XlCutCopyMode,,VERIFIED,tests/fixtures/paste.json,"0, 1 after Copy and 2 after Cut; False clears the clipboard."
 Application,DataEntryMode,property,As Long,,MISSING,,
@@ -94,7 +94,7 @@ Application,DecimalSeparator,property,As String,,PARTIAL,tests/test_excel_intern
 Application,DefaultFilePath,property,As String,,MISSING,,
 Application,DefaultPivotTableLayoutOptions,"property, read-only",As DefaultPivotTableLayoutOptions,,MISSING,,
 Application,DefaultSaveFormat,property,As XlFileFormat,,MISSING,,
-Application,DefaultSheetDirection,property,As Long,,MISSING,,
+Application,DefaultSheetDirection,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,xlRTL and xlLTR; xlContext and 0 become xlLTR; other numbers change nothing.
 Application,DefaultWebOptions,"property, read-only",As DefaultWebOptions,,MISSING,,
 Application,DeferAsyncQueries,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads False as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,DeleteCustomList,method,DeleteCustomList(ListNum As Long),,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,Excel's own lists error 1004; a number past the last does nothing.
@@ -148,7 +148,7 @@ Application,FlashFillMode,property,As Boolean,,PARTIAL,tests/test_excel_applicat
 Application,FormatStaleValues,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,FormulaBarHeight,property,As Long,,MISSING,,
 Application,GenerateGetPivotData,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
-Application,GenerateTableRefs,property,As XlGenerateTableRefs,,MISSING,,
+Application,GenerateTableRefs,property,As XlGenerateTableRefs,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,0 and 1; anything else changes nothing.
 Application,GetCustomListContents,method,GetCustomListContents(ListNum As Long) As Variant,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,A list from 1; error 13 for a number naming none.
 Application,GetCustomListNum,method,GetCustomListNum(ListArray As Variant) As Long,,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"A whole list, case aside, or 0; a range is error 1004."
 Application,GetOpenFilename,method,"GetOpenFilename([FileFilter As Variant], [FilterIndex As Variant], [Title As Variant], [ButtonText As Variant], [MultiSelect As Variant]) As Variant",,MISSING,,
@@ -157,7 +157,7 @@ Application,GetSaveAsFilename,method,"GetSaveAsFilename([InitialFilename As Vari
 Application,Goto,method,"Goto([Reference As Variant], [Scroll As Variant])",,PARTIAL,tests/fixtures/windows/windows.json,"Activates the range's sheet and selects the range; with Scroll its first cell goes to the top left of the window or of the pane that scrolls. Without a Reference, which goes back to where the last Goto started, it reports itself."
 Application,Height,property,As Double,,MISSING,,
 Application,Help,method,"Help([HelpFile As Variant], [HelpContextID As Variant])",,MISSING,,
-Application,HighQualityModeForGraphics,property,As Boolean,,MISSING,,
+Application,HighQualityModeForGraphics,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,A switch starting False.
 Application,Hinstance,"property, read-only",As Long,,MISSING,,
 Application,HinstancePtr,"property, read-only",As Variant,,MISSING,,
 Application,Hwnd,"property, read-only",As Long,,MISSING,,
@@ -170,7 +170,7 @@ Application,Intersect,method,"Intersect(Arg1 As Range, Arg2 As Range, [Arg3 As V
 Application,IsSandboxed,"property, read-only",As Boolean,,MISSING,,
 Application,Iteration,property,As Boolean,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"Reads and sets the setting from a logical, a number or text, other text being error 13; turned on in automatic mode it works loops out at once. Every calculation then works each loop out over and over, a sheet at a time in the order the sheets were made and row by row, until no number changes by MaxChange or MaxIterations passes are done. calcPr iterate saved, and brought by the first workbook opened; 56 live probes and three saved workbooks."
 Application,LanguageSettings,"property, read-only",As LanguageSettings,,MISSING,,
-Application,LargeOperationCellThousandCount,property,As Long,,MISSING,,
+Application,LargeOperationCellThousandCount,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,1 and up; starts as the measuring machine's Excel had it.
 Application,Left,property,As Double,,MISSING,,
 Application,LibraryPath,"property, read-only",As String,,MISSING,,
 Application,MacroOptions,method,"MacroOptions([Macro As Variant], [Description As Variant], [HasMenu As Variant], [MenuText As Variant], [HasShortcutKey As Variant], [ShortcutKey As Variant], [Category As Variant], [StatusBar As Variant], [HelpContextID As Variant], [HelpFile As Variant], [ArgumentDescriptions As Variant])",,PARTIAL,tests/fixtures/macro_options.json; tests/test_excel_macro_options.py,"Description, HelpContextID, ShortcutKey and a Category of 0 to 14 as attribute lines in the procedure, kept out of the editor's sight; an unknown macro, a key that is no letter and category 40 are 1004. A category by name, ArgumentDescriptions, StatusBar, HelpFile, menus and a workbook-qualified macro are unsupported."
@@ -184,7 +184,7 @@ Application,MaxChange,property,As Double,,VERIFIED,tests/fixtures/iteration.json
 Application,MaxIterations,property,As Long,,VERIFIED,tests/fixtures/iteration.json; tests/test_excel_iteration.py,"1 to 32767, rounded as a Long is; outside that error 1004, overflow error 6, the setting kept. calcPr iterateCount saved where not 100, and brought by the first workbook opened."
 Application,MaxSupportedCompatibilityVersion,"property, read-only",As Long,,MISSING,,
 Application,MeasurementUnit,property,As Long,no setter,PARTIAL,tests/fixtures/application_members.json,"xlInches, as US English Windows has it; setting it is not implemented."
-Application,MergeInstances,property,As Boolean,,MISSING,,
+Application,MergeInstances,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,A switch starting True.
 Application,MouseAvailable,"property, read-only",As Boolean,,MISSING,,
 Application,MoveAfterReturn,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,MoveAfterReturnDirection,property,As XlDirection,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"The four directions read back, 1 to 4 as down, right, up and left, any other number as set and 65536 more where it is not positive, over 36 live settings"
@@ -195,7 +195,7 @@ Application,NetworkTemplatesPath,"property, read-only",As String,,MISSING,,
 Application,NewWorkbook,event,NewWorkbook(Wb As Workbook),,MISSING,,
 Application,NextLetter,method,NextLetter() As Workbook,,MISSING,,
 Application,ODBCErrors,"property, read-only",As ODBCErrors,,MISSING,,
-Application,ODBCTimeout,property,As Long,,MISSING,,
+Application,ODBCTimeout,property,As Long,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,0 and up; starts as the measuring machine's Excel had it.
 Application,OLEDBErrors,"property, read-only",As OLEDBErrors,,MISSING,,
 Application,OnKey,method,"OnKey(Key As String, [Procedure As Variant])",,MISSING,,
 Application,OnRepeat,method,"OnRepeat(Text As String, Procedure As String)",,MISSING,,

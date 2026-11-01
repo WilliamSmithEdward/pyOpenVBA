@@ -7,6 +7,31 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- `ShapeRange.Align` and `ShapeRange.Distribute` answer as Excel's do.
+  Align lines the shapes up on an edge or the middle of their box
+  together, whatever RelativeTo says. Distribute spaces them evenly
+  between the first and last in order of their edges. 29 live cases
+  agree, `tests/fixtures/shape_align.json`.
+
+- Groups move, size and come apart as Excel's do. Moving or sizing a
+  group carries its shapes, and moving a shape inside one regrows it in
+  the group's child space. `ParentGroup`, `Regroup`,
+  `ShapeRange.Ungroup` and `GroupShapes.Parent` and `Range` answer, and
+  `Shapes("name")` finds a shape inside a group. 22 live cases agree,
+  `tests/fixtures/shape_group_items.json`.
+
+- Shapes can be grouped: `ShapeRange.Group` makes a group in its topmost
+  member's place, named and numbered as Excel names and numbers one, and
+  `Shape.Ungroup` puts the shapes back. `GroupItems` finds a member by
+  name, and a group is saved as Excel writes it. 15 live cases agree,
+  `tests/fixtures/shape_group.json`.
+
+- `Shape.Duplicate`, `ShapeRange.Duplicate` and `Shape.ID` answer as
+  Excel's do. A copy lands 12 points right and down, on top, with the
+  next id, and a name of Excel's own making takes the sheet's next
+  number. Flip now mirrors a shape's rotation. 12 live cases agree,
+  `tests/fixtures/shape_duplicate.json`.
+
 - `Shape.Flip`, `HorizontalFlip`, `VerticalFlip` and `ZOrder` answer as
   Excel's do. ZOrder reorders the drawing, which `Shapes` and
   `ZOrderPosition` follow. 15 live cases agree,
@@ -350,6 +375,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A new text box is saved with the fill, line, style and `vert="horz"`
+  Excel gives one. They were left out.
+
+- `GroupItems` on a shape that is no group raises 1004, as Excel does.
+  It raised -2147024809.
 
 - `Shapes.Range(Array("A", "B"))` takes each name in the array, instead
   of raising 13.

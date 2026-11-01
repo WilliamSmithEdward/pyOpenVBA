@@ -902,6 +902,27 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
     from the sheet's own columns and rows.
     """
     grid = grid or SheetGrid()
+    left, top, width, height = _turned_box(shape)
+    client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
+    return (
+        "<xdr:twoCellAnchor>"
+        f"{_corner_markup('from', grid, left, top)}"
+        f"{_corner_markup('to', grid, left + width, top + height)}"
+        f"{_new_element(shape)}{client}</xdr:twoCellAnchor>"
+    )
+
+
+def _new_element(shape: Shape) -> str:
+    """A new shape's own element, which an anchor or a group holds."""
+    if shape.kind == "group":
+        # A new group's child space is its own box (tests/fixtures/shape_group.json).
+        at = f'x="{emu(shape.left)}" y="{emu(shape.top)}"'
+        size = f'cx="{emu(shape.width)}" cy="{emu(shape.height)}"'
+        return (
+            f"<xdr:grpSp><xdr:nvGrpSpPr>{_identity(shape)}<xdr:cNvGrpSpPr/></xdr:nvGrpSpPr>"
+            f"<xdr:grpSpPr><a:xfrm><a:off {at}/><a:ext {size}/><a:chOff {at}/><a:chExt {size}/></a:xfrm>"
+            f"</xdr:grpSpPr>{''.join(_new_element(one) for one in shape.children)}</xdr:grpSp>"
+        )
     line = shape.kind == "line"
     body = "" if line else dml.text_body(shape.text, "xdr:txBody")
     macro = f' macro="{escape(shape.macro)}"' if shape.macro else ' macro=""'
@@ -924,7 +945,7 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
             f"<xdr:cNvSpPr{box}></xdr:cNvSpPr>", f"<xdr:cNvSpPr{box}/>")
     )
     turn = _xfrm_attributes(shape)
-    inner = (
+    return (
         f"<{element}{macro}{textlink}>"
         f"{properties}"
         f"<xdr:spPr><a:xfrm{turn}>"
@@ -934,14 +955,6 @@ def new_anchor(shape: Shape, grid: SheetGrid | None = None) -> str:
         f"{_TEXT_BOX_FILL if shape.kind == 'textBox' else ''}</xdr:spPr>"
         f"{_TEXT_BOX_STYLE if shape.kind == 'textBox' else _STYLE}{body}"
         f"</{element}>"
-    )
-    left, top, width, height = _turned_box(shape)
-    client = "<xdr:clientData/>" if shape.locked else '<xdr:clientData fLocksWithSheet="0"/>'
-    return (
-        "<xdr:twoCellAnchor>"
-        f"{_corner_markup('from', grid, left, top)}"
-        f"{_corner_markup('to', grid, left + width, top + height)}"
-        f"{inner}{client}</xdr:twoCellAnchor>"
     )
 
 

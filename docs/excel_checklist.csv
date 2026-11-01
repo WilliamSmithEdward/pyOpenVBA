@@ -977,7 +977,7 @@ GroupShapes,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 GroupShapes,Application,"property, read-only",As Application,,MISSING,,
 GroupShapes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 GroupShapes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-GroupShapes,Item,method,Item(Index As Variant) As Shape,,UNASSESSED,,
+GroupShapes,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,A member by number or by name.
 GroupShapes,Parent,"property, read-only",As Object,,MISSING,,
 GroupShapes,Range,"property, read-only",As ShapeRange,,MISSING,,
 HPageBreak,Application,"property, read-only",As Application,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,The application.
@@ -2066,7 +2066,7 @@ Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip
 Shape,FormControlType,"property, read-only",As XlFormControl,,MISSING,,
 Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
 Shape,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
-Shape,GroupItems,"property, read-only",As GroupShapes,,UNASSESSED,,
+Shape,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,The group's members by number or name; a shape that is no group raises 1004.
 Shape,HasChart,"property, read-only",As MsoTriState,,UNASSESSED,,
 Shape,HasSmartArt,"property, read-only",As MsoTriState,,MISSING,,
 Shape,Height,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2111,7 +2111,7 @@ Shape,Title,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; te
 Shape,Top,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,TopLeftCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,Ungroup,method,Ungroup() As ShapeRange,,MISSING,,
+Shape,Ungroup,method,Ungroup() As ShapeRange,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"The members back in the group's place, answered as a ShapeRange; a shape that is no group raises -2147024891. A group loaded from a file is refused."
 Shape,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipV is set.
 Shape,Vertices,"property, read-only",As Variant,,MISSING,,
 Shape,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"0 hides the shape, written as cNvPr hidden after descr and title; any other number shows it; text that is no number is error 13. Read back once reopened."
@@ -2144,7 +2144,7 @@ ShapeRange,Fill,"property, read-only",As FillFormat,,MISSING,,
 ShapeRange,Flip,method,Flip(FlipCmd As MsoFlipCmd),,MISSING,,
 ShapeRange,Glow,"property, read-only",As GlowFormat,,MISSING,,
 ShapeRange,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
-ShapeRange,Group,method,Group() As Shape,,UNASSESSED,,
+ShapeRange,Group,method,Group() As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"One group in the topmost member's place, members in sheet order, box their union, named Group and the next number, the next id; one shape raises 1004. Loaded, rotated or flipped shapes, charts and controls are refused."
 ShapeRange,GroupItems,"property, read-only",As GroupShapes,,MISSING,,
 ShapeRange,HasChart,"property, read-only",As MsoTriState,,MISSING,,
 ShapeRange,Height,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set sizes every shape."

@@ -1088,7 +1088,7 @@ Interior,PatternTintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_f
 Interior,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic colour reports unsupported.
 Legend,Application,"property, read-only",As Application,,UNASSESSED,,
-Legend,Clear,method,Clear() As Variant,,MISSING,,
+Legend,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"Takes the legend away, as Delete does."
 Legend,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
 Legend,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"As HasLegend = False, which resets the legend."
 Legend,Format,"property, read-only",As ChartFormat,,MISSING,,
@@ -1096,7 +1096,7 @@ Legend,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Legend,Height,property,As Double,,MISSING,,
 Legend,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,False writes overlay 1.
 Legend,Left,property,As Double,,MISSING,,
-Legend,LegendEntries,method,LegendEntries([Index As Variant]) As Object,,MISSING,,
+Legend,LegendEntries,method,LegendEntries([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"The entries still shown, or one by index; out of range raises -2147467259."
 Legend,Name,"property, read-only",As String,,MISSING,,
 Legend,Parent,"property, read-only",As Object,,UNASSESSED,,
 Legend,Position,property,As XlLegendPosition,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"Written as legendPos: b, t, l, r, tr. xlLegendPositionCustom and other numbers raise -2147467259, as in Excel."
@@ -1105,6 +1105,26 @@ Legend,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING
 Legend,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,True writes Excel's outer shadow; False after it an empty effect list.
 Legend,Top,property,As Double,,MISSING,,
 Legend,Width,property,As Double,,MISSING,,
+LegendEntries,_Default,method,_Default(Index As Variant) As LegendEntry,,MISSING,,
+LegendEntries,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+LegendEntries,Application,"property, read-only",As Application,,MISSING,,
+LegendEntries,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"One per series, or per point in a pie or doughnut, less those deleted."
+LegendEntries,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
+LegendEntries,Item,method,Item(Index As Variant) As LegendEntry,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,An entry by its place among those shown; out of range raises -2147467259.
+LegendEntries,Parent,"property, read-only",As Object,,MISSING,,
+LegendEntry,Application,"property, read-only",As Application,,MISSING,,
+LegendEntry,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
+LegendEntry,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"A legendEntry with delete, by series or point index; answers Empty. Deleting the last entry takes the legend away and raises 1004."
+LegendEntry,Font,"property, read-only",As Font,,MISSING,,
+LegendEntry,Format,"property, read-only",As ChartFormat,,MISSING,,
+LegendEntry,Height,"property, read-only",As Double,,MISSING,,
+LegendEntry,Index,"property, read-only",As Long,,MISSING,,
+LegendEntry,Left,"property, read-only",As Double,,MISSING,,
+LegendEntry,LegendKey,"property, read-only",As LegendKey,,MISSING,,
+LegendEntry,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,The Legend.
+LegendEntry,Select,method,Select() As Variant,,MISSING,,
+LegendEntry,Top,"property, read-only",As Double,,MISSING,,
+LegendEntry,Width,"property, read-only",As Double,,MISSING,,
 LinearGradient,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,The application.
 LinearGradient,ColorStops,"property, read-only",As ColorStops,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,Its colour stops.
 LinearGradient,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,xlCreatorCode.

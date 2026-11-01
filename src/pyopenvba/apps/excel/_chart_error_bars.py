@@ -6,7 +6,6 @@ series' data labels and before its categories, and names the direction only in l
 """
 from __future__ import annotations
 
-import xml.etree.ElementTree as ET
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
@@ -160,26 +159,6 @@ def _number_text(value: float) -> str:
     return format_number(value)
 
 
-def read(series: ET.Element, ns: dict[str, str]) -> list[ErrorBarState]:
-    """A loaded series' error bars, as far as what they read goes: an imported chart is not changed, so a bar's
-    look and a custom bar's values stay in the part as they are."""
-    bars: list[ErrorBarState] = []
-    for node in series.findall('c:errBars', ns):
-        def value(name: str) -> str:
-            found = node.find('c:' + name, ns)
-            return found.get('val', '') if found is not None else ''
-
-        amount_text = value('val')
-        try:
-            amount = float(amount_text) if amount_text else None
-        except ValueError:
-            amount = None
-        bars.append(ErrorBarState(direction=value('errDir') or 'y', include=value('errBarType') or 'both',
-                                  kind=value('errValType') or 'fixedVal', amount=amount,
-                                  no_cap=value('noEndCap') in ('1', 'true')))
-    return bars
-
-
 class ErrorBars(Created):
     """A series' error bars, both ways at once."""
 
@@ -233,4 +212,4 @@ class ErrorBars(Created):
         return EMPTY
 
 
-__all__ = ['ErrorBarState', 'ErrorBars', 'error_bar', 'has_error_bars', 'markup', 'read', 'set_has_error_bars']
+__all__ = ['ErrorBarState', 'ErrorBars', 'error_bar', 'has_error_bars', 'markup', 'set_has_error_bars']

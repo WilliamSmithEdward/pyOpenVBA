@@ -20,7 +20,7 @@ from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           category_levels, linked_title, referenced_values, shown_cells, shown_type)
 from pyopenvba.apps.excel._chart_title import read_look, title_element
-from pyopenvba.apps.excel._chart_error_bars import markup as error_bars_markup, read as read_error_bars
+from pyopenvba.apps.excel._chart_error_bars import ErrorBarState, markup as error_bars_markup
 from pyopenvba.exceptions import VBAUnsupportedError, VBARuntimeError
 from pyopenvba.interpreter._values import EMPTY, VBAErrorValue, to_number, to_text
 from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type
@@ -521,6 +521,26 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     xml = re.sub(r'<c:(val|yVal)><c:numLit><c:formatCode>[^<]*</c:formatCode><c:ptCount val="0"/></c:numLit>'
                  r'</c:\1>', '', xml)
     return xml
+
+def read_error_bars(series: ET.Element, ns: dict[str, str]) -> list[ErrorBarState]:
+    """A loaded series' error bars, as far as what they read goes: an imported chart is not changed, so a bar's
+    look and a custom bar's values stay in the part as they are (tests/fixtures/chart_error_bars.json)."""
+    bars: list[ErrorBarState] = []
+    for node in series.findall('c:errBars', ns):
+        def value(name: str) -> str:
+            found = node.find('c:' + name, ns)
+            return found.get('val', '') if found is not None else ''
+
+        amount_text = value('val')
+        try:
+            amount = float(amount_text) if amount_text else None
+        except ValueError:
+            amount = None
+        bars.append(ErrorBarState(direction=value('errDir') or 'y', include=value('errBarType') or 'both',
+                                  kind=value('errValType') or 'fixedVal', amount=amount,
+                                  no_cap=value('noEndCap') in ('1', 'true')))
+    return bars
+
 
 def _bar_values(sheet: Worksheet, element: str, given: tuple[str, list[object]]) -> str:
     """A custom error bar's plus or minus element: a reference with its values cached, or the values given as a

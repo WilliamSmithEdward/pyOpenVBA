@@ -214,7 +214,29 @@ def read_lines(axis: AxisState, other: AxisState, element: Element) -> None:
 FAR_SIDE = {"b": "t", "t": "b", "l": "r", "r": "l"}
 
 
-def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambda formula: "") -> str:
+#: BaseUnit and MajorUnitScale's xlDays, xlMonths and xlYears as the file spells them.
+TIME_UNITS = ("days", "months", "years")
+
+
+def _scaled_categories(raw: str, axis: AxisState, dated: bool) -> str:
+    """A category axis as its CategoryType leaves it (tests/fixtures/chart_category_type.json): auto 0 once a type is
+    chosen, and on a time scale, chosen or automatic over dates, a dateAx with a base time unit, and the major unit's
+    scale after the major unit."""
+    raw = raw.replace('<c:auto val="1"/>', f'<c:auto val="{1 if axis.category_type == -4105 else 0}"/>', 1)
+    if not (axis.category_type == 3 or axis.category_type == -4105 and dated):
+        return raw
+    raw = raw.replace("<c:catAx>", "<c:dateAx>", 1).replace("</c:catAx>", "</c:dateAx>")
+    raw = raw.replace('<c:lblAlgn val="ctr"/>', "", 1).replace('<c:noMultiLvlLbl val="0"/>', "", 1)
+    unit = f'<c:baseTimeUnit val="{TIME_UNITS[axis.base_unit or 0]}"/>'
+    raw = raw.replace('<c:lblOffset val="100"/>', '<c:lblOffset val="100"/>' + unit, 1)
+    if axis.major_scale is not None and axis.major is not None:
+        scale = f'<c:majorTimeUnit val="{TIME_UNITS[axis.major_scale]}"/>'
+        raw = re.sub(r'(<c:majorUnit val="[^"]*"/>)', lambda found: found.group(1) + scale, raw, count=1)
+    return raw
+
+
+def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambda formula: "",
+              dated: bool = False) -> str:
     """Patch only our own bounded generated templates, never imported originals."""
     if not result.axes:
         return xml
@@ -282,6 +304,8 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
         if tail:
             end = raw.rfind("</c:")
             raw = raw[:end] + tail + raw[end:]
+        if raw.startswith("<c:catAx>"):
+            raw = _scaled_categories(raw, axis, dated)
         return raw
 
     return re.sub(r"<c:(?:catAx|valAx)>.*?</c:(?:catAx|valAx)>", update, xml)

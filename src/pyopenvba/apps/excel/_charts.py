@@ -536,6 +536,27 @@ class ChartObjects(VBACollection, ItemDefault, Created):
         return EMPTY
 
 
+def active_chart(sheet: Worksheet) -> object:
+    """The sheet's active embedded chart, Nothing once a range is selected or the chart is gone
+    (tests/fixtures/active_chart.json)."""
+    shape = sheet.active_chart
+    if shape is None or not any(one is shape for one in sheet.shapes_):
+        sheet.active_chart = None
+        return NOTHING
+    return Chart(sheet, shape)
+
+
+def selection(sheet: Worksheet) -> object:
+    """What the sheet has selected: its active chart's frame while one is active, else its range. A change to the
+    active chart selects its chart area, which the model does not answer (tests/fixtures/active_chart.json)."""
+    chart = active_chart(sheet)
+    if not isinstance(chart, Chart):
+        return sheet.selection
+    if sheet.chart_area_selected:
+        raise VBAUnsupportedError("Selection while an active chart's chart area is selected is not implemented")
+    return ChartObject(sheet, chart.shape)
+
+
 class ChartObject(Created):
     vba_type_name = 'ChartObject'
 
@@ -560,11 +581,35 @@ class ChartObject(Created):
 
     @member
     def Chart(self) -> object:
+        if not any(shape is self.shape for shape in self.sheet.shapes_):
+            # A deleted chart object has no chart to give (tests/fixtures/active_chart.json).
+            raise error(1004, 'Unable to get the Chart property of the ChartObject class')
         return Chart(self.sheet, self.shape)
 
     @member
     def ShapeRange(self) -> object:
         return ShapeRange([ShapeObject(self.sheet, self.shape)])
+
+    @method
+    def Activate(self) -> object:
+        self.made_active()
+        return EMPTY
+
+    @method
+    def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
+        # Selecting the chart's frame makes it the active chart as Activate does (tests/fixtures/active_chart.json).
+        if Replace is not MISSING:
+            raise VBAUnsupportedError('ChartObject.Select with Replace is not implemented')
+        self.made_active()
+        return EMPTY
+
+    def made_active(self, *, area: bool = False) -> None:
+        book = self.sheet.book
+        if book.application.active_book is not book or book.active_sheet is not self.sheet:
+            raise VBAUnsupportedError('Activating a chart on a sheet that is not active is not implemented')
+        if not any(shape is self.shape for shape in self.sheet.shapes_):
+            raise VBAUnsupportedError('Activating a deleted chart is not implemented')
+        self.sheet.active_chart, self.sheet.chart_area_selected = self.shape, area
 
     @member
     def ZOrder(self) -> object:
@@ -745,6 +790,25 @@ class Chart(Created):
         self.admit_change()
         self.state.dirty = True
         self.sheet.drawing_changed()
+        if self.sheet.active_chart is self.shape:
+            # Changing the active chart selects its chart area (tests/fixtures/active_chart.json).
+            self.sheet.chart_area_selected = True
+
+    @method
+    def Activate(self) -> object:
+        return self.not_a_sheet('Activate')
+
+    @method
+    def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
+        return self.not_a_sheet('Select')
+
+    def not_a_sheet(self, verb: str) -> object:
+        # An embedded chart that is not active cannot be activated or selected as a chart sheet would be
+        # (tests/fixtures/active_chart.json).
+        self.admit_read()
+        if self.sheet.active_chart is self.shape:
+            raise VBAUnsupportedError(f'Chart.{verb} on the active embedded chart is not implemented')
+        raise error(1004, f'{verb} method of Chart class failed')
 
     @member
     def Parent(self) -> object:

@@ -24,7 +24,7 @@ Application,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,test
 Application,_Run2,method,"_Run2([Macro As Variant], [Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,MISSING,,
 Application,ActivateMicrosoftApp,method,ActivateMicrosoftApp(Index As XlMSApplication),,MISSING,,
 Application,ActiveCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
-Application,ActiveChart,"property, read-only",As Chart,,MISSING,,
+Application,ActiveChart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,"The embedded chart activated on the active sheet until a range is selected or activated, kept per sheet and per workbook; Nothing otherwise."
 Application,ActiveEncryptionSession,"property, read-only",As Long,,MISSING,,
 Application,ActivePrinter,property,As String,,MISSING,,
 Application,ActiveProtectedViewWindow,"property, read-only",As ProtectedViewWindow,,MISSING,,
@@ -499,7 +499,7 @@ Characters,PhoneticCharacters,property,As String,,MISSING,,
 Characters,Text,property,As String,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/characters.json,"Read and set over one cell, the replaced characters' font kept; an edit leaving more than 255 characters changes nothing. Set over several cells is not implemented."
 Chart,_CodeName,property,As String,no setter,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,An embedded chart raises -2147467259.
 Chart,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"An embedded chart raises 450 given a name; read without one is refused, not measured."
-Chart,Activate,event,Activate(),,MISSING,,
+Chart,Activate,event,Activate(),,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,Raises 1004 on an embedded chart that is not active.
 Chart,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 Chart,ApplyChartTemplate,method,ApplyChartTemplate(Filename As String),,MISSING,,
 Chart,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant])",,MISSING,,
@@ -584,7 +584,7 @@ Chart,RightAngleAxes,property,As Variant,,MISSING,,
 Chart,Rotation,property,As Variant,,MISSING,,
 Chart,SaveAs,method,"SaveAs(Filename As String, [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant])",,MISSING,,
 Chart,SaveChartTemplate,method,SaveChartTemplate(Filename As String),,MISSING,,
-Chart,Select,event,"Select(ElementID As Long, Arg1 As Long, Arg2 As Long)",,MISSING,,
+Chart,Select,event,"Select(ElementID As Long, Arg1 As Long, Arg2 As Long)","no ElementID, Arg1, Arg2",PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,Raises 1004 on an embedded chart that is not active.
 Chart,SeriesChange,event,"SeriesChange(SeriesIndex As Long, PointIndex As Long)",,MISSING,,
 Chart,SeriesCollection,method,SeriesCollection([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Chart,SeriesNameLevel,property,As XlSeriesNameLevel,,MISSING,,
@@ -650,7 +650,7 @@ ChartGroups,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_gr
 ChartGroups,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json,"xlCreatorCode, which every Excel object answers; not measured on this one."
 ChartGroups,Item,method,Item(Index As Variant) As ChartGroup,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,The group at 1; any other index raises 1004.
 ChartGroups,Parent,"property, read-only",As Object,,MISSING,,
-ChartObject,Activate,method,Activate() As Variant,,MISSING,,
+ChartObject,Activate,method,Activate() As Variant,,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,"Makes the chart active, its frame the Selection; only on the active sheet."
 ChartObject,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartObject,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The cell under the chart's bottom right corner, as Shape.BottomRightCell."
 ChartObject,BringToFront,method,BringToFront() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart on top of the sheet's shapes; answers True.
@@ -671,7 +671,7 @@ ChartObject,Placement,property,As Variant,,PARTIAL,tests/fixtures/chart_object_m
 ChartObject,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"A Boolean, written as clientData's fPrintsWithSheet."
 ChartObject,ProtectChartObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Reads False; no setter.
 ChartObject,RoundedCorners,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The chart part's roundedCorners, read and set; a part without one has rounded corners."
-ChartObject,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
+ChartObject,Select,method,Select([Replace As Variant]) As Variant,,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,As Activate; Replace is refused.
 ChartObject,SendToBack,method,SendToBack() As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,The chart behind the sheet's shapes; answers Empty.
 ChartObject,Shadow,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"The chart area's outer shadow, read and set; turned off it leaves an empty effects list, as Excel writes it."
 ChartObject,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
@@ -2615,7 +2615,7 @@ Window,Activate,method,Activate() As Variant,,VERIFIED,tests/fixtures/windows/wi
 Window,ActivateNext,method,ActivateNext() As Variant,,PARTIAL,tests/fixtures/window_activate_next.json; tests/test_excel_window_activate_next.py,"The window behind the front one activated, so two in a row swap the front two; answers True. A window not in front changes nothing."
 Window,ActivatePrevious,method,ActivatePrevious() As Variant,,PARTIAL,tests/fixtures/window_activate_next.json; tests/test_excel_window_activate_next.py,"The window at the back activated, so steps go round every window; answers True."
 Window,ActiveCell,"property, read-only",As Range,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,ActiveChart,"property, read-only",As Chart,,MISSING,,
+Window,ActiveChart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,"The embedded chart activated on the active sheet until a range is selected or activated, kept per sheet and per workbook; Nothing otherwise."
 Window,ActivePane,"property, read-only",As Pane,,MISSING,,
 Window,ActiveSheet,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,ActiveSheetView,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The active sheet's view.
@@ -2696,7 +2696,7 @@ Workbook,_CodeName,property,As String,,MISSING,,
 Workbook,AcceptAllChanges,method,"AcceptAllChanges([When As Variant], [Who As Variant], [Where As Variant])",,MISSING,,
 Workbook,AccuracyVersion,property,As Long,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,0; setting it reports itself unsupported.
 Workbook,Activate,event,Activate(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_excel_projects.py,Native workbook Activate/Deactivate callbacks on window changes; event handler errors/mutations and close transitions need further conformance
-Workbook,ActiveChart,"property, read-only",As Chart,,MISSING,,
+Workbook,ActiveChart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/active_chart.json; tests/test_excel_active_chart.py,"The embedded chart activated on the active sheet until a range is selected or activated, kept per sheet and per workbook; Nothing otherwise."
 Workbook,ActiveSheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,ActiveSlicer,"property, read-only",As Slicer,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,"As a workbook on a local disk, unencrypted and outside any document server, answers."
 Workbook,AddinInstall,event,AddinInstall(),,MISSING,,

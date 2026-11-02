@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
+from copy import deepcopy
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
@@ -1205,6 +1206,18 @@ class ShapeObject(_Drawn):
             raise _unsupported("Hyperlink of a loaded shape")
         raise error(1004, "Unable to get the Hyperlink property of the Shape class")
 
+    @member
+    def Fill(self) -> object:
+        from pyopenvba.apps.excel._shape_format import FillFormat
+
+        return FillFormat(self)
+
+    @member
+    def Line(self) -> object:
+        from pyopenvba.apps.excel._shape_format import LineFormat
+
+        return LineFormat(self)
+
     def _measured_kind(self, what: str) -> str:
         """The kind the style reads were measured on: a button stands apart from the other controls; loaded shapes,
         freeforms and other controls are refused (tests/fixtures/shape_scale.json)."""
@@ -2034,7 +2047,9 @@ def duplicated(sheet: Worksheet, shape: Shape) -> Shape:
         sheet.shape_count += 1
         name = shape.name
     copy = replace(shape, name=name, shape_id=shapes._free_id(),  # pyright: ignore[reportPrivateUsage]
-                   left=shape.left + 12, top=shape.top + 12, children=[], source="", source_at=0, former_group=None)
+                   left=shape.left + 12, top=shape.top + 12, children=[], source="", source_at=0, former_group=None,
+                   # The copy's looks are its own, so changing one leaves the original alone.
+                   text_look=deepcopy(shape.text_look), fill_line=deepcopy(shape.fill_line))
     sheet.shapes_.append(copy)
     sheet.drawing_changed()
     return copy

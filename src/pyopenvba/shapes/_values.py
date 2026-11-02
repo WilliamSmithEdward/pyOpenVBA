@@ -204,6 +204,22 @@ class TextLook:
 
 
 @dataclass(slots=True)
+class FillLine:
+    """Excel: what Shape.Fill and Shape.Line set on a new shape, each None while the shape's style gives it
+    (tests/fixtures/shape_fill_line.json). Excel writes only what was set."""
+
+    #: The fill's colour as RRGGBB, its alpha in thousandths of a percent, and whether Solid wrote it out.
+    fill_rgb: str | None = None
+    fill_alpha: int | None = None
+    fill_solid: bool = False
+    #: The line's colour as RRGGBB, its width in EMU, and its prstDash and cap.
+    line_rgb: str | None = None
+    line_width: int | None = None
+    line_dash: str | None = None
+    line_cap: str | None = None
+
+
+@dataclass(slots=True)
 class Shape:
     """One shape on a sheet, a slide or a page.
 
@@ -275,6 +291,9 @@ class Shape:
     #: Excel: a new freeform's path, each step its command (moveTo, lnTo, cubicBezTo or close) and its points in EMU
     #: from the path's corner (tests/fixtures/shape_polyline.json).
     path: list[tuple[str, tuple[tuple[int, int], ...]]] = field(default_factory=lambda: [])
+    #: Excel: the fill and line Shape.Fill and Shape.Line set, None while it is the style's
+    #: (tests/fixtures/shape_fill_line.json).
+    fill_line: FillLine | None = None
 
     @property
     def mso_type(self) -> int:

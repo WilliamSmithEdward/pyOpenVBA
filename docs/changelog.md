@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Shape.Fill and Shape.Line on a new AutoShape, text box or line, with the
+  FillFormat, LineFormat and ColorFormat objects. They read what the
+  shape's style gives in the default theme. A macro can set the fill's
+  colour and transparency, Solid, and the line's colour, weight and two
+  dash styles, and a save writes only what was set, as Excel does. Hiding
+  a fill or line, and a line's transparency, are refused for now, since
+  Excel then writes out the whole style. Measured in
+  `tests/fixtures/shape_fill_line.json`.
 - Workbook.TableStyles as a collection: the 170 built-in styles in Excel's
   order, by number or by name in any case, error 9 for neither.
   TableStyle.NameLocal reads English Excel's words, such as "Table Style
@@ -676,6 +684,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- A saved line takes the style Excel gives a line. It was written with an
+  AutoShape's style: a dark outline, a fill reference and light text.
+
+- Shape.Duplicate gives the copy its own text layout, so changing the
+  copy's margins no longer changes the original's.
 
 - Queries.Add refuses a name a query already has with -2147024809, and
   Queries by a number out of range raises -2147352565, as Excel does.

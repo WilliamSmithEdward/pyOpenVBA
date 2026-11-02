@@ -103,7 +103,12 @@ name looking like a cell is not read as the cell.
    brackets, `[y]` or a file's `_xlop.y`, may be left out of a call, and
    leaving out any other is #VALUE! (`tests/fixtures/bound_names.json`);
    EDATE keeps the 1900 calendar's day 0, so `EDATE(0,1)` is 31
-   (`tests/fixtures/date1904/paths.json`).
+   (`tests/fixtures/date1904/paths.json`); a date given as text in an
+   array is read as a date in XIRR's and XNPV's dates and in the holidays
+   of NETWORKDAYS, WORKDAY and their INTL forms, as
+   `XIRR({..},{"1/1/2008",..})` and `NETWORKDAYS(..,{"11/22/2012"})` read
+   it in a cell and VBA hands a Date in an array over
+   (`tests/fixtures/worksheet_functions_more.json`).
 8. **Values from VBA.** `nodes.Given` carries a value into a call from
    outside any formula, as WorksheetFunction hands one: a scalar, an array
    with blanks in it, or cells. `values.Omitted`, what an argument left

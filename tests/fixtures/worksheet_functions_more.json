@@ -1,0 +1,2136 @@
+{
+ "helper": "Private Function Item(v As Variant) As String\n    If IsError(v) Then\n        Item = \"Error:\" & CStr(CLng(v))\n    ElseIf IsEmpty(v) Then\n        Item = \"Empty\"\n    ElseIf IsObject(v) Then\n        Item = \"Object\"\n    Else\n        Item = TypeName(v) & \":\" & CStr(v)\n    End If\nEnd Function\n\nPrivate Function Show(v As Variant) As String\n    Dim out As String, r As Long, c As Long, rows As Long, cols As Long, two As Boolean\n    If IsObject(v) Then\n        If v Is Nothing Then Show = \"Nothing\" Else Show = TypeName(v) & \"@\" & v.Address(False, False)\n        Exit Function\n    End If\n    If Not IsArray(v) Then\n        Show = Item(v)\n        Exit Function\n    End If\n    On Error Resume Next\n    cols = UBound(v, 2)\n    two = (Err.Number = 0)\n    Err.Clear\n    On Error GoTo 0\n    If two Then\n        out = \"Array(\" & LBound(v, 1) & \" To \" & UBound(v, 1) & \", \" & LBound(v, 2) & \" To \" & UBound(v, 2) & \")\"\n        For r = LBound(v, 1) To UBound(v, 1)\n            For c = LBound(v, 2) To UBound(v, 2)\n                out = out & \" \" & Item(v(r, c))\n            Next\n        Next\n    Else\n        out = \"Array(\" & LBound(v) & \" To \" & UBound(v) & \")\"\n        For r = LBound(v) To UBound(v)\n            out = out & \" \" & Item(v(r))\n        Next\n    End If\n    Show = out\nEnd Function\n",
+ "setup": "Private Sub Fill(ws As Object)\n    Dim r As Long\n    For r = 1 To 5\n        ws.Cells(r, 1).Value = r\n        ws.Cells(r, 2).Value = Chr(96 + r)\n    Next\n    ws.Range(\"C1\").Value = 10\n    ws.Range(\"C2\").Value = \"x\"\n    ws.Range(\"C4\").Value = True\n    ws.Range(\"C5\").Value = CVErr(xlErrNA)\n    ws.Range(\"D1:E1\").Value = Array(1, 2)\n    ws.Range(\"D2:E2\").Value = Array(3, 4)\n    ws.Range(\"D3:E3\").Value = Array(5, 6)\n    ws.Range(\"F1\").Value = 3\n    ws.Range(\"F2\").Value = 1\n    ws.Range(\"F3\").Value = 2\n    ws.Range(\"G1:J1\").Value = Array(\"p\", \"q\", \"r\", \"s\")\n    ws.Range(\"G2:J2\").Value = Array(1, 2, 3, 4)\nEnd Sub\n",
+ "cases": [
+  {
+   "function": "AccrInt",
+   "arguments": "#1/1/2020#, #7/1/2020#, #3/1/2020#, 0.05, 1000, 2",
+   "worksheet_function": "Double:8.33333333333333",
+   "application": "Double:8.33333333333333"
+  },
+  {
+   "function": "AccrIntM",
+   "arguments": "#1/1/2020#, #6/1/2020#, 0.05, 1000",
+   "worksheet_function": "Double:20.8333333333333",
+   "application": "Double:20.8333333333333"
+  },
+  {
+   "function": "Acos",
+   "arguments": "0.5",
+   "worksheet_function": "Double:1.0471975511966",
+   "application": "Double:1.0471975511966"
+  },
+  {
+   "function": "Acos",
+   "arguments": "2",
+   "worksheet_function": "E1004",
+   "application": "Error:2036"
+  },
+  {
+   "function": "Acosh",
+   "arguments": "2",
+   "worksheet_function": "Double:1.31695789692482",
+   "application": "Double:1.31695789692482"
+  },
+  {
+   "function": "Acot",
+   "arguments": "1",
+   "worksheet_function": "Double:0.785398163397448",
+   "application": "Double:0.785398163397448"
+  },
+  {
+   "function": "Acoth",
+   "arguments": "2",
+   "worksheet_function": "Double:0.549306144334055",
+   "application": "Double:0.549306144334055"
+  },
+  {
+   "function": "Aggregate",
+   "arguments": "9, 0, ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:15",
+   "application": "Double:15"
+  },
+  {
+   "function": "Aggregate",
+   "arguments": "14, 6, ws.Range(\"A1:A5\"), 2",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "AmorDegrc",
+   "arguments": "2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.15, 1",
+   "worksheet_function": "Double:776",
+   "application": "Double:776"
+  },
+  {
+   "function": "AmorLinc",
+   "arguments": "2400, #8/19/2008#, #12/31/2008#, 300, 1, 0.15, 1",
+   "worksheet_function": "Double:360",
+   "application": "Double:360"
+  },
+  {
+   "function": "Arabic",
+   "arguments": "\"MCMXCIV\"",
+   "worksheet_function": "Double:1994",
+   "application": "Double:1994"
+  },
+  {
+   "function": "ArrayToText",
+   "arguments": "Array(1, \"a\", True)",
+   "worksheet_function": "String:1, a, TRUE",
+   "application": "String:1, a, TRUE"
+  },
+  {
+   "function": "ArrayToText",
+   "arguments": "ws.Range(\"D1:E3\"), 1",
+   "worksheet_function": "String:{1,2;3,4;5,6}",
+   "application": "String:{1,2;3,4;5,6}"
+  },
+  {
+   "function": "Asc",
+   "arguments": "\"abc\"",
+   "worksheet_function": "String:abc",
+   "application": "String:abc"
+  },
+  {
+   "function": "Asin",
+   "arguments": "0.5",
+   "worksheet_function": "Double:0.523598775598299",
+   "application": "Double:0.523598775598299"
+  },
+  {
+   "function": "Asinh",
+   "arguments": "1",
+   "worksheet_function": "Double:0.881373587019543",
+   "application": "Double:0.881373587019543"
+  },
+  {
+   "function": "Atan2",
+   "arguments": "1, 1",
+   "worksheet_function": "Double:0.785398163397448",
+   "application": "Double:0.785398163397448"
+  },
+  {
+   "function": "Atanh",
+   "arguments": "0.5",
+   "worksheet_function": "Double:0.549306144334055",
+   "application": "Double:0.549306144334055"
+  },
+  {
+   "function": "AveDev",
+   "arguments": "Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:1.2",
+   "application": "Double:1.2"
+  },
+  {
+   "function": "AverageIfs",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">1\", ws.Range(\"A1:A5\"), \"<5\"",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "BahtText",
+   "arguments": "1234.5",
+   "worksheet_function": "String:\u0e2b\u0e19\u0e36\u0e48\u0e07\u0e1e\u0e31\u0e19\u0e2a\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e22\u0e2a\u0e32\u0e21\u0e2a\u0e34\u0e1a\u0e2a\u0e35\u0e48\u0e1a\u0e32\u0e17\u0e2b\u0e49\u0e32\u0e2a\u0e34\u0e1a\u0e2a\u0e15\u0e32\u0e07\u0e04\u0e4c",
+   "application": "String:\u0e2b\u0e19\u0e36\u0e48\u0e07\u0e1e\u0e31\u0e19\u0e2a\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e22\u0e2a\u0e32\u0e21\u0e2a\u0e34\u0e1a\u0e2a\u0e35\u0e48\u0e1a\u0e32\u0e17\u0e2b\u0e49\u0e32\u0e2a\u0e34\u0e1a\u0e2a\u0e15\u0e32\u0e07\u0e04\u0e4c"
+  },
+  {
+   "function": "Base",
+   "arguments": "255, 16",
+   "worksheet_function": "String:FF",
+   "application": "String:FF"
+  },
+  {
+   "function": "Base",
+   "arguments": "7, 2, 8",
+   "worksheet_function": "String:00000111",
+   "application": "String:00000111"
+  },
+  {
+   "function": "BesselI",
+   "arguments": "1.5, 1",
+   "worksheet_function": "Double:0.981666428475166",
+   "application": "Double:0.981666428475166"
+  },
+  {
+   "function": "BesselJ",
+   "arguments": "1.9, 2",
+   "worksheet_function": "Double:0.329925828669785",
+   "application": "Double:0.329925828669785"
+  },
+  {
+   "function": "BesselK",
+   "arguments": "1.5, 1",
+   "worksheet_function": "Double:0.277387803632259",
+   "application": "Double:0.277387803632259"
+  },
+  {
+   "function": "BesselY",
+   "arguments": "2.5, 1",
+   "worksheet_function": "Double:0.145918137508313",
+   "application": "Double:0.145918137508313"
+  },
+  {
+   "function": "Beta_Dist",
+   "arguments": "2, 8, 10, True, 1, 3",
+   "worksheet_function": "Double:0.685470581054687",
+   "application": "Double:0.685470581054687"
+  },
+  {
+   "function": "Beta_Inv",
+   "arguments": "0.685470581, 8, 10, 1, 3",
+   "worksheet_function": "Double:1.99999999996314",
+   "application": "Double:1.99999999996314"
+  },
+  {
+   "function": "BetaDist",
+   "arguments": "2, 8, 10, 1, 3",
+   "worksheet_function": "Double:0.685470581054687",
+   "application": "Double:0.685470581054687"
+  },
+  {
+   "function": "BetaInv",
+   "arguments": "0.685470581, 8, 10, 1, 3",
+   "worksheet_function": "Double:1.99999999996314",
+   "application": "Double:1.99999999996314"
+  },
+  {
+   "function": "Bin2Dec",
+   "arguments": "\"1100100\"",
+   "worksheet_function": "String:100",
+   "application": "Double:100"
+  },
+  {
+   "function": "Bin2Hex",
+   "arguments": "\"11111011\", 4",
+   "worksheet_function": "String:00FB",
+   "application": "String:00FB"
+  },
+  {
+   "function": "Bin2Oct",
+   "arguments": "\"1001\"",
+   "worksheet_function": "String:11",
+   "application": "String:11"
+  },
+  {
+   "function": "Binom_Dist",
+   "arguments": "6, 10, 0.5, False",
+   "worksheet_function": "Double:0.205078125",
+   "application": "Double:0.205078125"
+  },
+  {
+   "function": "Binom_Dist_Range",
+   "arguments": "60, 0.75, 48",
+   "worksheet_function": "Double:8.39749674290475E-02",
+   "application": "Double:8.39749674290475E-02"
+  },
+  {
+   "function": "Binom_Inv",
+   "arguments": "6, 0.5, 0.75",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "BinomDist",
+   "arguments": "6, 10, 0.5, True",
+   "worksheet_function": "Double:0.828125",
+   "application": "Double:0.828125"
+  },
+  {
+   "function": "Bitand",
+   "arguments": "13, 25",
+   "worksheet_function": "Double:9",
+   "application": "Double:9"
+  },
+  {
+   "function": "Bitlshift",
+   "arguments": "4, 2",
+   "worksheet_function": "Double:16",
+   "application": "Double:16"
+  },
+  {
+   "function": "Bitor",
+   "arguments": "23, 10",
+   "worksheet_function": "Double:31",
+   "application": "Double:31"
+  },
+  {
+   "function": "Bitrshift",
+   "arguments": "13, 2",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Bitxor",
+   "arguments": "5, 3",
+   "worksheet_function": "Double:6",
+   "application": "Double:6"
+  },
+  {
+   "function": "Ceiling_Precise",
+   "arguments": "-4.3",
+   "worksheet_function": "Double:-4",
+   "application": "Double:-4"
+  },
+  {
+   "function": "Ceiling_Precise",
+   "arguments": "4.3, 2",
+   "worksheet_function": "Double:6",
+   "application": "Double:6"
+  },
+  {
+   "function": "ChiDist",
+   "arguments": "18.307, 10",
+   "worksheet_function": "Double:5.00005890913981E-02",
+   "application": "Double:5.00005890913981E-02"
+  },
+  {
+   "function": "ChiInv",
+   "arguments": "0.05, 10",
+   "worksheet_function": "Double:18.3070380532751",
+   "application": "Double:18.3070380532751"
+  },
+  {
+   "function": "ChiSq_Dist",
+   "arguments": "0.5, 1, True",
+   "worksheet_function": "Double:0.520499877813047",
+   "application": "Double:0.520499877813047"
+  },
+  {
+   "function": "ChiSq_Dist_RT",
+   "arguments": "18.307, 10",
+   "worksheet_function": "Double:5.00005890913981E-02",
+   "application": "Double:5.00005890913981E-02"
+  },
+  {
+   "function": "ChiSq_Inv",
+   "arguments": "0.93, 1",
+   "worksheet_function": "Double:3.28302028675953",
+   "application": "Double:3.28302028675953"
+  },
+  {
+   "function": "ChiSq_Inv_RT",
+   "arguments": "0.05, 10",
+   "worksheet_function": "Double:18.3070380532751",
+   "application": "Double:18.3070380532751"
+  },
+  {
+   "function": "ChiSq_Test",
+   "arguments": "ws.Range(\"D1:D3\"), ws.Range(\"E1:E3\")",
+   "worksheet_function": "Double:0.63233666218625",
+   "application": "Double:0.63233666218625"
+  },
+  {
+   "function": "ChiTest",
+   "arguments": "ws.Range(\"D1:D3\"), ws.Range(\"E1:E3\")",
+   "worksheet_function": "Double:0.63233666218625",
+   "application": "Double:0.63233666218625"
+  },
+  {
+   "function": "Clean",
+   "arguments": "\"a\" & Chr(7) & \"b\"",
+   "worksheet_function": "String:ab",
+   "application": "String:ab"
+  },
+  {
+   "function": "Combin",
+   "arguments": "8, 2",
+   "worksheet_function": "Double:28",
+   "application": "Double:28"
+  },
+  {
+   "function": "Combina",
+   "arguments": "4, 3",
+   "worksheet_function": "Double:20",
+   "application": "Double:20"
+  },
+  {
+   "function": "Complex",
+   "arguments": "3, 4",
+   "worksheet_function": "String:3+4i",
+   "application": "String:3+4i"
+  },
+  {
+   "function": "Complex",
+   "arguments": "3, 4, \"j\"",
+   "worksheet_function": "String:3+4j",
+   "application": "String:3+4j"
+  },
+  {
+   "function": "Confidence",
+   "arguments": "0.05, 2.5, 50",
+   "worksheet_function": "Double:0.692951912174839",
+   "application": "Double:0.692951912174839"
+  },
+  {
+   "function": "Confidence_Norm",
+   "arguments": "0.05, 2.5, 50",
+   "worksheet_function": "Double:0.692951912174839",
+   "application": "Double:0.692951912174839"
+  },
+  {
+   "function": "Confidence_T",
+   "arguments": "0.05, 1, 50",
+   "worksheet_function": "Double:0.28419685549573",
+   "application": "Double:0.28419685549573"
+  },
+  {
+   "function": "Convert",
+   "arguments": "68, \"F\", \"C\"",
+   "worksheet_function": "Double:20",
+   "application": "Double:20"
+  },
+  {
+   "function": "Convert",
+   "arguments": "1, \"lbm\", \"kg\"",
+   "worksheet_function": "Double:0.45359237",
+   "application": "Double:0.45359237"
+  },
+  {
+   "function": "Correl",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:0.774596669241483",
+   "application": "Double:0.774596669241483"
+  },
+  {
+   "function": "Cosh",
+   "arguments": "4",
+   "worksheet_function": "Double:27.3082328360165",
+   "application": "Double:27.3082328360165"
+  },
+  {
+   "function": "Cot",
+   "arguments": "30",
+   "worksheet_function": "Double:-0.156119952161659",
+   "application": "Double:-0.156119952161659"
+  },
+  {
+   "function": "Coth",
+   "arguments": "2",
+   "worksheet_function": "Double:1.03731472072755",
+   "application": "Double:1.03731472072755"
+  },
+  {
+   "function": "CoupDayBs",
+   "arguments": "#1/25/2011#, #11/15/2011#, 2, 1",
+   "worksheet_function": "Double:71",
+   "application": "Double:71"
+  },
+  {
+   "function": "CoupDays",
+   "arguments": "#1/25/2011#, #11/15/2011#, 2, 1",
+   "worksheet_function": "Double:181",
+   "application": "Double:181"
+  },
+  {
+   "function": "CoupDaysNc",
+   "arguments": "#1/25/2011#, #11/15/2011#, 2, 1",
+   "worksheet_function": "Double:110",
+   "application": "Double:110"
+  },
+  {
+   "function": "CoupNcd",
+   "arguments": "#1/25/2011#, #11/15/2011#, 2, 1",
+   "worksheet_function": "Double:40678",
+   "application": "Double:40678"
+  },
+  {
+   "function": "CoupNum",
+   "arguments": "#1/25/2007#, #11/15/2008#, 2, 1",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "CoupPcd",
+   "arguments": "#1/25/2011#, #11/15/2011#, 2, 1",
+   "worksheet_function": "Double:40497",
+   "application": "Double:40497"
+  },
+  {
+   "function": "Covar",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:1.2",
+   "application": "Double:1.2"
+  },
+  {
+   "function": "Covariance_P",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:1.2",
+   "application": "Double:1.2"
+  },
+  {
+   "function": "Covariance_S",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:1.5",
+   "application": "Double:1.5"
+  },
+  {
+   "function": "CritBinom",
+   "arguments": "6, 0.5, 0.75",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Csc",
+   "arguments": "15",
+   "worksheet_function": "Double:1.53778056154085",
+   "application": "Double:1.53778056154085"
+  },
+  {
+   "function": "Csch",
+   "arguments": "1.5",
+   "worksheet_function": "Double:0.469642440595225",
+   "application": "Double:0.469642440595225"
+  },
+  {
+   "function": "CumIPmt",
+   "arguments": "0.0075, 360, 125000, 13, 24, 0",
+   "worksheet_function": "Double:-11135.2321307508",
+   "application": "Double:-11135.2321307508"
+  },
+  {
+   "function": "CumPrinc",
+   "arguments": "0.0075, 360, 125000, 13, 24, 0",
+   "worksheet_function": "Double:-934.107123420898",
+   "application": "Double:-934.107123420898"
+  },
+  {
+   "function": "DAverage",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Days360",
+   "arguments": "#1/1/2020#, #12/31/2020#",
+   "worksheet_function": "Double:360",
+   "application": "Double:360"
+  },
+  {
+   "function": "Days360",
+   "arguments": "#1/1/2020#, #12/31/2020#, True",
+   "worksheet_function": "Double:359",
+   "application": "Double:359"
+  },
+  {
+   "function": "Db",
+   "arguments": "1000000, 100000, 6, 1, 7",
+   "worksheet_function": "Double:186083.333333333",
+   "application": "Double:186083.333333333"
+  },
+  {
+   "function": "Dbcs",
+   "arguments": "\"abc\"",
+   "worksheet_function": "String:abc",
+   "application": "String:abc"
+  },
+  {
+   "function": "DCount",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "DCountA",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Ddb",
+   "arguments": "2400, 300, 10, 1",
+   "worksheet_function": "Double:480",
+   "application": "Double:480"
+  },
+  {
+   "function": "Dec2Bin",
+   "arguments": "9, 4",
+   "worksheet_function": "String:1001",
+   "application": "String:1001"
+  },
+  {
+   "function": "Dec2Bin",
+   "arguments": "-100",
+   "worksheet_function": "String:1110011100",
+   "application": "String:1110011100"
+  },
+  {
+   "function": "Dec2Hex",
+   "arguments": "100, 4",
+   "worksheet_function": "String:0064",
+   "application": "String:0064"
+  },
+  {
+   "function": "Dec2Oct",
+   "arguments": "58, 3",
+   "worksheet_function": "String:072",
+   "application": "String:072"
+  },
+  {
+   "function": "Decimal",
+   "arguments": "\"FF\", 16",
+   "worksheet_function": "Double:255",
+   "application": "Double:255"
+  },
+  {
+   "function": "Degrees",
+   "arguments": "3.14159265358979",
+   "worksheet_function": "Double:180",
+   "application": "Double:180"
+  },
+  {
+   "function": "Delta",
+   "arguments": "5, 4",
+   "worksheet_function": "Double:0",
+   "application": "Double:0"
+  },
+  {
+   "function": "Delta",
+   "arguments": "5",
+   "worksheet_function": "Double:0",
+   "application": "Double:0"
+  },
+  {
+   "function": "DGet",
+   "arguments": "ws.Range(\"G1:J2\"), \"r\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Disc",
+   "arguments": "#1/25/2018#, #6/15/2018#, 97.975, 100, 1",
+   "worksheet_function": "Double:5.24202127659577E-02",
+   "application": "Double:5.24202127659577E-02"
+  },
+  {
+   "function": "DMax",
+   "arguments": "ws.Range(\"G1:J2\"), \"s\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "DMin",
+   "arguments": "ws.Range(\"G1:J2\"), \"s\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Dollar",
+   "arguments": "1234.567, 2",
+   "worksheet_function": "String:$1,234.57",
+   "application": "String:$1,234.57"
+  },
+  {
+   "function": "Dollar",
+   "arguments": "-1234.567, -2",
+   "worksheet_function": "String:($1,200)",
+   "application": "String:($1,200)"
+  },
+  {
+   "function": "DollarDe",
+   "arguments": "1.02, 16",
+   "worksheet_function": "Double:1.125",
+   "application": "Double:1.125"
+  },
+  {
+   "function": "DollarFr",
+   "arguments": "1.125, 16",
+   "worksheet_function": "Double:1.02",
+   "application": "Double:1.02"
+  },
+  {
+   "function": "DProduct",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "DStDev",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2007"
+  },
+  {
+   "function": "DStDevP",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:0",
+   "application": "Double:0"
+  },
+  {
+   "function": "DSum",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Duration",
+   "arguments": "#7/1/2018#, #1/1/2048#, 0.08, 0.09, 2, 1",
+   "worksheet_function": "Double:10.9191452815919",
+   "application": "Double:10.9191452815919"
+  },
+  {
+   "function": "DVar",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "E1004",
+   "application": "Error:2007"
+  },
+  {
+   "function": "DVarP",
+   "arguments": "ws.Range(\"G1:J2\"), \"q\", ws.Range(\"G1:G2\")",
+   "worksheet_function": "Double:0",
+   "application": "Double:0"
+  },
+  {
+   "function": "Effect",
+   "arguments": "0.0525, 4",
+   "worksheet_function": "Double:5.35426673707584E-02",
+   "application": "Double:5.35426673707584E-02"
+  },
+  {
+   "function": "EncodeURL",
+   "arguments": "\"a b&c\"",
+   "worksheet_function": "String:a%20b%26c",
+   "application": "String:a%20b%26c"
+  },
+  {
+   "function": "Erf",
+   "arguments": "0.745",
+   "worksheet_function": "Double:0.707928920095738",
+   "application": "Double:0.707928920095738"
+  },
+  {
+   "function": "Erf",
+   "arguments": "0, 1.5",
+   "worksheet_function": "Double:0.966105146475311",
+   "application": "Double:0.966105146475311"
+  },
+  {
+   "function": "Erf_Precise",
+   "arguments": "1",
+   "worksheet_function": "Double:0.842700792949715",
+   "application": "Double:0.842700792949715"
+  },
+  {
+   "function": "ErfC",
+   "arguments": "1",
+   "worksheet_function": "Double:0.157299207050285",
+   "application": "Double:0.157299207050285"
+  },
+  {
+   "function": "ErfC_Precise",
+   "arguments": "1",
+   "worksheet_function": "Double:0.157299207050285",
+   "application": "Double:0.157299207050285"
+  },
+  {
+   "function": "Even",
+   "arguments": "1.5",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Even",
+   "arguments": "-1",
+   "worksheet_function": "Double:-2",
+   "application": "Double:-2"
+  },
+  {
+   "function": "Expon_Dist",
+   "arguments": "0.2, 10, True",
+   "worksheet_function": "Double:0.864664716763387",
+   "application": "Double:0.864664716763387"
+  },
+  {
+   "function": "ExponDist",
+   "arguments": "0.2, 10, False",
+   "worksheet_function": "Double:1.35335283236613",
+   "application": "Double:1.35335283236613"
+  },
+  {
+   "function": "F_Dist",
+   "arguments": "15.2069, 6, 4, True",
+   "worksheet_function": "Double:0.990000043002763",
+   "application": "Double:0.990000043002763"
+  },
+  {
+   "function": "F_Dist_RT",
+   "arguments": "15.2069, 6, 4",
+   "worksheet_function": "Double:9.99995699723731E-03",
+   "application": "Double:9.99995699723731E-03"
+  },
+  {
+   "function": "F_Inv",
+   "arguments": "0.01, 6, 4",
+   "worksheet_function": "Double:0.109309914124579",
+   "application": "Double:0.109309914124579"
+  },
+  {
+   "function": "F_Inv_RT",
+   "arguments": "0.01, 6, 4",
+   "worksheet_function": "Double:15.2068648611575",
+   "application": "Double:15.2068648611575"
+  },
+  {
+   "function": "F_Test",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:0.6328125",
+   "application": "Double:0.6328125"
+  },
+  {
+   "function": "Fact",
+   "arguments": "5",
+   "worksheet_function": "Double:120",
+   "application": "Double:120"
+  },
+  {
+   "function": "Fact",
+   "arguments": "1.9",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "FactDouble",
+   "arguments": "6",
+   "worksheet_function": "Double:48",
+   "application": "Double:48"
+  },
+  {
+   "function": "FDist",
+   "arguments": "15.2069, 6, 4",
+   "worksheet_function": "Double:9.99995699723731E-03",
+   "application": "Double:9.99995699723731E-03"
+  },
+  {
+   "function": "Filter",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\") > 2",
+   "worksheet_function": "E13",
+   "application": "E13"
+  },
+  {
+   "function": "FindB",
+   "arguments": "\"b\", \"abc\"",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "FInv",
+   "arguments": "0.01, 6, 4",
+   "worksheet_function": "Double:15.2068648611575",
+   "application": "Double:15.2068648611575"
+  },
+  {
+   "function": "Fisher",
+   "arguments": "0.75",
+   "worksheet_function": "Double:0.972955074527657",
+   "application": "Double:0.972955074527657"
+  },
+  {
+   "function": "FisherInv",
+   "arguments": "0.972955",
+   "worksheet_function": "Double:0.749999967394148",
+   "application": "Double:0.749999967394148"
+  },
+  {
+   "function": "Fixed",
+   "arguments": "1234.567, 1",
+   "worksheet_function": "String:1,234.6",
+   "application": "String:1,234.6"
+  },
+  {
+   "function": "Fixed",
+   "arguments": "1234.567, -1, True",
+   "worksheet_function": "String:1230",
+   "application": "String:1230"
+  },
+  {
+   "function": "Floor_Precise",
+   "arguments": "-3.2, -1",
+   "worksheet_function": "Double:-4",
+   "application": "Double:-4"
+  },
+  {
+   "function": "Forecast_Linear",
+   "arguments": "30, Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:20.2",
+   "application": "Double:20.2"
+  },
+  {
+   "function": "Frequency",
+   "arguments": "ws.Range(\"A1:A5\"), Array(2, 4)",
+   "worksheet_function": "Array(1 To 3, 1 To 1) Double:2 Double:2 Double:1",
+   "application": "Array(1 To 3, 1 To 1) Double:2 Double:2 Double:1"
+  },
+  {
+   "function": "FTest",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:0.6328125",
+   "application": "Double:0.6328125"
+  },
+  {
+   "function": "Fv",
+   "arguments": "0.06/12, 10, -200, -500, 1",
+   "worksheet_function": "Double:2581.40337406012",
+   "application": "Double:2581.40337406012"
+  },
+  {
+   "function": "FVSchedule",
+   "arguments": "1, Array(0.09, 0.11, 0.1)",
+   "worksheet_function": "Double:1.33089",
+   "application": "Double:1.33089"
+  },
+  {
+   "function": "Gamma",
+   "arguments": "2.5",
+   "worksheet_function": "Double:1.32934038817914",
+   "application": "Double:1.32934038817914"
+  },
+  {
+   "function": "Gamma_Dist",
+   "arguments": "10.00001131, 9, 2, False",
+   "worksheet_function": "Double:0.032639130418294",
+   "application": "Double:0.032639130418294"
+  },
+  {
+   "function": "Gamma_Inv",
+   "arguments": "0.068094, 9, 2",
+   "worksheet_function": "Double:10.0000111914372",
+   "application": "Double:10.0000111914372"
+  },
+  {
+   "function": "GammaDist",
+   "arguments": "10.00001131, 9, 2, True",
+   "worksheet_function": "Double:6.80940038697873E-02",
+   "application": "Double:6.80940038697873E-02"
+  },
+  {
+   "function": "GammaInv",
+   "arguments": "0.068094, 9, 2",
+   "worksheet_function": "Double:10.0000111914372",
+   "application": "Double:10.0000111914372"
+  },
+  {
+   "function": "GammaLn",
+   "arguments": "4",
+   "worksheet_function": "Double:1.79175946922805",
+   "application": "Double:1.79175946922805"
+  },
+  {
+   "function": "GammaLn_Precise",
+   "arguments": "4",
+   "worksheet_function": "Double:1.79175946922805",
+   "application": "Double:1.79175946922805"
+  },
+  {
+   "function": "Gauss",
+   "arguments": "2",
+   "worksheet_function": "Double:0.477249868051821",
+   "application": "Double:0.477249868051821"
+  },
+  {
+   "function": "Gcd",
+   "arguments": "24, 36",
+   "worksheet_function": "Double:12",
+   "application": "Double:12"
+  },
+  {
+   "function": "Gcd",
+   "arguments": "5, 0",
+   "worksheet_function": "Double:5",
+   "application": "Double:5"
+  },
+  {
+   "function": "GeoMean",
+   "arguments": "Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:2.60517108469735",
+   "application": "Double:2.60517108469735"
+  },
+  {
+   "function": "GeStep",
+   "arguments": "5, 4",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Growth",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Array(1 To 5) Double:2.63901582154579 Double:3.16978638492223 Double:3.80730787743176 Double:4.57305051927326 Double:5.49280271653059",
+   "application": "Array(1 To 5) Double:2.63901582154579 Double:3.16978638492223 Double:3.80730787743176 Double:4.57305051927326 Double:5.49280271653059"
+  },
+  {
+   "function": "HarMean",
+   "arguments": "Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:2.18978102189781",
+   "application": "Double:2.18978102189781"
+  },
+  {
+   "function": "Hex2Bin",
+   "arguments": "\"F\", 8",
+   "worksheet_function": "String:00001111",
+   "application": "String:00001111"
+  },
+  {
+   "function": "Hex2Dec",
+   "arguments": "\"A5\"",
+   "worksheet_function": "String:165",
+   "application": "Double:165"
+  },
+  {
+   "function": "Hex2Dec",
+   "arguments": "\"FFFFFFFF5B\"",
+   "worksheet_function": "String:-165",
+   "application": "Double:-165"
+  },
+  {
+   "function": "Hex2Oct",
+   "arguments": "\"F\", 3",
+   "worksheet_function": "String:017",
+   "application": "String:017"
+  },
+  {
+   "function": "HypGeom_Dist",
+   "arguments": "1, 4, 8, 20, True",
+   "worksheet_function": "Double:0.465428276573787",
+   "application": "Double:0.465428276573787"
+  },
+  {
+   "function": "HypGeomDist",
+   "arguments": "1, 4, 8, 20",
+   "worksheet_function": "Double:0.363261093911249",
+   "application": "Double:0.363261093911249"
+  },
+  {
+   "function": "ImAbs",
+   "arguments": "\"5+12i\"",
+   "worksheet_function": "String:13",
+   "application": "Double:13"
+  },
+  {
+   "function": "Imaginary",
+   "arguments": "\"3+4i\"",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "ImArgument",
+   "arguments": "\"3+4i\"",
+   "worksheet_function": "String:0.927295218001612",
+   "application": "Double:0.927295218001612"
+  },
+  {
+   "function": "ImConjugate",
+   "arguments": "\"3+4i\"",
+   "worksheet_function": "String:3-4i",
+   "application": "String:3-4i"
+  },
+  {
+   "function": "ImCos",
+   "arguments": "\"1+i\"",
+   "worksheet_function": "String:0.833730025131149-0.988897705762865i",
+   "application": "String:0.833730025131149-0.988897705762865i"
+  },
+  {
+   "function": "ImCosh",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:-27.0349456030742+3.85115333481178i",
+   "application": "String:-27.0349456030742+3.85115333481178i"
+  },
+  {
+   "function": "ImCot",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:0.00490118239430447-0.999266927805902i",
+   "application": "String:0.00490118239430447-0.999266927805902i"
+  },
+  {
+   "function": "ImCsc",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:-0.0754898329158637+0.0648774713706355i",
+   "application": "String:-0.0754898329158637+0.0648774713706355i"
+  },
+  {
+   "function": "ImCsch",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:-0.036275889628626-0.0051744731840194i",
+   "application": "String:-0.036275889628626-0.0051744731840194i"
+  },
+  {
+   "function": "ImDiv",
+   "arguments": "\"-238+240i\", \"10+24i\"",
+   "worksheet_function": "String:5+12i",
+   "application": "String:5+12i"
+  },
+  {
+   "function": "ImExp",
+   "arguments": "\"1+i\"",
+   "worksheet_function": "String:1.46869393991589+2.28735528717884i",
+   "application": "String:1.46869393991589+2.28735528717884i"
+  },
+  {
+   "function": "ImLn",
+   "arguments": "\"3+4i\"",
+   "worksheet_function": "String:1.6094379124341+0.927295218001612i",
+   "application": "String:1.6094379124341+0.927295218001612i"
+  },
+  {
+   "function": "ImLog10",
+   "arguments": "\"3+4i\"",
+   "worksheet_function": "String:0.698970004336019+0.402719196273373i",
+   "application": "String:0.698970004336019+0.402719196273373i"
+  },
+  {
+   "function": "ImLog2",
+   "arguments": "\"3+4i\"",
+   "worksheet_function": "String:2.32192809488736+1.33780421245098i",
+   "application": "String:2.32192809488736+1.33780421245098i"
+  },
+  {
+   "function": "ImPower",
+   "arguments": "\"2+3i\", 3",
+   "worksheet_function": "String:-46+9.00000000000001i",
+   "application": "String:-46+9.00000000000001i"
+  },
+  {
+   "function": "ImProduct",
+   "arguments": "\"3+4i\", \"5-3i\"",
+   "worksheet_function": "String:27+11i",
+   "application": "String:27+11i"
+  },
+  {
+   "function": "ImReal",
+   "arguments": "\"6-9i\"",
+   "worksheet_function": "Double:6",
+   "application": "Double:6"
+  },
+  {
+   "function": "ImSec",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:-0.0652940278579471-0.0752249603027732i",
+   "application": "String:-0.0652940278579471-0.0752249603027732i"
+  },
+  {
+   "function": "ImSech",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:-0.0362534969158689-0.00516434460775318i",
+   "application": "String:-0.0362534969158689-0.00516434460775318i"
+  },
+  {
+   "function": "ImSin",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:-7.61923172032141-6.548120040911i",
+   "application": "String:-7.61923172032141-6.548120040911i"
+  },
+  {
+   "function": "ImSinh",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:-27.0168132580039+3.85373803791938i",
+   "application": "String:-27.0168132580039+3.85373803791938i"
+  },
+  {
+   "function": "ImSqrt",
+   "arguments": "\"1+i\"",
+   "worksheet_function": "String:1.09868411346781+0.455089860562227i",
+   "application": "String:1.09868411346781+0.455089860562227i"
+  },
+  {
+   "function": "ImSub",
+   "arguments": "\"13+4i\", \"5+3i\"",
+   "worksheet_function": "String:8+i",
+   "application": "String:8+i"
+  },
+  {
+   "function": "ImSum",
+   "arguments": "\"3+4i\", \"5-3i\"",
+   "worksheet_function": "String:8+i",
+   "application": "String:8+i"
+  },
+  {
+   "function": "ImTan",
+   "arguments": "\"4+3i\"",
+   "worksheet_function": "String:0.00490825806749606+1.00070953606723i",
+   "application": "String:0.00490825806749606+1.00070953606723i"
+  },
+  {
+   "function": "Intercept",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:2.2",
+   "application": "Double:2.2"
+  },
+  {
+   "function": "IntRate",
+   "arguments": "#2/15/2008#, #5/15/2008#, 1000000, 1014420, 2",
+   "worksheet_function": "Double:0.05768",
+   "application": "Double:0.05768"
+  },
+  {
+   "function": "Ipmt",
+   "arguments": "0.1/12, 1, 36, 8000",
+   "worksheet_function": "Double:-66.6666666666667",
+   "application": "Double:-66.6666666666667"
+  },
+  {
+   "function": "Irr",
+   "arguments": "Array(-70000, 12000, 15000, 18000, 21000, 26000)",
+   "worksheet_function": "Double:8.66309480365222E-02",
+   "application": "Double:8.66309480365222E-02"
+  },
+  {
+   "function": "IsEven",
+   "arguments": "-1",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "IsEven",
+   "arguments": "2.5",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "IsFormula",
+   "arguments": "ws.Range(\"A1\")",
+   "worksheet_function": "Boolean:False",
+   "application": "Boolean:False"
+  },
+  {
+   "function": "ISO_Ceiling",
+   "arguments": "-4.3, 2",
+   "worksheet_function": "Double:-4",
+   "application": "Double:-4"
+  },
+  {
+   "function": "IsOdd",
+   "arguments": "5",
+   "worksheet_function": "Boolean:True",
+   "application": "Boolean:True"
+  },
+  {
+   "function": "IsoWeekNum",
+   "arguments": "#3/9/2012#",
+   "worksheet_function": "Double:10",
+   "application": "Double:10"
+  },
+  {
+   "function": "Ispmt",
+   "arguments": "0.1/12, 1, 36, 8000000",
+   "worksheet_function": "Double:-64814.8148148148",
+   "application": "Double:-64814.8148148148"
+  },
+  {
+   "function": "Kurt",
+   "arguments": "Array(3, 4, 5, 2, 3, 4, 5, 6, 4, 7)",
+   "worksheet_function": "Double:-0.151799637208416",
+   "application": "Double:-0.151799637208416"
+  },
+  {
+   "function": "Lcm",
+   "arguments": "5, 2",
+   "worksheet_function": "Double:10",
+   "application": "Double:10"
+  },
+  {
+   "function": "Lcm",
+   "arguments": "24, 36",
+   "worksheet_function": "Double:72",
+   "application": "Double:72"
+  },
+  {
+   "function": "LinEst",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Array(1 To 2) Double:0.6 Double:2.2",
+   "application": "Array(1 To 2) Double:0.6 Double:2.2"
+  },
+  {
+   "function": "LinEst",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5), True, True",
+   "worksheet_function": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4",
+   "application": "Array(1 To 5, 1 To 2) Double:0.6 Double:2.2 Double:0.282842712474619 Double:0.938083151964686 Double:0.6 Double:0.894427190999916 Double:4.5 Double:3 Double:3.6 Double:2.4"
+  },
+  {
+   "function": "LogEst",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Array(1 To 2) Double:1.20112443398143 Double:2.19712108661224",
+   "application": "Array(1 To 2) Double:1.20112443398143 Double:2.19712108661224"
+  },
+  {
+   "function": "LogInv",
+   "arguments": "0.039084, 3.5, 1.2",
+   "worksheet_function": "Double:4.00002521868064",
+   "application": "Double:4.00002521868064"
+  },
+  {
+   "function": "LogNorm_Dist",
+   "arguments": "4, 3.5, 1.2, True",
+   "worksheet_function": "Double:3.90835557068005E-02",
+   "application": "Double:3.90835557068005E-02"
+  },
+  {
+   "function": "LogNorm_Inv",
+   "arguments": "0.039084, 3.5, 1.2",
+   "worksheet_function": "Double:4.00002521868064",
+   "application": "Double:4.00002521868064"
+  },
+  {
+   "function": "LogNormDist",
+   "arguments": "4, 3.5, 1.2",
+   "worksheet_function": "Double:3.90835557068005E-02",
+   "application": "Double:3.90835557068005E-02"
+  },
+  {
+   "function": "Lookup",
+   "arguments": "4.5, ws.Range(\"A1:A5\"), ws.Range(\"B1:B5\")",
+   "worksheet_function": "String:d",
+   "application": "String:d"
+  },
+  {
+   "function": "Lookup",
+   "arguments": "\"c\", ws.Range(\"B1:B5\")",
+   "worksheet_function": "String:c",
+   "application": "String:c"
+  },
+  {
+   "function": "MaxIfs",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \"<4\"",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "MDeterm",
+   "arguments": "Array(Array(1, 3, 8), Array(4, 2, 1), Array(6, 4, 7))",
+   "worksheet_function": "Double:-24",
+   "application": "Double:-24"
+  },
+  {
+   "function": "MDuration",
+   "arguments": "#1/1/2008#, #1/1/2016#, 0.08, 0.09, 2, 1",
+   "worksheet_function": "Double:5.73566981391884",
+   "application": "Double:5.73566981391884"
+  },
+  {
+   "function": "MinIfs",
+   "arguments": "ws.Range(\"A1:A5\"), ws.Range(\"A1:A5\"), \">2\"",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "MInverse",
+   "arguments": "Array(Array(4, -1), Array(2, 0))",
+   "worksheet_function": "Array(1 To 2, 1 To 2) Double:0 Double:0.5 Double:-1 Double:2",
+   "application": "Array(1 To 2, 1 To 2) Double:0 Double:0.5 Double:-1 Double:2"
+  },
+  {
+   "function": "MIrr",
+   "arguments": "Array(-120000, 39000, 30000, 21000, 37000, 46000), 0.1, 0.12",
+   "worksheet_function": "Double:0.126094130365905",
+   "application": "Double:0.126094130365905"
+  },
+  {
+   "function": "MMult",
+   "arguments": "Array(Array(1, 2), Array(3, 4)), Array(Array(5, 6), Array(7, 8))",
+   "worksheet_function": "Array(1 To 2, 1 To 2) Double:19 Double:22 Double:43 Double:50",
+   "application": "Array(1 To 2, 1 To 2) Double:19 Double:22 Double:43 Double:50"
+  },
+  {
+   "function": "Mode",
+   "arguments": "Array(5.6, 4, 4, 3, 2, 4)",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Mode_Mult",
+   "arguments": "Array(1, 2, 3, 4, 3, 2, 1, 2, 3)",
+   "worksheet_function": "Array(1 To 2, 1 To 1) Double:2 Double:3",
+   "application": "Array(1 To 2, 1 To 1) Double:2 Double:3"
+  },
+  {
+   "function": "Mode_Sngl",
+   "arguments": "Array(5.6, 4, 4, 3, 2, 4)",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "MultiNomial",
+   "arguments": "2, 3, 4",
+   "worksheet_function": "Double:1260",
+   "application": "Double:1260"
+  },
+  {
+   "function": "Munit",
+   "arguments": "2",
+   "worksheet_function": "Array(1 To 2, 1 To 2) Double:1 Double:0 Double:0 Double:1",
+   "application": "Array(1 To 2, 1 To 2) Double:1 Double:0 Double:0 Double:1"
+  },
+  {
+   "function": "NegBinom_Dist",
+   "arguments": "10, 5, 0.25, True",
+   "worksheet_function": "Double:0.313514058478177",
+   "application": "Double:0.313514058478177"
+  },
+  {
+   "function": "NegBinomDist",
+   "arguments": "10, 5, 0.25",
+   "worksheet_function": "Double:5.50486603751779E-02",
+   "application": "Double:5.50486603751779E-02"
+  },
+  {
+   "function": "NetworkDays",
+   "arguments": "#10/1/2012#, #3/1/2013#",
+   "worksheet_function": "Double:110",
+   "application": "Double:110"
+  },
+  {
+   "function": "NetworkDays",
+   "arguments": "#10/1/2012#, #3/1/2013#, Array(#11/22/2012#)",
+   "worksheet_function": "Double:109",
+   "application": "Double:109"
+  },
+  {
+   "function": "NetworkDays_Intl",
+   "arguments": "#1/1/2006#, #1/31/2006#, 7",
+   "worksheet_function": "Double:23",
+   "application": "Double:23"
+  },
+  {
+   "function": "NetworkDays_Intl",
+   "arguments": "#1/1/2006#, #1/31/2006#, \"0010001\"",
+   "worksheet_function": "Double:22",
+   "application": "Double:22"
+  },
+  {
+   "function": "Nominal",
+   "arguments": "0.053543, 4",
+   "worksheet_function": "Double:0.052500319868356",
+   "application": "Double:0.052500319868356"
+  },
+  {
+   "function": "Norm_Dist",
+   "arguments": "42, 40, 1.5, True",
+   "worksheet_function": "Double:0.908788780274132",
+   "application": "Double:0.908788780274132"
+  },
+  {
+   "function": "Norm_Inv",
+   "arguments": "0.908789, 40, 1.5",
+   "worksheet_function": "Double:42.0000020095662",
+   "application": "Double:42.0000020095662"
+  },
+  {
+   "function": "Norm_S_Dist",
+   "arguments": "1.333333, True",
+   "worksheet_function": "Double:0.908788725604095",
+   "application": "Double:0.908788725604095"
+  },
+  {
+   "function": "Norm_S_Inv",
+   "arguments": "0.908789",
+   "worksheet_function": "Double:1.33333467304411",
+   "application": "Double:1.33333467304411"
+  },
+  {
+   "function": "NormDist",
+   "arguments": "42, 40, 1.5, False",
+   "worksheet_function": "Double:0.109340049783996",
+   "application": "Double:0.109340049783996"
+  },
+  {
+   "function": "NormInv",
+   "arguments": "0.908789, 40, 1.5",
+   "worksheet_function": "Double:42.0000020095662",
+   "application": "Double:42.0000020095662"
+  },
+  {
+   "function": "NormSDist",
+   "arguments": "1.333333",
+   "worksheet_function": "Double:0.908788725604095",
+   "application": "Double:0.908788725604095"
+  },
+  {
+   "function": "NormSInv",
+   "arguments": "0.908789",
+   "worksheet_function": "Double:1.33333467304411",
+   "application": "Double:1.33333467304411"
+  },
+  {
+   "function": "NPer",
+   "arguments": "0.12/12, -100, -1000, 10000, 1",
+   "worksheet_function": "Double:59.6738656742946",
+   "application": "Double:59.6738656742946"
+  },
+  {
+   "function": "Npv",
+   "arguments": "0.1, -10000, 3000, 4200, 6800",
+   "worksheet_function": "Double:1188.44341233522",
+   "application": "Double:1188.44341233522"
+  },
+  {
+   "function": "NumberValue",
+   "arguments": "\"2.500,27\", \",\", \".\"",
+   "worksheet_function": "Double:2500.27",
+   "application": "Double:2500.27"
+  },
+  {
+   "function": "Oct2Bin",
+   "arguments": "\"3\", 3",
+   "worksheet_function": "String:011",
+   "application": "String:011"
+  },
+  {
+   "function": "Oct2Dec",
+   "arguments": "\"54\"",
+   "worksheet_function": "String:44",
+   "application": "Double:44"
+  },
+  {
+   "function": "Oct2Hex",
+   "arguments": "\"100\", 4",
+   "worksheet_function": "String:0040",
+   "application": "String:0040"
+  },
+  {
+   "function": "Odd",
+   "arguments": "1.5",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Odd",
+   "arguments": "-2",
+   "worksheet_function": "Double:-3",
+   "application": "Double:-3"
+  },
+  {
+   "function": "OddFPrice",
+   "arguments": "#11/11/2008#, #3/1/2021#, #10/15/2008#, #3/1/2009#, 0.0785, 0.0625, 100, 2, 1",
+   "worksheet_function": "Double:113.597717474079",
+   "application": "Double:113.597717474079"
+  },
+  {
+   "function": "OddFYield",
+   "arguments": "#11/11/2008#, #3/1/2021#, #10/15/2008#, #3/1/2009#, 0.0575, 84.5, 100, 2, 0",
+   "worksheet_function": "Double:7.72455415972989E-02",
+   "application": "Double:7.72455415972989E-02"
+  },
+  {
+   "function": "OddLPrice",
+   "arguments": "#2/7/2008#, #6/15/2008#, #10/15/2007#, 0.0375, 0.0405, 100, 2, 0",
+   "worksheet_function": "Double:99.8782860147213",
+   "application": "Double:99.8782860147213"
+  },
+  {
+   "function": "OddLYield",
+   "arguments": "#4/20/2008#, #6/15/2008#, #12/24/2007#, 0.0375, 99.875, 100, 2, 0",
+   "worksheet_function": "Double:4.51922356291692E-02",
+   "application": "Double:4.51922356291692E-02"
+  },
+  {
+   "function": "PDuration",
+   "arguments": "0.025, 2000, 2200",
+   "worksheet_function": "Double:3.85986616262266",
+   "application": "Double:3.85986616262266"
+  },
+  {
+   "function": "Pearson",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:0.774596669241483",
+   "application": "Double:0.774596669241483"
+  },
+  {
+   "function": "Percentile",
+   "arguments": "ws.Range(\"A1:A5\"), 0.3",
+   "worksheet_function": "Double:2.2",
+   "application": "Double:2.2"
+  },
+  {
+   "function": "Percentile_Exc",
+   "arguments": "ws.Range(\"A1:A5\"), 0.3",
+   "worksheet_function": "Double:1.8",
+   "application": "Double:1.8"
+  },
+  {
+   "function": "Percentile_Inc",
+   "arguments": "ws.Range(\"A1:A5\"), 0.3",
+   "worksheet_function": "Double:2.2",
+   "application": "Double:2.2"
+  },
+  {
+   "function": "PercentRank",
+   "arguments": "ws.Range(\"A1:A5\"), 2",
+   "worksheet_function": "Double:0.25",
+   "application": "Double:0.25"
+  },
+  {
+   "function": "PercentRank_Exc",
+   "arguments": "ws.Range(\"A1:A5\"), 2, 4",
+   "worksheet_function": "Double:0.3333",
+   "application": "Double:0.3333"
+  },
+  {
+   "function": "PercentRank_Inc",
+   "arguments": "ws.Range(\"A1:A5\"), 2.5",
+   "worksheet_function": "Double:0.375",
+   "application": "Double:0.375"
+  },
+  {
+   "function": "Permut",
+   "arguments": "100, 3",
+   "worksheet_function": "Double:970200",
+   "application": "Double:970200"
+  },
+  {
+   "function": "Permutationa",
+   "arguments": "3, 2",
+   "worksheet_function": "Double:9",
+   "application": "Double:9"
+  },
+  {
+   "function": "Phi",
+   "arguments": "0.75",
+   "worksheet_function": "Double:0.301137432154804",
+   "application": "Double:0.301137432154804"
+  },
+  {
+   "function": "Pmt",
+   "arguments": "0.08/12, 10, 10000",
+   "worksheet_function": "Double:-1037.03208935915",
+   "application": "Double:-1037.03208935915"
+  },
+  {
+   "function": "Pmt",
+   "arguments": "0.08/12, 10, 10000, 0, 1",
+   "worksheet_function": "Double:-1030.16432717797",
+   "application": "Double:-1030.16432717797"
+  },
+  {
+   "function": "Poisson",
+   "arguments": "2, 5, True",
+   "worksheet_function": "Double:0.124652019483081",
+   "application": "Double:0.124652019483081"
+  },
+  {
+   "function": "Poisson_Dist",
+   "arguments": "2, 5, False",
+   "worksheet_function": "Double:8.42243374885683E-02",
+   "application": "Double:8.42243374885683E-02"
+  },
+  {
+   "function": "Ppmt",
+   "arguments": "0.1/12, 1, 24, 2000",
+   "worksheet_function": "Double:-75.6231860083663",
+   "application": "Double:-75.6231860083663"
+  },
+  {
+   "function": "Price",
+   "arguments": "#2/15/2008#, #11/15/2017#, 0.0575, 95.04287, 100, 2, 0",
+   "worksheet_function": "Double:-1.01608002137925",
+   "application": "Double:-1.01608002137925"
+  },
+  {
+   "function": "PriceDisc",
+   "arguments": "#2/16/2008#, #3/1/2008#, 0.0525, 100, 2",
+   "worksheet_function": "Double:99.7958333333333",
+   "application": "Double:99.7958333333333"
+  },
+  {
+   "function": "PriceMat",
+   "arguments": "#2/15/2008#, #4/13/2008#, #11/11/2007#, 0.061, 0.061, 0",
+   "worksheet_function": "Double:99.9844988755569",
+   "application": "Double:99.9844988755569"
+  },
+  {
+   "function": "Prob",
+   "arguments": "Array(0, 1, 2, 3), Array(0.2, 0.3, 0.1, 0.4), 2",
+   "worksheet_function": "Double:0.1",
+   "application": "Double:0.1"
+  },
+  {
+   "function": "Pv",
+   "arguments": "0.08/12, 12*20, 500, , 0",
+   "worksheet_function": "Double:-59777.1458511878",
+   "application": "Double:-59777.1458511878"
+  },
+  {
+   "function": "Quartile",
+   "arguments": "ws.Range(\"A1:A5\"), 1",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Quartile_Exc",
+   "arguments": "Array(6, 7, 15, 36, 39, 40, 41, 42, 43, 47, 49), 1",
+   "worksheet_function": "Double:15",
+   "application": "Double:15"
+  },
+  {
+   "function": "Quartile_Inc",
+   "arguments": "ws.Range(\"A1:A5\"), 3",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Quotient",
+   "arguments": "5, 2",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Quotient",
+   "arguments": "-10, 3",
+   "worksheet_function": "Double:-3",
+   "application": "Double:-3"
+  },
+  {
+   "function": "Radians",
+   "arguments": "270",
+   "worksheet_function": "Double:4.71238898038469",
+   "application": "Double:4.71238898038469"
+  },
+  {
+   "function": "RandArray",
+   "arguments": "1, 1, 5, 5, True",
+   "worksheet_function": "Array(1 To 1) Double:5",
+   "application": "Array(1 To 1) Double:5"
+  },
+  {
+   "function": "RandBetween",
+   "arguments": "3, 3",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Rank",
+   "arguments": "3, ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Rank",
+   "arguments": "3, ws.Range(\"A1:A5\"), 1",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Rank_Avg",
+   "arguments": "2, ws.Range(\"F1:F3\")",
+   "worksheet_function": "Double:2",
+   "application": "Double:2"
+  },
+  {
+   "function": "Rank_Eq",
+   "arguments": "3, ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Rate",
+   "arguments": "4*12, -200, 8000",
+   "worksheet_function": "Double:7.70147248820137E-03",
+   "application": "Double:7.70147248820137E-03"
+  },
+  {
+   "function": "Received",
+   "arguments": "#2/15/2008#, #5/15/2008#, 1000000, 0.0575, 2",
+   "worksheet_function": "Double:1014584.6544071",
+   "application": "Double:1014584.6544071"
+  },
+  {
+   "function": "ReplaceB",
+   "arguments": "\"abcdef\", 2, 3, \"X\"",
+   "worksheet_function": "String:aXef",
+   "application": "String:aXef"
+  },
+  {
+   "function": "Roman",
+   "arguments": "499",
+   "worksheet_function": "String:CDXCIX",
+   "application": "String:CDXCIX"
+  },
+  {
+   "function": "Roman",
+   "arguments": "499, 4",
+   "worksheet_function": "String:ID",
+   "application": "String:ID"
+  },
+  {
+   "function": "Rri",
+   "arguments": "96, 10000, 11000",
+   "worksheet_function": "Double:9.9330737629133E-04",
+   "application": "Double:9.9330737629133E-04"
+  },
+  {
+   "function": "RSq",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:0.6",
+   "application": "Double:0.6"
+  },
+  {
+   "function": "SearchB",
+   "arguments": "\"C\", \"abc\"",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "Sec",
+   "arguments": "45",
+   "worksheet_function": "Double:1.90359440740442",
+   "application": "Double:1.90359440740442"
+  },
+  {
+   "function": "Sech",
+   "arguments": "45",
+   "worksheet_function": "Double:5.72503716109879E-20",
+   "application": "Double:5.72503716109879E-20"
+  },
+  {
+   "function": "Sequence",
+   "arguments": "3",
+   "worksheet_function": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3",
+   "application": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3"
+  },
+  {
+   "function": "Sequence",
+   "arguments": "2, 3, 10, -1",
+   "worksheet_function": "Array(1 To 2, 1 To 3) Double:10 Double:9 Double:8 Double:7 Double:6 Double:5",
+   "application": "Array(1 To 2, 1 To 3) Double:10 Double:9 Double:8 Double:7 Double:6 Double:5"
+  },
+  {
+   "function": "SeriesSum",
+   "arguments": "0.785398163, 0, 2, Array(1, -0.5, 0.041666667)",
+   "worksheet_function": "Double:0.707429207116671",
+   "application": "Double:0.707429207116671"
+  },
+  {
+   "function": "Single",
+   "arguments": "ws.Range(\"A1:A5\")",
+   "worksheet_function": "Double:1",
+   "application": "Double:1"
+  },
+  {
+   "function": "Sinh",
+   "arguments": "1",
+   "worksheet_function": "Double:1.1752011936438",
+   "application": "Double:1.1752011936438"
+  },
+  {
+   "function": "Skew",
+   "arguments": "Array(3, 4, 5, 2, 3, 4, 5, 6, 4, 7)",
+   "worksheet_function": "Double:0.359543071406797",
+   "application": "Double:0.359543071406797"
+  },
+  {
+   "function": "Skew_p",
+   "arguments": "Array(3, 4, 5, 2, 3, 4, 5, 6, 4, 7)",
+   "worksheet_function": "Double:0.303193339354144",
+   "application": "Double:0.303193339354144"
+  },
+  {
+   "function": "Sln",
+   "arguments": "30000, 7500, 10",
+   "worksheet_function": "Double:2250",
+   "application": "Double:2250"
+  },
+  {
+   "function": "Slope",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:0.6",
+   "application": "Double:0.6"
+  },
+  {
+   "function": "Sort",
+   "arguments": "ws.Range(\"F1:F3\")",
+   "worksheet_function": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3",
+   "application": "Array(1 To 3, 1 To 1) Double:1 Double:2 Double:3"
+  },
+  {
+   "function": "Sort",
+   "arguments": "ws.Range(\"F1:F3\"), 1, -1",
+   "worksheet_function": "Array(1 To 3, 1 To 1) Double:3 Double:2 Double:1",
+   "application": "Array(1 To 3, 1 To 1) Double:3 Double:2 Double:1"
+  },
+  {
+   "function": "SortBy",
+   "arguments": "ws.Range(\"B1:B5\"), ws.Range(\"F1:F3\"), 1",
+   "worksheet_function": "E1004",
+   "application": "Error:2015"
+  },
+  {
+   "function": "SqrtPi",
+   "arguments": "2",
+   "worksheet_function": "Double:2.506628274631",
+   "application": "Double:2.506628274631"
+  },
+  {
+   "function": "Standardize",
+   "arguments": "42, 40, 1.5",
+   "worksheet_function": "Double:1.33333333333333",
+   "application": "Double:1.33333333333333"
+  },
+  {
+   "function": "StEyx",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Double:0.894427190999916",
+   "application": "Double:0.894427190999916"
+  },
+  {
+   "function": "SumX2MY2",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:-31",
+   "application": "Double:-31"
+  },
+  {
+   "function": "SumX2PY2",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:141",
+   "application": "Double:141"
+  },
+  {
+   "function": "SumXMY2",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5)",
+   "worksheet_function": "Double:9",
+   "application": "Double:9"
+  },
+  {
+   "function": "Syd",
+   "arguments": "30000, 7500, 10, 1",
+   "worksheet_function": "Double:4090.90909090909",
+   "application": "Double:4090.90909090909"
+  },
+  {
+   "function": "T_Dist",
+   "arguments": "60, 1, True",
+   "worksheet_function": "Double:0.994695326367377",
+   "application": "Double:0.994695326367377"
+  },
+  {
+   "function": "T_Dist_2T",
+   "arguments": "1.959999998, 60",
+   "worksheet_function": "Double:0.054644929975921",
+   "application": "Double:0.054644929975921"
+  },
+  {
+   "function": "T_Dist_RT",
+   "arguments": "1.959999998, 60",
+   "worksheet_function": "Double:2.73224649879605E-02",
+   "application": "Double:2.73224649879605E-02"
+  },
+  {
+   "function": "T_Inv",
+   "arguments": "0.75, 2",
+   "worksheet_function": "Double:0.816496580927726",
+   "application": "Double:0.816496580927726"
+  },
+  {
+   "function": "T_Inv_2T",
+   "arguments": "0.546449, 60",
+   "worksheet_function": "Double:0.606533075825759",
+   "application": "Double:0.606533075825759"
+  },
+  {
+   "function": "T_Test",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5), 2, 1",
+   "worksheet_function": "Double:8.90093425000857E-02",
+   "application": "Double:8.90093425000857E-02"
+  },
+  {
+   "function": "Tanh",
+   "arguments": "0.5",
+   "worksheet_function": "Double:0.46211715726001",
+   "application": "Double:0.46211715726001"
+  },
+  {
+   "function": "TBillEq",
+   "arguments": "#3/31/2008#, #6/1/2008#, 0.0914",
+   "worksheet_function": "Double:0.094151493565943",
+   "application": "Double:0.094151493565943"
+  },
+  {
+   "function": "TBillPrice",
+   "arguments": "#3/31/2008#, #6/1/2008#, 0.09",
+   "worksheet_function": "Double:98.45",
+   "application": "Double:98.45"
+  },
+  {
+   "function": "TBillYield",
+   "arguments": "#3/31/2008#, #6/1/2008#, 98.45",
+   "worksheet_function": "Double:9.14169629253426E-02",
+   "application": "Double:9.14169629253426E-02"
+  },
+  {
+   "function": "TDist",
+   "arguments": "1.959999998, 60, 2",
+   "worksheet_function": "Double:0.054644929975921",
+   "application": "Double:0.054644929975921"
+  },
+  {
+   "function": "TInv",
+   "arguments": "0.05464, 60",
+   "worksheet_function": "Double:1.96004118712725",
+   "application": "Double:1.96004118712725"
+  },
+  {
+   "function": "Trend",
+   "arguments": "Array(2, 4, 5, 4, 5), Array(1, 2, 3, 4, 5)",
+   "worksheet_function": "Array(1 To 5) Double:2.8 Double:3.4 Double:4 Double:4.6 Double:5.2",
+   "application": "Array(1 To 5) Double:2.8 Double:3.4 Double:4 Double:4.6 Double:5.2"
+  },
+  {
+   "function": "TrimMean",
+   "arguments": "Array(4, 5, 6, 7, 2, 3, 4, 5, 1, 2, 3), 0.2",
+   "worksheet_function": "Double:3.77777777777778",
+   "application": "Double:3.77777777777778"
+  },
+  {
+   "function": "TTest",
+   "arguments": "Array(1, 2, 3, 4, 5), Array(2, 4, 5, 4, 5), 2, 2",
+   "worksheet_function": "Double:0.295999304915703",
+   "application": "Double:0.295999304915703"
+  },
+  {
+   "function": "Unichar",
+   "arguments": "66",
+   "worksheet_function": "String:B",
+   "application": "String:B"
+  },
+  {
+   "function": "Unicode",
+   "arguments": "\"B\"",
+   "worksheet_function": "Double:66",
+   "application": "Double:66"
+  },
+  {
+   "function": "Unique",
+   "arguments": "Array(1, 2, 1, 3)",
+   "worksheet_function": "Array(1 To 4) Double:1 Double:2 Double:1 Double:3",
+   "application": "Array(1 To 4) Double:1 Double:2 Double:1 Double:3"
+  },
+  {
+   "function": "Unique",
+   "arguments": "ws.Range(\"F1:F3\")",
+   "worksheet_function": "Array(1 To 3, 1 To 1) Double:3 Double:1 Double:2",
+   "application": "Array(1 To 3, 1 To 1) Double:3 Double:1 Double:2"
+  },
+  {
+   "function": "USDollar",
+   "arguments": "1234.567, 2",
+   "worksheet_function": "String:$1,234.57",
+   "application": "String:$1,234.57"
+  },
+  {
+   "function": "ValueToText",
+   "arguments": "\"a\"",
+   "worksheet_function": "String:a",
+   "application": "String:a"
+  },
+  {
+   "function": "ValueToText",
+   "arguments": "\"a\", 1",
+   "worksheet_function": "String:\"a\"",
+   "application": "String:\"a\""
+  },
+  {
+   "function": "Vdb",
+   "arguments": "2400, 300, 10*365, 0, 1",
+   "worksheet_function": "Double:1.31506849315068",
+   "application": "Double:1.31506849315068"
+  },
+  {
+   "function": "WeekNum",
+   "arguments": "#3/9/2012#",
+   "worksheet_function": "Double:10",
+   "application": "Double:10"
+  },
+  {
+   "function": "WeekNum",
+   "arguments": "#3/9/2012#, 2",
+   "worksheet_function": "Double:11",
+   "application": "Double:11"
+  },
+  {
+   "function": "Weibull",
+   "arguments": "105, 20, 100, True",
+   "worksheet_function": "Double:0.929581390069277",
+   "application": "Double:0.929581390069277"
+  },
+  {
+   "function": "Weibull_Dist",
+   "arguments": "105, 20, 100, False",
+   "worksheet_function": "Double:3.55888640245036E-02",
+   "application": "Double:3.55888640245036E-02"
+  },
+  {
+   "function": "WorkDay",
+   "arguments": "#10/1/2008#, 151",
+   "worksheet_function": "Double:39933",
+   "application": "Double:39933"
+  },
+  {
+   "function": "WorkDay_Intl",
+   "arguments": "#1/1/2012#, 30, 0",
+   "worksheet_function": "E1004",
+   "application": "Error:2036"
+  },
+  {
+   "function": "WorkDay_Intl",
+   "arguments": "#1/1/2012#, 30, 11",
+   "worksheet_function": "Double:40943",
+   "application": "Double:40943"
+  },
+  {
+   "function": "Xirr",
+   "arguments": "Array(-10000, 2750, 4250, 3250, 2750), Array(#1/1/2008#, #3/1/2008#, #10/30/2008#, #2/15/2009#, #4/1/2009#)",
+   "worksheet_function": "Double:0.373362535238266",
+   "application": "Double:0.373362535238266"
+  },
+  {
+   "function": "XMatch",
+   "arguments": "\"c\", ws.Range(\"B1:B5\")",
+   "worksheet_function": "Double:3",
+   "application": "Double:3"
+  },
+  {
+   "function": "XMatch",
+   "arguments": "3.5, ws.Range(\"A1:A5\"), 1",
+   "worksheet_function": "Double:4",
+   "application": "Double:4"
+  },
+  {
+   "function": "Xnpv",
+   "arguments": "Array(-10000, 2750, 4250, 3250, 2750), Array(#1/1/2008#, #3/1/2008#, #10/30/2008#, #2/15/2009#, #4/1/2009#)",
+   "worksheet_function": "E1004",
+   "application": "E1004"
+  },
+  {
+   "function": "YearFrac",
+   "arguments": "#1/1/2020#, #7/30/2020#",
+   "worksheet_function": "Double:0.580555555555556",
+   "application": "Double:0.580555555555556"
+  },
+  {
+   "function": "YearFrac",
+   "arguments": "#1/1/2020#, #7/30/2020#, 1",
+   "worksheet_function": "Double:0.576502732240437",
+   "application": "Double:0.576502732240437"
+  },
+  {
+   "function": "YieldDisc",
+   "arguments": "#2/16/2008#, #3/1/2008#, 99.795, 100, 2",
+   "worksheet_function": "Double:5.28225719868583E-02",
+   "application": "Double:5.28225719868583E-02"
+  },
+  {
+   "function": "YieldMat",
+   "arguments": "#3/15/2008#, #11/3/2008#, #11/8/2007#, 0.0625, 100.0123, 0",
+   "worksheet_function": "Double:6.09543336915387E-02",
+   "application": "Double:6.09543336915387E-02"
+  },
+  {
+   "function": "Z_Test",
+   "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4",
+   "worksheet_function": "Double:9.05741968513638E-02",
+   "application": "Double:9.05741968513638E-02"
+  },
+  {
+   "function": "ZTest",
+   "arguments": "Array(3, 6, 7, 8, 6, 5, 4, 2, 1, 9), 4, 1",
+   "worksheet_function": "Double:2.52109114724504E-04",
+   "application": "Double:2.52109114724504E-04"
+  }
+ ]
+}

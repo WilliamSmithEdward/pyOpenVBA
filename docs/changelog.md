@@ -7,6 +7,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Window.SheetViews and ActiveSheetView, and the WorksheetView each gives.
+  SheetViews holds every sheet in tab order, whichever are selected. A view
+  reads and sets its own sheet's gridlines, formulas, headings, zeros and
+  outline symbols, even while another sheet is active. Measured in
+  `tests/fixtures/sheet_views.json`.
 - Axis.MajorGridlines, MinorGridlines and TickLabels, with the Gridlines
   and TickLabels objects. Gridlines answer their name and Delete.
   TickLabels.NumberFormat follows the source cells until a format is set,

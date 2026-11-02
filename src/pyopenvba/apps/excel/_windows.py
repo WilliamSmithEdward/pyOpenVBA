@@ -635,6 +635,111 @@ class Panes(VBACollection, ExcelObject):
         return VBAInt(pane_count(self.window.sheet().view), "Long")
 
 
+class SheetViews(VBACollection, ItemDefault, ExcelObject):
+    """A window's view of each of its workbook's sheets, in tab order whichever are selected
+    (tests/fixtures/sheet_views.json)."""
+
+    vba_type_name = "SheetViews"
+
+    def __init__(self, window: Window) -> None:
+        self.window = window
+
+    @member
+    def Parent(self) -> object:
+        return self.window
+
+    @member
+    def Application(self) -> object:
+        return self.window.book.application
+
+    def vba_items(self) -> list[object]:
+        return [WorksheetView(self.window, sheet) for sheet in self.window.book.sheets_]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        if isinstance(index, str):
+            for view in items:
+                if isinstance(view, WorksheetView) and view.sheet.name.casefold() == index.casefold():
+                    return view
+            raise VBAUnsupportedError("SheetViews by the name of no sheet is not implemented")
+        place = int(to_integer(index, "Long"))
+        if not 1 <= place <= len(items):
+            raise error(1004, "Unable to get the Item property of the SheetViews class")
+        return items[place - 1]
+
+
+class WorksheetView(ExcelObject):
+    """How a window shows one sheet: the view settings the window shows while that sheet is active, held for the
+    sheet whichever one is (tests/fixtures/sheet_views.json)."""
+
+    vba_type_name = "WorksheetView"
+
+    def __init__(self, window: Window, sheet: Worksheet) -> None:
+        self.window, self.sheet = window, sheet
+
+    def view(self) -> SheetViewState:
+        if not any(one is self.sheet for one in self.window.book.sheets_):
+            raise VBAUnsupportedError("the view of a deleted sheet is not implemented")
+        return self.sheet.view
+
+    @member
+    def Parent(self) -> object:
+        return self.window
+
+    @member
+    def Application(self) -> object:
+        return self.window.book.application
+
+    @member
+    def Sheet(self) -> object:
+        self.view()
+        return self.sheet
+
+    @member
+    def DisplayGridlines(self) -> object:
+        return self.view().gridlines
+
+    @setter("DisplayGridlines")
+    def _set_gridlines(self, value: object) -> None:
+        self.view()
+        self.window.set_flag("gridlines", value, self.sheet)
+
+    @member
+    def DisplayFormulas(self) -> object:
+        return self.view().formulas
+
+    @setter("DisplayFormulas")
+    def _set_formulas(self, value: object) -> None:
+        self.view()
+        self.window.set_flag("formulas", value, self.sheet)
+
+    @member
+    def DisplayHeadings(self) -> object:
+        return self.view().headings
+
+    @setter("DisplayHeadings")
+    def _set_headings(self, value: object) -> None:
+        self.view()
+        self.window.set_flag("headings", value, self.sheet)
+
+    @member
+    def DisplayZeros(self) -> object:
+        return self.view().zeros
+
+    @setter("DisplayZeros")
+    def _set_zeros(self, value: object) -> None:
+        self.view()
+        self.window.set_flag("zeros", value, self.sheet)
+
+    @member
+    def DisplayOutline(self) -> object:
+        return self.view().outline
+
+    @setter("DisplayOutline")
+    def _set_outline(self, value: object) -> None:
+        self.view()
+        self.window.show_outline(value, self.sheet)
+
+
 class Window(ExcelObject):
     """A workbook's window, which shows its active sheet."""
 
@@ -656,9 +761,10 @@ class Window(ExcelObject):
         caption = self.book.view.caption
         return self.book.name if caption is None else caption
 
-    def _changing(self) -> SheetViewState:
-        """The view a setter changes; panes the model does not lay out are kept as the file had them."""
-        view = self.view()
+    def _changing(self, sheet: Worksheet | None = None) -> SheetViewState:
+        """The view a setter changes, the active sheet's unless ``sheet`` is given; panes the model does not lay out
+        are kept as the file had them."""
+        view = (sheet or self.sheet()).view
         if view.split_xml:
             raise VBAUnsupportedError("changing the view of a window whose panes the model does not lay out, a split "
                                       "Excel kept in twips of what the window shows, is not implemented")
@@ -827,8 +933,8 @@ class Window(ExcelObject):
         view.zoom = kept or _OPENING_ZOOM[number]
         view.view = number
 
-    def _flag(self, name: str, value: object) -> None:
-        setattr(self._changing(), name, to_bool(value))
+    def set_flag(self, name: str, value: object, sheet: Worksheet | None = None) -> None:
+        setattr(self._changing(sheet), name, to_bool(value))
 
     @member
     def DisplayGridlines(self) -> object:
@@ -836,7 +942,7 @@ class Window(ExcelObject):
 
     @setter("DisplayGridlines")
     def _set_gridlines(self, value: object) -> None:
-        self._flag("gridlines", value)
+        self.set_flag("gridlines", value)
 
     @member
     def DisplayHeadings(self) -> object:
@@ -844,7 +950,7 @@ class Window(ExcelObject):
 
     @setter("DisplayHeadings")
     def _set_headings(self, value: object) -> None:
-        self._flag("headings", value)
+        self.set_flag("headings", value)
 
     @member
     def DisplayZeros(self) -> object:
@@ -852,7 +958,7 @@ class Window(ExcelObject):
 
     @setter("DisplayZeros")
     def _set_zeros(self, value: object) -> None:
-        self._flag("zeros", value)
+        self.set_flag("zeros", value)
 
     @member
     def DisplayFormulas(self) -> object:
@@ -860,7 +966,7 @@ class Window(ExcelObject):
 
     @setter("DisplayFormulas")
     def _set_formulas(self, value: object) -> None:
-        self._flag("formulas", value)
+        self.set_flag("formulas", value)
 
     @member
     def DisplayRightToLeft(self) -> object:
@@ -869,7 +975,7 @@ class Window(ExcelObject):
 
     @setter("DisplayRightToLeft")
     def _set_right_to_left(self, value: object) -> None:
-        self._flag("right_to_left", value)
+        self.set_flag("right_to_left", value)
 
     @member
     def DisplayOutline(self) -> object:
@@ -879,11 +985,15 @@ class Window(ExcelObject):
 
     @setter("DisplayOutline")
     def _set_outline(self, value: object) -> None:
+        self.show_outline(value)
+
+    def show_outline(self, value: object, sheet: Worksheet | None = None) -> None:
         from pyopenvba.apps.excel._outline import state
 
-        self._flag("outline", value)
-        outline = state(self.sheet())
-        if not self.view().outline:
+        shown = sheet or self.sheet()
+        self.set_flag("outline", value, shown)
+        outline = state(shown)
+        if not shown.view.outline:
             outline.attributes["showOutlineSymbols"] = outline.changes["showOutlineSymbols"] = "0"
         elif outline.attributes.pop("showOutlineSymbols", None) is not None:
             outline.changes["showOutlineSymbols"] = None
@@ -894,7 +1004,7 @@ class Window(ExcelObject):
 
     @setter("DisplayRuler")
     def _set_ruler(self, value: object) -> None:
-        self._flag("ruler", value)
+        self.set_flag("ruler", value)
 
     @member
     def DisplayWhitespace(self) -> object:
@@ -902,7 +1012,7 @@ class Window(ExcelObject):
 
     @setter("DisplayWhitespace")
     def _set_whitespace(self, value: object) -> None:
-        self._flag("whitespace", value)
+        self.set_flag("whitespace", value)
 
     @member
     def GridlineColorIndex(self) -> object:
@@ -1139,6 +1249,14 @@ class Window(ExcelObject):
     def Panes(self, Index: object = MISSING) -> object:
         panes = Panes(self)
         return panes if Index is MISSING else panes.vba_get("Item", [Index])
+
+    @member
+    def SheetViews(self) -> object:
+        return SheetViews(self)
+
+    @member
+    def ActiveSheetView(self) -> object:
+        return WorksheetView(self, self.sheet())
 
     # -- the workbook's window
 

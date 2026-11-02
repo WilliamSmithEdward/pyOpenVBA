@@ -15,8 +15,8 @@ from pyopenvba.exceptions import VBAUnsupportedError
 FIXTURE: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures/workbook_properties.json").read_text(
     encoding="utf-8"))
 SOURCE = FIXTURE["source"].replace('folder & "\\', f'folder & "{os.sep}')
-#: Password, WritePassword and UserStatus, which the model does not answer, are left out of each answer.
-LEFT_OUT = ("Password=", "WritePassword=", "UserStatus=")
+#: UserStatus, which the model does not answer, is left out of each answer.
+LEFT_OUT = ("UserStatus=",)
 #: EnvelopeVisible, whose set hung Excel; WritePassword and Password, which protect the file.
 UNSUPPORTED = {"wbo.EnvelopeVisible = True", 'wbo.WritePassword = "w"', 'wbo.Password = "p"'}
 
@@ -30,8 +30,7 @@ def test_workbook_properties_answer_as_live_excel_did(index: int, tmp_path: Path
     statements, _saved, answer = FIXTURE["cases"][index]
     app = ExcelApplication()
     app.add_workbook()
-    app.add_module(SOURCE.replace('Prop(wbo, "Password")', '"x"').replace('Prop(wbo, "WritePassword")', '"x"')
-                   .replace('Prop(wbo, "UserStatus")', '"x"'), name="Measure")
+    app.add_module(SOURCE.replace('Prop(wbo, "UserStatus")', '"x"'), name="Measure")
     if statements and statements[-1] in UNSUPPORTED:
         with pytest.raises(VBAUnsupportedError):
             app.run("Measure.Probe", str(tmp_path), index, index)

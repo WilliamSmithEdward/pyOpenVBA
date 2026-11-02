@@ -67,6 +67,9 @@ KIND_NAMES: dict[str, str] = {
 }
 
 #: The form controls AddFormControl makes, by xlFormControl.
+#: Shape.FormControlType for each kind of control the model makes: the XlFormControl constants.
+_CONTROL_TYPES = {"Button": 0, "CheckBox": 1, "Drop": 2, "GBox": 4, "Label": 5, "List": 6, "Radio": 7, "Scroll": 8,
+                  "Spin": 9}
 FORM_CONTROLS: dict[int, str] = {
     0: "Button",
     1: "Check Box",
@@ -555,6 +558,54 @@ class ShapeRange(VBACollection, Created):
         if len(self.shapes) != 1:
             raise error(-2147024891, "Access denied")
         return self.shapes[0].vba_get("Name")
+
+    # -- what one shape answers for itself; several answer ID and ZOrderPosition with 70 and what they share of the
+    # rest (tests/fixtures/missing_reads.json)
+
+    @member
+    def Application(self) -> object:
+        return self.shapes[0].sheet.book.application
+
+    @member
+    def Parent(self) -> object:
+        return self.shapes[0].sheet
+
+    def single(self, name: str) -> object:
+        if len(self.shapes) != 1:
+            raise error(70, "Permission denied")
+        return self.shapes[0].vba_get(name)
+
+    @member
+    def ID(self) -> object:
+        return self.single("ID")
+
+    @member
+    def ZOrderPosition(self) -> object:
+        return self.single("ZOrderPosition")
+
+    @member
+    def HasChart(self) -> object:
+        return self.shared("HasChart")
+
+    @member
+    def Child(self) -> object:
+        return self.shared("Child")
+
+    @member
+    def Connector(self) -> object:
+        return self.shared("Connector")
+
+    @member
+    def GroupItems(self) -> object:
+        if len(self.shapes) != 1:
+            raise _unsupported("GroupItems of a ShapeRange of several shapes")
+        return self.shapes[0].vba_get("GroupItems")
+
+    @member
+    def ParentGroup(self) -> object:
+        if len(self.shapes) != 1:
+            raise _unsupported("ParentGroup of a ShapeRange of several shapes")
+        return self.shapes[0].vba_get("ParentGroup")
 
     @setter("Name")
     def _name(self, value: object) -> None:
@@ -1046,6 +1097,46 @@ class ShapeObject(_Drawn):
         return ShapeRange([ShapeObject(self.sheet, one) for one in members])
 
     @member
+    def Child(self) -> object:
+        """Whether the shape is inside a group (tests/fixtures/missing_reads.json)."""
+        return VBAInt(0 if parent_group(self.sheet, self.shape) is None else -1, "Long")
+
+    @member
+    def Connector(self) -> object:
+        """Whether the shape is a connector, which no shape the model makes but a line is
+        (tests/fixtures/missing_reads.json)."""
+        if self.shape.source or self.shape.kind == "line":
+            raise _unsupported("Connector of a line or a loaded shape")
+        return VBAInt(0, "Long")
+
+    @member
+    def FormControlType(self) -> object:
+        """Which form control the shape is; any other shape raises 1004 (tests/fixtures/missing_reads.json)."""
+        if self.shape.control is None:
+            raise error(1004, "Unable to get the FormControlType property of the Shape class")
+        if self.shape.control.kind not in _CONTROL_TYPES:
+            raise _unsupported(f"FormControlType of a {self.shape.control.kind} control")
+        return VBAInt(_CONTROL_TYPES[self.shape.control.kind], "Long")
+
+    @member
+    def HasSmartArt(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
+    def BlackWhiteMode(self) -> object:
+        """How the shape prints in black and white: automatically, as every shape the model makes does."""
+        if self.shape.source:
+            raise _unsupported("BlackWhiteMode of a loaded shape")
+        return VBAInt(1, "Long")
+
+    @member
+    def Hyperlink(self) -> object:
+        """A shape's hyperlink, which no shape the model makes has (tests/fixtures/missing_reads.json)."""
+        if self.shape.source:
+            raise _unsupported("Hyperlink of a loaded shape")
+        raise error(1004, "Unable to get the Hyperlink property of the Shape class")
+
+    @member
     def ParentGroup(self) -> object:
         """The group a shape is in; a shape in none raises 1004 (tests/fixtures/shape_group_items.json)."""
         group = parent_group(self.sheet, self.shape)
@@ -1336,6 +1427,14 @@ class TextFrame2(_TextLayout):
     A text box writes each of these settings as given; a rectangle leaves out one set back to its default."""
 
     vba_type_name = "TextFrame2"
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
     @member
     def TextRange(self) -> object:

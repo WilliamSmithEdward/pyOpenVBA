@@ -130,7 +130,8 @@ def _probe() -> str:
     lines = [_HELPERS]
     for index, (handler, raises, name) in enumerate(CASES):
         lines += _case(index, handler, raises, name)
-    lines += ['Public Function Probe(ByVal first As Long, ByVal last As Long) As String', '    Dim i As Long, s As String',
+    lines += ['Public Function Probe(ByVal first As Long, ByVal last As Long) As String',
+              '    Dim i As Long, s As String',
               '    For i = first To last', '        Select Case i']
     lines += [f'            Case {index}: s = s & "@@@" & Case{index}()' for index in range(len(CASES))]
     lines += ['        End Select', '    Next', '    Probe = Mid$(s, 4)', 'End Function']

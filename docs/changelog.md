@@ -677,6 +677,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Queries.Add refuses a name a query already has with -2147024809, and
+  Queries by a number out of range raises -2147352565, as Excel does.
+  Before, the model added a second query of the same name and raised 9.
+  Measured in `tests/fixtures/unassessed_members.json`, which also covers
+  a table's Slicers, PivotItemList.Parent, Workbooks.Count and the query
+  members.
+
 - The model no longer knows TimeSlicerStyleOther1 and TimeSlicerStyleOther2,
   which Excel does not have, so DefaultTimelineStyle refuses them with
   error 450 as Excel does.

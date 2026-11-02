@@ -6770,13 +6770,21 @@ class Queries(VBACollection, ExcelObject):
                 if entry.name.lower() == index.lower():
                     return WorkbookQuery(entry, self.book)
             raise error(ERR_SUBSCRIPT_OUT_OF_RANGE, f"there is no query called {index}")
-        return super().vba_lookup(index, items)
+        place = int(to_integer(index, "Long"))
+        if not 1 <= place <= len(items):
+            # Out of range is COM's DISP_E_BADINDEX (tests/fixtures/unassessed_members.json).
+            raise error(-2147352565, "Invalid index.")
+        return items[place - 1]
 
     @method
     def Add(self, Name: object = MISSING, Formula: object = MISSING, Description: object = MISSING) -> object:
         if Name is MISSING or Formula is MISSING:
             raise error(449)
-        entry = QueryEntry(to_text(Name), to_text(Formula), "" if Description is MISSING else to_text(Description))
+        name = to_text(Name)
+        if any(entry.name == name for entry in self.entries):
+            # A name a query already has is refused (tests/fixtures/unassessed_members.json).
+            raise error(-2147024809, "The parameter is incorrect.")
+        entry = QueryEntry(name, to_text(Formula), "" if Description is MISSING else to_text(Description))
         self.entries.append(entry)
         self.book.saved = False
         return WorkbookQuery(entry, self.book)

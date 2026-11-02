@@ -82,6 +82,10 @@ class SeriesData:
     #: InvertIfNegative records the colour it inverts to (tests/fixtures/series_format.json).
     look: str = ""
     own_fill: bool = False
+    #: Its dPt and its points' dLbl elements, with UNIQUE_END for the part's end of each unique id
+    #: (tests/fixtures/series_points.json).
+    points: str = ""
+    point_labels: str = ""
     #: The series' errBars elements, written between its data labels and its categories
     #: (tests/fixtures/chart_error_bars.json).
     error_bars: str = ""
@@ -253,8 +257,10 @@ class LabelLook:
         return any((self.value, self.category, self.series, self.percent, self.legend_key, self.bubble))
 
 
-def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook) -> str:
-    """A series' dLbls once HasDataLabels is on, as Excel writes them; a pie's or doughnut's extension is empty."""
+def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook, points: str = "", *,
+                   alone: bool = False) -> str:
+    """A series' dLbls once HasDataLabels is on, as Excel writes them; a pie's or doughnut's extension is empty.
+    ``points`` is its points' dLbl elements, and ``alone`` says they are its only labels."""
     shown = int(leader_lines)
     extension = ("" if kind in ("pie", "doughnut")
                  else f'<c15:showLeaderLines val="{shown}"/>')
@@ -270,10 +276,13 @@ def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook) -> str:
         ("showLegendKey", look.legend_key), ("showVal", look.value), ("showCatName", look.category),
         ("showSerName", look.series), ("showPercent", look.percent), ("showBubbleSize", look.bubble)))
     separator = "" if look.separator is None else f"<c:separator>{escape_text(look.separator)}</c:separator>"
-    return (f'<c:dLbls>{number}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>{place}{flags}'
-            f'{separator}<c:showLeaderLines val="{shown}"/><c:extLst>{tail}</c:extLst></c:dLbls>')
+    leaders = "" if alone else f'<c:showLeaderLines val="{shown}"/>'
+    return (f'<c:dLbls>{points}{number}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>{place}{flags}'
+            f'{separator}{leaders}<c:extLst>{tail}</c:extLst></c:dLbls>')
 
 
+#: Stands for the chart part's own end of a unique id in a point's markup, which only the writer knows.
+UNIQUE_END = "@UNIQUE@"
 _INVERT_FILL = ('<c:ext uri="{6F2FDCE9-48DA-4B69-8628-5D25D57E5C99}"'
                 ' xmlns:c14="http://schemas.microsoft.com/office/drawing/2007/8/2/chart"><c14:invertSolidFillFmt>'
                 '<c14:spPr xmlns:c14="http://schemas.microsoft.com/office/drawing/2007/8/2/chart"><a:solidFill>'
@@ -311,7 +320,13 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
     if data.labels and data.label_look.shown():
         # A series' data labels come just before its categories, on every kind (tests/fixtures/chart_data_labels.json);
         # labels showing nothing write none (tests/fixtures/data_labels_object.json).
-        categories = _series_labels(kind, data.leader_lines, data.label_look) + categories
+        categories = _series_labels(kind, data.leader_lines, data.label_look, data.point_labels) + categories
+    elif data.point_labels:
+        # Labels on some points alone, the series' own all off (tests/fixtures/series_points.json).
+        categories = _series_labels(kind, data.leader_lines, LabelLook(value=False), data.point_labels,
+                                    alone=True) + categories
+    # A series' points set apart come before its labels (tests/fixtures/series_points.json).
+    categories = data.points + categories
     values = _reference(
         "yVal" if kind == "scatter" else "val",
         data.values,
@@ -338,7 +353,7 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         ' xmlns:c16="http://schemas.microsoft.com/office/drawing/2014/chart">'
         f'<c16:uniqueId val="{{{identity if data.unique_id is None else data.unique_id:08X}{unique}}}"/>'
         '</c:ext></c:extLst></c:ser>'
-    )
+    ).replace(UNIQUE_END, unique)
 
 
 # -- the chart --------------------------------------------------------------

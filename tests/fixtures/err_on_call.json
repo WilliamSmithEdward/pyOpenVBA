@@ -1,0 +1,834 @@
+{
+ "measured_at": "2026-11-02T21:04:06.759242+00:00",
+ "source": "\nPrivate gSeen As String, gZero As Long, gNothing As Object\n\nPrivate Sub Note(ByVal where As String)\n    gSeen = where & \" \" & Err.Number\nEnd Sub\n\nPrivate Sub PlainSub()\n    gSeen = \"sub \" & Err.Number\nEnd Sub\n\nPublic Sub PublicSub()\n    gSeen = \"public \" & Err.Number\nEnd Sub\n\nPrivate Sub ArgSub(ByVal a As Long)\n    gSeen = \"arg \" & Err.Number\nEnd Sub\n\nPrivate Function PlainFunction() As String\n    gSeen = \"fn \" & Err.Number\nEnd Function\n\nPublic Function PublicFunction() As String\n    gSeen = \"publicfn \" & Err.Number\nEnd Function\n\nPrivate Function ArgFunction(ByVal a As Long) As String\n    gSeen = \"argfn \" & a & \" \" & Err.Number\nEnd Function\n\nPrivate Property Get PlainProperty() As String\n    gSeen = \"prop \" & Err.Number\nEnd Property\n\nPrivate Sub TrapSub()\n    On Error Resume Next\n    gSeen = \"trap \" & Err.Number\nEnd Sub\n\nPrivate Sub TrapClearSub()\n    On Error GoTo 0\n    gSeen = \"trap0 \" & Err.Number\nEnd Sub\n\nPrivate Sub ExitSub()\n    gSeen = \"exit \" & Err.Number\n    Exit Sub\nEnd Sub\n\nPrivate Sub FailSub()\n    On Error Resume Next\n    gSeen = \"fail \" & Err.Number\n    Err.Raise 2000\n    gSeen = gSeen & \" \" & Err.Number\nEnd Sub\n\nPrivate Function Case0() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    gSeen = \"direct \" & Err.Number\n    Case0 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case1() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    PlainSub\n    Case1 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case2() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    Call PlainSub\n    Case2 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case3() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    Call PlainSub()\n    Case3 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case4() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    PublicSub\n    Case4 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case5() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    ArgSub 1\n    Case5 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case6() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = PlainFunction()\n    Case6 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case7() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = PlainFunction\n    Case7 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case8() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    PlainFunction\n    Case8 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case9() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = \"x\" & PlainFunction()\n    Case9 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case10() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    If PlainFunction() = \"\" Then v = 1\n    Case10 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case11() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = PublicFunction()\n    Case11 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case12() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = ArgFunction(1)\n    Case12 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case13() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = ArgFunction(Err.Number)\n    Case13 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case14() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = PlainProperty\n    Case14 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case15() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    TrapSub\n    Case15 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case16() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    TrapClearSub\n    Case16 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case17() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    ExitSub\n    Case17 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case18() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    FailSub\n    Case18 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case19() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    Application.Run \"PublicSub\"\n    Case19 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case20() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = Len(\"abc\")\n    Case20 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case21() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    v = Application.Name\n    Case21 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case22() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    Err.Raise 1000, , \"raised\"\n    CreateObject(\"Scripting.Dictionary\").Add \"a\", 1\n    Case22 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case23() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    gSeen = \"direct \" & Err.Number\n    Case23 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case24() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    PlainSub\n    Case24 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case25() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    Call PlainSub\n    Case25 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case26() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    Call PlainSub()\n    Case26 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case27() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    PublicSub\n    Case27 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case28() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    ArgSub 1\n    Case28 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case29() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = PlainFunction()\n    Case29 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case30() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = PlainFunction\n    Case30 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case31() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    PlainFunction\n    Case31 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case32() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = \"x\" & PlainFunction()\n    Case32 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case33() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    If PlainFunction() = \"\" Then v = 1\n    Case33 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case34() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = PublicFunction()\n    Case34 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case35() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = ArgFunction(1)\n    Case35 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case36() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = ArgFunction(Err.Number)\n    Case36 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case37() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = PlainProperty\n    Case37 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case38() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    TrapSub\n    Case38 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case39() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    TrapClearSub\n    Case39 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case40() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    ExitSub\n    Case40 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case41() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    FailSub\n    Case41 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case42() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    Application.Run \"PublicSub\"\n    Case42 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case43() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = Len(\"abc\")\n    Case43 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case44() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    v = Application.Name\n    Case44 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case45() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    v = 1 / gZero\n    CreateObject(\"Scripting.Dictionary\").Add \"a\", 1\n    Case45 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case46() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    gSeen = \"direct \" & Err.Number\n    Case46 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case47() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    PlainSub\n    Case47 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case48() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    Call PlainSub\n    Case48 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case49() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    Call PlainSub()\n    Case49 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case50() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    PublicSub\n    Case50 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case51() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    ArgSub 1\n    Case51 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case52() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = PlainFunction()\n    Case52 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case53() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = PlainFunction\n    Case53 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case54() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    PlainFunction\n    Case54 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case55() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = \"x\" & PlainFunction()\n    Case55 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case56() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    If PlainFunction() = \"\" Then v = 1\n    Case56 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case57() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = PublicFunction()\n    Case57 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case58() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = ArgFunction(1)\n    Case58 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case59() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = ArgFunction(Err.Number)\n    Case59 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case60() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = PlainProperty\n    Case60 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case61() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    TrapSub\n    Case61 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case62() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    TrapClearSub\n    Case62 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case63() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    ExitSub\n    Case63 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case64() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    FailSub\n    Case64 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case65() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    Application.Run \"PublicSub\"\n    Case65 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case66() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = Len(\"abc\")\n    Case66 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case67() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    v = Application.Name\n    Case67 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case68() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error Resume Next\n    gNothing.Name = 1\n    CreateObject(\"Scripting.Dictionary\").Add \"a\", 1\n    Case68 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case69() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case69 = \"no error\"\n    Exit Function\nHandler:\n    gSeen = \"direct \" & Err.Number\n    Case69 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case70() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case70 = \"no error\"\n    Exit Function\nHandler:\n    PlainSub\n    Case70 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case71() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case71 = \"no error\"\n    Exit Function\nHandler:\n    Call PlainSub\n    Case71 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case72() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case72 = \"no error\"\n    Exit Function\nHandler:\n    Call PlainSub()\n    Case72 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case73() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case73 = \"no error\"\n    Exit Function\nHandler:\n    PublicSub\n    Case73 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case74() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case74 = \"no error\"\n    Exit Function\nHandler:\n    ArgSub 1\n    Case74 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case75() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case75 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainFunction()\n    Case75 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case76() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case76 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainFunction\n    Case76 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case77() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case77 = \"no error\"\n    Exit Function\nHandler:\n    PlainFunction\n    Case77 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case78() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case78 = \"no error\"\n    Exit Function\nHandler:\n    v = \"x\" & PlainFunction()\n    Case78 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case79() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case79 = \"no error\"\n    Exit Function\nHandler:\n    If PlainFunction() = \"\" Then v = 1\n    Case79 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case80() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case80 = \"no error\"\n    Exit Function\nHandler:\n    v = PublicFunction()\n    Case80 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case81() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case81 = \"no error\"\n    Exit Function\nHandler:\n    v = ArgFunction(1)\n    Case81 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case82() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case82 = \"no error\"\n    Exit Function\nHandler:\n    v = ArgFunction(Err.Number)\n    Case82 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case83() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case83 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainProperty\n    Case83 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case84() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case84 = \"no error\"\n    Exit Function\nHandler:\n    TrapSub\n    Case84 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case85() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case85 = \"no error\"\n    Exit Function\nHandler:\n    TrapClearSub\n    Case85 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case86() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case86 = \"no error\"\n    Exit Function\nHandler:\n    ExitSub\n    Case86 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case87() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case87 = \"no error\"\n    Exit Function\nHandler:\n    FailSub\n    Case87 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case88() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case88 = \"no error\"\n    Exit Function\nHandler:\n    Application.Run \"PublicSub\"\n    Case88 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case89() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case89 = \"no error\"\n    Exit Function\nHandler:\n    v = Len(\"abc\")\n    Case89 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case90() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case90 = \"no error\"\n    Exit Function\nHandler:\n    v = Application.Name\n    Case90 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case91() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    Err.Raise 1000, , \"raised\"\n    Case91 = \"no error\"\n    Exit Function\nHandler:\n    CreateObject(\"Scripting.Dictionary\").Add \"a\", 1\n    Case91 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case92() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case92 = \"no error\"\n    Exit Function\nHandler:\n    gSeen = \"direct \" & Err.Number\n    Case92 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case93() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case93 = \"no error\"\n    Exit Function\nHandler:\n    PlainSub\n    Case93 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case94() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case94 = \"no error\"\n    Exit Function\nHandler:\n    Call PlainSub\n    Case94 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case95() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case95 = \"no error\"\n    Exit Function\nHandler:\n    Call PlainSub()\n    Case95 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case96() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case96 = \"no error\"\n    Exit Function\nHandler:\n    PublicSub\n    Case96 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case97() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case97 = \"no error\"\n    Exit Function\nHandler:\n    ArgSub 1\n    Case97 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case98() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case98 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainFunction()\n    Case98 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case99() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case99 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainFunction\n    Case99 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case100() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case100 = \"no error\"\n    Exit Function\nHandler:\n    PlainFunction\n    Case100 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case101() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case101 = \"no error\"\n    Exit Function\nHandler:\n    v = \"x\" & PlainFunction()\n    Case101 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case102() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case102 = \"no error\"\n    Exit Function\nHandler:\n    If PlainFunction() = \"\" Then v = 1\n    Case102 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case103() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case103 = \"no error\"\n    Exit Function\nHandler:\n    v = PublicFunction()\n    Case103 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case104() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case104 = \"no error\"\n    Exit Function\nHandler:\n    v = ArgFunction(1)\n    Case104 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case105() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case105 = \"no error\"\n    Exit Function\nHandler:\n    v = ArgFunction(Err.Number)\n    Case105 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case106() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case106 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainProperty\n    Case106 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case107() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case107 = \"no error\"\n    Exit Function\nHandler:\n    TrapSub\n    Case107 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case108() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case108 = \"no error\"\n    Exit Function\nHandler:\n    TrapClearSub\n    Case108 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case109() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case109 = \"no error\"\n    Exit Function\nHandler:\n    ExitSub\n    Case109 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case110() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case110 = \"no error\"\n    Exit Function\nHandler:\n    FailSub\n    Case110 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case111() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case111 = \"no error\"\n    Exit Function\nHandler:\n    Application.Run \"PublicSub\"\n    Case111 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case112() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case112 = \"no error\"\n    Exit Function\nHandler:\n    v = Len(\"abc\")\n    Case112 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case113() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case113 = \"no error\"\n    Exit Function\nHandler:\n    v = Application.Name\n    Case113 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case114() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    v = 1 / gZero\n    Case114 = \"no error\"\n    Exit Function\nHandler:\n    CreateObject(\"Scripting.Dictionary\").Add \"a\", 1\n    Case114 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case115() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case115 = \"no error\"\n    Exit Function\nHandler:\n    gSeen = \"direct \" & Err.Number\n    Case115 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case116() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case116 = \"no error\"\n    Exit Function\nHandler:\n    PlainSub\n    Case116 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case117() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case117 = \"no error\"\n    Exit Function\nHandler:\n    Call PlainSub\n    Case117 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case118() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case118 = \"no error\"\n    Exit Function\nHandler:\n    Call PlainSub()\n    Case118 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case119() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case119 = \"no error\"\n    Exit Function\nHandler:\n    PublicSub\n    Case119 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case120() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case120 = \"no error\"\n    Exit Function\nHandler:\n    ArgSub 1\n    Case120 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case121() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case121 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainFunction()\n    Case121 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case122() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case122 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainFunction\n    Case122 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case123() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case123 = \"no error\"\n    Exit Function\nHandler:\n    PlainFunction\n    Case123 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case124() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case124 = \"no error\"\n    Exit Function\nHandler:\n    v = \"x\" & PlainFunction()\n    Case124 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case125() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case125 = \"no error\"\n    Exit Function\nHandler:\n    If PlainFunction() = \"\" Then v = 1\n    Case125 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case126() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case126 = \"no error\"\n    Exit Function\nHandler:\n    v = PublicFunction()\n    Case126 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case127() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case127 = \"no error\"\n    Exit Function\nHandler:\n    v = ArgFunction(1)\n    Case127 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case128() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case128 = \"no error\"\n    Exit Function\nHandler:\n    v = ArgFunction(Err.Number)\n    Case128 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case129() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case129 = \"no error\"\n    Exit Function\nHandler:\n    v = PlainProperty\n    Case129 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case130() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case130 = \"no error\"\n    Exit Function\nHandler:\n    TrapSub\n    Case130 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case131() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case131 = \"no error\"\n    Exit Function\nHandler:\n    TrapClearSub\n    Case131 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case132() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case132 = \"no error\"\n    Exit Function\nHandler:\n    ExitSub\n    Case132 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case133() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case133 = \"no error\"\n    Exit Function\nHandler:\n    FailSub\n    Case133 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case134() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case134 = \"no error\"\n    Exit Function\nHandler:\n    Application.Run \"PublicSub\"\n    Case134 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case135() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case135 = \"no error\"\n    Exit Function\nHandler:\n    v = Len(\"abc\")\n    Case135 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case136() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case136 = \"no error\"\n    Exit Function\nHandler:\n    v = Application.Name\n    Case136 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPrivate Function Case137() As String\n    Dim v As Variant\n    gSeen = \"\"\n    On Error GoTo Handler\n    gNothing.Name = 1\n    Case137 = \"no error\"\n    Exit Function\nHandler:\n    CreateObject(\"Scripting.Dictionary\").Add \"a\", 1\n    Case137 = gSeen & \" after \" & Err.Number\nEnd Function\n\nPublic Function Probe(ByVal first As Long, ByVal last As Long) As String\n    Dim i As Long, s As String\n    For i = first To last\n        Select Case i\n            Case 0: s = s & \"@@@\" & Case0()\n            Case 1: s = s & \"@@@\" & Case1()\n            Case 2: s = s & \"@@@\" & Case2()\n            Case 3: s = s & \"@@@\" & Case3()\n            Case 4: s = s & \"@@@\" & Case4()\n            Case 5: s = s & \"@@@\" & Case5()\n            Case 6: s = s & \"@@@\" & Case6()\n            Case 7: s = s & \"@@@\" & Case7()\n            Case 8: s = s & \"@@@\" & Case8()\n            Case 9: s = s & \"@@@\" & Case9()\n            Case 10: s = s & \"@@@\" & Case10()\n            Case 11: s = s & \"@@@\" & Case11()\n            Case 12: s = s & \"@@@\" & Case12()\n            Case 13: s = s & \"@@@\" & Case13()\n            Case 14: s = s & \"@@@\" & Case14()\n            Case 15: s = s & \"@@@\" & Case15()\n            Case 16: s = s & \"@@@\" & Case16()\n            Case 17: s = s & \"@@@\" & Case17()\n            Case 18: s = s & \"@@@\" & Case18()\n            Case 19: s = s & \"@@@\" & Case19()\n            Case 20: s = s & \"@@@\" & Case20()\n            Case 21: s = s & \"@@@\" & Case21()\n            Case 22: s = s & \"@@@\" & Case22()\n            Case 23: s = s & \"@@@\" & Case23()\n            Case 24: s = s & \"@@@\" & Case24()\n            Case 25: s = s & \"@@@\" & Case25()\n            Case 26: s = s & \"@@@\" & Case26()\n            Case 27: s = s & \"@@@\" & Case27()\n            Case 28: s = s & \"@@@\" & Case28()\n            Case 29: s = s & \"@@@\" & Case29()\n            Case 30: s = s & \"@@@\" & Case30()\n            Case 31: s = s & \"@@@\" & Case31()\n            Case 32: s = s & \"@@@\" & Case32()\n            Case 33: s = s & \"@@@\" & Case33()\n            Case 34: s = s & \"@@@\" & Case34()\n            Case 35: s = s & \"@@@\" & Case35()\n            Case 36: s = s & \"@@@\" & Case36()\n            Case 37: s = s & \"@@@\" & Case37()\n            Case 38: s = s & \"@@@\" & Case38()\n            Case 39: s = s & \"@@@\" & Case39()\n            Case 40: s = s & \"@@@\" & Case40()\n            Case 41: s = s & \"@@@\" & Case41()\n            Case 42: s = s & \"@@@\" & Case42()\n            Case 43: s = s & \"@@@\" & Case43()\n            Case 44: s = s & \"@@@\" & Case44()\n            Case 45: s = s & \"@@@\" & Case45()\n            Case 46: s = s & \"@@@\" & Case46()\n            Case 47: s = s & \"@@@\" & Case47()\n            Case 48: s = s & \"@@@\" & Case48()\n            Case 49: s = s & \"@@@\" & Case49()\n            Case 50: s = s & \"@@@\" & Case50()\n            Case 51: s = s & \"@@@\" & Case51()\n            Case 52: s = s & \"@@@\" & Case52()\n            Case 53: s = s & \"@@@\" & Case53()\n            Case 54: s = s & \"@@@\" & Case54()\n            Case 55: s = s & \"@@@\" & Case55()\n            Case 56: s = s & \"@@@\" & Case56()\n            Case 57: s = s & \"@@@\" & Case57()\n            Case 58: s = s & \"@@@\" & Case58()\n            Case 59: s = s & \"@@@\" & Case59()\n            Case 60: s = s & \"@@@\" & Case60()\n            Case 61: s = s & \"@@@\" & Case61()\n            Case 62: s = s & \"@@@\" & Case62()\n            Case 63: s = s & \"@@@\" & Case63()\n            Case 64: s = s & \"@@@\" & Case64()\n            Case 65: s = s & \"@@@\" & Case65()\n            Case 66: s = s & \"@@@\" & Case66()\n            Case 67: s = s & \"@@@\" & Case67()\n            Case 68: s = s & \"@@@\" & Case68()\n            Case 69: s = s & \"@@@\" & Case69()\n            Case 70: s = s & \"@@@\" & Case70()\n            Case 71: s = s & \"@@@\" & Case71()\n            Case 72: s = s & \"@@@\" & Case72()\n            Case 73: s = s & \"@@@\" & Case73()\n            Case 74: s = s & \"@@@\" & Case74()\n            Case 75: s = s & \"@@@\" & Case75()\n            Case 76: s = s & \"@@@\" & Case76()\n            Case 77: s = s & \"@@@\" & Case77()\n            Case 78: s = s & \"@@@\" & Case78()\n            Case 79: s = s & \"@@@\" & Case79()\n            Case 80: s = s & \"@@@\" & Case80()\n            Case 81: s = s & \"@@@\" & Case81()\n            Case 82: s = s & \"@@@\" & Case82()\n            Case 83: s = s & \"@@@\" & Case83()\n            Case 84: s = s & \"@@@\" & Case84()\n            Case 85: s = s & \"@@@\" & Case85()\n            Case 86: s = s & \"@@@\" & Case86()\n            Case 87: s = s & \"@@@\" & Case87()\n            Case 88: s = s & \"@@@\" & Case88()\n            Case 89: s = s & \"@@@\" & Case89()\n            Case 90: s = s & \"@@@\" & Case90()\n            Case 91: s = s & \"@@@\" & Case91()\n            Case 92: s = s & \"@@@\" & Case92()\n            Case 93: s = s & \"@@@\" & Case93()\n            Case 94: s = s & \"@@@\" & Case94()\n            Case 95: s = s & \"@@@\" & Case95()\n            Case 96: s = s & \"@@@\" & Case96()\n            Case 97: s = s & \"@@@\" & Case97()\n            Case 98: s = s & \"@@@\" & Case98()\n            Case 99: s = s & \"@@@\" & Case99()\n            Case 100: s = s & \"@@@\" & Case100()\n            Case 101: s = s & \"@@@\" & Case101()\n            Case 102: s = s & \"@@@\" & Case102()\n            Case 103: s = s & \"@@@\" & Case103()\n            Case 104: s = s & \"@@@\" & Case104()\n            Case 105: s = s & \"@@@\" & Case105()\n            Case 106: s = s & \"@@@\" & Case106()\n            Case 107: s = s & \"@@@\" & Case107()\n            Case 108: s = s & \"@@@\" & Case108()\n            Case 109: s = s & \"@@@\" & Case109()\n            Case 110: s = s & \"@@@\" & Case110()\n            Case 111: s = s & \"@@@\" & Case111()\n            Case 112: s = s & \"@@@\" & Case112()\n            Case 113: s = s & \"@@@\" & Case113()\n            Case 114: s = s & \"@@@\" & Case114()\n            Case 115: s = s & \"@@@\" & Case115()\n            Case 116: s = s & \"@@@\" & Case116()\n            Case 117: s = s & \"@@@\" & Case117()\n            Case 118: s = s & \"@@@\" & Case118()\n            Case 119: s = s & \"@@@\" & Case119()\n            Case 120: s = s & \"@@@\" & Case120()\n            Case 121: s = s & \"@@@\" & Case121()\n            Case 122: s = s & \"@@@\" & Case122()\n            Case 123: s = s & \"@@@\" & Case123()\n            Case 124: s = s & \"@@@\" & Case124()\n            Case 125: s = s & \"@@@\" & Case125()\n            Case 126: s = s & \"@@@\" & Case126()\n            Case 127: s = s & \"@@@\" & Case127()\n            Case 128: s = s & \"@@@\" & Case128()\n            Case 129: s = s & \"@@@\" & Case129()\n            Case 130: s = s & \"@@@\" & Case130()\n            Case 131: s = s & \"@@@\" & Case131()\n            Case 132: s = s & \"@@@\" & Case132()\n            Case 133: s = s & \"@@@\" & Case133()\n            Case 134: s = s & \"@@@\" & Case134()\n            Case 135: s = s & \"@@@\" & Case135()\n            Case 136: s = s & \"@@@\" & Case136()\n            Case 137: s = s & \"@@@\" & Case137()\n        End Select\n    Next\n    Probe = Mid$(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "resume next",
+   "raise",
+   "read directly",
+   "direct 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "sub",
+   "sub 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "call sub",
+   "sub 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "sub with brackets",
+   "sub 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "public sub",
+   "public 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "sub with an argument",
+   "arg 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "function alone",
+   "fn 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "function no brackets",
+   "fn 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "function by statement",
+   "fn 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "function in an expression",
+   "fn 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "function in an if",
+   "fn 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "public function",
+   "publicfn 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "function with an argument",
+   "argfn 1 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "function given the number",
+   "argfn 1000 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "property",
+   "prop 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "sub that traps",
+   "trap 0 after 0"
+  ],
+  [
+   "resume next",
+   "raise",
+   "sub that traps then clears",
+   "trap0 0 after 0"
+  ],
+  [
+   "resume next",
+   "raise",
+   "sub that exits",
+   "exit 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "sub that errs and clears",
+   "fail 0 2000 after 2000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "run by name",
+   "public 1000 after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "builtin",
+   " after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "host member",
+   " after 1000"
+  ],
+  [
+   "resume next",
+   "raise",
+   "dictionary",
+   " after 1000"
+  ],
+  [
+   "resume next",
+   "zero",
+   "read directly",
+   "direct 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "sub",
+   "sub 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "call sub",
+   "sub 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "sub with brackets",
+   "sub 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "public sub",
+   "public 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "sub with an argument",
+   "arg 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "function alone",
+   "fn 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "function no brackets",
+   "fn 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "function by statement",
+   "fn 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "function in an expression",
+   "fn 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "function in an if",
+   "fn 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "public function",
+   "publicfn 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "function with an argument",
+   "argfn 1 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "function given the number",
+   "argfn 11 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "property",
+   "prop 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "sub that traps",
+   "trap 0 after 0"
+  ],
+  [
+   "resume next",
+   "zero",
+   "sub that traps then clears",
+   "trap0 0 after 0"
+  ],
+  [
+   "resume next",
+   "zero",
+   "sub that exits",
+   "exit 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "sub that errs and clears",
+   "fail 0 2000 after 2000"
+  ],
+  [
+   "resume next",
+   "zero",
+   "run by name",
+   "public 11 after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "builtin",
+   " after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "host member",
+   " after 11"
+  ],
+  [
+   "resume next",
+   "zero",
+   "dictionary",
+   " after 11"
+  ],
+  [
+   "resume next",
+   "object",
+   "read directly",
+   "direct 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "sub",
+   "sub 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "call sub",
+   "sub 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "sub with brackets",
+   "sub 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "public sub",
+   "public 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "sub with an argument",
+   "arg 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "function alone",
+   "fn 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "function no brackets",
+   "fn 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "function by statement",
+   "fn 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "function in an expression",
+   "fn 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "function in an if",
+   "fn 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "public function",
+   "publicfn 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "function with an argument",
+   "argfn 1 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "function given the number",
+   "argfn 91 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "property",
+   "prop 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "sub that traps",
+   "trap 0 after 0"
+  ],
+  [
+   "resume next",
+   "object",
+   "sub that traps then clears",
+   "trap0 0 after 0"
+  ],
+  [
+   "resume next",
+   "object",
+   "sub that exits",
+   "exit 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "sub that errs and clears",
+   "fail 0 2000 after 2000"
+  ],
+  [
+   "resume next",
+   "object",
+   "run by name",
+   "public 91 after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "builtin",
+   " after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "host member",
+   " after 91"
+  ],
+  [
+   "resume next",
+   "object",
+   "dictionary",
+   " after 91"
+  ],
+  [
+   "handler",
+   "raise",
+   "read directly",
+   "direct 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "sub",
+   "sub 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "call sub",
+   "sub 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "sub with brackets",
+   "sub 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "public sub",
+   "public 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "sub with an argument",
+   "arg 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "function alone",
+   "fn 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "function no brackets",
+   "fn 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "function by statement",
+   "fn 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "function in an expression",
+   "fn 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "function in an if",
+   "fn 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "public function",
+   "publicfn 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "function with an argument",
+   "argfn 1 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "function given the number",
+   "argfn 1000 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "property",
+   "prop 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "sub that traps",
+   "trap 0 after 0"
+  ],
+  [
+   "handler",
+   "raise",
+   "sub that traps then clears",
+   "trap0 0 after 0"
+  ],
+  [
+   "handler",
+   "raise",
+   "sub that exits",
+   "exit 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "sub that errs and clears",
+   "fail 0 2000 after 2000"
+  ],
+  [
+   "handler",
+   "raise",
+   "run by name",
+   "public 1000 after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "builtin",
+   " after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "host member",
+   " after 1000"
+  ],
+  [
+   "handler",
+   "raise",
+   "dictionary",
+   " after 1000"
+  ],
+  [
+   "handler",
+   "zero",
+   "read directly",
+   "direct 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "sub",
+   "sub 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "call sub",
+   "sub 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "sub with brackets",
+   "sub 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "public sub",
+   "public 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "sub with an argument",
+   "arg 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "function alone",
+   "fn 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "function no brackets",
+   "fn 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "function by statement",
+   "fn 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "function in an expression",
+   "fn 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "function in an if",
+   "fn 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "public function",
+   "publicfn 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "function with an argument",
+   "argfn 1 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "function given the number",
+   "argfn 11 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "property",
+   "prop 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "sub that traps",
+   "trap 0 after 0"
+  ],
+  [
+   "handler",
+   "zero",
+   "sub that traps then clears",
+   "trap0 0 after 0"
+  ],
+  [
+   "handler",
+   "zero",
+   "sub that exits",
+   "exit 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "sub that errs and clears",
+   "fail 0 2000 after 2000"
+  ],
+  [
+   "handler",
+   "zero",
+   "run by name",
+   "public 11 after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "builtin",
+   " after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "host member",
+   " after 11"
+  ],
+  [
+   "handler",
+   "zero",
+   "dictionary",
+   " after 11"
+  ],
+  [
+   "handler",
+   "object",
+   "read directly",
+   "direct 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "sub",
+   "sub 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "call sub",
+   "sub 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "sub with brackets",
+   "sub 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "public sub",
+   "public 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "sub with an argument",
+   "arg 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "function alone",
+   "fn 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "function no brackets",
+   "fn 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "function by statement",
+   "fn 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "function in an expression",
+   "fn 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "function in an if",
+   "fn 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "public function",
+   "publicfn 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "function with an argument",
+   "argfn 1 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "function given the number",
+   "argfn 91 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "property",
+   "prop 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "sub that traps",
+   "trap 0 after 0"
+  ],
+  [
+   "handler",
+   "object",
+   "sub that traps then clears",
+   "trap0 0 after 0"
+  ],
+  [
+   "handler",
+   "object",
+   "sub that exits",
+   "exit 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "sub that errs and clears",
+   "fail 0 2000 after 2000"
+  ],
+  [
+   "handler",
+   "object",
+   "run by name",
+   "public 91 after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "builtin",
+   " after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "host member",
+   " after 91"
+  ],
+  [
+   "handler",
+   "object",
+   "dictionary",
+   " after 91"
+  ]
+ ]
+}

@@ -299,7 +299,7 @@ class VBAObject:
         from pyopenvba.interpreter._inventory import member_settable
 
         if member_settable(self.vba_type_name, name, self.vba_library):
-            return VBAUnsupportedError(f"Setting {self.vba_type_name}.{name} is real but pyOpenVBA does not implement it")
+            return VBAUnsupportedError(f"Setting {self.vba_type_name}.{name} is not implemented by pyOpenVBA")
         return error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name}.{name} cannot be assigned to")
 
     # --- what the language needs from every object ------------------------------

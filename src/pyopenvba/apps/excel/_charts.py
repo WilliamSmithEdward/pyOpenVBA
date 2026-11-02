@@ -20,7 +20,7 @@ from pyopenvba.formula._calc.host import quote_sheet_name
 from pyopenvba.apps.excel._creator import Created, ItemDefault
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import EMPTY, MISSING, NOTHING, NULL, VBAArray, VBADate, VBAInt, VBASingle, error, to_bool, to_integer, to_number, to_text
-from pyopenvba.shapes._values import Shape, emu, points
+from pyopenvba.shapes._values import FillLine, Shape, emu, points
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
@@ -65,6 +65,8 @@ class SeriesState:
     #: leaves a DataLabels taken before stale.
     label_look: LabelLook = field(default_factory=lambda: LabelLook())
     label_generation: int = 0
+    #: What Series.Format set, None until then (tests/fixtures/series_format.json).
+    format_look: FillLine | None = None
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
     #: imported marker filled in a way the model does not read (tests/fixtures/chart_marker_colours.json).
     marker_fore: str | None = None
@@ -1127,6 +1129,8 @@ class Chart(Created):
         wanted = int(to_number(value))
         if wanted not in CHART_TYPES:
             raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
+        if any(entry.format_look is not None for entry in self.state.series):
+            raise VBAUnsupportedError('Changing the type of a chart whose series have their own look is not implemented')
         from pyopenvba.apps.excel._chart_axes import transition
 
         self.admit_change()
@@ -2160,6 +2164,13 @@ class Series(Created):
         # Excel turns the series' leader lines off whichever way the labels go.
         self.entry.leader_lines = False
 
+    @member
+    def Format(self) -> object:
+        from pyopenvba.apps.excel._chart_format import ChartFormat
+
+        self.position()
+        return ChartFormat(self)
+
     @method
     def DataLabels(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
         from pyopenvba.apps.excel._chart_data_labels import DataLabels
@@ -2219,6 +2230,9 @@ class Series(Created):
         wanted = MARKER_ALIASES.get(wanted, wanted)
         if wanted not in MARKER_SYMBOLS:
             raise error(1004, 'Unable to set the MarkerStyle property of the Series class')
+        if entry.format_look is not None:
+            # Excel then copies the line's look into the marker (tests/fixtures/series_format.json).
+            raise VBAUnsupportedError('A marker on a series with a look of its own is not implemented')
         self.chart.changed()
         entry.marker = wanted
 

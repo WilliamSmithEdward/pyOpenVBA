@@ -52,6 +52,10 @@ class AxisState:
     label_position: str | None = "nextTo"
     major_gridlines: bool = False
     minor_gridlines: bool = False
+    #: TickLabels.NumberFormat once set, and whether the labels still follow their source; a label unlinked with no
+    #: format of its own writes no numFmt (tests/fixtures/chart_axis_parts.json).
+    number_format: str | None = None
+    format_linked: bool = True
     #: Where the other axis crosses this one: autoZero, max, min, or custom at ``crosses_at``.
     crosses: str | None = "autoZero"
     crosses_at: float = 0.0
@@ -479,6 +483,23 @@ class Axis(Created):
         self.entry.minor_gridlines = wanted
 
     @member
+    def MajorGridlines(self) -> object:
+        # Reaching the gridlines never fails; reading them once the axis has none does
+        # (tests/fixtures/chart_axis_parts.json).
+        self.read()
+        return Gridlines(self, major=True)
+
+    @member
+    def MinorGridlines(self) -> object:
+        self.read()
+        return Gridlines(self, major=False)
+
+    @member
+    def TickLabels(self) -> object:
+        self.read()
+        return TickLabels(self)
+
+    @member
     def Crosses(self) -> object:
         return self.spelled("crosses", CROSSINGS)
 
@@ -827,3 +848,166 @@ class AxisTitle(TitleMembers):
         self.axis.chart.changed()
         self.axis.entry.title = None
         return EMPTY
+
+
+def _plain(axis: Axis, *, loaded: bool = False) -> AxisState:
+    """The axis of a chart the model made, other than a scatter chart's, which is what
+    tests/fixtures/chart_axis_parts.json measured the parts' fixed answers and names on; ``loaded`` takes a loaded
+    chart's too, for what its file holds."""
+    axis.read()
+    if (axis.chart.state.original and not loaded) or axis.chart.state.chart_type == -4169 or not axis.entry.present:
+        raise VBAUnsupportedError("This part of an imported, scatter or deleted chart axis is not implemented")
+    return axis.entry
+
+
+class Gridlines(Created):
+    """An axis's major or minor gridlines. Excel names the four of a chart in one order: the value axis's major and
+    minor, then the category axis's (tests/fixtures/chart_axis_parts.json)."""
+
+    vba_type_name = "Gridlines"
+
+    def __init__(self, axis: Axis, *, major: bool) -> None:
+        self.axis, self.major = axis, major
+
+    def shown(self) -> AxisState:
+        entry = _plain(self.axis, loaded=True)
+        if not (entry.major_gridlines if self.major else entry.minor_gridlines):
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        return entry
+
+    @member
+    def Parent(self) -> object:
+        self.axis.read()
+        return self.axis
+
+    @member
+    def Application(self) -> object:
+        self.axis.read()
+        return self.axis.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        entry = self.shown()
+        return f"Gridline {(0 if entry.numeric else 2) + (1 if self.major else 2)}"
+
+    @method
+    def Delete(self) -> object:
+        """The gridlines gone, as HasMajorGridlines or HasMinorGridlines set False leaves them."""
+        self.shown()
+        self.axis.vba_set("HasMajorGridlines" if self.major else "HasMinorGridlines", False)
+        return EMPTY
+
+
+class TickLabels(Created):
+    """An axis's labels: their number format, linked to the source cells until one is set, and what a new chart's
+    labels read (tests/fixtures/chart_axis_parts.json)."""
+
+    vba_type_name = "TickLabels"
+
+    def __init__(self, axis: Axis) -> None:
+        self.axis = axis
+
+    @member
+    def Parent(self) -> object:
+        self.axis.read()
+        return self.axis
+
+    @member
+    def Application(self) -> object:
+        self.axis.read()
+        return self.axis.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        return "Axis 1" if _plain(self.axis).numeric else "Axis 2"
+
+    @member
+    def NumberFormat(self) -> object:
+        from pyopenvba.apps.excel._charts_file import linked_formats
+
+        entry = _plain(self.axis, loaded=True)
+        if entry.number_format is not None:
+            return entry.number_format
+        if not entry.format_linked:
+            return "General"
+        return linked_formats(self.axis.chart)[1 if entry.numeric else 0]
+
+    @setter("NumberFormat")
+    def _number_format(self, value: object) -> None:
+        from pyopenvba.apps.excel._number_format import normalized
+
+        entry = _plain(self.axis)
+        code = normalized(to_text(value))
+        self.axis.change()
+        self.axis.chart.changed()
+        entry.number_format, entry.format_linked = code, False
+
+    @member
+    def NumberFormatLocal(self) -> object:
+        from pyopenvba.apps.excel._number_format import to_local
+
+        return to_local(to_text(self.NumberFormat()), self.axis.chart.sheet.book.application.locale)
+
+    @setter("NumberFormatLocal")
+    def _number_format_local(self, value: object) -> None:
+        from pyopenvba.apps.excel._number_format import from_local
+
+        self._number_format(from_local(to_text(value), self.axis.chart.sheet.book.application.locale))
+
+    @member
+    def NumberFormatLinked(self) -> object:
+        return _plain(self.axis, loaded=True).format_linked
+
+    @setter("NumberFormatLinked")
+    def _number_format_linked(self, value: object) -> None:
+        # Linking the labels again drops their own format; unlinking them keeps it, and with none writes no numFmt.
+        entry = _plain(self.axis)
+        wanted = to_bool(value)
+        self.axis.change()
+        self.axis.chart.changed()
+        entry.format_linked = wanted
+        if wanted:
+            entry.number_format = None
+
+    @member
+    def Orientation(self) -> object:
+        _plain(self.axis)
+        return VBAInt(-4105, "Long")
+
+    @member
+    def Offset(self) -> object:
+        _plain(self.axis)
+        return VBAInt(100, "Long")
+
+    @member
+    def ReadingOrder(self) -> object:
+        _plain(self.axis)
+        return VBAInt(-5002, "Long")
+
+    def category_only(self) -> AxisState:
+        entry = _plain(self.axis)
+        if entry.numeric:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        return entry
+
+    @member
+    def Alignment(self) -> object:
+        self.category_only()
+        return VBAInt(-4108, "Long")
+
+    @member
+    def MultiLevel(self) -> object:
+        self.category_only()
+        return True
+
+    @member
+    def Depth(self) -> object:
+        from pyopenvba.apps.excel._charts import category_levels
+
+        entry = _plain(self.axis)
+        if entry.numeric:
+            return VBAInt(0, "Long")
+        series = self.axis.chart.state.series
+        if series and category_levels(self.axis.chart.sheet, series[0]):
+            raise VBAUnsupportedError("TickLabels.Depth over categories of several levels is not implemented")
+        return VBAInt(1, "Long")

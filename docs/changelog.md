@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Axis.MajorGridlines, MinorGridlines and TickLabels, with the Gridlines
+  and TickLabels objects. Gridlines answer their name and Delete.
+  TickLabels.NumberFormat follows the source cells until a format is set,
+  which unlinks it, and NumberFormatLinked and NumberFormatLocal behave as
+  in Excel, the saved numFmt included. A value axis now saves its first
+  value cell's format while linked, as Excel does. The fixed reads
+  (Orientation, Offset, Alignment, Depth, MultiLevel, ReadingOrder) answer
+  as a new chart does. Measured in `tests/fixtures/chart_axis_parts.json`.
 - 58 more members read as Excel answers them on a new workbook. The
   Workbook password and encryption reads, Container, the document-server
   members and ExternalCodeServiceTimeout. An embedded chart's sheet-only

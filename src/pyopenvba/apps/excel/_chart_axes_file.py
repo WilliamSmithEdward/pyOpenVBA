@@ -19,6 +19,8 @@ from pyopenvba.apps.excel._chart_axes import (
 )
 from pyopenvba.apps.excel._chart_title import read_look, title_element
 from pyopenvba.apps.excel._chart_xml import format_number
+from pyopenvba.apps.excel._number_format import from_file, to_file
+from pyopenvba._xml import escape
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import ChartState
@@ -174,6 +176,10 @@ def read_lines(axis: AxisState, other: AxisState, element: Element) -> None:
     axis.label_position = spelled("tickLblPos", LABEL_POSITIONS)
     axis.major_gridlines = element.find("c:majorGridlines", NS) is not None
     axis.minor_gridlines = element.find("c:minorGridlines", NS) is not None
+    formatted = element.find("c:numFmt", NS)
+    axis.format_linked = formatted is not None and formatted.attrib.get("sourceLinked") in ("1", "true")
+    if formatted is not None and not axis.format_linked:
+        axis.number_format = from_file(formatted.attrib.get("formatCode", "General"))
 
     def number(path: str) -> float | None:
         node = element.find(path, NS)
@@ -266,6 +272,10 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
             "<c:minorGridlines/>" if axis.minor_gridlines else "")
         raw = re.sub(r'(<c:axPos val="[bltr]"/>)(?:<c:majorGridlines/>)?', lambda found: found.group(1) + gridlines,
                      raw, count=1)
+        if axis.number_format is not None or not axis.format_linked:
+            own = ("" if axis.number_format is None else
+                   f'<c:numFmt formatCode="{escape(to_file(axis.number_format))}" sourceLinked="0"/>')
+            raw = re.sub(r'<c:numFmt [^>]*/>', lambda _found: own, raw, count=1)
         orientation = "maxMin" if axis.reverse else "minMax"
         scaling = "<c:scaling>"
         if axis.log_base is not None:

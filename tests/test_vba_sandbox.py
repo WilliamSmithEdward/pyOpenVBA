@@ -32,12 +32,6 @@ WRITES_OR_READS = [
     'ActiveSheet.SetBackgroundPicture folder & "/there.png"',
 ]
 NOT_YET = [
-    'Open folder & "/out.txt" For Output As #1',
-    'Kill folder & "/there.csv"',
-    'MkDir folder & "/made"',
-    'x = Dir(folder)',
-    'x = FileLen(folder & "/there.csv")',
-    'x = Environ("PATH")',
     'x = Shell("cmd")',
     'x = GetSetting("a", "b", "c")',
     'Set x = GetObject("", "Excel.Application")',
@@ -167,6 +161,9 @@ _REACHING = {'open', 'read_bytes', 'write_bytes', 'read_text', 'write_text', 'is
 _BEHIND_A_GATE = {
     ('apps/excel/_vbide.py', 'read_source_file'),  # VBComponents.Import, CodeModule.AddFromFile
     ('apps/excel/_workbook_links.py', '_sheet_names'),  # status
+    ('interpreter/_files.py', 'flush'),  # a file that Open let through
+    ('interpreter/_files.py', '_attributes_of'),  # Open, Kill, FileCopy, GetAttr
+    ('interpreter/_files.py', '_read_only'),  # Open, Kill, FileCopy
     ('apps/excel/_vba_save.py', '_open_zip'),  # the bytes already in memory
 }
 

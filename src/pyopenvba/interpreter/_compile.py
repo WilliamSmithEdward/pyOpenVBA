@@ -150,13 +150,16 @@ def validate_numeric_loops(interpreter: Interpreter, module: ModuleRuntime, proc
                 return parent[0], False, parent[2]
         return None
 
+    from pyopenvba.interpreter._intrinsics import INTRINSICS
+
     implicit: set[str] = set()
 
     def infer_names(value: object) -> None:
         if isinstance(value, A.Name):
             key = strip_suffix(value.name).lower()
             suffix = SUFFIX_TYPES.get(value.name[-1:])
-            if key in implicit and suffix is not None and local[key][0] != suffix:
+            # A bare CurDir beside a CurDir$ is one function, not a Variant and then a String.
+            if key in implicit and suffix is not None and local[key][0] != suffix and key not in INTRINSICS:
                 raise VBACompileError('Type-declaration character does not match declared data type',
                                       where=f'{module.name}.{procedure.name} line {value.line}')
             if (not module.parsed.option_explicit and key not in local and key not in constants

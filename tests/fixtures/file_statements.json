@@ -1,0 +1,1313 @@
+{
+ "measured_at": "2026-11-02T21:13:35.873401+00:00",
+ "source": "\nPrivate gFolder As String, gSep As String, gCell(1) As Variant\n\nPrivate Function P(ByVal name As String) As String\n    If gSep <> \"\\\" Then name = Replace(name, \"\\\", gSep)\n    P = gFolder & gSep & name\nEnd Function\n\nPrivate Function Esc(ByVal text As Variant) As String\n    Dim i As Long, code As Long, out As String\n    For i = 1 To Len(text)\n        code = AscW(Mid$(text, i, 1)) And &HFFFF&\n        If code < 32 Or code > 126 Or code = 92 Or code = 124 Or code = 64 Then\n            out = out & \"\\u\" & Right$(\"000\" & Hex$(code), 4)\n        Else\n            out = out & Mid$(text, i, 1)\n        End If\n    Next\n    Esc = out\nEnd Function\n\nPrivate Function Show(ByVal value As Variant) As String\n    If IsNull(value) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(value) Then\n        Show = \"Empty\"\n    ElseIf IsError(value) Then\n        Show = \"Error \" & CStr(CLng(value))\n    ElseIf IsDate(value) And VarType(value) = vbDate Then\n        Show = \"Date \" & Format(value, \"yyyy-mm-dd hh:nn:ss\")\n    Else\n        Show = TypeName(value) & \" \" & Esc(CStr(value))\n    End If\nEnd Function\n\nPrivate Function CStrOf(ByVal value As Variant) As String\n    If VarType(value) = vbString Then\n        CStrOf = value\n    Else\n        CStrOf = Show(value)\n    End If\nEnd Function\n\nPrivate Sub Mark(ByRef s As String, ByVal number As Long, ByVal description As String)\n    s = s & \"[E\" & number & \":\" & Esc(description) & \"]\"\nEnd Sub\n\nPrivate Function Case0() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case0 = s\nEnd Function\n\nPrivate Function Case1() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1,: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case1 = s\nEnd Function\n\nPrivate Function Case2() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case2 = s\nEnd Function\n\nPrivate Function Case3() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, -1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, 1.5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, 1E+20: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, CInt(3): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, CLng(3): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, CCur(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, CDbl(0.1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, CSng(0.1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, CDec(2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case3 = s\nEnd Function\n\nPrivate Function Case4() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, #1/2/2020#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, #13:14:15#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, Null: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, Empty: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, CVErr(5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case4 = s\nEnd Function\n\nPrivate Function Case5() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\"; \"b\"; 1; 2;: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case5 = s\nEnd Function\n\nPrivate Function Case6() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\", \"b\", 1,: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case6 = s\nEnd Function\n\nPrivate Function Case7() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, String(13, \"a\"), \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, String(14, \"a\"), \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, String(15, \"a\"), \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case7 = s\nEnd Function\n\nPrivate Function Case8() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\"; Tab(5); \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, Tab(3); \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abcdef\"; Tab(3); \"d\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\"; Tab; \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, Tab(0); \"e\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case8 = s\nEnd Function\n\nPrivate Function Case9() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\"; Spc(3); \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, Spc(2); \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\"; Spc(0); \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case9 = s\nEnd Function\n\nPrivate Function Case10() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, ChrW(233): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, ChrW(8364): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, ChrW(1234): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, ChrW(55357): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case10 = s\nEnd Function\n\nPrivate Function Case11() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\" & vbCrLf & \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"c\" & vbLf & \"d\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"e\" & Chr(0) & \"f\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case11 = s\nEnd Function\n\nPrivate Function Case12() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim arr(1) As Long\n    Err.Clear: v = arr: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, v: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case12 = s\nEnd Function\n\nPrivate Function Case13() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, Nothing: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case13 = s\nEnd Function\n\nPrivate Function Case14() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Width #1, 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abcdefgh\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\"; \"b\"; \"c\"; \"d\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case14 = s\nEnd Function\n\nPrivate Function Case15() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Width #1, 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abcdefgh\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case15 = s\nEnd Function\n\nPrivate Function Case16() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Width #1, 256: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abcdefgh\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case16 = s\nEnd Function\n\nPrivate Function Case17() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"a\"\"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"a,b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case17 = s\nEnd Function\n\nPrivate Function Case18() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, -1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, 1.5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, 1E+20: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, CCur(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, CDbl(0.1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, CSng(0.1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case18 = s\nEnd Function\n\nPrivate Function Case19() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, #1/2/2020#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, #13:14:15#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, #1/2/2020 13:14:15#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, Null: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, Empty: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, CVErr(5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case19 = s\nEnd Function\n\nPrivate Function Case20() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"a\", 1, True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, 1; 2; 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case20 = s\nEnd Function\n\nPrivate Function Case21() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"a\";: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"b\",: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1,: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case21 = s\nEnd Function\n\nPrivate Function Case22() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, ChrW(233): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, ChrW(1234): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case22 = s\nEnd Function\n\nPrivate Function Case23() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Append As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case23 = s\nEnd Function\n\nPrivate Function Case24() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case24 = s\nEnd Function\n\nPrivate Function Case25() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case25 = s\nEnd Function\n\nPrivate Function Case26() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: n = FreeFile: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Output As #n: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #n, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #n: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = n: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case26 = s\nEnd Function\n\nPrivate Function Case27() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"b.txt\") For Output As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #2, \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1, #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case27 = s\nEnd Function\n\nPrivate Function Case28() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"b.txt\") For Output As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FreeFile: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case28 = s\nEnd Function\n\nPrivate Function Case29() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Reset: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FreeFile: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case29 = s\nEnd Function\n\nPrivate Function Case30() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Close #9: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #9, #8: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = \"fine\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case30 = s\nEnd Function\n\nPrivate Function Case31() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"b.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case31 = s\nEnd Function\n\nPrivate Function Case32() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Output As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case32 = s\nEnd Function\n\nPrivate Function Case33() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Input As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case33 = s\nEnd Function\n\nPrivate Function Case34() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Output As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case34 = s\nEnd Function\n\nPrivate Function Case35() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Input As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case35 = s\nEnd Function\n\nPrivate Function Case36() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Append As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Append As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case36 = s\nEnd Function\n\nPrivate Function Case37() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case37 = s\nEnd Function\n\nPrivate Function Case38() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #512: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case38 = s\nEnd Function\n\nPrivate Function Case39() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #511: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #511, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #511: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case39 = s\nEnd Function\n\nPrivate Function Case40() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #-1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case40 = s\nEnd Function\n\nPrivate Function Case41() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #\"3\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #3, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case41 = s\nEnd Function\n\nPrivate Function Case42() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #2.6: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #3, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case42 = s\nEnd Function\n\nPrivate Function Case43() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"none.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = \"opened\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case43 = s\nEnd Function\n\nPrivate Function Case44() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"none.txt\") For Append As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case44 = s\nEnd Function\n\nPrivate Function Case45() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"none\\a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case45 = s\nEnd Function\n\nPrivate Function Case46() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"none\\a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case46 = s\nEnd Function\n\nPrivate Function Case47() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open \"\" For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case47 = s\nEnd Function\n\nPrivate Function Case48() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"d\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case48 = s\nEnd Function\n\nPrivate Function Case49() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"d\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case49 = s\nEnd Function\n\nPrivate Function Case50() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case50 = s\nEnd Function\n\nPrivate Function Case51() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case51 = s\nEnd Function\n\nPrivate Function Case52() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output Access Write As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Input Access Read As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case52 = s\nEnd Function\n\nPrivate Function Case53() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output Lock Write As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Input As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case53 = s\nEnd Function\n\nPrivate Function Case54() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output Shared As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Input Lock Read As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case54 = s\nEnd Function\n\nPrivate Function Case55() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1 Len = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abcdef\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case55 = s\nEnd Function\n\nPrivate Function Case56() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Print #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case56 = s\nEnd Function\n\nPrivate Function Case57() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Write #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case57 = s\nEnd Function\n\nPrivate Function Case58() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case58 = s\nEnd Function\n\nPrivate Function Case59() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case59 = s\nEnd Function\n\nPrivate Function Case60() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case60 = s\nEnd Function\n\nPrivate Function Case61() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case61 = s\nEnd Function\n\nPrivate Function Case62() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case62 = s\nEnd Function\n\nPrivate Function Case63() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case63 = s\nEnd Function\n\nPrivate Function Case64() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case64 = s\nEnd Function\n\nPrivate Function Case65() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case65 = s\nEnd Function\n\nPrivate Function Case66() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case66 = s\nEnd Function\n\nPrivate Function Case67() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case67 = s\nEnd Function\n\nPrivate Function Case68() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case68 = s\nEnd Function\n\nPrivate Function Case69() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case69 = s\nEnd Function\n\nPrivate Function Case70() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case70 = s\nEnd Function\n\nPrivate Function Case71() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case71 = s\nEnd Function\n\nPrivate Function Case72() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case72 = s\nEnd Function\n\nPrivate Function Case73() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case73 = s\nEnd Function\n\nPrivate Function Case74() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case74 = s\nEnd Function\n\nPrivate Function Case75() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case75 = s\nEnd Function\n\nPrivate Function Case76() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case76 = s\nEnd Function\n\nPrivate Function Case77() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case77 = s\nEnd Function\n\nPrivate Function Case78() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not EOF(1)\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case78 = s\nEnd Function\n\nPrivate Function Case79() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case79 = s\nEnd Function\n\nPrivate Function Case80() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim k As String\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Line Input #1, k: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = k: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case80 = s\nEnd Function\n\nPrivate Function Case81() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Line Input #1, gCell(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = gCell(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case81 = s\nEnd Function\n\nPrivate Function Case82() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case82 = s\nEnd Function\n\nPrivate Function Case83() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Print #1, \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case83 = s\nEnd Function\n\nPrivate Function Case84() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Seek #1, 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Seek #1, 100: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Seek #1, 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case84 = s\nEnd Function\n\nPrivate Function Case85() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abcdef\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Seek #1, 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"x\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case85 = s\nEnd Function\n\nPrivate Function Case86() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Input(2, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(3, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input$(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case86 = s\nEnd Function\n\nPrivate Function Case87() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Input(0, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(-1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case87 = s\nEnd Function\n\nPrivate Function Case88() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"b.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"b.txt\") For Append As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = FileAttr(2, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case88 = s\nEnd Function\n\nPrivate Function Case89() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = FreeFile: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = FreeFile(): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = FreeFile(0): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = FreeFile(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = FreeFile(2): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FreeFile: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.txt\") For Output As #256: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FreeFile(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #256: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(FreeFile): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case89 = s\nEnd Function\n\nPrivate Function Case90() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(127, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(127, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Seek #1, 300: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case90 = s\nEnd Function\n\nPrivate Function Case91() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, String(125, \"a\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Print #1, \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Print #1, String(125, \"c\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case91 = s\nEnd Function\n\nPrivate Function Case92() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Append As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Print #1, \"d\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Seek #1, 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"e\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case92 = s\nEnd Function\n\nPrivate Function Case93() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case93 = s\nEnd Function\n\nPrivate Function Case94() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #600: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #600, \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #600: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"b.txt\") For Output As #32767: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #32767: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"c.txt\") For Output As #40000: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = \"x\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case94 = s\nEnd Function\n\nPrivate Function Case95() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b, c, d\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case95 = s\nEnd Function\n\nPrivate Function Case96() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b, c, d\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case96 = s\nEnd Function\n\nPrivate Function Case97() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b, c, d, e\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case97 = s\nEnd Function\n\nPrivate Function Case98() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"a\", 1, 1.5, True, #1/2/2020#, Null, Empty, CVErr(5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Dim a, b, c, d, e, f, g, h\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e, f, g, h: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(f): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(g): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(h): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case98 = s\nEnd Function\n\nPrivate Function Case99() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Long, b As Double, c As String, d As String, e As Long\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case99 = s\nEnd Function\n\nPrivate Function Case100() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Long, b As Long\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case100 = s\nEnd Function\n\nPrivate Function Case101() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Integer\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case101 = s\nEnd Function\n\nPrivate Function Case102() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Input #1, a: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case102 = s\nEnd Function\n\nPrivate Function Case103() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b, c\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case103 = s\nEnd Function\n\nPrivate Function Case104() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case104 = s\nEnd Function\n\nPrivate Function Case105() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case105 = s\nEnd Function\n\nPrivate Function Case106() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case106 = s\nEnd Function\n\nPrivate Function Case107() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case107 = s\nEnd Function\n\nPrivate Function Case108() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case108 = s\nEnd Function\n\nPrivate Function Case109() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Date\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case109 = s\nEnd Function\n\nPrivate Function Case110() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Boolean, b As Boolean, c As Boolean\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case110 = s\nEnd Function\n\nPrivate Function Case111() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b, c, d, e, f, g\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e, f, g: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(f): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(g): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case111 = s\nEnd Function\n\nPrivate Function Case112() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b, c, d, e, f\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e, f: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(f): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case112 = s\nEnd Function\n\nPrivate Function Case113() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a, b, c, d, e\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case113 = s\nEnd Function\n\nPrivate Function Case114() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Boolean, b As Boolean, c As Boolean, d As Boolean\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case114 = s\nEnd Function\n\nPrivate Function Case115() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Date, b As Date, c As Date, d As String\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case115 = s\nEnd Function\n\nPrivate Function Case116() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As String, b As String, c As String, d As String, e As Double, f\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e, f: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(f): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case116 = s\nEnd Function\n\nPrivate Function Case117() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Dim a As Integer, b As Single, c As Currency, d As Long, e As Byte\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, a, b, c, d, e: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(e): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case117 = s\nEnd Function\n\nPrivate Function Case118() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, gCell(0), gCell(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(gCell(0)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(gCell(1)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case118 = s\nEnd Function\n\nPrivate Function Case119() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Kill P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"a.txt\")) = \"\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case119 = s\nEnd Function\n\nPrivate Function Case120() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Kill P(\"none.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case120 = s\nEnd Function\n\nPrivate Function Case121() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Kill P(\"*.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case121 = s\nEnd Function\n\nPrivate Function Case122() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Kill P(\"a?.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case122 = s\nEnd Function\n\nPrivate Function Case123() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Kill P(\"*.log\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case123 = s\nEnd Function\n\nPrivate Function Case124() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case124 = s\nEnd Function\n\nPrivate Function Case125() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case125 = s\nEnd Function\n\nPrivate Function Case126() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"d\"), vbDirectory): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case126 = s\nEnd Function\n\nPrivate Function Case127() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Kill \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case127 = s\nEnd Function\n\nPrivate Function Case128() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = GetAttr(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"d\"), vbDirectory): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case128 = s\nEnd Function\n\nPrivate Function Case129() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case129 = s\nEnd Function\n\nPrivate Function Case130() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\\e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case130 = s\nEnd Function\n\nPrivate Function Case131() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case131 = s\nEnd Function\n\nPrivate Function Case132() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case132 = s\nEnd Function\n\nPrivate Function Case133() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: RmDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"d\"), vbDirectory) = \"\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case133 = s\nEnd Function\n\nPrivate Function Case134() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: RmDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case134 = s\nEnd Function\n\nPrivate Function Case135() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: RmDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"d\\a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: RmDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case135 = s\nEnd Function\n\nPrivate Function Case136() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: RmDir P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case136 = s\nEnd Function\n\nPrivate Function Case137() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: RmDir \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case137 = s\nEnd Function\n\nPrivate Function Case138() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: FileCopy P(\"a.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: FileCopy P(\"a.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case138 = s\nEnd Function\n\nPrivate Function Case139() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: FileCopy P(\"none.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case139 = s\nEnd Function\n\nPrivate Function Case140() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: FileCopy P(\"a.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case140 = s\nEnd Function\n\nPrivate Function Case141() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: FileCopy P(\"a.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case141 = s\nEnd Function\n\nPrivate Function Case142() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"b.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: FileCopy P(\"a.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case142 = s\nEnd Function\n\nPrivate Function Case143() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: FileCopy P(\"*.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case143 = s\nEnd Function\n\nPrivate Function Case144() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: FileCopy P(\"a.txt\"), P(\"none\\b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case144 = s\nEnd Function\n\nPrivate Function Case145() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Name P(\"a.txt\") As P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case145 = s\nEnd Function\n\nPrivate Function Case146() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Name P(\"none.txt\") As P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case146 = s\nEnd Function\n\nPrivate Function Case147() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Name P(\"a.txt\") As P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case147 = s\nEnd Function\n\nPrivate Function Case148() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Name P(\"d\") As P(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"e\"), vbDirectory): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case148 = s\nEnd Function\n\nPrivate Function Case149() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Name P(\"a.txt\") As P(\"d\\a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"d\\*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case149 = s\nEnd Function\n\nPrivate Function Case150() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Name P(\"a.txt\") As P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case150 = s\nEnd Function\n\nPrivate Function Case151() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Name P(\"a.txt\") As P(\"none\\b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case151 = s\nEnd Function\n\nPrivate Function Case152() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = FileLen(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(FileLen(P(\"a.txt\"))): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case152 = s\nEnd Function\n\nPrivate Function Case153() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = FileLen(P(\"none.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case153 = s\nEnd Function\n\nPrivate Function Case154() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case154 = s\nEnd Function\n\nPrivate Function Case155() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case155 = s\nEnd Function\n\nPrivate Function Case156() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = TypeName(FileDateTime(P(\"a.txt\"))): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Abs(FileDateTime(P(\"a.txt\")) - Now) < 1: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case156 = s\nEnd Function\n\nPrivate Function Case157() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = FileDateTime(P(\"none.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case157 = s\nEnd Function\n\nPrivate Function Case158() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = GetAttr(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = GetAttr(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(GetAttr(P(\"d\"))): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = GetAttr(P(\"none.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case158 = s\nEnd Function\n\nPrivate Function Case159() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = GetAttr(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = GetAttr(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: SetAttr P(\"a.txt\"), vbArchive: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = GetAttr(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case159 = s\nEnd Function\n\nPrivate Function Case160() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"a.txt\"), vbHidden: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = GetAttr(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"*\"), vbHidden): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case160 = s\nEnd Function\n\nPrivate Function Case161() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"none.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case161 = s\nEnd Function\n\nPrivate Function Case162() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"a.txt\"), 1024: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case162 = s\nEnd Function\n\nPrivate Function Case163() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case163 = s\nEnd Function\n\nPrivate Function Case164() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: t = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While t <> \"\"\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: t = Dir(): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear\n    Loop\n    Err.Clear: v = Dir(): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case164 = s\nEnd Function\n\nPrivate Function Case165() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case165 = s\nEnd Function\n\nPrivate Function Case166() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir(): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case166 = s\nEnd Function\n\nPrivate Function Case167() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"A.TXT\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"none.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case167 = s\nEnd Function\n\nPrivate Function Case168() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir(P(\"?.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"*.log\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"a*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"*.*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case168 = s\nEnd Function\n\nPrivate Function Case169() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: t = Dir(P(\"*\"), vbDirectory): If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While t <> \"\"\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: t = Dir(): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear\n    Loop\n    Err.Clear: v = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case169 = s\nEnd Function\n\nPrivate Function Case170() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(P(\"d\\\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"d\"), vbDirectory): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"d\\\"), vbDirectory): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case170 = s\nEnd Function\n\nPrivate Function Case171() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir(P(\"none\\a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"none\\\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case171 = s\nEnd Function\n\nPrivate Function Case172() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = TypeName(Dir(\"\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(\"\", vbDirectory) <> \"\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case172 = s\nEnd Function\n\nPrivate Function Case173() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir(P(\"a.txt\"), vbNormal): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"a.txt\"), vbReadOnly): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"a.txt\"), vbArchive): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"a.txt\"), vbHidden): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"a.txt\"), vbSystem): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"a.txt\"), vbVolume): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(P(\"a.txt\"), 1024): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case173 = s\nEnd Function\n\nPrivate Function Case174() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir(Null): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case174 = s\nEnd Function\n\nPrivate Function Case175() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: t = Dir(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case175 = s\nEnd Function\n\nPrivate Function Case176() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = TypeName(Dir(P(\"*\"))): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case176 = s\nEnd Function\n\nPrivate Function Case177() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = Dir$(P(\"*\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(Dir$(P(\"*\"))): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case177 = s\nEnd Function\n\nPrivate Function Case178() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: old = CurDir: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: ChDir P(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Right(CurDir, 0) = \"\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = StrComp(CurDir, Left(P(\"\"), Len(P(\"\")) - 1), vbTextCompare): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Open \"b.txt\" For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Dir(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Dir(\"*\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Kill \"b.txt\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: ChDir old: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = CurDir = old: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case178 = s\nEnd Function\n\nPrivate Function Case179() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: ChDir P(\"none\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case179 = s\nEnd Function\n\nPrivate Function Case180() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: ChDir P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case180 = s\nEnd Function\n\nPrivate Function Case181() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: ChDir \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case181 = s\nEnd Function\n\nPrivate Function Case182() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = TypeName(CurDir): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(CurDir()): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(CurDir$()): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = CurDir(\"\") = CurDir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = CurDir(Left(CurDir, 1)) = CurDir: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case182 = s\nEnd Function\n\nPrivate Function Case183() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = CurDir(\"?\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case183 = s\nEnd Function\n\nPrivate Function Case184() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = TypeName(Environ(\"PATH\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Environ(\"PATH\") <> \"\": If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Environ(\"NO_SUCH_VARIABLE_HERE\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(Environ$(\"PATH\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Environ(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Len(Environ(1)) > 0: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Environ(100000): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Environ(0): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Environ(-1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case184 = s\nEnd Function\n\nPrivate Function Case185() As String\n    Dim s As String, v As Variant, t As Variant, n As Variant, old As Variant\n    Dim guard As Long\n    On Error Resume Next\n    Err.Clear: v = InStr(Environ(1), \"=\") > 0: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case185 = s\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal sep As String, ByVal which As Long) As String\n    gFolder = folder: gSep = sep\n    gCell(1) = Empty\n    Select Case which\n        Case 0: Probe = Case0()\n        Case 1: Probe = Case1()\n        Case 2: Probe = Case2()\n        Case 3: Probe = Case3()\n        Case 4: Probe = Case4()\n        Case 5: Probe = Case5()\n        Case 6: Probe = Case6()\n        Case 7: Probe = Case7()\n        Case 8: Probe = Case8()\n        Case 9: Probe = Case9()\n        Case 10: Probe = Case10()\n        Case 11: Probe = Case11()\n        Case 12: Probe = Case12()\n        Case 13: Probe = Case13()\n        Case 14: Probe = Case14()\n        Case 15: Probe = Case15()\n        Case 16: Probe = Case16()\n        Case 17: Probe = Case17()\n        Case 18: Probe = Case18()\n        Case 19: Probe = Case19()\n        Case 20: Probe = Case20()\n        Case 21: Probe = Case21()\n        Case 22: Probe = Case22()\n        Case 23: Probe = Case23()\n        Case 24: Probe = Case24()\n        Case 25: Probe = Case25()\n        Case 26: Probe = Case26()\n        Case 27: Probe = Case27()\n        Case 28: Probe = Case28()\n        Case 29: Probe = Case29()\n        Case 30: Probe = Case30()\n        Case 31: Probe = Case31()\n        Case 32: Probe = Case32()\n        Case 33: Probe = Case33()\n        Case 34: Probe = Case34()\n        Case 35: Probe = Case35()\n        Case 36: Probe = Case36()\n        Case 37: Probe = Case37()\n        Case 38: Probe = Case38()\n        Case 39: Probe = Case39()\n        Case 40: Probe = Case40()\n        Case 41: Probe = Case41()\n        Case 42: Probe = Case42()\n        Case 43: Probe = Case43()\n        Case 44: Probe = Case44()\n        Case 45: Probe = Case45()\n        Case 46: Probe = Case46()\n        Case 47: Probe = Case47()\n        Case 48: Probe = Case48()\n        Case 49: Probe = Case49()\n        Case 50: Probe = Case50()\n        Case 51: Probe = Case51()\n        Case 52: Probe = Case52()\n        Case 53: Probe = Case53()\n        Case 54: Probe = Case54()\n        Case 55: Probe = Case55()\n        Case 56: Probe = Case56()\n        Case 57: Probe = Case57()\n        Case 58: Probe = Case58()\n        Case 59: Probe = Case59()\n        Case 60: Probe = Case60()\n        Case 61: Probe = Case61()\n        Case 62: Probe = Case62()\n        Case 63: Probe = Case63()\n        Case 64: Probe = Case64()\n        Case 65: Probe = Case65()\n        Case 66: Probe = Case66()\n        Case 67: Probe = Case67()\n        Case 68: Probe = Case68()\n        Case 69: Probe = Case69()\n        Case 70: Probe = Case70()\n        Case 71: Probe = Case71()\n        Case 72: Probe = Case72()\n        Case 73: Probe = Case73()\n        Case 74: Probe = Case74()\n        Case 75: Probe = Case75()\n        Case 76: Probe = Case76()\n        Case 77: Probe = Case77()\n        Case 78: Probe = Case78()\n        Case 79: Probe = Case79()\n        Case 80: Probe = Case80()\n        Case 81: Probe = Case81()\n        Case 82: Probe = Case82()\n        Case 83: Probe = Case83()\n        Case 84: Probe = Case84()\n        Case 85: Probe = Case85()\n        Case 86: Probe = Case86()\n        Case 87: Probe = Case87()\n        Case 88: Probe = Case88()\n        Case 89: Probe = Case89()\n        Case 90: Probe = Case90()\n        Case 91: Probe = Case91()\n        Case 92: Probe = Case92()\n        Case 93: Probe = Case93()\n        Case 94: Probe = Case94()\n        Case 95: Probe = Case95()\n        Case 96: Probe = Case96()\n        Case 97: Probe = Case97()\n        Case 98: Probe = Case98()\n        Case 99: Probe = Case99()\n        Case 100: Probe = Case100()\n        Case 101: Probe = Case101()\n        Case 102: Probe = Case102()\n        Case 103: Probe = Case103()\n        Case 104: Probe = Case104()\n        Case 105: Probe = Case105()\n        Case 106: Probe = Case106()\n        Case 107: Probe = Case107()\n        Case 108: Probe = Case108()\n        Case 109: Probe = Case109()\n        Case 110: Probe = Case110()\n        Case 111: Probe = Case111()\n        Case 112: Probe = Case112()\n        Case 113: Probe = Case113()\n        Case 114: Probe = Case114()\n        Case 115: Probe = Case115()\n        Case 116: Probe = Case116()\n        Case 117: Probe = Case117()\n        Case 118: Probe = Case118()\n        Case 119: Probe = Case119()\n        Case 120: Probe = Case120()\n        Case 121: Probe = Case121()\n        Case 122: Probe = Case122()\n        Case 123: Probe = Case123()\n        Case 124: Probe = Case124()\n        Case 125: Probe = Case125()\n        Case 126: Probe = Case126()\n        Case 127: Probe = Case127()\n        Case 128: Probe = Case128()\n        Case 129: Probe = Case129()\n        Case 130: Probe = Case130()\n        Case 131: Probe = Case131()\n        Case 132: Probe = Case132()\n        Case 133: Probe = Case133()\n        Case 134: Probe = Case134()\n        Case 135: Probe = Case135()\n        Case 136: Probe = Case136()\n        Case 137: Probe = Case137()\n        Case 138: Probe = Case138()\n        Case 139: Probe = Case139()\n        Case 140: Probe = Case140()\n        Case 141: Probe = Case141()\n        Case 142: Probe = Case142()\n        Case 143: Probe = Case143()\n        Case 144: Probe = Case144()\n        Case 145: Probe = Case145()\n        Case 146: Probe = Case146()\n        Case 147: Probe = Case147()\n        Case 148: Probe = Case148()\n        Case 149: Probe = Case149()\n        Case 150: Probe = Case150()\n        Case 151: Probe = Case151()\n        Case 152: Probe = Case152()\n        Case 153: Probe = Case153()\n        Case 154: Probe = Case154()\n        Case 155: Probe = Case155()\n        Case 156: Probe = Case156()\n        Case 157: Probe = Case157()\n        Case 158: Probe = Case158()\n        Case 159: Probe = Case159()\n        Case 160: Probe = Case160()\n        Case 161: Probe = Case161()\n        Case 162: Probe = Case162()\n        Case 163: Probe = Case163()\n        Case 164: Probe = Case164()\n        Case 165: Probe = Case165()\n        Case 166: Probe = Case166()\n        Case 167: Probe = Case167()\n        Case 168: Probe = Case168()\n        Case 169: Probe = Case169()\n        Case 170: Probe = Case170()\n        Case 171: Probe = Case171()\n        Case 172: Probe = Case172()\n        Case 173: Probe = Case173()\n        Case 174: Probe = Case174()\n        Case 175: Probe = Case175()\n        Case 176: Probe = Case176()\n        Case 177: Probe = Case177()\n        Case 178: Probe = Case178()\n        Case 179: Probe = Case179()\n        Case 180: Probe = Case180()\n        Case 181: Probe = Case181()\n        Case 182: Probe = Case182()\n        Case 183: Probe = Case183()\n        Case 184: Probe = Case184()\n        Case 185: Probe = Case185()\n    End Select\nEnd Function\n",
+ "seeds": {
+  "print text": [],
+  "print nothing": [],
+  "print none at all": [],
+  "print numbers": [],
+  "print others": [],
+  "print semicolon": [],
+  "print comma": [],
+  "print long comma": [],
+  "print tab": [],
+  "print spc": [],
+  "print accented": [],
+  "print breaks": [],
+  "print array": [],
+  "print object": [],
+  "width": [],
+  "width zero": [],
+  "width too big": [],
+  "write text": [],
+  "write numbers": [],
+  "write others": [],
+  "write many": [],
+  "write trailing": [],
+  "write accented": [],
+  "append": [],
+  "output empties": [
+   "@seed a.txt 616263"
+  ],
+  "as without sharp": [],
+  "as a variable": [],
+  "close several": [],
+  "close all": [],
+  "reset": [],
+  "close not open": [],
+  "open twice same number": [],
+  "output twice": [],
+  "input twice": [
+   "@seed a.txt 61"
+  ],
+  "input then output": [
+   "@seed a.txt 61"
+  ],
+  "output then input": [],
+  "append twice": [],
+  "number zero": [],
+  "number too big": [],
+  "number 511": [],
+  "number negative": [],
+  "number text": [],
+  "number float": [],
+  "input missing": [],
+  "append missing": [],
+  "no folder": [],
+  "no folder input": [],
+  "empty name": [],
+  "open a folder": [],
+  "open a folder input": [],
+  "read only output": [
+   "@seed a.txt 61"
+  ],
+  "read only input": [
+   "@seed a.txt 61"
+  ],
+  "access clauses": [],
+  "lock clauses": [],
+  "shared": [],
+  "len clause": [],
+  "print to closed": [],
+  "write to closed": [],
+  "line input closed": [],
+  "input closed": [],
+  "eof closed": [],
+  "lof closed": [],
+  "loc closed": [],
+  "seek closed": [],
+  "print to input": [
+   "@seed a.txt 61"
+  ],
+  "write to input": [
+   "@seed a.txt 61"
+  ],
+  "input from output": [],
+  "lines crlf": [
+   "@seed a.txt 610D0A620D0A"
+  ],
+  "lines lf": [
+   "@seed a.txt 610A620A"
+  ],
+  "lines cr": [
+   "@seed a.txt 610D620D"
+  ],
+  "lines lfcr": [
+   "@seed a.txt 610A0D62"
+  ],
+  "lines no end": [
+   "@seed a.txt 610D0A62"
+  ],
+  "lines blank": [
+   "@seed a.txt 0D0A0D0A61"
+  ],
+  "lines empty": [
+   "@seed a.txt "
+  ],
+  "lines nul": [
+   "@seed a.txt 6100620D0A"
+  ],
+  "lines ctrl z": [
+   "@seed a.txt 610D0A1A620D0A"
+  ],
+  "lines ctrl z end": [
+   "@seed a.txt 610D0A1A"
+  ],
+  "lines latin": [
+   "@seed a.txt E98081FF0D0A"
+  ],
+  "lines utf8 bom": [
+   "@seed a.txt EFBBBF61C3A90D0A"
+  ],
+  "past the end": [
+   "@seed a.txt 610D0A"
+  ],
+  "into a string": [
+   "@seed a.txt 310D0A"
+  ],
+  "into a cell": [
+   "@seed a.txt 610D0A"
+  ],
+  "measures": [
+   "@seed a.txt 6162630D0A64"
+  ],
+  "measures output": [],
+  "seek back": [
+   "@seed a.txt 6162630D0A64"
+  ],
+  "seek output": [],
+  "input chars": [
+   "@seed a.txt 6162630D0A64"
+  ],
+  "input zero": [
+   "@seed a.txt 61"
+  ],
+  "file attr": [
+   "@seed a.txt 61"
+  ],
+  "free file": [],
+  "loc large": [
+   "@seed a.txt 61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161"
+  ],
+  "loc output large": [],
+  "measures append": [
+   "@seed a.txt 616263"
+  ],
+  "input past ctrl z": [
+   "@seed a.txt 611A62"
+  ],
+  "number huge": [],
+  "fields": [
+   "@seed a.txt 612C622C0D0A632C640D0A"
+  ],
+  "fields quoted": [
+   "@seed a.txt 2261206222202C2022632C64222C22652222660D0A"
+  ],
+  "fields numbers": [
+   "@seed a.txt 312C20312E352C2D322C31452B322C26483130"
+  ],
+  "fields written": [],
+  "fields typed": [
+   "@seed a.txt 312C322E352C612C2C0D0A"
+  ],
+  "fields typed bad": [
+   "@seed a.txt 612C31"
+  ],
+  "fields overflow": [
+   "@seed a.txt 393939393939"
+  ],
+  "fields past end": [
+   "@seed a.txt 61"
+  ],
+  "fields blank lines": [
+   "@seed a.txt 0D0A0D0A612C0D0A0D0A62"
+  ],
+  "fields spaces": [
+   "@seed a.txt 2020612062202020202C2020632020"
+  ],
+  "fields after quote": [
+   "@seed a.txt 22612278632C64"
+  ],
+  "fields tab": [
+   "@seed a.txt 6109622C63"
+  ],
+  "fields semicolon": [
+   "@seed a.txt 613B622C63"
+  ],
+  "fields date text": [
+   "@seed a.txt 312F322F323032302C23323032302D30312D3032230D0A"
+  ],
+  "fields date typed": [
+   "@seed a.txt 312F322F32303230"
+  ],
+  "fields boolean typed": [
+   "@seed a.txt 747275652C2354525545232C30"
+  ],
+  "fields widths": [
+   "@seed a.txt 37303030302C333030303030303030302C312E32333435362C312E32332C312E32333435352C2E352C31302E30"
+  ],
+  "fields prefixes": [
+   "@seed a.txt 316162632C2D2C2B312C31204132202C2E2C312E352E36"
+  ],
+  "fields words": [
+   "@seed a.txt 547275652C46414C53452C4E756C6C2C454D5054592C2354525545"
+  ],
+  "fields boolean number": [
+   "@seed a.txt 312C352C302C2D31"
+  ],
+  "fields date number": [
+   "@seed a.txt 352C23313A3030232C232D33232C31"
+  ],
+  "fields typed marks": [
+   "@seed a.txt 234E554C4C232C2354525545232C23323032302D30312D3032232C234552524F522035232C2C2C"
+  ],
+  "fields typed numbers": [
+   "@seed a.txt 312E352C312E352C312E352C313030303030302C3635353335"
+  ],
+  "fields into a cell": [
+   "@seed a.txt 312C32"
+  ],
+  "kill": [
+   "@seed a.txt 61"
+  ],
+  "kill missing": [],
+  "kill pattern": [
+   "@seed a.txt 61",
+   "@seed b.txt 61",
+   "@seed c.log 61"
+  ],
+  "kill question": [
+   "@seed a1.txt 61",
+   "@seed a2.txt 61",
+   "@seed a10.txt 61"
+  ],
+  "kill no match": [
+   "@seed a.txt 61"
+  ],
+  "kill open": [
+   "@seed a.txt 61"
+  ],
+  "kill read only": [
+   "@seed a.txt 61"
+  ],
+  "kill folder": [],
+  "kill empty": [],
+  "mkdir": [],
+  "mkdir exists": [],
+  "mkdir nested": [],
+  "mkdir over file": [
+   "@seed a.txt 61"
+  ],
+  "mkdir empty": [],
+  "rmdir": [],
+  "rmdir missing": [],
+  "rmdir full": [
+   "@seed d/a.txt 61"
+  ],
+  "rmdir file": [
+   "@seed a.txt 61"
+  ],
+  "rmdir empty": [],
+  "file copy": [
+   "@seed a.txt 616263"
+  ],
+  "file copy missing": [],
+  "file copy open": [
+   "@seed a.txt 61"
+  ],
+  "file copy open output": [],
+  "file copy onto open": [
+   "@seed a.txt 61"
+  ],
+  "file copy pattern": [
+   "@seed a.txt 61"
+  ],
+  "file copy no folder": [
+   "@seed a.txt 61"
+  ],
+  "name": [
+   "@seed a.txt 61"
+  ],
+  "name missing": [],
+  "name exists": [
+   "@seed a.txt 61",
+   "@seed b.txt 62"
+  ],
+  "name folder": [],
+  "name move": [
+   "@seed a.txt 61"
+  ],
+  "name open": [
+   "@seed a.txt 61"
+  ],
+  "name no folder": [
+   "@seed a.txt 61"
+  ],
+  "file len": [
+   "@seed a.txt 616263"
+  ],
+  "file len missing": [],
+  "file len folder": [],
+  "file len open": [],
+  "file date": [
+   "@seed a.txt 61"
+  ],
+  "file date missing": [],
+  "get attr": [
+   "@seed a.txt 61"
+  ],
+  "set attr": [
+   "@seed a.txt 61"
+  ],
+  "set attr hidden": [
+   "@seed a.txt 61"
+  ],
+  "set attr missing": [],
+  "set attr bad": [
+   "@seed a.txt 61"
+  ],
+  "set attr open": [
+   "@seed a.txt 61"
+  ],
+  "dir walk": [
+   "@seed b.txt 61",
+   "@seed a.txt 61",
+   "@seed C.txt 61"
+  ],
+  "dir none left": [
+   "@seed a.txt 61"
+  ],
+  "dir fresh": [],
+  "dir one": [
+   "@seed a.txt 61"
+  ],
+  "dir pattern": [
+   "@seed a.txt 61",
+   "@seed b.log 61",
+   "@seed ab.txt 61"
+  ],
+  "dir folders": [
+   "@seed a.txt 61"
+  ],
+  "dir slash": [
+   "@seed d/a.txt 61"
+  ],
+  "dir no folder": [],
+  "dir empty": [],
+  "dir attributes": [
+   "@seed a.txt 61"
+  ],
+  "dir null": [],
+  "dir while kill": [
+   "@seed a.txt 61",
+   "@seed b.txt 61",
+   "@seed c.txt 61"
+  ],
+  "dir type": [],
+  "dir dollar": [
+   "@seed a.txt 61"
+  ],
+  "chdir": [],
+  "chdir missing": [],
+  "chdir file": [
+   "@seed a.txt 61"
+  ],
+  "chdir empty": [],
+  "curdir": [],
+  "curdir bad drive": [],
+  "environ": [],
+  "environ by number": []
+ },
+ "cases": [
+  [
+   "print text",
+   "",
+   "a.txt=6162630d0a"
+  ],
+  [
+   "print nothing",
+   "",
+   "a.txt=0d0a"
+  ],
+  [
+   "print none at all",
+   "",
+   "a.txt="
+  ],
+  [
+   "print numbers",
+   "",
+   "a.txt=2031200d0a2d31200d0a20312e35200d0a2031452b3230200d0a2033200d0a2033200d0a20312e35200d0a20302e31200d0a20302e31200d0a2032200d0a"
+  ],
+  [
+   "print others",
+   "",
+   "a.txt=547275650d0a46616c73650d0a312f322f32303230200d0a313a31343a313520504d200d0a4e756c6c0d0a0d0a4572726f7220350d0a"
+  ],
+  [
+   "print semicolon",
+   "",
+   "a.txt=6162203120203220630d0a"
+  ],
+  [
+   "print comma",
+   "",
+   "a.txt=612020202020202020202020202062202020202020202020202020202031202020202020202020202020630d0a"
+  ],
+  [
+   "print long comma",
+   "",
+   "a.txt=6161616161616161616161616120620d0a61616161616161616161616161612020202020202020202020202020620d0a61616161616161616161616161616120202020202020202020202020620d0a"
+  ],
+  [
+   "print tab",
+   "",
+   "a.txt=61202020620d0a2020630d0a6162636465660d0a2020640d0a6120202020202020202020202020620d0a650d0a"
+  ],
+  [
+   "print spc",
+   "",
+   "a.txt=61202020620d0a2020630d0a61620d0a"
+  ],
+  [
+   "print accented",
+   "",
+   "a.txt=e90d0a800d0a3f0d0a3f0d0a"
+  ],
+  [
+   "print breaks",
+   "",
+   "a.txt=610d0a620d0a630a640d0a6500660d0a"
+  ],
+  [
+   "print array",
+   "[E13:Type mismatch]",
+   "a.txt="
+  ],
+  [
+   "print object",
+   "[E91:Object variable or With block variable not set]",
+   "a.txt="
+  ],
+  [
+   "width",
+   "",
+   "a.txt=61626364656667680d0a6162630d0a640d0a"
+  ],
+  [
+   "width zero",
+   "",
+   "a.txt=61626364656667680d0a"
+  ],
+  [
+   "width too big",
+   "[E5:Invalid procedure call or argument]",
+   "a.txt=61626364656667680d0a"
+  ],
+  [
+   "write text",
+   "",
+   "a.txt=22616263220d0a2261222262220d0a22220d0a22612c62220d0a"
+  ],
+  [
+   "write numbers",
+   "",
+   "a.txt=310d0a2d310d0a312e350d0a31452b32300d0a312e350d0a2e310d0a2e310d0a"
+  ],
+  [
+   "write others",
+   "",
+   "a.txt=2354525545230d0a2346414c5345230d0a23323032302d30312d3032230d0a23313839392d31322d33302031333a31343a3135230d0a23323032302d30312d30322031333a31343a3135230d0a234e554c4c230d0a0d0a234552524f522035230d0a"
+  ],
+  [
+   "write many",
+   "",
+   "a.txt=2261222c312c2354525545230d0a312c322c330d0a"
+  ],
+  [
+   "write trailing",
+   "",
+   "a.txt=2261222c2262222c0d0a"
+  ],
+  [
+   "write accented",
+   "",
+   "a.txt=22e9220d0a223f220d0a"
+  ],
+  [
+   "append",
+   "",
+   "a.txt=610d0a620d0a"
+  ],
+  [
+   "output empties",
+   "",
+   "a.txt="
+  ],
+  [
+   "as without sharp",
+   "",
+   "a.txt=610d0a"
+  ],
+  [
+   "as a variable",
+   "|Integer 1",
+   "a.txt=610d0a"
+  ],
+  [
+   "close several",
+   "[E52:Bad file name or number]",
+   "a.txt=610d0a b.txt=620d0a"
+  ],
+  [
+   "close all",
+   "[E52:Bad file name or number]|Integer 1",
+   "a.txt= b.txt="
+  ],
+  [
+   "reset",
+   "[E52:Bad file name or number]|Integer 1",
+   "a.txt="
+  ],
+  [
+   "close not open",
+   "|fine",
+   ""
+  ],
+  [
+   "open twice same number",
+   "[E55:File already open]",
+   "a.txt="
+  ],
+  [
+   "output twice",
+   "[E55:File already open]",
+   "a.txt="
+  ],
+  [
+   "input twice",
+   "",
+   "a.txt=61"
+  ],
+  [
+   "input then output",
+   "[E55:File already open]",
+   "a.txt=61"
+  ],
+  [
+   "output then input",
+   "[E55:File already open]",
+   "a.txt="
+  ],
+  [
+   "append twice",
+   "[E55:File already open]",
+   "a.txt="
+  ],
+  [
+   "number zero",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "number too big",
+   "",
+   "a.txt="
+  ],
+  [
+   "number 511",
+   "",
+   "a.txt=610d0a"
+  ],
+  [
+   "number negative",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "number text",
+   "",
+   "a.txt=610d0a"
+  ],
+  [
+   "number float",
+   "",
+   "a.txt=610d0a"
+  ],
+  [
+   "input missing",
+   "[E53:File not found]|opened",
+   ""
+  ],
+  [
+   "append missing",
+   "",
+   "none.txt="
+  ],
+  [
+   "no folder",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "no folder input",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "empty name",
+   "[E75:Path/File access error]",
+   ""
+  ],
+  [
+   "open a folder",
+   "[E75:Path/File access error]",
+   "d/"
+  ],
+  [
+   "open a folder input",
+   "[E75:Path/File access error]",
+   "d/"
+  ],
+  [
+   "read only output",
+   "[E75:Path/File access error]",
+   "a.txt=61"
+  ],
+  [
+   "read only input",
+   "",
+   "a.txt=61"
+  ],
+  [
+   "access clauses",
+   "",
+   "a.txt=610d0a"
+  ],
+  [
+   "lock clauses",
+   "[E55:File already open]",
+   "a.txt="
+  ],
+  [
+   "shared",
+   "",
+   "a.txt="
+  ],
+  [
+   "len clause",
+   "",
+   "a.txt=6162636465660d0a"
+  ],
+  [
+   "print to closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "write to closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "line input closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "input closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "eof closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "lof closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "loc closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "seek closed",
+   "[E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "print to input",
+   "[E54:Bad file mode]",
+   "a.txt=61"
+  ],
+  [
+   "write to input",
+   "[E54:Bad file mode]",
+   "a.txt=61"
+  ],
+  [
+   "input from output",
+   "[E54:Bad file mode][E54:Bad file mode][E54:Bad file mode]|Boolean True",
+   "a.txt="
+  ],
+  [
+   "lines crlf",
+   "|a|b",
+   "a.txt=610d0a620d0a"
+  ],
+  [
+   "lines lf",
+   "|a\\u000Ab\\u000A",
+   "a.txt=610a620a"
+  ],
+  [
+   "lines cr",
+   "|a|b",
+   "a.txt=610d620d"
+  ],
+  [
+   "lines lfcr",
+   "|a\\u000A|b",
+   "a.txt=610a0d62"
+  ],
+  [
+   "lines no end",
+   "|a|b",
+   "a.txt=610d0a62"
+  ],
+  [
+   "lines blank",
+   "|||a",
+   "a.txt=0d0a0d0a61"
+  ],
+  [
+   "lines empty",
+   "",
+   "a.txt="
+  ],
+  [
+   "lines nul",
+   "|ab",
+   "a.txt=6100620d0a"
+  ],
+  [
+   "lines ctrl z",
+   "|a",
+   "a.txt=610d0a1a620d0a"
+  ],
+  [
+   "lines ctrl z end",
+   "|a",
+   "a.txt=610d0a1a"
+  ],
+  [
+   "lines latin",
+   "|\\u00E9\\u20AC\\u0081\\u00FF",
+   "a.txt=e98081ff0d0a"
+  ],
+  [
+   "lines utf8 bom",
+   "|\\u00EF\\u00BB\\u00BFa\\u00C3\\u00A9",
+   "a.txt=efbbbf61c3a90d0a"
+  ],
+  [
+   "past the end",
+   "|a[E62:Input past end of file]|a",
+   "a.txt=610d0a"
+  ],
+  [
+   "into a string",
+   "|1",
+   "a.txt=310d0a"
+  ],
+  [
+   "into a cell",
+   "|a",
+   "a.txt=610d0a"
+  ],
+  [
+   "measures",
+   "|Long 6|Long 1|Long 1|Boolean False|Long 6|Long 1|Long 6|Boolean False|Long 6|Long 1|Long 7|Boolean True",
+   "a.txt=6162630d0a64"
+  ],
+  [
+   "measures output",
+   "|Long 0|Long 0|Long 1|Long 5|Long 0|Long 6|Long 5",
+   "a.txt=6162630d0a"
+  ],
+  [
+   "seek back",
+   "|bc|Boolean True|Long 100[E63:Bad record number]|Long 100",
+   "a.txt=6162630d0a64"
+  ],
+  [
+   "seek output",
+   "",
+   "a.txt=61780d0a65660d0a"
+  ],
+  [
+   "input chars",
+   "|ab|c\\u000D\\u000A|Long 1|d|Boolean True[E62:Input past end of file]",
+   "a.txt=6162630d0a64"
+  ],
+  [
+   "input zero",
+   "|[E5:Invalid procedure call or argument]",
+   "a.txt=61"
+  ],
+  [
+   "file attr",
+   "|Long 1|Long 2|Long 8[E52:Bad file name or number]",
+   "a.txt=61 b.txt="
+  ],
+  [
+   "free file",
+   "|Integer 1|Integer 1|Integer 1|Integer 256|Integer 256|Integer 2|Integer 257|Integer",
+   "a.txt="
+  ],
+  [
+   "loc large",
+   "|Long 1|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Long 1|a|Long 1|a|Long 2|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|Long 2|a|Long 3|Long 3",
+   "a.txt=61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161"
+  ],
+  [
+   "loc output large",
+   "|Long 0|Long 128|Long 1|Long 2|Long 258",
+   "a.txt=61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161610d0a620d0a63636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363636363630d0a"
+  ],
+  [
+   "measures append",
+   "|Long 3|Long 0|Long 1|Long 6|Long 4",
+   "a.txt=650d0a640d0a"
+  ],
+  [
+   "input past ctrl z",
+   "|a|Boolean True[E62:Input past end of file]|Boolean True[E62:Input past end of file]|Boolean True",
+   "a.txt=611a62"
+  ],
+  [
+   "number huge",
+   "[E52:Bad file name or number][E52:Bad file name or number][E52:Bad file name or number][E52:Bad file name or number][E52:Bad file name or number][E6:Overflow]|x",
+   ""
+  ],
+  [
+   "fields",
+   "|String a|String b|Empty|String c",
+   "a.txt=612c622c0d0a632c640d0a"
+  ],
+  [
+   "fields quoted",
+   "|String a b|String c,d|String e",
+   "a.txt=2261206222202c2022632c64222c22652222660d0a"
+  ],
+  [
+   "fields numbers",
+   "|Integer 1|Currency 1.5|Integer -2|Double 100|Integer 16",
+   "a.txt=312c20312e352c2d322c31452b322c26483130"
+  ],
+  [
+   "fields written",
+   "|String a|Integer 1|Currency 1.5|Boolean True|Date 2020-01-02 00:00:00|Null|Empty|Error 5",
+   "a.txt=2261222c312c312e352c2354525545232c23323032302d30312d3032232c234e554c4c232c2c234552524f522035230d0a"
+  ],
+  [
+   "fields typed",
+   "|Long 1|Double 2.5|String a|String |Long 0",
+   "a.txt=312c322e352c612c2c0d0a"
+  ],
+  [
+   "fields typed bad",
+   "|Long 0|Long 1",
+   "a.txt=612c31"
+  ],
+  [
+   "fields overflow",
+   "[E6:Overflow]|Integer 0",
+   "a.txt=393939393939"
+  ],
+  [
+   "fields past end",
+   "[E62:Input past end of file]|String a|Empty[E62:Input past end of file]",
+   "a.txt=61"
+  ],
+  [
+   "fields blank lines",
+   "|Empty|Empty|String a|Boolean False",
+   "a.txt=0d0a0d0a612c0d0a0d0a62"
+  ],
+  [
+   "fields spaces",
+   "|String a b|String c",
+   "a.txt=2020612062202020202c2020632020"
+  ],
+  [
+   "fields after quote",
+   "|String a|String xc",
+   "a.txt=22612278632c64"
+  ],
+  [
+   "fields tab",
+   "|String a\\u005Cu0009b|String c",
+   "a.txt=6109622c63"
+  ],
+  [
+   "fields semicolon",
+   "|String a;b|String c",
+   "a.txt=613b622c63"
+  ],
+  [
+   "fields date text",
+   "|Integer 1|Date 2020-01-02 00:00:00",
+   "a.txt=312f322f323032302c23323032302d30312d3032230d0a"
+  ],
+  [
+   "fields date typed",
+   "[E6:Overflow]|Date 1899-12-30 00:00:00",
+   "a.txt=312f322f32303230"
+  ],
+  [
+   "fields boolean typed",
+   "[E6:Overflow]|Boolean False|Boolean True|Boolean False",
+   "a.txt=747275652c2354525545232c30"
+  ],
+  [
+   "fields widths",
+   "|Long 70000|Double 3000000000|Decimal 1.23456|Currency 1.23|Decimal 1.23455|Currency 0.5|Integer 10",
+   "a.txt=37303030302c333030303030303030302c312e32333435362c312e32332c312e32333435352c2e352c31302e30"
+  ],
+  [
+   "fields prefixes",
+   "|Integer 1|String -|Integer 1|Integer 1|String A2|String .",
+   "a.txt=316162632c2d2c2b312c31204132202c2e2c312e352e36"
+  ],
+  [
+   "fields words",
+   "|String True|String FALSE|String Null|String EMPTY|String #TRUE",
+   "a.txt=547275652c46414c53452c4e756c6c2c454d5054592c2354525545"
+  ],
+  [
+   "fields boolean number",
+   "[E6:Overflow]|Boolean False|Boolean False|Boolean False|Boolean False",
+   "a.txt=312c352c302c2d31"
+  ],
+  [
+   "fields date number",
+   "[E6:Overflow]|Date 1899-12-30 00:00:00|Date 1899-12-30 00:00:00|Date 1899-12-30 00:00:00|String ",
+   "a.txt=352c23313a3030232c232d33232c31"
+  ],
+  [
+   "fields typed marks",
+   "|String #NULL#|String #TRUE#|String #2020-01-02#|String #ERROR 5#|Double 0|Empty",
+   "a.txt=234e554c4c232c2354525545232c23323032302d30312d3032232c234552524f522035232c2c2c"
+  ],
+  [
+   "fields typed numbers",
+   "[E6:Overflow]|Integer 2|Single 1.5|Currency 1.5|Long 1000000|Byte 0",
+   "a.txt=312e352c312e352c312e352c313030303030302c3635353335"
+  ],
+  [
+   "fields into a cell",
+   "|Integer 1|Integer 2",
+   "a.txt=312c32"
+  ],
+  [
+   "kill",
+   "|Boolean True",
+   ""
+  ],
+  [
+   "kill missing",
+   "[E53:File not found]",
+   ""
+  ],
+  [
+   "kill pattern",
+   "|c.log",
+   "c.log=61"
+  ],
+  [
+   "kill question",
+   "",
+   "a10.txt=61"
+  ],
+  [
+   "kill no match",
+   "[E53:File not found]",
+   "a.txt=61"
+  ],
+  [
+   "kill open",
+   "[E55:File already open]",
+   "a.txt=61"
+  ],
+  [
+   "kill read only",
+   "[E75:Path/File access error]",
+   "a.txt=61"
+  ],
+  [
+   "kill folder",
+   "[E53:File not found]|d",
+   "d/"
+  ],
+  [
+   "kill empty",
+   "[E53:File not found]",
+   ""
+  ],
+  [
+   "mkdir",
+   "|Long 16|d",
+   "d/"
+  ],
+  [
+   "mkdir exists",
+   "[E75:Path/File access error]",
+   "d/"
+  ],
+  [
+   "mkdir nested",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "mkdir over file",
+   "[E75:Path/File access error]",
+   "a.txt=61"
+  ],
+  [
+   "mkdir empty",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "rmdir",
+   "|Boolean True",
+   ""
+  ],
+  [
+   "rmdir missing",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "rmdir full",
+   "[E75:Path/File access error][E75:Path/File access error]",
+   ""
+  ],
+  [
+   "rmdir file",
+   "[E76:Path not found]",
+   "a.txt=61"
+  ],
+  [
+   "rmdir empty",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "file copy",
+   "",
+   "a.txt=616263 b.txt=616263"
+  ],
+  [
+   "file copy missing",
+   "[E53:File not found]",
+   ""
+  ],
+  [
+   "file copy open",
+   "",
+   "a.txt=61 b.txt=61"
+  ],
+  [
+   "file copy open output",
+   "[E55:File already open]",
+   "a.txt="
+  ],
+  [
+   "file copy onto open",
+   "[E55:File already open]",
+   "a.txt=61 b.txt="
+  ],
+  [
+   "file copy pattern",
+   "[E52:Bad file name or number]",
+   "a.txt=61"
+  ],
+  [
+   "file copy no folder",
+   "[E76:Path not found]",
+   "a.txt=61"
+  ],
+  [
+   "name",
+   "|b.txt",
+   "b.txt=61"
+  ],
+  [
+   "name missing",
+   "[E53:File not found]",
+   ""
+  ],
+  [
+   "name exists",
+   "[E58:File already exists]",
+   "a.txt=61 b.txt=62"
+  ],
+  [
+   "name folder",
+   "|e",
+   "e/"
+  ],
+  [
+   "name move",
+   "|a.txt|",
+   "d/ d/a.txt=61"
+  ],
+  [
+   "name open",
+   "[E55:File already open]",
+   "a.txt=61"
+  ],
+  [
+   "name no folder",
+   "[E53:File not found]",
+   "a.txt=61"
+  ],
+  [
+   "file len",
+   "|Long 3|Long",
+   "a.txt=616263"
+  ],
+  [
+   "file len missing",
+   "[E53:File not found]",
+   ""
+  ],
+  [
+   "file len folder",
+   "|Long 0",
+   "d/"
+  ],
+  [
+   "file len open",
+   "|Long 0|Long 5",
+   "a.txt=6162630d0a"
+  ],
+  [
+   "file date",
+   "|Date|Boolean True",
+   "a.txt=61"
+  ],
+  [
+   "file date missing",
+   "[E53:File not found]",
+   ""
+  ],
+  [
+   "get attr",
+   "|Long 32|Long 16|Long[E53:File not found]",
+   "a.txt=61 d/"
+  ],
+  [
+   "set attr",
+   "|Long 1|Long 0|Long 32",
+   "a.txt=61"
+  ],
+  [
+   "set attr hidden",
+   "|Long 2||a.txt",
+   "a.txt=61"
+  ],
+  [
+   "set attr missing",
+   "[E53:File not found]",
+   ""
+  ],
+  [
+   "set attr bad",
+   "[E5:Invalid procedure call or argument]",
+   "a.txt=61"
+  ],
+  [
+   "set attr open",
+   "",
+   "a.txt=61"
+  ],
+  [
+   "dir walk",
+   "|a.txt|b.txt|C.txt[E5:Invalid procedure call or argument]",
+   "a.txt=61 b.txt=61 C.txt=61"
+  ],
+  [
+   "dir none left",
+   "|a.txt|[E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   "a.txt=61"
+  ],
+  [
+   "dir fresh",
+   "[E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "dir one",
+   "|a.txt|a.txt|",
+   "a.txt=61"
+  ],
+  [
+   "dir pattern",
+   "|a.txt||b.log||a.txt|ab.txt||a.txt",
+   "a.txt=61 ab.txt=61 b.log=61"
+  ],
+  [
+   "dir folders",
+   "|.|..|a.txt|d|a.txt|",
+   "a.txt=61 d/"
+  ],
+  [
+   "dir slash",
+   "[E75:Path/File access error]|a.txt||d|.",
+   "d/ d/a.txt=61"
+  ],
+  [
+   "dir no folder",
+   "||",
+   ""
+  ],
+  [
+   "dir empty",
+   "|String|Boolean True",
+   ""
+  ],
+  [
+   "dir attributes",
+   "|a.txt|a.txt|a.txt|a.txt|a.txt|[E5:Invalid procedure call or argument]",
+   "a.txt=61"
+  ],
+  [
+   "dir null",
+   "[E13:Type mismatch]",
+   ""
+  ],
+  [
+   "dir while kill",
+   "|a.txt|b.txt|c.txt",
+   "a.txt=61 c.txt=61"
+  ],
+  [
+   "dir type",
+   "|String",
+   ""
+  ],
+  [
+   "dir dollar",
+   "|a.txt|String",
+   "a.txt=61"
+  ],
+  [
+   "chdir",
+   "|Boolean True|Integer 0|b.txt|b.txt|Boolean True",
+   ""
+  ],
+  [
+   "chdir missing",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "chdir file",
+   "[E76:Path not found]",
+   "a.txt=61"
+  ],
+  [
+   "chdir empty",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "curdir",
+   "|String|String|String|Boolean True|Boolean True",
+   ""
+  ],
+  [
+   "curdir bad drive",
+   "[E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "environ",
+   "|String|Boolean True||String[E5:Invalid procedure call or argument]|Boolean True[E6:Overflow][E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "environ by number",
+   "|Boolean True",
+   ""
+  ]
+ ]
+}

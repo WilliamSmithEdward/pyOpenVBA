@@ -74,17 +74,6 @@ INTRINSICS: dict[str, Intrinsic] = {}
 
 #: The names VBA defines that this does not implement, and the reason.
 UNIMPLEMENTED: Final[dict[str, str]] = {
-    "dir": "reads the real file system",
-    "curdir": "reads the real file system",
-    "filelen": "reads the real file system",
-    "filedatetime": "reads the real file system",
-    "getattr": "reads the real file system",
-    "freefile": "opens real files",
-    "eof": "reads real files",
-    "lof": "reads real files",
-    "loc": "reads real files",
-    "seek": "reads real files",
-    "fileattr": "reads real files",
     "getsetting": "reads the Windows registry",
     "savesetting": "writes the Windows registry",
     "deletesetting": "writes the Windows registry",
@@ -99,7 +88,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "macid": "is a Mac file type",
     "imestatus": "reports the input method editor",
     "command": "reads the command line Office was started with",
-    "environ": "reads the machine's environment",
     "doevents": "yields to a message pump this does not have",
     "getobject": "attaches to a running application",
     "qbcolor": "is not implemented yet",
@@ -1511,6 +1499,71 @@ def vba_inputbox(
         to_text(title) if title is not MISSING else "",
         to_text(default) if default is not MISSING else "",
     )
+
+
+@intrinsic("Input", "Number", "FileNumber", minimum=2)
+def vba_input(interpreter: Interpreter, count: object, number: object) -> object:
+    return interpreter.files.read_chars(count, number)
+
+
+@intrinsic("EOF", "FileNumber", minimum=1)
+def vba_eof(interpreter: Interpreter, number: object) -> object:
+    return interpreter.files.is_at_end(number)
+
+
+@intrinsic("LOF", "FileNumber", minimum=1)
+def vba_lof(interpreter: Interpreter, number: object) -> object:
+    return VBAInt(interpreter.files.length(number), "Long")
+
+
+@intrinsic("Loc", "FileNumber", minimum=1)
+def vba_loc(interpreter: Interpreter, number: object) -> object:
+    return VBAInt(interpreter.files.location(number), "Long")
+
+
+@intrinsic("Seek", "FileNumber", minimum=1)
+def vba_seek(interpreter: Interpreter, number: object) -> object:
+    return VBAInt(interpreter.files.seek_read(number), "Long")
+
+
+@intrinsic("FreeFile", "RangeNumber")
+def vba_freefile(interpreter: Interpreter, number: object) -> object:
+    return VBAInt(interpreter.files.free_number(number), "Integer")
+
+
+@intrinsic("FileAttr", "FileNumber", "ReturnType", minimum=1)
+def vba_fileattr(interpreter: Interpreter, number: object, kind: object) -> object:
+    return VBAInt(interpreter.files.file_attribute(number, kind), "Long")
+
+
+@intrinsic("Dir", "PathName", "Attributes")
+def vba_dir(interpreter: Interpreter, path: object, bits: object) -> object:
+    return interpreter.files.next_in_listing(path, bits)
+
+
+@intrinsic("CurDir", "Drive")
+def vba_curdir(interpreter: Interpreter, drive: object) -> object:
+    return interpreter.files.current_folder(drive)
+
+
+@intrinsic("FileLen", "PathName", minimum=1)
+def vba_filelen(interpreter: Interpreter, path: object) -> object:
+    return VBAInt(interpreter.files.file_length(path), "Long")
+
+
+@intrinsic("FileDateTime", "PathName", minimum=1)
+def vba_filedatetime(interpreter: Interpreter, path: object) -> object:
+    return interpreter.files.file_time(path)
+
+
+@intrinsic("GetAttr", "PathName", minimum=1)
+def vba_getattr(interpreter: Interpreter, path: object) -> object:
+    return VBAInt(interpreter.files.get_attributes(path), "Long")
+
+
+@intrinsic("Environ", "Expression", minimum=1)
+def vba_environ(interpreter: Interpreter, value: object) -> object:
+    return interpreter.files.environment(value)
 
 
 @intrinsic("CreateObject", "Class", "ServerName", minimum=1)

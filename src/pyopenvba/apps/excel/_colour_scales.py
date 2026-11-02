@@ -392,7 +392,7 @@ class ColorScaleCriterion(ExcelObject):
 
     @member
     def FormatColor(self) -> object:
-        return FormatColor(self.owner, _scale(self.owner.rule)[1][self.index - 1])
+        return FormatColor(self.owner, _scale(self.owner.rule)[1][self.index - 1], parent=self)
 
 
 class FormatColor(ExcelObject):
@@ -400,8 +400,20 @@ class FormatColor(ExcelObject):
 
     vba_type_name = 'FormatColor'
 
-    def __init__(self, owner: RuleObject, element: XmlElement) -> None:
-        self.owner, self.element = owner, element
+    def __init__(self, owner: RuleObject, element: XmlElement, *, parent: ExcelObject | None = None) -> None:
+        self.owner, self.element, self.parent = owner, element, parent
+
+    @member
+    def Parent(self) -> object:
+        """The ColorScaleCriterion a colour scale's colour belongs to (tests/fixtures/core_reads.json); a data
+        bar's colours' parent is not measured."""
+        if self.parent is None:
+            raise VBAUnsupportedError("The Parent of a data bar's FormatColor is not implemented")
+        return self.parent
+
+    @member
+    def Application(self) -> object:
+        return self.owner.sheet.book.application
 
     def _color(self) -> styles.Color:
         found = read_color(self.element)

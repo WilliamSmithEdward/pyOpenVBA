@@ -23,14 +23,14 @@ Application,_Default,"property, read-only",As String,,PARTIAL,tests/fixtures/hid
 Application,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Answers as Evaluate does.
 Application,_Run2,method,"_Run2([Macro As Variant], [Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,MISSING,,
 Application,ActivateMicrosoftApp,method,ActivateMicrosoftApp(Index As XlMSApplication),,MISSING,,
-Application,ActiveCell,"property, read-only",As Range,,UNASSESSED,,
+Application,ActiveCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,ActiveChart,"property, read-only",As Chart,,MISSING,,
 Application,ActiveEncryptionSession,"property, read-only",As Long,,MISSING,,
 Application,ActivePrinter,property,As String,,MISSING,,
 Application,ActiveProtectedViewWindow,"property, read-only",As ProtectedViewWindow,,MISSING,,
-Application,ActiveSheet,"property, read-only",As Object,,UNASSESSED,,
+Application,ActiveSheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,ActiveWindow,"property, read-only",As Window,,VERIFIED,tests/fixtures/windows/windows.json,
-Application,ActiveWorkbook,"property, read-only",As Workbook,,UNASSESSED,,
+Application,ActiveWorkbook,"property, read-only",As Workbook,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,AddCustomList,method,"AddCustomList(ListArray As Variant, [ByRow As Variant])",,PARTIAL,tests/fixtures/custom_lists.json; tests/test_excel_custom_lists.py,"An array's text as given, numbers left out; a range's lines by ByRow, else along its longer side, blanks left out; no text is error 1004; a list there already, case aside, is skipped from an array and error 1004 from a range. AutoFill steps along the lists and Range.Sort's OrderCustom orders by them. A range's numbers are left out too, and a logical value or an error reports itself unsupported."
 Application,AddIns,"property, read-only",As AddIns,,MISSING,,
 Application,AddIns2,"property, read-only",As AddIns2,,MISSING,,
@@ -38,7 +38,7 @@ Application,AfterCalculate,event,AfterCalculate(),,MISSING,,
 Application,AlertBeforeOverwriting,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,AltStartupPath,property,As String,,MISSING,,
 Application,AlwaysUseClearType,property,As Boolean,,MISSING,,
-Application,Application,"property, read-only",As Application,,UNASSESSED,,
+Application,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,ArbitraryXMLSupportAvailable,"property, read-only",As Boolean,,MISSING,,
 Application,AskToUpdateLinks,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
 Application,Assistance,"property, read-only",As IAssistance,,MISSING,,
@@ -62,7 +62,7 @@ Application,CanPlaySounds,"property, read-only",As Boolean,,MISSING,,
 Application,CanRecordSounds,"property, read-only",As Boolean,,MISSING,,
 Application,Caption,property,As String,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads after the active window's caption and a dash, kept to 200 characters, an empty one Excel's own, over 11 live settings"
 Application,CellDragAndDrop,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; it changes nothing the model does"
-Application,Cells,"property, read-only",As Range,,UNASSESSED,,
+Application,Cells,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"The active sheet's cells; Cells.Count overflows a Long, error 6, as in Excel."
 Application,CentimetersToPoints,method,CentimetersToPoints(Centimeters As Double) As Double,,VERIFIED,tests/fixtures/application_members.json,"Centimeters * (72 / 2.54), the factor a Double first, to the bit over 32 values; text that is no number is error 13."
 Application,ChartDataPointTrack,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
 Application,Charts,"property, read-only",As Sheets,,MISSING,,
@@ -70,7 +70,7 @@ Application,CheckAbort,method,CheckAbort([KeepAbort As Variant]),,MISSING,,
 Application,CheckSpelling,method,"CheckSpelling(Word As String, [CustomDictionary As Variant], [IgnoreUppercase As Variant]) As Boolean",,MISSING,,
 Application,ClipboardFormats,"property, read-only",As Variant,,MISSING,,
 Application,ClusterConnector,property,As String,,MISSING,,
-Application,Columns,"property, read-only",As Range,,UNASSESSED,,
+Application,Columns,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,COMAddIns,"property, read-only",As COMAddIns,,MISSING,,
 Application,CommandBars,"property, read-only",As CommandBars,,MISSING,,
 Application,CommandUnderlines,property,As XlCommandUnderlines,,MISSING,,
@@ -190,7 +190,7 @@ Application,MoveAfterReturn,property,As Boolean,,PARTIAL,tests/fixtures/applicat
 Application,MoveAfterReturnDirection,property,As XlDirection,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"The four directions read back, 1 to 4 as down, right, up and left, any other number as set and 65536 more where it is not positive, over 36 live settings"
 Application,MultiThreadedCalculation,"property, read-only",As MultiThreadedCalculation,,MISSING,,
 Application,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Application,Names,"property, read-only",As Names,,UNASSESSED,,
+Application,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,NetworkTemplatesPath,"property, read-only",As String,,MISSING,,
 Application,NewWorkbook,event,NewWorkbook(Wb As Workbook),,MISSING,,
 Application,NextLetter,method,NextLetter() As Workbook,,MISSING,,
@@ -204,7 +204,7 @@ Application,OnUndo,method,"OnUndo(Text As String, Procedure As String)",,MISSING
 Application,OnWindow,property,As String,,MISSING,,
 Application,OperatingSystem,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,"Windows (64-bit) NT 10.00, as Excel answers on 64-bit Windows 10 and 11."
 Application,OrganizationName,"property, read-only",As String,,MISSING,,
-Application,Parent,"property, read-only",As Application,,UNASSESSED,,
+Application,Parent,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,Path,"property, read-only",As String,,UNASSESSED,,
 Application,PathSeparator,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,"\, as Excel on Windows answers."
 Application,PivotTableSelection,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads True as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
@@ -232,11 +232,11 @@ Application,RegisterXLL,method,RegisterXLL(Filename As String) As Boolean,,MISSI
 Application,Repeat,method,Repeat(),,MISSING,,
 Application,ReplaceFormat,property,As CellFormat,no setter,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,A new CellFormat each read over the one format the session keeps; Range.Replace puts it in with ReplaceFormat.
 Application,RollZoom,property,As Boolean,,PARTIAL,tests/test_excel_application_settings.py; tests/fixtures/application_settings.json,"Reads False as the measuring Excel had it and back what a macro sets: any value VBA makes a Boolean, Empty as False; Null and other text leave it, with no error."
-Application,Rows,"property, read-only",As Range,,UNASSESSED,,
+Application,Rows,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,RTD,"property, read-only",As RTD,,MISSING,,
 Application,Run,method,"Run([Macro As Variant], [Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,PARTIAL,tests/fixtures/excel_projects.json; tests/test_excel_projects.py,"21 native probes for caller/qualified lookup, contexts, private/class/document invocation and Err; external paths, project references/types and further argument/signature conformance remain gaps"
 Application,ScreenUpdating,property,As Boolean,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Application,Selection,"property, read-only",As Object,,UNASSESSED,,
+Application,Selection,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,SendKeys,method,"SendKeys(Keys As Variant, [Wait As Variant])",,MISSING,,
 Application,SensitivityLabelPolicy,"property, read-only",As SensitivityLabelPolicy,,MISSING,,
 Application,SharePointVersion,method,SharePointVersion(bstrUrl As String) As Long,,MISSING,,
@@ -254,7 +254,7 @@ Application,SheetPivotTableBeforeAllocateChanges,event,"SheetPivotTableBeforeAll
 Application,SheetPivotTableBeforeCommitChanges,event,"SheetPivotTableBeforeCommitChanges(Sh As Object, TargetPivotTable As PivotTable, ValueChangeStart As Long, ValueChangeEnd As Long, Cancel As Boolean)",,MISSING,,
 Application,SheetPivotTableBeforeDiscardChanges,event,"SheetPivotTableBeforeDiscardChanges(Sh As Object, TargetPivotTable As PivotTable, ValueChangeStart As Long, ValueChangeEnd As Long)",,MISSING,,
 Application,SheetPivotTableUpdate,event,"SheetPivotTableUpdate(Sh As Object, Target As PivotTable)",,PARTIAL,tests/fixtures/pivot_refresh/events_save.json,"Raised after a PivotTable is refreshed or changed. Raised after the sheet's own, the sheet first among the arguments."
-Application,Sheets,"property, read-only",As Sheets,,UNASSESSED,,
+Application,Sheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,SheetSelectionChange,event,"SheetSelectionChange(Sh As Object, Target As Range)",,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised by a Select that moves the selection. Raised after the sheet's own, the sheet first among the arguments."
 Application,SheetsInNewWorkbook,property,As Long,,VERIFIED,tests/fixtures/application_members.json,"1 to 255, rounded as a Long rounds, error 1004 past them and 13 for text; Workbooks.Add with no template makes that many sheets, Sheet1 on."
 Application,SheetTableUpdate,event,"SheetTableUpdate(Sh As Object, Target As TableObject)",,MISSING,,
@@ -296,7 +296,7 @@ Application,UserName,property,As String,,UNASSESSED,,
 Application,UseSystemSeparators,property,As Boolean,,PARTIAL,tests/test_excel_international.py; tests/fixtures/international.json,"Reads True; turning it off changes nothing shown, since the custom separators are the system's."
 Application,Value,"property, read-only",As String,,VERIFIED,tests/fixtures/application_members.json,Microsoft Excel.
 Application,VBE,"property, read-only",As VBE,,MISSING,,
-Application,Version,"property, read-only",As String,,UNASSESSED,,
+Application,Version,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Application,Visible,property,As Boolean,,UNASSESSED,,
 Application,Volatile,method,Volatile([Volatile As Variant]),,PARTIAL,tests/fixtures/excel_udf_volatility.json,Native UDF registration and opt-out; cached reads and calculation scopes; wider lifetime and scheduling remain incomplete
 Application,Wait,method,Wait(Time As Variant) As Boolean,,PARTIAL,tests/test_excel_save_copy_as.py,"Returns True at once; a frozen clock (freeze_clock) moves on to Time, the real clock is not waited on"
@@ -333,13 +333,13 @@ Application,WorkbookRowsetComplete,event,"WorkbookRowsetComplete(Wb As Workbook,
 Application,Workbooks,"property, read-only",As Workbooks,,UNASSESSED,,
 Application,WorkbookSync,event,"WorkbookSync(Wb As Workbook, SyncEventType As MsoSyncEventType)",,MISSING,,
 Application,WorksheetFunction,"property, read-only",As WorksheetFunction,,PARTIAL,tests/fixtures/excel_model/probes.txt,
-Application,Worksheets,"property, read-only",As Sheets,,UNASSESSED,,
+Application,Worksheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Areas,_Default,"property, read-only",As Range,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,Item.
 Areas,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Areas,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
-Areas,Count,"property, read-only",As Long,,UNASSESSED,,
+Areas,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Areas,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Areas,Item,"property, read-only",As Range,,UNASSESSED,,
+Areas,Item,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Areas,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The range of every area.
 AutoFilter,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 AutoFilter,ApplyFilter,method,ApplyFilter(),,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_autofilter_wildcards.py; tests/fixtures/table_autofilter/table_autofilter.json,"Filters again, taking in the rows of data that have grown on below the range. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts. Wildcard matching uses bounded state transitions while preserving prior literal, tilde, Unicode case, newline and type-admission behavior; no new criterion-length cap."
@@ -437,25 +437,25 @@ AxisTitle,Text,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Measu
 AxisTitle,Top,property,As Double,,MISSING,,
 AxisTitle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"Excel accepts a set and keeps the title centred, so it reads xlCenter and writes nothing."
 AxisTitle,Width,"property, read-only",As Double,,MISSING,,
-Border,Application,"property, read-only",As Application,,UNASSESSED,,
+Border,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Border,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."
 Border,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,ColorIndex 0 is unmeasured and raises 9. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
 Border,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Border,LineStyle,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
-Border,Parent,"property, read-only",As Object,,UNASSESSED,,
+Border,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Border,ThemeColor,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."
 Border,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,A tint on an RGB border colour is unmeasured. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
 Border,Weight,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,Weights other than 1 to 4 and xlMedium are unmeasured and raise 1004.
 Borders,_Default,"property, read-only",As Border,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,Item.
 Borders,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Borders,Application,"property, read-only",As Application,,UNASSESSED,,
+Borders,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Borders,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py," Verification covers ordinary cell borders; conditional border getters have native context controls, while their theme/tint setters and imported style-transition fidelity remain partial."
 Borders,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,Reads over edges of different colours are unmeasured. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
 Borders,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
 Borders,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Borders,Item,"property, read-only",As Border,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
 Borders,LineStyle,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
-Borders,Parent,"property, read-only",As Object,,UNASSESSED,,
+Borders,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Borders,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,Reads over edges of different colours are unmeasured. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
 Borders,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py; tests/test_excel_conditional_border_context.py,Reads over edges of different colours are unmeasured. Conditional border context and implicit thin-line writes have native controls; theme/tint setters and imported style-transition fidelity remain partial.
 Borders,Value,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/fixtures/format/border_storage.json; tests/test_live_excel_model_gate.py,
@@ -738,11 +738,11 @@ ColorScale,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sm
 ColorScale,Delete,method,Delete(),,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
 ColorScale,Formula,property,As String,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 ColorScale,ModifyAppliesToRange,method,ModifyAppliesToRange(Range As Range),,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,The scale then colours the new range by its own numbers.
-ColorScale,Parent,"property, read-only",As Object,,UNASSESSED,,
+ColorScale,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 ColorScale,Priority,property,As Long,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"As every rule's: a scale is a fill at its priority, so a higher rule's fill shows over it."
 ColorScale,PTCondition,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,"False: the model's rules are a range's, none a pivot table's."
 ColorScale,ScopeType,property,As XlPivotConditionScope,no setter,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-ColorScale,SetFirstPriority,method,SetFirstPriority(),,UNASSESSED,,
+ColorScale,SetFirstPriority,method,SetFirstPriority(),,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"Makes the rule first, its Priority 1, the other rules after it."
 ColorScale,SetLastPriority,method,SetLastPriority(),,UNASSESSED,,
 ColorScale,StopIfTrue,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,Reads False; setting it is error 450.
 ColorScale,Type,"property, read-only",As Long,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,3.
@@ -773,7 +773,7 @@ ColorStops,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/interior_
 ColorStops,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,xlCreatorCode.
 ColorStops,Item,method,Item(Index As Variant) As ColorStop,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"By number, in the order of their positions."
 ColorStops,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,The gradient.
-Comment,Application,"property, read-only",As Application,,UNASSESSED,,
+Comment,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Comment,Author,"property, read-only",As String,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,The application's user name when the note was made.
 Comment,Creator,"property, read-only",As XlCreator,,VERIFIED,tests/fixtures/excel_model/probes.txt,
 Comment,Delete,method,Delete(),,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,Its shape's id and name are not given again.
@@ -785,11 +785,11 @@ Comment,Text,method,"Text([Text As Variant], [Start As Variant], [Overwrite As V
 Comment,Visible,property,As Boolean,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,
 Comments,_Default,"property, read-only",As Comment,,PARTIAL,tests/fixtures/hidden_defaults_more.json; tests/test_excel_hidden_defaults_more.py,"Item, bound early; 1004 out of range. Bound late Excel raises 438, which the model does not tell apart."
 Comments,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
-Comments,Application,"property, read-only",As Application,,UNASSESSED,,
+Comments,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Comments,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/excel_model/probes.txt,
 Comments,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Comments,Item,method,Item(Index As Long) As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt,Row by row; 0 is error 9 and past the last error 1004.
-Comments,Parent,"property, read-only",As Object,,UNASSESSED,,
+Comments,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 ConditionValue,Application,"property, read-only",As Application,,MISSING,,
 ConditionValue,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ConditionValue,Modify,method,"Modify(newtype As XlConditionValueTypes, [newvalue As Variant])",,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -952,7 +952,7 @@ Filters,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.j
 Filters,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Filters,Item,"property, read-only",As Filter,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py,
 Filters,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The AutoFilter.
-Font,Application,"property, read-only",As Application,,UNASSESSED,,
+Font,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Font,Background,property,As Variant,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,"A chart text's: on cells Null, and a set is passed over."
 Font,Bold,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Color,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
@@ -961,7 +961,7 @@ Font,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_me
 Font,FontStyle,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Italic,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Name,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,The family a new font is written with is Excel's for common fonts and the replaced font's otherwise.
-Font,Parent,"property, read-only",As Object,,UNASSESSED,,
+Font,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Font,Size,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofit_sizes.json; tests/fixtures/general_widening.json,"Setting it widens a column wherever AutoFit would make it wider for a number not in General, as a number format does, even to the size it had; bold widens nothing. A number General shows widens its column too, to a width the model does not work out yet, and is left."
 Font,Strikethrough,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Subscript,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
@@ -970,11 +970,11 @@ Font,ThemeColor,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; 
 Font,ThemeFont,property,As XlThemeFont,,PARTIAL,tests/fixtures/cell_styles/style_changes.json,Read; setting it on a range reports unsupported.
 Font,TintAndShade,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Font,Underline,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,"Values other than the five styles, True, False and 3 report unsupported."
-FormatColor,Application,"property, read-only",As Application,,UNASSESSED,,
+FormatColor,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 FormatColor,Color,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"The colour as it shows, a theme colour with its tint worked out."
-FormatColor,ColorIndex,property,As XlColorIndex,,MISSING,,
+FormatColor,ColorIndex,property,As XlColorIndex,no setter,UNASSESSED,,
 FormatColor,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-FormatColor,Parent,"property, read-only",As Object,,UNASSESSED,,
+FormatColor,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,A colour scale criterion's colour reads its ColorScaleCriterion; a data bar's is not implemented.
 FormatColor,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,0 for an RGB colour.
 FormatColor,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"Kept in 32767ths, as Excel keeps it."
 FormatCondition,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
@@ -1117,13 +1117,13 @@ IconSets,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_bars_i
 IconSets,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 IconSets,Item,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 IconSets,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
-Interior,Application,"property, read-only",As Application,,UNASSESSED,,
+Interior,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Interior,Color,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,ColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Interior,Gradient,"property, read-only",As Object,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,"The range's LinearGradient or RectangularGradient, Nothing for any other fill; Pattern xlPatternLinearGradient or xlPatternRectangularGradient makes one, Dark 1 to Accent 1, and a colour or pattern given to it takes its place. Its Interior reads black, automatic, no theme colour, except that Excel keeps a colour given before the gradient in ColorIndex, which the model does not. Saved as styles.xml's gradientFill as Excel writes it."
 Interior,InvertIfNegative,property,As Variant,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,"A chart series' fill's: on cells error 1004, read or set."
-Interior,Parent,"property, read-only",As Object,,UNASSESSED,,
+Interior,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Interior,Pattern,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,PatternColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,PatternColorIndex,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
@@ -1131,9 +1131,9 @@ Interior,PatternThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_for
 Interior,PatternTintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic pattern colour or an unfilled cell reports unsupported.
 Interior,ThemeColor,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported.
 Interior,TintAndShade,property,As Variant,,PARTIAL,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,A gradient fill reports unsupported. A tint on an automatic colour reports unsupported.
-Legend,Application,"property, read-only",As Application,,UNASSESSED,,
+Legend,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Legend,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"Takes the legend away, as Delete does."
-Legend,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+Legend,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Legend,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"As HasLegend = False, which resets the legend."
 Legend,Format,"property, read-only",As ChartFormat,,MISSING,,
 Legend,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
@@ -1142,7 +1142,7 @@ Legend,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.
 Legend,Left,property,As Double,,MISSING,,
 Legend,LegendEntries,method,LegendEntries([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"The entries still shown, or one by index; out of range raises -2147467259."
 Legend,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,"Reads ""Legend""."
-Legend,Parent,"property, read-only",As Object,,UNASSESSED,,
+Legend,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Legend,Position,property,As XlLegendPosition,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"Written as legendPos: b, t, l, r, tr. xlLegendPositionCustom and other numbers raise -2147467259, as in Excel."
 Legend,Select,method,Select() As Variant,,MISSING,,
 Legend,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
@@ -1223,10 +1223,10 @@ ListObject,SharePointURL,"property, read-only",As String,,PARTIAL,tests/fixtures
 ListObject,ShowAutoFilter,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json; tests/fixtures/table_autofilter/table_autofilter.json,"Read and set, saved as Excel saves it. Turning it off takes the filter's criteria away and shows its rows."
 ListObject,ShowAutoFilterDropDown,property,As Boolean,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,"False with no filter, where setting True is error 1004; False saves hiddenButton on every filterColumn, criteria kept, and is read back; turning the filter on again shows the buttons."
 ListObject,ShowHeaders,property,As Boolean,,PARTIAL,tests/fixtures/tables/tables.json,Read; showing or hiding the header row reports itself.
-ListObject,ShowTableStyleColumnStripes,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
-ListObject,ShowTableStyleFirstColumn,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
-ListObject,ShowTableStyleLastColumn,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
-ListObject,ShowTableStyleRowStripes,property,As Boolean,,UNASSESSED,tests/fixtures/tables/tables.json,"Read and set, saved as Excel saves it."
+ListObject,ShowTableStyleColumnStripes,property,As Boolean,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+ListObject,ShowTableStyleFirstColumn,property,As Boolean,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+ListObject,ShowTableStyleLastColumn,property,As Boolean,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+ListObject,ShowTableStyleRowStripes,property,As Boolean,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 ListObject,ShowTotals,property,As Boolean,,VERIFIED,tests/fixtures/tables/tables.json; tests/fixtures/tables/totals_row/totals_row.json,"Showing the row puts cells in under the table, those below moving down; the first time, the first column says Total and the last adds up, or counts when not all numbers; hiding deletes the cells and keeps what each column totals."
 ListObject,Slicers,"property, read-only",As Slicers,,PARTIAL,tests/fixtures/table_members.json; tests/test_excel_table_members.py,An empty Slicers collection; slicers are not modelled.
 ListObject,Sort,"property, read-only",As Sort,,PARTIAL,tests/test_excel_table_sort.py; tests/test_excel_table_sort_core.py; tests/fixtures/table_sort/,"Measured ordinary local table Sort with shared options/fields and fresh Sort views. Stable whole-data-row Apply excludes headers/totals; preserves row formulas/styles; stages moved formulas and metadata. Complex filters, unions, custom/stroke/rich sorts and configured structural changes remain unsupported."
@@ -1270,13 +1270,13 @@ Name,Delete,method,Delete(),,PARTIAL,tests/fixtures/names_crud.json,
 Name,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"Its place among the workbook's names in their order, read through a sheet's Names too."
 Name,MacroType,property,As XlXLMMacroType,,PARTIAL,tests/fixtures/name_macro.json; tests/test_excel_name_macro.py,"xlFunction or xlCommand once set, xlNone (-4142) for an ordinary name; xlNotXLM and other values give 1004. Excel leaves such names out of a workbook saved without macros."
 Name,Name,property,As String,,PARTIAL,tests/fixtures/names_crud.json; tests/test_excel_worksheet_rename.py; tests/fixtures/worksheet_rename," Ordinary names follow admitted Worksheet.Name changes with local scope, held identity, comment/visibility and RefersTo retained; native ordering clarifiers cover local/global enumeration. Broader Name.Add scope and mixed-feature behavior remain partial."
-Name,NameLocal,property,As String,,UNASSESSED,,
+Name,NameLocal,property,As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Name,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_names_add.py; tests/fixtures/names_add; scripts/measure_names_add.py,"The workbook, or the sheet of a sheet's own name."
 Name,RefersTo,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json; tests/test_excel_worksheet_rename.py; tests/fixtures/worksheet_rename," Ordinary names follow admitted Worksheet.Name changes with local scope, held identity, comment/visibility and RefersTo retained; native ordering clarifiers cover local/global enumeration. Broader Name.Add scope and mixed-feature behavior remain partial."
-Name,RefersToLocal,property,As Variant,,UNASSESSED,,
+Name,RefersToLocal,property,As Variant,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Name,RefersToR1C1,property,As Variant,,PARTIAL,tests/fixtures/names_crud.json,
-Name,RefersToR1C1Local,property,As Variant,,UNASSESSED,,
-Name,RefersToRange,"property, read-only",As Range,,UNASSESSED,,
+Name,RefersToR1C1Local,property,As Variant,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+Name,RefersToRange,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Name,ShortcutKey,property,As String,,PARTIAL,tests/fixtures/name_macro.json; tests/test_excel_name_macro.py,"A macro name's key, the first letter given; """" takes it away, a digit gives 1004, as does an ordinary name. Commands save it as shortcutKey."
 Name,ValidWorkbookParameter,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/name_macro.json; tests/test_excel_name_macro.py,"True for a workbook's own name for one $A$1 cell once the workbook has been saved, False otherwise and for a macro name."
 Name,Value,property,As String,,PARTIAL,tests/fixtures/names_crud.json,
@@ -1791,7 +1791,7 @@ Queries,_Default,"property, read-only",As WorkbookQuery,,MISSING,,
 Queries,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Queries,Add,method,"Add(Name As String, Formula As String, [Description As Variant]) As WorkbookQuery",,UNASSESSED,,
 Queries,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/collection_members.json; tests/test_excel_collection_members.py,The application.
-Queries,Count,"property, read-only",As Long,,UNASSESSED,,
+Queries,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Queries,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Queries,FastCombine,property,As Boolean,,MISSING,,
 Queries,Item,method,Item(NameOrIndex As Variant) As WorkbookQuery,no NameOrIndex,UNASSESSED,,
@@ -1807,7 +1807,7 @@ Range,AddressLocal,"property, read-only",As String,,PARTIAL,tests/fixtures/excel
 Range,AdvancedFilter,method,"AdvancedFilter(Action As XlFilterAction, [CriteriaRange As Variant], [CopyToRange As Variant], [Unique As Variant]) As Variant",,PARTIAL,tests/test_excel_advanced_filter.py; tests/fixtures/advanced_filter/native.json; tests/fixtures/excel_everyday_2.json; tests/fixtures/advanced_filter_text.json,"Native controls cover one local rectangular list, in-place or extracted results, matched-header AND/OR criteria, repeated criterion headers, projected/reordered columns, typed Unique keys, evaluated constants and styles, visibility, built-in names and save/reopen. UDF calls return False without changes. Deleting the owner removes its local filter names without globalizing them, also after ShowAllData and native input import. Renaming stages all five supported filter/print reserved names atomically; quoted-name native persistence controls cover retained state. Worksheet.Copy refuses inactive AdvancedFilter-owned metadata. Text criteria match as Excel's do beyond ASCII too: an = by Windows' word sort, case aside, > and < in word sort's order, a wildcard pattern one character at a time by each one's key, and a plain criterion a beginning, by as many of the text's first characters as it has (tests/fixtures/advanced_filter_text.json). Formula criteria, unsafe overlaps, protected extraction partial writes, headers and Unique records beyond ASCII, complex cell features, state migration and broader coercion cases remain unsupported. Automatic/manual visibility-dependent calculation has separate hash-checked native projections omitting unsupported CalculationState. Criteria/work limits are implementation bounds, not native limits. Extracting to a single blank cell copies every column, the Extract name spanning its header row; a blank row of extract headers is error 1004."
 Range,AllocateChanges,method,AllocateChanges(),,MISSING,,
 Range,AllowEdit,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/range_small_members.json; tests/test_excel_range_small_members.py,"False where the sheet's contents are protected, for the user alone too, and any cell is locked; True otherwise. Ranges a protected sheet lets users edit are not modelled."
-Range,Application,"property, read-only",As Application,,UNASSESSED,,
+Range,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Range,ApplyNames,method,"ApplyNames([Names As Variant], [IgnoreRelativeAbsolute As Variant], [UseRowColumnNames As Variant], [OmitColumn As Variant], [OmitRow As Variant], [Order As XlApplyNamesOrder], [AppendLast As Variant]) As Variant",,PARTIAL,tests/fixtures/apply_names.json,"Turns the references in the formulas of the range, or of the whole sheet when it is one cell, into the workbook and sheet names that refer to the same cells, as Excel does: Names:= picks names, IgnoreRelativeAbsolute:=False replaces fully absolute references only, A1:A1 becomes @name. A cell where a column name and a row name cross stays a reference, as live. Two names for the same cells and a formula that is only a range report unsupported; OmitColumn, OmitRow, Order and AppendLast change nothing measured."
 Range,ApplyOutlineStyles,method,ApplyOutlineStyles() As Variant,,PARTIAL,tests/fixtures/outline_styles.json; tests/test_excel_outline_styles.py,"Gives each summary row RowLevel_n and each summary column ColLevel_n (n its own outline level) within the range, making the styles in level order: level 1 bold, 2 italic, 3 to 7 the Normal font. Answers True."
 Range,Areas,"property, read-only",As Areas,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -1924,7 +1924,7 @@ Range,Offset,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/
 Range,Orientation,property,As Variant,,VERIFIED,tests/fixtures/range_format.json; tests/fixtures/format/formats_answers.json; tests/test_live_excel_model_gate.py,
 Range,OutlineLevel,property,As Variant,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Range,PageBreak,property,As Long,,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,"Read on whole rows or columns as Rows and Columns make them, error 1004 elsewhere. Set xlPageBreakManual or xlPageBreakNone on a row's, a column's or a cell's row and column but the first; anything else is error 1004. Breaks move with rows and columns put in and go with the line after them."
-Range,Parent,"property, read-only",As Object,,UNASSESSED,,
+Range,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Range,Parse,method,"Parse([ParseLine As Variant], [Destination As Variant]) As Variant",,PARTIAL,tests/fixtures/range_text_helpers.json; tests/test_excel_range_text_helpers.py,"ParseLine's brackets mark fixed-width fields, cut and typed as TextToColumns types them, the rest skipped; numbers unchanged; Destination keeps the source; no brackets changes nothing; more than one column error 1004."
 Range,PastePictureInCell,method,PastePictureInCell(),,MISSING,,
 Range,PasteSpecial,method,"PasteSpecial([Paste As XlPasteType], [Operation As XlPasteSpecialOperation], [SkipBlanks As Variant], [Transpose As Variant]) As Variant",,PARTIAL,tests/fixtures/paste.json; tests/fixtures/autofilter_edits.json; tests/fixtures/excel_model/probes.txt; tests/fixtures/cse_array_edits.json; tests/test_excel_conditional_transfer_core.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_multiple.py; tests/test_excel_conditional_transfer_groups.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Everything, values, formulas, formats, number formats, all but borders and column widths, with operations, skipped blanks and transposing; comments paste the notes alone, which everything takes along too; validation reports itself unsupported. A copy of several areas pastes closed up, each formula moved as far as its own cell; a filtered destination takes the paste whole. Measured disjoint rectangular same-workbook conditional copies/pastes admit ordinary/statistical/predicate rules with distinct validated fresh or loaded group identities, preserving clipped populations, independent styles, destination subtraction and priority gaps; unsupported overlaps, tiling, transposition, shared-group or ambiguous loaded sources, ambiguous copied-sheet identities and affected mixed-feature combinations fail before mutation. Native loaded-copy controls preserve complete population ordering and generic source API projection; shared-group transfers remain unsupported."
@@ -1956,7 +1956,7 @@ Range,RowHeight,property,As Variant,,PARTIAL,tests/fixtures/dimensions.json; tes
 Range,Rows,"property, read-only",As Range,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/range_lines.json,"The same cells as a range of rows, as Columns is a range of columns: Count, an index and For Each go by rows, AutoFit and Hidden take the rows."
 Range,Run,method,"Run([Arg1 As Variant], [Arg2 As Variant], [Arg3 As Variant], [Arg4 As Variant], [Arg5 As Variant], [Arg6 As Variant], [Arg7 As Variant], [Arg8 As Variant], [Arg9 As Variant], [Arg10 As Variant], [Arg11 As Variant], [Arg12 As Variant], [Arg13 As Variant], [Arg14 As Variant], [Arg15 As Variant], [Arg16 As Variant], [Arg17 As Variant], [Arg18 As Variant], [Arg19 As Variant], [Arg20 As Variant], [Arg21 As Variant], [Arg22 As Variant], [Arg23 As Variant], [Arg24 As Variant], [Arg25 As Variant], [Arg26 As Variant], [Arg27 As Variant], [Arg28 As Variant], [Arg29 As Variant], [Arg30 As Variant]) As Variant",,MISSING,,
 Range,SavedAsArray,"property, read-only",As Variant,,PARTIAL,tests/fixtures/range_small_reads.json; tests/test_excel_range_small_reads.py,"True for a cell of an array entered with Ctrl+Shift+Enter or of a spill, else False; several cells meeting an array are unsupported."
-Range,Select,method,Select() As Variant,,UNASSESSED,,
+Range,Select,method,Select() As Variant,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Range,ServerActions,"property, read-only",As Actions,,PARTIAL,tests/fixtures/range_small_reads.json; tests/test_excel_range_small_reads.py,Error 1004.
 Range,SetCellDataTypeFromCell,method,SetCellDataTypeFromCell(SourceCell As Range),,MISSING,,
 Range,SetPhonetic,method,SetPhonetic(),,MISSING,,
@@ -2111,7 +2111,7 @@ Shape,BackgroundStyle,property,As MsoBackgroundStyleIndex,,MISSING,,
 Shape,BlackWhiteMode,property,As MsoBlackWhiteMode,,MISSING,,
 Shape,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"The cell under the shape's bottom right corner; after a shape that sizes with its cells has moved with them, the cell it is anchored to."
 Shape,Callout,"property, read-only",As CalloutFormat,,MISSING,,
-Shape,Chart,"property, read-only",As Chart,,UNASSESSED,,
+Shape,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"A shape with no chart raises -2147024809, as in Excel."
 Shape,Child,"property, read-only",As MsoTriState,,MISSING,,
 Shape,ConnectionSiteCount,"property, read-only",As Long,,MISSING,,
 Shape,Connector,"property, read-only",As MsoTriState,,MISSING,,
@@ -2131,7 +2131,7 @@ Shape,FormControlType,"property, read-only",As XlFormControl,,MISSING,,
 Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
 Shape,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
 Shape,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,The group's members by number or name; a shape that is no group raises 1004.
-Shape,HasChart,"property, read-only",As MsoTriState,,UNASSESSED,,
+Shape,HasChart,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Shape,HasSmartArt,"property, read-only",As MsoTriState,,MISSING,,
 Shape,Height,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,HorizontalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/shape_flip_order.json; tests/test_excel_shape_flip_order.py,msoTrue while flipH is set.
@@ -2169,7 +2169,7 @@ Shape,SmartArt,"property, read-only",As SmartArt,,MISSING,,
 Shape,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
 Shape,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
 Shape,TextFrame,"property, read-only",As TextFrame,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,TextFrame2,"property, read-only",As TextFrame2,,UNASSESSED,,
+Shape,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Shape,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
 Shape,Title,property,As String,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"Written as cNvPr title, on new and loaded shapes; empty removes it."
 Shape,Top,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
@@ -2212,12 +2212,12 @@ ShapeRange,Group,method,Group() As Shape,,PARTIAL,tests/fixtures/shape_group.jso
 ShapeRange,GroupItems,"property, read-only",As GroupShapes,,MISSING,,
 ShapeRange,HasChart,"property, read-only",As MsoTriState,,MISSING,,
 ShapeRange,Height,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set sizes every shape."
-ShapeRange,HorizontalFlip,"property, read-only",As MsoTriState,,UNASSESSED,,
+ShapeRange,HorizontalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 ShapeRange,ID,"property, read-only",As Long,,MISSING,,
 ShapeRange,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape moved on its own, each stopping at the sheet's edge."
 ShapeRange,IncrementRotation,method,IncrementRotation(Increment As Single),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape turned on its own, landing inside 0 to 360."
 ShapeRange,IncrementTop,method,IncrementTop(Increment As Single),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape moved on its own, each stopping at the sheet's edge."
-ShapeRange,Item,method,Item(Index As Variant) As Shape,,UNASSESSED,,
+ShapeRange,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 ShapeRange,Left,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set moves every shape."
 ShapeRange,Line,"property, read-only",As LineFormat,,MISSING,,
 ShapeRange,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared value; a set reaches every shape. Differing values are refused.
@@ -2247,7 +2247,7 @@ ShapeRange,Title,property,As String,,PARTIAL,tests/fixtures/shape_range_properti
 ShapeRange,Top,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set moves every shape."
 ShapeRange,Type,"property, read-only",As MsoShapeType,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ShapeRange,Ungroup,method,Ungroup() As ShapeRange,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"Every group in the range ungrouped, other shapes passed over, the members as one range; no group raises 1004."
-ShapeRange,VerticalFlip,"property, read-only",As MsoTriState,,UNASSESSED,,
+ShapeRange,VerticalFlip,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 ShapeRange,Vertices,"property, read-only",As Variant,,MISSING,,
 ShapeRange,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_visible.json; tests/test_excel_shape_visible.py,"Reads the shapes' shared value, or msoTriStateMixed (-2) where they differ; a set reaches every shape."
 ShapeRange,Width,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set sizes every shape."
@@ -2275,7 +2275,7 @@ Shapes,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/
 Shapes,BuildFreeform,method,"BuildFreeform(EditingType As MsoEditingType, X1 As Single, Y1 As Single) As FreeformBuilder",,MISSING,,
 Shapes,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Shapes,Item,method,Item(Index As Variant) As Shape,,UNASSESSED,,
+Shapes,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Shapes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The sheet.
 Shapes,Range,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,SelectAll,method,SelectAll(),,UNASSESSED,,
@@ -2283,7 +2283,7 @@ Sheets,_Default,"property, read-only",As Object,,PARTIAL,tests/fixtures/hidden_d
 Sheets,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Sheets,Add,method,"Add([Before As Variant], [After As Variant], [Count As Variant], [Type As Variant]) As Object",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Multiple worksheets, fractional Count truncation, lazy code names and caption counters measured. Grouped-sheet defaults, wider Count/Type/anchor cases and event ordering remain incomplete. Error 1004 while sheets are grouped."
 Sheets,Add2,method,"Add2([Before As Variant], [After As Variant], [Count As Variant], [NewLayout As Variant]) As Object",,PARTIAL,tests/fixtures/sheets_add2.json; tests/test_excel_sheets_add2.py,"Charts.Add2's; on a workbook's sheets error 445 whatever is given, and no sheet added."
-Sheets,Application,"property, read-only",As Application,,UNASSESSED,,
+Sheets,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Sheets,Copy,method,"Copy([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"On Sheets(Array(...)), with no place a new workbook of the group's sheets in tab order, their references to one another kept; with Before or After the copies there in tab order, named as one sheet's copy is, their references to one another the copies'; the first copy active. A copy reading a sheet left behind, from another workbook, reports itself unsupported, as Worksheet.Copy's does. The whole collection copies as a group of every sheet: Worksheets.Copy makes a new workbook of them all."
 Sheets,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sheet_groups.json,"Of a group, its sheets as the array names them, one named twice twice."
 Sheets,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -2292,7 +2292,7 @@ Sheets,FillAcrossSheets,method,"FillAcrossSheets(Range As Range, [Type As XlFill
 Sheets,HPageBreaks,"property, read-only",As HPageBreaks,,MISSING,,
 Sheets,Item,"property, read-only",As Object,,PARTIAL,tests/fixtures/name_equality.json; tests/fixtures/sheet_groups.json,"By place, or by name: the first sheet in tab order whose name Windows' word sort cannot tell from it, case aside, so AESOP finds the sheet spelt with the ash ahead of a later aesop, else error 9. Worksheets(...) finds a sheet the same way. Sheets(Array(...)) is a group of the sheets the array names, by name or by place, in its order, a missing one error 9 and an empty array error 13; a group's Item takes a place or a name."
 Sheets,Move,method,"Move([Before As Variant], [After As Variant])",,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"On a group, with no place a new workbook of its sheets; with Before or After the group together, in tab order, before the first sheet outside it at the place the anchor gives or past it, one place further when the array's first sheet stands past that place and some of the group before it, over 608 live moves; the group's first sheet active. A move reading or read by a sheet left behind reports itself unsupported, as Worksheet.Move's does. The whole collection moves as a group of every sheet: with no place error 1004."
-Sheets,Parent,"property, read-only",As Object,,UNASSESSED,,
+Sheets,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Sheets,PrintOut,method,"PrintOut([From As Variant], [To As Variant], [Copies As Variant], [Preview As Variant], [ActivePrinter As Variant], [PrintToFile As Variant], [Collate As Variant], [PrToFileName As Variant], [IgnorePrintAreas As Variant])",,MISSING,,
 Sheets,PrintPreview,method,PrintPreview([EnableChanges As Variant]),,MISSING,,
 Sheets,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/sheet_groups.json,"On a group, the array's first sheet active and the group selected; with Replace:=False the group joins the selection, the active sheet staying. A hidden sheet in it is error 1004. The whole collection selects every sheet, the first active."
@@ -2320,11 +2320,11 @@ Sort,SortMethod,property,As XlSortMethod,,PARTIAL,tests/test_excel_table_sort.py
 SortField,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,The application.
 SortField,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 SortField,CustomOrder,property,As Variant,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,"Text given reads back trimmed and joined by commas; none or a list's number is error 458. Set: as Add, 0 for none, below 0, past the last list or an array error 5. A file's customList reads as unsupported."
-SortField,DataOption,property,As XlSortDataOption,,UNASSESSED,,
+SortField,DataOption,property,As XlSortDataOption,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 SortField,Delete,method,Delete(),,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,"Takes it out; the field is then dead, error 424. A table's fields refuse it as unsupported."
-SortField,Key,"property, read-only",As Range,,UNASSESSED,,
+SortField,Key,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 SortField,ModifyKey,method,ModifyKey(Key As Range),,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,"A new key, all else kept; several areas 1004, another sheet 438, not a range 13. A table's fields refuse it as unsupported."
-SortField,Order,property,As XlSortOrder,,UNASSESSED,,
+SortField,Order,property,As XlSortOrder,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 SortField,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,"The SortFields it was reached through, the same every Sort of the sheet hands out."
 SortField,Priority,property,As Long,,PARTIAL,tests/fixtures/sort_fields.json; tests/test_excel_sort_fields.py,"Its place among the fields; set, moves it there, outside 1 to their number error 5. A table's fields refuse the set as unsupported."
 SortField,SetIcon,method,SetIcon(Icon As Icon),,PARTIAL,tests/fixtures/icon_sorts/icon_sorts.json,The icon of one of Excel's sets a field on icons puts first; a custom set's reports itself unsupported.
@@ -2464,7 +2464,7 @@ Tab,ThemeColor,property,As XlThemeColor,,PARTIAL,tests/test_excel_sheet_tabs.py;
 Tab,TintAndShade,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; a tint cut toward zero to n / 32767 and kept in 16 bits, so 1.5 reads -0.5000763; a tab with no colour takes none."
 TextFrame,Application,"property, read-only",As Application,,MISSING,,
 TextFrame,AutoMargins,property,As Boolean,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"Excel raises 1004 reading or setting it, on a rectangle and a text box alike."
-TextFrame,AutoSize,property,As Boolean,no setter,UNASSESSED,,
+TextFrame,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 TextFrame,Characters,method,"Characters([Start As Variant], [Length As Variant]) As Characters",,PARTIAL,tests/fixtures/excel_model/probes.txt,
 TextFrame,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 TextFrame,HorizontalAlignment,property,As XlHAlign,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"The paragraphs' algn; general is left, fill and distributed justLow, center across selection centred. A text box naming none reads right when right to left. Other values are refused."
@@ -2483,7 +2483,7 @@ TextFrame2,AutoSize,property,As MsoAutoSize,,PARTIAL,tests/fixtures/text_frame2.
 TextFrame2,Column,"property, read-only",As TextColumn2,,MISSING,,
 TextFrame2,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 TextFrame2,DeleteText,method,DeleteText(),,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"The text gone, its empty paragraph's end left without a size."
-TextFrame2,HasText,"property, read-only",As MsoTriState,,UNASSESSED,,
+TextFrame2,HasText,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 TextFrame2,HorizontalAnchor,property,As MsoHorizontalAnchor,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"None or center, as bodyPr's anchorCtr; others raise -2147024809."
 TextFrame2,MarginBottom,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same margin TextFrame reads and sets; negative raises -2147024809. New rectangles and text boxes only.
 TextFrame2,MarginLeft,property,As Single,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,The same margin TextFrame reads and sets; negative raises -2147024809. New rectangles and text boxes only.
@@ -2494,7 +2494,7 @@ TextFrame2,Orientation,property,As MsoTextOrientation,,PARTIAL,tests/fixtures/te
 TextFrame2,Parent,"property, read-only",As Object,,MISSING,,
 TextFrame2,PathFormat,property,As MsoPathFormat,,MISSING,,
 TextFrame2,Ruler,"property, read-only",As Ruler2,,MISSING,,
-TextFrame2,TextRange,"property, read-only",As TextRange2,,UNASSESSED,,
+TextFrame2,TextRange,"property, read-only",As TextRange2,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 TextFrame2,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
 TextFrame2,VerticalAnchor,property,As MsoVerticalAnchor,,PARTIAL,tests/fixtures/text_frame2.json; tests/test_excel_text_frame2.py,"Top, middle or bottom, the anchor TextFrame's VerticalAlignment reads; the baseline anchors and others raise -2147024809."
 TextFrame2,WarpFormat,property,As MsoWarpFormat,,MISSING,,
@@ -2663,7 +2663,7 @@ Workbook,AcceptAllChanges,method,"AcceptAllChanges([When As Variant], [Who As Va
 Workbook,AccuracyVersion,property,As Long,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,0; setting it reports itself unsupported.
 Workbook,Activate,event,Activate(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_excel_projects.py,Native workbook Activate/Deactivate callbacks on window changes; event handler errors/mutations and close transitions need further conformance
 Workbook,ActiveChart,"property, read-only",As Chart,,MISSING,,
-Workbook,ActiveSheet,"property, read-only",As Object,,UNASSESSED,,
+Workbook,ActiveSheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,ActiveSlicer,"property, read-only",As Slicer,,MISSING,,
 Workbook,AddinInstall,event,AddinInstall(),,MISSING,,
 Workbook,AddinUninstall,event,AddinUninstall(),,MISSING,,
@@ -2672,7 +2672,7 @@ Workbook,AfterRemoteChange,event,AfterRemoteChange(),,MISSING,,
 Workbook,AfterSave,event,AfterSave(Success As Boolean),,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/fixtures/save_copy_as.json; tests/test_workbook_lifecycle.py,"Raised after a save, with whether it succeeded."
 Workbook,AfterXmlExport,event,"AfterXmlExport(Map As XmlMap, Url As String, Result As XlXmlExportResult)",,MISSING,,
 Workbook,AfterXmlImport,event,"AfterXmlImport(Map As XmlMap, IsRefresh As Boolean, Result As XlXmlImportResult)",,MISSING,,
-Workbook,Application,"property, read-only",As Application,,UNASSESSED,,
+Workbook,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,ApplyTheme,method,ApplyTheme(Filename As String),,MISSING,,
 Workbook,AutoSaveOn,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; a set is refused with error 1004, as Excel refuses it."
 Workbook,AutoUpdateFrequency,property,As Long,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; a set is refused with error 1004, as Excel refuses it."
@@ -2742,7 +2742,7 @@ Workbook,Final,property,As Boolean,no setter,PARTIAL,tests/test_excel_workbook_s
 Workbook,FollowHyperlink,method,"FollowHyperlink(Address As String, [SubAddress As Variant], [NewWindow As Variant], [AddHistory As Variant], [ExtraInfo As Variant], [Method As Variant], [HeaderInfo As Variant])",,MISSING,,
 Workbook,ForceFullCalculation,property,As Boolean,,PARTIAL,tests/fixtures/calculation_state.json; tests/test_excel_calculation_state.py,"False until set, taken as a Boolean is, the workbook kept saved, and saved and read as calcPr forceFullCalc; True holds every workbook to full calculation until the application quits, every edit and calculation working every formula out and xlPending for good, as Excel does; whether a workbook it works out under automatic calculation, not the one edited, goes unsaved is not measured"
 Workbook,ForwardMailer,method,ForwardMailer(),,MISSING,,
-Workbook,FullName,"property, read-only",As String,,UNASSESSED,,
+Workbook,FullName,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,FullNameURLEncoded,"property, read-only",As String,,PARTIAL,tests/fixtures/full_name_url_encoded.json; tests/test_excel_full_name_url_encoded.py,"FullName, spaces, # and % unencoded, as it is for any workbook on a local disk; workbooks on web servers are not modelled."
 Workbook,GetWorkflowTasks,method,GetWorkflowTasks() As WorkflowTasks,,MISSING,,
 Workbook,GetWorkflowTemplates,method,GetWorkflowTemplates() As WorkflowTemplates,,MISSING,,
@@ -2764,20 +2764,20 @@ Workbook,MergeWorkbook,method,MergeWorkbook(Filename As Variant),,MISSING,,
 Workbook,Model,"property, read-only",As Model,,MISSING,,
 Workbook,ModelChange,event,ModelChange(Changes As ModelChanges),,MISSING,,
 Workbook,MultiUserEditing,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,What a new or reopened workbook reads.
-Workbook,Name,"property, read-only",As String,,UNASSESSED,,
+Workbook,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,Names,"property, read-only",As Names,,PARTIAL,tests/fixtures/names_crud.json; tests/fixtures/excel_model/probes.txt,
 Workbook,NewChart,event,NewChart(Ch As Chart),,MISSING,,
 Workbook,NewSheet,event,NewSheet(Sh As Object),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for a sheet added, before the sheet left deactivates and the new one activates."
 Workbook,NewWindow,method,NewWindow() As Window,,MISSING,,
 Workbook,Open,event,Open(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when a workbook opens, before the application's WorkbookOpen and its activation."
 Workbook,OpenLinks,method,"OpenLinks(Name As String, [ReadOnly As Variant], [Type As Variant])",,MISSING,,
-Workbook,Parent,"property, read-only",As Object,,UNASSESSED,,
+Workbook,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,Password,property,As String,,MISSING,,
 Workbook,PasswordEncryptionAlgorithm,"property, read-only",As String,,MISSING,,
 Workbook,PasswordEncryptionFileProperties,"property, read-only",As Boolean,,MISSING,,
 Workbook,PasswordEncryptionKeyLength,"property, read-only",As Long,,MISSING,,
 Workbook,PasswordEncryptionProvider,"property, read-only",As String,,MISSING,,
-Workbook,Path,"property, read-only",As String,,UNASSESSED,,
+Workbook,Path,"property, read-only",As String,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,Permission,"property, read-only",As Permission,,MISSING,,
 Workbook,PersonalViewListSettings,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
 Workbook,PersonalViewPrintSettings,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
@@ -2796,7 +2796,7 @@ Workbook,ProtectWindows,"property, read-only",As Boolean,,PARTIAL,tests/fixtures
 Workbook,PublishObjects,"property, read-only",As PublishObjects,,MISSING,,
 Workbook,PublishToPBI,method,"PublishToPBI([PublishType As Variant], [nameConflict As Variant], [bstrGroupName As Variant]) As String",,MISSING,,
 Workbook,PurgeChangeHistoryNow,method,"PurgeChangeHistoryNow(Days As Long, [SharingPassword As Variant])",,MISSING,,
-Workbook,Queries,"property, read-only",As Queries,,UNASSESSED,,
+Workbook,Queries,"property, read-only",As Queries,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,ReadOnly,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/text_files.json,"True after Workbooks.Open's ReadOnly until a SaveAs to another file; SaveAs to its own file is error 1004. Save of a read-only workbook, which Excel turns into a copy in its default file path, reports itself unsupported."
 Workbook,ReadOnlyRecommended,property,As Boolean,,PARTIAL,tests/fixtures/workbook_options.json; tests/test_excel_workbook_options.py,Saved as fileSharing's readOnlyRecommended and read back; the workbook stays saved.
 Workbook,RefreshAll,method,RefreshAll(),,PARTIAL,tests/test_excel_pivot_shared_caches.py; tests/fixtures/pivot_shared_caches; tests/test_excel_calculate_order.py; tests/fixtures/calculate_order.json,"Refreshes the workbook's queries, then every pivot cache a table uses from the last to the first, passing over one whose EnableRefresh is off without an error, and calculates once after them all. Other connections, background refresh and the order of queries against pivot caches are unmeasured."
@@ -2817,7 +2817,7 @@ Workbook,Save,method,Save(),,PARTIAL,tests/fixtures/workbook_lifecycle.json; tes
 Workbook,SaveAs,method,"SaveAs([Filename As Variant], [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AccessMode As XlSaveAsAccessMode], [ConflictResolution As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant], [WorkIdentity As Variant])",,PARTIAL,tests/fixtures/workbook_lifecycle.json; tests/test_runtime_project_persistence.py; tests/fixtures/text_saves.json,"51/52 writes and cancellation measured with a native Excel persistence gate. The text formats -- xlCSV, xlCSVWindows, xlCSVMSDOS, xlCSVUTF8, xlUnicodeText, xlCurrentPlatformText, xlTextWindows and xlTextMSDOS -- write the active sheet as Excel does, byte for byte over 40 live saves, and leave the workbook named, formatted and saved as Excel's. ConflictResolution, AddToMru, TextCodepage, TextVisualLayout and Local are taken. A Password, WriteResPassword, ReadOnlyRecommended, CreateBackup, xlShared, a WorkIdentity, the Mac formats, xlTextPrinter and other formats report themselves unsupported."
 Workbook,SaveAsXMLData,method,"SaveAsXMLData(Filename As String, Map As XmlMap)",,MISSING,,
 Workbook,SaveCopyAs,method,SaveCopyAs([Filename As Variant]),,PARTIAL,tests/fixtures/save_copy_as.json; tests/test_excel_save_copy_as.py,"Writes what Save would write, in the workbook's own format whatever the extension, with no save events, the workbook's name, path and Saved flag kept and its Last save time and Last author moved; replaces a file without a prompt; an empty name writes nothing; Null, a missing folder and an open workbook's file are error 1004, over 34 live copies; a copy into another folder of a workbook linking to files, and an omitted or non-text name, are refused"
-Workbook,Saved,property,As Boolean,,UNASSESSED,,
+Workbook,Saved,property,As Boolean,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,SaveLinkValues,property,As Boolean,,PARTIAL,tests/fixtures/workbook_links.json; tests/test_excel_workbook_links.py,"Reads the file's saveExternalLinkValues and takes a Boolean, leaving the workbook unsaved; a save without values keeps the links' sheet names only, its formulas then #REF! once worked out in full, and the values come back with it True again, measured live."
 Workbook,SendFaxOverInternet,method,"SendFaxOverInternet([Recipients As Variant], [Subject As Variant], [ShowMessage As Variant])",,MISSING,,
 Workbook,SendForReview,method,"SendForReview([Recipients As Variant], [Subject As Variant], [ShowMessage As Variant], [IncludeAttachment As Variant])",,MISSING,,
@@ -2844,7 +2844,7 @@ Workbook,SheetPivotTableBeforeCommitChanges,event,"SheetPivotTableBeforeCommitCh
 Workbook,SheetPivotTableBeforeDiscardChanges,event,"SheetPivotTableBeforeDiscardChanges(Sh As Object, TargetPivotTable As PivotTable, ValueChangeStart As Long, ValueChangeEnd As Long)",,MISSING,,
 Workbook,SheetPivotTableChangeSync,event,"SheetPivotTableChangeSync(Sh As Object, Target As PivotTable)",,MISSING,,
 Workbook,SheetPivotTableUpdate,event,"SheetPivotTableUpdate(Sh As Object, Target As PivotTable)",,PARTIAL,tests/fixtures/pivot_refresh/events_save.json,"Raised after a PivotTable is refreshed or changed. Raised after the sheet's own, the sheet first among the arguments."
-Workbook,Sheets,"property, read-only",As Sheets,,UNASSESSED,,
+Workbook,Sheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbook,SheetSelectionChange,event,"SheetSelectionChange(Sh As Object, Target As Range)",,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised by a Select that moves the selection. Raised after the sheet's own, the sheet first among the arguments."
 Workbook,SheetTableUpdate,event,"SheetTableUpdate(Sh As Object, Target As TableObject)",,MISSING,,
 Workbook,ShowConflictHistory,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; a set is refused with error 1004, as Excel refuses it."
@@ -2916,29 +2916,29 @@ WorkbookQuery,Refresh,method,Refresh(),,UNASSESSED,,
 Workbooks,_Default,"property, read-only",As Workbook,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,Item.
 Workbooks,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Workbooks,Add,method,Add([Template As Variant]) As Workbook,,PARTIAL,tests/fixtures/workbook_copy.json; tests/test_excel_workbook_names.py; tests/fixtures/workbook_names.json,"Template other than a worksheet workbook reports unsupported. Book and its own number with no template, Sheet and its own with xlWBATWorksheet, as Excel names them."
-Workbooks,Application,"property, read-only",As Application,,UNASSESSED,,
+Workbooks,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbooks,CanCheckOut,method,CanCheckOut(Filename As String) As Boolean,,MISSING,,
 Workbooks,CheckOut,method,CheckOut(Filename As String),,MISSING,,
 Workbooks,Close,method,Close(),,MISSING,,
 Workbooks,Count,"property, read-only",As Long,,UNASSESSED,,
 Workbooks,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Workbooks,Item,"property, read-only",As Workbook,,UNASSESSED,,
+Workbooks,Item,"property, read-only",As Workbook,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Workbooks,Open,method,"Open(Filename As String, [UpdateLinks As Variant], [ReadOnly As Variant], [Format As Variant], [Password As Variant], [WriteResPassword As Variant], [IgnoreReadOnlyRecommended As Variant], [Origin As Variant], [Delimiter As Variant], [Editable As Variant], [Notify As Variant], [Converter As Variant], [AddToMru As Variant], [Local As Variant], [CorruptLoad As Variant]) As Workbook",,PARTIAL,tests/fixtures/workbook_open.json; tests/test_excel_projects.py; tests/test_excel_workbook.py; tests/fixtures/text_files.json,"Independent source import and 4 native open/activation traces; native gates execute persisted handlers. CSV and text files open as Excel reads them over 76 live files and 12 opens in sequence: splitting, quotes, sep= lines, typing, encodings, names, the delimiter Format leaves for later text files, ReadOnly, and the errors for a missing or invalid file. UpdateLinks, Password and the rest are taken and change nothing for the files the model opens. Origin other than xlWindows, CorruptLoad other than xlNormalLoad, a Converter, Excel 97-2003 workbooks, text files holding a NUL and a workbook holding a chart sheet, a dialog sheet or an Excel 4 macro sheet report themselves unsupported."
 Workbooks,OpenDatabase,method,"OpenDatabase(Filename As String, [CommandText As Variant], [CommandType As Variant], [BackgroundQuery As Variant], [ImportDataAs As Variant]) As Workbook",,MISSING,,
 Workbooks,OpenText,method,"OpenText(Filename As String, [Origin As Variant], [StartRow As Variant], [DataType As Variant], [TextQualifier As XlTextQualifier], [ConsecutiveDelimiter As Variant], [Tab As Variant], [Semicolon As Variant], [Comma As Variant], [Space As Variant], [Other As Variant], [OtherChar As Variant], [FieldInfo As Variant], [TextVisualLayout As Variant], [DecimalSeparator As Variant], [ThousandsSeparator As Variant], [TrailingMinusNumbers As Variant], [Local As Variant])",,PARTIAL,tests/fixtures/open_text.json,"Every argument as Excel takes it over 44 live files: delimiters, runs of them, qualifiers, StartRow, FieldInfo's kinds and fixed widths, separators, a trailing minus and the code pages xlWindows, xlMSDOS, 1252 and 65001, a .csv read as Workbooks.Open reads one; the delimiters, ConsecutiveDelimiter and Origin left out are the session's, as OpenText, TextToColumns and Workbooks.Open's Format last set them. DataType left out of text Excel may read as fixed width, fixed widths without FieldInfo, a field of 32,759 characters or more and the Macintosh code page past ASCII report themselves unsupported."
 Workbooks,OpenXML,method,"OpenXML(Filename As String, [Stylesheets As Variant], [LoadOption As Variant]) As Workbook",,MISSING,,
-Workbooks,Parent,"property, read-only",As Object,,UNASSESSED,,
+Workbooks,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,_CodeName,property,As String,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,"Answers the error value #NAME? (2029), not the code name; setting it raises 424."
 Worksheet,_Evaluate,method,_Evaluate(Name As Variant) As Variant,,PARTIAL,tests/fixtures/hidden_members.json; tests/test_excel_hidden_members.py,Takes no name and answers the error value #NAME? (2029); given a name it raises 450.
 Worksheet,Activate,event,Activate(),,PARTIAL,tests/fixtures/workbook_open.json; tests/test_workbook_lifecycle.py,"Raised when another sheet or workbook is made active, after the one left deactivates."
-Worksheet,Application,"property, read-only",As Application,,UNASSESSED,,
+Worksheet,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,AutoFilter,"property, read-only",As AutoFilter,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,"The filter at the active cell: a table's where it is in a table, else the sheet's own, or Nothing."
 Worksheet,AutoFilterMode,property,As Boolean,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/full_calculation.json; tests/fixtures/table_autofilter/table_autofilter.json,"Whether the sheet has a filter of its own. Setting it False turns off the filter at the active cell, a table's where it is in one, and does nothing on a sheet with no filter of its own. Setting it to True reports itself unsupported. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts."
 Worksheet,BeforeDelete,event,BeforeDelete(),,MISSING,,
 Worksheet,BeforeDoubleClick,event,"BeforeDoubleClick(Target As Range, Cancel As Boolean)",,MISSING,,
 Worksheet,BeforeRightClick,event,"BeforeRightClick(Target As Range, Cancel As Boolean)",,MISSING,,
 Worksheet,Calculate,event,Calculate(),,PARTIAL,tests/fixtures/calculation_scope.json; tests/test_excel_calculate_order.py; tests/fixtures/calculate_order.json," Calculation scope, cached precedents, deferred notifications and saved dirty states have 192 native probes, 1080 additional UDF observations and four XLSM file gates. Sheets raise it in the order they were made, which a file keeps as sheetId, and a pivot refresh raises it for each table's sheet, then for the sheets its closing calculation works out or that hold notifications. Broader graph, reentrancy and event-error behavior remains partial."
-Worksheet,Cells,"property, read-only",As Range,,UNASSESSED,,
+Worksheet,Cells,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"Cells.Count overflows a Long, error 6, as in Excel."
 Worksheet,Change,event,Change(Target As Range),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,"Raised for writes of Value, Formula and the rest, clears, inserts and deletes, Copy, FillDown, AutoFill, DataSeries and Replace, with the cells as Target, as Excel raises it; Sort, Merge and formats raise none (see _events)."
 Worksheet,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 Worksheet,CheckSpelling,method,"CheckSpelling([CustomDictionary As Variant], [IgnoreUppercase As Variant], [AlwaysSuggest As Variant], [SpellLang As Variant])",,MISSING,,
@@ -2947,7 +2947,7 @@ Worksheet,CircularReference,"property, read-only",As Range,,VERIFIED,tests/fixtu
 Worksheet,ClearArrows,method,ClearArrows(),,PARTIAL,tests/fixtures/clear_arrows.json; tests/test_excel_clear_arrows.py,"Takes away tracer arrows, which the model never draws; error 1004 on a protected sheet."
 Worksheet,ClearCircles,method,ClearCircles(),,PARTIAL,tests/fixtures/clear_arrows.json; tests/test_excel_clear_arrows.py,"Takes away validation circles, which the model never draws, protected sheet or not."
 Worksheet,CodeName,"property, read-only",As String,,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py,"Loaded sheetPr identity; fresh names remain empty until project materialization, then allocate in tab order with collision/history handling. Copy/Move allocation measured; VBIDE renaming remains incomplete."
-Worksheet,Columns,"property, read-only",As Range,,UNASSESSED,,
+Worksheet,Columns,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,Comments,"property, read-only",As Comments,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,"Row by row, and in the saved file."
 Worksheet,CommentsThreaded,"property, read-only",As CommentsThreaded,,MISSING,,
 Worksheet,ConsolidationFunction,"property, read-only",As XlConsolidationFunction,,PARTIAL,tests/fixtures/consolidate.json; tests/test_excel_consolidate.py,"The last Consolidate's function, xlSum before one."
@@ -2960,7 +2960,7 @@ Worksheet,Deactivate,event,Deactivate(),,PARTIAL,tests/fixtures/workbook_open.js
 Worksheet,Delete,method,Delete(),,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Removes worksheet runtime document and saved VBA module; native persistence gate. The formulas and names that read the sheet read #REF! in its place; the active sheet stays, or where it is the one deleted the next visible sheet after it is active, or the last visible one before it. Deleting every visible sheet, event/object lifetime and dialog conformance remain incomplete."
 Worksheet,DisplayPageBreaks,property,As Boolean,,PARTIAL,tests/fixtures/application_settings.json; tests/test_excel_application_settings.py,"Reads back what a macro set, as Application's switches do, and is not saved, measured"
 Worksheet,DisplayRightToLeft,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"The sheet view's rightToLeft, the window's DisplayRightToLeft too, saved and kept by a copy; cells keep their Left"
-Worksheet,DrawingObjects,not in the type library,,,UNASSESSED,,
+Worksheet,DrawingObjects,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"The sheet's Shapes; Excel's DrawingObjects leaves notes' boxes out, so its Count differs where a sheet has notes."
 Worksheet,EnableAutoFilter,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Reads back what a macro set, taking any value VBA turns into a Boolean, Null and text that is none leaving it as it was, over 23 live settings; kept by a copy, not saved; it changes nothing the model does"
 Worksheet,EnableCalculation,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"False keeps the sheet's formulas through every calculation, a formula written there reading 0; True again works the sheet out under automatic calculation; not copied or saved; over 10 live cases"
 Worksheet,EnableFormatConditionsCalculation,property,As Boolean,,PARTIAL,tests/fixtures/format_conditions_calculation.json; tests/test_excel_format_conditions_calculation.py,"Reads True whatever is set, and nothing is saved; Null and text that is no Boolean are error 13."
@@ -2985,7 +2985,7 @@ Worksheet,Next,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_mod
 Worksheet,OLEObjects,method,OLEObjects([Index As Variant]) As Object,,MISSING,,
 Worksheet,Outline,"property, read-only",As Outline,,PARTIAL,tests/test_excel_outlines.py,"Measured ordinary whole-row/column outlines and persisted metadata; 12 generated-output controls passed native Excel readback; two additional exact coercion matrices cover fractional levels and separate summary-side Variant behavior; original raw summary-sides proof separately covers integer SummaryColumn=3 selecting Right; bounded work, automatic styles, heterogeneous reads and affected structural/range-copy operations remain limited; unparsed qualified axis-copy metadata is refused before destination creation; loaded and actual axis outline metadata must agree in both directions."
 Worksheet,PageSetup,"property, read-only",As PageSetup,,PARTIAL,tests/test_excel_page_setup.py; tests/test_excel_page_setup_names.py; tests/fixtures/page_setup,"Measured persisted worksheet configuration: finite nonnegative margins in points, bounded scaling and fit settings, initial enums/Boolean options and scoped print areas/titles. Variant getter types, native save/reopen and quote-safe name lifecycle have controls; all 11 generated configuration/lifecycle workbooks passed the opt-in native gate. Coercion differences, negative margins, unmeasured worksheet-UDF setters, configured-sheet copying, printer services and rendering remain unsupported or partial."
-Worksheet,Parent,"property, read-only",As Object,,UNASSESSED,,
+Worksheet,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,Paste,method,"Paste([Destination As Variant], [Link As Variant])",,PARTIAL,tests/fixtures/paste.json; tests/fixtures/autofilter_edits.json; tests/test_excel_conditional_transfer_core.py; tests/test_excel_conditional_transfer_native.py; tests/test_excel_conditional_multiple.py; tests/test_excel_conditional_transfer_groups.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"What Copy or Cut put on the clipboard, at Destination or the selection; Link:=True reports itself unsupported. Several copied areas paste closed up, their formulas as the values they show; a destination over hidden cells of a filtered sheet reports itself unsupported. Measured disjoint rectangular same-workbook conditional copies/pastes admit ordinary/statistical/predicate rules with distinct validated fresh or loaded group identities, preserving clipped populations, independent styles, destination subtraction and priority gaps; unsupported overlaps, tiling, transposition, shared-group or ambiguous loaded sources, ambiguous copied-sheet identities and affected mixed-feature combinations fail before mutation. Native loaded-copy controls preserve complete population ordering and generic source API projection; shared-group transfers remain unsupported."
 Worksheet,PasteSpecial,method,"PasteSpecial([Format As Variant], [Link As Variant], [DisplayAsIcon As Variant], [IconFileName As Variant], [IconIndex As Variant], [IconLabel As Variant], [NoHTMLFormatting As Variant])",,MISSING,,
 Worksheet,PivotTableAfterValueChange,event,"PivotTableAfterValueChange(TargetPivotTable As PivotTable, TargetRange As Range)",,MISSING,,
@@ -3009,14 +3009,14 @@ Worksheet,ProtectScenarios,"property, read-only",As Boolean,,PARTIAL,tests/fixtu
 Worksheet,QueryTables,"property, read-only",As QueryTables,,MISSING,,
 Worksheet,Range,"property, read-only",As Range,,PARTIAL,tests/test_excel_cross_sheet_ranges.py; tests/fixtures/cross_sheet_ranges.json,"A Range, a qualified reference or a defined name on another sheet is error 1004."
 Worksheet,ResetAllPageBreaks,method,ResetAllPageBreaks(),,PARTIAL,tests/test_excel_page_breaks.py; tests/fixtures/page_breaks; scripts/measure_page_breaks.py; tests/test_live_excel_model_gate.py,Every manual break goes.
-Worksheet,Rows,"property, read-only",As Range,,UNASSESSED,,
+Worksheet,Rows,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,SaveAs,method,"SaveAs(Filename As String, [FileFormat As Variant], [Password As Variant], [WriteResPassword As Variant], [ReadOnlyRecommended As Variant], [CreateBackup As Variant], [AddToMru As Variant], [TextCodepage As Variant], [TextVisualLayout As Variant], [Local As Variant])",,PARTIAL,tests/fixtures/sheet_save_as.json; tests/fixtures/text_saves.json,"The workbook's SaveAs, but a text format writes this sheet, hidden or not, which takes the file's name but in the MS-DOS formats while the active sheet stays, over 9 live saves; a workbook format saves the workbook. A Password, WriteResPassword, ReadOnlyRecommended and CreateBackup report themselves unsupported, as Workbook.SaveAs's formats and options do."
 Worksheet,Scenarios,method,Scenarios([Index As Variant]) As Object,,PARTIAL,tests/fixtures/scenarios.json; tests/test_excel_scenarios.py,"The collection, or one scenario by number or by name ignoring case, else 1004. Add keeps values as text, the cells' own for those left out, with Excel's ""Created by"" comment and its 1004 for an empty, long or repeated name, a formula, or one Integer value; Show, ChangeScenario, Delete, Values, ChangingCells, Name, Comment, Locked and Hidden as Excel has them, Locked and Hidden and ChangeScenario adding ""Modified by"". Saved and read as the sheet part's scenarios; a sheet's copy keeps them. CreateSummary and Merge are not implemented."
 Worksheet,ScrollArea,property,As String,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,"Takes text Range takes on the sheet, one area, and reads its absolute address; anything else changes nothing; """" and Empty clear it; set with the active cell outside, and Goto outside, select its first cell; not copied or saved; over 48 live settings and 5 cases"
 Worksheet,Select,method,Select([Replace As Variant]),,PARTIAL,tests/fixtures/sheet_groups.json,"The sheet active and alone; with Replace:=False it joins the selection, the active sheet staying. Activating a sheet of a group keeps the group."
 Worksheet,SelectionChange,event,SelectionChange(Target As Range),,PARTIAL,tests/fixtures/events.json; tests/fixtures/excel_event_sinks.json; tests/test_excel_events.py,Raised by a Select that moves the selection.
 Worksheet,SetBackgroundPicture,method,SetBackgroundPicture(Filename As String),,PARTIAL,tests/fixtures/background_picture.json; tests/test_excel_background_picture.py,"A PNG's own bytes in xl/media, shared between sheets that hold the same, with picture after legacyDrawing; an empty name removes it; a missing file is 1004. Formats other than PNG are refused."
-Worksheet,Shapes,"property, read-only",As Shapes,,UNASSESSED,,
+Worksheet,Shapes,"property, read-only",As Shapes,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,ShowAllData,method,ShowAllData(),,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/full_calculation.json; tests/test_excel_advanced_filter.py; tests/fixtures/advanced_filter/native.json; tests/fixtures/table_autofilter/table_autofilter.json,"Clears the filter at the active cell, a table's where it is in one; error 1004 where that has no criteria. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts. AdvancedFilter has independently measured filtering without dropdowns, persisted list/criteria names and hidden rows; ShowAllData clears that list while preserving unrelated manually hidden rows."
 Worksheet,ShowDataForm,method,ShowDataForm(),,MISSING,,
 Worksheet,Sort,"property, read-only",As Sort,,PARTIAL,tests/fixtures/sort.json,"SortFields with Add and Add2 by value, SetRange, Header, MatchCase, Orientation and Apply; sorting on colours or icons and custom orders report themselves unsupported."
@@ -3026,7 +3026,7 @@ Worksheet,Tab,"property, read-only",As Tab,,PARTIAL,tests/test_excel_sheet_tabs.
 Worksheet,TableUpdate,event,TableUpdate(Target As TableObject),,MISSING,,
 Worksheet,TransitionExpEval,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,Saved as sheetPr transitionEvaluation and kept by a copy; 1-2-3's rules of evaluation are not modelled
 Worksheet,TransitionFormEntry,property,As Boolean,,PARTIAL,tests/fixtures/worksheet_settings.json; tests/test_excel_worksheet_settings.py,Saved as sheetPr transitionEntry and kept by a copy
-Worksheet,Type,"property, read-only",As XlSheetType,,UNASSESSED,,
+Worksheet,Type,"property, read-only",As XlSheetType,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Worksheet,Unprotect,method,Unprotect([Password As Variant]),,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"The password matched case and all, any opening a sheet that has none; given none where Excel would ask in a dialog, it reports itself unsupported. Saved and read as Excel saves and reads it."
 Worksheet,UsedRange,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt,
 Worksheet,Visible,property,As XlSheetVisibility,,PARTIAL,tests/fixtures/sheet_groups.json,"Hiding the last visible sheet is error 1004; hiding the active one makes the next visible sheet after it active, or the last visible one before it."
@@ -3443,8 +3443,8 @@ _Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.js
 _Part,Application,not in the type library,,,UNASSESSED,,
 _Part,Creator,not in the type library,,,UNASSESSED,,
 _TextLayout,Creator,not in the type library,,,UNASSESSED,,
-_TextLayout,MarginBottom,not in the type library,,,UNASSESSED,,
-_TextLayout,MarginLeft,not in the type library,,,UNASSESSED,,
-_TextLayout,MarginRight,not in the type library,,,UNASSESSED,,
-_TextLayout,MarginTop,not in the type library,,,UNASSESSED,,
-_TextLayout,Orientation,not in the type library,,,UNASSESSED,,
+_TextLayout,MarginBottom,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+_TextLayout,MarginLeft,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+_TextLayout,MarginRight,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+_TextLayout,MarginTop,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+_TextLayout,Orientation,not in the type library,,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.

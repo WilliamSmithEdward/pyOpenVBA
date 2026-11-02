@@ -689,7 +689,8 @@ class ShapeObject(_Drawn):
         from pyopenvba.apps.excel._charts import Chart
 
         if self.shape.kind != 'chart':
-            raise error(1004, 'This shape is not a chart')
+            # tests/fixtures/core_reads.json
+            raise error(-2147024809, 'The specified value is out of range.')
         return Chart(self.sheet, self.shape)
 
     # -- what it is
@@ -1236,7 +1237,8 @@ class TextFrame(_TextLayout):
 
     @member
     def AutoSize(self) -> object:
-        return VBAInt(0, "Long")
+        # A Boolean, False for a shape that does not size to its text (tests/fixtures/core_reads.json).
+        return False
 
     @member
     def AutoMargins(self) -> object:

@@ -2236,7 +2236,7 @@ class Series(Created):
         if any(point.label is not None for point in self.entry.points.values()):
             raise VBAUnsupportedError('Changing the data labels of a series with point labels is not implemented')
         if self.entry.label_look.font is not None:
-            raise VBAUnsupportedError('Changing the data labels of a series whose labels have a font is not implemented')
+            raise VBAUnsupportedError('Changing data labels that have a font is not implemented')
         self.chart.changed()
         if self.entry.data_labels and not wanted:
             self.entry.label_generation += 1

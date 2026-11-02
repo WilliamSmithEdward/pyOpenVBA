@@ -15,8 +15,8 @@ from typing import TYPE_CHECKING, NoReturn
 from pyopenvba._xml import attributes, escape as escape_attribute, escape_text, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
-from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, CT_CHART, SeriesData, cache_markup, chart_frame,
-                                             chart_part, legend_markup, text_properties)
+from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, CT_CHART, SeriesData, cache_markup,
+                                             chart_frame, chart_part, legend_markup, text_properties)
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           category_levels, linked_title, referenced_values, shown_cells, shown_type)

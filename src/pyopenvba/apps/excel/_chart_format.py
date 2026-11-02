@@ -25,9 +25,9 @@ from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_in
 from pyopenvba.shapes._values import FillLine, emu, points
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._charts import Chart, ChartState, Series, SeriesState
+    from pyopenvba.apps.excel._charts import Chart, ChartState, PointState, Series, SeriesState
 
-_FILLED = ("column", "bar", "pie", "doughnut", "area")
+FILLED = ("column", "bar", "pie", "doughnut", "area")
 _MIXED = -2147483648.0
 _MIXED_COLOUR = -2147483648
 _WHITE = 16777215
@@ -37,7 +37,7 @@ _A14 = 'xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"'
 _DASHES = {4: ("dash", None), 3: ("dot", "rnd")}
 
 
-def _unmeasured(what: str) -> VBAUnsupportedError:
+def unmeasured(what: str) -> VBAUnsupportedError:
     return VBAUnsupportedError(f"{what} is not implemented")
 
 
@@ -55,10 +55,10 @@ def _solid(rgb: str, alpha: int | None = None) -> str:
     return f"<a:solidFill>{_colour(rgb, alpha)}</a:solidFill>"
 
 
-def _accent(theme: tuple[str, ...], place: int) -> str:
+def accent_colour(theme: tuple[str, ...], place: int) -> str:
     """The theme's accent for a series' place, of the six a chart goes through before it varies them."""
     if not 1 <= place <= 6:
-        raise _unmeasured("The look of a series past the sixth")
+        raise unmeasured("The look of a series past the sixth")
     return theme[3 + place]
 
 
@@ -76,9 +76,13 @@ def _plain_line(look: FillLine) -> str:
 def markup(entry: SeriesState, kind: str, place: int, theme: tuple[str, ...]) -> str:
     """The series' spPr, none while nothing was set of it."""
     look = entry.format_look
-    if look is None or kind not in (*_FILLED, "line"):
+    if look is None or kind not in (*FILLED, "line"):
         return ""
-    accent = _accent(theme, place)
+    return look_markup(look, kind, accent_colour(theme, place))
+
+
+def look_markup(look: FillLine, kind: str, accent: str) -> str:
+    """The spPr of a series or point of this kind of chart, whose accent is given."""
     extensions = ""
     if kind == "line":
         if look.line_full:
@@ -125,7 +129,7 @@ class _Part(Created):
         self.series.position()
         state = self.series.chart.state
         if state.original:
-            raise _unmeasured("The look of a series in an imported chart")
+            raise unmeasured("The look of a series in an imported chart")
         return state
 
     def kind(self) -> str:
@@ -134,16 +138,29 @@ class _Part(Created):
     def look(self) -> FillLine:
         return self.series.entry.format_look or FillLine()
 
+    def admit(self) -> None:
+        """What a change must pass before it is looked at; a point adds to it."""
+
+    def wipe(self, point: PointState) -> None:
+        """What a change to the series takes from a point set apart (tests/fixtures/series_points.json)."""
+
     def change(self) -> FillLine:
         self.series.chart.changed()
         if self.series.entry.format_look is None:
             self.series.entry.format_look = FillLine()
+        points = self.series.entry.points
+        for place, point in list(points.items()):
+            self.wipe(point)
+            if point.look == FillLine():
+                point.look = None
+            if point.look is None and point.invert is None and point.explosion is None and point.label is None:
+                del points[place]
         return self.series.entry.format_look
 
     def accent(self) -> int:
         """The series' accent, as a BGR Long."""
         theme = self.series.chart.sheet.book.stylesheet.colors.theme
-        return bgr(_accent(theme, self.series.position()))
+        return bgr(accent_colour(theme, self.series.position()))
 
     @member
     def Parent(self) -> object:
@@ -158,11 +175,16 @@ class SeriesFill(_Part):
     vba_type_name = "FillFormat"
 
     def filled(self) -> bool:
-        return self.kind() in _FILLED
+        return self.kind() in FILLED
 
     def written(self) -> bool:
         look = self.look()
         return look.fill_rgb is not None or look.fill_solid
+
+    def wipe(self, point: PointState) -> None:
+        if point.look is not None:
+            point.look.fill_rgb, point.look.fill_alpha = None, None
+            point.look.fill_solid = point.look.fill_hidden = False
 
     @member
     def Visible(self) -> object:
@@ -171,15 +193,16 @@ class SeriesFill(_Part):
     @setter("Visible")
     def _visible(self, value: object) -> None:
         wanted = int(to_integer(value, "Long"))
+        self.admit()
         if wanted not in (0, -1):
-            raise _unmeasured("Visible set to anything but msoTrue or msoFalse")
+            raise unmeasured("Visible set to anything but msoTrue or msoFalse")
         kind = self.kind()
         if kind == "line" and wanted == 0:
             return
         if not self.filled():
-            raise _unmeasured("The visibility of this kind of series' fill")
+            raise unmeasured("The visibility of this kind of series' fill")
         if wanted == 0 and self.look().line_full:
-            raise _unmeasured("Hiding a series' fill once its line was hidden")
+            raise unmeasured("Hiding a series' fill once its line was hidden")
         look = self.change()
         look.fill_hidden = wanted == 0
         look.fill_solid = True
@@ -206,9 +229,10 @@ class SeriesFill(_Part):
     @setter("Transparency")
     def _transparency(self, value: object) -> None:
         wanted = float(VBASingle(float(to_number(value))))
+        self.admit()
         if not self.filled():
             self.state()
-            raise _unmeasured("The fill transparency of this kind of series")
+            raise unmeasured("The fill transparency of this kind of series")
         if not 0 <= wanted <= 1:
             raise error(*_INVALID)
         # A fill with no colour written takes none.
@@ -217,8 +241,9 @@ class SeriesFill(_Part):
 
     @method
     def Solid(self) -> object:
+        self.admit()
         if not self.filled() or self.look().fill_hidden:
-            raise _unmeasured("Solid on this kind of series, or on a hidden fill,")
+            raise unmeasured("Solid on this kind of series, or on a hidden fill,")
         self.change().fill_solid = True
         return EMPTY
 
@@ -232,13 +257,13 @@ class SeriesLine(_Part):
         kind = self.kind()
         if kind == "scatter":
             return True
-        return kind in _FILLED and look.line_rgb is None and (
+        return kind in FILLED and look.line_rgb is None and (
             look.line_full or look.line_width is not None or look.line_dash is not None)
 
     def absent(self) -> bool:
         """A column-like series' line with nothing set of it."""
         look = self.look()
-        return (self.kind() in _FILLED and look.line_rgb is None and look.line_width is None
+        return (self.kind() in FILLED and look.line_rgb is None and look.line_width is None
                 and look.line_dash is None and not look.line_full)
 
     def touched(self) -> bool:
@@ -246,11 +271,18 @@ class SeriesLine(_Part):
         return (look.line_rgb is not None or look.line_width is not None or look.line_dash is not None
                 or look.line_full)
 
+    def wipe(self, point: PointState) -> None:
+        if point.look is not None:
+            look = point.look
+            look.line_rgb, look.line_width, look.line_dash, look.line_cap = None, None, None, None
+            point.look.line_full = point.look.line_hidden = point.look.effects = False
+
     def settable(self, what: str) -> None:
-        if self.kind() not in (*_FILLED, "line"):
-            raise _unmeasured(f"The line {what} of this kind of series")
+        self.admit()
+        if self.kind() not in (*FILLED, "line"):
+            raise unmeasured(f"The line {what} of this kind of series")
         if self.look().line_full:
-            raise _unmeasured(f"The line {what} of a series whose line was hidden")
+            raise unmeasured(f"The line {what} of a series whose line was hidden")
 
     @member
     def Visible(self) -> object:
@@ -261,11 +293,12 @@ class SeriesLine(_Part):
     @setter("Visible")
     def _visible(self, value: object) -> None:
         wanted = int(to_integer(value, "Long"))
+        self.admit()
         if wanted not in (0, -1):
-            raise _unmeasured("Visible set to anything but msoTrue or msoFalse")
+            raise unmeasured("Visible set to anything but msoTrue or msoFalse")
         kind = self.kind()
-        if kind not in (*_FILLED, "line"):
-            raise _unmeasured("The line visibility of this kind of series")
+        if kind not in (*FILLED, "line"):
+            raise unmeasured("The line visibility of this kind of series")
         before = self.look()
         if wanted == -1:
             if before.line_hidden:
@@ -274,10 +307,10 @@ class SeriesLine(_Part):
         if before.line_hidden:
             return
         if before != FillLine():
-            raise _unmeasured("Hiding the line of a series with a look set")
+            raise unmeasured("Hiding the line of a series with a look set")
         look = self.change()
         look.line_hidden = look.line_full = look.effects = True
-        look.fill_solid = kind in _FILLED
+        look.fill_solid = kind in FILLED
 
     @member
     def ForeColor(self) -> object:
@@ -290,7 +323,7 @@ class SeriesLine(_Part):
         width = self.look().line_width
         if width is not None:
             return VBASingle(points(width))
-        return VBASingle(0.75 if self.kind() in _FILLED else 3.0)
+        return VBASingle(0.75 if self.kind() in FILLED else 3.0)
 
     @setter("Weight")
     def _weight(self, value: object) -> None:
@@ -312,7 +345,7 @@ class SeriesLine(_Part):
         wanted = int(to_integer(value, "Long"))
         self.settable("dash")
         if wanted not in _DASHES or (_DASHES[wanted][1] is not None and self.kind() != "line"):
-            raise _unmeasured("This line dash style")
+            raise unmeasured("This line dash style")
         look = self.change()
         look.line_dash, look.line_cap = _DASHES[wanted]
 
@@ -331,7 +364,7 @@ class SeriesLine(_Part):
         # With nothing set of the line it takes none.
         self.settable("transparency")
         if self.touched():
-            raise _unmeasured("The transparency of a series' line with a look set")
+            raise unmeasured("The transparency of a series' line with a look set")
 
 
 class SeriesColor(Created):
@@ -372,9 +405,10 @@ class SeriesColor(Created):
     @setter("RGB")
     def _rgb(self, value: object) -> None:
         wanted = _rgb(int(to_integer(value, "Long")) & 0xFFFFFF)
+        self.owner.admit()
         kind = self.owner.kind()
         if not self.fore:
-            raise _unmeasured("Setting a series' back colour")
+            raise unmeasured("Setting a series' back colour")
         if isinstance(self.owner, SeriesLine):
             self.owner.settable("colour")
             self.owner.change().line_rgb = wanted
@@ -387,19 +421,19 @@ class SeriesColor(Created):
             self.owner.series.entry.marker_back = wanted
             return
         if self.owner.look().fill_hidden or self.owner.look().line_full:
-            raise _unmeasured("A colour for a series' hidden fill, or once its line was hidden,")
+            raise unmeasured("A colour for a series' hidden fill, or once its line was hidden,")
         self.owner.change().fill_rgb = wanted
 
     @member
     def ObjectThemeColor(self) -> object:
         if not self.fore:
-            raise _unmeasured("The theme colour of a series' back colour")
+            raise unmeasured("The theme colour of a series' back colour")
         return VBAInt(-2 if self.colourless() else 0, "Long")
 
     @member
     def Type(self) -> object:
         if not self.fore:
-            raise _unmeasured("The type of a series' back colour")
+            raise unmeasured("The type of a series' back colour")
         return VBAInt(-2 if self.colourless() else 1, "Long")
 
 
@@ -518,14 +552,14 @@ class _ElementPart(Created):
         chart = self.owner.chart
         chart.admit_read()
         if chart.state.original:
-            raise _unmeasured("The look of a part of an imported chart")
+            raise unmeasured("The look of a part of an imported chart")
         return chart.state.element_looks.get(self.key) or FillLine()
 
     def change(self) -> FillLine:
         """The look to change, which one written out by hiding keeps as it is: no case changed it further."""
         before = self.look()
         if before.fill_hidden or before.line_full:
-            raise _unmeasured("Changing the look of a chart element with its fill or line hidden")
+            raise unmeasured("Changing the look of a chart element with its fill or line hidden")
         return self.written()
 
     def written(self) -> FillLine:
@@ -569,13 +603,13 @@ class ElementFill(_ElementPart):
         wanted = int(to_integer(value, "Long"))
         before = self.usable()
         if wanted not in (0, -1):
-            raise _unmeasured("Visible set to anything but msoTrue or msoFalse")
+            raise unmeasured("Visible set to anything but msoTrue or msoFalse")
         if wanted == -1 and not before.fill_hidden:
             return
         if wanted == 0 and before.fill_hidden:
             return
         if before != FillLine():
-            raise _unmeasured("Hiding or showing the fill of a chart element with a look set")
+            raise unmeasured("Hiding or showing the fill of a chart element with a look set")
         self.written().fill_hidden = True
 
     @member
@@ -610,7 +644,7 @@ class ElementFill(_ElementPart):
         if look.fill_rgb is not None:
             self.change().fill_alpha = round((1 - wanted) * 100000)
         elif look.fill_solid or look.fill_hidden:
-            raise _unmeasured("The transparency of a chart element's fill with no colour of its own")
+            raise unmeasured("The transparency of a chart element's fill with no colour of its own")
         # With no colour written it takes none.
 
     @method
@@ -646,11 +680,11 @@ class ElementLine(_ElementPart):
         wanted = int(to_integer(value, "Long"))
         before = self.look()
         if wanted not in (0, -1):
-            raise _unmeasured("Visible set to anything but msoTrue or msoFalse")
+            raise unmeasured("Visible set to anything but msoTrue or msoFalse")
         if (wanted == -1) != before.line_hidden:
             return
         if before != FillLine():
-            raise _unmeasured("Hiding or showing the line of a chart element with a look set")
+            raise unmeasured("Hiding or showing the line of a chart element with a look set")
         look = self.written()
         look.line_hidden = look.line_full = look.effects = True
         if _windowed(self.key):
@@ -691,7 +725,7 @@ class ElementLine(_ElementPart):
         wanted = int(to_integer(value, "Long"))
         self.look()
         if wanted != 4:
-            raise _unmeasured("This line dash style on a chart element")
+            raise unmeasured("This line dash style on a chart element")
         look = self.change()
         look.line_dash, look.line_cap = _DASHES[wanted]
 
@@ -755,7 +789,7 @@ class ElementColor(Created):
         wanted = _rgb(int(to_integer(value, "Long")) & 0xFFFFFF)
         owner = self.owner
         if not self.fore:
-            raise _unmeasured("Setting a chart element's back colour")
+            raise unmeasured("Setting a chart element's back colour")
         if isinstance(owner, ElementFill):
             owner.usable()
             owner.change().fill_rgb = wanted
@@ -765,7 +799,7 @@ class ElementColor(Created):
     @member
     def ObjectThemeColor(self) -> object:
         if not self.fore:
-            raise _unmeasured("The theme colour of a chart element's back colour")
+            raise unmeasured("The theme colour of a chart element's back colour")
         if isinstance(self.owner, ElementFill):
             self.owner.usable()
         return VBAInt(-2 if self.colourless() else 0, "Long")
@@ -773,7 +807,7 @@ class ElementColor(Created):
     @member
     def Type(self) -> object:
         if not self.fore:
-            raise _unmeasured("The type of a chart element's back colour")
+            raise unmeasured("The type of a chart element's back colour")
         if isinstance(self.owner, ElementFill):
             self.owner.usable()
         return VBAInt(-2 if self.colourless() else 1, "Long")

@@ -508,6 +508,7 @@ def linked_formats(chart: Chart) -> tuple[str, str]:
 def markup(sheet: Worksheet, shape_id: int) -> str:
     shape = next(item for item in sheet.shapes_ if item.shape_id == shape_id)
     from pyopenvba.apps.excel._chart_format import element_markup, markup as series_look
+    from pyopenvba.apps.excel._chart_points import point_labels_markup, points_markup
 
     chart = Chart(sheet, shape)
     data: list[SeriesData] = []
@@ -532,6 +533,9 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
                                look=series_look(item, CHART_TYPES.get(shown_type(chart.state), ''), series.position(),
                                                 sheet.book.stylesheet.colors.theme),
                                own_fill=item.format_look is not None and item.format_look.fill_rgb is not None,
+                               points=points_markup(item, CHART_TYPES.get(shown_type(chart.state), ''),
+                                                    series.position(), sheet.book.stylesheet.colors.theme),
+                               point_labels=point_labels_markup(item),
                                labels=item.data_labels, leader_lines=item.leader_lines, label_look=item.label_look,
                                error_bars=error_bars_markup(item.error_bars, CHART_TYPES.get(shown_type(chart.state), ''),
                                                             lambda element, given: _bar_values(sheet, element, given)),

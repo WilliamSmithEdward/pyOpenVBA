@@ -270,5 +270,5 @@ class DataLabel(Created):
 
     vba_type_name = 'DataLabel'
 
-    def __init__(self, labels: DataLabels, index: int) -> None:
+    def __init__(self, labels: DataLabels | None, index: int) -> None:
         self.labels, self.index = labels, index

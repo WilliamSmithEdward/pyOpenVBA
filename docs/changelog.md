@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Series.Points and Point, on the chart kinds the model makes. A point reads
+  what its series gives until something is set of it, and a save writes a
+  dPt for it in index order. Its Format, Explosion, InvertIfNegative and
+  HasDataLabel work on column, bar, area, pie and doughnut charts, and its
+  look on a line or scatter chart is refused for now. A pie or doughnut point
+  takes its own place's accent, and a change to the series' fill or line
+  takes that part from its points. Measured in
+  `tests/fixtures/series_points.json`.
 - Format on the chart area, plot area, legend, chart title, axis title, axes
   and major gridlines, with its Fill and Line. The chart and plot areas fill
   white, the others have no fill until one is set, and gridlines refuse a

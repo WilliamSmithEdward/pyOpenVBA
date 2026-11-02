@@ -2033,6 +2033,50 @@ PlotArea,Select,method,Select() As Variant,,PARTIAL,tests/fixtures/chart_areas.j
 PlotArea,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 PlotArea,Top,property,As Double,,MISSING,,
 PlotArea,Width,property,As Double,,MISSING,,
+Point,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
+Point,ApplyDataLabels,method,"ApplyDataLabels([Type As XlDataLabelsType], [LegendKey As Variant], [AutoText As Variant], [HasLeaderLines As Variant], [ShowSeriesName As Variant], [ShowCategoryName As Variant], [ShowValue As Variant], [ShowPercentage As Variant], [ShowBubbleSize As Variant], [Separator As Variant]) As Variant",,MISSING,,
+Point,ApplyPictToEnd,property,As Boolean,,MISSING,,
+Point,ApplyPictToFront,property,As Boolean,,MISSING,,
+Point,ApplyPictToSides,property,As Boolean,,MISSING,,
+Point,ClearFormats,method,ClearFormats() As Variant,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Takes the fill and leaves a black 2-point line; column and bar charts only.
+Point,Copy,method,Copy() As Variant,,MISSING,,
+Point,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
+Point,DataLabel,"property, read-only",As DataLabel,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"There while it or its series has a label, else -2147467259; no members yet."
+Point,Delete,method,Delete() As Variant,,MISSING,,
+Point,Explosion,property,As Long,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; written on a pie or doughnut; negative raises 1004.
+Point,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Fill and Line over the series'; setting on line and scatter charts is refused.
+Point,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Point,Has3DEffect,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,False. No setter.
+Point,HasDataLabel,property,As Boolean,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; on a series with labels only False is taken.
+Point,Height,"property, read-only",As Double,,MISSING,,
+Point,InvertIfNegative,property,As Boolean,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Its own or its series'; line and scatter charts are refused.
+Point,IsTotal,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Raises 445. No setter.
+Point,Left,"property, read-only",As Double,,MISSING,,
+Point,MarkerBackgroundColor,property,As Long,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Automatic; an area point echoes its fill. No setter.
+Point,MarkerBackgroundColorIndex,property,As XlColorIndex,,MISSING,,
+Point,MarkerForegroundColor,property,As Long,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Automatic; an area point echoes its line. No setter.
+Point,MarkerForegroundColorIndex,property,As XlColorIndex,,MISSING,,
+Point,MarkerSize,property,As Long,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,What a point reads with no marker set. No setter.
+Point,MarkerStyle,property,As XlMarkerStyle,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,What a point reads with no marker set. No setter.
+Point,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"S and the series number, P and the point number."
+Point,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,The series.
+Point,Paste,method,Paste() As Variant,,MISSING,,
+Point,PictureType,property,As XlChartPictureType,,MISSING,,
+Point,PictureUnit2,property,As Double,,MISSING,,
+Point,PieSliceLocation,method,"PieSliceLocation(loc As XlPieSliceLocation, [Index As XlPieSliceIndex]) As Double",,MISSING,,
+Point,SecondaryPlot,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"False on a pie or doughnut, else 1004. No setter."
+Point,Select,method,Select() As Variant,,MISSING,,
+Point,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Point,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,False. No setter.
+Point,Top,"property, read-only",As Double,,MISSING,,
+Point,Width,"property, read-only",As Double,,MISSING,,
+Points,_Default,method,_Default(Index As Long) As Point,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,As Item.
+Points,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Points,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
+Points,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,One per value.
+Points,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,Read.
+Points,Item,method,Item(Index As Long) As Point,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,By number; 1004 out of range; 13 for text.
+Points,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,The series.
 Protection,AllowDeletingColumns,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
 Protection,AllowDeletingRows,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
 Protection,AllowEditRanges,"property, read-only",As AllowEditRanges,,MISSING,,
@@ -2334,7 +2378,7 @@ Series,PictureType,property,As XlChartPictureType,no setter,PARTIAL,tests/fixtur
 Series,PictureUnit2,property,As Double,no setter,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,Reads 0; the setter is not implemented.
 Series,PlotColorIndex,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_series_reads.json; tests/test_excel_chart_series_reads.py,The series' idx plus 1.
 Series,PlotOrder,property,As Long,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
-Series,Points,method,Points([Index As Variant]) As Object,,MISSING,,
+Series,Points,method,Points([Index As Variant]) As Object,,PARTIAL,tests/fixtures/series_points.json; tests/test_excel_series_points.py,"One per value; by number, 1004 out of range and 13 for text."
 Series,QuartileCalculationInclusiveMedian,property,As Boolean,,MISSING,,
 Series,RegionLabelOption,property,As XlRegionLabelOptions,,MISSING,,
 Series,Select,method,Select() As Variant,,MISSING,,

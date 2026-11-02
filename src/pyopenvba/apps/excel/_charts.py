@@ -42,6 +42,18 @@ SERIES_KINDS = {'column': 3, 'bar': 2, 'line': 4, 'lineMarkers': 4, 'pie': 5, 'd
                 'area': 1}
 
 @dataclass
+class PointState:
+    """What was set of one point, each None while its series gives it, and the unique ids of its dPt and dLbl."""
+
+    look: FillLine | None = None
+    invert: bool | None = None
+    explosion: int | None = None
+    label: bool | None = None
+    unique: int = -1
+    label_unique: int = -1
+
+
+@dataclass
 class SeriesState:
     name: str | None = None
     name_reference: str = ''
@@ -67,6 +79,8 @@ class SeriesState:
     label_generation: int = 0
     #: What Series.Format set, None until then (tests/fixtures/series_format.json).
     format_look: FillLine | None = None
+    #: What was set of its points, by their index from 0 (tests/fixtures/series_points.json).
+    points: dict[int, PointState] = field(default_factory=lambda: {})
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
     #: imported marker filled in a way the model does not read (tests/fixtures/chart_marker_colours.json).
     marker_fore: str | None = None
@@ -1151,7 +1165,7 @@ class Chart(Created):
         wanted = int(to_number(value))
         if wanted not in CHART_TYPES:
             raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
-        if self.state.element_looks or any(entry.format_look is not None for entry in self.state.series):
+        if self.state.element_looks or any(one.format_look is not None or one.points for one in self.state.series):
             raise VBAUnsupportedError('Changing the type of a chart with a look of its own is not implemented')
         from pyopenvba.apps.excel._chart_axes import transition
 
@@ -2178,6 +2192,9 @@ class Series(Created):
         if CHART_TYPES.get(shown_type(self.chart.state)) in ('column', 'bar'):
             self.chart.changed()
             self.entry.invert_if_negative = wanted
+            # It reaches the points set apart (tests/fixtures/series_points.json).
+            for point in self.entry.points.values():
+                point.invert = wanted
 
     @member
     def HasDataLabels(self) -> object:
@@ -2189,6 +2206,8 @@ class Series(Created):
     def _has_data_labels(self, value: object) -> None:
         self.position()
         wanted = to_bool(value)
+        if any(point.label is not None for point in self.entry.points.values()):
+            raise VBAUnsupportedError('Changing the data labels of a series with point labels is not implemented')
         self.chart.changed()
         if self.entry.data_labels and not wanted:
             self.entry.label_generation += 1
@@ -2205,6 +2224,14 @@ class Series(Created):
 
         self.position()
         return ChartFormat(self)
+
+    @method
+    def Points(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        from pyopenvba.apps.excel._chart_points import Points
+
+        self.position()
+        points = Points(self)
+        return points if Index is MISSING else points.vba_get('Item', [Index])
 
     @method
     def DataLabels(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
@@ -2242,6 +2269,11 @@ class Series(Created):
             raise error(1004, 'Unable to set the Explosion property of the Series class')
         self.chart.changed()
         self.entry.explosion = wanted
+        # It takes over from the points' own (tests/fixtures/series_points.json).
+        for place, point in list(self.entry.points.items()):
+            point.explosion = None
+            if point.look is None and point.invert is None and point.label is None:
+                del self.entry.points[place]
 
     @member
     def Smooth(self) -> object:

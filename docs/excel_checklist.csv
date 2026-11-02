@@ -512,7 +512,7 @@ Chart,BeforeDoubleClick,event,"BeforeDoubleClick(ElementID As Long, Arg1 As Long
 Chart,BeforeRightClick,event,BeforeRightClick(Cancel As Boolean),,MISSING,,
 Chart,Calculate,event,Calculate(),,MISSING,,
 Chart,CategoryLabelLevel,property,As XlCategoryLabelLevel,,MISSING,,
-Chart,ChartArea,"property, read-only",As ChartArea,,MISSING,,
+Chart,ChartArea,"property, read-only",As ChartArea,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 Chart,ChartColor,property,As Variant,,MISSING,,
 Chart,ChartGroups,method,ChartGroups([Index As Variant]) As Object,,PARTIAL,tests/fixtures/chart_groups.json; tests/test_excel_chart_groups.py,"The chart's one group, or it by index; any index but 1 raises 1004."
 Chart,ChartObjects,method,ChartObjects([Index As Variant]) As Object,,MISSING,,
@@ -564,7 +564,7 @@ Chart,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/excel_chart
 Chart,Paste,method,Paste([Type As Variant]),,MISSING,,
 Chart,Perspective,property,As Long,,MISSING,,
 Chart,PivotLayout,"property, read-only",As PivotLayout,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
-Chart,PlotArea,"property, read-only",As PlotArea,,MISSING,,
+Chart,PlotArea,"property, read-only",As PlotArea,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 Chart,PlotBy,property,As XlRowCol,no setter,PARTIAL,tests/fixtures/excel_chart_objects.json; tests/fixtures/chart_markup.json,Worked out from the series: columns or rows of value ranges in sheet order with their own names; 0 for literals or reordered series; 1 with none.
 Chart,PlotVisibleOnly,property,As Boolean,,PARTIAL,tests/fixtures/chart_display.json; tests/test_excel_chart_display.py,Written as plotVisOnly; left out of a file it reads True. Imported charts read only.
 Chart,Previous,"property, read-only",As Object,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
@@ -606,6 +606,22 @@ Chart,Tab,"property, read-only",As Tab,,PARTIAL,tests/fixtures/missing_reads.jso
 Chart,Unprotect,method,Unprotect([Password As Variant]),,MISSING,,
 Chart,Visible,property,As XlSheetVisibility,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,As an embedded chart answers; the model holds no chart sheets or pivot charts.
 Chart,Walls,"property, read-only",As Walls,,MISSING,,
+ChartArea,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
+ChartArea,Clear,method,Clear() As Variant,,MISSING,,
+ChartArea,ClearContents,method,ClearContents() As Variant,,MISSING,,
+ChartArea,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+ChartArea,Copy,method,Copy() As Variant,,MISSING,,
+ChartArea,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
+ChartArea,Format,"property, read-only",As ChartFormat,,MISSING,,
+ChartArea,Height,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,"The chart object's height in whole EMU, less 5 points."
+ChartArea,Left,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's Left.
+ChartArea,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Chart.
+ChartArea,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart.
+ChartArea,RoundedCorners,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's. No setter.
+ChartArea,Select,method,Select() As Variant,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Activates the chart with its chart area selected.
+ChartArea,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's. No setter.
+ChartArea,Top,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's Top.
+ChartArea,Width,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,"The chart object's width in whole EMU, less 5 points."
 ChartGroup,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,The Application.
 ChartGroup,AxisGroup,property,As XlAxisGroup,no setter,PARTIAL,tests/fixtures/chart_object_reads.json; tests/test_excel_chart_object_reads.py,Reads xlPrimary; secondary axes are not modelled and the setter is not implemented.
 ChartGroup,BinsCountValue,property,As Long,,MISSING,,
@@ -683,7 +699,7 @@ ChartObject,ZOrder,"property, read-only",As Long,,PARTIAL,tests/fixtures/missing
 ChartObjects,_Default,method,_Default(Index As Variant) As Object,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/fixtures/hidden_defaults_more.json,"Item, bound early. Bound late Excel raises 438, which the model does not tell apart."
 ChartObjects,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
 ChartObjects,Add,method,"Add(Left As Double, Top As Double, Width As Double, Height As Double) As ChartObject",,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
-ChartObjects,Application,"property, read-only",As Application,,MISSING,,
+ChartObjects,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 ChartObjects,Copy,method,Copy() As Variant,,MISSING,,
 ChartObjects,CopyPicture,method,"CopyPicture([Appearance As XlPictureAppearance], [Format As XlCopyPictureFormat]) As Variant",,MISSING,,
 ChartObjects,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
@@ -695,12 +711,12 @@ ChartObjects,Height,property,As Double,,PARTIAL,tests/fixtures/chart_object_more
 ChartObjects,Item,method,Item(Index As Variant) As Object,,PARTIAL,tests/fixtures/excel_chart_objects.json,Measured embedded-chart slice; full member conformance and imported content mutation remain incomplete
 ChartObjects,Left,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Locked,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
-ChartObjects,Parent,"property, read-only",As Object,,MISSING,,
+ChartObjects,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The sheet.
 ChartObjects,Placement,property,As Variant,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
 ChartObjects,PrintObject,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,"Setting it raises 445, as Excel does."
-ChartObjects,ProtectChartObject,property,As Boolean,,MISSING,,
+ChartObjects,ProtectChartObject,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Reads False. No setter.
 ChartObjects,Select,method,Select([Replace As Variant]) As Variant,,MISSING,,
-ChartObjects,ShapeRange,"property, read-only",As ShapeRange,,MISSING,,
+ChartObjects,ShapeRange,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The sheet's charts as one range.
 ChartObjects,Top,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Visible,property,As Boolean,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
 ChartObjects,Width,property,As Double,,PARTIAL,tests/fixtures/chart_object_more.json; tests/test_excel_chart_object_more.py,Sets every chart; reads the value they share. Charts that differ are refused.
@@ -1784,6 +1800,24 @@ PivotTables,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_pivot_
 PivotTables,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 PivotTables,Item,method,Item(Index As Variant) As PivotTable,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
 PivotTables,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_import.py; tests/fixtures/pivots/import.json; tests/fixtures/pivots/axes.json,"Imported OOXML reports and cached values only. See docs/host_completeness.md for unsupported refresh, axis aggregation, layout edits, formatting, structural edits and other limitations."
+PlotArea,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
+PlotArea,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+PlotArea,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
+PlotArea,Format,"property, read-only",As ChartFormat,,MISSING,,
+PlotArea,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+PlotArea,Height,property,As Double,,MISSING,,
+PlotArea,InsideHeight,property,As Double,,MISSING,,
+PlotArea,InsideLeft,property,As Double,,MISSING,,
+PlotArea,InsideTop,property,As Double,,MISSING,,
+PlotArea,InsideWidth,property,As Double,,MISSING,,
+PlotArea,Left,property,As Double,,MISSING,,
+PlotArea,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Plot.
+PlotArea,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart.
+PlotArea,Position,property,As XlChartElementPosition,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Automatic on charts the model made; imported charts are refused. No setter.
+PlotArea,Select,method,Select() As Variant,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Activates the chart with its plot area selected.
+PlotArea,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+PlotArea,Top,property,As Double,,MISSING,,
+PlotArea,Width,property,As Double,,MISSING,,
 Protection,AllowDeletingColumns,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
 Protection,AllowDeletingRows,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/protection.json; tests/fixtures/protection_file.json,"What the last Protect gave, which Unprotect leaves as it was. Saved and read as Excel saves and reads it."
 Protection,AllowEditRanges,"property, read-only",As AllowEditRanges,,MISSING,,

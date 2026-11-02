@@ -1321,7 +1321,7 @@ class ShapeObject(_Drawn):
             # (tests/fixtures/active_chart.json).
             from pyopenvba.apps.excel._charts import ChartObject
 
-            ChartObject(self.sheet, self.shape).made_active(area=True)
+            ChartObject(self.sheet, self.shape).made_active("area")
         return EMPTY
 
     @method

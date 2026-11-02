@@ -1,0 +1,106 @@
+{
+ "measured_at": "2026-11-02T06:09:54.382721+00:00",
+ "source": "Public Function Probe() As String\n    Dim wb As Workbook, ws As Worksheet, fc1 As Object, fc2 As Object, lo As Object, pc As Object\n    Dim pt As Object, n0 As Long, s As String, v As String\n    n0 = Workbooks.Count\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    ws.Range(\"A1:B4\").Value = Application.Transpose(Application.Transpose(Array(Array(\"k\", \"v\"), Array(\"a\", 1), Array(\"b\", 2), Array(\"a\", 3))))\n    Set fc1 = ws.Range(\"B2:B4\").FormatConditions.Add(xlCellValue, xlGreater, \"1\")\n    Set fc2 = ws.Range(\"B2:B4\").FormatConditions.Add(xlCellValue, xlLess, \"3\")\n    Set lo = ws.ListObjects.Add(xlSrcRange, ws.Range(\"A1:B4\"), , xlYes)\n    Set pc = wb.PivotCaches.Create(xlDatabase, ws.Range(\"A1:B4\"))\n    Set pt = pc.CreatePivotTable(ws.Range(\"E1\"), \"P1\")\n    pt.PivotFields(\"k\").Orientation = xlRowField\n    pt.AddDataField pt.PivotFields(\"v\"), \"Sum of v\", xlSum\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = fc1.Priority & \"/\" & fc2.Priority\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    fc1.SetLastPriority: v = \"done\"\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = fc1.Priority & \"/\" & fc2.Priority\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(lo.Slicers)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = lo.Slicers.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(lo.Slicers.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(lo.Slicers.Application)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = lo.Slicers.Creator\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(lo.Slicers(1))\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(ws.Range(\"F3\").PivotCell.RowItems)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(ws.Range(\"F3\").PivotCell.RowItems.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = ws.Range(\"F3\").PivotCell.RowItems.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = Workbooks.Count - n0\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(wb.Queries.Add(\"Q1\", \"let Source = 1 in Source\", \"d\"))\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries(1).Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries(\"Q1\").Formula\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries(1).Description\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(wb.Queries(1).Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries.Item(1).Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries(2).Name\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(wb.Queries.Add(\"Q1\", \"let Source = 2 in Source\"))\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    wb.Queries(1).Delete: v = \"done\"\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    Err.Clear\n    v = \"\"\n    v = wb.Queries.Count\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \"@@@\" & v\n    On Error GoTo 0\n    wb.Close False\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "fc1.Priority & \"/\" & fc2.Priority",
+   "1/2"
+  ],
+  [
+   "do: fc1.SetLastPriority",
+   "done"
+  ],
+  [
+   "fc1.Priority & \"/\" & fc2.Priority",
+   "3/2"
+  ],
+  [
+   "TypeName(lo.Slicers)",
+   "Slicers"
+  ],
+  [
+   "lo.Slicers.Count",
+   "0"
+  ],
+  [
+   "TypeName(lo.Slicers.Parent)",
+   "ListObject"
+  ],
+  [
+   "TypeName(lo.Slicers.Application)",
+   "Application"
+  ],
+  [
+   "lo.Slicers.Creator",
+   "1480803660"
+  ],
+  [
+   "TypeName(lo.Slicers(1))",
+   "E9"
+  ],
+  [
+   "TypeName(ws.Range(\"F3\").PivotCell.RowItems)",
+   "PivotItemList"
+  ],
+  [
+   "TypeName(ws.Range(\"F3\").PivotCell.RowItems.Parent)",
+   "PivotCell"
+  ],
+  [
+   "ws.Range(\"F3\").PivotCell.RowItems.Count",
+   "1"
+  ],
+  [
+   "Workbooks.Count - n0",
+   "1"
+  ],
+  [
+   "wb.Queries.Count",
+   "0"
+  ],
+  [
+   "TypeName(wb.Queries.Add(\"Q1\", \"let Source = 1 in Source\", \"d\"))",
+   "WorkbookQuery"
+  ],
+  [
+   "wb.Queries.Count",
+   "1"
+  ],
+  [
+   "wb.Queries(1).Name",
+   "Q1"
+  ],
+  [
+   "wb.Queries(\"Q1\").Formula",
+   "let Source = 1 in Source"
+  ],
+  [
+   "wb.Queries(1).Description",
+   "d"
+  ],
+  [
+   "TypeName(wb.Queries(1).Parent)",
+   "Queries"
+  ],
+  [
+   "wb.Queries.Item(1).Name",
+   "Q1"
+  ],
+  [
+   "wb.Queries(2).Name",
+   "E-2147352565"
+  ],
+  [
+   "TypeName(wb.Queries.Add(\"Q1\", \"let Source = 2 in Source\"))",
+   "E-2147024809"
+  ],
+  [
+   "do: wb.Queries(1).Delete",
+   "done"
+  ],
+  [
+   "wb.Queries.Count",
+   "0"
+  ]
+ ]
+}

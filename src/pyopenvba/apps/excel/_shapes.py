@@ -1385,6 +1385,9 @@ class _TextLayout(Created):
     tests/fixtures/text_frame.json and tests/fixtures/text_frame2.json measured them on a new rectangle and text
     box."""
 
+    #: A base the two types share, not a type of its own.
+    vba_type_name = ""
+
     def __init__(self, shape: ShapeObject) -> None:
         self.owner = shape
 

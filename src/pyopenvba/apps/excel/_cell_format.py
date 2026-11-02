@@ -43,6 +43,9 @@ def _double(value: object) -> object:
 class _Part(ExcelObject):
     """A CellFormat, or its Font or Interior: the properties it keeps under ``prefix`` in the application's format."""
 
+    #: A base the three types share, not a type of its own.
+    vba_type_name = ""
+
     def __init__(self, application: Application, kept: dict[str, object], prefix: str = "") -> None:
         self.application = application
         self.kept = kept

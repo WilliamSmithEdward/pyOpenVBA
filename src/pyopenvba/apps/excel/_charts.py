@@ -128,6 +128,9 @@ class ChartState:
     #: the file (tests/fixtures/chart_object_reads.json).
     rounded: bool = False
     shadow: bool | None = None
+    #: What Format set on the chart's other elements, by the element: area, plot, legend, title, axis and its kind,
+    #: grid and its axis's kind, and title and its axis's kind (tests/fixtures/chart_element_format.json).
+    element_looks: dict[str, FillLine] = field(default_factory=lambda: {})
 
 
 def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
@@ -637,6 +640,10 @@ class ChartArea(Created):
         self.chart.admit_read()
         return self.chart.state.rounded
 
+    @member
+    def Format(self) -> object:
+        return self.chart.format_of(self, 'area')
+
     @method
     def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
         # Selecting the chart area makes its chart the active one.
@@ -674,6 +681,10 @@ class PlotArea(Created):
         if self.chart.state.original:
             raise VBAUnsupportedError('The plot area position of an imported chart is not implemented')
         return VBAInt(-4105, 'Long')
+
+    @member
+    def Format(self) -> object:
+        return self.chart.format_of(self, 'plot')
 
     @method
     def Select(self) -> object:
@@ -916,6 +927,11 @@ class Chart(Created):
         self.state.dirty = True
         self.sheet.drawing_changed()
 
+    def keeps_look(self, key: str, wanted: bool = False) -> None:
+        """Refuses taking away an element with a look: what it comes back with was not measured."""
+        if not wanted and key in self.state.element_looks:
+            raise VBAUnsupportedError('Taking away a chart element with a look of its own is not implemented')
+
     @method
     def Activate(self) -> object:
         return self.not_a_sheet('Activate')
@@ -1092,6 +1108,12 @@ class Chart(Created):
         self.admit_read()
         return PlotArea(self)
 
+    def format_of(self, element: object, key: str) -> object:
+        from pyopenvba.apps.excel._chart_format import ElementFormat
+
+        self.admit_read()
+        return ElementFormat(element, self, key)
+
     @member
     def ShowAllFieldButtons(self) -> object:
         self.admit_read()
@@ -1129,8 +1151,8 @@ class Chart(Created):
         wanted = int(to_number(value))
         if wanted not in CHART_TYPES:
             raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
-        if any(entry.format_look is not None for entry in self.state.series):
-            raise VBAUnsupportedError('Changing the type of a chart whose series have their own look is not implemented')
+        if self.state.element_looks or any(entry.format_look is not None for entry in self.state.series):
+            raise VBAUnsupportedError('Changing the type of a chart with a look of its own is not implemented')
         from pyopenvba.apps.excel._chart_axes import transition
 
         self.admit_change()
@@ -1160,6 +1182,7 @@ class Chart(Created):
     def _has_title(self, value: object) -> None:
         self.admit_change()
         wanted = to_bool(value)
+        self.keeps_look('title', wanted)
         self.changed()
         self.state.title_deleted = False
         if not wanted:
@@ -1216,6 +1239,7 @@ class Chart(Created):
     def _legend(self, value: object) -> None:
         self.admit_change()
         wanted = to_bool(value)
+        self.keeps_look('legend', wanted)
         self.changed()
         if not wanted:
             # A legend taken away comes back as new.
@@ -1321,6 +1345,7 @@ class Chart(Created):
         wanted = to_bool(value)
         self.admit_change()
         found = axis(self, found.entry.kind, 1)
+        self.keeps_look(f'axis{found.entry.kind}', wanted)
         self.changed()
         found.entry.present = wanted and self.state.chart_type not in NO_AXES
 
@@ -1394,6 +1419,10 @@ class ChartTitle(TitleMembers):
         self.chart.admit_read()
         return 'Title'
 
+    @member
+    def Format(self) -> object:
+        return self.chart.format_of(self, 'title')
+
     def title_link(self, formula: str) -> None:
         self.chart.changed()
         self.chart.state.title_typed = False
@@ -1420,6 +1449,7 @@ class ChartTitle(TitleMembers):
     @method
     def Delete(self) -> object:
         self.chart.admit_change()
+        self.chart.keeps_look('title')
         self.chart.changed()
         state = self.chart.state
         state.title, state.title_typed, state.title_look, state.title_deleted = None, False, TitleLook(), True
@@ -1495,6 +1525,11 @@ class Legend(Created):
     def _shadow(self, value: object) -> None:
         wanted = to_bool(value)
         self.change().legend_shadow = wanted
+
+    @member
+    def Format(self) -> object:
+        self.shown()
+        return self.chart.format_of(self, 'legend')
 
     @method
     def Delete(self) -> object:

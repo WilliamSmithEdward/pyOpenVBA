@@ -224,8 +224,9 @@ class TitleMembers(Created):
         self.title_restyle().shadow = wanted
 
 
-def title_element(look: TitleLook, *, text: str | None, linked_text: str = '') -> str:
-    """The title element: ``text`` typed in, the linked cell's text, or with neither Excel's automatic title."""
+def title_element(look: TitleLook, *, text: str | None, linked_text: str = '', frame: str = '') -> str:
+    """The title element: ``text`` typed in, the linked cell's text, or with neither Excel's automatic title; ``frame``
+    is the spPr Format set."""
     if look.rotation == VERTICAL:
         body = '<a:bodyPr rot="0" vert="wordArtVert"/>'
     elif look.rotation is not None:
@@ -248,7 +249,9 @@ def title_element(look: TitleLook, *, text: str | None, linked_text: str = '') -
         if formatted:
             properties = f'<c:txPr>{body}<a:lstStyle/><a:p>{paragraph}<a:endParaRPr lang="en-US"/></a:p></c:txPr>'
     shadow = shadow_markup(look.shadow)
-    return f'<c:title>{source}<c:overlay val="{int(look.overlay)}"/>{shadow}{properties}</c:title>'
+    if shadow and frame:
+        raise VBAUnsupportedError('A chart title with both a shadow and a Format look is not implemented')
+    return f'<c:title>{source}<c:overlay val="{int(look.overlay)}"/>{shadow or frame}{properties}</c:title>'
 
 
 def read_look(title: Element, namespaces: dict[str, str]) -> TitleLook:

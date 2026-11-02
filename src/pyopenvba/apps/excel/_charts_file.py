@@ -507,7 +507,7 @@ def linked_formats(chart: Chart) -> tuple[str, str]:
 
 def markup(sheet: Worksheet, shape_id: int) -> str:
     shape = next(item for item in sheet.shapes_ if item.shape_id == shape_id)
-    from pyopenvba.apps.excel._chart_format import markup as series_look
+    from pyopenvba.apps.excel._chart_format import element_markup, markup as series_look
 
     chart = Chart(sheet, shape)
     data: list[SeriesData] = []
@@ -544,10 +544,14 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     if state.title is not None:
         look = state.title_look
         title = title_element(look, text=state.title if state.title_typed else None,
-                              linked_text=linked_title(sheet, look.formula) if look.formula else '')
+                              linked_text=linked_title(sheet, look.formula) if look.formula else '',
+                              frame=element_markup('title', state.element_looks.get('title')))
+    frame = element_markup('legend', state.element_looks.get('legend'))
+    if frame and state.legend_shadow is not None:
+        raise VBAUnsupportedError('A legend with both a shadow and a Format look is not implemented')
     xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted,
                      legend=legend_markup(state.legend_position, overlay=state.legend_overlay, shadow=state.legend_shadow,
-                                          deleted=state.legend_deleted)
+                                          deleted=state.legend_deleted, frame=frame)
                      if state.legend else "", axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,
                      not_available_as_blank=state.not_available_as_blank,
@@ -573,6 +577,13 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     if state.data_table:
         # The data table closes the plot area, after the axes, on every kind (tests/fixtures/chart_series_more.json).
         xml = xml.replace('</c:plotArea>', DATA_TABLE + '</c:plotArea>', 1)
+    # The plot area's look follows all of that, and the chart area's follows the chart
+    # (tests/fixtures/chart_element_format.json).
+    xml = xml.replace('</c:plotArea>', element_markup('plot', state.element_looks.get('plot')) + '</c:plotArea>', 1)
+    area = element_markup('area', state.element_looks.get('area'))
+    if area and state.shadow is not None:
+        raise VBAUnsupportedError('A chart area with both a shadow and a Format look is not implemented')
+    xml = xml.replace('</c:chart><c:printSettings>', f'</c:chart>{area}<c:printSettings>', 1)
     if state.rounded:
         xml = xml.replace('<c:roundedCorners val="0"/>', '<c:roundedCorners val="1"/>', 1)
     if state.shadow is not None:

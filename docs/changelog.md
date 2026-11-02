@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Format on the chart area, plot area, legend, chart title, axis title, axes
+  and major gridlines, with its Fill and Line. The chart and plot areas fill
+  white, the others have no fill until one is set, and gridlines refuse a
+  fill. The chart area, axes and gridlines draw a grey line, and the others
+  have none until a colour is set. A save writes each look where Excel does.
+  Measured in `tests/fixtures/chart_element_format.json`.
 - Series.Format, with its Fill and Line, on the chart kinds the model
   makes. A column, bar, pie, doughnut or area series reads its accent as
   its fill and has no line until a colour is set. A line series draws in

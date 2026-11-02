@@ -25,7 +25,7 @@ from pyopenvba.interpreter._values import EMPTY, VBAInt, VBASingle, error, to_in
 from pyopenvba.shapes._values import FillLine, emu, points
 
 if TYPE_CHECKING:
-    from pyopenvba.apps.excel._charts import ChartState, Series, SeriesState
+    from pyopenvba.apps.excel._charts import Chart, ChartState, Series, SeriesState
 
 _FILLED = ("column", "bar", "pie", "doughnut", "area")
 _MIXED = -2147483648.0
@@ -404,7 +404,7 @@ class SeriesColor(Created):
 
 
 class ChartFormat(Created):
-    """A chart element's look; a series' is what the model has."""
+    """A series' look; ElementFormat is the same type for the chart's other elements."""
 
     vba_type_name = "ChartFormat"
 
@@ -426,3 +426,354 @@ class ChartFormat(Created):
     @member
     def Line(self) -> object:
         return SeriesLine(self)
+
+
+# -- the chart's other elements (tests/fixtures/chart_element_format.json)
+#
+# Each is one of a few profiles. The chart and plot areas fill white, as the system's window colour; the rest have no
+# fill until one is set, and gridlines refuse a fill altogether. The chart area, axes and gridlines draw a grey line of
+# 1 point, the system's window text at a tint; the rest have no line until a colour is set, as a column series has not.
+
+_WINDOW = '<a:sysClr val="window" lastClr="FFFFFF"/>'
+_GREY = '<a:sysClr val="windowText" lastClr="000000"><a:tint val="75000"/></a:sysClr>'
+_GREY_LONG = 9013641
+_GREY_STROKE = ('w="12700" cap="flat" cmpd="sng" algn="ctr">{}<a:prstDash val="solid"/><a:round/>')
+
+
+def _windowed(key: str) -> bool:
+    return key in ("area", "plot")
+
+
+def _grey(key: str) -> bool:
+    return key == "area" or key.startswith(("axis", "grid"))
+
+
+def element_markup(key: str, look: FillLine | None) -> str:
+    """An element's spPr, none while nothing was set of it."""
+    if look is None:
+        return ""
+    plain = _WINDOW if _windowed(key) else '<a:schemeClr val="accent1"/>'
+    fill = ""
+    extensions = ""
+    if look.fill_hidden:
+        fill = "<a:noFill/>"
+        hidden = f"<a:solidFill>{_WINDOW}</a:solidFill>" if _windowed(key) else "<a:noFill/>"
+        extensions = ('<a:ext uri="{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}">'
+                      f"<a14:hiddenFill {_A14}>{hidden}</a14:hiddenFill></a:ext>")
+    elif look.fill_rgb is not None:
+        fill = _solid(look.fill_rgb, look.fill_alpha)
+    elif look.fill_solid:
+        fill = f"<a:solidFill>{plain}</a:solidFill>"
+    elif look.no_fill:
+        fill = "<a:noFill/>"
+    if not look.line_full:
+        line = _plain_line(look)
+    elif _grey(key):
+        line = f"<a:ln {_GREY_STROKE.format('<a:noFill/>')}</a:ln>"
+    else:
+        line = "<a:ln><a:noFill/></a:ln>"
+    if look.line_hidden:
+        inside = (f"{_A14} {_GREY_STROKE.format(f'<a:solidFill>{_GREY}</a:solidFill>')}" if _grey(key)
+                  else f"{_A14}><a:noFill/>")
+        extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
+                       f"<a14:hiddenLine {inside}</a14:hiddenLine></a:ext>")
+    body = fill + line + ("<a:effectLst/>" if look.effects else "") + (
+        f"<a:extLst>{extensions}</a:extLst>" if extensions else "")
+    return f"<c:spPr>{body}</c:spPr>" if body else ""
+
+
+class ElementFormat(Created):
+    """The Format of a chart's element, other than a series."""
+
+    vba_type_name = "ChartFormat"
+
+    def __init__(self, element: object, chart: Chart, key: str) -> None:
+        self.element, self.chart, self.key = element, chart, key
+
+    @member
+    def Parent(self) -> object:
+        return self.element
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def Fill(self) -> object:
+        return ElementFill(self)
+
+    @member
+    def Line(self) -> object:
+        return ElementLine(self)
+
+
+class _ElementPart(Created):
+    vba_type_name = ""
+
+    def __init__(self, owner: ElementFormat) -> None:
+        self.owner = owner
+        self.key = owner.key
+
+    def look(self) -> FillLine:
+        chart = self.owner.chart
+        chart.admit_read()
+        if chart.state.original:
+            raise _unmeasured("The look of a part of an imported chart")
+        return chart.state.element_looks.get(self.key) or FillLine()
+
+    def change(self) -> FillLine:
+        """The look to change, which one written out by hiding keeps as it is: no case changed it further."""
+        before = self.look()
+        if before.fill_hidden or before.line_full:
+            raise _unmeasured("Changing the look of a chart element with its fill or line hidden")
+        return self.written()
+
+    def written(self) -> FillLine:
+        chart = self.owner.chart
+        chart.changed()
+        return chart.state.element_looks.setdefault(self.key, FillLine())
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.chart.sheet.book.application
+
+
+class ElementFill(_ElementPart):
+    vba_type_name = "FillFormat"
+
+    def usable(self) -> FillLine:
+        if self.key.startswith("grid"):
+            # Gridlines are lines: they have no fill to read or set.
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        return self.look()
+
+    def hidden(self) -> bool:
+        """Whether it reads as hidden, which an element with no fill does once its line is hidden."""
+        look = self.usable()
+        return look.fill_hidden or look.no_fill
+
+    def spelled(self) -> bool:
+        look = self.usable()
+        return look.fill_rgb is not None or look.fill_solid or look.fill_hidden
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0 if self.hidden() else -1, "Long")
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        before = self.usable()
+        if wanted not in (0, -1):
+            raise _unmeasured("Visible set to anything but msoTrue or msoFalse")
+        if wanted == -1 and not before.fill_hidden:
+            return
+        if wanted == 0 and before.fill_hidden:
+            return
+        if before != FillLine():
+            raise _unmeasured("Hiding or showing the fill of a chart element with a look set")
+        self.written().fill_hidden = True
+
+    @member
+    def ForeColor(self) -> object:
+        return ElementColor(self, fore=True)
+
+    @member
+    def BackColor(self) -> object:
+        return ElementColor(self, fore=False)
+
+    @member
+    def Type(self) -> object:
+        if not self.spelled() or (self.hidden() and not _windowed(self.key)):
+            return VBAInt(-2, "Long")
+        return VBAInt(1, "Long")
+
+    @member
+    def Transparency(self) -> object:
+        look = self.usable()
+        if self.hidden() and not _windowed(self.key):
+            return VBASingle(1.0)
+        if not self.spelled():
+            return VBASingle(_MIXED)
+        return VBASingle(0.0 if look.fill_alpha is None else (100000 - look.fill_alpha) / 100000)
+
+    @setter("Transparency")
+    def _transparency(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        look = self.usable()
+        if not 0 <= wanted <= 1:
+            raise error(*_INVALID)
+        if look.fill_rgb is not None:
+            self.change().fill_alpha = round((1 - wanted) * 100000)
+        elif look.fill_solid or look.fill_hidden:
+            raise _unmeasured("The transparency of a chart element's fill with no colour of its own")
+        # With no colour written it takes none.
+
+    @method
+    def Solid(self) -> object:
+        self.usable()
+        self.change().fill_solid = True
+        return EMPTY
+
+
+class ElementLine(_ElementPart):
+    vba_type_name = "LineFormat"
+
+    def reads_hidden(self) -> bool:
+        """A line that is no real line: hidden, or a weight or dash on an element with no line."""
+        look = self.look()
+        return not _grey(self.key) and look.line_rgb is None and (
+            look.line_full or look.line_width is not None or look.line_dash is not None)
+
+    def absent(self) -> bool:
+        return not _grey(self.key) and self.look().line_rgb is None and not self.reads_hidden()
+
+    def touched(self) -> bool:
+        look = self.look()
+        return (look.line_rgb is not None or look.line_width is not None or look.line_dash is not None
+                or look.line_full)
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0 if self.look().line_hidden or self.reads_hidden() else -1, "Long")
+
+    @setter("Visible")
+    def _visible(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        before = self.look()
+        if wanted not in (0, -1):
+            raise _unmeasured("Visible set to anything but msoTrue or msoFalse")
+        if (wanted == -1) != before.line_hidden:
+            return
+        if before != FillLine():
+            raise _unmeasured("Hiding or showing the line of a chart element with a look set")
+        look = self.written()
+        look.line_hidden = look.line_full = look.effects = True
+        if _windowed(self.key):
+            look.fill_solid = True
+        elif not self.key.startswith("grid"):
+            look.no_fill = True
+
+    @member
+    def ForeColor(self) -> object:
+        return ElementColor(self, fore=True)
+
+    @member
+    def Weight(self) -> object:
+        look = self.look()
+        if self.absent() or self.reads_hidden():
+            return VBASingle(_MIXED)
+        if look.line_width is not None:
+            return VBASingle(points(look.line_width))
+        return VBASingle(1.0 if _grey(self.key) else 0.75)
+
+    @setter("Weight")
+    def _weight(self, value: object) -> None:
+        wanted = float(VBASingle(float(to_number(value))))
+        self.look()
+        if wanted < 0:
+            raise error(*_INVALID)
+        self.change().line_width = emu(wanted)
+
+    @member
+    def DashStyle(self) -> object:
+        if self.absent() or self.reads_hidden():
+            return VBAInt(-2, "Long")
+        dash = self.look().line_dash
+        return VBAInt(next((key for key, (name, _) in _DASHES.items() if name == dash), 1), "Long")
+
+    @setter("DashStyle")
+    def _dash_style(self, value: object) -> None:
+        wanted = int(to_integer(value, "Long"))
+        self.look()
+        if wanted != 4:
+            raise _unmeasured("This line dash style on a chart element")
+        look = self.change()
+        look.line_dash, look.line_cap = _DASHES[wanted]
+
+    @member
+    def Style(self) -> object:
+        return VBAInt(-2 if self.absent() or self.reads_hidden() else 1, "Long")
+
+    @member
+    def Transparency(self) -> object:
+        if self.absent() or self.reads_hidden() or not self.touched():
+            return VBASingle(_MIXED)
+        return VBASingle(0.0)
+
+
+class ElementColor(Created):
+    """A chart element's fill or line colour."""
+
+    vba_type_name = "ColorFormat"
+
+    def __init__(self, owner: ElementFill | ElementLine, *, fore: bool) -> None:
+        self.owner, self.fore = owner, fore
+
+    @member
+    def Parent(self) -> object:
+        return self.owner
+
+    @member
+    def Application(self) -> object:
+        return self.owner.owner.chart.sheet.book.application
+
+    def colourless(self) -> bool:
+        owner = self.owner
+        if isinstance(owner, ElementLine):
+            return owner.absent()
+        return not _windowed(owner.key) and not owner.spelled() and not owner.hidden()
+
+    @member
+    def RGB(self) -> object:
+        owner = self.owner
+        if isinstance(owner, ElementFill):
+            look = owner.usable()
+            if not self.fore:
+                return VBAInt(_WHITE, "Long")
+            if self.colourless():
+                return VBAInt(0, "Long")
+            if look.fill_rgb is not None:
+                return VBAInt(bgr(look.fill_rgb), "Long")
+            if _windowed(owner.key) or owner.hidden():
+                return VBAInt(_WHITE, "Long")
+            theme = owner.owner.chart.sheet.book.stylesheet.colors.theme
+            return VBAInt(bgr(theme[4]), "Long")
+        look = owner.look()
+        if self.colourless():
+            return VBAInt(0, "Long")
+        if owner.reads_hidden():
+            return VBAInt(_WHITE, "Long")
+        return VBAInt(_GREY_LONG if look.line_rgb is None else bgr(look.line_rgb), "Long")
+
+    @setter("RGB")
+    def _rgb(self, value: object) -> None:
+        wanted = _rgb(int(to_integer(value, "Long")) & 0xFFFFFF)
+        owner = self.owner
+        if not self.fore:
+            raise _unmeasured("Setting a chart element's back colour")
+        if isinstance(owner, ElementFill):
+            owner.usable()
+            owner.change().fill_rgb = wanted
+        else:
+            owner.change().line_rgb = wanted
+
+    @member
+    def ObjectThemeColor(self) -> object:
+        if not self.fore:
+            raise _unmeasured("The theme colour of a chart element's back colour")
+        if isinstance(self.owner, ElementFill):
+            self.owner.usable()
+        return VBAInt(-2 if self.colourless() else 0, "Long")
+
+    @member
+    def Type(self) -> object:
+        if not self.fore:
+            raise _unmeasured("The type of a chart element's back colour")
+        if isinstance(self.owner, ElementFill):
+            self.owner.usable()
+        return VBAInt(-2 if self.colourless() else 1, "Long")

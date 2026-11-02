@@ -380,7 +380,7 @@ Axis,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_axis_names.
 Axis,DisplayUnit,property,As XlDisplayUnit,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,Built-in units and xlCustom written as dispUnits with a label; xlNone removes it; other numbers change nothing.
 Axis,DisplayUnitCustom,property,As Double,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,"A set makes the unit custom, written as custUnit. Reads 1 until set."
 Axis,DisplayUnitLabel,"property, read-only",As DisplayUnitLabel,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Raises 1004 without a labelled display unit; a labelled one is refused.
-Axis,Format,"property, read-only",As ChartFormat,,MISSING,,
+Axis,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 Axis,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Axis,HasDisplayUnitLabel,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_scale.json; tests/test_excel_chart_axis_scale.py,On when a display unit is set; False drops dispUnitsLbl. Without a unit a set changes nothing.
 Axis,HasMajorGridlines,property,As Boolean,,PARTIAL,tests/fixtures/chart_axis_lines.json; tests/test_excel_chart_axis_lines.py,True on the value axis of a new chart. Written as a bare majorGridlines element. Imported charts read only.
@@ -421,7 +421,7 @@ AxisTitle,Caption,property,As String,,PARTIAL,tests/test_excel_chart_axes.py,"Me
 AxisTitle,Characters,"property, read-only",As Characters,,MISSING,,
 AxisTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 AxisTitle,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_axes.py,"Measured primary 2D axes/manual scales/title lifetime; imported namespace/identity and reciprocal linkage admitted; drawing protection guarded; effective automatic layout, secondary axes and imported mutation remain unsupported."
-AxisTitle,Format,"property, read-only",As ChartFormat,,MISSING,,
+AxisTitle,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 AxisTitle,Formula,property,As String,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,A one-cell reference links the title (made absolute); text without = is typed; =1+2 raises 1004. Other references refused.
 AxisTitle,FormulaLocal,property,As String,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,"Measured under en-US, where it is Formula."
 AxisTitle,FormulaR1C1,property,As String,,PARTIAL,tests/fixtures/chart_axis_title.json; tests/test_excel_chart_axis_title.py,The link spelled R1C1; a set takes an absolute R1C1 cell.
@@ -626,7 +626,7 @@ ChartArea,ClearContents,method,ClearContents() As Variant,,MISSING,,
 ChartArea,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 ChartArea,Copy,method,Copy() As Variant,,MISSING,,
 ChartArea,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
-ChartArea,Format,"property, read-only",As ChartFormat,,MISSING,,
+ChartArea,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 ChartArea,Height,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,"The chart object's height in whole EMU, less 5 points."
 ChartArea,Left,property,As Double,no setter,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,The chart object's Left.
 ChartArea,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Chart.
@@ -640,10 +640,10 @@ ChartFormat,Adjustments,"property, read-only",As Adjustments,,MISSING,,
 ChartFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,Read.
 ChartFormat,AutoShapeType,property,As MsoAutoShapeType,,MISSING,,
 ChartFormat,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,Read.
-ChartFormat,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,A column-like series' accent; a line takes none; markers take its colour.
+ChartFormat,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"A series or element's fill, by its kind."
 ChartFormat,Glow,"property, read-only",As GlowFormat,,MISSING,,
-ChartFormat,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,A line series' accent at 3 points; none on a column-like series until a colour is set.
-ChartFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/series_format.json; tests/test_excel_series_format.py,The series; a series is the one element that has a Format so far.
+ChartFormat,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"A series or element's line, by its kind."
+ChartFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,The series or chart element.
 ChartFormat,PictureFormat,"property, read-only",As PictureFormat,,MISSING,,
 ChartFormat,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
 ChartFormat,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
@@ -752,7 +752,7 @@ ChartTitle,Caption,property,As String,,PARTIAL,tests/fixtures/chart_title.json; 
 ChartTitle,Characters,"property, read-only",As Characters,,MISSING,,
 ChartTitle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ChartTitle,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Removes the title and writes autoTitleDeleted 1, which HasTitle = False does not; HasTitle = True clears it."
-ChartTitle,Format,"property, read-only",As ChartFormat,,MISSING,,
+ChartTitle,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 ChartTitle,Formula,property,As String,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,A one-cell reference links the title (made absolute); text without = is typed; =1+2 raises 1004. Other references refused.
 ChartTitle,FormulaLocal,property,As String,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Measured under en-US, where it is Formula."
 ChartTitle,FormulaR1C1,property,As String,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,The link spelled R1C1; a set takes an absolute R1C1 cell.
@@ -1225,7 +1225,7 @@ Gridlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtur
 Gridlines,Border,"property, read-only",As Border,,MISSING,,
 Gridlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,Read.
 Gridlines,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,As HasMajorGridlines or HasMinorGridlines set False.
-Gridlines,Format,"property, read-only",As ChartFormat,,MISSING,,
+Gridlines,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Line only, a fill raises -2147467259; major gridlines; minor are refused."
 Gridlines,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Gridlines,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,"Gridline 1 to 4: the value axis major and minor, then the category axis."
 Gridlines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_axis_parts.json; tests/test_excel_chart_axis_parts.py,The axis.
@@ -1358,7 +1358,7 @@ Legend,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/
 Legend,Clear,method,Clear() As Variant,,PARTIAL,tests/fixtures/chart_legend_entries.json; tests/test_excel_chart_legend_entries.py,"Takes the legend away, as Delete does."
 Legend,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Legend,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,"As HasLegend = False, which resets the legend."
-Legend,Format,"property, read-only",As ChartFormat,,MISSING,,
+Legend,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 Legend,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 Legend,Height,property,As Double,,MISSING,,
 Legend,IncludeInLayout,property,As Boolean,,PARTIAL,tests/fixtures/chart_legend.json; tests/test_excel_chart_legend.py,False writes overlay 1.
@@ -2018,7 +2018,7 @@ PivotTables,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_piv
 PlotArea,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
 PlotArea,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 PlotArea,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_areas.json; tests/test_excel_chart_areas.py,Read.
-PlotArea,Format,"property, read-only",As ChartFormat,,MISSING,,
+PlotArea,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/chart_element_format.json; tests/test_excel_chart_element_format.py,"Fill and Line: a look of its own, measured; changing it further after a hide, and taking the element away with a look, are refused."
 PlotArea,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 PlotArea,Height,property,As Double,,MISSING,,
 PlotArea,InsideHeight,property,As Double,,MISSING,,

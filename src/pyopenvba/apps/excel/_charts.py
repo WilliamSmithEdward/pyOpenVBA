@@ -996,6 +996,85 @@ class Chart(Created):
         self.admit_read()
         return NOTHING
 
+    # -- what a 2-D chart the model made reads for the 3-D view, its style and its label levels; a pie or doughnut is
+    # seen from higher and unturned (tests/fixtures/chart_type_reads.json)
+
+    def made(self) -> ChartState:
+        self.admit_read()
+        if self.state.original:
+            raise VBAUnsupportedError("Reading this setting of an imported chart is not implemented")
+        return self.state
+
+    @member
+    def Elevation(self) -> object:
+        return VBAInt(75 if self.made().chart_type in (5, -4120) else 15, 'Long')
+
+    @member
+    def Rotation(self) -> object:
+        return VBAInt(0 if self.made().chart_type in (5, -4120) else 20, 'Long')
+
+    @member
+    def Perspective(self) -> object:
+        self.made()
+        return VBAInt(30, 'Long')
+
+    @member
+    def RightAngleAxes(self) -> object:
+        self.made()
+        return False
+
+    @member
+    def DepthPercent(self) -> object:
+        self.made()
+        return VBAInt(100, 'Long')
+
+    @member
+    def HeightPercent(self) -> object:
+        self.made()
+        return VBAInt(100, 'Long')
+
+    @member
+    def GapDepth(self) -> object:
+        self.made()
+        return VBAInt(150, 'Long')
+
+    @member
+    def AutoScaling(self) -> object:
+        self.made()
+        return True
+
+    @member
+    def BarShape(self) -> object:
+        self.made()
+        return VBAInt(0, 'Long')
+
+    @member
+    def ChartStyle(self) -> object:
+        self.made()
+        return VBAInt(2, 'Long')
+
+    @member
+    def ChartColor(self) -> object:
+        self.made()
+        return VBAInt(2, 'Long')
+
+    def single_levels(self, what: str) -> None:
+        state = self.made()
+        for entry in state.series:
+            if category_levels(self.sheet, entry) or (
+                    entry.name_reference and len(referenced_values(self.sheet, entry.name_reference)) > 1):
+                raise VBAUnsupportedError(f'{what} over labels of several levels is not implemented')
+
+    @member
+    def CategoryLabelLevel(self) -> object:
+        self.single_levels('CategoryLabelLevel')
+        return VBAInt(0, 'Long')
+
+    @member
+    def SeriesNameLevel(self) -> object:
+        self.single_levels('SeriesNameLevel')
+        return VBAInt(0, 'Long')
+
     @member
     def ChartArea(self) -> object:
         self.admit_read()
@@ -1618,6 +1697,29 @@ class ChartGroup(Created):
     def _has_series_lines(self, value: object) -> None:
         self._flag('series_lines', value)
 
+    # -- the lines and bars themselves, which a group without them answers with 424
+    # (tests/fixtures/chart_type_reads.json)
+
+    @member
+    def DropLines(self) -> object:
+        return DropLines(self).shown()
+
+    @member
+    def HiLoLines(self) -> object:
+        return HiLoLines(self).shown()
+
+    @member
+    def UpBars(self) -> object:
+        return UpBars(self).shown()
+
+    @member
+    def DownBars(self) -> object:
+        return DownBars(self).shown()
+
+    @member
+    def SeriesLines(self) -> object:
+        return SeriesLines(self).shown()
+
     @member
     def FirstSliceAngle(self) -> object:
         self._kind()
@@ -1635,6 +1737,76 @@ class ChartGroup(Created):
     @setter('DoughnutHoleSize')
     def _doughnut_hole_size(self, value: object) -> None:
         self._set('hole', value, 10, 90)
+
+
+class _GroupLines(Created):
+    """A chart group's drop lines, high-low lines, up or down bars or series lines: there while the group's Has member
+    reads True, named as Excel names them, and gone with Delete (tests/fixtures/chart_type_reads.json)."""
+
+    #: The ChartGroup member that says whether they are there, and their name; None where reading it raises.
+    flag = ''
+    name: str | None = None
+
+    def __init__(self, group: ChartGroup) -> None:
+        self.group = group
+
+    def present(self) -> bool:
+        return bool(self.group.vba_get(self.flag, []))
+
+    def shown(self) -> object:
+        if not self.present():
+            raise error(424, 'Object required')
+        return self
+
+    @member
+    def Parent(self) -> object:
+        return self.group
+
+    @member
+    def Application(self) -> object:
+        return self.group.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        if not self.present():
+            raise error(424, 'Object required')
+        if self.name is None:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        return self.name
+
+    @method
+    def Delete(self) -> object:
+        if not self.present():
+            raise error(424, 'Object required')
+        if self.name is None:
+            raise VBAUnsupportedError(f'Deleting {self.vba_type_name} is not implemented')
+        self.group.vba_set(self.flag, False)
+        return True
+
+
+class DropLines(_GroupLines):
+    vba_type_name = 'DropLines'
+    flag, name = 'HasDropLines', 'Dropline 1'
+
+
+class HiLoLines(_GroupLines):
+    vba_type_name = 'HiLoLines'
+    flag, name = 'HasHiLoLines', 'HiLoline 1'
+
+
+class UpBars(_GroupLines):
+    vba_type_name = 'UpBars'
+    flag, name = 'HasUpDownBars', 'UpBar 1'
+
+
+class DownBars(_GroupLines):
+    vba_type_name = 'DownBars'
+    flag, name = 'HasUpDownBars', None
+
+
+class SeriesLines(_GroupLines):
+    vba_type_name = 'SeriesLines'
+    flag, name = 'HasSeriesLines', 'Seriesline 1'
 
 
 class SeriesCollection(VBACollection, ItemDefault, Created):

@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Chart.Elevation, Rotation, Perspective, RightAngleAxes, DepthPercent,
+  HeightPercent, GapDepth, AutoScaling, BarShape, ChartStyle, ChartColor,
+  CategoryLabelLevel and SeriesNameLevel, as every chart type the model
+  makes reads them. A pie or doughnut is seen from higher and unturned.
+  ChartGroup.DropLines, HiLoLines, UpBars, DownBars and SeriesLines, with
+  their names and Delete. Measured in
+  `tests/fixtures/chart_type_reads.json`.
 - Chart.ChartArea and PlotArea. The chart area is named Chart and reads
   its chart object's Left and Top, its size less 5 points, and its shadow
   and rounded corners. The plot area is named Plot, with an automatic

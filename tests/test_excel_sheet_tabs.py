@@ -45,7 +45,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], dict
     """Every case made in the model with the macro Excel ran, its dumps before the save and once the model opened
     its own file again, and the folder it saved to."""
     folder = tmp_path_factory.mktemp("sheet_tabs")
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     # The macro Excel ran names its file under a Windows folder; here it goes under this system's.
     app.add_module(RECORD["build"].replace('folder & "\\" & name', f'folder & "{os.sep}" & name'), name="Builder")
     session, reopened = str(app.run("Build", str(folder))).split("@@", 1)
@@ -86,7 +86,7 @@ def test_a_tab_finds_the_palette_slot_excels_finds(rgb: list[int], index: int) -
 
 def test_the_model_reads_excels_tabs() -> None:
     """Excel's own file, opened in the model, reads back every tab as Excel read it."""
-    app = ExcelApplication.open(FIXTURES / "sheet_tabs.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / "sheet_tabs.xlsx", with_vba=False, sandbox=False)
     app.add_module(RECORD["build"].split("Public Function Build")[0] + (
         "Public Function Read() As String\nDim ws As Object, out As String\n"
         'For Each ws In ActiveWorkbook.Worksheets\nout = out & ws.Name & "^" & Dump(ws) & "~"\nNext\n'

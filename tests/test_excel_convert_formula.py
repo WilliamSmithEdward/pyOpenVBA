@@ -25,7 +25,7 @@ def portable(code: str) -> str:
 @pytest.fixture(scope="module")
 def replayed(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
     folder = tmp_path_factory.mktemp("convert_formula").resolve()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(portable(RECORD["probe"]), name="Probe")
     answer = str(app.run("Probe.Probe", str(folder)))

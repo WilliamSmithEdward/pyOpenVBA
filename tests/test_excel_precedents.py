@@ -24,7 +24,7 @@ def portable(code: str) -> str:
 @pytest.fixture(scope="module")
 def replayed(tmp_path_factory: pytest.TempPathFactory) -> list[list[str]]:
     folder = tmp_path_factory.mktemp("precedents").resolve()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["probe"], name="Probe")
     answer = str(app.run("Probe.Probe"))

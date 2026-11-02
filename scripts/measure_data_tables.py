@@ -411,7 +411,7 @@ def model_saves(folder: Path) -> None:
     from pyopenvba.apps.excel import ExcelApplication
 
     for name, step in STEPS.items():
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_workbook()
         app.add_module(BUILD + f'\nSub Save()\nDim wb As Workbook\nSet wb = ActiveWorkbook\nBuild wb.Worksheets(1)\n'
                        f'{step}\nEnd Sub\n', name='Harness')

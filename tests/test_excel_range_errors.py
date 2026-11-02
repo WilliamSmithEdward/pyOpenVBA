@@ -22,7 +22,7 @@ CASES = range(len(FIXTURE["cases"]))
 @pytest.mark.parametrize("index", CASES)
 def test_range_errors_answer_as_live_excel_did(index: int, tmp_path: Path) -> None:
     statements, cell, saved, answer = FIXTURE["cases"][index]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name="Measure")
     assert app.run("Measure.Probe", str(tmp_path), index, index) == answer, (statements, cell)

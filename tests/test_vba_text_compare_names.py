@@ -19,7 +19,7 @@ RECORD: dict[str, Any] = json.loads(
 
 
 def test_comparisons_fold_and_searches_do_not() -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['compare_source'], name='TextCompare')
     got = str(app.run('TextCompare.Compare')).split('|')
@@ -29,7 +29,7 @@ def test_comparisons_fold_and_searches_do_not() -> None:
 @pytest.fixture(scope='module')
 def named(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('names')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['names_source'].replace('folder & "\\" & saved', f'folder & "{os.sep}" & saved'),
                    name='TableNames')

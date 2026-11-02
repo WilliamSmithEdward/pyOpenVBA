@@ -29,7 +29,7 @@ REOPEN = ('Public Function Reopen(ByVal path As String, ByVal which As Long) As 
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[ExcelApplication, list[str], Path]:
     folder = tmp_path_factory.mktemp('chart_axis_lines')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE + REOPEN, name='AxisProbe')
     return app, str(app.run('AxisProbe.Probe', str(folder))).split('@@@'), folder

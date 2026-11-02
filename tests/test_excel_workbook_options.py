@@ -22,7 +22,7 @@ OWNED = re.compile(r'<(?:fileSharing|workbookPr|fileRecoveryPr)\b')
 
 
 def test_each_case_as_excel_answered(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='OptionsProbe')
     got = str(app.run('OptionsProbe.Probe', str(tmp_path))).split('|')

@@ -28,7 +28,7 @@ def test_every_deviation_and_variance_is_excels_to_the_bit(tmp_path: Path) -> No
     rows = ", ".join(f'"{group}|{value}"' for group, values in RECORD["groups"].items() for value in values)
     # The macro Excel ran names its file under a Windows folder; here it goes under this system's.
     code = RECORD["build"].replace("{rows}", rows).replace("{folder}\\", str(tmp_path) + os.sep)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     assert app.run("Build") == "done"
     assert sheet_cells(tmp_path / "pivot_variance.xlsx", {"data"}) == sheet_cells(FIXTURES / "pivot_variance.xlsx",

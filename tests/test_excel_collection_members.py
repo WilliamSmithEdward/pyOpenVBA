@@ -17,7 +17,7 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / 'collection_members.json').read_
 
 @pytest.fixture(scope='module')
 def answers() -> list[str]:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['source'], name='MembersProbe')
     return str(app.run('MembersProbe.Probe', str(FIXTURES / RECORD['queries_file']))).split('@@@')

@@ -28,7 +28,7 @@ def _kept(answer: str) -> str:
 @pytest.mark.parametrize("index", range(len(FIXTURE["cases"])))
 def test_workbook_properties_answer_as_live_excel_did(index: int, tmp_path: Path) -> None:
     statements, _saved, answer = FIXTURE["cases"][index]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE.replace('Prop(wbo, "UserStatus")', '"x"'), name="Measure")
     if statements and statements[-1] in UNSUPPORTED:

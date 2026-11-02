@@ -34,7 +34,7 @@ def text_settings(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('text_frame')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='TextFrameProbe')
     return str(app.run('TextFrameProbe.Probe', str(folder))).split('@@@'), folder

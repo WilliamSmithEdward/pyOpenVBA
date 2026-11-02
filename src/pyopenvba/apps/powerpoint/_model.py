@@ -14,7 +14,7 @@ two models of the same thing.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
@@ -54,12 +54,22 @@ class PowerPointObject(VBAObject):
         return f"<{type(self).__name__}>"
 
 
+if TYPE_CHECKING:
+    from pyopenvba.interpreter._runtime import Interpreter
+
+
 class Application(PowerPointObject):
     """The PowerPoint application, with its presentations."""
 
     vba_type_name = "Application"
 
+    def outside(self, what: str) -> None:
+        """The interpreter's gate on reaching outside the engine."""
+        if self.interpreter is not None:
+            self.interpreter.outside(what)
+
     def __init__(self) -> None:
+        self.interpreter: Interpreter | None = None
         self.presentations_ = Presentations(self)
         self.active: Presentation | None = None
         self.visible = -1

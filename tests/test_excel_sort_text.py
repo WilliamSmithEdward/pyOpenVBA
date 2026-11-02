@@ -52,7 +52,7 @@ def test_every_key_is_the_one_windows_made() -> None:
 
 @pytest.mark.parametrize("matching", [False, True], ids=["ignoring case", "matching case"])
 def test_excels_sort_orders_text_as_the_model_does(matching: bool) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(str(ORDER["code"]), name="Measure")
     ignoring, matched = (part for part in str(app.run("Measure")).split("|"))
@@ -67,7 +67,7 @@ def _decoded(coded: str) -> str:
 def test_styles_named_beyond_ascii_are_refused_found_listed_and_saved_as_in_excel(tmp_path: Path) -> None:
     """A ligature is the letters it is made of and ss a sharp s, an accent or a hyphen tells two names apart, and
     case does not: as Excel refused and found styles, and in the order it listed and saved them."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(STYLES["code"], name="Measure")
     saved = tmp_path / "style_order.xlsx"
@@ -206,7 +206,7 @@ def test_range_sort_orders_kana_and_kanji_as_live_excel_did(locale: str, matchin
     kind = "sort-case" if matching else "sort"
     texts, order = next((payload, answer) for _label, case_kind, payload, answer in LIVE_SORTS[locale]["cases"]
                         if case_kind == kind)
-    app = ExcelApplication(locale=locale)
+    app = ExcelApplication(locale=locale, sandbox=False)
     app.add_workbook()
     filled = "".join(f'    Cells({place + 1}, 3).Value = '
                      + " & ".join(f"ChrW(&H{ord(char):04X})" for char in text)

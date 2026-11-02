@@ -24,7 +24,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('sort_fields')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='FieldsProbe')
     return str(app.run('FieldsProbe.Probe', str(folder))).split('@@@'), folder
@@ -52,7 +52,7 @@ def test_each_save_keeps_the_sort_state_excel_wrote(run: tuple[list[str], Path],
 
 def test_a_sub_field_is_not_saved(tmp_path: Path) -> None:
     """Excel's file for a field sorting by a data type's field is not measured."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Sub Save(ByVal path As String)\n    Dim ws As Worksheet\n    Set ws = ActiveSheet\n'
                    '    ws.Sort.SortFields.Add ws.Range("A1:A3")\n    ws.Sort.SetRange ws.Range("A1:A3")\n'

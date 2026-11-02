@@ -32,7 +32,7 @@ def _saved_palette(path: Path) -> str:
 @pytest.mark.parametrize("index", range(len(FIXTURE["cases"])))
 def test_the_palette_answers_as_live_excel_did(index: int, tmp_path: Path) -> None:
     statements, _read, saved, answer = FIXTURE["cases"][index]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name="Measure")
     if index in UNSUPPORTED:
@@ -45,13 +45,13 @@ def test_the_palette_answers_as_live_excel_did(index: int, tmp_path: Path) -> No
 
 
 def test_a_saved_palette_comes_back(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     book = app.add_workbook()
     app.add_module('Sub P()\n    ActiveWorkbook.Colors(3) = RGB(1, 2, 3)\n    Range("A1").Interior.ColorIndex = 3\n'
                    'End Sub\n', name="M")
     app.run("P")
     saved = tmp_path / "book.xlsx"
     book.SaveAs(str(saved))
-    again = ExcelApplication.open(saved)
+    again = ExcelApplication.open(saved, sandbox=False)
     assert again.evaluate("ActiveWorkbook.Colors(3)") == 197121.0
     assert again.evaluate('Range("A1").Interior.Color') == 197121.0

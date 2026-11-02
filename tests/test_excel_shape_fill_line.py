@@ -35,7 +35,7 @@ UNMEASURED = ['sh.Line.Visible = msoFalse: sh.Fill.Visible = msoFalse',
 
 @pytest.mark.parametrize('statements', UNMEASURED)
 def test_an_unmeasured_combination_is_refused(statements: str) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Go()\n    Dim sh As Object\n'
                    '    Set sh = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40)\n'
@@ -54,14 +54,14 @@ def drawn(path: Path) -> str:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('shape_fill_line')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='FillLineProbe')
     return str(app.run('FillLineProbe.Probe', str(folder))).split('@@@'), folder
 
 
 def test_a_duplicate_keeps_the_look_and_changes_its_own() -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Function Go() As String\n    Dim sh As Object, d As Object\n'
                    '    Set sh = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40)\n'

@@ -25,7 +25,7 @@ def portable(code: str) -> str:
 
 
 def session(code: str) -> ExcelApplication:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(portable(code), name="Probe")
     return app

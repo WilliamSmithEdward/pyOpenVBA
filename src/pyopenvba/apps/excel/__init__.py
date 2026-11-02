@@ -324,10 +324,12 @@ class SheetView(NamedRangeAPI):
 class ExcelApplication(NamedRangeAPI):
     """Excel, in memory: workbooks, sheets, cells, and the macros that move them."""
 
-    def __init__(self, *, locale: str = "en-US") -> None:
+    def __init__(self, *, locale: str = "en-US", sandbox: bool = True) -> None:
         """``locale`` is the Windows Regional format the VBA runs under: "en-US", or "ja-JP" for what CStr,
         Format, FormatCurrency, FormatDateTime, MonthName and WeekdayName write and what CDate, IsDate,
-        DateValue and the number conversions read under Japanese (Japan). Cells are not affected."""
+        DateValue and the number conversions read under Japanese (Japan). Cells are not affected. ``sandbox``
+        keeps running VBA from reaching outside the engine, its files, network and other programs, which raises
+        VBASandboxError; False allows what pyOpenVBA implements of them. Python's own calls are not affected."""
         from pyopenvba.apps.excel._projects import ExcelInterpreter
         from pyopenvba.interpreter._locale import locale_named
 
@@ -335,15 +337,17 @@ class ExcelApplication(NamedRangeAPI):
         self.application.locale = locale_named(locale)
         self.interpreter = ExcelInterpreter(self.application)
         self.application.interpreter = self.interpreter
+        self.interpreter.sandbox = sandbox
 
     # --- state in -------------------------------------------------------------------
 
     @classmethod
-    def open(cls, path: str | Path, *, with_vba: bool = True, locale: str = "en-US") -> ExcelApplication:
+    def open(cls, path: str | Path, *, with_vba: bool = True, locale: str = "en-US",
+             sandbox: bool = True) -> ExcelApplication:
         """Load a workbook, its sheets, its names, its queries and its macros."""
         from pyopenvba.apps.excel._io import load_workbook
 
-        app = cls(locale=locale)
+        app = cls(locale=locale, sandbox=sandbox)
         book = load_workbook(app.application, Path(path))
         app.application.workbooks_.books.append(book)
         from pyopenvba.apps.excel._projects import attach_project

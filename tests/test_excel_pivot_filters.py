@@ -81,7 +81,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], dict
     code = (RECORD["build"].replace("{steps}", RECORD["steps"]).replace("{source}", RECORD["source"])
             .replace("{layouts}", body).replace("{unsaved}", RECORD["unsaved"])
             .replace("{folder}\\", str(folder) + os.sep))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     session, reopened = str(app.run("Build")).split("~", 1)
     return dumps(session), dumps(reopened), folder
@@ -129,7 +129,7 @@ def test_a_refreshed_cache_keeps_the_values_a_report_lists_as_excels_does(
 @pytest.fixture(scope="module")
 def excel_file_read() -> dict[str, str]:
     """Every table of the file Excel saved, as the model reads it."""
-    app = ExcelApplication.open(FIXTURES / "pivot_filters.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / "pivot_filters.xlsx", with_vba=False, sandbox=False)
     app.add_module(HELPER + "Public Function Read() As String\nDim ws As Object, out As String\n"
                    "For Each ws In ActiveWorkbook.Worksheets\n"
                    "If ws.PivotTables.Count > 0 Then out = out & ws.Name & \"^\" & Dump(ws.PivotTables(1)) & \"|\"\n"
@@ -145,7 +145,7 @@ def test_the_model_reads_excels_file_as_excel_does(excel_file_read: dict[str, st
 def test_a_page_field_choosing_an_item_and_allowing_several_saves_as_choosing_it(tmp_path: Path) -> None:
     """Excel saves such a field and cannot open the file it wrote (page_then_multiple); the model saves it as
     choosing the one item, which opens showing the same item."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     layout = next(one for one in LAYOUTS if one["name"] == "page_then_multiple")
     index = LAYOUTS.index(layout) + 1
@@ -159,7 +159,7 @@ def test_a_page_field_choosing_an_item_and_allowing_several_saves_as_choosing_it
     fields, _cache = tables(tmp_path / "chosen.xlsx")["page_then_multiple"]
     assert 'multipleItemSelectionAllowed' not in fields
     assert '<pageField fld="1" item="0" hier="-1"' in fields.replace(" />", "/>")
-    again = ExcelApplication.open(tmp_path / "chosen.xlsx", with_vba=False)
+    again = ExcelApplication.open(tmp_path / "chosen.xlsx", with_vba=False, sandbox=False)
     again.add_module(HELPER + 'Public Function Read() As String\nRead = Dump(Worksheets("page_then_multiple")'
                      '.PivotTables(1))\nEnd Function\n', name="Reader")
     assert str(again.run("Read")) == layout["dump"].replace(
@@ -167,7 +167,7 @@ def test_a_page_field_choosing_an_item_and_allowing_several_saves_as_choosing_it
 
 
 def test_a_data_field_cannot_be_filtered_by_its_items() -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(HELPER + "Public Sub Probe()\n"
                    "Dim wb As Object, data As Object, cache As Object, r As Long, regions As Variant, "
@@ -180,7 +180,7 @@ def test_a_data_field_cannot_be_filtered_by_its_items() -> None:
 
 def test_a_sheet_renames_beside_a_cache_whose_source_text_is_r1c1() -> None:
     """A recorded macro gives a cache its source as R1C1 text naming the sheet; another sheet still renames."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Function Probe() As String\nDim ws As Object, cache As Object\n'
                    'Set ws = ActiveWorkbook.Worksheets(1)\nws.Name = "data"\n'

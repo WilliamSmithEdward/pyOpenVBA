@@ -21,7 +21,7 @@ PROBES: dict[str, dict[str, Any]] = {probe['name']: probe for probe in RECORD['p
 
 
 def _run(source: str) -> object:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(source, name='Harness')
     return app.run('Harness.Probe')

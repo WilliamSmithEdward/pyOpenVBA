@@ -24,7 +24,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('autofilter_sort')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='FilterSortProbe')
     return str(app.run('FilterSortProbe.Probe', str(folder))).split('@@@'), folder
@@ -56,7 +56,7 @@ def test_each_save_writes_the_filter_excel_wrote(run: tuple[list[str], Path], sa
 
 def test_a_saved_filter_sort_is_not_read(run: tuple[list[str], Path]) -> None:
     """Excel's reading of the sort settings a file keeps with its AutoFilter is not measured."""
-    app = ExcelApplication.open(run[1] / 'down.xlsx')
+    app = ExcelApplication.open(run[1] / 'down.xlsx', sandbox=False)
     app.add_module('Function P() As Long\n    P = ActiveSheet.AutoFilter.Sort.SortFields.Count\nEnd Function\n',
                    name='Reading')
     with pytest.raises(VBAUnsupportedError, match='AutoFilter'):

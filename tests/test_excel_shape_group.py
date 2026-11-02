@@ -32,7 +32,7 @@ def anchors(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('shape_group')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='GroupProbe')
     return str(app.run('GroupProbe.Probe', str(folder))).split('@@@'), folder

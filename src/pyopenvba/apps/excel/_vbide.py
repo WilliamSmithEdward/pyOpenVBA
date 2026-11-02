@@ -286,6 +286,7 @@ class VBComponents(VBACollection):
 
     @method
     def Import(self, FileName: object) -> object:
+        self.project.book.application.outside("VBComponents.Import")
         path = Path(to_text(FileName))
         text = read_source_file(path, self.project.code_page)
         if path.suffix.casefold() == '.frm':
@@ -385,6 +386,7 @@ class VBComponent(VBAObject):
 
     @method
     def Export(self, FileName: object) -> object:
+        self.project.book.application.outside("VBComponent.Export")
         header = split_attribute_header(self.source)[0]
         attributes = {match.group(1).casefold(): match.group(2) for match in re.finditer(r'(?im)^Attribute (\w+)\s*=\s*([^\r\n]*)', header)}
         if self.kind == 'form':
@@ -497,6 +499,7 @@ class CodeModule(VBAObject):
 
     @method
     def AddFromFile(self, FileName: object) -> object:
+        self.component.project.book.application.outside("CodeModule.AddFromFile")
         self.load_file_text(read_source_file(Path(to_text(FileName)), self.component.project.code_page), rename=True)
         return EMPTY
 

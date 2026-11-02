@@ -47,7 +47,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> dict[str, tuple[str, str, 
     folder = tmp_path_factory.mktemp("names_add")
     out: dict[str, tuple[str, str, str]] = {}
     for index, name in enumerate(NAMES):
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_module(ONE, name="Cases")
         try:
             answer = carried(str(app.run("One", index, str(folder))))

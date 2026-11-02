@@ -37,7 +37,7 @@ def saved_filters(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('pivot_filter_order')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='FilterOrderProbe')
     return str(app.run('FilterOrderProbe.Probe', str(folder))).split('@@@'), folder

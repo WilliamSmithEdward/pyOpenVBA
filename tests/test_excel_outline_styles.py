@@ -33,7 +33,7 @@ def style_parts(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('outline_styles')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='OutlineProbe')
     return str(app.run('OutlineProbe.Probe', str(folder))).split('@@@'), folder

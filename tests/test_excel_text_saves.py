@@ -21,7 +21,7 @@ UNSUPPORTED = {"csv_mac": "xlCSVMac", "text_mac": "xlTextMac", "printer": "xlTex
 
 def _saved(name: str, folder: Path) -> tuple[str, bytes]:
     file, file_format = CASES[name]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["probe"], name="Probe")
     answer = str(app.run("Probe.Probe", name, str(folder / file), file_format))

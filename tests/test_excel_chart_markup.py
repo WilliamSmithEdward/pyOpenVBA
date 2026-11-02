@@ -40,7 +40,7 @@ def chart_part(path: Path) -> str:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('chart_markup')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='MarkupProbe')
     return str(app.run('MarkupProbe.Probe', str(folder))).split('@@@'), folder

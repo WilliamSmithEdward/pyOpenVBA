@@ -35,7 +35,7 @@ def anchors(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('shape_polyline')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='PolylineProbe')
     return str(app.run('PolylineProbe.Probe', str(folder))).split('@@@'), folder

@@ -48,7 +48,7 @@ def _source() -> str:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('series_points')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_source(), name='PointsProbe')
     return str(app.run('PointsProbe.Probe', str(folder), 0, len(RECORD['cases']) - 1)).split('@@@'), folder
@@ -67,7 +67,7 @@ def test_each_chart_part_as_excel_saved_it(run: tuple[list[str], Path], index: i
 @pytest.mark.parametrize('case', [one for one, _, _ in RECORD['cases'] if refused(one)])
 def test_a_refused_case_reports_itself(case: str) -> None:
     kind, statements = case.split(': ', 1)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Go()\n    Dim ws As Object, ch As Object, sr As Object, pt As Object\n'
                    '    Set ws = ActiveSheet\n    ws.Range("B1:B3").Value = 1\n'

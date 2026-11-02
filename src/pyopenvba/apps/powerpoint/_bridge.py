@@ -48,6 +48,7 @@ class PowerPointBridge(HostBridge):
         return UNRESOLVED if found is None else _as_vba(found)
 
     def create(self, type_name_: str) -> object:
+        self.application.outside(f"CreateObject({type_name_!r})")
         raise VBAUnsupportedError(
             f"CreateObject({type_name_!r}) needs a real COM server, which pyOpenVBA does not start"
         )

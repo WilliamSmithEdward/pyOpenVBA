@@ -31,7 +31,7 @@ def subtotal_tops(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('pivot_subtotal_location')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='SubtotalProbe')
     return str(app.run('SubtotalProbe.Probe', str(folder))).split('@@@'), folder

@@ -60,7 +60,7 @@ def _without_account(text: str) -> str:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('threaded_comments')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.application.user_name = USER
     app.add_workbook()
     app.add_module(SOURCE, name='ThreadsProbe')
@@ -104,7 +104,7 @@ def test_each_saved_workbook_reads_back_its_threads(run: tuple[list[str], Path],
     answer = RECORD['cases'][index][1]
     if not answer.startswith('ok'):
         pytest.skip('the case raised before it saved a thread')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.application.user_name = USER
     app.add_workbook()
     app.add_module(REOPEN, name='ThreadsReopen')

@@ -24,7 +24,7 @@ def test_every_cell_answers_as_excels_does(path: Path) -> None:
     """Values, items, subtotals, grand totals, headers, buttons, page fields and blanks, the whole table, and the
     cells beside it."""
     record: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(record["dump"], name="Locations")
     text = str(app.run("Dump", str(FIXTURES / record["file"])))
     found = {key: cells.split("~") for key, cells in (one.split("^", 1) for one in text.split("`") if "^" in one)}

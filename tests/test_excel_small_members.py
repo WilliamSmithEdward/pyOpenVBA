@@ -18,7 +18,7 @@ RECORD: dict[str, Any] = json.loads(
 
 @pytest.fixture(scope='module')
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_workbook()
     made.add_module(RECORD['source'], name='SmallProbe')
     return made
@@ -30,7 +30,7 @@ def test_creator_of_every_object(app: ExcelApplication) -> None:
 
 def test_a_sheet_name_in_a_book_named_for_its_sheet_finds_the_sheets_own() -> None:
     """Workbooks.Add(xlWBATWorksheet) names its book Sheet1, as its sheet; Names("Sheet1!Local") is the sheet's."""
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_workbook()
     made.add_module('Function P() As String\n'
                     '    Dim wb As Workbook\n'
@@ -47,7 +47,7 @@ def test_each_case_as_excel_answered(app: ExcelApplication) -> None:
 
 def test_check_compatibility_is_saved(tmp_path: Path) -> None:
     """Saved as checkCompatibility="1" in the workbookPr, as Excel saves it, and read back."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Sub Save(ByVal path As String, ByVal on As Boolean)\nActiveWorkbook.CheckCompatibility = on\n'
                    'ActiveWorkbook.SaveAs path, xlOpenXMLWorkbook\nEnd Sub\n', name='Saving')
@@ -56,4 +56,4 @@ def test_check_compatibility_is_saved(tmp_path: Path) -> None:
         with zipfile.ZipFile(tmp_path / name) as package:
             workbook = package.read('xl/workbook.xml').decode('utf-8')
         assert ('checkCompatibility="1"' in workbook) is setting
-        assert ExcelApplication.open(tmp_path / name).workbook.CheckCompatibility() is setting
+        assert ExcelApplication.open(tmp_path / name, sandbox=False).workbook.CheckCompatibility() is setting

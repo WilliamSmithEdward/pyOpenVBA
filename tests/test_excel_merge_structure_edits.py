@@ -17,7 +17,7 @@ RECORD: dict[str, Any] = json.loads(
 
 @pytest.fixture(scope='module')
 def answers() -> list[str]:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['source'], name='MergeEditsProbe')
     return str(app.run('MergeEditsProbe.Probe')).split('@@@')
@@ -29,7 +29,7 @@ def test_each_case_as_excel_answered(answers: list[str], index: int) -> None:
 
 
 def test_a_moved_merge_saves_where_it_went(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     path = str(tmp_path / 'moved.xlsx')
     app.add_module('Public Function Trip(ByVal path As String) As String\n    Dim wb As Workbook\n'
@@ -45,7 +45,7 @@ def test_a_moved_merge_saves_where_it_went(tmp_path: Path) -> None:
 
 def test_a_shift_that_unmerges_is_refused_while_excel_would_ask() -> None:
     # The probe turns DisplayAlerts off; with it on, Excel asks before it unmerges, which is not measured.
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Cut()\n    Range("B2:C3").Merge\n    Range("B1").Insert xlShiftDown\nEnd Sub\n',
                    name='Cut')

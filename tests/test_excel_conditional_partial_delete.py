@@ -50,7 +50,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], Path
                    .replace("{delete}", layout["delete"]) for layout in LAYOUTS)
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     code = RECORD["build"].replace("{layouts}", body).replace("{folder}\\", str(folder) + os.sep)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     shown = dict(one.split("^", 1) for one in str(app.run("Build")).split("|") if "^" in one)
     return shown, folder

@@ -34,7 +34,7 @@ def _summary(xml: str) -> dict[str, object]:
 @pytest.fixture(scope='module')
 def answers(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('cleared')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='Clearing')
     return str(app.run('Clearing.Probe', str(folder))).split('@@@'), folder

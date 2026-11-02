@@ -94,7 +94,7 @@ def excel_saved(name: str) -> dict[str, object]:
 
 def opened(name: str) -> ExcelApplication:
     """The file the edit ``name`` was made to, opened in the model."""
-    return ExcelApplication.open(FIXTURES / f"{EDITS[name][0]}.xlsx", with_vba=False)
+    return ExcelApplication.open(FIXTURES / f"{EDITS[name][0]}.xlsx", with_vba=False, sandbox=False)
 
 
 def edit(app: ExcelApplication, name: str) -> ExcelApplication:
@@ -114,7 +114,7 @@ def test_the_record_holds_each_file() -> None:
 def test_a_sheet_copy_and_a_paste_make_dxfs_as_excel_does(tmp_path: Path) -> None:
     """A rule a sheet copy or a paste makes takes a new dxf ahead of every one made before it, as a rule made by
     FormatConditions.Add does."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     app.add_module(RECORD["copy_build"].replace("{folder}\\", str(tmp_path) + os.sep), name="Builder")
     assert app.run("Build") == "ok"
@@ -125,7 +125,7 @@ def test_a_sheet_copy_and_a_paste_make_dxfs_as_excel_does(tmp_path: Path) -> Non
 def test_a_file_saved_unchanged_writes_its_dxfs_as_excel_does(case: dict[str, Any], tmp_path: Path) -> None:
     """Each name of a dxf takes one of its own, in the order Excel reads the parts, a dxf nothing names is left out,
     and every part names each where the save wrote it; a second save keeps what the first wrote."""
-    app = ExcelApplication.open(FIXTURES / f"{case['name']}.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / f"{case['name']}.xlsx", with_vba=False, sandbox=False)
     first = holdings(app.save(tmp_path / "first.xlsx"))
     assert first == case["resaved"]
     assert holdings(app.save(tmp_path / "second.xlsx")) == first
@@ -152,7 +152,7 @@ def test_a_save_leaves_each_format_reading_as_excel_read_it(case: dict[str, Any]
     """The rules, the tables' columns, the sort and the pivot read the same after a save renumbers their dxfs, the
     rules, the tables and the sort as Excel read them in the file."""
     ordered = case["name"].startswith("order")
-    app = ExcelApplication.open(FIXTURES / f"{case['name']}.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / f"{case['name']}.xlsx", with_vba=False, sandbox=False)
     app.add_module(READER, name="Reader")
     before = app.run("Read", ordered, "beta" if ordered else "three"), app.run("Pivot")
     app.save(tmp_path / "saved.xlsx")

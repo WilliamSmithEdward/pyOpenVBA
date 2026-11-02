@@ -104,7 +104,7 @@ def built(folder: Path) -> ExcelApplication:
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     code = (RECORD["build"].replace("{steps}", RECORD["steps"]).replace("{scenarios}", body)
             .replace('folder & "\\" & name', f'folder & "{os.sep}" & name'))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     return app
 
@@ -192,7 +192,7 @@ def test_each_sheet_raises_the_events_excel_raises() -> None:
     """NewSheet once the sheet holds its table laid out, then the sheet it went before deactivating, it
     activating, and its table's cells changing, calculated and updated, one sheet after another."""
     measured = RECORD["events"]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module("Public Log As String\n", name="EventLog")
     app.add_module(measured["sink"], name="ShowSink", kind="class")
     app.add_module(measured["watch"], name="Watcher")

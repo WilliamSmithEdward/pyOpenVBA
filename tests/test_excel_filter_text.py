@@ -31,7 +31,7 @@ RECORD: dict[str, Any] = json.loads((Path(__file__).parent / "fixtures" / "filte
 
 
 def _run(code: str, macro: str, *args: object) -> object:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(code, name="Probe")
     return app.run(macro, *args)

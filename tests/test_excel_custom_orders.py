@@ -24,7 +24,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('custom_orders')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='OrdersProbe')
     return str(app.run('OrdersProbe.Probe', str(folder))).split('@@@'), folder
@@ -54,7 +54,7 @@ def test_each_save_keeps_the_sort_state_excel_wrote(run: tuple[list[str], Path],
 
 
 def test_a_saved_custom_order_reads_back(run: tuple[list[str], Path]) -> None:
-    book = ExcelApplication().open_workbook(str(run[1] / 'down.xlsx'))
+    book = ExcelApplication(sandbox=False).open_workbook(str(run[1] / 'down.xlsx'))
     field = SortObject(book.sheets_[0]).state.fields[0]
     assert (field.order, field.key.first.address(absolute=False), field.custom) == \
         (DESCENDING, 'A1:A7', ('High', 'Medium', 'Low'))

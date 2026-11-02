@@ -82,7 +82,7 @@ def built(folder: Path) -> ExcelApplication:
     # The macro Excel ran names its file under a Windows folder; here it goes under this system's.
     code = (RECORD["build"].replace("{steps}", RECORD["steps"]).replace("{source}", RECORD["source"])
             .replace("{layouts}", body).replace("{folder}\\", str(folder) + os.sep))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     return app
 
@@ -140,7 +140,7 @@ def test_the_cells_keep_excels_formats(formats: tuple[dict[str, dict[str, tuple[
 @pytest.fixture(scope="module")
 def excel_file_read() -> dict[str, str]:
     """Every table of the file Excel saved, as the model reads it."""
-    app = ExcelApplication.open(FIXTURES / "pivot_calculated_fields.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / "pivot_calculated_fields.xlsx", with_vba=False, sandbox=False)
     app.add_module(HELPER + "Public Function Read() As String\nDim ws As Object, out As String\n"
                    "For Each ws In ActiveWorkbook.Worksheets\n"
                    "If ws.PivotTables.Count > 0 Then out = out & ws.Name & \"^\" & Dump(ws.PivotTables(1)) & \"|\"\n"
@@ -156,7 +156,7 @@ def test_the_model_reads_excels_file_as_excel_does(excel_file_read: dict[str, st
 def test_a_refused_formula_with_alerts_on() -> None:
     """A formula Excel refuses adds nothing with alerts off, as measured; with them on Excel shows a message, which
     reports itself unsupported."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(
         "Public Function Run(alerts As Boolean) As String\nDim wb As Object, ws As Object, pt As Object\n"
         "Set wb = Workbooks.Add\nSet ws = wb.Worksheets(1)\n"

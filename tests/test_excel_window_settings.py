@@ -19,7 +19,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 
 
 def test_each_case_as_excel_answered(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='WindowProbe')
     got = str(app.run('WindowProbe.Probe', str(tmp_path))).split('|')
@@ -39,13 +39,13 @@ def test_each_case_as_excel_answered(tmp_path: Path) -> None:
 
 def test_the_settings_read_back(tmp_path: Path) -> None:
     """A file's sheetView and workbookView give the settings back as Excel saved them."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Sub Save(ByVal path As String)\nWith ActiveWindow\n.DisplayOutline = False\n.DisplayRuler = False\n'
                    '.GridlineColorIndex = 5\n.AutoFilterDateGrouping = False\nEnd With\n'
                    'ActiveWorkbook.SaveAs path, xlOpenXMLWorkbook\nEnd Sub\n', name='Saving')
     app.run('Saving.Save', str(tmp_path / 'set.xlsx'))
-    reopened = ExcelApplication.open(tmp_path / 'set.xlsx')
+    reopened = ExcelApplication.open(tmp_path / 'set.xlsx', sandbox=False)
     reopened.add_module('Function Read() As String\nWith ActiveWindow\nRead = .DisplayOutline & " " & .DisplayRuler & '
                         '" " & .DisplayWhitespace & " " & .GridlineColorIndex & " " & .GridlineColor & " " & '
                         '.AutoFilterDateGrouping\nEnd With\nEnd Function\n', name='Reading')

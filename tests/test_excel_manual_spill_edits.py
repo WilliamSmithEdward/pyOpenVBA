@@ -20,7 +20,7 @@ FILES: list[dict[str, Any]] = RECORD['files']
 
 @pytest.mark.parametrize('probe', PROBES, ids=[probe['name'] for probe in PROBES])
 def test_native_manual_spill_edit(probe: dict[str, str]) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(probe['macro'], name='Harness')
     assert app.run('Harness.Probe') == probe['result']
@@ -28,7 +28,7 @@ def test_native_manual_spill_edit(probe: dict[str, str]) -> None:
 
 @pytest.mark.parametrize('case', FILES, ids=[case['name'] for case in FILES])
 def test_native_manual_file_reads_caches_then_calculates(case: dict[str, Any]) -> None:
-    app = ExcelApplication.open(ROOT / case['file'])
+    app = ExcelApplication.open(ROOT / case['file'], sandbox=False)
     app.add_module(RECORD['read_saved'] + '\nSub CalculateNow()\nApplication.Calculate\nEnd Sub', name='Readback')
     assert app.evaluate('Application.Calculation') == -4135
     assert app.evaluate('Application.CalculateBeforeSave') == case['calculate_before_save']
@@ -39,7 +39,7 @@ def test_native_manual_file_reads_caches_then_calculates(case: dict[str, Any]) -
 
 
 def _make_file(case: dict[str, Any], path: Path) -> ExcelApplication:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     probe = next(probe for probe in PROBES if probe['name'] == case['case'])
     app.add_module(probe['macro'] + '\n' + RECORD['read_saved'] + '\nSub SetSaveFlag()\nApplication.CalculateBeforeSave = '
@@ -57,7 +57,7 @@ def test_model_manual_file_preserves_caches_and_settings(case: dict[str, Any], t
     assert app.run('ReadSaved') == case['result']
     with ZipFile(path) as package:
         assert b'calcMode="manual"' in package.read('xl/workbook.xml')
-    reopened = ExcelApplication.open(path)
+    reopened = ExcelApplication.open(path, sandbox=False)
     reopened.add_module(RECORD['read_saved'], name='Readback')
     assert reopened.evaluate('Application.Calculation') == -4135
     assert reopened.evaluate('Application.CalculateBeforeSave') == case['calculate_before_save']
@@ -65,7 +65,7 @@ def test_model_manual_file_preserves_caches_and_settings(case: dict[str, Any], t
 
 
 def test_opening_a_second_workbook_keeps_application_mode() -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Sub OpenOther(ByVal path As String)\nWorkbooks.Open path\nEnd Sub\n' + RECORD['read_saved'], name='Harness')
     case = next(case for case in FILES if case['name'] == 'input_insert_inside')

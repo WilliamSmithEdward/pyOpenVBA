@@ -46,7 +46,7 @@ def test_a_rename_reaches_the_formulas_excel_rewrites(tmp_path: Path, name: str)
     part's and names' formulas, as Excel had them after the rename."""
     case = CASES[name]
     path = tmp_path / f"{name}.xlsx"
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(case["code"], name="Probe")
     assert app.run(f"Case_{name}", str(path)) == case["answer"]
@@ -57,7 +57,7 @@ def test_a_workbook_excel_saved_with_a_table_renames_as_excel_renames_it(tmp_pat
     source = tmp_path / "rename_tables_loaded.xlsx"
     shutil.copy(FIXTURES / "rename_tables_loaded.xlsx", source)
     saved = tmp_path / "renamed.xlsx"
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["loaded"]["code"], name="Probe")
     assert app.run("Rename", str(source), str(saved)) == RECORD["loaded"]["answer"]

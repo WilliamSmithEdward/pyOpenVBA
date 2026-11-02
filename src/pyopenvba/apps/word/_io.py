@@ -32,6 +32,7 @@ def load_document(application: Application, path: Path) -> Document:
     """A document read from a docx, docm, dotm or dotx package."""
     from pyopenvba.apps.word._model import Document
 
+    application.outside("Opening a document")
     if not path.exists():
         raise DocumentFileError(f"there is no file at {path}")
     if path.suffix.lower() == ".doc":
@@ -57,6 +58,7 @@ def load_document(application: Application, path: Path) -> Document:
 
 def save_document(document: Document, target: Path) -> None:
     """Write the document out, rewriting only what changed."""
+    document.application.outside("Saving a document")
     package = document.package
     if package is None:
         raise DocumentFileError(

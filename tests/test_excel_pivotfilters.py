@@ -72,7 +72,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], dict
     # The macro Excel ran names its file under a Windows folder; here it goes under this system's.
     code = (RECORD["build"].replace("{steps}", RECORD["steps"]).replace("{source}", RECORD["source"])
             .replace("{layouts}", body).replace("{folder}\\", str(folder) + os.sep))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     session, reopened = str(app.run("Build")).split("~", 1)
     return dumps(session), dumps(reopened), folder
@@ -108,7 +108,7 @@ def test_the_file_keeps_each_filter_as_excels_does(made: tuple[dict[str, str], d
 @pytest.fixture(scope="module")
 def excel_file_read() -> dict[str, str]:
     """Every table of the file Excel saved, as the model reads it."""
-    app = ExcelApplication.open(FIXTURES / "pivotfilters.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / "pivotfilters.xlsx", with_vba=False, sandbox=False)
     app.add_module(HELPER + "Public Function Read() As String\nDim ws As Object, out As String\n"
                    "For Each ws In ActiveWorkbook.Worksheets\n"
                    "If ws.PivotTables.Count > 0 Then out = out & ws.Name & \"^\" & Dump(ws.PivotTables(1)) & \"|\"\n"
@@ -127,7 +127,7 @@ def test_the_model_reads_excels_file_as_excel_does(excel_file_read: dict[str, st
     'pt.PivotFields("Product").Orientation = xlPageField'])
 def test_what_is_not_measured_reports_itself(statement: str) -> None:
     """Add's other arguments, a top percent of 0, and a filtered field moved to the page area."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(HELPER + "Public Sub Probe()\n"
                    "Dim wb As Object, data As Object, cache As Object, r As Long, regions As Variant, "
@@ -141,7 +141,7 @@ def test_what_is_not_measured_reports_itself(statement: str) -> None:
 
 def test_add2_is_add() -> None:
     """The type library's name for Add since Excel 2013."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(HELPER + "Public Function Probe() As String\n"
                    "Dim wb As Object, data As Object, cache As Object, r As Long, regions As Variant, "

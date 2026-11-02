@@ -37,7 +37,7 @@ UNCHANGED: dict[str, Any] = json.loads(
 
 
 def _run(source: str) -> object:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(source, name='Harness')
     return app.run('Harness.Probe')
@@ -138,7 +138,7 @@ def test_a_width_the_column_shows_already(tmp_path: Path) -> None:
     """AutoFit to the width a column shows changes nothing: a standard column stays standard and follows a new
     StandardWidth, and a column of its own width takes no best fit (scripts/measure_autofit_unchanged.py)."""
     path = tmp_path / 'unchanged.xlsx'
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(UNCHANGED['probe'], name='Harness')
     assert app.run('Harness.Probe', str(path)) == UNCHANGED['answer']

@@ -33,7 +33,7 @@ UNSUPPORTED = {"copy_new_outside": "a copy reading a sheet left behind needs an 
 
 
 def _run(case: dict[str, Any]) -> object:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["helper"] + case["code"], name="Probe")
     return app.run(f"Case_{case['name']}")
@@ -73,7 +73,7 @@ def _swept(rows: list[dict[str, Any]], verb: str) -> list[str]:
                  "    For Each s In wb.Sheets", '        out = out & s.Name & ","', "    Next",
                  '    out = out & ActiveSheet.Name & "|"', "    wb.Close False"]
     body += ["    Sweep = out", "End Function"]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module("\n".join(body) + "\n", name="Probe")
     return [part for part in str(app.run("Sweep")).split("|") if part]
@@ -90,7 +90,7 @@ def test_a_grouped_selection_saves_and_opens_again_as_excels_does(tmp_path: Path
     """Each selected sheet's tab is selected in the file, the active one's the workbook's active tab, and the group
     is selected again once the file opens."""
     path = tmp_path / "grouped.xlsx"
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(MOVES["saved_code"], name="Probe")
     app.run("Saved", str(path))

@@ -25,7 +25,7 @@ EXPECTED = [answer for _, answer in RECORD['reads']] + [edit[3] for edit in RECO
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('object_members')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='MembersProbe')
     return str(app.run('MembersProbe.Probe', str(folder))).split('@@@'), folder

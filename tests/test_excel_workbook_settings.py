@@ -41,7 +41,7 @@ def _parts(path: Path) -> dict[str, str]:
 @pytest.mark.parametrize("index", range(len(FIXTURE["cases"])))
 def test_workbook_settings_answer_as_live_excel_did(index: int, tmp_path: Path) -> None:
     statements, _read, saved, answer = FIXTURE["cases"][index]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name="Measure")
     if _unsupported(statements, answer):

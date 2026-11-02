@@ -26,7 +26,7 @@ COMPLETED = [index for index, (_, answer, _) in enumerate(RECORD['cases']) if an
 
 @pytest.fixture(scope='module')
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_workbook()
     made.add_module(SOURCE, name='AxisPartsProbe')
     made.add_module(REOPEN, name='AxisPartsReopen')

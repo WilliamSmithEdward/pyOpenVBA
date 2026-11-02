@@ -50,7 +50,7 @@ def saved(path: Path, picture: bytes) -> dict[str, object]:
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('background_picture')
     (folder / 'bg.png').write_bytes(red_png())
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='BackgroundProbe')
     return str(app.run('BackgroundProbe.Probe', str(folder))).split('@@@'), folder

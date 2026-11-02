@@ -55,6 +55,7 @@ def save_copy(book: Workbook, filename: object) -> None:
         calculate_for_save(book)
         stamp(book)
         return
+    book.application.outside("Workbook.SaveCopyAs")
     target = Path(os.path.abspath(filename))
     if not target.parent.is_dir() or _open_file(book, target):
         raise error(1004, CANNOT_ACCESS.format(target))

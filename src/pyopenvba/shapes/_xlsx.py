@@ -977,6 +977,9 @@ def _new_element(shape: Shape) -> str:
     turn = _xfrm_attributes(shape)
     geometry = f'<a:prstGeom prst="{shape.geometry or "rect"}"><a:avLst/></a:prstGeom>'
     style = _TEXT_BOX_STYLE if shape.kind == "textBox" else _STYLE
+    if shape.kind == "line":
+        # A line has its own style, as an open freeform does (tests/fixtures/shape_fill_line.json).
+        style = _OPEN_STYLE
     if shape.kind == "freeform":
         geometry = _free_geometry(shape)
         # An open path is drawn as a line, a closed one filled as an AutoShape is (tests/fixtures/shape_polyline.json).
@@ -989,10 +992,40 @@ def _new_element(shape: Shape) -> str:
         f'<a:off x="{emu(shape.left)}" y="{emu(shape.top)}"/>'
         f'<a:ext cx="{emu(shape.width)}" cy="{emu(shape.height)}"/>'
         f"</a:xfrm>{geometry}"
-        f"{_TEXT_BOX_FILL if shape.kind == 'textBox' else ''}</xdr:spPr>"
+        f"{_fill_line(shape)}</xdr:spPr>"
         f"{style}{body}"
         f"</{element}>"
     )
+
+
+def _fill_line(shape: Shape) -> str:
+    """The fill and line a shape's spPr holds: a text box's own, and only what Shape.Fill and Shape.Line set on top of
+    the style, as Excel writes them (tests/fixtures/shape_fill_line.json)."""
+    look = shape.fill_line
+    text_box = shape.kind == "textBox"
+    if look is None:
+        return _TEXT_BOX_FILL if text_box else ""
+    fill = ""
+    if look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box:
+        alpha = "" if look.fill_alpha is None else f'<a:alpha val="{look.fill_alpha}"/>'
+        if look.fill_rgb is not None:
+            colour = f'<a:srgbClr val="{look.fill_rgb}"{">" + alpha + "</a:srgbClr>" if alpha else "/>"}'
+        else:
+            scheme = "lt1" if text_box else "accent1"
+            colour = f'<a:schemeClr val="{scheme}"{">" + alpha + "</a:schemeClr>" if alpha else "/>"}'
+        fill = f"<a:solidFill>{colour}</a:solidFill>"
+    if text_box:
+        width = 9525 if look.line_width is None else look.line_width
+        return (f'{fill}<a:ln w="{width}" cmpd="sng"><a:solidFill><a:schemeClr val="lt1"><a:shade val="50000"/>'
+                "</a:schemeClr></a:solidFill></a:ln>")
+    line = ""
+    if look.line_rgb is not None or look.line_width is not None or look.line_dash is not None:
+        attributes = ("" if look.line_width is None else f' w="{look.line_width}"') + (
+            "" if look.line_cap is None else f' cap="{look.line_cap}"')
+        inside = ("" if look.line_rgb is None else f'<a:solidFill><a:srgbClr val="{look.line_rgb}"/></a:solidFill>') + (
+            "" if look.line_dash is None else f'<a:prstDash val="{look.line_dash}"/>')
+        line = f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"
+    return fill + line
 
 
 def _free_geometry(shape: Shape) -> str:
@@ -1081,7 +1114,7 @@ _STYLE = (
     '<a:fontRef idx="minor"><a:schemeClr val="lt1"/></a:fontRef>'
     "</xdr:style>"
 )
-#: The style Excel gives an open freeform, drawn as a line (tests/fixtures/shape_polyline.json).
+#: The style Excel gives a line, and an open freeform, drawn as one (tests/fixtures/shape_polyline.json).
 _OPEN_STYLE = (
     "<xdr:style>"
     '<a:lnRef idx="2"><a:schemeClr val="accent1"/></a:lnRef>'

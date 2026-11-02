@@ -761,6 +761,15 @@ ChartTitle,Text,property,As String,,PARTIAL,tests/fixtures/excel_chart_objects.j
 ChartTitle,Top,property,As Double,,MISSING,,
 ChartTitle,VerticalAlignment,property,As Variant,,PARTIAL,tests/fixtures/chart_title.json; tests/test_excel_chart_title.py,"Excel accepts a set and keeps the title centred, so it reads xlCenter and writes nothing."
 ChartTitle,Width,"property, read-only",As Double,,MISSING,,
+ColorFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
+ColorFormat,Brightness,property,As Single,,MISSING,,
+ColorFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
+ColorFormat,ObjectThemeColor,property,As MsoThemeColorIndex,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"The style's until RGB is set, then 0. Setting it is refused."
+ColorFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The fill or line.
+ColorFormat,RGB,property,As MsoRGBType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Set on a fill or line; a line's fill raises -2147024809; back colours read only.
+ColorFormat,SchemeColor,property,As Long,,MISSING,,
+ColorFormat,TintAndShade,property,As Single,,MISSING,,
+ColorFormat,Type,"property, read-only",As MsoColorType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Scheme from the style, RGB once set, mixed on a line's fill."
 ColorScale,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 ColorScale,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,
 ColorScale,ColorScaleCriteria,"property, read-only",As ColorScaleCriteria,,PARTIAL,tests/fixtures/colour_scales/colour_scales.json,"Two or three, as the scale was made."
@@ -1085,6 +1094,41 @@ Errors,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/range_
 Errors,Item,"property, read-only",As Error,,PARTIAL,tests/fixtures/range_errors.json; tests/test_excel_range_errors.py,"By index from 1; 0 is 1004, past 10 a check that never flags."
 Errors,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/range_errors.json; tests/test_excel_range_errors.py,The cell.
 ExcelObject,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
+FillFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
+FillFormat,BackColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Reads only.
+FillFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
+FillFormat,ForeColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The fill colour.
+FillFormat,GradientAngle,property,As Single,,MISSING,,
+FillFormat,GradientColorType,"property, read-only",As MsoGradientColorType,,MISSING,,
+FillFormat,GradientDegree,"property, read-only",As Single,,MISSING,,
+FillFormat,GradientStops,"property, read-only",As GradientStops,,MISSING,,
+FillFormat,GradientStyle,"property, read-only",As MsoGradientStyle,,MISSING,,
+FillFormat,GradientVariant,"property, read-only",As Long,,MISSING,,
+FillFormat,OneColorGradient,method,"OneColorGradient(Style As MsoGradientStyle, Variant As Long, Degree As Single)",,MISSING,,
+FillFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The shape.
+FillFormat,Pattern,"property, read-only",As MsoPatternType,,MISSING,,
+FillFormat,Patterned,method,Patterned(Pattern As MsoPatternType),,MISSING,,
+FillFormat,PictureEffects,"property, read-only",As PictureEffects,,MISSING,,
+FillFormat,PresetGradient,method,"PresetGradient(Style As MsoGradientStyle, Variant As Long, PresetGradientType As MsoPresetGradientType)",,MISSING,,
+FillFormat,PresetGradientType,"property, read-only",As MsoPresetGradientType,,MISSING,,
+FillFormat,PresetTexture,"property, read-only",As MsoPresetTexture,,MISSING,,
+FillFormat,PresetTextured,method,PresetTextured(PresetTexture As MsoPresetTexture),,MISSING,,
+FillFormat,RotateWithObject,property,As MsoTriState,,MISSING,,
+FillFormat,Solid,method,Solid(),,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Writes the theme colour out; AutoShapes only.
+FillFormat,TextureAlignment,property,As MsoTextureAlignment,,MISSING,,
+FillFormat,TextureHorizontalScale,property,As Single,,MISSING,,
+FillFormat,TextureName,"property, read-only",As String,,MISSING,,
+FillFormat,TextureOffsetX,property,As Single,,MISSING,,
+FillFormat,TextureOffsetY,property,As Single,,MISSING,,
+FillFormat,TextureTile,property,As MsoTriState,,MISSING,,
+FillFormat,TextureType,"property, read-only",As MsoTextureType,,MISSING,,
+FillFormat,TextureVerticalScale,property,As Single,,MISSING,,
+FillFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Written as the alpha; outside 0 to 1 raises -2147024809; AutoShapes only.
+FillFormat,TwoColorGradient,method,"TwoColorGradient(Style As MsoGradientStyle, Variant As Long)",,MISSING,,
+FillFormat,Type,"property, read-only",As MsoFillType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused."
+FillFormat,UserPicture,method,UserPicture(PictureFile As String),,MISSING,,
+FillFormat,UserTextured,method,UserTextured(TextureFile As String),,MISSING,,
+FillFormat,Visible,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused. Setting it is refused, as Excel writes out the whole style."
 Filter,Application,"property, read-only",As Application,,MISSING,,
 Filter,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
 Filter,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -1335,6 +1379,24 @@ LegendEntry,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart
 LegendEntry,Select,method,Select() As Variant,,MISSING,,
 LegendEntry,Top,"property, read-only",As Double,,MISSING,,
 LegendEntry,Width,"property, read-only",As Double,,MISSING,,
+LineFormat,Application,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
+LineFormat,BackColor,property,As ColorFormat,,MISSING,,
+LineFormat,BeginArrowheadLength,property,As MsoArrowheadLength,,MISSING,,
+LineFormat,BeginArrowheadStyle,property,As MsoArrowheadStyle,,MISSING,,
+LineFormat,BeginArrowheadWidth,property,As MsoArrowheadWidth,,MISSING,,
+LineFormat,Creator,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Read.
+LineFormat,DashStyle,property,As MsoLineDashStyle,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"msoLineDash and msoLineRoundDot, with its round cap; others are refused."
+LineFormat,EndArrowheadLength,property,As MsoArrowheadLength,,MISSING,,
+LineFormat,EndArrowheadStyle,property,As MsoArrowheadStyle,,MISSING,,
+LineFormat,EndArrowheadWidth,property,As MsoArrowheadWidth,,MISSING,,
+LineFormat,ForeColor,property,As ColorFormat,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The line colour.
+LineFormat,InsetPen,property,As MsoTriState,,MISSING,,
+LineFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The shape.
+LineFormat,Pattern,property,As MsoPatternType,,MISSING,,
+LineFormat,Style,property,As MsoLineStyle,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,msoLineSingle. Setting it is refused.
+LineFormat,Transparency,property,As Single,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused. Setting it is refused, as Excel writes out the whole style."
+LineFormat,Visible,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused. Setting it is refused, as Excel writes out the whole style."
+LineFormat,Weight,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Written in EMU; a negative weight raises -2147024809.
 LinearGradient,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,The application.
 LinearGradient,ColorStops,"property, read-only",As ColorStops,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,Its colour stops.
 LinearGradient,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,xlCreatorCode.
@@ -2319,7 +2381,7 @@ Shape,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_propertie
 Shape,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shape,DrawingObject,not in the type library,,,PARTIAL,tests/fixtures/shapes/inline_controls.json; tests/fixtures/shapes/list_rebinding.json,
 Shape,Duplicate,method,Duplicate() As Shape,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy 12 points right and down, on top, with the next id; a default name takes the sheet's next number, a given one is kept. Shapes loaded from a file, charts, controls and groups are refused."
-Shape,Fill,"property, read-only",As FillFormat,,MISSING,,
+Shape,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"A new AutoShape, text box or line."
 Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/fixtures/shape_duplicate.json,"Turns flipH or flipV over, written after rot, and mirrors the rotation (30 becomes 330); twice turns it back. Other commands raise -2147024809."
 Shape,FormControlType,"property, read-only",As XlFormControl,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,The XlFormControl constant; 1004 for a shape that is no control.
 Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
@@ -2335,7 +2397,7 @@ Shape,IncrementLeft,method,IncrementLeft(Increment As Single),,PARTIAL,tests/fix
 Shape,IncrementRotation,method,IncrementRotation(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,Adds to Rotation and lands inside 0 to 360.
 Shape,IncrementTop,method,IncrementTop(Increment As Single),,PARTIAL,tests/fixtures/shape_properties.json; tests/test_excel_shape_properties.py,"Moves the shape, stopping at the sheet's top edge."
 Shape,Left,property,As Single,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
-Shape,Line,"property, read-only",As LineFormat,,MISSING,,
+Shape,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"A new AutoShape, text box or line."
 Shape,LinkFormat,"property, read-only",As LinkFormat,,MISSING,,
 Shape,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"Written as spLocks noChangeAspect, on new and loaded shapes; msoFalse after it leaves an empty spLocks."
 Shape,Locked,property,As Boolean,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,"False writes clientData fLocksWithSheet 0, on new and loaded shapes."

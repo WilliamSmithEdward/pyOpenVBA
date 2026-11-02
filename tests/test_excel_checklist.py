@@ -44,6 +44,7 @@ from pyopenvba.apps.excel import (
     _protection,
     _rich_text,
     _scenarios,
+    _shape_format,
     _shapes,
     _sheet_tabs,
     _sparklines,
@@ -86,7 +87,7 @@ def _classes() -> dict[str, type[VBAObject]]:
                    _page_breaks, _outline, _colour_scales, _data_bars, _icon_sets, _document_properties, _rich_text,
                    _custom_properties, _error_checks, _scenarios, _cell_format, _sparklines,
                    _connections, _charts, _chart_data_labels, _chart_error_bars, _chart_trendlines, _pivot_items,
-                   _threads, _workbook_settings):
+                   _threads, _workbook_settings, _shape_format):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

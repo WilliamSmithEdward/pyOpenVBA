@@ -1,0 +1,156 @@
+{
+ "measured_at": "2026-11-02T06:33:29.255711+00:00",
+ "reads": [
+  "sh.Fill.Visible",
+  "sh.Fill.ForeColor.RGB",
+  "sh.Fill.Transparency",
+  "sh.Fill.Type",
+  "sh.Fill.BackColor.RGB",
+  "sh.Fill.ForeColor.ObjectThemeColor",
+  "sh.Fill.ForeColor.Type",
+  "sh.Line.Visible",
+  "sh.Line.ForeColor.RGB",
+  "sh.Line.Weight",
+  "sh.Line.DashStyle",
+  "sh.Line.Style",
+  "sh.Line.Transparency",
+  "sh.Line.ForeColor.ObjectThemeColor",
+  "TypeName(sh.Fill)",
+  "TypeName(sh.Line)",
+  "TypeName(sh.Fill.ForeColor)",
+  "TypeName(sh.Fill.Parent)"
+ ],
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, s As String, v As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n    Case 1\n        Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 10, 100, 40)\n    Case 2\n        Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n    Case 3\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.ForeColor.RGB = RGB(255, 0, 0)\n    Case 4\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.Visible = msoFalse\n    Case 5\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.Visible = msoFalse: sh.Fill.Visible = msoTrue\n    Case 6\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.Transparency = 0.5\n    Case 7\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.ForeColor.RGB = RGB(0, 128, 255): sh.Fill.Transparency = 0.25\n    Case 8\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.Solid\n    Case 9\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Line.Visible = msoFalse\n    Case 10\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Line.ForeColor.RGB = RGB(0, 255, 0)\n    Case 11\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Line.Weight = 3\n    Case 12\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Line.Weight = 2.25: sh.Line.ForeColor.RGB = RGB(1, 2, 3)\n    Case 13\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Line.DashStyle = msoLineDash\n    Case 14\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Line.Transparency = 0.5\n    Case 15\n        Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 10, 100, 40)\n        sh.Fill.ForeColor.RGB = RGB(255, 255, 0)\n    Case 16\n        Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 10, 100, 40)\n        sh.Fill.Visible = msoFalse\n    Case 17\n        Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 10, 100, 40)\n        sh.Line.Visible = msoFalse\n    Case 18\n        Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 10, 100, 40)\n        sh.Line.Weight = 2\n    Case 19\n        Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n        sh.Line.ForeColor.RGB = RGB(255, 0, 0)\n    Case 20\n        Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n        sh.Line.Weight = 4\n    Case 21\n        Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n        sh.Line.DashStyle = msoLineRoundDot\n    Case 22\n        Set sh = ws.Shapes.AddLine(10, 10, 110, 50)\n        sh.Fill.ForeColor.RGB = RGB(255, 0, 0)\n    Case 23\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.ForeColor.RGB = -1\n    Case 24\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Line.Weight = -1\n    Case 25\n        Set sh = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n        sh.Fill.Transparency = 2\n    End Select\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = sh.Fill.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Fill.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Fill.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Fill.BackColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Fill.ForeColor.ObjectThemeColor\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Fill.ForeColor.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Line.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Line.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Line.Weight\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Line.DashStyle\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Line.Style\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Line.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sh.Line.ForeColor.ObjectThemeColor\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.Fill)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.Line)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.Fill.ForeColor)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sh.Fill.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    On Error GoTo Failed\n    Tried = \"ok \" & Mid(s, 2)\nSaved:\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Saved\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 25\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "rect: ",
+   "ok -1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "text: ",
+   "ok -1,16777215,0,1,16777215,2,2,-1,12369084,0.75,1,1,0,2,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:lnRef><a:fillRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:fillRef><a:effectRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"dk1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "line: ",
+   "ok 0,0,1,-2,0,-2,-2,-1,8544277,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"/></a:lnRef><a:fillRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"tx1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.ForeColor.RGB = RGB(255, 0, 0)",
+   "ok -1,255,0,1,16777215,0,1,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.Visible = msoFalse",
+   "ok 0,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.Visible = msoFalse: sh.Fill.Visible = msoTrue",
+   "ok -1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.Transparency = 0.5",
+   "ok -1,8544277,0.5,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.ForeColor.RGB = RGB(0, 128, 255): sh.Fill.Transparency = 0.25",
+   "ok -1,16744448,0.25,1,16777215,0,1,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"0080FF\"><a:alpha val=\"75000\"/></a:srgbClr></a:solidFill></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.Solid",
+   "ok -1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Line.Visible = msoFalse",
+   "ok -1,8544277,0,1,16777215,5,2,0,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Line.ForeColor.RGB = RGB(0, 255, 0)",
+   "ok -1,8544277,0,1,16777215,5,2,-1,65280,1.5,1,1,0,0,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:ln><a:solidFill><a:srgbClr val=\"00FF00\"/></a:solidFill></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Line.Weight = 3",
+   "ok -1,8544277,0,1,16777215,5,2,-1,3351556,3,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:ln w=\"38100\"/></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Line.Weight = 2.25: sh.Line.ForeColor.RGB = RGB(1, 2, 3)",
+   "ok -1,8544277,0,1,16777215,5,2,-1,197121,2.25,1,1,0,0,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:ln w=\"28575\"><a:solidFill><a:srgbClr val=\"010203\"/></a:solidFill></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Line.DashStyle = msoLineDash",
+   "ok -1,8544277,0,1,16777215,5,2,-1,3351556,1.5,4,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:ln><a:prstDash val=\"dash\"/></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Line.Transparency = 0.5",
+   "ok -1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0.5,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/><a:headEnd type=\"none\" w=\"med\" len=\"med\"/><a:tailEnd type=\"none\" w=\"med\" len=\"med\"/></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "text: sh.Fill.ForeColor.RGB = RGB(255, 255, 0)",
+   "ok -1,65535,0,1,16777215,0,1,-1,12369084,0.75,1,1,0,2,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"FFFF00\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:lnRef><a:fillRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:fillRef><a:effectRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"dk1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "text: sh.Fill.Visible = msoFalse",
+   "ok 0,16777215,0,1,16777215,2,2,-1,12369084,0.75,1,1,0,2,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:noFill/><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst></xdr:spPr><xdr:style><a:lnRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:lnRef><a:fillRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:fillRef><a:effectRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"dk1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "text: sh.Line.Visible = msoFalse",
+   "ok -1,16777215,0,1,16777215,2,2,0,12369084,0.75,1,1,0,2,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:noFill/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a14:hiddenLine></a:ext></a:extLst></xdr:spPr><xdr:style><a:lnRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:lnRef><a:fillRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:fillRef><a:effectRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"dk1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "text: sh.Line.Weight = 2",
+   "ok -1,16777215,0,1,16777215,2,2,-1,12369084,2,1,1,0,2,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"25400\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:lnRef><a:fillRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:fillRef><a:effectRef idx=\"0\"><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"dk1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "line: sh.Line.ForeColor.RGB = RGB(255, 0, 0)",
+   "ok 0,0,1,-2,0,-2,-2,-1,255,1.5,1,1,0,0,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:ln><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"/></a:lnRef><a:fillRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"tx1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "line: sh.Line.Weight = 4",
+   "ok 0,0,1,-2,0,-2,-2,-1,8544277,4,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:ln w=\"50800\"/></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"/></a:lnRef><a:fillRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"tx1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "line: sh.Line.DashStyle = msoLineRoundDot",
+   "ok 0,0,1,-2,0,-2,-2,-1,8544277,1.5,3,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom><a:ln cap=\"rnd\"><a:prstDash val=\"dot\"/></a:ln></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"/></a:lnRef><a:fillRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"tx1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "line: sh.Fill.ForeColor.RGB = RGB(255, 0, 0)",
+   "Err -2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"line\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"/></a:lnRef><a:fillRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"tx1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.ForeColor.RGB = -1",
+   "ok -1,16777215,0,1,16777215,0,1,-1,3351556,1.5,1,1,0,5,FillFormat,LineFormat,ColorFormat,Shape",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom><a:solidFill><a:srgbClr val=\"FFFFFF\"/></a:solidFill></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Line.Weight = -1",
+   "Err -2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ],
+  [
+   "rect: sh.Fill.Transparency = 2",
+   "Err -2147024809",
+   "<xdr:spPr><a:xfrm><a:off x=\"127000\" y=\"127000\"/><a:ext cx=\"1270000\" cy=\"508000\"/></a:xfrm><a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\"/></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\"/></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\"/></a:fontRef></xdr:style>"
+  ]
+ ]
+}

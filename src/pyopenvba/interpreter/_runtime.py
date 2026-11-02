@@ -2898,6 +2898,9 @@ def _call_value(value: object, args: list[object], named: dict[str, object]) -> 
         return value.vba_get(spec.name, args, named)
     if isinstance(value, str) and args:
         raise error(ERR_TYPE_MISMATCH, "a String cannot be subscripted")
+    if value is NOTHING and args:
+        # An object variable set to Nothing has no default member to call (tests/fixtures/data_labels_object.json).
+        raise error(ERR_OBJECT_VARIABLE_NOT_SET)
     if args:
         raise error(ERR_SUBSCRIPT_OUT_OF_RANGE)
     return value

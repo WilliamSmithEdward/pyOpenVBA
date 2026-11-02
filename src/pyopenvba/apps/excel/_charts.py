@@ -13,6 +13,7 @@ from pyopenvba.apps.excel._chart_axes import AxisState
 from pyopenvba.apps.excel._chart_error_bars import ErrorBars, ErrorBarState, error_bar, has_error_bars, set_has_error_bars
 from pyopenvba.apps.excel._chart_trendlines import Trendlines, TrendlineState
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
+from pyopenvba.apps.excel._chart_xml import LabelLook
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
@@ -60,6 +61,10 @@ class SeriesState:
     #: HasDataLabels, and HasLeaderLines, which turning the labels on turns off (tests/fixtures/chart_data_labels.json).
     data_labels: bool = False
     leader_lines: bool = True
+    #: What the labels show (tests/fixtures/data_labels_object.json), and a count of the times they went, which
+    #: leaves a DataLabels taken before stale.
+    label_look: LabelLook = field(default_factory=lambda: LabelLook())
+    label_generation: int = 0
     #: MarkerForegroundColor and MarkerBackgroundColor as RRGGBB, "none", or None while automatic; "?" for an
     #: imported marker filled in a way the model does not read (tests/fixtures/chart_marker_colours.json).
     marker_fore: str | None = None
@@ -1743,6 +1748,8 @@ class _GroupLines(Created):
     """A chart group's drop lines, high-low lines, up or down bars or series lines: there while the group's Has member
     reads True, named as Excel names them, and gone with Delete (tests/fixtures/chart_type_reads.json)."""
 
+    #: A base the five types share, not a type of its own.
+    vba_type_name = ''
     #: The ChartGroup member that says whether they are there, and their name; None where reading it raises.
     flag = ''
     name: str | None = None
@@ -2135,17 +2142,33 @@ class Series(Created):
 
     @member
     def HasDataLabels(self) -> object:
+        # Labels that show nothing read as none (tests/fixtures/data_labels_object.json).
         self.position()
-        return self.entry.data_labels
+        return self.entry.data_labels and self.entry.label_look.shown()
 
     @setter('HasDataLabels')
     def _has_data_labels(self, value: object) -> None:
         self.position()
         wanted = to_bool(value)
         self.chart.changed()
+        if self.entry.data_labels and not wanted:
+            self.entry.label_generation += 1
+        if wanted:
+            # Labels turned on show the value alone, however they were before.
+            self.entry.label_look = LabelLook()
         self.entry.data_labels = wanted
         # Excel turns the series' leader lines off whichever way the labels go.
         self.entry.leader_lines = False
+
+    @method
+    def DataLabels(self, Index: object = MISSING) -> object:  # noqa: N803 - native named argument
+        from pyopenvba.apps.excel._chart_data_labels import DataLabels
+
+        self.position()
+        if not self.entry.data_labels:
+            raise error(-2147467259, 'Automation error\nUnspecified error')
+        labels = DataLabels(self, self.entry.label_generation)
+        return labels if Index is MISSING else labels.vba_get('Item', [Index])
 
     @member
     def HasLeaderLines(self) -> object:

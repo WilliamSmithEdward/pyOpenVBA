@@ -27,10 +27,10 @@ from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
 from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
-from pyopenvba.interpreter._http import _Sessions
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
+from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
@@ -1090,7 +1090,7 @@ class Interpreter:
         #: What is left to do when VBA pumps messages at DoEvents: asynchronous HTTP requests (see _http).
         self.pumped: list[Callable[[], None]] = []
         #: WinINet's cookies and logins, which every XMLHTTP in the process shares (see _http).
-        self.internet_sessions = _Sessions()
+        self.internet_sessions = Sessions()
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
         #: Every MsgBox and InputBox the run put up, in order.

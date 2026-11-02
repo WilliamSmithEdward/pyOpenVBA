@@ -139,7 +139,7 @@ class _Response:
 
 
 @dataclass
-class _Sessions:
+class Sessions:
     """What WinINet keeps for the whole process: cookies and logins, by host."""
 
     cookies: dict[str, dict[str, tuple[str, str]]] = field(default_factory=lambda: {})
@@ -500,7 +500,7 @@ class HttpRequest(VBAObject):
 
     # -- the exchange
 
-    def _sessions(self) -> _Sessions:
+    def _sessions(self) -> Sessions:
         return self.interpreter.internet_sessions
 
     def _jar(self) -> dict[str, dict[str, tuple[str, str]]]:

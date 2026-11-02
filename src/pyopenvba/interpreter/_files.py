@@ -104,6 +104,25 @@ def _native(path: str) -> str:
     return path.replace("\\", os.sep) if os.sep != "\\" else path
 
 
+def spelled(path: str, separator: str = os.sep) -> str:
+    """The path as the disk spells it, since VBA's paths have no case and some systems' files do. A part that matches
+    nothing stays as given, for what is about to be made."""
+    if separator == "\\" or os.path.exists(path):
+        return path
+    current = separator if path.startswith(separator) else ""
+    for part in path.split(separator):
+        if not part:
+            continue
+        found = part
+        if not os.path.exists(os.path.join(current, part)):
+            try:
+                found = next((one for one in os.listdir(current or ".") if one.casefold() == part.casefold()), part)
+            except OSError:
+                pass
+        current = os.path.join(current, found)
+    return current + separator if path.endswith(separator) else current
+
+
 def _wildcard(name: str) -> bool:
     return "*" in name or "?" in name
 
@@ -182,7 +201,7 @@ class FileTable:
     # -- paths
 
     def full(self, path: object) -> str:
-        return os.path.join(self.folder, _native(to_text(path)))
+        return spelled(os.path.join(self.folder, _native(to_text(path))))
 
     def _key(self, path: str) -> str:
         return os.path.normcase(os.path.abspath(path))

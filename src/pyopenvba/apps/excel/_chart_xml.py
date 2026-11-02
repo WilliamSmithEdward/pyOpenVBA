@@ -152,13 +152,13 @@ def shadow_markup(shadow: bool | None) -> str:
 
 
 def legend_markup(position: str = 'r', *, overlay: bool = False, shadow: bool | None = None,
-                  deleted: Sequence[int] = (), frame: str = '') -> str:
+                  deleted: Sequence[int] = (), frame: str = '', text: str = '') -> str:
     # A deleted entry is a legendEntry after the position, by its series' or point's index
     # (tests/fixtures/chart_legend_entries.json).
     entries = ''.join(f'<c:legendEntry><c:idx val="{index}"/><c:delete val="1"/></c:legendEntry>'
                       for index in sorted(deleted))
     return (f'<c:legend><c:legendPos val="{position}"/>{entries}<c:overlay val="{int(overlay)}"/>'
-            f'{frame or shadow_markup(shadow)}</c:legend>')
+            f'{frame or shadow_markup(shadow)}{text}</c:legend>')
 
 _LABELS = (
     '<c:dLbls><c:showLegendKey val="0"/><c:showVal val="0"/><c:showCatName val="0"/><c:showSerName val="0"/>'
@@ -232,6 +232,47 @@ def _reference(element: str, formula: str, cache: str, *, numbers: bool) -> str:
     return f"<c:{element}><c:{kind}><c:f>{escape_text(formula)}</c:f>{cache}</c:{kind}></c:{element}>"
 
 
+@dataclass
+class TextLook:
+    """What Font set on a chart's text, each None while the chart's defaults give it
+    (tests/fixtures/chart_fonts.json)."""
+
+    size: float | None = None
+    bold: bool | None = None
+    italic: bool | None = None
+    underline: bool = False
+    strike: bool = False
+    rgb: str | None = None
+    name: str | None = None
+
+
+def default_run(look: TextLook | None) -> str:
+    """The defRPr holding a text look, in the order Excel writes its parts."""
+    if look is None:
+        return "<a:defRPr/>"
+    attributes = "" if look.size is None else f' sz="{round(look.size * 100)}"'
+    attributes += "" if look.bold is None else f' b="{int(look.bold)}"'
+    attributes += "" if look.italic is None else f' i="{int(look.italic)}"'
+    attributes += ' u="sng"' if look.underline else ""
+    attributes += ' strike="sngStrike"' if look.strike else ""
+    inside = "" if look.rgb is None else f'<a:solidFill><a:srgbClr val="{look.rgb}"/></a:solidFill>'
+    if look.name is not None:
+        face = escape_attribute(look.name)
+        inside += f'<a:latin typeface="{face}"/><a:ea typeface="{face}"/><a:cs typeface="{face}"/>'
+    return f"<a:defRPr{attributes}>{inside}</a:defRPr>" if inside else f"<a:defRPr{attributes}/>"
+
+
+def text_properties(look: TextLook | None, body: str = "<a:bodyPr/>") -> str:
+    """The txPr of an element whose text has a look, none without one."""
+    if look is None:
+        return ""
+    return (f"<c:txPr>{body}<a:lstStyle/><a:p><a:pPr>{default_run(look)}</a:pPr>"
+            '<a:endParaRPr lang="en-US"/></a:p></c:txPr>')
+
+
+#: Data labels write their text properties with this body (tests/fixtures/chart_fonts.json).
+_LABEL_BODY = ('<a:bodyPr wrap="square" lIns="38100" tIns="19050" rIns="38100" bIns="19050" anchor="ctr">'
+               "<a:spAutoFit/></a:bodyPr>")
 #: DataLabels.Position and how the file spells it (tests/fixtures/data_labels_object.json).
 LABEL_POSITIONS = {3: "inEnd", -4108: "ctr", 4: "inBase", 2: "outEnd", 0: "t", 1: "b", -4131: "l", -4152: "r",
                    5: "bestFit"}
@@ -252,6 +293,7 @@ class LabelLook:
     number_format: str | None = None
     linked: bool = True
     separator: str | None = None
+    font: TextLook | None = None
 
     def shown(self) -> bool:
         return any((self.value, self.category, self.series, self.percent, self.legend_key, self.bubble))
@@ -277,7 +319,9 @@ def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook, points:
         ("showSerName", look.series), ("showPercent", look.percent), ("showBubbleSize", look.bubble)))
     separator = "" if look.separator is None else f"<c:separator>{escape_text(look.separator)}</c:separator>"
     leaders = "" if alone else f'<c:showLeaderLines val="{shown}"/>'
-    return (f'<c:dLbls>{points}{number}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>{place}{flags}'
+    text = text_properties(look.font, _LABEL_BODY)
+    return (f'<c:dLbls>{points}{number}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>{text}{place}'
+            f'{flags}'
             f'{separator}{leaders}<c:extLst>{tail}</c:extLst></c:dLbls>')
 
 

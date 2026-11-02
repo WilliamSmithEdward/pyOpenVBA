@@ -13,7 +13,7 @@ from pyopenvba.apps.excel._chart_axes import AxisState
 from pyopenvba.apps.excel._chart_error_bars import ErrorBars, ErrorBarState, error_bar, has_error_bars, set_has_error_bars
 from pyopenvba.apps.excel._chart_trendlines import Trendlines, TrendlineState
 from pyopenvba.apps.excel._chart_title import TitleLook, TitleMembers
-from pyopenvba.apps.excel._chart_xml import LabelLook
+from pyopenvba.apps.excel._chart_xml import LabelLook, TextLook
 from pyopenvba.apps.excel._shapes import PLACEMENTS, ShapeObject, ShapeRange, Shapes
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.formula._calc.host import quote_sheet_name
@@ -145,6 +145,9 @@ class ChartState:
     #: What Format set on the chart's other elements, by the element: area, plot, legend, title, axis and its kind,
     #: grid and its axis's kind, and title and its axis's kind (tests/fixtures/chart_element_format.json).
     element_looks: dict[str, FillLine] = field(default_factory=lambda: {})
+    #: What Font set on the chart's text, by the element: area, legend, title, title and its axis's kind, and tick and
+    #: its axis's kind (tests/fixtures/chart_fonts.json).
+    element_fonts: dict[str, TextLook] = field(default_factory=lambda: {})
 
 
 def label_block(sheet: Worksheet, area: Area) -> tuple[int, int]:
@@ -658,6 +661,10 @@ class ChartArea(Created):
     def Format(self) -> object:
         return self.chart.format_of(self, 'area')
 
+    @member
+    def Font(self) -> object:
+        return self.chart.font_of(self, 'area')
+
     @method
     def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
         # Selecting the chart area makes its chart the active one.
@@ -943,7 +950,7 @@ class Chart(Created):
 
     def keeps_look(self, key: str, wanted: bool = False) -> None:
         """Refuses taking away an element with a look: what it comes back with was not measured."""
-        if not wanted and key in self.state.element_looks:
+        if not wanted and (key in self.state.element_looks or key in self.state.element_fonts):
             raise VBAUnsupportedError('Taking away a chart element with a look of its own is not implemented')
 
     @method
@@ -1128,6 +1135,14 @@ class Chart(Created):
         self.admit_read()
         return ElementFormat(element, self, key)
 
+    def font_of(self, element: object, key: str, *, size: float = 10.0, bold: bool = False,
+                labels: LabelLook | None = None) -> object:
+        """The Font of the element's text, whose defaults are given."""
+        from pyopenvba.apps.excel._chart_fonts import ChartFont
+
+        self.admit_read()
+        return ChartFont(element, self, key, size, bold, labels)
+
     @member
     def ShowAllFieldButtons(self) -> object:
         self.admit_read()
@@ -1165,7 +1180,9 @@ class Chart(Created):
         wanted = int(to_number(value))
         if wanted not in CHART_TYPES:
             raise VBAUnsupportedError(f'Chart type {wanted} is not implemented')
-        if self.state.element_looks or any(one.format_look is not None or one.points for one in self.state.series):
+        if self.state.element_looks or self.state.element_fonts or any(
+                one.format_look is not None or one.points or one.label_look.font is not None
+                for one in self.state.series):
             raise VBAUnsupportedError('Changing the type of a chart with a look of its own is not implemented')
         from pyopenvba.apps.excel._chart_axes import transition
 
@@ -1360,6 +1377,7 @@ class Chart(Created):
         self.admit_change()
         found = axis(self, found.entry.kind, 1)
         self.keeps_look(f'axis{found.entry.kind}', wanted)
+        self.keeps_look(f'tick{found.entry.kind}', wanted)
         self.changed()
         found.entry.present = wanted and self.state.chart_type not in NO_AXES
 
@@ -1436,6 +1454,10 @@ class ChartTitle(TitleMembers):
     @member
     def Format(self) -> object:
         return self.chart.format_of(self, 'title')
+
+    @member
+    def Font(self) -> object:
+        return self.chart.font_of(self, 'title', size=18.0, bold=True)
 
     def title_link(self, formula: str) -> None:
         self.chart.changed()
@@ -1544,6 +1566,11 @@ class Legend(Created):
     def Format(self) -> object:
         self.shown()
         return self.chart.format_of(self, 'legend')
+
+    @member
+    def Font(self) -> object:
+        self.shown()
+        return self.chart.font_of(self, 'legend')
 
     @method
     def Delete(self) -> object:
@@ -2208,6 +2235,8 @@ class Series(Created):
         wanted = to_bool(value)
         if any(point.label is not None for point in self.entry.points.values()):
             raise VBAUnsupportedError('Changing the data labels of a series with point labels is not implemented')
+        if self.entry.label_look.font is not None:
+            raise VBAUnsupportedError('Changing data labels that have a font is not implemented')
         self.chart.changed()
         if self.entry.data_labels and not wanted:
             self.entry.label_generation += 1

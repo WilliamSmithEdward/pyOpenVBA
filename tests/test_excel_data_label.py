@@ -39,6 +39,10 @@ def _kept(name: str) -> bool:
 KEPT = [index for index, case in enumerate(RECORD['cases']) if _kept(case[0])]
 
 
+_SETTING_UP = ('ch.SeriesCollection(1).HasDataLabels = True', 'ch.SeriesCollection(1).Points(2).HasDataLabel = True',
+               'ch.ChartType = xlPie', 'Set el = ')
+
+
 def _source() -> str:
     """The probe with the statements of the cases left out taken away, since they would raise."""
     lines = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}').split('\n')
@@ -49,9 +53,8 @@ def _source() -> str:
         if line.startswith('    Case '):
             index = int(line.split()[1])
             out.append(line)
-        elif index is not None and index not in kept and line.startswith('        ') and 'Set el = ' not in line[:12] and not (
-                line.strip().startswith(('ch.SeriesCollection(1).HasDataLabels = True', 'ch.SeriesCollection(1).Points(2).HasDataLabel = True',
-                                         'ch.ChartType = xlPie', 'Set el = '))):
+        elif index is not None and index not in kept and line.startswith('        ') and not line.strip().startswith(
+                _SETTING_UP):
             continue
         else:
             out.append(line)
@@ -89,7 +92,8 @@ def test_an_unmeasured_step_is_refused(statement: str) -> None:
     app.add_module('Public Sub Go()\n    Dim ch As Object, el As Object\n    ActiveSheet.Range("B1:B3").Value = 1\n'
                    '    Set ch = ActiveSheet.ChartObjects.Add(10, 10, 200, 100).Chart\n'
                    '    ch.SetSourceData ActiveSheet.Range("B1:B3")\n    ch.ChartType = xlColumnClustered\n'
-                   '    ch.SeriesCollection(1).HasDataLabels = True\n    Set el = ch.SeriesCollection(1).Points(2).DataLabel\n'
+                   '    ch.SeriesCollection(1).HasDataLabels = True\n'
+                   '    Set el = ch.SeriesCollection(1).Points(2).DataLabel\n'
                    f'    {statement}\nEnd Sub\n', name='Refused')
     with pytest.raises(VBAUnsupportedError):
         app.run('Refused.Go')

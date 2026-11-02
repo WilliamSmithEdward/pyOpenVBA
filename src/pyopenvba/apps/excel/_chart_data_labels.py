@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 #: areas and doughnuts, right of a line's or scatter's points, and best fit on a pie.
 DEFAULT_POSITIONS = {51: 2, 57: 2, 52: -4108, 4: -4152, 65: -4152, 5: 5, -4120: -4108, -4169: -4152, 1: -4108}
 #: The positions each measured chart type takes; another raises -2147467259 where the type was measured refusing one.
-TAKEN = {51: {3, -4108, 4, 2}, 57: {3, -4108, 4, 2}, 4: {0, 1, -4131, -4152}, 65: {0, 1, -4131, -4152}, 5: {5, 2, 3, -4108}}
+TAKEN = {51: {3, -4108, 4, 2}, 57: {3, -4108, 4, 2}, 4: {0, 1, -4131, -4152}, 65: {0, 1, -4131, -4152},
+         5: {5, 2, 3, -4108}}
 REFUSING = {51: {0}, 57: {0}, 1: {-4108}}
 
 
@@ -288,17 +289,17 @@ class DataLabel(Created):
 
     # -- where it stands
 
-    def _state(self) -> PointState | None:
+    def point_state(self) -> PointState | None:
         return self.series.entry.points.get(self.index - 1)
 
     def _stale(self) -> bool:
         return self.series.entry.label_generation != self.generation
 
-    def _own(self) -> PointLabel:
-        state = self._state()
+    def own(self) -> PointLabel:
+        state = self.point_state()
         return state.label_own if state is not None else PointLabel()
 
-    def _held(self) -> PointLabel:
+    def held(self) -> PointLabel:
         """Its state, made if it had none, with the unique id its dLbl takes."""
         chart = self.series.chart
         chart.changed()
@@ -311,14 +312,14 @@ class DataLabel(Created):
         """Characters reads back from now on, with nothing in the file to show for it."""
         self.series.entry.points.setdefault(self.index - 1, PointState()).label_own.touched = True
 
-    def _shown(self) -> bool:
-        state = self._state()
+    def shows_anything(self) -> bool:
+        state = self.point_state()
         if state is not None and state.label is False:
             return False
         return any(self._flags().values())
 
     def _flags(self) -> dict[str, bool]:
-        state = self._state()
+        state = self.point_state()
         look = self.series.entry.label_look
         if state is not None and state.label is False:
             return dict.fromkeys(("value", "category", "series", "legend_key", "percent", "bubble"), False)
@@ -327,7 +328,7 @@ class DataLabel(Created):
         if state is not None and state.label is True and not self.series.entry.data_labels:
             base = {"value": True, "category": False, "series": False, "legend_key": False, "percent": False,
                     "bubble": False}
-        return {**base, **self._own().shows}
+        return {**base, **self.own().shows}
 
     def _alive(self, name: str = "") -> None:
         """The errors of a label that has gone: its series' labels taken away, or this one showing nothing."""
@@ -338,13 +339,13 @@ class DataLabel(Created):
 
     def _showing(self, name: str = "") -> None:
         self._alive(name)
-        if not self._shown():
+        if not self.shows_anything():
             if name == "Position":
                 raise error(-2147467259, "Automation error\nUnspecified error")
             raise error(-2147024809, "The parameter is incorrect.")
 
     def _formatted(self) -> None:
-        if self._stale() or not self._shown():
+        if self._stale() or not self.shows_anything():
             raise error(1004, "Application-defined or object-defined error")
 
     def _flag(self, field: str) -> object:
@@ -354,12 +355,12 @@ class DataLabel(Created):
     def _set_flag(self, field: str, value: object) -> None:
         self._alive()
         wanted = to_bool(value)
-        if wanted == self._flags()[field] and field not in self._own().shows and self._state() is None:
+        if wanted == self._flags()[field] and field not in self.own().shows and self.point_state() is None:
             return
-        own = self._held()
+        own = self.held()
         own.shows[field] = wanted
         own.touched = True
-        state = self._state()
+        state = self.point_state()
         if state is not None and not wanted and not any(self._flags().values()):
             state.label = False
             state.label_own = PointLabel()
@@ -407,35 +408,35 @@ class DataLabel(Created):
         return to_text(value) if code == "General" else to_text(vba_format(value, code))
 
     def _number_format(self) -> str:
-        own = self._own().number_format
+        own = self.own().number_format
         return own if own is not None else self.series.entry.label_look.number_format or "General"
 
     def _linked(self) -> bool:
-        own = self._own()
+        own = self.own()
         return own.linked if own.linked is not None else self.series.entry.label_look.linked
 
     def _separator(self) -> str | None:
-        own = self._own().separator
+        own = self.own().separator
         return own if own is not None else self.series.entry.label_look.separator
 
-    def _text(self) -> str:
-        own = self._own()
+    def said(self) -> str:
+        own = self.own()
         return own.text if own.text is not None else self._automatic()
 
     @member
     def Text(self) -> object:
         self._showing()
-        return self._text()
+        return self.said()
 
     @setter("Text")
-    def _set_text(self, value: object) -> None:
+    def set_text(self, value: object) -> None:
         self._showing()
         self._type(to_text(value))
 
     def _type(self, text: str) -> None:
-        if self._own().plain_format is False:
+        if self.own().plain_format is False:
             raise unmeasured("Typing a label's text once its look is set")
-        own = self._held()
+        own = self.held()
         own.text, own.touched = text, True
 
     @member
@@ -444,12 +445,12 @@ class DataLabel(Created):
 
     @setter("Caption")
     def _set_caption(self, value: object) -> None:
-        self._set_text(value)
+        self.set_text(value)
 
     @member
     def AutoText(self) -> object:
         self._showing()
-        own = self._own()
+        own = self.own()
         return own.text is None
 
     @setter("AutoText")
@@ -457,7 +458,7 @@ class DataLabel(Created):
         self._showing()
         if not to_bool(value):
             raise unmeasured("AutoText = False, which writes a field with a random id,")
-        own = self._own()
+        own = self.own()
         if own.text is not None:
             own.text, own.touched = None, False
             self.series.chart.changed()
@@ -465,7 +466,7 @@ class DataLabel(Created):
     @member
     def Formula(self) -> object:
         self._showing()
-        return self._text()
+        return self.said()
 
     @setter("Formula")
     def _set_formula(self, value: object) -> None:
@@ -487,7 +488,7 @@ class DataLabel(Created):
     @member
     def FormulaR1C1(self) -> object:
         self._showing()
-        return self._text()
+        return self.said()
 
     @setter("FormulaR1C1")
     def _set_formula_r1c1(self, value: object) -> None:
@@ -568,12 +569,12 @@ class DataLabel(Created):
     @member
     def ShowRange(self) -> object:
         self._alive()
-        return self._own().show_range
+        return self.own().show_range
 
     @setter("ShowRange")
     def _show_range(self, value: object) -> None:
         self._alive()
-        own = self._held()
+        own = self.held()
         own.show_range, own.touched = to_bool(value), True
 
     # -- where it stands and how it reads
@@ -581,7 +582,7 @@ class DataLabel(Created):
     @member
     def Position(self) -> object:
         self._showing("Position")
-        own = self._own().position
+        own = self.own().position
         look = self.series.entry.label_look.position
         kind = self.series.chart.state.chart_type
         if own is None and look is None and kind not in DEFAULT_POSITIONS:
@@ -597,7 +598,7 @@ class DataLabel(Created):
             raise VBAUnsupportedError("DataLabel.Position on this chart type is not implemented")
         if wanted not in _POINT_POSITIONS[kind]:
             raise error(-2147467259, "Automation error\nUnspecified error")
-        own = self._held()
+        own = self.held()
         own.position, own.touched = wanted, True
 
     @member
@@ -614,7 +615,7 @@ class DataLabel(Created):
             code = normalized(to_text(value))
         except VBARuntimeError:
             raise error(1004, "Unable to set the NumberFormat property of the DataLabel class") from None
-        own = self._held()
+        own = self.held()
         own.number_format, own.linked = code, False
 
     @member
@@ -640,12 +641,12 @@ class DataLabel(Created):
         self._showing()
         wanted = to_bool(value)
         if wanted:
-            own = self._own()
+            own = self.own()
             if own.number_format is not None or own.linked is not None:
                 own.number_format, own.linked = None, None
                 self.series.chart.changed()
             return
-        own = self._held()
+        own = self.held()
         own.linked = False
         own.number_format = own.number_format or "General"
 
@@ -659,7 +660,7 @@ class DataLabel(Created):
     def _set_separator(self, value: object) -> None:
         self._showing()
         if isinstance(value, str):
-            own = self._held()
+            own = self.held()
             own.separator, own.touched = value, True
         else:
             self._touched()
@@ -667,7 +668,7 @@ class DataLabel(Created):
     @member
     def Orientation(self) -> object:
         self._alive()
-        return VBAInt(self._own().orientation, "Long")
+        return VBAInt(self.own().orientation, "Long")
 
     @setter("Orientation")
     def _set_orientation(self, value: object) -> None:
@@ -675,12 +676,12 @@ class DataLabel(Created):
         wanted = int(to_integer(value, "Long"))
         if wanted not in _ROTATIONS and not -90 <= wanted <= 90:
             raise error(-2147467259, "Automation error\nUnspecified error")
-        self._held().orientation = wanted
+        self.held().orientation = wanted
 
     @member
     def HorizontalAlignment(self) -> object:
         self._alive()
-        return VBAInt(self._own().horizontal, "Long")
+        return VBAInt(self.own().horizontal, "Long")
 
     @setter("HorizontalAlignment")
     def _set_horizontal(self, value: object) -> None:
@@ -688,7 +689,7 @@ class DataLabel(Created):
         wanted = int(to_integer(value, "Long"))
         if wanted not in _ALIGNED:
             raise unmeasured("This DataLabel.HorizontalAlignment")
-        self._held().horizontal = wanted
+        self.held().horizontal = wanted
 
     @member
     def VerticalAlignment(self) -> object:
@@ -703,22 +704,22 @@ class DataLabel(Created):
     @member
     def ReadingOrder(self) -> object:
         self._alive()
-        return VBAInt(self._own().reading, "Long")
+        return VBAInt(self.own().reading, "Long")
 
     @setter("ReadingOrder")
     def _set_reading(self, value: object) -> None:
         self._alive()
-        self._held().reading = int(to_integer(value, "Long"))
+        self.held().reading = int(to_integer(value, "Long"))
 
     @member
     def Shadow(self) -> object:
         self._alive()
-        return self._own().shadow
+        return self.own().shadow
 
     @setter("Shadow")
     def _set_shadow(self, value: object) -> None:
         self._alive()
-        self._held().shadow = to_bool(value)
+        self.held().shadow = to_bool(value)
 
     # -- its look
 
@@ -730,11 +731,11 @@ class DataLabel(Created):
     @property
     def font(self) -> TextLook | None:
         """What Font reads: its own, or else what its series' labels set."""
-        return self._own().font or self.series.entry.label_look.font
+        return self.own().font or self.series.entry.label_look.font
 
     @font.setter
     def font(self, look: TextLook | None) -> None:
-        self._held().font = look
+        self.held().font = look
 
     @member
     def Format(self) -> object:
@@ -800,15 +801,15 @@ class LabelCharacters(Created):
 
     def _read(self) -> str:
         label = self.label
-        if not label._shown():
+        if not label.shows_anything():
             return ""
-        state = label._state()
-        live = (state is not None and state.label is True) or label._own().touched
-        return label._text() if live else ""
+        state = label.point_state()
+        live = (state is not None and state.label is True) or label.own().touched
+        return label.said() if live else ""
 
     @setter("Text")
     def _set_text(self, value: object) -> None:
-        self.label._set_text(value)
+        self.label.set_text(value)
 
     @member
     def Count(self) -> object:
@@ -845,7 +846,7 @@ class _LabelFill(Created):
 
     @member
     def Visible(self) -> object:
-        return VBAInt(-1 if self.label._own().fill_rgb is not None else 0, "Long")
+        return VBAInt(-1 if self.label.own().fill_rgb is not None else 0, "Long")
 
     @member
     def ForeColor(self) -> object:
@@ -861,7 +862,7 @@ class _LabelColour(Created):
     @setter("RGB")
     def _rgb(self, value: object) -> None:
         colour = int(to_integer(value, "Long")) & 0xFFFFFF
-        self.label._held().fill_rgb = f"{colour & 0xFF:02X}{colour >> 8 & 0xFF:02X}{colour >> 16 & 0xFF:02X}"
+        self.label.held().fill_rgb = f"{colour & 0xFF:02X}{colour >> 8 & 0xFF:02X}{colour >> 16 & 0xFF:02X}"
 
 
 class _LabelLine(Created):

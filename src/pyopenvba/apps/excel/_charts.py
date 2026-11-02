@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 import math
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pyopenvba._a1 import Area, parse_reference
 from pyopenvba.apps.excel._chart_axes import AxisState

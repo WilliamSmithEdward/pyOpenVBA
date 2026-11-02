@@ -59,14 +59,21 @@ def _label_body(point: PointState, entry: SeriesState) -> str:
     own = point.label_own
     tx = ""
     if own.text is not None:
-        run = f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(own.text)}</a:t></a:r>' if own.text else '<a:endParaRPr lang="en-US"/>'
+        run = '<a:endParaRPr lang="en-US"/>'
+        if own.text:
+            run = f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(own.text)}</a:t></a:r>'
         tx = f"<c:tx><c:rich><a:bodyPr/><a:lstStyle/><a:p>{run}</a:p></c:rich></c:tx>"
     number = "" if own.number_format is None else (
         f'<c:numFmt formatCode="{escape_attribute(to_file(own.number_format))}" sourceLinked="0"/>')
     look = ""
     if own.has_look():
-        fill = "<a:noFill/>" if own.fill_rgb is None else f'<a:solidFill><a:srgbClr val="{own.fill_rgb}"/></a:solidFill>'
-        effects = '<a:effectLst><a:outerShdw dist="35921" dir="2700000" algn="br"><a:srgbClr val="000000"/></a:outerShdw></a:effectLst>' if own.shadow else "<a:effectLst/>"
+        fill = "<a:noFill/>"
+        if own.fill_rgb is not None:
+            fill = f'<a:solidFill><a:srgbClr val="{own.fill_rgb}"/></a:solidFill>'
+        effects = "<a:effectLst/>"
+        if own.shadow:
+            effects = ('<a:effectLst><a:outerShdw dist="35921" dir="2700000" algn="br"><a:srgbClr val="000000"/>'
+                       "</a:outerShdw></a:effectLst>")
         turn = {-4171: 90, -4170: -90, -4128: 0}.get(own.orientation, own.orientation)
         rotated = f' rot="{-turn * 60000}" vert="horz"' if own.orientation != -4128 else ""
         paragraph = "" if own.horizontal == -4108 else f' algn="{ {-4131: "l", -4152: "r"}[own.horizontal] }"'
@@ -78,10 +85,11 @@ def _label_body(point: PointState, entry: SeriesState) -> str:
                 '<a:endParaRPr lang="en-US"/></a:p></c:txPr>')
     place = "" if own.position is None else f'<c:dLblPos val="{LABEL_POSITIONS[own.position]}"/>'
     series = entry.label_look
-    base = {"value": series.value, "category": series.category, "series": series.series, "legend_key": series.legend_key,
-            "percent": series.percent, "bubble": series.bubble}
+    base = {"value": series.value, "category": series.category, "series": series.series,
+            "legend_key": series.legend_key, "percent": series.percent, "bubble": series.bubble}
     if not entry.data_labels:
-        base = {"value": True, "category": False, "series": False, "legend_key": False, "percent": False, "bubble": False}
+        base = {"value": True, "category": False, "series": False, "legend_key": False, "percent": False,
+                "bubble": False}
     flags = {**base, **own.shows}
     shows = "".join(f'<c:{tag} val="{int(flags[field])}"/>' for tag, field in (
         ("showLegendKey", "legend_key"), ("showVal", "value"), ("showCatName", "category"), ("showSerName", "series"),
@@ -263,7 +271,6 @@ class Point(Created):
         from pyopenvba.apps.excel._chart_data_labels import DataLabel
 
         self.kind()
-        point = self.own()
         if not self.series.has_labels():
             raise error(-2147467259, "Automation error\nUnspecified error")
         return DataLabel(self.series, self.index + 1, self.series.entry.label_generation)

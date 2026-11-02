@@ -19,7 +19,7 @@ import stat
 import weakref
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Any, Final
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._file_records import ERR_RECORD_LENGTH, Reader, decode, encode, fill_array, fill_record
@@ -104,6 +104,25 @@ def _native(path: str) -> str:
     return path.replace("\\", os.sep) if os.sep != "\\" else path
 
 
+def spelled(path: str, separator: str = os.sep) -> str:
+    """The path as the disk spells it, since VBA's paths have no case and some systems' files do. A part that matches
+    nothing stays as given, for what is about to be made."""
+    if separator == "\\" or os.path.exists(path):
+        return path
+    current = separator if path.startswith(separator) else ""
+    for part in path.split(separator):
+        if not part:
+            continue
+        found = part
+        if not os.path.exists(os.path.join(current, part)):
+            try:
+                found = next((one for one in os.listdir(current or ".") if one.casefold() == part.casefold()), part)
+            except OSError:
+                pass
+        current = os.path.join(current, found)
+    return current + separator if path.endswith(separator) else current
+
+
 def _wildcard(name: str) -> bool:
     return "*" in name or "?" in name
 
@@ -174,18 +193,20 @@ class FileTable:
         self.folder = os.getcwd()
         self.listing: list[str] | None = None
         self.attributes: dict[str, int] = {}
+        #: The TextStreams open, which Kill finds it cannot get past.
+        self.streams: list[Any] = []
         #: VBA closes what is left open when the project goes, so nothing written is lost when the object does.
         weakref.finalize(self, _flush_all, self.handles)
 
     # -- paths
 
     def full(self, path: object) -> str:
-        return os.path.join(self.folder, _native(to_text(path)))
+        return spelled(os.path.join(self.folder, _native(to_text(path))))
 
     def _key(self, path: str) -> str:
         return os.path.normcase(os.path.abspath(path))
 
-    def _attributes_of(self, path: str) -> int:
+    def attributes_of(self, path: str) -> int:
         kept = self.attributes.get(self._key(path))
         if kept is not None:
             return kept
@@ -193,10 +214,10 @@ class FileTable:
         bits = 16 if stat.S_ISDIR(found.st_mode) else 32
         return bits | (0 if found.st_mode & stat.S_IWRITE else 1)
 
-    def _read_only(self, path: str) -> bool:
-        return os.path.exists(path) and bool(self._attributes_of(path) & 1)
+    def read_only(self, path: str) -> bool:
+        return os.path.exists(path) and bool(self.attributes_of(path) & 1)
 
-    def _is_open(self, path: str, *, for_writing: bool = False) -> bool:
+    def is_open(self, path: str, *, for_writing: bool = False) -> bool:
         key = self._key(path)
         return any(self._key(one.path) == key and (one.mode != "input" or not for_writing)
                    for one in self.handles.values())
@@ -248,7 +269,7 @@ class FileTable:
         if self._conflicts(path, mode):
             raise error(ERR_ALREADY_OPEN)
         shared = mode in ("binary", "random")
-        if os.path.isdir(path) or (mode != "input" and not shared and self._read_only(path)):
+        if os.path.isdir(path) or (mode != "input" and not shared and self.read_only(path)):
             raise error(ERR_ACCESS)
         if shared:
             self._open_shared(number, path, mode, access, record)
@@ -282,7 +303,7 @@ class FileTable:
 
     def _open_shared(self, number: int, path: str, mode: str, access: str, record: int) -> None:
         self.interpreter.outside("Open")
-        read_only = self._read_only(path)
+        read_only = self.read_only(path)
         try:
             if os.path.exists(path):
                 with open(path, "rb") as stream:
@@ -703,9 +724,11 @@ class FileTable:
         if not targets:
             raise error(ERR_NOT_FOUND)
         for target in targets:
-            if self._is_open(target):
+            if self.is_open(target):
                 raise error(ERR_ALREADY_OPEN)
-            if self._read_only(target):
+            if any(self._key(one.path) == self._key(target) for one in self.streams):
+                raise error(ERR_DENIED)
+            if self.read_only(target):
                 raise error(ERR_ACCESS)
             try:
                 os.remove(target)
@@ -757,9 +780,9 @@ class FileTable:
             raise error(ERR_BAD_NUMBER)
         if not os.path.isfile(source):
             raise error(ERR_NOT_FOUND)
-        if self._is_open(source, for_writing=True) or self._is_open(target):
+        if self.is_open(source, for_writing=True) or self.is_open(target):
             raise error(ERR_ALREADY_OPEN)
-        if self._read_only(target):
+        if self.read_only(target):
             raise error(ERR_ACCESS)
         try:
             shutil.copyfile(source, target)
@@ -773,7 +796,7 @@ class FileTable:
         old, new = self.full(old_value), self.full(new_value)
         if not os.path.exists(old):
             raise error(ERR_NOT_FOUND)
-        if self._is_open(old):
+        if self.is_open(old):
             raise error(ERR_ALREADY_OPEN)
         if os.path.exists(new):
             raise error(ERR_EXISTS)
@@ -806,7 +829,7 @@ class FileTable:
         path = self.full(path_value)
         if not os.path.exists(path):
             raise error(ERR_NOT_FOUND)
-        return self._attributes_of(path)
+        return self.attributes_of(path)
 
     def set_attributes(self, path_value: object, bits_value: object) -> None:
         self.interpreter.outside("SetAttr")

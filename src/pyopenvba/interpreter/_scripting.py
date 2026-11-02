@@ -30,6 +30,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.interpreter._fso import FileSystemMembers
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -211,8 +212,8 @@ def _split(path: str) -> tuple[str, str, str]:
     return drive, rest[:cut + 1] if cut >= 0 else "", rest[cut + 1:]
 
 
-class FileSystemObject(VBAObject):
-    """Scripting.FileSystemObject, its path functions alone."""
+class FileSystemObject(FileSystemMembers):
+    """Scripting.FileSystemObject: its path functions here, which reach nothing, and the rest in _fso."""
 
     vba_type_name = "FileSystemObject"
     vba_library = "scripting"

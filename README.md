@@ -538,8 +538,9 @@ pyOpenVBA does not implement. The third is never trappable by
 VBA runs in a sandbox by default: a macro that would touch a file, the
 network or another program raises `VBASandboxError`, while Python's own
 `app.save` and `open` work as ever. `ExcelApplication(sandbox=False)` lets
-VBA reach out through what pyOpenVBA implements. See
-[The sandbox](docs/vba_runtime.md#the-sandbox).
+VBA reach out through what pyOpenVBA implements, such as
+[HTTP through `MSXML2.XMLHTTP`](docs/vba_runtime.md#http) on Python's own
+sockets. See [The sandbox](docs/vba_runtime.md#the-sandbox).
 
 Formulas are calculated, not just carried: write one from a macro and
 read the answer back.

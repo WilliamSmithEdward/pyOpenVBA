@@ -1502,11 +1502,10 @@ class Workbook(ExcelObject):
 
     @member
     def TableStyles(self, Index: object = MISSING) -> object:
-        from pyopenvba.apps.excel._workbook_settings import table_style
+        from pyopenvba.apps.excel._workbook_settings import TableStyles
 
-        if Index is MISSING:
-            raise VBAUnsupportedError("Workbook.TableStyles as a collection is not implemented")
-        return table_style(self, Index)
+        styles = TableStyles(self)
+        return styles if Index is MISSING else styles.vba_get("Item", [Index])
 
     @member
     def ShowPivotTableFieldList(self) -> object:

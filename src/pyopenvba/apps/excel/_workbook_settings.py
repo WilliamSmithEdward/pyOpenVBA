@@ -18,12 +18,14 @@ scripts/measure_workbook_settings.py):
 """
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Final
 
+from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject
 from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
-from pyopenvba.interpreter._objects import member
-from pyopenvba.interpreter._values import NULL, VBAInt, error, to_bool, to_integer, to_text
+from pyopenvba.interpreter._objects import VBACollection, member, method, setter
+from pyopenvba.interpreter._values import NULL, VBAInt, error, to_bool, to_integer
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Workbook
@@ -36,8 +38,56 @@ def _names(prefix: str, groups: tuple[tuple[str, int], ...]) -> tuple[str, ...]:
 TABLE_STYLES: Final = _names("TableStyle", (("Light", 21), ("Medium", 28), ("Dark", 11)))
 PIVOT_STYLES: Final = _names("PivotStyle", (("Light", 28), ("Medium", 28), ("Dark", 28)))
 SLICER_STYLES: Final = _names("SlicerStyle", (("Light", 6), ("Other", 2), ("Dark", 6)))
-TIMELINE_STYLES: Final = _names("TimeSlicerStyle", (("Light", 6), ("Other", 2), ("Dark", 6)))
-_BUILT_IN: Final = {name.lower(): name for name in TABLE_STYLES + PIVOT_STYLES + SLICER_STYLES + TIMELINE_STYLES}
+#: A timeline has no Other styles (tests/fixtures/table_styles.json).
+TIMELINE_STYLES: Final = _names("TimeSlicerStyle", (("Light", 6), ("Dark", 6)))
+#: Every built-in style in the order TableStyles lists them, 170 in all.
+BUILT_IN_STYLES: Final = TABLE_STYLES + PIVOT_STYLES + SLICER_STYLES + TIMELINE_STYLES
+_BUILT_IN: Final = {name.lower(): name for name in BUILT_IN_STYLES}
+#: Each family's prefix, the gallery member that shows it, and its name in English Excel's own words.
+_FAMILIES: Final = (("TimeSlicerStyle", "ShowAsAvailableTimelineStyle", "Timeline Style"),
+                    ("TableStyle", "ShowAsAvailableTableStyle", "Table Style"),
+                    ("PivotStyle", "ShowAsAvailablePivotTableStyle", "Pivot Style"),
+                    ("SlicerStyle", "ShowAsAvailableSlicerStyle", "Slicer Style"))
+
+
+def _custom_styles(book: Workbook) -> bool:
+    """Whether the workbook's stylesheet holds a table, slicer or timeline style of its own."""
+    return re.search(r"<(?:[\w.-]+:)?(?:tableStyle|slicerStyle|timelineStyle)\b", book.stylesheet.xml) is not None
+
+
+class TableStyles(VBACollection, ItemDefault, ExcelObject):
+    """The workbook's table styles: the 170 built in, in Excel's order (tests/fixtures/table_styles.json)."""
+
+    vba_type_name = "TableStyles"
+
+    def __init__(self, book: Workbook) -> None:
+        self.book = book
+
+    def vba_items(self) -> list[object]:
+        if _custom_styles(self.book):
+            raise VBAUnsupportedError("TableStyles of a workbook with styles of its own is not implemented")
+        return [TableStyle(self.book, name) for name in BUILT_IN_STYLES]
+
+    def vba_lookup(self, index: object, items: list[object]) -> object:
+        if isinstance(index, str):
+            found = _BUILT_IN.get(index.lower())
+            if found is None and _custom_styles(self.book):
+                raise VBAUnsupportedError("TableStyles of a style of the workbook's own is not implemented")
+            if found is None:
+                raise error(9, "Subscript out of range")
+            return TableStyle(self.book, found)
+        place = int(to_integer(index, "Long"))
+        if not 1 <= place <= len(items):
+            raise error(9, "Subscript out of range")
+        return items[place - 1]
+
+    @member
+    def Parent(self) -> object:
+        return self.book
+
+    @member
+    def Application(self) -> object:
+        return self.book.application
 
 
 class TableStyle(ExcelObject):
@@ -49,13 +99,20 @@ class TableStyle(ExcelObject):
         self.book = book
         self.name = name
 
+    def family(self) -> tuple[str, str, str]:
+        return next(family for family in _FAMILIES if self.name.startswith(family[0]))
+
     @member(default=True)
     def Name(self) -> object:
         return self.name
 
     @member
     def NameLocal(self) -> object:
-        return self.name
+        """The name in English Excel's own words: TableStyleMedium2 reads Table Style Medium 2."""
+        prefix, _, words = self.family()
+        found = re.fullmatch(r"([A-Za-z]+?)(\d+)", self.name[len(prefix):])
+        assert found is not None
+        return f"{words} {found[1]} {found[2]}"
 
     @member
     def BuiltIn(self) -> object:
@@ -63,15 +120,64 @@ class TableStyle(ExcelObject):
 
     @member
     def Parent(self) -> object:
-        return self.book
+        return TableStyles(self.book)
+
+    @member
+    def Application(self) -> object:
+        return self.book.application
+
+    def shown_in(self, gallery: str) -> object:
+        return self.family()[1] == gallery
+
+    def set_shown(self, gallery: str, value: object) -> None:
+        # A built-in style keeps the gallery it shows in: changing it is error 5.
+        if to_bool(value) == self.shown_in(gallery):
+            raise VBAUnsupportedError(f"TableStyle.{gallery} set to what it reads is not implemented")
+        raise error(5, "Invalid procedure call or argument")
+
+    @member
+    def ShowAsAvailableTableStyle(self) -> object:
+        return self.shown_in("ShowAsAvailableTableStyle")
+
+    @setter("ShowAsAvailableTableStyle")
+    def _show_table(self, value: object) -> None:
+        self.set_shown("ShowAsAvailableTableStyle", value)
+
+    @member
+    def ShowAsAvailablePivotTableStyle(self) -> object:
+        return self.shown_in("ShowAsAvailablePivotTableStyle")
+
+    @setter("ShowAsAvailablePivotTableStyle")
+    def _show_pivot(self, value: object) -> None:
+        self.set_shown("ShowAsAvailablePivotTableStyle", value)
+
+    @member
+    def ShowAsAvailableSlicerStyle(self) -> object:
+        return self.shown_in("ShowAsAvailableSlicerStyle")
+
+    @setter("ShowAsAvailableSlicerStyle")
+    def _show_slicer(self, value: object) -> None:
+        self.set_shown("ShowAsAvailableSlicerStyle", value)
+
+    @member
+    def ShowAsAvailableTimelineStyle(self) -> object:
+        return self.shown_in("ShowAsAvailableTimelineStyle")
+
+    @setter("ShowAsAvailableTimelineStyle")
+    def _show_timeline(self, value: object) -> None:
+        self.set_shown("ShowAsAvailableTimelineStyle", value)
+
+    @method
+    def Delete(self) -> object:
+        # A built-in style cannot be deleted (tests/fixtures/table_styles.json).
+        raise error(1004, "Delete method of TableStyle class failed")
 
 
 def table_style(book: Workbook, name: object) -> TableStyle:
-    """Workbook.TableStyles(name): a built-in style; any other name reports itself unsupported."""
-    found = _BUILT_IN.get(to_text(name).lower())
-    if found is None:
-        raise VBAUnsupportedError("TableStyles of a custom table style or by number is not implemented")
-    return TableStyle(book, found)
+    """Workbook.TableStyles(name): a built-in style, by its name in any case or by number."""
+    found = TableStyles(book).vba_get("Item", [name])
+    assert isinstance(found, TableStyle)
+    return found
 
 
 def _style_name(value: object) -> str | None:

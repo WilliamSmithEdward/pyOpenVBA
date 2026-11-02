@@ -622,6 +622,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- Assigning to a property the model only reads no longer raises a
+  trappable error 438 when Excel lets a macro set that property. It
+  reports the setter as not implemented, so `On Error` cannot hide the
+  gap. A property the type library marks read-only still raises 438. The
+  object inventory now records which properties each class lets a macro
+  set. Excel classes outside the main model now look their members up in
+  Excel's type library too.
+
 - Shape.Chart on a shape with no chart raises -2147024809, as Excel does,
   not 1004. TextFrame.AutoSize reads the Boolean False, not 0.
 

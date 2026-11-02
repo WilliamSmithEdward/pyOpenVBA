@@ -8,7 +8,9 @@ two committed Python modules:
 
 The inventory is what lets an unknown member be answered honestly: a
 member the real Worksheet has is a gap in pyOpenVBA, and one it has not
-is VBA's error 438.  The constants are what let a macro say xlUp.
+is VBA's error 438.  The same goes for assigning to a property the model
+only reads, where the inventory knows which ones the real class lets a
+macro set.  The constants are what let a macro say xlUp.
 
 Usage (the default path is the sibling checkout):
 
@@ -56,8 +58,16 @@ def member_names(type_doc: dict[str, object]) -> set[str]:
     return names
 
 
-def build_inventory(reference: Path) -> dict[str, str]:
+def settable_names(type_doc: dict[str, object]) -> set[str]:
+    """The properties a macro can assign to: every one the type library does not mark read-only."""
+    return {entry["name"].lower() for entry in type_doc.get("properties", []) or []
+            if isinstance(entry, dict) and isinstance(entry.get("name"), str) and entry.get("access") != "read-only"}
+
+
+def build_inventory(reference: Path) -> tuple[dict[str, str], dict[str, str]]:
+    """Each class's members, and the properties among them a macro can set."""
     table: dict[str, str] = {}
+    settable: dict[str, str] = {}
     for library in LIBRARIES:
         for type_doc in load_library(reference, library):
             kind = str(type_doc.get("kind", ""))
@@ -67,7 +77,10 @@ def build_inventory(reference: Path) -> dict[str, str]:
             names = member_names(type_doc)
             if name and names:
                 table[f"{library}:{name.lower()}"] = ",".join(sorted(names))
-    return table
+                put = settable_names(type_doc)
+                if put:
+                    settable[f"{library}:{name.lower()}"] = ",".join(sorted(put))
+    return table, settable
 
 
 def build_constants(reference: Path) -> tuple[dict[str, dict[str, int | float | str]], set[str]]:
@@ -105,7 +118,7 @@ def build_constants(reference: Path) -> tuple[dict[str, dict[str, int | float | 
     return tables, integers
 
 
-def write_inventory(table: dict[str, str]) -> None:
+def write_inventory(table: dict[str, str], settable: dict[str, str]) -> None:
     lines = [
         '"""Every member each Office class really has, generated from the type libraries.',
         "",
@@ -161,6 +174,17 @@ def write_inventory(table: dict[str, str]) -> None:
             "",
             "MEMBERS = _Members()",
             "",
+            "#: The properties of each class a macro can assign to, joined the same way.",
+            "_SETTABLE: dict[str, str] = {",
+            *[f"    {key!r}: {settable[key]!r}," for key in sorted(settable)],
+            "}",
+            "",
+            "",
+            "@lru_cache(maxsize=None)",
+            "def settable(key: str) -> frozenset[str]:",
+            '    """The properties of the class under ``key`` a macro can assign to."""',
+            "    return frozenset(_SETTABLE[key].split(',')) if key in _SETTABLE else frozenset()",
+            "",
         ]
     )
     INVENTORY_OUT.write_text("\n".join(lines), encoding="utf-8")
@@ -200,9 +224,9 @@ def main() -> int:
     reference = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_REFERENCE
     if not reference.is_dir():
         raise SystemExit(f"pyVBAReference is not at {reference}")
-    inventory = build_inventory(reference)
+    inventory, settable = build_inventory(reference)
     constants, integers = build_constants(reference)
-    write_inventory(inventory)
+    write_inventory(inventory, settable)
     write_constants(constants, integers)
     print(f"{len(inventory)} classes -> {INVENTORY_OUT.relative_to(ROOT)} ({INVENTORY_OUT.stat().st_size} bytes)")
     print(f"{len(constants)} constants -> {CONSTANTS_OUT.relative_to(ROOT)} ({CONSTANTS_OUT.stat().st_size} bytes)")

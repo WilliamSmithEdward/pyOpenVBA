@@ -201,10 +201,30 @@ def _print_communication() -> MemberSpec:
     return MemberSpec(name='PrintCommunication', kind='property', getter=get, setter=put)
 
 
+#: Settings read as Excel starts, as the measuring machine's Excel had them, and flags Excel keeps itself; read only
+#: in the model. The writable ones' setters are left out: some apply only once Excel starts again, so measuring them
+#: would change the measuring user's profile (tests/fixtures/application_settings_more.json).
+READ_ONLY: dict[str, object] = {
+    'DisplayClipboardWindow': False, 'DisplayDocumentActionTaskPane': False, 'DisplayDocumentInformationPanel': False,
+    'DisplayExcel4Menus': False, 'DisplayRecentFiles': True, 'ShowDevTools': True, 'ShowStartupDialog': False,
+    'UseClusterConnector': False, 'CommandUnderlines': VBAInt(1, 'Long'), 'DataEntryMode': VBAInt(-4146, 'Long'),
+    'DefaultSaveFormat': VBAInt(51, 'Long'),
+    'CanPlaySounds': True, 'CanRecordSounds': False, 'MathCoprocessorAvailable': True, 'MouseAvailable': True,
+    'Ready': True, 'ArbitraryXMLSupportAvailable': True, 'IsSandboxed': False, 'RecordRelative': False,
+}
+
+
+def _read_only(name: str, value: object) -> MemberSpec:
+    def get(application: Application) -> object:
+        return value
+
+    return MemberSpec(name=name, kind='property', getter=get)
+
+
 def application_members() -> list[MemberSpec]:
     """Every Application setting this module keeps, as a member."""
     return [*(_switch(name) for name in SWITCHES), *(_numbered_setting(name) for name in STARTS), _note_indicator(),
-            _caption(), _print_communication()]
+            _caption(), _print_communication(), *(_read_only(name, value) for name, value in READ_ONLY.items())]
 
 
 def worksheet_members() -> list[MemberSpec]:

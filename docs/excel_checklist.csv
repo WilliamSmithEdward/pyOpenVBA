@@ -2289,6 +2289,13 @@ Shapes,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/core_
 Shapes,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The sheet.
 Shapes,Range,"property, read-only",As ShapeRange,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json,
 Shapes,SelectAll,method,SelectAll(),,UNASSESSED,,
+SheetViews,_Default,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,As Item.
+SheetViews,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+SheetViews,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,Read.
+SheetViews,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,Every sheet.
+SheetViews,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,Read.
+SheetViews,Item,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"By number, 1004 out of range, or by sheet name."
+SheetViews,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The window.
 Sheets,_Default,"property, read-only",As Object,,PARTIAL,tests/fixtures/hidden_defaults.json; tests/test_excel_hidden_defaults.py,Item.
 Sheets,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Sheets,Add,method,"Add([Before As Variant], [After As Variant], [Count As Variant], [Type As Variant]) As Object",,PARTIAL,tests/fixtures/worksheet_documents.json; tests/test_worksheet_documents.py; tests/fixtures/sheet_groups.json,"Multiple worksheets, fractional Count truncation, lazy code names and caption counters measured. Grouped-sheet defaults, wider Count/Type/anchor cases and event ordering remain incomplete. Error 1004 while sheets are grouped."
@@ -2611,7 +2618,7 @@ Window,ActiveCell,"property, read-only",As Range,,VERIFIED,tests/fixtures/window
 Window,ActiveChart,"property, read-only",As Chart,,MISSING,,
 Window,ActivePane,"property, read-only",As Pane,,MISSING,,
 Window,ActiveSheet,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,ActiveSheetView,"property, read-only",As Object,,MISSING,,
+Window,ActiveSheetView,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The active sheet's view.
 Window,Application,"property, read-only",As Application,,VERIFIED,tests/fixtures/windows/windows.json,
 Window,AutoFilterDateGrouping,property,As Boolean,,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"The workbook's, saved in its workbookView and read back; it changes no filter."
 Window,Caption,property,As Variant,,VERIFIED,tests/fixtures/windows/windows.json,
@@ -2654,7 +2661,7 @@ Window,ScrollRow,property,As Long,,PARTIAL,tests/fixtures/windows/windows.json,S
 Window,ScrollWorkbookTabs,method,"ScrollWorkbookTabs([Sheets As Variant], [Position As Variant]) As Variant",,MISSING,,
 Window,SelectedSheets,"property, read-only",As Sheets,,PARTIAL,tests/fixtures/sheet_groups.json; tests/fixtures/sheet_group_moves.json,"The selected sheets in tab order, a group's or the active sheet alone; each tab's tabSelected in the file, read again when the file opens."
 Window,Selection,"property, read-only",As Object,,VERIFIED,tests/fixtures/windows/windows.json,
-Window,SheetViews,"property, read-only",As SheetViews,,MISSING,,
+Window,SheetViews,"property, read-only",As SheetViews,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"Every sheet in tab order, whichever are selected."
 Window,SmallScroll,method,"SmallScroll([Down As Variant], [Up As Variant], [ToRight As Variant], [ToLeft As Variant]) As Variant",,PARTIAL,tests/fixtures/window_settings.json; tests/test_excel_window_settings.py,"ScrollRow by Down less Up and ScrollColumn by ToRight less ToLeft, cut toward zero and kept on the sheet; text is error 1004; True."
 Window,Split,property,As Boolean,,PARTIAL,tests/fixtures/windows/windows.json,"Split = True on a window with no split, which Excel splits at the active cell, reports itself. A split that is not frozen is answered for and not saved: Excel keeps it in twips of what the window shows."
 Window,SplitColumn,property,As Long,,PARTIAL,tests/fixtures/windows/windows.json,A split that is not frozen is answered for and not saved: Excel keeps it in twips of what the window shows.
@@ -3466,6 +3473,16 @@ WorksheetFunction,YieldDisc,method,"YieldDisc(Arg1 As Variant, Arg2 As Variant, 
 WorksheetFunction,YieldMat,method,"YieldMat(Arg1 As Variant, Arg2 As Variant, Arg3 As Variant, Arg4 As Variant, Arg5 As Variant, [Arg6 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,Z_Test,method,"Z_Test(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
 WorksheetFunction,ZTest,method,"ZTest(Arg1 As Variant, Arg2 As Double, [Arg3 As Variant]) As Double",,PARTIAL,tests/fixtures/worksheet_functions_more.json; tests/test_excel_worksheet_functions_more.py,"The formula engine's function, called as a cell calls it; a range or array given where one value is wanted is not run item by item."
+WorksheetView,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,Read.
+WorksheetView,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,Read.
+WorksheetView,DisplayDataTypeIcons,property,As Boolean,,MISSING,,
+WorksheetView,DisplayFormulas,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
+WorksheetView,DisplayGridlines,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
+WorksheetView,DisplayHeadings,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
+WorksheetView,DisplayOutline,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
+WorksheetView,DisplayZeros,property,As Boolean,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,"The sheet's own view setting, whichever sheet is active; saved with that sheet."
+WorksheetView,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The window.
+WorksheetView,Sheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The sheet it shows.
 _Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 _Part,Application,not in the type library,,,UNASSESSED,,
 _Part,Creator,not in the type library,,,UNASSESSED,,

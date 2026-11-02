@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Shape.ScaleWidth and ScaleHeight on shapes and shape ranges. The factor
+  is a Single and the shape is kept at its top left, middle or bottom
+  right, in whole EMU, never below zero or past the sheet's edge. A locked
+  aspect ratio scales both ways. Shape.ConnectionSiteCount, ShapeStyle,
+  BackgroundStyle and GraphicStyle for each kind of shape the model makes.
+  ShapeRange's Chart, TextFrame, TextFrame2, BlackWhiteMode and the style
+  reads, with -2 where the shapes differ. Measured in
+  `tests/fixtures/shape_scale.json`.
 - Window.SheetViews and ActiveSheetView, and the WorksheetView each gives.
   SheetViews holds every sheet in tab order, whichever are selected. A view
   reads and sets its own sheet's gridlines, formulas, headings, zeros and

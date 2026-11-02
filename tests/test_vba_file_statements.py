@@ -47,6 +47,8 @@ def test_each_case_as_excel_answered(app: ExcelApplication, tmp_path: Path, inde
     folder = tmp_path / 'case'
     folder.mkdir()
     seed(folder, name)
+    # Each case ran on its own in Excel, in order: Dir's list must not carry over from whichever ran before here.
+    app.interpreter.files.listing = None
     try:
         got = str(app.run('FileProbe.Probe', str(folder), os.sep, index))
         assert got.replace(str(folder), 'FOLDER') == answer

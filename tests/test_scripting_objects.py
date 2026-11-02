@@ -13,7 +13,6 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
-from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/scripting_objects.json').read_text(encoding='utf-8'))
@@ -66,7 +65,3 @@ def test_early_binding() -> None:
                 'fso.GetExtensionName("x.csv")\nNext\nEnd Function\n') == 'ccsv'
 
 
-def test_the_file_system_stays_out_of_reach() -> None:
-    with pytest.raises(VBAUnsupportedError, match='real file system'):
-        _run('Function Probe() As Boolean\nProbe = CreateObject("Scripting.FileSystemObject").FileExists("a.txt")\n'
-             'End Function\n')

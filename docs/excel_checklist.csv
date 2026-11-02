@@ -2664,19 +2664,27 @@ Tab,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_sheet_tabs.
 Tab,ThemeColor,property,As XlThemeColor,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"xlThemeColorDark1 to xlThemeColorFollowedHyperlink, error 9 beyond; 0 for any other colour."
 Tab,TintAndShade,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; a tint cut toward zero to n / 32767 and kept in 16 bits, so 1.5 reads -0.5000763; a tab with no colour takes none."
 TableStyle,_Default,"property, read-only",As String,,MISSING,,
-TableStyle,Application,"property, read-only",As Application,,MISSING,,
-TableStyle,BuiltIn,"property, read-only",As Boolean,,UNASSESSED,,
-TableStyle,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
-TableStyle,Delete,method,Delete(),,MISSING,,
+TableStyle,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Read.
+TableStyle,BuiltIn,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,True.
+TableStyle,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Read.
+TableStyle,Delete,method,Delete(),,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,A built-in style raises 1004.
 TableStyle,Duplicate,method,Duplicate([NewTableStyleName As Variant]) As TableStyle,,MISSING,,
-TableStyle,Name,"property, read-only",As String,,UNASSESSED,,
-TableStyle,NameLocal,"property, read-only",As String,,UNASSESSED,,
-TableStyle,Parent,"property, read-only",As Object,,UNASSESSED,,
-TableStyle,ShowAsAvailablePivotTableStyle,property,As Boolean,,MISSING,,
-TableStyle,ShowAsAvailableSlicerStyle,property,As Boolean,,MISSING,,
-TableStyle,ShowAsAvailableTableStyle,property,As Boolean,,MISSING,,
-TableStyle,ShowAsAvailableTimelineStyle,property,As Boolean,,MISSING,,
+TableStyle,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Read.
+TableStyle,NameLocal,"property, read-only",As String,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,"English Excel's words: Table Style Medium 2, Timeline Style Light 1."
+TableStyle,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,TableStyles.
+TableStyle,ShowAsAvailablePivotTableStyle,property,As Boolean,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,True for its own family's gallery; changing it is error 5.
+TableStyle,ShowAsAvailableSlicerStyle,property,As Boolean,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,True for its own family's gallery; changing it is error 5.
+TableStyle,ShowAsAvailableTableStyle,property,As Boolean,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,True for its own family's gallery; changing it is error 5.
+TableStyle,ShowAsAvailableTimelineStyle,property,As Boolean,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,True for its own family's gallery; changing it is error 5.
 TableStyle,TableStyleElements,"property, read-only",As TableStyleElements,,MISSING,,
+TableStyles,_Default,"property, read-only",As TableStyle,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,As Item.
+TableStyles,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+TableStyles,Add,method,Add(TableStyleName As String) As TableStyle,,MISSING,,
+TableStyles,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Read.
+TableStyles,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,170.
+TableStyles,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,Read.
+TableStyles,Item,method,Item(Index As Variant) As TableStyle,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,By number in Excel's order or by name in any case; error 9 for neither.
+TableStyles,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,The workbook.
 TextFrame,Application,"property, read-only",As Application,,MISSING,,
 TextFrame,AutoMargins,property,As Boolean,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"Excel raises 1004 reading or setting it, on a rectangle and a text box alike."
 TextFrame,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -3129,7 +3137,7 @@ Workbook,SlicerCaches,"property, read-only",As SlicerCaches,,PARTIAL,tests/fixtu
 Workbook,SmartDocument,"property, read-only",As SmartDocument,,MISSING,,
 Workbook,Styles,"property, read-only",As Styles,,PARTIAL,tests/fixtures/cell_styles/cell_styles.json,"Excel's 47 built-in styles and every one the file or a macro adds, in the order Windows word sort puts their names."
 Workbook,Sync,event,Sync(SyncEventType As MsoSyncEventType),,MISSING,,
-Workbook,TableStyles,"property, read-only",As TableStyles,,PARTIAL,tests/test_excel_workbook_settings.py; tests/fixtures/workbook_settings.json,"A built-in style by name; the collection, a custom style or a number report themselves unsupported."
+Workbook,TableStyles,"property, read-only",As TableStyles,,PARTIAL,tests/fixtures/table_styles.json; tests/test_excel_table_styles.py,The 170 built-in styles; workbooks with styles of their own are refused.
 Workbook,TemplateRemoveExtData,property,As Boolean,,PARTIAL,tests/fixtures/workbook_properties.json; tests/test_excel_workbook_properties.py,"What a new or reopened workbook reads; set, kept for the session, none of it saved."
 Workbook,Theme,"property, read-only",As OfficeTheme,,MISSING,,
 Workbook,ToggleFormsDesign,method,ToggleFormsDesign(),,MISSING,,

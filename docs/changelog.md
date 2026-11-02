@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Workbook.TableStyles as a collection: the 170 built-in styles in Excel's
+  order, by number or by name in any case, error 9 for neither.
+  TableStyle.NameLocal reads English Excel's words, such as "Table Style
+  Medium 2". Each style answers which gallery it shows in, and refuses a
+  change with error 5. Deleting a built-in style raises 1004. Parent is
+  TableStyles. Measured in `tests/fixtures/table_styles.json`.
 - Series.DataLabels and the DataLabels object. It reads and sets which
   parts the labels show, their position, number format and separator, and
   writes each in the series' dLbls as Excel does. Each chart type's default
@@ -670,6 +676,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- The model no longer knows TimeSlicerStyleOther1 and TimeSlicerStyleOther2,
+  which Excel does not have, so DefaultTimelineStyle refuses them with
+  error 450 as Excel does.
 
 - Calling an object variable set to Nothing with arguments, as `o(1)`,
   raises error 91, as VBA does, not 9.

@@ -302,6 +302,7 @@ class Axis(Created):
         self.change()
         wanted = to_bool(value)
         self.change()
+        self.chart.keeps_look(f"title{self.entry.kind}", wanted)
         self.chart.changed()
         if wanted:
             if self.entry.title is None:
@@ -467,6 +468,7 @@ class Axis(Created):
     def _major_gridlines(self, value: object) -> None:
         self.change()
         wanted = to_bool(value)
+        self.chart.keeps_look(f"grid{self.entry.kind}", wanted)
         self.chart.changed()
         self.entry.major_gridlines = wanted
 
@@ -481,6 +483,11 @@ class Axis(Created):
         wanted = to_bool(value)
         self.chart.changed()
         self.entry.minor_gridlines = wanted
+
+    @member
+    def Format(self) -> object:
+        self.read()
+        return self.chart.format_of(self, f"axis{self.entry.kind}")
 
     @member
     def MajorGridlines(self) -> object:
@@ -827,6 +834,7 @@ class AxisTitle(TitleMembers):
             raise VBAUnsupportedError("Axis title characters requiring Office literal escapes are not implemented")
         self.read()
         self.axis.change()
+        self.axis.chart.keeps_look(f"title{self.axis.entry.kind}", bool(wanted))
         self.axis.chart.changed()
         if wanted:
             assert self.entry is not None
@@ -842,9 +850,15 @@ class AxisTitle(TitleMembers):
     def _caption(self, value: object) -> None:
         self._text(value)
 
+    @member
+    def Format(self) -> object:
+        self.read()
+        return self.axis.chart.format_of(self, f"title{self.axis.entry.kind}")
+
     @method
     def Delete(self) -> object:
         self.read()
+        self.axis.chart.keeps_look(f"title{self.axis.entry.kind}")
         self.axis.chart.changed()
         self.axis.entry.title = None
         return EMPTY
@@ -889,6 +903,13 @@ class Gridlines(Created):
     def Name(self) -> object:
         entry = self.shown()
         return f"Gridline {(0 if entry.numeric else 2) + (1 if self.major else 2)}"
+
+    @member
+    def Format(self) -> object:
+        self.shown()
+        if not self.major:
+            raise VBAUnsupportedError("The look of minor gridlines is not implemented")
+        return self.axis.chart.format_of(self, f"grid{self.axis.entry.kind}")
 
     @method
     def Delete(self) -> object:

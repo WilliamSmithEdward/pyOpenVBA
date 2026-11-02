@@ -244,6 +244,8 @@ def _scaled_categories(raw: str, axis: AxisState, dated: bool) -> str:
 def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambda formula: "",
               dated: bool = False) -> str:
     """Patch only our own bounded generated templates, never imported originals."""
+    from pyopenvba.apps.excel._chart_format import element_markup
+
     if not result.axes:
         return xml
     by_identifier = {axis.identifier: axis for axis in result.axes.values()}
@@ -268,8 +270,13 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
         for tag, value in (("majorTickMark", axis.major_tick), ("minorTickMark", axis.minor_tick),
                            ("tickLblPos", axis.label_position)):
             raw = re.sub(f'<c:{tag} val="[^"]*"/>', f'<c:{tag} val="{value}"/>', raw, count=1)
-        gridlines = ("<c:majorGridlines/>" if axis.major_gridlines else "") + (
+        looks = result.element_looks
+        lines_look = element_markup(f"grid{axis.kind}", looks.get(f"grid{axis.kind}"))
+        major_lines = f"<c:majorGridlines>{lines_look}</c:majorGridlines>" if lines_look else "<c:majorGridlines/>"
+        gridlines = (major_lines if axis.major_gridlines else "") + (
             "<c:minorGridlines/>" if axis.minor_gridlines else "")
+        own_look = element_markup(f"axis{axis.kind}", looks.get(f"axis{axis.kind}"))
+        raw = re.sub(r'(<c:tickLblPos val="[^"]*"/>)', lambda found: found.group(1) + own_look, raw, count=1)
         raw = re.sub(r'(<c:axPos val="[bltr]"/>)(?:<c:majorGridlines/>)?', lambda found: found.group(1) + gridlines,
                      raw, count=1)
         if axis.number_format is not None or not axis.format_linked:
@@ -290,7 +297,8 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
         if axis.title is not None:
             look = axis.title.look
             title = title_element(look, text=axis.title.text if axis.title.typed else None,
-                                  linked_text=linked(look.formula) if look.formula else "")
+                                  linked_text=linked(look.formula) if look.formula else "",
+                                  frame=element_markup(f"title{axis.kind}", looks.get(f"title{axis.kind}")))
             # Title precedes numFmt/tick metadata in CT_CatAx and CT_ValAx.
             marker = re.search(r"<c:(?:numFmt|majorTickMark)\b", raw)
             if marker is not None:

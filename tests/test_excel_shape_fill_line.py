@@ -12,15 +12,36 @@ from typing import Any
 import pytest
 
 from pyopenvba.apps.excel import ExcelApplication
+from pyopenvba.exceptions import VBAUnsupportedError
 
 RECORD: dict[str, Any] = json.loads(
     (Path(__file__).parent / 'fixtures/shape_fill_line.json').read_text(encoding='utf-8'))
-#: Settings that make Excel write out the shape's whole style, which the model refuses: the replay runs those cases
-#: with no statements and leaves their answers out.
-REFUSED = ('Visible = msoFalse', 'Line.Transparency = 0.5')
-SOURCE = '\n'.join(line for line in RECORD['source'].split('\n') if not any(part in line for part in REFUSED)
-                   ).replace('folder & "\\', f'folder & "{os.sep}')
-KEPT = [index for index, (case, _, _) in enumerate(RECORD['cases']) if not any(part in case for part in REFUSED)]
+SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
+KEPT = range(len(RECORD['cases']))
+#: Combinations no case measured, which report themselves rather than guess.
+UNMEASURED = ['sh.Line.Visible = msoFalse: sh.Fill.Visible = msoFalse',
+              'sh.Line.Visible = msoFalse: sh.Fill.Transparency = 0.5',
+              'sh.Line.Visible = msoFalse: sh.Line.Transparency = 0.5',
+              'sh.Line.Transparency = 0.5: sh.Line.Visible = msoFalse',
+              'sh.Line.Transparency = 0.5: sh.Line.DashStyle = msoLineDash',
+              'sh.Line.DashStyle = msoLineDash: sh.Line.Transparency = 0.5',
+              'sh.Line.DashStyle = msoLineRoundDot: sh.Line.Visible = msoFalse',
+              'sh.Line.DashStyle = msoLineRoundDot: sh.Fill.Visible = msoFalse',
+              'sh.Fill.Visible = msoFalse: sh.Line.DashStyle = msoLineRoundDot',
+              'sh.Fill.Visible = msoFalse: sh.Fill.Solid',
+              'sh.Line.Visible = msoFalse: sh.Fill.ForeColor.RGB = 255: sh.Line.Weight = 3',
+              'sh.Line.Visible = msoFalse: sh.Fill.ForeColor.RGB = 255: sh.Fill.ForeColor.RGB = 0']
+
+
+@pytest.mark.parametrize('statements', UNMEASURED)
+def test_an_unmeasured_combination_is_refused(statements: str) -> None:
+    app = ExcelApplication()
+    app.add_workbook()
+    app.add_module('Public Sub Go()\n    Dim sh As Object\n'
+                   '    Set sh = ActiveSheet.Shapes.AddShape(1, 10, 10, 100, 40)\n'
+                   f'    {statements}\nEnd Sub\n', name='Unmeasured')
+    with pytest.raises(VBAUnsupportedError):
+        app.run('Unmeasured.Go')
 
 
 def drawn(path: Path) -> str:

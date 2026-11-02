@@ -1123,12 +1123,12 @@ FillFormat,TextureOffsetY,property,As Single,,MISSING,,
 FillFormat,TextureTile,property,As MsoTriState,,MISSING,,
 FillFormat,TextureType,"property, read-only",As MsoTextureType,,MISSING,,
 FillFormat,TextureVerticalScale,property,As Single,,MISSING,,
-FillFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Written as the alpha; outside 0 to 1 raises -2147024809; AutoShapes only.
+FillFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Written as the alpha, showing a hidden fill; outside 0 to 1 raises -2147024809. A line's fill, or under a hidden line, is refused."
 FillFormat,TwoColorGradient,method,"TwoColorGradient(Style As MsoGradientStyle, Variant As Long)",,MISSING,,
 FillFormat,Type,"property, read-only",As MsoFillType,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused."
 FillFormat,UserPicture,method,UserPicture(PictureFile As String),,MISSING,,
 FillFormat,UserTextured,method,UserTextured(TextureFile As String),,MISSING,,
-FillFormat,Visible,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused. Setting it is refused, as Excel writes out the whole style."
+FillFormat,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Hiding a fill the style gave writes out the line and an effectLst, for good; a fill already set writes noFill and a hidden copy. Combinations not measured are refused."
 Filter,Application,"property, read-only",As Application,,MISSING,,
 Filter,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/table_autofilter/table_autofilter.json,
 Filter,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -1394,8 +1394,8 @@ LineFormat,InsetPen,property,As MsoTriState,,MISSING,,
 LineFormat,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,The shape.
 LineFormat,Pattern,property,As MsoPatternType,,MISSING,,
 LineFormat,Style,property,As MsoLineStyle,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,msoLineSingle. Setting it is refused.
-LineFormat,Transparency,property,As Single,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused. Setting it is refused, as Excel writes out the whole style."
-LineFormat,Visible,property,As MsoTriState,no setter,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"From the style of a new AutoShape, text box or line in the default theme; others are refused. Setting it is refused, as Excel writes out the whole style."
+LineFormat,Transparency,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Writes the line out in full with its ends, 0 included; outside 0 to 1 raises -2147024809. A hidden or dashed line is refused."
+LineFormat,Visible,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,"Hiding writes out the fill, line and effectLst, for good; the ln keeps the width and dash it had, and changes reach the hidden copy. Combinations not measured are refused."
 LineFormat,Weight,property,As Single,,PARTIAL,tests/fixtures/shape_fill_line.json; tests/test_excel_shape_fill_line.py,Written in EMU; a negative weight raises -2147024809.
 LinearGradient,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,The application.
 LinearGradient,ColorStops,"property, read-only",As ColorStops,,PARTIAL,tests/fixtures/interior_gradient.json; tests/test_excel_interior_gradient.py,Its colour stops.

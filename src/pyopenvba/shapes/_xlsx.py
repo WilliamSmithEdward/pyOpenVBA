@@ -1007,7 +1007,7 @@ def _fill_line(shape: Shape) -> str:
         return _TEXT_BOX_FILL if text_box else ""
     fill_colour = _colour(look.fill_rgb, "lt1" if text_box else "accent1", 0, look.fill_alpha)
     fill = ""
-    if look.fill_hidden:
+    if look.fill_hidden or look.fill_bare:
         fill = "<a:noFill/>"
     elif look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box:
         fill = f"<a:solidFill>{fill_colour}</a:solidFill>"

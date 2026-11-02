@@ -2460,7 +2460,7 @@ ShapeRange,Decorative,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_rang
 ShapeRange,Delete,method,Delete(),,PARTIAL,tests/fixtures/excel_model/probes.txt,
 ShapeRange,Distribute,method,"Distribute(DistributeCmd As MsoDistributeCmd, RelativeTo As MsoTriState)",,PARTIAL,tests/fixtures/shape_align.json; tests/test_excel_shape_align.py,"Even gaps in order of left or top edges, the first and last shapes staying put; fewer than three shapes raise -2147024809."
 ShapeRange,Duplicate,method,Duplicate() As ShapeRange,,PARTIAL,tests/fixtures/shape_duplicate.json; tests/test_excel_shape_duplicate.py,"A copy of each shape, after every other shape, as one ShapeRange."
-ShapeRange,Fill,"property, read-only",As FillFormat,,MISSING,,
+ShapeRange,Fill,"property, read-only",As FillFormat,,PARTIAL,tests/fixtures/shape_range_fill_line.json; tests/test_excel_shape_range_fill_line.py,What its shapes with a fill share; hiding leaves all but the first a bare noFill.
 ShapeRange,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape turned over where it stands, its rotation mirrored; other commands raise -2147024809."
 ShapeRange,Glow,"property, read-only",As GlowFormat,,MISSING,,
 ShapeRange,GraphicStyle,property,As MsoGraphicStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
@@ -2475,7 +2475,7 @@ ShapeRange,IncrementRotation,method,IncrementRotation(Increment As Single),,PART
 ShapeRange,IncrementTop,method,IncrementTop(Increment As Single),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape moved on its own, each stopping at the sheet's edge."
 ShapeRange,Item,method,Item(Index As Variant) As Shape,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 ShapeRange,Left,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set moves every shape."
-ShapeRange,Line,"property, read-only",As LineFormat,,MISSING,,
+ShapeRange,Line,"property, read-only",As LineFormat,,PARTIAL,tests/fixtures/shape_range_fill_line.json; tests/test_excel_shape_range_fill_line.py,What all its shapes share; each takes a change as it would alone.
 ShapeRange,LockAspectRatio,property,As MsoTriState,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared value; a set reaches every shape. Differing values are refused.
 ShapeRange,Model3D,"property, read-only",As Model3DFormat,,MISSING,,
 ShapeRange,Name,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"One shape's name; several shapes raise -2147024891. A set raises -2147024809 for one shape and -2147024891 for several, as in Excel."

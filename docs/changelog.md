@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- ShapeRange.Fill and ShapeRange.Line. A range reads what its shapes share,
+  leaving a line's absent fill out, and reads the mixed value where they
+  differ. A change reaches each shape as it would alone, except hiding a
+  fill, which hides the first shape and leaves the others a bare noFill
+  that loses their colours, as Excel does. Measured in
+  `tests/fixtures/shape_range_fill_line.json`.
 - Shape.Fill and Shape.Line on a new AutoShape, text box or line, with the
   FillFormat, LineFormat and ColorFormat objects. They read what the
   shape's style gives in the default theme. A macro can set the fill's

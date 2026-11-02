@@ -1,0 +1,266 @@
+{
+ "measured_at": "2026-11-02T03:37:09.187386+00:00",
+ "source": "Private Function Kind(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Select Case which\n    Case 0\n        Set sh = ws.Shapes.AddShape(1, 10, 10, 80, 40)\n    Case 1\n        Set sh = ws.Shapes.AddShape(2, 10, 10, 80, 40)\n    Case 2\n        Set sh = ws.Shapes.AddShape(3, 10, 10, 80, 40)\n    Case 3\n        Set sh = ws.Shapes.AddShape(4, 10, 10, 80, 40)\n    Case 4\n        Set sh = ws.Shapes.AddShape(5, 10, 10, 80, 40)\n    Case 5\n        Set sh = ws.Shapes.AddShape(6, 10, 10, 80, 40)\n    Case 6\n        Set sh = ws.Shapes.AddShape(7, 10, 10, 80, 40)\n    Case 7\n        Set sh = ws.Shapes.AddShape(8, 10, 10, 80, 40)\n    Case 8\n        Set sh = ws.Shapes.AddShape(9, 10, 10, 80, 40)\n    Case 9\n        Set sh = ws.Shapes.AddShape(10, 10, 10, 80, 40)\n    Case 10\n        Set sh = ws.Shapes.AddShape(11, 10, 10, 80, 40)\n    Case 11\n        Set sh = ws.Shapes.AddShape(12, 10, 10, 80, 40)\n    Case 12\n        Set sh = ws.Shapes.AddShape(13, 10, 10, 80, 40)\n    Case 13\n        Set sh = ws.Shapes.AddShape(14, 10, 10, 80, 40)\n    Case 14\n        Set sh = ws.Shapes.AddShape(15, 10, 10, 80, 40)\n    Case 15\n        Set sh = ws.Shapes.AddShape(16, 10, 10, 80, 40)\n    Case 16\n        Set sh = ws.Shapes.AddShape(17, 10, 10, 80, 40)\n    Case 17\n        Set sh = ws.Shapes.AddShape(18, 10, 10, 80, 40)\n    Case 18\n        Set sh = ws.Shapes.AddShape(19, 10, 10, 80, 40)\n    Case 19\n        Set sh = ws.Shapes.AddShape(20, 10, 10, 80, 40)\n    Case 20\n        Set sh = ws.Shapes.AddShape(92, 10, 10, 80, 40)\n    Case 21\n        Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 10, 80, 40)\n    Case 22\n        Set sh = ws.Shapes.AddLine(10, 10, 90, 50)\n    Case 23\n        Set sh = ws.ChartObjects.Add(10, 10, 200, 100).ShapeRange(1)\n    Case 24\n        Set sh = ws.Shapes.AddFormControl(xlButtonControl, 10, 10, 80, 20)\n    Case 25\n        Set sh = ws.Shapes.Range(Array(ws.Shapes.AddShape(1, 10, 10, 40, 40).Name, ws.Shapes.AddShape(1, 60, 10, 40, 40).Name)).Group\n    End Select\n    On Error Resume Next\n    Err.Clear\n    s = s & \",\" & sh.ConnectionSiteCount\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & sh.ShapeStyle\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & sh.BackgroundStyle\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & sh.GraphicStyle\n    If Err.Number Then s = s & \"E\" & Err.Number\n    On Error GoTo 0\n    wb.Close False\n    Kind = Mid(s, 2)\nEnd Function\n\nPrivate Function Scaled(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, sh As Object, sh2 As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Set sh = ws.Shapes.AddShape(1, 100, 50, 100, 40)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        sh.ScaleWidth 1.5, msoFalse\n    Case 1\n        sh.ScaleWidth 1.5, msoFalse, msoScaleFromTopLeft\n    Case 2\n        sh.ScaleWidth 1.5, msoFalse, msoScaleFromMiddle\n    Case 3\n        sh.ScaleWidth 1.5, msoFalse, msoScaleFromBottomRight\n    Case 4\n        sh.ScaleHeight 0.5, msoFalse\n    Case 5\n        sh.ScaleHeight 0.5, msoFalse, msoScaleFromMiddle\n    Case 6\n        sh.ScaleHeight 2, msoFalse, msoScaleFromBottomRight\n    Case 7\n        sh.ScaleWidth 1.3333, msoFalse\n    Case 8\n        sh.ScaleWidth 1 / 3, msoFalse, msoScaleFromMiddle\n    Case 9\n        sh.ScaleWidth 1.5, msoTrue\n    Case 10\n        sh.ScaleWidth 0, msoFalse\n    Case 11\n        sh.ScaleWidth -1, msoFalse\n    Case 12\n        sh.ScaleWidth 5, msoFalse, msoScaleFromBottomRight\n    Case 13\n        sh.ScaleHeight 5, msoFalse, msoScaleFromBottomRight\n    Case 14\n        sh.ScaleWidth 2, msoFalse, 7\n    Case 15\n        sh.LockAspectRatio = msoTrue: sh.ScaleWidth 2, msoFalse\n    Case 16\n        sh.LockAspectRatio = msoTrue: sh.ScaleHeight 2, msoFalse, msoScaleFromMiddle\n    Case 17\n        sh.Rotation = 90: sh.ScaleWidth 2, msoFalse\n    Case 18\n        sh.Rotation = 90: sh.ScaleWidth 2, msoFalse, msoScaleFromMiddle\n    Case 19\n        sh.ScaleWidth 2, msoFalse: sh.ScaleWidth 2, msoTrue\n    Case 20\n        sh.ScaleWidth 1000, msoFalse\n    Case 21\n        Set sh2 = ws.Shapes.AddShape(1, 300, 100, 60, 30): ws.Shapes.Range(Array(sh.Name, sh2.Name)).ScaleWidth 2, msoFalse, msoScaleFromMiddle\n    Case 22\n        Set sh2 = ws.Shapes.AddShape(1, 300, 100, 60, 30): ws.Shapes.Range(Array(sh.Name, sh2.Name)).ScaleHeight 0.5, msoFalse, msoScaleFromBottomRight\n    Case 23\n        sh.Delete: Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 100, 50, 100, 40): sh.ScaleWidth 1.5, msoFalse, msoScaleFromMiddle\n    Case 24\n        sh.Delete: Set sh = ws.Shapes.AddLine(100, 50, 200, 90): sh.ScaleWidth 1.5, msoFalse, msoScaleFromMiddle\n    Case 25\n        sh.Delete: Set sh = ws.ChartObjects.Add(100, 50, 100, 40).ShapeRange(1): sh.ScaleWidth 1.5, msoFalse\n    End Select\n    s = \"ok \" & sh.Left & \"/\" & sh.Top & \"/\" & sh.Width & \"/\" & sh.Height\n    If Not sh2 Is Nothing Then s = s & \"|\" & sh2.Left & \"/\" & sh2.Top & \"/\" & sh2.Width & \"/\" & sh2.Height\nDone:\n    wb.Close False\n    Scaled = s\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \" & sh.Left & \"/\" & sh.Top & \"/\" & sh.Width & \"/\" & sh.Height\n    Resume Done\nEnd Function\n\nPrivate Function Ranged(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, sr As Object, a As Object, b As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Set a = ws.Shapes.AddShape(1, 10, 10, 80, 40): Set b = ws.Shapes.AddShape(9, 100, 10, 80, 40)\n    ws.ChartObjects.Add 10, 100, 200, 100\n    Select Case which\n    Case 0\n        Set sr = ws.Shapes.Range(Array(a.Name))\n    Case 1\n        Set sr = ws.Shapes.Range(Array(a.Name))\n    Case 2\n        Set sr = ws.Shapes.Range(Array(a.Name))\n    Case 3\n        Set sr = ws.Shapes.Range(Array(a.Name))\n    Case 4\n        Set sr = ws.Shapes.Range(Array(a.Name))\n    Case 5\n        Set sr = ws.Shapes.Range(Array(a.Name))\n    Case 6\n        Set sr = ws.Shapes.Range(Array(3))\n    Case 7\n        Set sr = ws.Shapes.Range(Array(3))\n    Case 8\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n    Case 9\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n    Case 10\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n    Case 11\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n    Case 12\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n    End Select\n    On Error Resume Next\n    Select Case which\n    Case 0\n        s = TypeName(sr.TextFrame)\n    Case 1\n        s = TypeName(sr.TextFrame2)\n    Case 2\n        s = sr.BlackWhiteMode\n    Case 3\n        s = sr.ConnectionSiteCount\n    Case 4\n        s = TypeName(sr.Chart)\n    Case 5\n        s = sr.ShapeStyle\n    Case 6\n        s = TypeName(sr.Chart)\n    Case 7\n        s = sr.Chart.Parent.Name\n    Case 8\n        s = TypeName(sr.TextFrame)\n    Case 9\n        s = TypeName(sr.TextFrame2)\n    Case 10\n        s = sr.BlackWhiteMode\n    Case 11\n        s = sr.ConnectionSiteCount\n    Case 12\n        s = TypeName(sr.Chart)\n    End Select\n    If Err.Number Then s = \"E\" & Err.Number\n    On Error GoTo 0\n    wb.Close False\n    Ranged = s\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 25\n        s = s & \"@@@\" & Kind(i)\n    Next\n    For i = 0 To 25\n        s = s & \"@@@\" & Scaled(i)\n    Next\n    For i = 0 To 12\n        s = s & \"@@@\" & Ranged(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "ws.Shapes.AddShape(1, 10, 10, 80, 40)",
+   "4,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(2, 10, 10, 80, 40)",
+   "6,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(3, 10, 10, 80, 40)",
+   "4,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(4, 10, 10, 80, 40)",
+   "4,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(5, 10, 10, 80, 40)",
+   "4,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(6, 10, 10, 80, 40)",
+   "8,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(7, 10, 10, 80, 40)",
+   "6,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(8, 10, 10, 80, 40)",
+   "6,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(9, 10, 10, 80, 40)",
+   "8,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(10, 10, 10, 80, 40)",
+   "6,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(11, 10, 10, 80, 40)",
+   "4,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(12, 10, 10, 80, 40)",
+   "6,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(13, 10, 10, 80, 40)",
+   "5,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(14, 10, 10, 80, 40)",
+   "6,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(15, 10, 10, 80, 40)",
+   "8,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(16, 10, 10, 80, 40)",
+   "4,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(17, 10, 10, 80, 40)",
+   "8,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(18, 10, 10, 80, 40)",
+   "8,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(19, 10, 10, 80, 40)",
+   "8,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(20, 10, 10, 80, 40)",
+   "3,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddShape(92, 10, 10, 80, 40)",
+   "5,9,0,0"
+  ],
+  [
+   "ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 10, 80, 40)",
+   "4,0,0,0"
+  ],
+  [
+   "ws.Shapes.AddLine(10, 10, 90, 50)",
+   "2,10009,0,0"
+  ],
+  [
+   "ws.ChartObjects.Add(10, 10, 200, 100).ShapeRange(1)",
+   "4,0,0,0"
+  ],
+  [
+   "ws.Shapes.AddFormControl(xlButtonControl, 10, 10, 80, 20)",
+   "4,0,0,0"
+  ],
+  [
+   "ws.Shapes.Range(Array(ws.Shapes.AddShape(1, 10, 10, 40, 40).Name, ws.Shapes.AddShape(1, 60, 10, 40, 40).Name)).Group",
+   "0,9,0,0"
+  ],
+  [
+   "sh.ScaleWidth 1.5, msoFalse",
+   "ok 100/50/150/40"
+  ],
+  [
+   "sh.ScaleWidth 1.5, msoFalse, msoScaleFromTopLeft",
+   "ok 100/50/150/40"
+  ],
+  [
+   "sh.ScaleWidth 1.5, msoFalse, msoScaleFromMiddle",
+   "ok 75/50/150/40"
+  ],
+  [
+   "sh.ScaleWidth 1.5, msoFalse, msoScaleFromBottomRight",
+   "ok 50/50/150/40"
+  ],
+  [
+   "sh.ScaleHeight 0.5, msoFalse",
+   "ok 100/50/100/20"
+  ],
+  [
+   "sh.ScaleHeight 0.5, msoFalse, msoScaleFromMiddle",
+   "ok 100/60/100/20"
+  ],
+  [
+   "sh.ScaleHeight 2, msoFalse, msoScaleFromBottomRight",
+   "ok 100/10/100/80"
+  ],
+  [
+   "sh.ScaleWidth 1.3333, msoFalse",
+   "ok 100/50/133.33/40"
+  ],
+  [
+   "sh.ScaleWidth 1 / 3, msoFalse, msoScaleFromMiddle",
+   "ok 133.3334/50/33.33331/40"
+  ],
+  [
+   "sh.ScaleWidth 1.5, msoTrue",
+   "Err -2147024809 100/50/100/40"
+  ],
+  [
+   "sh.ScaleWidth 0, msoFalse",
+   "ok 100/50/0/40"
+  ],
+  [
+   "sh.ScaleWidth -1, msoFalse",
+   "ok 100/50/0/40"
+  ],
+  [
+   "sh.ScaleWidth 5, msoFalse, msoScaleFromBottomRight",
+   "ok 0/50/500/40"
+  ],
+  [
+   "sh.ScaleHeight 5, msoFalse, msoScaleFromBottomRight",
+   "ok 100/0/100/200"
+  ],
+  [
+   "sh.ScaleWidth 2, msoFalse, 7",
+   "Err -2147024809 100/50/100/40"
+  ],
+  [
+   "sh.LockAspectRatio = msoTrue: sh.ScaleWidth 2, msoFalse",
+   "ok 100/50/200/80"
+  ],
+  [
+   "sh.LockAspectRatio = msoTrue: sh.ScaleHeight 2, msoFalse, msoScaleFromMiddle",
+   "ok 50/30/200/80"
+  ],
+  [
+   "sh.Rotation = 90: sh.ScaleWidth 2, msoFalse",
+   "ok 50/100/200/40"
+  ],
+  [
+   "sh.Rotation = 90: sh.ScaleWidth 2, msoFalse, msoScaleFromMiddle",
+   "ok 50/80/200/40"
+  ],
+  [
+   "sh.ScaleWidth 2, msoFalse: sh.ScaleWidth 2, msoTrue",
+   "Err -2147024809 100/50/200/40"
+  ],
+  [
+   "sh.ScaleWidth 1000, msoFalse",
+   "ok 100/50/100000/40"
+  ],
+  [
+   "Set sh2 = ws.Shapes.AddShape(1, 300, 100, 60, 30): ws.Shapes.Range(Array(sh.Name, sh2.Name)).ScaleWidth 2, msoFalse, msoScaleFromMiddle",
+   "ok 50/50/200/40|270/100/120/30"
+  ],
+  [
+   "Set sh2 = ws.Shapes.AddShape(1, 300, 100, 60, 30): ws.Shapes.Range(Array(sh.Name, sh2.Name)).ScaleHeight 0.5, msoFalse, msoScaleFromBottomRight",
+   "ok 100/70/100/20|300/115/60/15"
+  ],
+  [
+   "sh.Delete: Set sh = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 100, 50, 100, 40): sh.ScaleWidth 1.5, msoFalse, msoScaleFromMiddle",
+   "ok 75/50/150/40"
+  ],
+  [
+   "sh.Delete: Set sh = ws.Shapes.AddLine(100, 50, 200, 90): sh.ScaleWidth 1.5, msoFalse, msoScaleFromMiddle",
+   "ok 75/50/150/40"
+  ],
+  [
+   "sh.Delete: Set sh = ws.ChartObjects.Add(100, 50, 100, 40).ShapeRange(1): sh.ScaleWidth 1.5, msoFalse",
+   "ok 100/50/150/40"
+  ],
+  [
+   "one: TypeName(sr.TextFrame)",
+   "TextFrame"
+  ],
+  [
+   "one: TypeName(sr.TextFrame2)",
+   "TextFrame2"
+  ],
+  [
+   "one: sr.BlackWhiteMode",
+   "1"
+  ],
+  [
+   "one: sr.ConnectionSiteCount",
+   "4"
+  ],
+  [
+   "one: TypeName(sr.Chart)",
+   "E-2147024809"
+  ],
+  [
+   "one: sr.ShapeStyle",
+   "9"
+  ],
+  [
+   "chart: TypeName(sr.Chart)",
+   "Chart"
+  ],
+  [
+   "chart: sr.Chart.Parent.Name",
+   "Chart 3"
+  ],
+  [
+   "two: TypeName(sr.TextFrame)",
+   "TextFrame"
+  ],
+  [
+   "two: TypeName(sr.TextFrame2)",
+   "TextFrame2"
+  ],
+  [
+   "two: sr.BlackWhiteMode",
+   "1"
+  ],
+  [
+   "two: sr.ConnectionSiteCount",
+   "-2"
+  ],
+  [
+   "two: TypeName(sr.Chart)",
+   "E-2147024809"
+  ]
+ ]
+}

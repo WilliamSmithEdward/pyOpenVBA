@@ -44,6 +44,7 @@ from pyopenvba.shapes._values import (
     TextLook,
     child_space,
     emu,
+    points,
     to_child,
     to_sheet,
     union,
@@ -67,6 +68,12 @@ KIND_NAMES: dict[str, str] = {
 }
 
 #: The form controls AddFormControl makes, by xlFormControl.
+#: ConnectionSiteCount for each AutoShape the model makes, and for the other kinds; ShapeStyle for each kind; a
+#: button is the one control measured (tests/fixtures/shape_scale.json).
+_CONNECTION_SITES = {1: 4, 2: 6, 3: 4, 4: 4, 5: 4, 6: 8, 7: 6, 8: 6, 9: 8, 10: 6, 11: 4, 12: 6, 13: 5, 14: 6, 15: 8,
+                     16: 4, 17: 8, 18: 8, 19: 8, 20: 3, 92: 5}
+_KIND_SITES = {"textBox": 4, "line": 2, "chart": 4, "button": 4, "group": 0}
+_SHAPE_STYLES = {"shape": 9, "textBox": 0, "line": 10009, "chart": 0, "button": 0, "group": 9}
 #: Shape.FormControlType for each kind of control the model makes: the XlFormControl constants.
 _CONTROL_TYPES = {"Button": 0, "CheckBox": 1, "Drop": 2, "GBox": 4, "Label": 5, "List": 6, "Radio": 7, "Scroll": 8,
                   "Spin": 9}
@@ -594,6 +601,68 @@ class ShapeRange(VBACollection, Created):
     @member
     def Connector(self) -> object:
         return self.shared("Connector")
+
+    def mixed(self, name: str) -> object:
+        """What every shape reads for ``name``, or -2, Excel's mixed value, where they differ
+        (tests/fixtures/shape_scale.json)."""
+        values = [shape.vba_get(name) for shape in self.shapes]
+        return values[0] if all(value == values[0] for value in values[1:]) else VBAInt(-2, "Long")
+
+    @member
+    def BlackWhiteMode(self) -> object:
+        return self.mixed("BlackWhiteMode")
+
+    @member
+    def ConnectionSiteCount(self) -> object:
+        return self.mixed("ConnectionSiteCount")
+
+    @member
+    def ShapeStyle(self) -> object:
+        return self.mixed("ShapeStyle")
+
+    @member
+    def BackgroundStyle(self) -> object:
+        return self.mixed("BackgroundStyle")
+
+    @member
+    def GraphicStyle(self) -> object:
+        return self.mixed("GraphicStyle")
+
+    @member
+    def Chart(self) -> object:
+        # A range holding a shape with no chart raises as that shape does.
+        for shape in self.shapes:
+            if shape.shape.kind != "chart":
+                return shape.vba_get("Chart")
+        if len(self.shapes) != 1:
+            raise _unsupported("Chart of a ShapeRange of several charts")
+        return self.shapes[0].vba_get("Chart")
+
+    @member
+    def TextFrame(self) -> object:
+        if len(self.shapes) != 1:
+            raise _unsupported("TextFrame of a ShapeRange of several shapes")
+        return self.shapes[0].vba_get("TextFrame")
+
+    @member
+    def TextFrame2(self) -> object:
+        if len(self.shapes) != 1:
+            raise _unsupported("TextFrame2 of a ShapeRange of several shapes")
+        return self.shapes[0].vba_get("TextFrame2")
+
+    @method
+    def ScaleWidth(self, Factor: object = MISSING, RelativeToOriginalSize: object = MISSING,  # noqa: N803
+                   Scale: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        for shape in self.shapes:
+            shape.vba_call("ScaleWidth", [Factor, RelativeToOriginalSize, Scale])
+        return EMPTY
+
+    @method
+    def ScaleHeight(self, Factor: object = MISSING, RelativeToOriginalSize: object = MISSING,  # noqa: N803
+                    Scale: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        for shape in self.shapes:
+            shape.vba_call("ScaleHeight", [Factor, RelativeToOriginalSize, Scale])
+        return EMPTY
 
     @member
     def GroupItems(self) -> object:
@@ -1135,6 +1204,73 @@ class ShapeObject(_Drawn):
         if self.shape.source:
             raise _unsupported("Hyperlink of a loaded shape")
         raise error(1004, "Unable to get the Hyperlink property of the Shape class")
+
+    def _measured_kind(self, what: str) -> str:
+        """The kind the style reads were measured on: a button stands apart from the other controls; loaded shapes,
+        freeforms and other controls are refused (tests/fixtures/shape_scale.json)."""
+        shape = self.shape
+        kind = "button" if shape.control is not None and shape.control.kind == "Button" else shape.kind
+        if shape.source or kind not in _SHAPE_STYLES or (
+                kind == "shape" and getattr(shape, "auto_shape_type", 1) not in _CONNECTION_SITES):
+            raise _unsupported(f"{what} of this shape")
+        return kind
+
+    @member
+    def ConnectionSiteCount(self) -> object:
+        kind = self._measured_kind("ConnectionSiteCount")
+        count = _CONNECTION_SITES[getattr(self.shape, "auto_shape_type", 1)] if kind == "shape" else _KIND_SITES[kind]
+        return VBAInt(count, "Long")
+
+    @member
+    def ShapeStyle(self) -> object:
+        return VBAInt(_SHAPE_STYLES[self._measured_kind("ShapeStyle")], "Long")
+
+    @member
+    def BackgroundStyle(self) -> object:
+        self._measured_kind("BackgroundStyle")
+        return VBAInt(0, "Long")
+
+    @member
+    def GraphicStyle(self) -> object:
+        self._measured_kind("GraphicStyle")
+        return VBAInt(0, "Long")
+
+    @method
+    def ScaleWidth(self, Factor: object = MISSING, RelativeToOriginalSize: object = MISSING,  # noqa: N803
+                   Scale: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        self._scaled("width", Factor, RelativeToOriginalSize, Scale)
+        return EMPTY
+
+    @method
+    def ScaleHeight(self, Factor: object = MISSING, RelativeToOriginalSize: object = MISSING,  # noqa: N803
+                    Scale: object = MISSING) -> object:  # noqa: N803 - native named arguments
+        self._scaled("height", Factor, RelativeToOriginalSize, Scale)
+        return EMPTY
+
+    def _scaled(self, size: str, factor: object, relative: object, scale: object) -> None:
+        """The shape's width or height times ``factor``, a Single, never below 0, kept where Scale anchors it: its top
+        left, its middle or its bottom right, never past the sheet's edge, each in whole EMU. A shape that keeps its
+        aspect ratio scales both ways. Only a picture scales to its original size (tests/fixtures/shape_scale.json)."""
+        if factor is MISSING or relative is MISSING:
+            raise error(449, "Argument not optional")
+        self.guard("ScaleWidth" if size == "width" else "ScaleHeight")
+        wanted = float(VBASingle(_number(factor)))
+        anchor = 0 if scale is MISSING else int(to_integer(scale, "Long"))
+        if to_bool(relative) or anchor not in (0, 1, 2):
+            raise error(-2147024809, "The specified value is out of range.")
+        shape = self.shape
+        if shape.rotation % 360 or shape.kind == "group" or parent_group(self.sheet, shape) is not None:
+            raise _unsupported("scaling a rotated shape, a group or a shape in one")
+        self.sheet.dims.settle_shapes()
+        sizes = ["width", "height"] if shape.lock_aspect else [size]
+        changes: dict[str, float] = {}
+        for dimension in sizes:
+            start = "left" if dimension == "width" else "top"
+            old = getattr(shape, dimension)
+            new = points(emu(max(0.0, old * wanted)))
+            changes[dimension] = new
+            changes[start] = points(emu(max(0.0, getattr(shape, start) - (new - old) * (0.0, 0.5, 1.0)[anchor])))
+        self._placed(**changes)
 
     @member
     def ParentGroup(self) -> object:

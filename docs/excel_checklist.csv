@@ -2117,13 +2117,13 @@ Shape,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_propertie
 Shape,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Shape,Apply,method,Apply(),,MISSING,,
 Shape,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_range_more.json,"Reads the AutoShape type; setting it swaps the saved preset geometry, for new AutoShapes of the types the model can write."
-Shape,BackgroundStyle,property,As MsoBackgroundStyleIndex,,MISSING,,
+Shape,BackgroundStyle,property,As MsoBackgroundStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,BlackWhiteMode,property,As MsoBlackWhiteMode,no setter,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Reads automatic for shapes the model makes; no setter.
 Shape,BottomRightCell,"property, read-only",As Range,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/shapes/excel_shapes.json; tests/fixtures/shape_cell_moves.json,"The cell under the shape's bottom right corner; after a shape that sizes with its cells has moved with them, the cell it is anchored to."
 Shape,Callout,"property, read-only",As CalloutFormat,,MISSING,,
 Shape,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,"A shape with no chart raises -2147024809, as in Excel."
 Shape,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Whether the shape is inside a group.
-Shape,ConnectionSiteCount,"property, read-only",As Long,,MISSING,,
+Shape,ConnectionSiteCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused."
 Shape,Connector,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,0 for shapes the model makes; lines and loaded shapes are refused.
 Shape,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
 Shape,ControlFormat,"property, read-only",As ControlFormat,,PARTIAL,tests/fixtures/shapes/checkbox_links.json; tests/fixtures/shapes/list_controls.json; tests/fixtures/shapes/numeric_controls.json; tests/fixtures/shapes/radio_controls.json,
@@ -2139,7 +2139,7 @@ Shape,Fill,"property, read-only",As FillFormat,,MISSING,,
 Shape,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_flip_order.json; tests/fixtures/shape_duplicate.json,"Turns flipH or flipV over, written after rot, and mirrors the rotation (30 becomes 330); twice turns it back. Other commands raise -2147024809."
 Shape,FormControlType,"property, read-only",As XlFormControl,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,The XlFormControl constant; 1004 for a shape that is no control.
 Shape,Glow,"property, read-only",As GlowFormat,,MISSING,,
-Shape,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
+Shape,GraphicStyle,property,As MsoGraphicStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,The group's members by number or name; a shape that is no group raises 1004.
 Shape,HasChart,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Shape,HasSmartArt,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,Reads 0; the model holds no SmartArt.
@@ -2169,12 +2169,12 @@ Shape,PlacePictureInCell,method,PlacePictureInCell(),,MISSING,,
 Shape,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
 Shape,RerouteConnections,method,RerouteConnections(),,MISSING,,
 Shape,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_properties.json; tests/fixtures/loaded_shape/cases.json,The file keeps the angle as given; reads wrap it into 0 to 360. Between 45 and 135 or 225 and 315 degrees the anchor holds the box turned on its centre.
-Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
-Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
+Shape,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
+Shape,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Times a Single factor, from the top left, middle or bottom right, in whole EMU, never below 0 or past the sheet edge; a locked aspect ratio scales both. Rotated shapes, groups and their members are refused."
 Shape,Select,method,Select([Replace As Variant]),,UNASSESSED,,
 Shape,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
 Shape,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
-Shape,ShapeStyle,property,As MsoShapeStyleIndex,,MISSING,,
+Shape,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"Measured per kind; loaded shapes, freeforms and controls other than a button are refused. No setter."
 Shape,SmartArt,"property, read-only",As SmartArt,,MISSING,,
 Shape,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
 Shape,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
@@ -2200,12 +2200,12 @@ ShapeRange,AlternativeText,property,As String,,PARTIAL,tests/fixtures/shape_rang
 ShapeRange,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,Apply,method,Apply(),,MISSING,,
 ShapeRange,AutoShapeType,property,As MsoAutoShapeType,,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,The shared value or -2; a set reaches every shape.
-ShapeRange,BackgroundStyle,property,As MsoBackgroundStyleIndex,,MISSING,,
-ShapeRange,BlackWhiteMode,property,As MsoBlackWhiteMode,,MISSING,,
+ShapeRange,BackgroundStyle,property,As MsoBackgroundStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
+ShapeRange,BlackWhiteMode,property,As MsoBlackWhiteMode,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
 ShapeRange,Callout,"property, read-only",As CalloutFormat,,MISSING,,
-ShapeRange,Chart,"property, read-only",As Chart,,MISSING,,
+ShapeRange,Chart,"property, read-only",As Chart,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,The chart of one; a shape with none raises -2147024809; several charts are refused.
 ShapeRange,Child,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
-ShapeRange,ConnectionSiteCount,"property, read-only",As Long,,MISSING,,
+ShapeRange,ConnectionSiteCount,"property, read-only",As Long,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ."
 ShapeRange,Connector,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,ConnectorFormat,"property, read-only",As ConnectorFormat,,MISSING,,
 ShapeRange,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/excel_model/probes.txt,
@@ -2217,7 +2217,7 @@ ShapeRange,Duplicate,method,Duplicate() As ShapeRange,,PARTIAL,tests/fixtures/sh
 ShapeRange,Fill,"property, read-only",As FillFormat,,MISSING,,
 ShapeRange,Flip,method,Flip(FlipCmd As MsoFlipCmd),,PARTIAL,tests/fixtures/shape_range_more.json; tests/test_excel_shape_range_more.py,"Each shape turned over where it stands, its rotation mirrored; other commands raise -2147024809."
 ShapeRange,Glow,"property, read-only",As GlowFormat,,MISSING,,
-ShapeRange,GraphicStyle,property,As MsoGraphicStyleIndex,,MISSING,,
+ShapeRange,GraphicStyle,property,As MsoGraphicStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
 ShapeRange,Group,method,Group() As Shape,,PARTIAL,tests/fixtures/shape_group.json; tests/test_excel_shape_group.py,"One group in the topmost member's place, members in sheet order, box their union, named Group and the next number, the next id; one shape raises 1004. Loaded, rotated or flipped shapes, charts and controls are refused."
 ShapeRange,GroupItems,"property, read-only",As GroupShapes,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
 ShapeRange,HasChart,"property, read-only",As MsoTriState,,PARTIAL,tests/fixtures/missing_reads.json; tests/test_excel_missing_reads.py,One shape answers for itself; several answer 70 or what they share.
@@ -2242,16 +2242,16 @@ ShapeRange,Reflection,"property, read-only",As ReflectionFormat,,MISSING,,
 ShapeRange,Regroup,method,Regroup() As Shape,,PARTIAL,tests/fixtures/shape_group_items.json; tests/test_excel_shape_group_items.py,"The ungrouped shapes made a group again, with the next name and id; shapes from no group raise 1004. Regrouping after a member moved, or part of the shapes, is refused."
 ShapeRange,RerouteConnections,method,RerouteConnections(),,MISSING,,
 ShapeRange,Rotation,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set turns every shape."
-ShapeRange,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
-ShapeRange,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,MISSING,,
+ShapeRange,ScaleHeight,method,"ScaleHeight(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
+ShapeRange,ScaleWidth,method,"ScaleWidth(Factor As Single, RelativeToOriginalSize As MsoTriState, [Scale As Variant])",,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,Each shape about its own anchor.
 ShapeRange,Select,method,Select([Replace As Variant]),,MISSING,,
 ShapeRange,SetShapesDefaultProperties,method,SetShapesDefaultProperties(),,MISSING,,
 ShapeRange,Shadow,"property, read-only",As ShadowFormat,,MISSING,,
-ShapeRange,ShapeStyle,property,As MsoShapeStyleIndex,,MISSING,,
+ShapeRange,ShapeStyle,property,As MsoShapeStyleIndex,no setter,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,"What the shapes share, or -2 where they differ. No setter."
 ShapeRange,SoftEdge,"property, read-only",As SoftEdgeFormat,,MISSING,,
 ShapeRange,TextEffect,"property, read-only",As TextEffectFormat,,MISSING,,
-ShapeRange,TextFrame,"property, read-only",As TextFrame,,MISSING,,
-ShapeRange,TextFrame2,"property, read-only",As TextFrame2,,MISSING,,
+ShapeRange,TextFrame,"property, read-only",As TextFrame,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,One shape's; several are refused.
+ShapeRange,TextFrame2,"property, read-only",As TextFrame2,,PARTIAL,tests/fixtures/shape_scale.json; tests/test_excel_shape_scale.py,One shape's; several are refused.
 ShapeRange,ThreeD,"property, read-only",As ThreeDFormat,,MISSING,,
 ShapeRange,Title,property,As String,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,Reads the shapes' shared text; a set gives every shape the text. Differing texts are refused.
 ShapeRange,Top,property,As Single,,PARTIAL,tests/fixtures/shape_range_properties.json; tests/test_excel_shape_range_properties.py,"Reads the shapes' shared value, or -2147483648 where they differ; a set moves every shape."

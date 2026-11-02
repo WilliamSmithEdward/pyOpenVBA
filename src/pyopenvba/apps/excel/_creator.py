@@ -7,7 +7,9 @@ from pyopenvba.interpreter._values import MISSING, VBAInt
 
 
 class Created(VBAObject):
-    """What every Excel class shares: Creator."""
+    """What every Excel class shares: Creator, and the type library its members are looked up in."""
+
+    vba_library = "excel"
 
     @member
     def Creator(self) -> object:

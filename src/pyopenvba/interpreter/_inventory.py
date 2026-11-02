@@ -13,7 +13,7 @@ from a machine at run time and the package still has no dependencies.
 
 from __future__ import annotations
 
-from pyopenvba.interpreter._inventory_data import MEMBERS
+from pyopenvba.interpreter._inventory_data import MEMBERS, settable
 
 
 def _keys(type_name: str, library: str) -> list[str]:
@@ -54,3 +54,15 @@ def members_of(type_name: str, library: str = "") -> frozenset[str]:
 def member_exists(type_name: str, member: str, library: str = "") -> bool:
     """Whether the real type has a member of this name."""
     return member.lower() in members_of(type_name, library)
+
+
+def member_settable(type_name: str, member: str, library: str = "") -> bool:
+    """Whether the real type lets a macro assign to this property, found where members_of finds its members."""
+    for key in _keys(type_name, library):
+        if key in MEMBERS:
+            return member.lower() in settable(key)
+    suffix = f":{type_name.lower()}"
+    for key in MEMBERS:
+        if key.endswith(suffix):
+            return member.lower() in settable(key)
+    return False

@@ -1742,17 +1742,9 @@ class Workbook(ExcelObject):
     def Password(self) -> object:
         return "********"
 
-    @setter("Password")
-    def _password(self, value: object) -> None:
-        raise VBAUnsupportedError("Protecting a workbook with a password is not implemented")
-
     @member
     def WritePassword(self) -> object:
         return "********"
-
-    @setter("WritePassword")
-    def _write_password(self, value: object) -> None:
-        raise VBAUnsupportedError("Protecting a workbook with a password is not implemented")
 
     @member
     def PasswordEncryptionProvider(self) -> object:

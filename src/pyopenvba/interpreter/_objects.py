@@ -232,7 +232,7 @@ class VBAObject:
                 if isinstance(found, VBAObject) and default is not None and default.setter is not None:
                     found.vba_set(default.name, value)
                     return
-            raise error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name}.{spec.name} cannot be assigned to")
+            raise self.vba_read_only(spec.name)
         if _takes_only_the_value(function):
             # The common shape: a setter that ignores the getter's
             # arguments, as Range.Value's does.
@@ -292,6 +292,15 @@ class VBAObject:
                 )
             return error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name} has no member named {name}")
         return VBAUnsupportedError(f"{self.vba_type_name}.{name} is not implemented by pyOpenVBA")
+
+    def vba_read_only(self, name: str) -> Exception:
+        """The right error for assigning to a member this object only reads: a gap where the real class lets a macro
+        set it, and 438 where it does not."""
+        from pyopenvba.interpreter._inventory import member_settable
+
+        if member_settable(self.vba_type_name, name, self.vba_library):
+            return VBAUnsupportedError(f"Setting {self.vba_type_name}.{name} is real but pyOpenVBA does not implement it")
+        return error(ERR_MEMBER_NOT_FOUND, f"{self.vba_type_name}.{name} cannot be assigned to")
 
     # --- what the language needs from every object ------------------------------
 

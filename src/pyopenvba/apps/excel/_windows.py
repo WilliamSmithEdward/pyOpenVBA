@@ -481,6 +481,7 @@ def activate(target: Range) -> None:
     selected."""
     check_shown(target, "Activate")
     sheet = target.sheet
+    sheet.active_chart = None
     first = target.first
     selection = sheet.selection_range
     areas = selection.areas if selection is not None else [Area(1, 1, 1, 1)]
@@ -794,7 +795,13 @@ class Window(ExcelObject):
 
     @member
     def Selection(self) -> object:
-        return self.sheet().selection
+        from pyopenvba.apps.excel._charts import selection
+
+        return selection(self.sheet())
+
+    @member
+    def ActiveChart(self) -> object:
+        return self.book.vba_get("ActiveChart")
 
     @member
     def RangeSelection(self) -> object:

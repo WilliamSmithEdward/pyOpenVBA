@@ -766,8 +766,15 @@ class Application(ExcelObject):
 
     @member
     def Selection(self) -> object:
+        from pyopenvba.apps.excel._charts import selection
+
         sheet = self.active_book.active_sheet if self.active_book is not None else None
-        return sheet.selection if sheet is not None else NOTHING
+        return selection(sheet) if sheet is not None else NOTHING
+
+    @member
+    def ActiveChart(self) -> object:
+        """The active workbook's active chart (tests/fixtures/active_chart.json)."""
+        return self.active_book.vba_get("ActiveChart") if self.active_book is not None else NOTHING
 
     @member
     def Sheets(self, Index: object = MISSING) -> object:
@@ -1897,6 +1904,14 @@ class Workbook(ExcelObject):
         return sheet if sheet is not None else NOTHING
 
     @member
+    def ActiveChart(self) -> object:
+        """The embedded chart activated on the active sheet, kept while another workbook is active
+        (tests/fixtures/active_chart.json)."""
+        from pyopenvba.apps.excel._charts import active_chart
+
+        return active_chart(self.active_sheet) if self.active_sheet is not None else NOTHING
+
+    @member
     def Windows(self, Index: object = MISSING) -> object:
         from pyopenvba.apps.excel._windows import Windows
 
@@ -2677,6 +2692,10 @@ class Worksheet(ExcelObject):
         #: The write in progress on the protected sheet, which passes over its locked cells.
         self.write_gate: Gate | None = None
         self.active_cell_range: Range | None = None
+        #: The embedded chart activated on the sheet, until a range is selected (tests/fixtures/active_chart.json), and
+        #: whether a change to it has selected its chart area, which the model does not answer as a Selection.
+        self.active_chart: ShapeState | None = None
+        self.chart_area_selected = False
         #: What the sheet's XML part was called in the file it came from.
         self.part_name = ""
         #: False until a cell changes.  A sheet nobody wrote to is
@@ -5074,6 +5093,7 @@ class Range(ExcelObject):
     def select_as_excel_does(self) -> None:
         """Make the range the sheet's selection, its first cell the active one; SelectionChange when that moves it."""
         before = self.sheet.selection_range
+        self.sheet.active_chart = None
         shown = [(one.top, one.left, one.bottom, one.right) for one in before.areas] if before is not None \
             else [(1, 1, 1, 1)]
         # The selection is the range's cells, whatever Rows or Columns made it (tests/fixtures/range_lines.json).

@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- ActiveChart on Application, Workbook and Window, with ChartObject.Activate
+  and Select. An activated embedded chart stays active until a range is
+  selected or activated. It is kept per sheet and per workbook, and
+  Selection reads its ChartObject meanwhile. Chart.Activate and Select on
+  an embedded chart raise 1004, and a deleted ChartObject's Chart raises
+  1004. Measured in `tests/fixtures/active_chart.json`.
 - Shape.ScaleWidth and ScaleHeight on shapes and shape ranges. The factor
   is a Single and the shape is kept at its top left, middle or bottom
   right, in whole EMU, never below zero or past the sheet's edge. A locked

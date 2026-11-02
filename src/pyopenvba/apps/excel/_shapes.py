@@ -1316,6 +1316,12 @@ class ShapeObject(_Drawn):
 
     @method
     def Select(self, Replace: object = MISSING) -> object:
+        if self.shape.kind == "chart" and Replace is MISSING:
+            # Selecting a chart's shape makes it the active chart with its chart area selected
+            # (tests/fixtures/active_chart.json).
+            from pyopenvba.apps.excel._charts import ChartObject
+
+            ChartObject(self.sheet, self.shape).made_active(area=True)
         return EMPTY
 
     @method

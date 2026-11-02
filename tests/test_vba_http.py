@@ -25,13 +25,11 @@ SCHEMES = {'open ftp', 'open file'}
 #: Excel answered both ways across runs.
 RACES = {(program, name) for program in ('MSXML2.ServerXMLHTTP.6.0', 'WinHttp.WinHttpRequest.5.1')
          for name in ('async spun', 'async at once', 'too slow')}
-#: StrConv to a Variant holds a String of bytes in Excel, and a Byte array in the model: that gap is not HTTP's.
-STRCONV = {'post strconv'}
 
 
 def skipped(program: str, name: str) -> bool:
     return (program in INET and name in HANGS) or (program in INET and name in SCHEMES) or (
-        (program, name) in RACES) or name in STRCONV
+        (program, name) in RACES)
 
 
 KEPT = [index for index, (program, name, _) in enumerate(RECORD['cases']) if not skipped(program, name)]

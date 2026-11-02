@@ -62,6 +62,9 @@ from pyopenvba.interpreter._values import (
     to_integer,
     to_number,
     to_text,
+    string_bytes,
+    bytes_string,
+    OddText,
     type_name,
 )
 
@@ -527,14 +530,11 @@ def vba_len(interpreter: Interpreter, value: object) -> object:
 
 
 def _string_bytes(value: object) -> bytes:
-    return to_text(value).encode("utf-16-le", errors="surrogatepass")
+    return string_bytes(to_text(value))
 
 
 def _bytes_string(data: bytes) -> str:
-    """UTF-16LE bytes as text. VBA can hold an odd byte as half a character;
-    here a trailing odd byte stands as a character of its own."""
-    text = data[: len(data) // 2 * 2].decode("utf-16-le", errors="surrogatepass")
-    return text + chr(data[-1]) if len(data) % 2 else text
+    return bytes_string(data)
 
 
 @intrinsic("LeftB", "String", "Length", minimum=2)
@@ -579,7 +579,16 @@ def vba_ascb(interpreter: Interpreter, value: object) -> object:
     data = _string_bytes(value)
     if not data:
         raise error(ERR_INVALID_PROCEDURE_CALL)
-    return VBAInt(data[0], "Integer")
+    return VBAInt(data[0], "Byte")
+
+
+@intrinsic("ChrB", "CharCode", minimum=1)
+def vba_chrb(interpreter: Interpreter, code: object) -> object:
+    """One byte, which is half a character."""
+    value = int(to_integer(code, "Long"))
+    if not 0 <= value <= 255:
+        raise error(ERR_INVALID_PROCEDURE_CALL)
+    return bytes_string(bytes([value]))
 
 
 @intrinsic("InStrB", "Start", "String1", "String2", "Compare")
@@ -610,7 +619,8 @@ def vba_lenb(interpreter: Interpreter, value: object) -> object:
     if value is NULL:
         return NULL
     body = to_text(value)
-    return VBAInt(len(body) * 2 if body.isascii() else len(_string_bytes(body)), "Long")
+    plain = body.isascii() and not isinstance(body, OddText)
+    return VBAInt(len(body) * 2 if plain else len(_string_bytes(body)), "Long")
 
 
 @intrinsic("Left", "String", "Length", minimum=2)
@@ -741,12 +751,11 @@ def vba_strconv(interpreter: Interpreter, value: object, conversion: object, loc
     if value is NULL:
         return NULL
     if unicode == 64:
-        data = value.items if isinstance(value, VBAArray) else [ord(char) & 0xFF for char in to_text(value)]
+        data = value.items if isinstance(value, VBAArray) else list(string_bytes(to_text(value)))
         return _ansi_text([int(to_integer(byte, "Byte")) for byte in data])
     text = to_text(value)
     if unicode == 128:
-        data = _ansi_bytes(text)
-        return VBAArray([(0, len(data) - 1)], element_type="Byte", items=[VBAInt(byte, "Byte") for byte in data])
+        return bytes_string(bytes(_ansi_bytes(text)))
     if case == 1:
         return text.upper()
     if case == 2:
@@ -1385,10 +1394,10 @@ def vba_vartype(interpreter: Interpreter, value: object) -> object:
     value = _information_value(value)
 
     if isinstance(value, VBAArray):
-        return VBAInt(8192 + (9 if holds_objects(value) else VAR_TYPES.get(value.element_type, 12)), "Integer")
+        return VBAInt(8192 + (9 if holds_objects(value) else VAR_TYPES.get(value.element_type, 12)), "Long")
     if isinstance(value, VBAObject):
-        return VBAInt(9, "Integer")
-    return VBAInt(VAR_TYPES.get(type_name(value), 12), "Integer")
+        return VBAInt(9, "Long")
+    return VBAInt(VAR_TYPES.get(type_name(value), 12), "Long")
 
 
 # --- arrays and choice -----------------------------------------------------------------------

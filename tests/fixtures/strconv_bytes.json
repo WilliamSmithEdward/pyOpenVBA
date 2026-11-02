@@ -1,0 +1,362 @@
+{
+ "measured_at": "2026-11-02T22:35:42.358632+00:00",
+ "source": "\nPrivate Function Hexed(ByVal value As Variant) As String\n    Dim i As Long, out As String\n    If VarType(value) <> vbString Then\n        Hexed = TypeName(value) & \" \" & CStr(value)\n        Exit Function\n    End If\n    For i = 1 To Len(value)\n        out = out & \" \" & Hex$(AscW(Mid$(value, i, 1)) And &HFFFF&)\n    Next\n    Hexed = \"String\" & out & \" /\" & LenB(value)\nEnd Function\n\nPrivate Function Passed(ByVal value As String) As String\n    Passed = value\nEnd Function\n\nPrivate Function Case0() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = TypeName(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case0 = s\nEnd Function\n\nPrivate Function Case1() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = VarType(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case1 = s\nEnd Function\n\nPrivate Function Case2() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = IsArray(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case2 = s\nEnd Function\n\nPrivate Function Case3() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Len(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case3 = s\nEnd Function\n\nPrivate Function Case4() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case4 = s\nEnd Function\n\nPrivate Function Case5() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = v: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case5 = s\nEnd Function\n\nPrivate Function Case6() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = UBound(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case6 = s\nEnd Function\n\nPrivate Function Case7() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LBound(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case7 = s\nEnd Function\n\nPrivate Function Case8() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = v(0): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case8 = s\nEnd Function\n\nPrivate Function Case9() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = AscB(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case9 = s\nEnd Function\n\nPrivate Function Case10() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = AscW(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case10 = s\nEnd Function\n\nPrivate Function Case11() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Asc(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case11 = s\nEnd Function\n\nPrivate Function Case12() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = AscB(MidB(v, 1, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case12 = s\nEnd Function\n\nPrivate Function Case13() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = AscB(MidB(v, 2, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case13 = s\nEnd Function\n\nPrivate Function Case14() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = AscB(MidB(v, 3, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case14 = s\nEnd Function\n\nPrivate Function Case15() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(MidB(v, 1, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case15 = s\nEnd Function\n\nPrivate Function Case16() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(MidB(v, 2)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case16 = s\nEnd Function\n\nPrivate Function Case17() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = MidB(v, 1, 2): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case17 = s\nEnd Function\n\nPrivate Function Case18() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LeftB(v, 2): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case18 = s\nEnd Function\n\nPrivate Function Case19() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = RightB(v, 2): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case19 = s\nEnd Function\n\nPrivate Function Case20() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(LeftB(v, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case20 = s\nEnd Function\n\nPrivate Function Case21() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(RightB(v, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case21 = s\nEnd Function\n\nPrivate Function Case22() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Mid(v, 1, 1): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case22 = s\nEnd Function\n\nPrivate Function Case23() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Left(v, 1): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case23 = s\nEnd Function\n\nPrivate Function Case24() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Right(v, 1): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case24 = s\nEnd Function\n\nPrivate Function Case25() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Len(Mid(v, 2)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case25 = s\nEnd Function\n\nPrivate Function Case26() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = StrConv(v, vbUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case26 = s\nEnd Function\n\nPrivate Function Case27() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(StrConv(v, vbUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case27 = s\nEnd Function\n\nPrivate Function Case28() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(v & \"\"): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case28 = s\nEnd Function\n\nPrivate Function Case29() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(v & v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case29 = s\nEnd Function\n\nPrivate Function Case30() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Len(v & v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case30 = s\nEnd Function\n\nPrivate Function Case31() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(\"x\" & v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case31 = s\nEnd Function\n\nPrivate Function Case32() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = v = v: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case32 = s\nEnd Function\n\nPrivate Function Case33() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = v = \"abc\": If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case33 = s\nEnd Function\n\nPrivate Function Case34() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = v & \"x\": If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case34 = s\nEnd Function\n\nPrivate Function Case35() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = InStr(v, \"c\"): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case35 = s\nEnd Function\n\nPrivate Function Case36() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = InStrB(v, \"c\"): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case36 = s\nEnd Function\n\nPrivate Function Case37() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = InStrB(v, ChrB(99)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case37 = s\nEnd Function\n\nPrivate Function Case38() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = CStr(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case38 = s\nEnd Function\n\nPrivate Function Case39() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(CStr(v)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case39 = s\nEnd Function\n\nPrivate Function Case40() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LCase(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case40 = s\nEnd Function\n\nPrivate Function Case41() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(LCase(v)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case41 = s\nEnd Function\n\nPrivate Function Case42() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = UCase(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case42 = s\nEnd Function\n\nPrivate Function Case43() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = TypeName(StrConv(\"abc\", vbFromUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case43 = s\nEnd Function\n\nPrivate Function Case44() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(StrConv(\"abc\", vbFromUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case44 = s\nEnd Function\n\nPrivate Function Case45() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = UBound(StrConv(\"abc\", vbFromUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case45 = s\nEnd Function\n\nPrivate Function Case46() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = StrConv(\"abc\", vbFromUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case46 = s\nEnd Function\n\nPrivate Function Case47() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = StrConv(StrConv(\"abc\", vbFromUnicode), vbUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case47 = s\nEnd Function\n\nPrivate Function Case48() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(StrConv(\"\", vbFromUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case48 = s\nEnd Function\n\nPrivate Function Case49() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = TypeName(StrConv(\"\", vbFromUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case49 = s\nEnd Function\n\nPrivate Function Case50() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = TypeName(w): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case50 = s\nEnd Function\n\nPrivate Function Case51() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Len(w): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case51 = s\nEnd Function\n\nPrivate Function Case52() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(w): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case52 = s\nEnd Function\n\nPrivate Function Case53() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = w: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case53 = s\nEnd Function\n\nPrivate Function Case54() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = TypeName(e): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case54 = s\nEnd Function\n\nPrivate Function Case55() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(e): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case55 = s\nEnd Function\n\nPrivate Function Case56() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = e = \"\": If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case56 = s\nEnd Function\n\nPrivate Function Case57() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = IsEmpty(e): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case57 = s\nEnd Function\n\nPrivate Function Case58() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = StrConv(ChrW(233) & ChrW(8364) & ChrW(1234), vbFromUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case58 = s\nEnd Function\n\nPrivate Function Case59() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(StrConv(ChrW(233) & ChrW(1234), vbFromUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case59 = s\nEnd Function\n\nPrivate Function Case60() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = StrConv(ChrB(99), vbUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case60 = s\nEnd Function\n\nPrivate Function Case61() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(ChrB(99)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case61 = s\nEnd Function\n\nPrivate Function Case62() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = TypeName(ChrB(99)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case62 = s\nEnd Function\n\nPrivate Function Case63() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = ChrB(99): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case63 = s\nEnd Function\n\nPrivate Function Case64() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(ChrB(99) & ChrB(100)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case64 = s\nEnd Function\n\nPrivate Function Case65() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = ChrB(99) & ChrB(100): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case65 = s\nEnd Function\n\nPrivate Function Case66() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(MidB(\"abc\", 1, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case66 = s\nEnd Function\n\nPrivate Function Case67() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = MidB(\"abc\", 1, 1): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case67 = s\nEnd Function\n\nPrivate Function Case68() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(MidB(\"abc\", 1, 3)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case68 = s\nEnd Function\n\nPrivate Function Case69() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LeftB(\"abc\", 3): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case69 = s\nEnd Function\n\nPrivate Function Case70() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = TypeName(MidB(\"abc\", 1, 1)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case70 = s\nEnd Function\n\nPrivate Function Case71() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim b() As Byte\n    Err.Clear: b = v: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = TypeName(b): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = UBound(b): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = b(0): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = b(2): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = StrConv(b, vbUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = TypeName(StrConv(b, vbUnicode)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case71 = s\nEnd Function\n\nPrivate Function Case72() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim b() As Byte\n    Err.Clear: b = w: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = UBound(b): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = b(3): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case72 = s\nEnd Function\n\nPrivate Function Case73() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim b() As Byte\n    Err.Clear: b = e: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = LBound(b): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = UBound(b): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case73 = s\nEnd Function\n\nPrivate Function Case74() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim b() As Byte\n    Err.Clear: b = StrConv(\"abc\", vbFromUnicode): If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = UBound(b): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = b(1): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case74 = s\nEnd Function\n\nPrivate Function Case75() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim b() As Byte\n    Err.Clear: b = v: If Err.Number Then s = s & \"|E\" & Err.Number\n    Dim x\n    Err.Clear: x = b: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = TypeName(x): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = StrConv(x, vbUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = LenB(x): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = Len(x): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case75 = s\nEnd Function\n\nPrivate Function Case76() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim b() As Byte\n    Err.Clear: b = \"abc\": If Err.Number Then s = s & \"|E\" & Err.Number\n    Dim x\n    Err.Clear: x = b: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = TypeName(x): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = UBound(x): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: x = StrConv(x, vbFromUnicode): If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = TypeName(x): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case76 = s\nEnd Function\n\nPrivate Function Case77() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim t As String\n    Err.Clear: t = v: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = TypeName(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = LenB(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = Len(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = t: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case77 = s\nEnd Function\n\nPrivate Function Case78() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim t As String\n    Err.Clear: t = v: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = StrConv(t, vbUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: t = t & \"x\": If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = LenB(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case78 = s\nEnd Function\n\nPrivate Function Case79() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim t As String * 3\n    Err.Clear: t = v: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = LenB(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = Len(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = t: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case79 = s\nEnd Function\n\nPrivate Function Case80() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = LenB(Passed(v)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = TypeName(Passed(v)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case80 = s\nEnd Function\n\nPrivate Function Case81() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: Range(\"A1\").Value = v: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = Range(\"A1\").Value: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = LenB(Range(\"A1\").Value): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case81 = s\nEnd Function\n\nPrivate Function Case82() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim one\n    For Each one In v\n    Err.Clear: r = one: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Next\n    Case82 = s\nEnd Function\n\nPrivate Function Case83() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: ReDim Preserve v(1): If Err.Number Then s = s & \"|E\" & Err.Number\n    Case83 = s\nEnd Function\n\nPrivate Function Case84() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = Join(v): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case84 = s\nEnd Function\n\nPrivate Function Case85() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim x\n    Err.Clear: x = Array(v): If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = LenB(x(0)): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case85 = s\nEnd Function\n\nPrivate Function Case86() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim t As String\n    Err.Clear: t = ChrB(97): If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = LenB(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: t = t & ChrB(98): If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = LenB(t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = t: If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = StrConv(t, vbUnicode): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case86 = s\nEnd Function\n\nPrivate Function Case87() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Err.Clear: r = StrComp(v, \"abc\", vbBinaryCompare): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = StrComp(v, v, vbBinaryCompare): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = v < \"b\": If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case87 = s\nEnd Function\n\nPrivate Function Case88() As String\n    Dim s As String, r As Variant, v As Variant, w As Variant, e As Variant\n    On Error Resume Next\n    v = StrConv(\"abc\", vbFromUnicode)\n    w = StrConv(\"abcd\", vbFromUnicode)\n    e = StrConv(\"\", vbFromUnicode)\n    Dim t As String\n    Err.Clear: t = v: If Err.Number Then s = s & \"|E\" & Err.Number\n    Err.Clear: r = LenB(t & t): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Err.Clear: r = Mid(t & t, 2): If Err.Number Then s = s & \"|E\" & Err.Number Else s = s & \"|\" & Hexed(r)\n    Case88 = s\nEnd Function\n\nPublic Function Probe(ByVal first As Long, ByVal last As Long) As String\n    Dim i As Long, s As String\n    For i = first To last\n        Select Case i\n            Case 0: s = s & \"@@@\" & Case0()\n            Case 1: s = s & \"@@@\" & Case1()\n            Case 2: s = s & \"@@@\" & Case2()\n            Case 3: s = s & \"@@@\" & Case3()\n            Case 4: s = s & \"@@@\" & Case4()\n            Case 5: s = s & \"@@@\" & Case5()\n            Case 6: s = s & \"@@@\" & Case6()\n            Case 7: s = s & \"@@@\" & Case7()\n            Case 8: s = s & \"@@@\" & Case8()\n            Case 9: s = s & \"@@@\" & Case9()\n            Case 10: s = s & \"@@@\" & Case10()\n            Case 11: s = s & \"@@@\" & Case11()\n            Case 12: s = s & \"@@@\" & Case12()\n            Case 13: s = s & \"@@@\" & Case13()\n            Case 14: s = s & \"@@@\" & Case14()\n            Case 15: s = s & \"@@@\" & Case15()\n            Case 16: s = s & \"@@@\" & Case16()\n            Case 17: s = s & \"@@@\" & Case17()\n            Case 18: s = s & \"@@@\" & Case18()\n            Case 19: s = s & \"@@@\" & Case19()\n            Case 20: s = s & \"@@@\" & Case20()\n            Case 21: s = s & \"@@@\" & Case21()\n            Case 22: s = s & \"@@@\" & Case22()\n            Case 23: s = s & \"@@@\" & Case23()\n            Case 24: s = s & \"@@@\" & Case24()\n            Case 25: s = s & \"@@@\" & Case25()\n            Case 26: s = s & \"@@@\" & Case26()\n            Case 27: s = s & \"@@@\" & Case27()\n            Case 28: s = s & \"@@@\" & Case28()\n            Case 29: s = s & \"@@@\" & Case29()\n            Case 30: s = s & \"@@@\" & Case30()\n            Case 31: s = s & \"@@@\" & Case31()\n            Case 32: s = s & \"@@@\" & Case32()\n            Case 33: s = s & \"@@@\" & Case33()\n            Case 34: s = s & \"@@@\" & Case34()\n            Case 35: s = s & \"@@@\" & Case35()\n            Case 36: s = s & \"@@@\" & Case36()\n            Case 37: s = s & \"@@@\" & Case37()\n            Case 38: s = s & \"@@@\" & Case38()\n            Case 39: s = s & \"@@@\" & Case39()\n            Case 40: s = s & \"@@@\" & Case40()\n            Case 41: s = s & \"@@@\" & Case41()\n            Case 42: s = s & \"@@@\" & Case42()\n            Case 43: s = s & \"@@@\" & Case43()\n            Case 44: s = s & \"@@@\" & Case44()\n            Case 45: s = s & \"@@@\" & Case45()\n            Case 46: s = s & \"@@@\" & Case46()\n            Case 47: s = s & \"@@@\" & Case47()\n            Case 48: s = s & \"@@@\" & Case48()\n            Case 49: s = s & \"@@@\" & Case49()\n            Case 50: s = s & \"@@@\" & Case50()\n            Case 51: s = s & \"@@@\" & Case51()\n            Case 52: s = s & \"@@@\" & Case52()\n            Case 53: s = s & \"@@@\" & Case53()\n            Case 54: s = s & \"@@@\" & Case54()\n            Case 55: s = s & \"@@@\" & Case55()\n            Case 56: s = s & \"@@@\" & Case56()\n            Case 57: s = s & \"@@@\" & Case57()\n            Case 58: s = s & \"@@@\" & Case58()\n            Case 59: s = s & \"@@@\" & Case59()\n            Case 60: s = s & \"@@@\" & Case60()\n            Case 61: s = s & \"@@@\" & Case61()\n            Case 62: s = s & \"@@@\" & Case62()\n            Case 63: s = s & \"@@@\" & Case63()\n            Case 64: s = s & \"@@@\" & Case64()\n            Case 65: s = s & \"@@@\" & Case65()\n            Case 66: s = s & \"@@@\" & Case66()\n            Case 67: s = s & \"@@@\" & Case67()\n            Case 68: s = s & \"@@@\" & Case68()\n            Case 69: s = s & \"@@@\" & Case69()\n            Case 70: s = s & \"@@@\" & Case70()\n            Case 71: s = s & \"@@@\" & Case71()\n            Case 72: s = s & \"@@@\" & Case72()\n            Case 73: s = s & \"@@@\" & Case73()\n            Case 74: s = s & \"@@@\" & Case74()\n            Case 75: s = s & \"@@@\" & Case75()\n            Case 76: s = s & \"@@@\" & Case76()\n            Case 77: s = s & \"@@@\" & Case77()\n            Case 78: s = s & \"@@@\" & Case78()\n            Case 79: s = s & \"@@@\" & Case79()\n            Case 80: s = s & \"@@@\" & Case80()\n            Case 81: s = s & \"@@@\" & Case81()\n            Case 82: s = s & \"@@@\" & Case82()\n            Case 83: s = s & \"@@@\" & Case83()\n            Case 84: s = s & \"@@@\" & Case84()\n            Case 85: s = s & \"@@@\" & Case85()\n            Case 86: s = s & \"@@@\" & Case86()\n            Case 87: s = s & \"@@@\" & Case87()\n            Case 88: s = s & \"@@@\" & Case88()\n        End Select\n    Next\n    Probe = Mid$(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "TypeName(v)",
+   "|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "VarType(v)",
+   "|Long 8"
+  ],
+  [
+   "IsArray(v)",
+   "|Boolean False"
+  ],
+  [
+   "Len(v)",
+   "|Long 1"
+  ],
+  [
+   "LenB(v)",
+   "|Long 3"
+  ],
+  [
+   "v",
+   "|String 6261 /3"
+  ],
+  [
+   "UBound(v)",
+   "|E13"
+  ],
+  [
+   "LBound(v)",
+   "|E13"
+  ],
+  [
+   "v(0)",
+   "|E13"
+  ],
+  [
+   "AscB(v)",
+   "|Byte 97"
+  ],
+  [
+   "AscW(v)",
+   "|Integer 25185"
+  ],
+  [
+   "Asc(v)",
+   "|Integer 63"
+  ],
+  [
+   "AscB(MidB(v, 1, 1))",
+   "|Byte 97"
+  ],
+  [
+   "AscB(MidB(v, 2, 1))",
+   "|Byte 98"
+  ],
+  [
+   "AscB(MidB(v, 3, 1))",
+   "|Byte 99"
+  ],
+  [
+   "LenB(MidB(v, 1, 1))",
+   "|Long 1"
+  ],
+  [
+   "LenB(MidB(v, 2))",
+   "|Long 2"
+  ],
+  [
+   "MidB(v, 1, 2)",
+   "|String 6261 /2"
+  ],
+  [
+   "LeftB(v, 2)",
+   "|String 6261 /2"
+  ],
+  [
+   "RightB(v, 2)",
+   "|String 6362 /2"
+  ],
+  [
+   "LenB(LeftB(v, 1))",
+   "|Long 1"
+  ],
+  [
+   "LenB(RightB(v, 1))",
+   "|Long 1"
+  ],
+  [
+   "Mid(v, 1, 1)",
+   "|String 6261 /2"
+  ],
+  [
+   "Left(v, 1)",
+   "|String 6261 /2"
+  ],
+  [
+   "Right(v, 1)",
+   "|String 6362 /2"
+  ],
+  [
+   "Len(Mid(v, 2))",
+   "|Long 0"
+  ],
+  [
+   "StrConv(v, vbUnicode)",
+   "|String 61 62 63 /6"
+  ],
+  [
+   "LenB(StrConv(v, vbUnicode))",
+   "|Long 6"
+  ],
+  [
+   "LenB(v & \"\")",
+   "|Long 3"
+  ],
+  [
+   "LenB(v & v)",
+   "|Long 6"
+  ],
+  [
+   "Len(v & v)",
+   "|Long 3"
+  ],
+  [
+   "LenB(\"x\" & v)",
+   "|Long 5"
+  ],
+  [
+   "v = v",
+   "|Boolean True"
+  ],
+  [
+   "v = \"abc\"",
+   "|Boolean False"
+  ],
+  [
+   "v & \"x\"",
+   "|String 6261 7863 /5"
+  ],
+  [
+   "InStr(v, \"c\")",
+   "|Long 0"
+  ],
+  [
+   "InStrB(v, \"c\")",
+   "|Long 0"
+  ],
+  [
+   "InStrB(v, ChrB(99))",
+   "|Long 3"
+  ],
+  [
+   "CStr(v)",
+   "|String 6261 /3"
+  ],
+  [
+   "LenB(CStr(v))",
+   "|Long 3"
+  ],
+  [
+   "LCase(v)",
+   "|String 6261 /2"
+  ],
+  [
+   "LenB(LCase(v))",
+   "|Long 2"
+  ],
+  [
+   "UCase(v)",
+   "|String 6261 /2"
+  ],
+  [
+   "TypeName(StrConv(\"abc\", vbFromUnicode))",
+   "|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "LenB(StrConv(\"abc\", vbFromUnicode))",
+   "|Long 3"
+  ],
+  [
+   "UBound(StrConv(\"abc\", vbFromUnicode))",
+   "|E13"
+  ],
+  [
+   "StrConv(\"abc\", vbFromUnicode)",
+   "|String 6261 /3"
+  ],
+  [
+   "StrConv(StrConv(\"abc\", vbFromUnicode), vbUnicode)",
+   "|String 61 62 63 /6"
+  ],
+  [
+   "LenB(StrConv(\"\", vbFromUnicode))",
+   "|Long 0"
+  ],
+  [
+   "TypeName(StrConv(\"\", vbFromUnicode))",
+   "|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "TypeName(w)",
+   "|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "Len(w)",
+   "|Long 2"
+  ],
+  [
+   "LenB(w)",
+   "|Long 4"
+  ],
+  [
+   "w",
+   "|String 6261 6463 /4"
+  ],
+  [
+   "TypeName(e)",
+   "|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "LenB(e)",
+   "|Long 0"
+  ],
+  [
+   "e = \"\"",
+   "|Boolean True"
+  ],
+  [
+   "IsEmpty(e)",
+   "|Boolean False"
+  ],
+  [
+   "StrConv(ChrW(233) & ChrW(8364) & ChrW(1234), vbFromUnicode)",
+   "|String 80E9 /3"
+  ],
+  [
+   "LenB(StrConv(ChrW(233) & ChrW(1234), vbFromUnicode))",
+   "|Long 2"
+  ],
+  [
+   "StrConv(ChrB(99), vbUnicode)",
+   "|String 63 /2"
+  ],
+  [
+   "LenB(ChrB(99))",
+   "|Long 1"
+  ],
+  [
+   "TypeName(ChrB(99))",
+   "|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "ChrB(99)",
+   "|String /1"
+  ],
+  [
+   "LenB(ChrB(99) & ChrB(100))",
+   "|Long 2"
+  ],
+  [
+   "ChrB(99) & ChrB(100)",
+   "|String 6463 /2"
+  ],
+  [
+   "LenB(MidB(\"abc\", 1, 1))",
+   "|Long 1"
+  ],
+  [
+   "MidB(\"abc\", 1, 1)",
+   "|String /1"
+  ],
+  [
+   "LenB(MidB(\"abc\", 1, 3))",
+   "|Long 3"
+  ],
+  [
+   "LeftB(\"abc\", 3)",
+   "|String 61 /3"
+  ],
+  [
+   "TypeName(MidB(\"abc\", 1, 1))",
+   "|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "into a byte array",
+   "|String 42 79 74 65 28 29 /12|Long 2|Byte 97|Byte 99|String 61 62 63 /6|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "even into a byte array",
+   "|Long 3|Byte 100"
+  ],
+  [
+   "empty into a byte array",
+   "|Long 0|Long -1"
+  ],
+  [
+   "direct into a byte array",
+   "|Long 2|Byte 98"
+  ],
+  [
+   "bytes back",
+   "|String 42 79 74 65 28 29 /12|String 61 62 63 /6|Long 3|Long 1"
+  ],
+  [
+   "variant of bytes",
+   "|String 42 79 74 65 28 29 /12|Long 5|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "into a string",
+   "|String 53 74 72 69 6E 67 /12|Long 3|Long 1|String 6261 /3"
+  ],
+  [
+   "through a string",
+   "|String 61 62 63 /6|Long 5"
+  ],
+  [
+   "into a fixed string",
+   "|Integer 6|Long 3|String 6261 20 20 /6"
+  ],
+  [
+   "in a function",
+   "|Long 3|String 53 74 72 69 6E 67 /12"
+  ],
+  [
+   "into a cell",
+   "|String 6261 63 /4|Long 4"
+  ],
+  [
+   "for each",
+   "|Empty "
+  ],
+  [
+   "redim",
+   "|E13"
+  ],
+  [
+   "join",
+   "|E13"
+  ],
+  [
+   "array of",
+   "|Long 3"
+  ],
+  [
+   "chrb concat",
+   "|Long 1|Long 2|String 6261 /2|String 61 62 /4"
+  ],
+  [
+   "byte string compare",
+   "|Integer 1|Integer 0|Boolean False"
+  ],
+  [
+   "put",
+   "|Long 6|String 6163 6362 /4"
+  ]
+ ]
+}

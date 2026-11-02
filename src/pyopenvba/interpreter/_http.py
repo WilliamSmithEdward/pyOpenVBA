@@ -32,6 +32,7 @@ from pyopenvba.interpreter._values import (
     EMPTY,
     MISSING,
     NULL,
+    OddText,
     VBAArray,
     VBAInt,
     error,
@@ -455,7 +456,12 @@ class HttpRequest(VBAObject):
             return bytes(int(to_integer(one, "Byte")) for one in given.items), False
         if given is NULL or isinstance(given, VBAObject):
             raise VBAUnsupportedError("HTTP Send of Null or of an object is not implemented")
-        return to_text(given).encode("utf-8", errors="surrogatepass"), True
+        text = to_text(given)
+        body = text.encode("utf-8", errors="surrogatepass")
+        # The half character StrConv can leave goes as it stands over WinHTTP, and not at all over the others.
+        if isinstance(text, OddText) and self.stack is _WINHTTP:
+            body += bytes([text.last])
+        return body, True
 
     def _pump(self) -> None:
         """An asynchronous request's end: nothing is raised, and the reads report any failure."""

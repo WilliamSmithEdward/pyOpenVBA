@@ -2,7 +2,6 @@
 and nothing that changes between runs."""
 from __future__ import annotations
 
-import gzip
 import socket
 import threading
 import time
@@ -30,7 +29,9 @@ ANSWERS: dict[str, tuple[int, list[tuple[str, str]], bytes]] = {
     '/teapot': (418, [], b''),
     '/twice': (200, [('Content-Type', 'text/plain'), ('X-Twice', 'one'), ('X-Twice', 'two')], b'ok'),
     '/cookie': (200, [('Content-Type', 'text/plain'), ('Set-Cookie', 'probe=1; Path=/')], b'ok'),
-    '/gzip': (200, [('Content-Type', 'text/plain'), ('Content-Encoding', 'gzip')], gzip.compress(b'zipped', mtime=0)),
+    # The bytes themselves: what gzip.compress gives differs between Python builds.
+    '/gzip': (200, [('Content-Type', 'text/plain'), ('Content-Encoding', 'gzip')],
+              bytes.fromhex('1F8B08000000000002FFABCA2C28484D01005768C2E206000000')),
     '/moved': (302, [('Location', '/text')], b'moved'),
     '/moved301': (301, [('Location', '/echo')], b'moved'),
     '/moved302': (302, [('Location', '/echo')], b'moved'),

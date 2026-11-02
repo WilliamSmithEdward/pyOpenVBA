@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Series.Format, with its Fill and Line, on the chart kinds the model
+  makes. A column, bar, pie, doughnut or area series reads its accent as
+  its fill and has no line until a colour is set. A line series draws in
+  its accent at 3 points and takes no fill. A series with markers gives a
+  fill colour to its markers. A save writes only what was set, as Excel
+  does. Measured in `tests/fixtures/series_format.json`.
 - ShapeRange.Fill and ShapeRange.Line. A range reads what its shapes share,
   leaving a line's absent fill out, and reads the mixed value where they
   differ. A change reaches each shape as it would alone, except hiding a

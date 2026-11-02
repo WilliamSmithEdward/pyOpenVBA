@@ -1358,6 +1358,10 @@ class Workbook(ExcelObject):
         self.sheets_: list[Worksheet] = []
         self.pivot_caches: list[PivotCache] = []
         self.names_ = Names(self)
+        #: The people who wrote the workbook's threaded comments (see _threads).
+        from pyopenvba.apps.excel._threads import PersonList
+
+        self.persons = PersonList()
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
         #: None until a formula is written, when the formulas it has teach it.
@@ -2077,8 +2081,8 @@ class Workbook(ExcelObject):
 
     @method
     def ConvertComments(self) -> object:
-        """Turns the notes into threaded comments: with no notes it changes nothing. Excel turns each note into a
-        threaded comment, which the model does not hold, so a workbook with notes is refused
+        """Turns the notes into threaded comments: with no notes it changes nothing. How Excel turns each note into a
+        threaded comment is not measured, so a workbook with notes is refused
         (tests/fixtures/workbook_small_methods.json)."""
         if any(sheet.notes for sheet in self.sheets_):
             raise VBAUnsupportedError("Converting notes into threaded comments is not implemented")
@@ -2882,6 +2886,14 @@ class Worksheet(ExcelObject):
 
         notes = Comments(self)
         return notes if Index is MISSING else notes.vba_get("Item", [Index])
+
+    @member
+    def CommentsThreaded(self, Index: object = MISSING) -> object:
+        """The sheet's threaded comments, row by row (see _threads)."""
+        from pyopenvba.apps.excel._threads import CommentsThreaded
+
+        found = CommentsThreaded(self)
+        return found if Index is MISSING else found.vba_get("Item", [Index])
 
     @member
     def Hyperlinks(self, Index: object = MISSING) -> object:
@@ -4001,11 +4013,17 @@ class Range(ExcelObject):
 
     @member
     def CommentThreaded(self) -> object:
-        """Nothing: the model holds no threaded comments; several cells are error 5
-        (tests/fixtures/range_small_reads.json)."""
-        if not self.single:
-            raise error(5)
-        return NOTHING
+        """The cell's threaded comment, or Nothing; several cells are error 5 (tests/fixtures/range_small_reads.json,
+        threaded_comments.json)."""
+        from pyopenvba.apps.excel._threads import thread_of
+
+        return thread_of(self)
+
+    @method
+    def AddCommentThreaded(self, Text: object = MISSING) -> object:
+        from pyopenvba.apps.excel._threads import add_thread
+
+        return add_thread(self, "" if Text is MISSING else Text)
 
     @member
     def CurrentArray(self) -> object:

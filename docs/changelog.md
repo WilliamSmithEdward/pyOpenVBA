@@ -7,6 +7,18 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Threaded comments: Range.AddCommentThreaded, Range.CommentThreaded,
+  Worksheet.CommentsThreaded and the CommentThreaded and Author objects.
+  A thread's text, replies, Resolved, Date, author, Parent, Next and
+  Previous read and change as Excel's do. A workbook saves the
+  threadedComments part, the stand-in note older versions of Excel read,
+  and the persons part, as Excel writes them, and reads them back. The
+  model has no account, so a person is Application.UserName with the
+  provider None. Excel opens such a file and reads its threads. Copying,
+  clearing and NoteText on a thread's cell are refused. Measured in
+  `tests/fixtures/threaded_comments.json`, with the measuring person's
+  identity masked.
+
 - FormatColor.Parent and Application on a colour scale's colours. Parent
   reads its ColorScaleCriterion.
 - 88 core reads everyday macros make measured against live Excel, in

@@ -36,7 +36,7 @@ from pyopenvba.formula._prefixes import calculated_always
 from pyopenvba.formula._structured import from_file, in_file
 from pyopenvba.interpreter._values import EMPTY, VBADate, to_text
 from pyopenvba.powerquery._opc import OpcFile
-from pyopenvba.powerquery._sheets import add_content_type, add_relationship, sheet_entries
+from pyopenvba.powerquery._sheets import add_content_type, add_relationship, drop_content_type, sheet_entries
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._data_tables import DataTable
@@ -207,6 +207,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
 
             read_tab(sheet, sheet_xml)
     book.next_sheet_id = max((sheet.sheet_id for sheet in book.sheets_), default=0) + 1
+    _read_threads(book, package)
     from pyopenvba.apps.excel._windows import read_book_view
 
     read_book_view(book, workbook_xml)
@@ -697,6 +698,77 @@ def _write_notes(book: Workbook, package: OpcFile) -> None:
             package.write(vml_at, drawn.encode("utf-8"))
         else:
             _drop_sheet_part(package, sheet, vml_at)
+
+
+def _override_before_properties(package: OpcFile, part: str, content_type: str) -> None:
+    """A part named in the content types before the document's own properties, as Excel names a sheet's comments,
+    threaded comments and the persons (tests/fixtures/threaded_comments.json)."""
+    types = package.read("[Content_Types].xml").decode("utf-8")
+    if f'PartName="/{part}"' in types:
+        return
+    override = f'<Override PartName="/{part}" ContentType="{content_type}"/>'
+    at = types.find('<Override PartName="/docProps/')
+    at = at if at >= 0 else types.rfind("</Types>")
+    package.write("[Content_Types].xml", (types[:at] + override + types[at:]).encode("utf-8"))
+
+
+def _write_threads(book: Workbook, package: OpcFile, changed: set[str]) -> None:
+    """Each sheet whose notes changed, its threadedComments part written again, made where it had none and taken
+    away where it has no thread left; and the workbook's persons part, while any sheet has a thread (see _threads)."""
+    from pyopenvba.apps.excel._threads import (PERSONS_RELATIONSHIP, PERSONS_TYPE, THREADS_RELATIONSHIP, THREADS_TYPE,
+                                               persons_part, threads, threads_part)
+
+    for sheet in book.sheets_:
+        if sheet.part_name not in changed:
+            continue
+        at = _sheet_relationship(package, sheet.part_name, "threadedComment")
+        if not threads(sheet):
+            if at:
+                _drop_sheet_part(package, sheet, at)
+                drop_content_type(package, at)
+            continue
+        if not at:
+            taken = set(package.names())
+            number = 1
+            while f"xl/threadedComments/threadedComment{number}.xml" in taken:
+                number += 1
+            at = f"xl/threadedComments/threadedComment{number}.xml"
+            _override_before_properties(package, at, THREADS_TYPE)
+            _add_sheet_relationship(package, sheet.part_name, f"../threadedComments/threadedComment{number}.xml",
+                                    THREADS_RELATIONSHIP)
+        package.write(at, threads_part(sheet).encode("utf-8"))
+    if not changed:
+        return
+    rels = "xl/_rels/workbook.xml.rels"
+    listed = package.read(rels).decode("utf-8") if package.has(rels) else ""
+    held = re.search(r'<Relationship\b[^>]*Type="' + re.escape(PERSONS_RELATIONSHIP) + r'"[^>]*/>', listed)
+    part = "xl/" + _attributes(held.group(0)).get("Target", "persons/person.xml") if held else "xl/persons/person.xml"
+    if any(threads(sheet) for sheet in book.sheets_):
+        if held is None:
+            _override_before_properties(package, part, PERSONS_TYPE)
+            add_relationship(package, rels, PERSONS_RELATIONSHIP, "persons/person.xml")
+        package.write(part, persons_part(book).encode("utf-8"))
+    elif held is not None:
+        package.write(rels, listed.replace(held.group(0), "").encode("utf-8"))
+        drop_content_type(package, part)
+        _remove_unreferenced_part(package, part)
+
+
+def _read_threads(book: Workbook, package: OpcFile) -> None:
+    """The workbook's persons and each sheet's threads, put on the stand-in notes its comments part gave."""
+    from pyopenvba.apps.excel._threads import PERSONS_RELATIONSHIP, read_persons, read_threads
+
+    rels = "xl/_rels/workbook.xml.rels"
+    listed = package.read(rels).decode("utf-8") if package.has(rels) else ""
+    held = re.search(r'<Relationship\b[^>]*Type="' + re.escape(PERSONS_RELATIONSHIP) + r'"[^>]*/>', listed)
+    if held is not None:
+        part = posixpath.normpath(posixpath.join("xl", _attributes(held.group(0)).get("Target", "")))
+        if package.has(part):
+            read_persons(book, package.read(part).decode("utf-8", errors="replace"))
+    for sheet in book.sheets_:
+        at = _sheet_relationship(package, sheet.part_name, "threadedComment")
+        if at and package.has(at):
+            read_threads(sheet, package.read(at).decode("utf-8", errors="replace"))
 
 
 def _write_links(book: Workbook, package: OpcFile, folder: str) -> None:
@@ -1526,7 +1598,9 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     _new_vml_parts(book, package)
     _write_shapes(book, package)
     _write_backgrounds(book, package)
+    noted = {sheet.part_name for sheet in book.sheets_ if sheet.notes_changed and sheet.part_name}
     _write_notes(book, package)
+    _write_threads(book, package, noted)
     _write_links(book, package, str(target.resolve().parent))
     from pyopenvba.apps.excel._workbook_links import write as write_workbook_links
 

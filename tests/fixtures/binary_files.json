@@ -1,0 +1,1148 @@
+{
+ "measured_at": "2026-11-02T21:33:13.091460+00:00",
+ "source": "\nPrivate Type Rec\n    a As Long\n    b As String * 2\n    c As Integer\n    d As Byte\nEnd Type\n\nPrivate Type TextRec\n    a As Long\n    s As String\n    c As Byte\nEnd Type\n\nPrivate Type VarRec\n    a As Long\n    v As Variant\n    c As Byte\nEnd Type\n\nPrivate Type ArrRec\n    n(1) As Integer\n    c As Byte\nEnd Type\n\nPrivate Type DynRec\n    n() As Integer\n    c As Byte\nEnd Type\n\nPrivate Type Outer\n    r As Rec\n    z As Byte\nEnd Type\n\n\nPrivate gFolder As String, gSep As String, gCell(1) As Variant\n\nPrivate Function P(ByVal name As String) As String\n    If gSep <> \"\\\" Then name = Replace(name, \"\\\", gSep)\n    P = gFolder & gSep & name\nEnd Function\n\nPrivate Function Esc(ByVal text As Variant) As String\n    Dim i As Long, code As Long, out As String\n    For i = 1 To Len(text)\n        code = AscW(Mid$(text, i, 1)) And &HFFFF&\n        If code < 32 Or code > 126 Or code = 92 Or code = 124 Or code = 64 Then\n            out = out & \"\\u\" & Right$(\"000\" & Hex$(code), 4)\n        Else\n            out = out & Mid$(text, i, 1)\n        End If\n    Next\n    Esc = out\nEnd Function\n\nPrivate Function Show(ByVal value As Variant) As String\n    If IsNull(value) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(value) Then\n        Show = \"Empty\"\n    ElseIf IsError(value) Then\n        Show = \"Error \" & CStr(CLng(value))\n    ElseIf IsDate(value) And VarType(value) = vbDate Then\n        Show = \"Date \" & Format(value, \"yyyy-mm-dd hh:nn:ss\")\n    Else\n        Show = TypeName(value) & \" \" & Esc(CStr(value))\n    End If\nEnd Function\n\nPrivate Function CStrOf(ByVal value As Variant) As String\n    If VarType(value) = vbString Then\n        CStrOf = value\n    Else\n        CStrOf = Show(value)\n    End If\nEnd Function\n\nPrivate Sub Mark(ByRef s As String, ByVal number As Long, ByVal description As String)\n    s = s & \"[E\" & number & \":\" & Esc(description) & \"]\"\nEnd Sub\n\nPrivate Function Case0() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: x = 200: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case0 = s\nEnd Function\n\nPrivate Function Case1() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: x = 258: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case1 = s\nEnd Function\n\nPrivate Function Case2() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: x = 16909060: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case2 = s\nEnd Function\n\nPrivate Function Case3() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Single\n    Err.Clear: x = 1.5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case3 = s\nEnd Function\n\nPrivate Function Case4() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Double\n    Err.Clear: x = 1.5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case4 = s\nEnd Function\n\nPrivate Function Case5() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Currency\n    Err.Clear: x = 1.5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case5 = s\nEnd Function\n\nPrivate Function Case6() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Date\n    Err.Clear: x = #1/2/2020#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case6 = s\nEnd Function\n\nPrivate Function Case7() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Boolean\n    Err.Clear: x = True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case7 = s\nEnd Function\n\nPrivate Function Case8() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As LongLong\n    Err.Clear: x = 5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case8 = s\nEnd Function\n\nPrivate Function Case9() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case9 = s\nEnd Function\n\nPrivate Function Case10() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case10 = s\nEnd Function\n\nPrivate Function Case11() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case11 = s\nEnd Function\n\nPrivate Function Case12() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Single\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case12 = s\nEnd Function\n\nPrivate Function Case13() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Double\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case13 = s\nEnd Function\n\nPrivate Function Case14() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Currency\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case14 = s\nEnd Function\n\nPrivate Function Case15() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Date\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case15 = s\nEnd Function\n\nPrivate Function Case16() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Boolean\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case16 = s\nEnd Function\n\nPrivate Function Case17() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As LongLong\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case17 = s\nEnd Function\n\nPrivate Function Case18() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CInt(258): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case18 = s\nEnd Function\n\nPrivate Function Case19() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CLng(258): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case19 = s\nEnd Function\n\nPrivate Function Case20() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CSng(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case20 = s\nEnd Function\n\nPrivate Function Case21() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CDbl(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case21 = s\nEnd Function\n\nPrivate Function Case22() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CCur(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case22 = s\nEnd Function\n\nPrivate Function Case23() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = #1/2/2020#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case23 = s\nEnd Function\n\nPrivate Function Case24() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case24 = s\nEnd Function\n\nPrivate Function Case25() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case25 = s\nEnd Function\n\nPrivate Function Case26() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CByte(7): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case26 = s\nEnd Function\n\nPrivate Function Case27() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Empty: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case27 = s\nEnd Function\n\nPrivate Function Case28() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Null: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case28 = s\nEnd Function\n\nPrivate Function Case29() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CDec(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case29 = s\nEnd Function\n\nPrivate Function Case30() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CVErr(5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case30 = s\nEnd Function\n\nPrivate Function Case31() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case31 = s\nEnd Function\n\nPrivate Function Case32() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Nothing: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case32 = s\nEnd Function\n\nPrivate Function Case33() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CInt(258): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case33 = s\nEnd Function\n\nPrivate Function Case34() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CLng(258): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case34 = s\nEnd Function\n\nPrivate Function Case35() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CSng(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case35 = s\nEnd Function\n\nPrivate Function Case36() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CDbl(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case36 = s\nEnd Function\n\nPrivate Function Case37() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CCur(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case37 = s\nEnd Function\n\nPrivate Function Case38() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = #1/2/2020#: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case38 = s\nEnd Function\n\nPrivate Function Case39() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case39 = s\nEnd Function\n\nPrivate Function Case40() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case40 = s\nEnd Function\n\nPrivate Function Case41() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CByte(7): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case41 = s\nEnd Function\n\nPrivate Function Case42() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Empty: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case42 = s\nEnd Function\n\nPrivate Function Case43() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Null: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case43 = s\nEnd Function\n\nPrivate Function Case44() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CDec(1.5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case44 = s\nEnd Function\n\nPrivate Function Case45() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = CVErr(5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case45 = s\nEnd Function\n\nPrivate Function Case46() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case46 = s\nEnd Function\n\nPrivate Function Case47() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Nothing: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case47 = s\nEnd Function\n\nPrivate Function Case48() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , 5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case48 = s\nEnd Function\n\nPrivate Function Case49() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , 70000: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case49 = s\nEnd Function\n\nPrivate Function Case50() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , 1.5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case50 = s\nEnd Function\n\nPrivate Function Case51() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case51 = s\nEnd Function\n\nPrivate Function Case52() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case52 = s\nEnd Function\n\nPrivate Function Case53() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , 1 + 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case53 = s\nEnd Function\n\nPrivate Function Case54() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , \"a\" & \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case54 = s\nEnd Function\n\nPrivate Function Case55() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case55 = s\nEnd Function\n\nPrivate Function Case56() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = ChrW(233) & ChrW(1234): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case56 = s\nEnd Function\n\nPrivate Function Case57() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case57 = s\nEnd Function\n\nPrivate Function Case58() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String * 5\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case58 = s\nEnd Function\n\nPrivate Function Case59() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String * 2\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case59 = s\nEnd Function\n\nPrivate Function Case60() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = Space(3): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case60 = s\nEnd Function\n\nPrivate Function Case61() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case61 = s\nEnd Function\n\nPrivate Function Case62() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = Space(5): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case62 = s\nEnd Function\n\nPrivate Function Case63() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String * 3\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case63 = s\nEnd Function\n\nPrivate Function Case64() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String * 3\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case64 = s\nEnd Function\n\nPrivate Function Case65() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case65 = s\nEnd Function\n\nPrivate Function Case66() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: x = 9: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case66 = s\nEnd Function\n\nPrivate Function Case67() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Double\n    Err.Clear: x = 9: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case67 = s\nEnd Function\n\nPrivate Function Case68() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case68 = s\nEnd Function\n\nPrivate Function Case69() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case69 = s\nEnd Function\n\nPrivate Function Case70() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case70 = s\nEnd Function\n\nPrivate Function Case71() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case71 = s\nEnd Function\n\nPrivate Function Case72() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case72 = s\nEnd Function\n\nPrivate Function Case73() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case73 = s\nEnd Function\n\nPrivate Function Case74() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case74 = s\nEnd Function\n\nPrivate Function Case75() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(2) As Long\n    Err.Clear: x(0) = 1: x(1) = 2: x(2) = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case75 = s\nEnd Function\n\nPrivate Function Case76() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x() As Long\n    Err.Clear: ReDim x(2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x(0) = 1: x(1) = 2: x(2) = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case76 = s\nEnd Function\n\nPrivate Function Case77() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x() As Byte\n    Err.Clear: ReDim x(2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x(0) = 1: x(1) = 2: x(2) = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case77 = s\nEnd Function\n\nPrivate Function Case78() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(1, 1) As Integer\n    Err.Clear: x(0, 0) = 1: x(1, 0) = 2: x(0, 1) = 3: x(1, 1) = 4: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case78 = s\nEnd Function\n\nPrivate Function Case79() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(1) As String\n    Err.Clear: x(0) = \"a\": x(1) = \"bc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case79 = s\nEnd Function\n\nPrivate Function Case80() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Array(1, \"b\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case80 = s\nEnd Function\n\nPrivate Function Case81() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim b() As Byte\n    Dim x As Variant\n    Err.Clear: ReDim b(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: b(0) = 7: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x = b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case81 = s\nEnd Function\n\nPrivate Function Case82() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x() As Long\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case82 = s\nEnd Function\n\nPrivate Function Case83() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(2) As Long\n    Err.Clear: x(1) = 7: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case83 = s\nEnd Function\n\nPrivate Function Case84() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(1) As Long\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x(0)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x(1)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case84 = s\nEnd Function\n\nPrivate Function Case85() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x() As Byte\n    Err.Clear: ReDim x(2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x(0)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x(2)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case85 = s\nEnd Function\n\nPrivate Function Case86() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x() As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(UBound(x)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case86 = s\nEnd Function\n\nPrivate Function Case87() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(1) As String\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x(0)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x(1)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case87 = s\nEnd Function\n\nPrivate Function Case88() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(1) As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x(1)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case88 = s\nEnd Function\n\nPrivate Function Case89() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Rec\n    Err.Clear: x.a = 1: x.b = \"xy\": x.c = 2: x.d = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Len(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case89 = s\nEnd Function\n\nPrivate Function Case90() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As TextRec\n    Err.Clear: x.a = 1: x.s = \"abc\": x.c = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case90 = s\nEnd Function\n\nPrivate Function Case91() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As VarRec\n    Err.Clear: x.a = 1: x.v = \"abc\": x.c = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case91 = s\nEnd Function\n\nPrivate Function Case92() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As ArrRec\n    Err.Clear: x.n(0) = 1: x.n(1) = 2: x.c = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case92 = s\nEnd Function\n\nPrivate Function Case93() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As DynRec\n    Err.Clear: ReDim x.n(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x.n(0) = 1: x.n(1) = 2: x.c = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case93 = s\nEnd Function\n\nPrivate Function Case94() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Outer\n    Err.Clear: x.r.a = 1: x.r.b = \"xy\": x.z = 5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case94 = s\nEnd Function\n\nPrivate Function Case95() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(1) As Rec\n    Err.Clear: x(0).a = 1: x(1).a = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case95 = s\nEnd Function\n\nPrivate Function Case96() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Rec\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x.a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case96 = s\nEnd Function\n\nPrivate Function Case97() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As TextRec\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x.a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.s): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case97 = s\nEnd Function\n\nPrivate Function Case98() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: x = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, 5, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case98 = s\nEnd Function\n\nPrivate Function Case99() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: x = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, 1, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: x = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case99 = s\nEnd Function\n\nPrivate Function Case100() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, 0, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, -1, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case100 = s\nEnd Function\n\nPrivate Function Case101() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, 3, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case101 = s\nEnd Function\n\nPrivate Function Case102() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, 0, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, -1, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case102 = s\nEnd Function\n\nPrivate Function Case103() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: x = 9: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, 50, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case103 = s\nEnd Function\n\nPrivate Function Case104() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Seek #1, 50: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case104 = s\nEnd Function\n\nPrivate Function Case105() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case105 = s\nEnd Function\n\nPrivate Function Case106() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case106 = s\nEnd Function\n\nPrivate Function Case107() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case107 = s\nEnd Function\n\nPrivate Function Case108() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case108 = s\nEnd Function\n\nPrivate Function Case109() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Input As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case109 = s\nEnd Function\n\nPrivate Function Case110() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: SetAttr P(\"a.bin\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Dim x As Byte\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: x = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.bin\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case110 = s\nEnd Function\n\nPrivate Function Case111() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary Access Read As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case111 = s\nEnd Function\n\nPrivate Function Case112() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary Access Write As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case112 = s\nEnd Function\n\nPrivate Function Case113() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary Access Read As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case113 = s\nEnd Function\n\nPrivate Function Case114() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary Access Read Write As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case114 = s\nEnd Function\n\nPrivate Function Case115() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = FileAttr(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case115 = s\nEnd Function\n\nPrivate Function Case116() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Input(2, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = t: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Dim a, b\n    Err.Clear: Input #1, a, b: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case116 = s\nEnd Function\n\nPrivate Function Case117() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"x\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"y\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Width #1, 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case117 = s\nEnd Function\n\nPrivate Function Case118() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case118 = s\nEnd Function\n\nPrivate Function Case119() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case119 = s\nEnd Function\n\nPrivate Function Case120() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case120 = s\nEnd Function\n\nPrivate Function Case121() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: x = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case121 = s\nEnd Function\n\nPrivate Function Case122() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: x = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case122 = s\nEnd Function\n\nPrivate Function Case123() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: x = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 6: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, 3, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case123 = s\nEnd Function\n\nPrivate Function Case124() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 4: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case124 = s\nEnd Function\n\nPrivate Function Case125() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case125 = s\nEnd Function\n\nPrivate Function Case126() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 8: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case126 = s\nEnd Function\n\nPrivate Function Case127() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case127 = s\nEnd Function\n\nPrivate Function Case128() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 4: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case128 = s\nEnd Function\n\nPrivate Function Case129() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String * 3\n    Err.Clear: x = \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 8: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case129 = s\nEnd Function\n\nPrivate Function Case130() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Rec\n    Err.Clear: x.a = 1: x.b = \"xy\": x.c = 2: x.d = 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = Len(x): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Len(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Put #1, 2, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case130 = s\nEnd Function\n\nPrivate Function Case131() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Rec\n    Err.Clear: x.a = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 20: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case131 = s\nEnd Function\n\nPrivate Function Case132() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Rec\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 4: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case132 = s\nEnd Function\n\nPrivate Function Case133() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As TextRec\n    Err.Clear: x.a = 1: x.s = \"abc\": x.c = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 20: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case133 = s\nEnd Function\n\nPrivate Function Case134() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x(1) As Integer\n    Err.Clear: x(0) = 1: x(1) = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 8: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case134 = s\nEnd Function\n\nPrivate Function Case135() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x() As Integer\n    Err.Clear: ReDim x(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: x(0) = 1: x(1) = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 12: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case135 = s\nEnd Function\n\nPrivate Function Case136() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x() As Integer\n    Err.Clear: ReDim x(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 20: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case136 = s\nEnd Function\n\nPrivate Function Case137() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: x = Array(1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 30: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case137 = s\nEnd Function\n\nPrivate Function Case138() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 6: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, 2, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case138 = s\nEnd Function\n\nPrivate Function Case139() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 8: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case139 = s\nEnd Function\n\nPrivate Function Case140() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As String\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 8: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case140 = s\nEnd Function\n\nPrivate Function Case141() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Rec\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 9: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x.a): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.b): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.c): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Show(x.d): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case141 = s\nEnd Function\n\nPrivate Function Case142() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case142 = s\nEnd Function\n\nPrivate Function Case143() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Variant\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 8: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case143 = s\nEnd Function\n\nPrivate Function Case144() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, 0, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, 0, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Seek #1, 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case144 = s\nEnd Function\n\nPrivate Function Case145() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Seek #1, 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Get #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case145 = s\nEnd Function\n\nPrivate Function Case146() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = -1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"b.bin\") For Random As #1 Len = 32767: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"c.bin\") For Random As #1 Len = 32768: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case146 = s\nEnd Function\n\nPrivate Function Case147() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case147 = s\nEnd Function\n\nPrivate Function Case148() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = -1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileAttr(1, 1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case148 = s\nEnd Function\n\nPrivate Function Case149() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case149 = s\nEnd Function\n\nPrivate Function Case150() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Binary As #1 Len = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case150 = s\nEnd Function\n\nPrivate Function Case151() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Print #1, \"x\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Write #1, \"y\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Line Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Input #1, t: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Input(1, #1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case151 = s\nEnd Function\n\nPrivate Function Case152() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Open P(\"a.bin\") For Random As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case152 = s\nEnd Function\n\nPrivate Function Case153() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Integer\n    Err.Clear: Open P(\"a.bin\") For Random As #1 Len = 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Seek(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Loc(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = EOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = LOF(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case153 = s\nEnd Function\n\nPrivate Function Case154() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case154 = s\nEnd Function\n\nPrivate Function Case155() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 1 To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1, 1 To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1, 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1, To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case155 = s\nEnd Function\n\nPrivate Function Case156() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 1 To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 1 To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case156 = s\nEnd Function\n\nPrivate Function Case157() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1, 1 To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case157 = s\nEnd Function\n\nPrivate Function Case158() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 1 To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1, 1 To 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case158 = s\nEnd Function\n\nPrivate Function Case159() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 3 To 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case159 = s\nEnd Function\n\nPrivate Function Case160() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 0 To 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case160 = s\nEnd Function\n\nPrivate Function Case161() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Lock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case161 = s\nEnd Function\n\nPrivate Function Case162() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case162 = s\nEnd Function\n\nPrivate Function Case163() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case163 = s\nEnd Function\n\nPrivate Function Case164() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Random As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1, 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 1 To 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Unlock #1, 1 To 3: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case164 = s\nEnd Function\n\nPrivate Function Case165() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Byte\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Lock #1, 1 To 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Get #1, 1, x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Show(x): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Open P(\"a.bin\") For Input As #2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case165 = s\nEnd Function\n\nPrivate Function Case166() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"a.bin\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case166 = s\nEnd Function\n\nPrivate Function Case167() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: FileCopy P(\"a.bin\"), P(\"b.bin\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Close\n    Err.Clear\n    Case167 = s\nEnd Function\n\nPrivate Function Case168() As String\n    Dim s As String, v As Variant, t As Variant\n    On Error Resume Next\n    Dim x As Long\n    Err.Clear: Open P(\"a.bin\") For Binary As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Put #1, , x: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"a.bin\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"a.bin\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Close\n    Err.Clear\n    Case168 = s\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal sep As String, ByVal which As Long) As String\n    gFolder = folder: gSep = sep\n    Select Case which\n        Case 0: Probe = Case0()\n        Case 1: Probe = Case1()\n        Case 2: Probe = Case2()\n        Case 3: Probe = Case3()\n        Case 4: Probe = Case4()\n        Case 5: Probe = Case5()\n        Case 6: Probe = Case6()\n        Case 7: Probe = Case7()\n        Case 8: Probe = Case8()\n        Case 9: Probe = Case9()\n        Case 10: Probe = Case10()\n        Case 11: Probe = Case11()\n        Case 12: Probe = Case12()\n        Case 13: Probe = Case13()\n        Case 14: Probe = Case14()\n        Case 15: Probe = Case15()\n        Case 16: Probe = Case16()\n        Case 17: Probe = Case17()\n        Case 18: Probe = Case18()\n        Case 19: Probe = Case19()\n        Case 20: Probe = Case20()\n        Case 21: Probe = Case21()\n        Case 22: Probe = Case22()\n        Case 23: Probe = Case23()\n        Case 24: Probe = Case24()\n        Case 25: Probe = Case25()\n        Case 26: Probe = Case26()\n        Case 27: Probe = Case27()\n        Case 28: Probe = Case28()\n        Case 29: Probe = Case29()\n        Case 30: Probe = Case30()\n        Case 31: Probe = Case31()\n        Case 32: Probe = Case32()\n        Case 33: Probe = Case33()\n        Case 34: Probe = Case34()\n        Case 35: Probe = Case35()\n        Case 36: Probe = Case36()\n        Case 37: Probe = Case37()\n        Case 38: Probe = Case38()\n        Case 39: Probe = Case39()\n        Case 40: Probe = Case40()\n        Case 41: Probe = Case41()\n        Case 42: Probe = Case42()\n        Case 43: Probe = Case43()\n        Case 44: Probe = Case44()\n        Case 45: Probe = Case45()\n        Case 46: Probe = Case46()\n        Case 47: Probe = Case47()\n        Case 48: Probe = Case48()\n        Case 49: Probe = Case49()\n        Case 50: Probe = Case50()\n        Case 51: Probe = Case51()\n        Case 52: Probe = Case52()\n        Case 53: Probe = Case53()\n        Case 54: Probe = Case54()\n        Case 55: Probe = Case55()\n        Case 56: Probe = Case56()\n        Case 57: Probe = Case57()\n        Case 58: Probe = Case58()\n        Case 59: Probe = Case59()\n        Case 60: Probe = Case60()\n        Case 61: Probe = Case61()\n        Case 62: Probe = Case62()\n        Case 63: Probe = Case63()\n        Case 64: Probe = Case64()\n        Case 65: Probe = Case65()\n        Case 66: Probe = Case66()\n        Case 67: Probe = Case67()\n        Case 68: Probe = Case68()\n        Case 69: Probe = Case69()\n        Case 70: Probe = Case70()\n        Case 71: Probe = Case71()\n        Case 72: Probe = Case72()\n        Case 73: Probe = Case73()\n        Case 74: Probe = Case74()\n        Case 75: Probe = Case75()\n        Case 76: Probe = Case76()\n        Case 77: Probe = Case77()\n        Case 78: Probe = Case78()\n        Case 79: Probe = Case79()\n        Case 80: Probe = Case80()\n        Case 81: Probe = Case81()\n        Case 82: Probe = Case82()\n        Case 83: Probe = Case83()\n        Case 84: Probe = Case84()\n        Case 85: Probe = Case85()\n        Case 86: Probe = Case86()\n        Case 87: Probe = Case87()\n        Case 88: Probe = Case88()\n        Case 89: Probe = Case89()\n        Case 90: Probe = Case90()\n        Case 91: Probe = Case91()\n        Case 92: Probe = Case92()\n        Case 93: Probe = Case93()\n        Case 94: Probe = Case94()\n        Case 95: Probe = Case95()\n        Case 96: Probe = Case96()\n        Case 97: Probe = Case97()\n        Case 98: Probe = Case98()\n        Case 99: Probe = Case99()\n        Case 100: Probe = Case100()\n        Case 101: Probe = Case101()\n        Case 102: Probe = Case102()\n        Case 103: Probe = Case103()\n        Case 104: Probe = Case104()\n        Case 105: Probe = Case105()\n        Case 106: Probe = Case106()\n        Case 107: Probe = Case107()\n        Case 108: Probe = Case108()\n        Case 109: Probe = Case109()\n        Case 110: Probe = Case110()\n        Case 111: Probe = Case111()\n        Case 112: Probe = Case112()\n        Case 113: Probe = Case113()\n        Case 114: Probe = Case114()\n        Case 115: Probe = Case115()\n        Case 116: Probe = Case116()\n        Case 117: Probe = Case117()\n        Case 118: Probe = Case118()\n        Case 119: Probe = Case119()\n        Case 120: Probe = Case120()\n        Case 121: Probe = Case121()\n        Case 122: Probe = Case122()\n        Case 123: Probe = Case123()\n        Case 124: Probe = Case124()\n        Case 125: Probe = Case125()\n        Case 126: Probe = Case126()\n        Case 127: Probe = Case127()\n        Case 128: Probe = Case128()\n        Case 129: Probe = Case129()\n        Case 130: Probe = Case130()\n        Case 131: Probe = Case131()\n        Case 132: Probe = Case132()\n        Case 133: Probe = Case133()\n        Case 134: Probe = Case134()\n        Case 135: Probe = Case135()\n        Case 136: Probe = Case136()\n        Case 137: Probe = Case137()\n        Case 138: Probe = Case138()\n        Case 139: Probe = Case139()\n        Case 140: Probe = Case140()\n        Case 141: Probe = Case141()\n        Case 142: Probe = Case142()\n        Case 143: Probe = Case143()\n        Case 144: Probe = Case144()\n        Case 145: Probe = Case145()\n        Case 146: Probe = Case146()\n        Case 147: Probe = Case147()\n        Case 148: Probe = Case148()\n        Case 149: Probe = Case149()\n        Case 150: Probe = Case150()\n        Case 151: Probe = Case151()\n        Case 152: Probe = Case152()\n        Case 153: Probe = Case153()\n        Case 154: Probe = Case154()\n        Case 155: Probe = Case155()\n        Case 156: Probe = Case156()\n        Case 157: Probe = Case157()\n        Case 158: Probe = Case158()\n        Case 159: Probe = Case159()\n        Case 160: Probe = Case160()\n        Case 161: Probe = Case161()\n        Case 162: Probe = Case162()\n        Case 163: Probe = Case163()\n        Case 164: Probe = Case164()\n        Case 165: Probe = Case165()\n        Case 166: Probe = Case166()\n        Case 167: Probe = Case167()\n        Case 168: Probe = Case168()\n    End Select\nEnd Function\n",
+ "seeds": {
+  "put byte": [],
+  "put integer": [],
+  "put long": [],
+  "put single": [],
+  "put double": [],
+  "put currency": [],
+  "put date": [],
+  "put boolean": [],
+  "put longlong": [],
+  "get byte": [
+   "@seed a.bin C8"
+  ],
+  "get integer": [
+   "@seed a.bin 0201"
+  ],
+  "get long": [
+   "@seed a.bin 04030201"
+  ],
+  "get single": [
+   "@seed a.bin 0000C03F"
+  ],
+  "get double": [
+   "@seed a.bin 000000000000F83F"
+  ],
+  "get currency": [
+   "@seed a.bin F03C000000000000"
+  ],
+  "get date": [
+   "@seed a.bin 0000000040E8E540"
+  ],
+  "get boolean": [
+   "@seed a.bin FFFF"
+  ],
+  "get longlong": [
+   "@seed a.bin 0500000000000000"
+  ],
+  "put variant integer": [],
+  "put variant long": [],
+  "put variant single": [],
+  "put variant double": [],
+  "put variant currency": [],
+  "put variant date": [],
+  "put variant boolean": [],
+  "put variant string": [],
+  "put variant byte": [],
+  "put variant empty": [],
+  "put variant null": [],
+  "put variant decimal": [],
+  "put variant error": [],
+  "put variant empty string": [],
+  "put variant nothing": [],
+  "put random variant integer": [],
+  "put random variant long": [],
+  "put random variant single": [],
+  "put random variant double": [],
+  "put random variant currency": [],
+  "put random variant date": [],
+  "put random variant boolean": [],
+  "put random variant string": [],
+  "put random variant byte": [],
+  "put random variant empty": [],
+  "put random variant null": [],
+  "put random variant decimal": [],
+  "put random variant error": [],
+  "put random variant empty string": [],
+  "put random variant nothing": [],
+  "put literal small": [],
+  "put literal large": [],
+  "put literal float": [],
+  "put literal text": [],
+  "put literal true": [],
+  "put literal expression": [],
+  "put literal concat": [],
+  "put string": [],
+  "put string accented": [],
+  "put string empty": [],
+  "put fixed": [],
+  "put fixed long": [],
+  "get string": [
+   "@seed a.bin 6162630000"
+  ],
+  "get string empty": [
+   "@seed a.bin 616263"
+  ],
+  "get string short": [
+   "@seed a.bin 6162"
+  ],
+  "get fixed": [
+   "@seed a.bin 6162636465"
+  ],
+  "get fixed short": [
+   "@seed a.bin 61"
+  ],
+  "get long short": [
+   "@seed a.bin 0102"
+  ],
+  "get none left": [
+   "@seed a.bin "
+  ],
+  "get double short": [
+   "@seed a.bin 01"
+  ],
+  "get string none": [
+   "@seed a.bin "
+  ],
+  "get variant integer": [
+   "@seed a.bin 02000201"
+  ],
+  "get variant string": [
+   "@seed a.bin 0800030061626364"
+  ],
+  "get variant empty": [
+   "@seed a.bin 0000"
+  ],
+  "get variant null": [
+   "@seed a.bin 0100"
+  ],
+  "get variant bad": [
+   "@seed a.bin 6300010203"
+  ],
+  "get variant none": [
+   "@seed a.bin "
+  ],
+  "put fixed array": [],
+  "put dynamic array": [],
+  "put byte array": [],
+  "put two dimensions": [],
+  "put string array": [],
+  "put variant array": [],
+  "put variant byte array": [],
+  "put unsized array": [],
+  "put array element": [],
+  "get fixed array": [
+   "@seed a.bin 010000000200000003000000"
+  ],
+  "get dynamic array": [
+   "@seed a.bin 0102030405"
+  ],
+  "get unsized array": [
+   "@seed a.bin 0102030405"
+  ],
+  "get string array": [
+   "@seed a.bin 010061620200636465"
+  ],
+  "get array element": [
+   "@seed a.bin 0102"
+  ],
+  "put record": [],
+  "put record text": [],
+  "put record variant": [],
+  "put record array": [],
+  "put record dynamic": [],
+  "put nested": [],
+  "put records": [],
+  "get record": [
+   "@seed a.bin 010000007879020003"
+  ],
+  "get record text": [
+   "@seed a.bin 01000000030061626302"
+  ],
+  "put at a place": [],
+  "put then back": [],
+  "put at zero": [],
+  "get at a place": [
+   "@seed a.bin 0102030405"
+  ],
+  "get at zero": [
+   "@seed a.bin 01"
+  ],
+  "get past": [
+   "@seed a.bin 01"
+  ],
+  "seek past": [
+   "@seed a.bin 01"
+  ],
+  "measures": [
+   "@seed a.bin 0102030405"
+  ],
+  "ctrl z": [
+   "@seed a.bin 011A02"
+  ],
+  "creates": [],
+  "open twice": [],
+  "open with input": [
+   "@seed a.bin 61"
+  ],
+  "read only": [
+   "@seed a.bin 61"
+  ],
+  "access read": [
+   "@seed a.bin 61"
+  ],
+  "access write": [
+   "@seed a.bin 61"
+  ],
+  "access read missing": [],
+  "access read write": [],
+  "file attr": [],
+  "text in binary": [
+   "@seed a.bin 6162630D0A642C65"
+  ],
+  "print in binary": [
+   "@seed a.bin 616263"
+  ],
+  "get in input": [
+   "@seed a.bin 61"
+  ],
+  "get in output": [],
+  "get closed": [],
+  "random default": [],
+  "random no for": [],
+  "random len": [],
+  "random len tight": [],
+  "random too long": [],
+  "random string": [],
+  "random string full": [],
+  "random string over": [],
+  "random fixed": [],
+  "random record": [],
+  "random record long": [],
+  "random record short": [],
+  "random record text": [],
+  "random array": [],
+  "random dynamic": [],
+  "random dynamic two": [],
+  "random variant array": [],
+  "random get": [
+   "@seed a.bin 0100000000000200000000000300"
+  ],
+  "random get string": [
+   "@seed a.bin 030061626300000000"
+  ],
+  "random get string long": [
+   "@seed a.bin 6300616263"
+  ],
+  "random get record": [
+   "@seed a.bin 010000007879020003"
+  ],
+  "random get too long": [
+   "@seed a.bin 0100000000"
+  ],
+  "random get variant": [
+   "@seed a.bin 0200010000"
+  ],
+  "random zero": [],
+  "random seek": [
+   "@seed a.bin 010002000300"
+  ],
+  "random len bad": [],
+  "random len zero": [],
+  "random len minus": [],
+  "random len one": [],
+  "binary len": [],
+  "random text": [
+   "@seed a.bin 6162630D0A"
+  ],
+  "random twice": [],
+  "random measures": [],
+  "lock all": [
+   "@seed a.bin 010203"
+  ],
+  "lock range": [
+   "@seed a.bin 010203"
+  ],
+  "lock twice": [
+   "@seed a.bin 010203"
+  ],
+  "unlock unlocked": [
+   "@seed a.bin 010203"
+  ],
+  "unlock different": [
+   "@seed a.bin 010203"
+  ],
+  "lock backwards": [
+   "@seed a.bin 010203"
+  ],
+  "lock zero": [
+   "@seed a.bin 010203"
+  ],
+  "lock closed": [],
+  "lock output": [],
+  "lock input": [
+   "@seed a.bin 61"
+  ],
+  "lock random": [],
+  "locked read": [
+   "@seed a.bin 010203"
+  ],
+  "kill open binary": [
+   "@seed a.bin 61"
+  ],
+  "copy open binary": [
+   "@seed a.bin 61"
+  ],
+  "file len open binary": []
+ },
+ "cases": [
+  [
+   "put byte",
+   "|Long 2|Long 1|Long 1|Boolean False",
+   "a.bin=c8"
+  ],
+  [
+   "put integer",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0201"
+  ],
+  [
+   "put long",
+   "|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=04030201"
+  ],
+  [
+   "put single",
+   "|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=0000c03f"
+  ],
+  [
+   "put double",
+   "|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=000000000000f83f"
+  ],
+  [
+   "put currency",
+   "|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=983a000000000000"
+  ],
+  [
+   "put date",
+   "|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=000000000067e540"
+  ],
+  [
+   "put boolean",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=ffff"
+  ],
+  [
+   "put longlong",
+   "|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=0500000000000000"
+  ],
+  [
+   "get byte",
+   "|Byte 200|Long 2|Long 1|Long 1|Boolean False",
+   "a.bin=c8"
+  ],
+  [
+   "get integer",
+   "|Integer 258|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0201"
+  ],
+  [
+   "get long",
+   "|Long 16909060|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=04030201"
+  ],
+  [
+   "get single",
+   "|Single 1.5|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=0000c03f"
+  ],
+  [
+   "get double",
+   "|Double 1.5|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=000000000000f83f"
+  ],
+  [
+   "get currency",
+   "|Currency 1.56|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=f03c000000000000"
+  ],
+  [
+   "get date",
+   "|Date 2022-11-01 00:00:00|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=0000000040e8e540"
+  ],
+  [
+   "get boolean",
+   "|Boolean True|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=ffff"
+  ],
+  [
+   "get longlong",
+   "|LongLong 5|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=0500000000000000"
+  ],
+  [
+   "put variant integer",
+   "|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=02000201"
+  ],
+  [
+   "put variant long",
+   "|Long 7|Long 6|Long 6|Boolean False",
+   "a.bin=030002010000"
+  ],
+  [
+   "put variant single",
+   "|Long 7|Long 6|Long 6|Boolean False",
+   "a.bin=04000000c03f"
+  ],
+  [
+   "put variant double",
+   "|Long 11|Long 10|Long 10|Boolean False",
+   "a.bin=0500000000000000f83f"
+  ],
+  [
+   "put variant currency",
+   "|Long 11|Long 10|Long 10|Boolean False",
+   "a.bin=0600983a000000000000"
+  ],
+  [
+   "put variant date",
+   "|Long 11|Long 10|Long 10|Boolean False",
+   "a.bin=0700000000000067e540"
+  ],
+  [
+   "put variant boolean",
+   "|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=0b00ffff"
+  ],
+  [
+   "put variant string",
+   "|Long 8|Long 7|Long 7|Boolean False",
+   "a.bin=08000300616263"
+  ],
+  [
+   "put variant byte",
+   "|Long 4|Long 3|Long 3|Boolean False",
+   "a.bin=110007"
+  ],
+  [
+   "put variant empty",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0000"
+  ],
+  [
+   "put variant null",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0100"
+  ],
+  [
+   "put variant decimal",
+   "|Long 19|Long 18|Long 18|Boolean False",
+   "a.bin=0e000e000100000000000f00000000000000"
+  ],
+  [
+   "put variant error",
+   "|Long 7|Long 6|Long 6|Boolean False",
+   "a.bin=0a0005000a80"
+  ],
+  [
+   "put variant empty string",
+   "|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=08000000"
+  ],
+  [
+   "put variant nothing",
+   "[E91:Object variable or With block variable not set]|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0000"
+  ],
+  [
+   "put random variant integer",
+   "|Long 2|Long 1|Long 4|Boolean False",
+   "a.bin=02000201"
+  ],
+  [
+   "put random variant long",
+   "|Long 2|Long 1|Long 6|Boolean False",
+   "a.bin=030002010000"
+  ],
+  [
+   "put random variant single",
+   "|Long 2|Long 1|Long 6|Boolean False",
+   "a.bin=04000000c03f"
+  ],
+  [
+   "put random variant double",
+   "|Long 2|Long 1|Long 10|Boolean False",
+   "a.bin=0500000000000000f83f"
+  ],
+  [
+   "put random variant currency",
+   "|Long 2|Long 1|Long 10|Boolean False",
+   "a.bin=0600983a000000000000"
+  ],
+  [
+   "put random variant date",
+   "|Long 2|Long 1|Long 10|Boolean False",
+   "a.bin=0700000000000067e540"
+  ],
+  [
+   "put random variant boolean",
+   "|Long 2|Long 1|Long 4|Boolean False",
+   "a.bin=0b00ffff"
+  ],
+  [
+   "put random variant string",
+   "|Long 2|Long 1|Long 7|Boolean False",
+   "a.bin=08000300616263"
+  ],
+  [
+   "put random variant byte",
+   "|Long 2|Long 1|Long 3|Boolean False",
+   "a.bin=110007"
+  ],
+  [
+   "put random variant empty",
+   "|Long 2|Long 1|Long 2|Boolean False",
+   "a.bin=0000"
+  ],
+  [
+   "put random variant null",
+   "|Long 2|Long 1|Long 2|Boolean False",
+   "a.bin=0100"
+  ],
+  [
+   "put random variant decimal",
+   "|Long 2|Long 1|Long 18|Boolean False",
+   "a.bin=0e000e000100000000000f00000000000000"
+  ],
+  [
+   "put random variant error",
+   "|Long 2|Long 1|Long 6|Boolean False",
+   "a.bin=0a0005000a80"
+  ],
+  [
+   "put random variant empty string",
+   "|Long 2|Long 1|Long 4|Boolean False",
+   "a.bin=08000000"
+  ],
+  [
+   "put random variant nothing",
+   "[E91:Object variable or With block variable not set]|Long 2|Long 1|Long 2|Boolean False",
+   "a.bin=0000"
+  ],
+  [
+   "put literal small",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0500"
+  ],
+  [
+   "put literal large",
+   "|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=70110100"
+  ],
+  [
+   "put literal float",
+   "|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=000000000000f83f"
+  ],
+  [
+   "put literal text",
+   "|Long 4|Long 3|Long 3|Boolean False",
+   "a.bin=616263"
+  ],
+  [
+   "put literal true",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=ffff"
+  ],
+  [
+   "put literal expression",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0200"
+  ],
+  [
+   "put literal concat",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=6162"
+  ],
+  [
+   "put string",
+   "|Long 4|Long 3|Long 3|Boolean False",
+   "a.bin=616263"
+  ],
+  [
+   "put string accented",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=e93f"
+  ],
+  [
+   "put string empty",
+   "|Long 1|Long 0|Long 0|Boolean False",
+   "a.bin="
+  ],
+  [
+   "put fixed",
+   "|Long 6|Long 5|Long 5|Boolean False",
+   "a.bin=6162632020"
+  ],
+  [
+   "put fixed long",
+   "|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=6162"
+  ],
+  [
+   "get string",
+   "|String abc|Long 4|Long 3|Long 5|Boolean False",
+   "a.bin=6162630000"
+  ],
+  [
+   "get string empty",
+   "|String |Long 1|Long 0|Long 3|Boolean False",
+   "a.bin=616263"
+  ],
+  [
+   "get string short",
+   "|String ab\\u005Cu0000\\u005Cu0000\\u005Cu0000|Long 6|Long 5|Long 2|Boolean True",
+   "a.bin=6162"
+  ],
+  [
+   "get fixed",
+   "|String abc|Long 4|Long 3|Long 5|Boolean False",
+   "a.bin=6162636465"
+  ],
+  [
+   "get fixed short",
+   "|String a\\u005Cu0000\\u005Cu0000|Long 4|Long 3|Long 1|Boolean True",
+   "a.bin=61"
+  ],
+  [
+   "get long short",
+   "|Long 513|Long 5|Long 4|Long 2|Boolean True",
+   "a.bin=0102"
+  ],
+  [
+   "get none left",
+   "|Long 0|Long 5|Long 4|Long 0|Boolean True",
+   "a.bin="
+  ],
+  [
+   "get double short",
+   "|Double 4.94065645841247E-324|Long 9|Long 8|Long 1|Boolean True",
+   "a.bin=01"
+  ],
+  [
+   "get string none",
+   "|String \\u005Cu0000\\u005Cu0000\\u005Cu0000|Long 4|Long 3|Long 0|Boolean True",
+   "a.bin="
+  ],
+  [
+   "get variant integer",
+   "|Integer 258|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=02000201"
+  ],
+  [
+   "get variant string",
+   "|String abc|Long 8|Long 7|Long 8|Boolean False",
+   "a.bin=0800030061626364"
+  ],
+  [
+   "get variant empty",
+   "|Empty|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0000"
+  ],
+  [
+   "get variant null",
+   "|Null|Long 3|Long 2|Long 2|Boolean False",
+   "a.bin=0100"
+  ],
+  [
+   "get variant bad",
+   "[E458:Variable uses an Automation type not supported in Visual Basic]|Empty|Long 1|Long 0|Long 5|Boolean False",
+   "a.bin=6300010203"
+  ],
+  [
+   "get variant none",
+   "|Empty|Long 3|Long 2|Long 0|Boolean True",
+   "a.bin="
+  ],
+  [
+   "put fixed array",
+   "|Long 13|Long 12|Long 12|Boolean False",
+   "a.bin=010000000200000003000000"
+  ],
+  [
+   "put dynamic array",
+   "|Long 13|Long 12|Long 12|Boolean False",
+   "a.bin=010000000200000003000000"
+  ],
+  [
+   "put byte array",
+   "|Long 4|Long 3|Long 3|Boolean False",
+   "a.bin=010203"
+  ],
+  [
+   "put two dimensions",
+   "|Long 9|Long 8|Long 8|Boolean False",
+   "a.bin=0100020003000400"
+  ],
+  [
+   "put string array",
+   "|Long 8|Long 7|Long 7|Boolean False",
+   "a.bin=01006102006263"
+  ],
+  [
+   "put variant array",
+   "|Long 22|Long 21|Long 21|Boolean False",
+   "a.bin=0c2001000200000000000000020001000800010062"
+  ],
+  [
+   "put variant byte array",
+   "|Long 15|Long 14|Long 14|Boolean False",
+   "a.bin=1120010002000000000000000700"
+  ],
+  [
+   "put unsized array",
+   "|Long 1|Long 0|Long 0|Boolean False",
+   "a.bin="
+  ],
+  [
+   "put array element",
+   "|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=07000000"
+  ],
+  [
+   "get fixed array",
+   "|Long 1|Long 2|Long 9|Long 8|Long 12|Boolean False",
+   "a.bin=010000000200000003000000"
+  ],
+  [
+   "get dynamic array",
+   "|Byte 1|Byte 3|Long 4|Long 3|Long 5|Boolean False",
+   "a.bin=0102030405"
+  ],
+  [
+   "get unsized array",
+   "[E9:Subscript out of range]|Long 1|Long 0|Long 5|Boolean False",
+   "a.bin=0102030405"
+  ],
+  [
+   "get string array",
+   "|String a|String \\u005Cu0000cde\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000\\u005Cu0000|Long 616|Long 615|Long 9|Boolean True",
+   "a.bin=010061620200636465"
+  ],
+  [
+   "get array element",
+   "|Byte 1|Long 2|Long 1|Long 2|Boolean False",
+   "a.bin=0102"
+  ],
+  [
+   "put record",
+   "|Integer 9|Long 10|Long 9|Long 9|Boolean False",
+   "a.bin=010000007879020003"
+  ],
+  [
+   "put record text",
+   "|Long 11|Long 10|Long 10|Boolean False",
+   "a.bin=01000000030061626302"
+  ],
+  [
+   "put record variant",
+   "|Long 13|Long 12|Long 12|Boolean False",
+   "a.bin=010000000800030061626302"
+  ],
+  [
+   "put record array",
+   "|Long 6|Long 5|Long 5|Boolean False",
+   "a.bin=0100020003"
+  ],
+  [
+   "put record dynamic",
+   "|Long 16|Long 15|Long 15|Boolean False",
+   "a.bin=010002000000000000000100020003"
+  ],
+  [
+   "put nested",
+   "|Long 11|Long 10|Long 10|Boolean False",
+   "a.bin=01000000787900000005"
+  ],
+  [
+   "put records",
+   "|Long 19|Long 18|Long 18|Boolean False",
+   "a.bin=010000000000000000020000000000000000"
+  ],
+  [
+   "get record",
+   "|Long 1|String xy|Integer 2|Byte 3|Long 10|Long 9|Long 9|Boolean False",
+   "a.bin=010000007879020003"
+  ],
+  [
+   "get record text",
+   "|Long 1|String abc|Byte 2|Long 11|Long 10|Long 10|Boolean False",
+   "a.bin=01000000030061626302"
+  ],
+  [
+   "put at a place",
+   "|Long 7|Long 6|Long 6|Boolean False",
+   "a.bin=000000000100"
+  ],
+  [
+   "put then back",
+   "|Long 3|Long 5|Long 4|Long 4|Boolean False",
+   "a.bin=02000300"
+  ],
+  [
+   "put at zero",
+   "[E63:Bad record number][E63:Bad record number]|Long 1|Long 0|Long 0|Boolean False",
+   "a.bin="
+  ],
+  [
+   "get at a place",
+   "|Byte 3|Long 4|Byte 4|Long 5|Long 4|Long 5|Boolean False",
+   "a.bin=0102030405"
+  ],
+  [
+   "get at zero",
+   "[E63:Bad record number][E63:Bad record number]|Long 1|Long 0|Long 1|Boolean False",
+   "a.bin=01"
+  ],
+  [
+   "get past",
+   "|Byte 0|Long 51|Long 50|Long 1|Boolean True",
+   "a.bin=01"
+  ],
+  [
+   "seek past",
+   "|Long 50|Long 49|Long 1|Boolean False",
+   "a.bin=01"
+  ],
+  [
+   "measures",
+   "|Long 1|Long 0|Boolean False|Long 3|Long 2|Boolean False|Boolean False|Boolean True|Long 7|Long 6|Boolean True|Long 9|Long 9|Long 8|Long 5|Boolean True",
+   "a.bin=0102030405"
+  ],
+  [
+   "ctrl z",
+   "|Boolean False|Boolean False|Byte 26|Long 3|Long 2|Long 3|Boolean False",
+   "a.bin=011a02"
+  ],
+  [
+   "creates",
+   "",
+   "a.bin="
+  ],
+  [
+   "open twice",
+   "",
+   "a.bin="
+  ],
+  [
+   "open with input",
+   "[E55:File already open]",
+   "a.bin=61"
+  ],
+  [
+   "read only",
+   "|Long 1|Byte 97[E75:Path/File access error]",
+   "a.bin=61"
+  ],
+  [
+   "access read",
+   "|Byte 97[E75:Path/File access error]|Long 32",
+   "a.bin=61"
+  ],
+  [
+   "access write",
+   "[E75:Path/File access error]",
+   "a.bin=00"
+  ],
+  [
+   "access read missing",
+   "",
+   "a.bin="
+  ],
+  [
+   "access read write",
+   "",
+   "a.bin=00"
+  ],
+  [
+   "file attr",
+   "|Long 32|Long 32|Long 4",
+   "a.bin="
+  ],
+  [
+   "text in binary",
+   "|ab|c|String d|String e|Boolean True",
+   "a.bin=6162630d0a642c65"
+  ],
+  [
+   "print in binary",
+   "[E54:Bad file mode][E54:Bad file mode]|Long 1",
+   "a.bin=616263"
+  ],
+  [
+   "get in input",
+   "[E54:Bad file mode][E54:Bad file mode]",
+   "a.bin=61"
+  ],
+  [
+   "get in output",
+   "[E54:Bad file mode][E54:Bad file mode]",
+   "a.bin="
+  ],
+  [
+   "get closed",
+   "[E52:Bad file name or number][E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "random default",
+   "|Long 3|Long 2|Long 132",
+   "a.bin=010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000"
+  ],
+  [
+   "random no for",
+   "|Long 4",
+   "a.bin=01000000"
+  ],
+  [
+   "random len",
+   "|Long 4|Long 3|Long 16|Boolean False",
+   "a.bin=01000000000000000000000002000000"
+  ],
+  [
+   "random len tight",
+   "",
+   "a.bin=00000000"
+  ],
+  [
+   "random too long",
+   "[E59:Bad record length]|Long 0",
+   "a.bin="
+  ],
+  [
+   "random string",
+   "|Long 5",
+   "a.bin=0300616263"
+  ],
+  [
+   "random string full",
+   "",
+   "a.bin=0300616263"
+  ],
+  [
+   "random string over",
+   "[E59:Bad record length]|Long 0",
+   "a.bin="
+  ],
+  [
+   "random fixed",
+   "",
+   "a.bin=616263"
+  ],
+  [
+   "random record",
+   "|Integer 9|Long 9|Long 18",
+   "a.bin=010000007879020003010000007879020003"
+  ],
+  [
+   "random record long",
+   "",
+   "a.bin=010000000000000000"
+  ],
+  [
+   "random record short",
+   "[E59:Bad record length]",
+   "a.bin="
+  ],
+  [
+   "random record text",
+   "",
+   "a.bin=01000000030061626302"
+  ],
+  [
+   "random array",
+   "",
+   "a.bin=01000200"
+  ],
+  [
+   "random dynamic",
+   "[E59:Bad record length]",
+   "a.bin="
+  ],
+  [
+   "random dynamic two",
+   "[E59:Bad record length]",
+   "a.bin="
+  ],
+  [
+   "random variant array",
+   "",
+   "a.bin=0c200100010000000000000002000100"
+  ],
+  [
+   "random get",
+   "|Long 2|Long 3|Long 2|Long 3|Long 4|Boolean True|Long 0|Boolean True",
+   "a.bin=0100000000000200000000000300"
+  ],
+  [
+   "random get string",
+   "|String abc|Long 2",
+   "a.bin=030061626300000000"
+  ],
+  [
+   "random get string long",
+   "[E59:Bad record length]|String ",
+   "a.bin=6300616263"
+  ],
+  [
+   "random get record",
+   "|Long 1|String xy|Integer 2|Byte 3",
+   "a.bin=010000007879020003"
+  ],
+  [
+   "random get too long",
+   "[E59:Bad record length]|Long 0",
+   "a.bin=0100000000"
+  ],
+  [
+   "random get variant",
+   "|Integer 1",
+   "a.bin=0200010000"
+  ],
+  [
+   "random zero",
+   "[E63:Bad record number][E63:Bad record number][E63:Bad record number]",
+   "a.bin="
+  ],
+  [
+   "random seek",
+   "|Long 3|Integer 3|Long 4|Long 3",
+   "a.bin=010002000300"
+  ],
+  [
+   "random len bad",
+   "[E5:Invalid procedure call or argument][E6:Overflow]",
+   "a.bin= b.bin="
+  ],
+  [
+   "random len zero",
+   "[E5:Invalid procedure call or argument][E52:Bad file name or number][E52:Bad file name or number][E52:Bad file name or number][E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "random len minus",
+   "|Long 4|Long 4",
+   "a.bin=00000000"
+  ],
+  [
+   "random len one",
+   "|Long 3",
+   "a.bin=0000"
+  ],
+  [
+   "binary len",
+   "|Long 5",
+   "a.bin=00000000"
+  ],
+  [
+   "random text",
+   "[E54:Bad file mode][E54:Bad file mode][E54:Bad file mode][E54:Bad file mode][E54:Bad file mode]",
+   "a.bin=6162630d0a"
+  ],
+  [
+   "random twice",
+   "",
+   "a.bin="
+  ],
+  [
+   "random measures",
+   "|Long 1|Long 0|Boolean False|Long 0|Long 2|Long 1|Boolean False|Long 2",
+   "a.bin=0000"
+  ],
+  [
+   "lock all",
+   "",
+   "a.bin=010203"
+  ],
+  [
+   "lock range",
+   "",
+   "a.bin=010203"
+  ],
+  [
+   "lock twice",
+   "[E70:Permission denied]",
+   "a.bin=010203"
+  ],
+  [
+   "unlock unlocked",
+   "[E70:Permission denied][E70:Permission denied]",
+   "a.bin=010203"
+  ],
+  [
+   "unlock different",
+   "[E70:Permission denied]",
+   "a.bin=010203"
+  ],
+  [
+   "lock backwards",
+   "[E63:Bad record number]",
+   "a.bin=010203"
+  ],
+  [
+   "lock zero",
+   "[E63:Bad record number][E63:Bad record number]",
+   "a.bin=010203"
+  ],
+  [
+   "lock closed",
+   "[E52:Bad file name or number][E52:Bad file name or number]",
+   ""
+  ],
+  [
+   "lock output",
+   "",
+   "a.bin="
+  ],
+  [
+   "lock input",
+   "",
+   "a.bin=61"
+  ],
+  [
+   "lock random",
+   "",
+   "a.bin="
+  ],
+  [
+   "locked read",
+   "|Byte 1[E55:File already open]",
+   "a.bin=010203"
+  ],
+  [
+   "kill open binary",
+   "[E55:File already open]",
+   "a.bin=61"
+  ],
+  [
+   "copy open binary",
+   "[E55:File already open]",
+   "a.bin=61"
+  ],
+  [
+   "file len open binary",
+   "|Long 0|Long 4",
+   "a.bin=00000000"
+  ]
+ ]
+}

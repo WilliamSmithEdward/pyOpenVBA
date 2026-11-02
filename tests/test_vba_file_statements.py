@@ -66,8 +66,7 @@ def test_the_sandbox_refuses_it(statement: str) -> None:
         app.run('Probe.Go')
 
 
-@pytest.mark.parametrize('statement', ['Open "a" For Binary As #1', 'Open "a" For Random As #1', 'Open "a" As #1',
-                                       'Get #1, 1, x', 'Put #1, 1, x', 'Lock #1', 'Unlock #1', 'ChDrive "D"'])
+@pytest.mark.parametrize('statement', ['ChDrive "D"'])
 def test_what_is_not_implemented_yet_says_so(statement: str, tmp_path: Path) -> None:
     app = ExcelApplication(sandbox=False)
     app.add_workbook()

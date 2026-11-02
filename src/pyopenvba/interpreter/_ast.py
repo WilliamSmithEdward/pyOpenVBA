@@ -345,6 +345,9 @@ class OpenFile(Stmt):
     path: Expr | None = None
     mode: str = ""
     number: Expr | None = None
+    #: The Access clause: "", "read", "write" or "read write".
+    access: str = ""
+    length: Expr | None = None
 
 
 @dataclass(slots=True)
@@ -374,6 +377,27 @@ class FileCommand(Stmt):
 
     verb: str = ""
     args: list[Expr] = field(default_factory=lambda: [])
+
+
+@dataclass(slots=True)
+class FileRecord(Stmt):
+    """Get # or Put #."""
+
+    kind: str = ""
+    number: Expr | None = None
+    position: Expr | None = None
+    target: Expr | None = None
+
+
+@dataclass(slots=True)
+class FileLock(Stmt):
+    """Lock # or Unlock #."""
+
+    kind: str = ""
+    number: Expr | None = None
+    first: Expr | None = None
+    last: Expr | None = None
+    has_range: bool = False
 
 
 @dataclass(slots=True)

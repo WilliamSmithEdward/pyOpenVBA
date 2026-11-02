@@ -601,7 +601,9 @@ class HttpRequest(VBAObject):
             connection.settimeout(self.receive_wait)
             stream = connection
             if secure:
-                stream = ssl.create_default_context().wrap_socket(connection, server_hostname=host)
+                context = ssl.create_default_context()
+                context.minimum_version = ssl.TLSVersion.TLSv1_2
+                stream = context.wrap_socket(connection, server_hostname=host)
             stream.sendall(request)
             reply = http.client.HTTPResponse(stream, method=verb)
             reply.begin()

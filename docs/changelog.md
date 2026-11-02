@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- FormatColor.Parent and Application on a colour scale's colours. Parent
+  reads its ColorScaleCriterion.
+- 88 core reads everyday macros make measured against live Excel, in
+  `tests/fixtures/core_reads.json`. They cover ActiveCell, Selection, Areas,
+  the Parent and Application of formats and collections, Name's local
+  forms, sort fields, table style flags and text frame margins.
+
 - 319 more WorksheetFunction members measured against live Excel through
   both WorksheetFunction and Application, 355 calls in
   `tests/fixtures/worksheet_functions_more.json`. 347 answer as Excel
@@ -578,6 +585,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- Shape.Chart on a shape with no chart raises -2147024809, as Excel does,
+  not 1004. TextFrame.AutoSize reads the Boolean False, not 0.
 
 - WorksheetFunction members the type library types As String, such as
   Bin2Dec, Hex2Dec and ImAbs, hand a number back as its text, as Excel

@@ -461,6 +461,23 @@ class ChartObjects(VBACollection, ItemDefault, Created):
         self.sheet.chart_states[shape.shape_id] = ChartState(unique_base=base, next_unique=base)
         return ChartObject(self.sheet, shape)
 
+    @member
+    def Parent(self) -> object:
+        return self.sheet
+
+    @member
+    def Application(self) -> object:
+        return self.sheet.book.application
+
+    @member
+    def ShapeRange(self) -> object:
+        """The sheet's charts as one range (tests/fixtures/chart_areas.json)."""
+        return ShapeRange([ShapeObject(self.sheet, shape) for shape in self.sheet.shapes_ if shape.kind == 'chart'])
+
+    @member
+    def ProtectChartObject(self) -> object:
+        return False
+
     # -- every chart at once (tests/fixtures/chart_object_more.json)
 
     def _shared(self, name: str) -> object:
@@ -547,14 +564,115 @@ def active_chart(sheet: Worksheet) -> object:
 
 
 def selection(sheet: Worksheet) -> object:
-    """What the sheet has selected: its active chart's frame while one is active, else its range. A change to the
-    active chart selects its chart area, which the model does not answer (tests/fixtures/active_chart.json)."""
+    """What the sheet has selected: while a chart is active, its frame, chart area or plot area, else its range
+    (tests/fixtures/active_chart.json, tests/fixtures/chart_areas.json)."""
     chart = active_chart(sheet)
     if not isinstance(chart, Chart):
         return sheet.selection
-    if sheet.chart_area_selected:
-        raise VBAUnsupportedError("Selection while an active chart's chart area is selected is not implemented")
+    if sheet.chart_part == 'area':
+        return ChartArea(chart)
+    if sheet.chart_part == 'plot':
+        return PlotArea(chart)
     return ChartObject(sheet, chart.shape)
+
+
+class ChartArea(Created):
+    """The whole of an embedded chart: its frame's place, 5 points smaller each way, and its look
+    (tests/fixtures/chart_areas.json)."""
+
+    vba_type_name = 'ChartArea'
+
+    def __init__(self, chart: Chart) -> None:
+        self.chart = chart
+
+    @member
+    def Parent(self) -> object:
+        self.chart.admit_read()
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        self.chart.admit_read()
+        return 'Chart'
+
+    @member
+    def Left(self) -> object:
+        return ChartObject(self.chart.sheet, self.chart.shape).vba_get('Left', [])
+
+    @member
+    def Top(self) -> object:
+        return ChartObject(self.chart.sheet, self.chart.shape).vba_get('Top', [])
+
+    def inside(self, size: float) -> float:
+        self.chart.admit_read()
+        self.chart.sheet.dims.settle_shapes()
+        return points(emu(size)) - 5
+
+    @member
+    def Width(self) -> object:
+        return self.inside(self.chart.shape.width)
+
+    @member
+    def Height(self) -> object:
+        return self.inside(self.chart.shape.height)
+
+    @member
+    def Shadow(self) -> object:
+        self.chart.admit_read()
+        return bool(self.chart.state.shadow)
+
+    @member
+    def RoundedCorners(self) -> object:
+        self.chart.admit_read()
+        return self.chart.state.rounded
+
+    @method
+    def Select(self, Replace: object = MISSING) -> object:  # noqa: N803 - native named argument
+        # Selecting the chart area makes its chart the active one.
+        self.chart.admit_read()
+        ChartObject(self.chart.sheet, self.chart.shape).made_active('area')
+        return True
+
+
+class PlotArea(Created):
+    """Where a chart draws its series (tests/fixtures/chart_areas.json); its place, which Excel lays out, is not
+    modelled."""
+
+    vba_type_name = 'PlotArea'
+
+    def __init__(self, chart: Chart) -> None:
+        self.chart = chart
+
+    @member
+    def Parent(self) -> object:
+        self.chart.admit_read()
+        return self.chart
+
+    @member
+    def Application(self) -> object:
+        return self.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        self.chart.admit_read()
+        return 'Plot'
+
+    @member
+    def Position(self) -> object:
+        self.chart.admit_read()
+        if self.chart.state.original:
+            raise VBAUnsupportedError('The plot area position of an imported chart is not implemented')
+        return VBAInt(-4105, 'Long')
+
+    @method
+    def Select(self) -> object:
+        self.chart.admit_read()
+        ChartObject(self.chart.sheet, self.chart.shape).made_active('plot')
+        return True
 
 
 class ChartObject(Created):
@@ -603,13 +721,13 @@ class ChartObject(Created):
         self.made_active()
         return EMPTY
 
-    def made_active(self, *, area: bool = False) -> None:
+    def made_active(self, part: str = '') -> None:
         book = self.sheet.book
         if book.application.active_book is not book or book.active_sheet is not self.sheet:
             raise VBAUnsupportedError('Activating a chart on a sheet that is not active is not implemented')
         if not any(shape is self.shape for shape in self.sheet.shapes_):
             raise VBAUnsupportedError('Activating a deleted chart is not implemented')
-        self.sheet.active_chart, self.sheet.chart_area_selected = self.shape, area
+        self.sheet.active_chart, self.sheet.chart_part = self.shape, part
 
     @member
     def ZOrder(self) -> object:
@@ -790,9 +908,6 @@ class Chart(Created):
         self.admit_change()
         self.state.dirty = True
         self.sheet.drawing_changed()
-        if self.sheet.active_chart is self.shape:
-            # Changing the active chart selects its chart area (tests/fixtures/active_chart.json).
-            self.sheet.chart_area_selected = True
 
     @method
     def Activate(self) -> object:
@@ -882,6 +997,16 @@ class Chart(Created):
         return NOTHING
 
     @member
+    def ChartArea(self) -> object:
+        self.admit_read()
+        return ChartArea(self)
+
+    @member
+    def PlotArea(self) -> object:
+        self.admit_read()
+        return PlotArea(self)
+
+    @member
     def ShowAllFieldButtons(self) -> object:
         self.admit_read()
         return False
@@ -928,6 +1053,10 @@ class Chart(Created):
             # (tests/fixtures/chart_stacked.json).
             self.state.overlap = 100 if wanted in STACKED else 0
         self.state.chart_type = wanted
+        if self.sheet.active_chart is self.shape:
+            # A new type for the active chart selects its chart area; a title does not
+            # (tests/fixtures/active_chart.json, tests/fixtures/chart_areas.json).
+            self.sheet.chart_part = 'area'
         # A line chart turns every marker off; one with markers, or a scatter chart, turns those that were off back on.
         for entry in self.state.series:
             if wanted in (plain for plain, _ in LINE_PAIRS):

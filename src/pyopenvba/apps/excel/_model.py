@@ -2693,9 +2693,9 @@ class Worksheet(ExcelObject):
         self.write_gate: Gate | None = None
         self.active_cell_range: Range | None = None
         #: The embedded chart activated on the sheet, until a range is selected (tests/fixtures/active_chart.json), and
-        #: whether a change to it has selected its chart area, which the model does not answer as a Selection.
+        #: the part of it selected: "" for its frame, "area" for its chart area, "plot" for its plot area.
         self.active_chart: ShapeState | None = None
-        self.chart_area_selected = False
+        self.chart_part = ""
         #: What the sheet's XML part was called in the file it came from.
         self.part_name = ""
         #: False until a cell changes.  A sheet nobody wrote to is

@@ -7,6 +7,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Chart.ChartArea and PlotArea. The chart area is named Chart and reads
+  its chart object's Left and Top, its size less 5 points, and its shadow
+  and rounded corners. The plot area is named Plot, with an automatic
+  Position. Selecting either one activates the chart, and Selection then
+  reads that part. A new chart type for the active chart selects its chart
+  area, and a title does not, which ends the refusal of those Selection
+  reads. ChartObjects.Parent, Application, ShapeRange and
+  ProtectChartObject. Measured in `tests/fixtures/chart_areas.json`.
 - ActiveChart on Application, Workbook and Window, with ChartObject.Activate
   and Select. An activated embedded chart stays active until a range is
   selected or activated. It is kept per sheet and per workbook, and

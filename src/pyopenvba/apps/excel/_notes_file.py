@@ -85,7 +85,15 @@ def decoded(stored: str) -> str:
 
 
 def comment_xml(cell: str, author_id: int, note: Note) -> str:
-    """One note's <comment>."""
+    """One note's <comment>; a threaded comment's stand-in holds its thread's text, unformatted
+    (tests/fixtures/threaded_comments.json)."""
+    if note.thread:
+        from pyopenvba.apps.excel._threads import stand_in_text
+
+        text = stand_in_text(note.thread)
+        space = ' xml:space="preserve"' if text != text.strip() else ""
+        body = f"<text><t{space}>{encoded(text)}</t></text>"
+        return f'<comment ref="{cell}" authorId="{author_id}" shapeId="0" xr:uid="{note.uid}">{body}</comment>'
     text = note.text
     if not text:
         body = "<text/>"

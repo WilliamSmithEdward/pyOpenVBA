@@ -26,12 +26,13 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 from pyopenvba._a1 import MAX_COLUMNS, MAX_ROWS, Area
 from pyopenvba.apps.excel._creator import ItemDefault
 from pyopenvba.apps.excel._model import ExcelObject, Range
+from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -47,6 +48,7 @@ from pyopenvba.interpreter._values import (
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._model import Worksheet
+    from pyopenvba.apps.excel._threads import ThreadEntry
 
 #: A new note's box in pixels, 108 by 59.25 points, and how far it sits right of its cell and above it.
 WIDTH, HEIGHT = 144, 79
@@ -85,6 +87,9 @@ class Note:
     #: back as it arrived; each is "" once what it holds changes.
     comment_xml: str = ""
     shape_xml: str = ""
+    #: A threaded comment's comments, the thread's first and its replies, when the note is the thread's stand-in,
+    #: which the notes VBA sees leave out (see _threads).
+    thread: list[ThreadEntry] = field(default_factory=lambda: [])
 
 
 # --- where a box goes -----------------------------------------------------------------------------------------
@@ -233,6 +238,9 @@ def remove(sheet: Worksheet, row: int, column: int) -> None:
 
 def clear(sheet: Worksheet, areas: list[Area]) -> None:
     """Take the notes off the cells of the areas, as Clear, ClearComments and ClearNotes do."""
+    from pyopenvba.apps.excel._threads import refuse
+
+    refuse(sheet, list(areas), "Clearing the notes of")
     for row, column in [key for key in sheet.notes if any(area.contains(*key) for area in areas)]:
         remove(sheet, row, column)
 
@@ -329,6 +337,8 @@ def copied(target: Worksheet, notes: dict[tuple[int, int], Note], landing: list[
     """What a copy, or a paste of comments, does to the notes of the cells it lands on: each takes the note its
     source cell had, ``notes`` by the cell it lands on, as a new note in a box of its own, or none, which takes
     off the note it had (tests/fixtures/excel_model/, notes.json)."""
+    if any(note.thread for note in notes.values()):
+        raise VBAUnsupportedError("Copying a threaded comment is not implemented")
     clear(target, landing)
     for (row, column), note in notes.items():
         name, shape_id = next_named(target, "Comment")
@@ -444,7 +454,8 @@ class Comments(VBACollection, ItemDefault, ExcelObject):
         self.sheet = sheet
 
     def vba_items(self) -> list[object]:
-        return [Comment(self.sheet, *key) for key, _ in in_order(self.sheet)]
+        # A threaded comment's stand-in is no note of VBA's (tests/fixtures/threaded_comments.json).
+        return [Comment(self.sheet, *key) for key, note in in_order(self.sheet) if not note.thread]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         position = int(to_integer(index, "Long"))
@@ -595,7 +606,9 @@ def comment_of(target: Range) -> object:
     if not target.single:
         return NOTHING
     row, column = target.first.top, target.first.left
-    return NOTHING if note_at(target.sheet, row, column) is None else Comment(target.sheet, row, column)
+    found = note_at(target.sheet, row, column)
+    # A threaded comment's cell has no note (tests/fixtures/threaded_comments.json).
+    return NOTHING if found is None or found.thread else Comment(target.sheet, row, column)
 
 
 def note_text(target: Range, text: object, start: object, length: object) -> object:
@@ -604,6 +617,8 @@ def note_text(target: Range, text: object, start: object, length: object) -> obj
     (tests/fixtures/excel_model/)."""
     sheet, row, column = target.sheet, target.first.top, target.first.left
     note = note_at(sheet, row, column)
+    if note is not None and note.thread:
+        raise VBAUnsupportedError("NoteText on a cell with a threaded comment is not implemented")
     current = "" if note is None else note.text
     at = 0 if start is MISSING else int(to_integer(start, "Long")) - 1
     if at < 0:

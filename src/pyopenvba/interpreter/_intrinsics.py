@@ -88,7 +88,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "macid": "is a Mac file type",
     "imestatus": "reports the input method editor",
     "command": "reads the command line Office was started with",
-    "doevents": "yields to a message pump this does not have",
     "getobject": "attaches to a running application",
     "qbcolor": "is not implemented yet",
     "partition": "is not implemented yet",
@@ -1564,6 +1563,13 @@ def vba_getattr(interpreter: Interpreter, path: object) -> object:
 @intrinsic("Environ", "Expression", minimum=1)
 def vba_environ(interpreter: Interpreter, value: object) -> object:
     return interpreter.files.environment(value)
+
+@intrinsic("DoEvents")
+def vba_doevents(interpreter: Interpreter) -> object:
+    """Pump messages: what an asynchronous HTTP request waits for. Answers 0, the forms open here."""
+    for job in list(interpreter.pumped):
+        job()
+    return VBAInt(0, "Integer")
 
 
 @intrinsic("CreateObject", "Class", "ServerName", minimum=1)

@@ -35,8 +35,7 @@ NOT_YET = [
     'x = Shell("cmd")',
     'x = GetSetting("a", "b", "c")',
     'Set x = GetObject("", "Excel.Application")',
-    'Set x = CreateObject("MSXML2.XMLHTTP")',
-    'Set x = CreateObject("WinHttp.WinHttpRequest.5.1")',
+    'Set x = CreateObject("ADODB.Stream")',
     'x = CreateObject("Scripting.FileSystemObject").FileExists(folder)',
 ]
 
@@ -155,8 +154,8 @@ def test_a_declare_is_refused() -> None:
 
 
 #: The calls that reach the file system.
-_REACHING = {'open', 'read_bytes', 'write_bytes', 'read_text', 'write_text', 'is_file', 'is_dir', 'exists', 'mkdir',
-             'unlink', 'rmdir', 'stat', 'ZipFile', 'urlopen', 'socket', 'Popen', 'system', 'getenv'}
+_REACHING = {'create_connection', 'open', 'read_bytes', 'write_bytes', 'read_text', 'write_text', 'is_file', 'is_dir',
+             'exists', 'mkdir', 'unlink', 'rmdir', 'stat', 'ZipFile', 'urlopen', 'socket', 'Popen', 'system', 'getenv'}
 #: Functions that reach out behind a gate in every caller VBA can get to.
 _BEHIND_A_GATE = {
     ('apps/excel/_vbide.py', 'read_source_file'),  # VBComponents.Import, CodeModule.AddFromFile

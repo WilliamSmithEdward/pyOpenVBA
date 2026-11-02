@@ -23,6 +23,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- HTTP from VBA with `sandbox=False`: `CreateObject` makes `MSXML2.XMLHTTP`,
+  `MSXML2.ServerXMLHTTP` and `WinHttp.WinHttpRequest.5.1` on Python's own
+  sockets, on any platform. Each sends and answers as its Windows stack does,
+  headers and errors included. `DoEvents` now runs, answering 0, and finishes
+  an asynchronous request.
 - Font on a chart's text: the chart title, axis titles, tick labels, legend,
   data labels and chart area. It reads the theme's body font, at 18 point bold
   on the chart title, 10 point bold on an axis title and 10 point elsewhere.

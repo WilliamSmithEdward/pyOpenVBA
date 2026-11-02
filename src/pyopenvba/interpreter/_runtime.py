@@ -31,6 +31,7 @@ from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
 from pyopenvba.interpreter._files import FileTable, Spaces, TabTo
+from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
 from pyopenvba.interpreter._parse import parse_module
@@ -131,6 +132,8 @@ class Slot:
     #: The element type of a variable declared as a dynamic array (``Dim b() As Byte``), where
     #: ``declared`` is Variant; empty for every other variable.
     array_of: str = ""
+    #: Declared as an array of a fixed size, as distinct from a Variant that holds a copy of one.
+    fixed_array: bool = False
 
     def get(self) -> object:
         return self.value
@@ -1089,6 +1092,10 @@ class Interpreter:
         self.frames: list[Frame] = []
         #: The file numbers, current folder and Dir's list.
         self.files = FileTable(self)
+        #: What is left to do when VBA pumps messages at DoEvents: asynchronous HTTP requests (see _http).
+        self.pumped: list[Callable[[], None]] = []
+        #: XMLHTTP's cookies and logins, which all the objects of one program name share (see _http).
+        self.internet_sessions: dict[str, Sessions] = {}
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
         #: Every MsgBox and InputBox the run put up, in order.
@@ -2449,7 +2456,8 @@ class Interpreter:
                     continue
                 positional.append(MISSING)
                 continue
-            wants_slot = procedure is not None and by_ref(index, argument.name) and not argument.by_value
+            wants_slot = (name.lower() in getattr(target, "vba_slot_arguments", ()) and isinstance(
+                argument.value, A.Name)) or procedure is not None and by_ref(index, argument.name) and not argument.by_value
             value: object
             if wants_slot and isinstance(argument.value, A.Name):
                 value = self.lookup(argument.value.name, frame, want_slot=True)
@@ -2810,7 +2818,7 @@ class Interpreter:
                 array = self.make_array(bounds, declared, module, fixed=True)
                 if declaration.as_new:
                     array.auto_new = lambda: self.create(declared)
-                return Slot(array, "Variant")
+                return Slot(array, "Variant", fixed_array=True)
             # Unallocated until a ReDim: no dimensions, so LBound and UBound are error 9.
             return Slot(self.make_array([], declared, module), "Variant", declared)
         if declaration.as_new:

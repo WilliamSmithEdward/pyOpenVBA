@@ -179,6 +179,8 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             _read_sheet(sheet, sheet_xml, strings, stylesheet, metadata)
             _read_shapes(sheet, package, sheet_xml)
             _read_notes(sheet, package)
+            sheet.held_kinds = {kind for kind, _ in _sheet_relationships(package, part).values()} | {
+                marker for marker in ("oleObjects", "webPublishItems") if f"<{marker}" in sheet_xml}
             from pyopenvba.apps.excel._hyperlinks_file import read as read_links
 
             sheet.hyperlinks = read_links(sheet, sheet_xml, _sheet_relationships(package, part))
@@ -208,6 +210,8 @@ def load_workbook(application: Application, path: Path) -> Workbook:
             read_tab(sheet, sheet_xml)
     book.next_sheet_id = max((sheet.sheet_id for sheet in book.sheets_), default=0) + 1
     _read_threads(book, package)
+    book.held_kinds = {kind.rsplit("/", 1)[-1] for _, kind in _relationships(package).values()} | {
+        marker for marker in ("customWorkbookViews", "webPublishObjects") if f"<{marker}" in workbook_xml}
     from pyopenvba.apps.excel._windows import read_book_view
 
     read_book_view(book, workbook_xml)

@@ -774,6 +774,11 @@ class Application(ExcelObject):
         return self._require_book().vba_get("Sheets", [] if Index is MISSING else [Index])
 
     @member
+    def Charts(self, Index: object = MISSING) -> object:
+        """The active workbook's chart sheets (tests/fixtures/empty_collections.json)."""
+        return self._require_book().vba_get("Charts", [] if Index is MISSING else [Index])
+
+    @member
     def Worksheets(self, Index: object = MISSING) -> object:
         return self._require_book().vba_get("Worksheets", [] if Index is MISSING else [Index])
 
@@ -1362,6 +1367,9 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._threads import PersonList
 
         self.persons = PersonList()
+        #: The kinds of part a loaded workbook came with, its relationships' types and a few markers, which the
+        #: collections the model holds nothing in refuse to read as empty (see _empty_collections).
+        self.held_kinds: set[str] = set()
         self.queries_ = Queries(self)
         #: How the workbook first spelled each name its formulas use but it does not define, by lower case;
         #: None until a formula is written, when the formulas it has teach it.
@@ -1774,6 +1782,48 @@ class Workbook(ExcelObject):
     def Sheets(self, Index: object = MISSING) -> object:
         sheets = Sheets(self)
         return sheets if Index is MISSING else sheets.vba_get("Item", [Index])
+
+    def _empty(self, name: str, index: object = MISSING) -> object:
+        """A collection the model holds nothing in, refused for a workbook loaded with any (see
+        _empty_collections)."""
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        held = self.held_kinds.union(*(sheet.held_kinds for sheet in self.sheets_))
+        found = EmptyCollection(self, self, name, held)
+        return found if index is MISSING else found.vba_get("Item", [index])
+
+    @member
+    def Charts(self, Index: object = MISSING) -> object:
+        """No chart sheets: a workbook with one is refused as it opens (tests/fixtures/empty_collections.json)."""
+        return self._empty("Charts", Index)
+
+    @member
+    def Excel4MacroSheets(self, Index: object = MISSING) -> object:
+        return self._empty("Excel4MacroSheets", Index)
+
+    @member
+    def Excel4IntlMacroSheets(self, Index: object = MISSING) -> object:
+        return self._empty("Excel4IntlMacroSheets", Index)
+
+    @member
+    def XmlMaps(self, Index: object = MISSING) -> object:
+        return self._empty("XmlMaps", Index)
+
+    @member
+    def XmlNamespaces(self, Index: object = MISSING) -> object:
+        return self._empty("XmlNamespaces", Index)
+
+    @member
+    def CustomViews(self, Index: object = MISSING) -> object:
+        return self._empty("CustomViews", Index)
+
+    @member
+    def PublishObjects(self, Index: object = MISSING) -> object:
+        return self._empty("PublishObjects", Index)
+
+    @member
+    def SlicerCaches(self, Index: object = MISSING) -> object:
+        return self._empty("SlicerCaches", Index)
 
     @member
     def Worksheets(self, Index: object = MISSING) -> object:
@@ -2587,6 +2637,8 @@ class Worksheet(ExcelObject):
         #: The notes on the sheet's cells, which VBA calls comments, by cell in the order they were made (see
         #: _notes); True once one is added, changed, moved or removed, so a save writes them again.
         self.notes: dict[tuple[int, int], Note] = {}
+        #: The kinds of part a loaded sheet came with (see Workbook.held_kinds).
+        self.held_kinds: set[str] = set()
         #: The PNG SetBackgroundPicture gave the sheet, None for none; True once it changed, so a save writes it.
         self.background: bytes | None = None
         self.background_changed = False
@@ -2886,6 +2938,25 @@ class Worksheet(ExcelObject):
 
         notes = Comments(self)
         return notes if Index is MISSING else notes.vba_get("Item", [Index])
+
+    def _empty(self, name: str, index: object = MISSING) -> object:
+        from pyopenvba.apps.excel._empty_collections import EmptyCollection
+
+        found = EmptyCollection(self, self.book, name, self.held_kinds)
+        return found if index is MISSING else found.vba_get("Item", [index])
+
+    @member
+    def QueryTables(self) -> object:
+        """None on a sheet the model holds (tests/fixtures/empty_collections.json)."""
+        return self._empty("QueryTables")
+
+    @method
+    def OLEObjects(self, Index: object = MISSING) -> object:
+        return self._empty("OLEObjects", Index)
+
+    @member
+    def NamedSheetViews(self) -> object:
+        return self._empty("NamedSheetViews")
 
     @member
     def CommentsThreaded(self, Index: object = MISSING) -> object:

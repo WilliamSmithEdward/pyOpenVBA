@@ -60,6 +60,19 @@ _VARIANT: Final = frozenset({
     "randarray", "rtd", "sequence", "single", "sort", "sortby", "stockhistory", "transpose", "trend", "unique",
     "vlookup", "webservice", "xlookup",
 })
+#: WorksheetFunction members the type library types As String, which hand a number back as its text: Bin2Dec("1100")
+#: is "12" there and 12 from Application (tests/fixtures/worksheet_functions_more.json).
+_STRING: Final = frozenset({
+    "arraytotext", "asc", "bahttext", "base", "bin2dec", "bin2hex", "bin2oct", "clean", "complex", "concat", "dbcs",
+    "dec2bin", "dec2hex", "dec2oct", "dollar", "fixed", "hex2bin", "hex2dec", "hex2oct", "imabs", "imargument",
+    "imconjugate", "imcos", "imcosh", "imcot", "imcsc", "imcsch", "imdiv", "imexp", "imln", "imlog10", "imlog2",
+    "impower", "improduct", "imsec", "imsech", "imsin", "imsinh", "imsqrt", "imsub", "imsum", "imtan", "oct2bin",
+    "oct2dec", "oct2hex", "phonetic", "proper", "replace", "replaceb", "rept", "roman", "substitute", "text",
+    "textjoin", "trim", "unichar", "usdollar", "valuetotext",
+})
+#: Functions whose one-item answer stays an array given single values: RandArray(1, 1) is a one-item array, where
+#: Transpose(5) is 5 (tests/fixtures/worksheet_functions_more.json).
+_ALWAYS_ARRAY: Final = frozenset({"randarray"})
 def engine_name(name: str) -> str | None:
     """The formula engine's name for a WorksheetFunction member, where the engine has the function."""
     from pyopenvba.formula._calc import registry
@@ -76,7 +89,7 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     an array."""
     from pyopenvba.formula._calc import registry
     from pyopenvba.formula._calc.evaluator import Context
-    from pyopenvba.formula._calc.values import VALUE, ExcelError as EngineError
+    from pyopenvba.formula._calc.values import ExcelError as EngineError
 
     function = engine_name(name)
     assert function is not None
@@ -93,11 +106,16 @@ def call(application: Application, name: str, args: Any, named: Any, *, raising:
     now = calculator.now()
     context = Context(books, sheet.name, 1, 1, array=True, today=now.date(), now=now)
     entry = registry.FUNCTIONS[function]
+    if not entry.minimum <= len(nodes) <= entry.maximum:
+        # Too few or too many arguments is error 1004 through Application as well: Application.Xnpv(values, dates)
+        # (tests/fixtures/worksheet_functions_more.json).
+        raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     try:
-        found = registry.call(entry, context, nodes) if entry.minimum <= len(nodes) <= entry.maximum else VALUE
+        found = registry.call(entry, context, nodes)
     except EngineError as failure:
         found = failure.error
-    if single and isinstance(found, Array) and found.height == found.width == 1:
+    if (single and isinstance(found, Array) and found.height == found.width == 1
+            and name.lower() not in _ALWAYS_ARRAY):
         # Given single values, a function whose answer is one item hands back the item: Transpose(5) is 5.
         found = found.rows[0][0]
     return _returned(context, found, name, raising=raising)
@@ -243,6 +261,8 @@ def _returned(context: Context, found: Value, name: str, *, raising: bool) -> ob
         raise error(1004, f"Unable to get the {name} property of the WorksheetFunction class")
     if isinstance(found, Array) and raising and name.lower() not in _VARIANT:
         raise error(13, "Type mismatch")
+    if raising and isinstance(found, float) and name.lower() in _STRING:
+        return to_text(found)
     return answer(found, whole=whole)
 
 

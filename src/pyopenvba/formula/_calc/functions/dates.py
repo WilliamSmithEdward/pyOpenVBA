@@ -18,7 +18,7 @@ from pyopenvba.formula._calc.evaluator import Context
 from pyopenvba.formula._calc.functions.arithmetic import checked
 from pyopenvba.formula._calc.functions.common import numbers
 from pyopenvba.formula._calc.registry import R, V, function
-from pyopenvba.formula._calc.values import NUM, VALUE, Empty, ExcelError, Scalar, Value, read_date_time
+from pyopenvba.formula._calc.values import NUM, VALUE, Array, Empty, ExcelError, Scalar, Value, read_date_time
 
 
 def serial_of(context: Context, value: Scalar) -> int:
@@ -250,6 +250,12 @@ def DAYS360(context: Context, start: Scalar, end: Scalar, method: Scalar | None 
 def _holidays(context: Context, value: Value | None) -> set[int]:
     if value is None or isinstance(value, Empty):
         return set()
+    if isinstance(value, Array):
+        # A holiday given as text in an array is read as a date, as NETWORKDAYS(..,{"11/22/2012"}) reads it; VBA
+        # hands a Date in an array over so (tests/fixtures/worksheet_functions_more.json). pyOpenVBA's own
+        # (docs/formula_engine.md).
+        return {math.floor(context.number(item)) for row in value.rows for item in row
+                if isinstance(item, (float, str))}
     return {math.floor(day) for day in numbers(context, (value,))}
 
 

@@ -357,7 +357,11 @@ def NPV(context: Context, rate: Scalar, *values: Value) -> Value:
 def _series(context: Context, values: Value, when: Value) -> tuple[list[float], list[int]]:
     """XNPV's and XIRR's payments and their days, the first day earliest."""
     amounts = [_number(item) for item in matrix(context, values).items()]
-    days = [math.trunc(_number(item)) for item in matrix(context, when).items()]
+    # A date given as text in an array is read as a date, as a cell's XIRR({..},{"1/1/2008",..}) reads it; VBA hands
+    # a Date in an array over so (tests/fixtures/worksheet_functions_more.json). pyOpenVBA's own
+    # (docs/formula_engine.md).
+    days = [math.trunc(context.number(item) if isinstance(when, Array) and isinstance(item, str) else _number(item))
+            for item in matrix(context, when).items()]
     if len(amounts) != len(days) or not amounts:
         raise ExcelError(NUM)
     if any(day < days[0] for day in days):

@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- 319 more WorksheetFunction members measured against live Excel through
+  both WorksheetFunction and Application, 355 calls in
+  `tests/fixtures/worksheet_functions_more.json`. 347 answer as Excel
+  does. Eight statistical answers land a unit away in the fifteenth
+  significant digit, and the test marks them.
+
 - ChartGroup.HasDropLines, HasHiLoLines, HasUpDownBars and
   HasSeriesLines, read, set, saved and read back as Excel writes them.
   Drop lines are written in line and area charts, high-low lines and
@@ -572,6 +578,19 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- WorksheetFunction members the type library types As String, such as
+  Bin2Dec, Hex2Dec and ImAbs, hand a number back as its text, as Excel
+  does. Application still hands back the number.
+
+- Calling a worksheet function with too few or too many arguments raises
+  error 1004 through Application as well, as Excel does. It gave #VALUE!.
+
+- RandArray(1, 1) is a one-item array, as Excel gives it, not a number.
+
+- XIRR, XNPV, NETWORKDAYS and WORKDAY read a date given as text in an
+  array, as Excel's cells do, so a VBA array of Dates works there. They
+  gave #VALUE! or ignored the holidays.
 
 - A series NewSeries made, with no values yet, is saved with no values
   element, as Excel saves it. It was written with an empty list of

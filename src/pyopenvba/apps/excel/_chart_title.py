@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from pyopenvba._xml import escape_text
-from pyopenvba.apps.excel._chart_xml import shadow_markup
+from pyopenvba.apps.excel._chart_xml import TextLook, default_run, shadow_markup
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import member, setter
@@ -224,9 +224,11 @@ class TitleMembers(Created):
         self.title_restyle().shadow = wanted
 
 
-def title_element(look: TitleLook, *, text: str | None, linked_text: str = '', frame: str = '') -> str:
+def title_element(look: TitleLook, *, text: str | None, linked_text: str = '', frame: str = '',
+                  font: TextLook | None = None) -> str:
     """The title element: ``text`` typed in, the linked cell's text, or with neither Excel's automatic title; ``frame``
-    is the spPr Format set."""
+    is the spPr Format set, and ``font`` what Font set, which Excel writes in the paragraph's defaults and leaves the
+    typed run alone (tests/fixtures/chart_fonts.json)."""
     if look.rotation == VERTICAL:
         body = '<a:bodyPr rot="0" vert="wordArtVert"/>'
     elif look.rotation is not None:
@@ -235,8 +237,8 @@ def title_element(look: TitleLook, *, text: str | None, linked_text: str = '', f
         body = '<a:bodyPr/>'
     settings = (f' algn="{look.alignment}"' if look.alignment else '') + (
         '' if look.right_to_left is None else f' rtl="{int(look.right_to_left)}"')
-    paragraph = f'<a:pPr{settings}><a:defRPr/></a:pPr>'
-    formatted = look.rotation is not None or bool(settings)
+    paragraph = f'<a:pPr{settings}>{default_run(font)}</a:pPr>'
+    formatted = look.rotation is not None or bool(settings) or font is not None
     properties = ''
     if text is not None:
         run = f'<a:r><a:rPr lang="en-US"/><a:t>{escape_text(text)}</a:t></a:r>' if text else '<a:endParaRPr lang="en-US"/>'

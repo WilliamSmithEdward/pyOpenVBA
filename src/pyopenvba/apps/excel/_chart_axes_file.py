@@ -18,7 +18,7 @@ from pyopenvba.apps.excel._chart_axes import (
     TitleState,
 )
 from pyopenvba.apps.excel._chart_title import read_look, title_element
-from pyopenvba.apps.excel._chart_xml import format_number
+from pyopenvba.apps.excel._chart_xml import format_number, text_properties
 from pyopenvba.apps.excel._number_format import from_file, to_file
 from pyopenvba._xml import escape
 
@@ -275,7 +275,8 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
         major_lines = f"<c:majorGridlines>{lines_look}</c:majorGridlines>" if lines_look else "<c:majorGridlines/>"
         gridlines = (major_lines if axis.major_gridlines else "") + (
             "<c:minorGridlines/>" if axis.minor_gridlines else "")
-        own_look = element_markup(f"axis{axis.kind}", looks.get(f"axis{axis.kind}"))
+        own_look = element_markup(f"axis{axis.kind}", looks.get(f"axis{axis.kind}")) + text_properties(
+            result.element_fonts.get(f"tick{axis.kind}"))
         raw = re.sub(r'(<c:tickLblPos val="[^"]*"/>)', lambda found: found.group(1) + own_look, raw, count=1)
         raw = re.sub(r'(<c:axPos val="[bltr]"/>)(?:<c:majorGridlines/>)?', lambda found: found.group(1) + gridlines,
                      raw, count=1)
@@ -298,7 +299,8 @@ def generated(xml: str, result: ChartState, linked: Callable[[str], str] = lambd
             look = axis.title.look
             title = title_element(look, text=axis.title.text if axis.title.typed else None,
                                   linked_text=linked(look.formula) if look.formula else "",
-                                  frame=element_markup(f"title{axis.kind}", looks.get(f"title{axis.kind}")))
+                                  frame=element_markup(f"title{axis.kind}", looks.get(f"title{axis.kind}")),
+                                  font=result.element_fonts.get(f"title{axis.kind}"))
             # Title precedes numFmt/tick metadata in CT_CatAx and CT_ValAx.
             marker = re.search(r"<c:(?:numFmt|majorTickMark)\b", raw)
             if marker is not None:

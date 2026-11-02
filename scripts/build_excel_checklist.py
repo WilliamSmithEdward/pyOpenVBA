@@ -43,6 +43,7 @@ def bound_classes() -> dict[str, type]:
         _chart_axes,
         _chart_data_labels,
         _chart_error_bars,
+        _chart_fonts,
         _chart_format,
         _chart_points,
         _chart_trendlines,
@@ -92,7 +93,7 @@ def bound_classes() -> dict[str, type]:
                    _document_properties, _rich_text, _custom_properties, _error_checks,
                    _scenarios, _cell_format, _sparklines, _connections, _chart_data_labels, _chart_error_bars,
                    _chart_trendlines, _pivot_items, _threads, _workbook_settings, _shape_format, _chart_format,
-                   _chart_points):
+                   _chart_points, _chart_fonts):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

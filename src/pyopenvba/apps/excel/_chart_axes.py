@@ -855,6 +855,11 @@ class AxisTitle(TitleMembers):
         self.read()
         return self.axis.chart.format_of(self, f"title{self.axis.entry.kind}")
 
+    @member
+    def Font(self) -> object:
+        self.read()
+        return self.axis.chart.font_of(self, f"title{self.axis.entry.kind}", bold=True)
+
     @method
     def Delete(self) -> object:
         self.read()
@@ -941,6 +946,11 @@ class TickLabels(Created):
     @member
     def Name(self) -> object:
         return "Axis 1" if _plain(self.axis).numeric else "Axis 2"
+
+    @member
+    def Font(self) -> object:
+        self.axis.read()
+        return self.axis.chart.font_of(self, f"tick{self.axis.entry.kind}")
 
     @member
     def NumberFormat(self) -> object:

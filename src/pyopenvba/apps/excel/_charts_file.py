@@ -15,7 +15,8 @@ from typing import TYPE_CHECKING, NoReturn
 from pyopenvba._xml import attributes, escape as escape_attribute, escape_text, unescape
 from pyopenvba._relationships import in_office_order
 from pyopenvba._a1 import parse_reference
-from pyopenvba.apps.excel._chart_xml import BLANKS, CHART_KINDS, DATA_TABLE, legend_markup, CT_CHART, SeriesData, cache_markup, chart_frame, chart_part
+from pyopenvba.apps.excel._chart_xml import (BLANKS, CHART_KINDS, DATA_TABLE, CT_CHART, SeriesData, cache_markup, chart_frame,
+                                             chart_part, legend_markup, text_properties)
 from pyopenvba.apps.excel._charts import (MAX_CHART_POINTS, CHART_TYPES, STACKED, Chart, ChartState, Series, SeriesState,
                                           MARKER_AUTOMATIC, MARKER_NONE, MARKER_SYMBOLS, MARKER_UNREAD, marker_markup,
                                           category_levels, linked_title, referenced_values, shown_cells, shown_type)
@@ -549,13 +550,15 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         look = state.title_look
         title = title_element(look, text=state.title if state.title_typed else None,
                               linked_text=linked_title(sheet, look.formula) if look.formula else '',
-                              frame=element_markup('title', state.element_looks.get('title')))
+                              frame=element_markup('title', state.element_looks.get('title')),
+                              font=state.element_fonts.get('title'))
     frame = element_markup('legend', state.element_looks.get('legend'))
     if frame and state.legend_shadow is not None:
         raise VBAUnsupportedError('A legend with both a shadow and a Format look is not implemented')
     xml = chart_part(kind, data, title=title, title_deleted=state.title_deleted,
                      legend=legend_markup(state.legend_position, overlay=state.legend_overlay, shadow=state.legend_shadow,
-                                          deleted=state.legend_deleted, frame=frame)
+                                          deleted=state.legend_deleted, frame=frame,
+                                          text=text_properties(state.element_fonts.get('legend')))
                      if state.legend else "", axis_ids=state.axis_ids, blanks=state.blanks,
                      visible_only=state.visible_only, over_maximum=state.over_maximum,
                      not_available_as_blank=state.not_available_as_blank,
@@ -584,7 +587,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
     # The plot area's look follows all of that, and the chart area's follows the chart
     # (tests/fixtures/chart_element_format.json).
     xml = xml.replace('</c:plotArea>', element_markup('plot', state.element_looks.get('plot')) + '</c:plotArea>', 1)
-    area = element_markup('area', state.element_looks.get('area'))
+    area = element_markup('area', state.element_looks.get('area')) + text_properties(state.element_fonts.get('area'))
     if area and state.shadow is not None:
         raise VBAUnsupportedError('A chart area with both a shadow and a Format look is not implemented')
     xml = xml.replace('</c:chart><c:printSettings>', f'</c:chart>{area}<c:printSettings>', 1)

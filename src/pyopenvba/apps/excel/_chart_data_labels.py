@@ -220,6 +220,10 @@ class DataLabels(VBACollection, ItemDefault, Created):
             raise VBAUnsupportedError('DataLabels.Separator set to a constant is not implemented')
         self.change().separator = value
 
+    @member
+    def Font(self) -> object:
+        return self.series.chart.font_of(self, "labels", labels=self.look())
+
     # -- what new labels read
 
     @member

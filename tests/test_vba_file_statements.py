@@ -27,7 +27,7 @@ def seed(folder: Path, name: str) -> None:
 
 def files_of(folder: Path) -> str:
     found: list[str] = []
-    for path in sorted(folder.rglob('*')):
+    for path in sorted(folder.rglob('*'), key=lambda one: one.as_posix().casefold()):
         relative = path.relative_to(folder).as_posix()
         found.append(f'{relative}/' if path.is_dir() else f'{relative}={path.read_bytes().hex()}')
     return ' '.join(found)

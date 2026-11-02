@@ -37,7 +37,7 @@ def portable(code: str) -> str:
 @pytest.fixture(scope="module")
 def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp("characters").resolve()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(portable(RECORD["probe"]), name="Probe")
     return str(app.run("Probe.Probe", str(folder))).split("~"), folder
@@ -108,7 +108,7 @@ def test_rich_text_fits_as_excels(probe: dict[str, Any], tmp_path: Path) -> None
     """Each run's font counts in its row's height as a cell in that font would, and AutoFit measures each run in
     its own font, an italic run's reach after it; the file keeps the rows and columns Excel's does."""
     path = tmp_path / "fit.xlsx"
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_without(probe["macro"], UNMEASURED_FITS), name="Probe")
     got = str(app.run("Probe.Probe", str(path)))
@@ -121,7 +121,7 @@ def test_rich_text_fits_as_excels(probe: dict[str, Any], tmp_path: Path) -> None
 
 @pytest.mark.parametrize("name", UNMEASURED_FITS)
 def test_a_superscript_or_subscript_run_reports_itself_unsupported(name: str, tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_without(FIT["probes"][0]["macro"], [case for case in FIT["cases"] if case != name]), name="Probe")
     with pytest.raises(VBAUnsupportedError, match="superscript|subscript"):

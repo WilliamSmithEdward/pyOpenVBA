@@ -21,7 +21,7 @@ SOURCE = '\n'.join('' if any(marker in line for marker in GROWN) else line for l
 
 @pytest.fixture(scope='module')
 def answers() -> list[str]:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='StructureMovesProbe')
     return str(app.run('StructureMovesProbe.Probe')).split('@@@')
@@ -50,7 +50,7 @@ End Function
 
 
 def test_moved_shapes_save_where_the_rows_put_them(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(ROUND_TRIP.replace('{sep}', os.sep), name='RoundTrip')
     # Inserted above, the rectangle moves down a row; inserted through it, it grows a row (as the fixture's cases).

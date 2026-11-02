@@ -82,18 +82,22 @@ class SlideView:
 class PowerPointApplication:
     """PowerPoint, in memory: presentations, slides, shapes, and macros."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, sandbox: bool = True) -> None:
+        """``sandbox`` keeps running VBA from reaching outside the engine, which raises VBASandboxError; False
+        allows what pyOpenVBA implements of it. Python's own calls are not affected."""
         self.application = Application()
         self.interpreter = Interpreter(PowerPointBridge(self.application))
+        self.interpreter.sandbox = sandbox
+        self.application.interpreter = self.interpreter
 
     # --- state in -------------------------------------------------------------------
 
     @classmethod
-    def open(cls, path: str | Path, *, with_vba: bool = True) -> PowerPointApplication:
+    def open(cls, path: str | Path, *, with_vba: bool = True, sandbox: bool = True) -> PowerPointApplication:
         """Load a presentation, its slides, its shapes and its macros."""
         from pyopenvba.apps.powerpoint._io import load_presentation
 
-        app = cls()
+        app = cls(sandbox=sandbox)
         presentation = load_presentation(app.application, Path(path))
         app.application.presentations_.items.append(presentation)
         app.application.active = presentation

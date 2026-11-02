@@ -75,7 +75,7 @@ def written(base: Path, target: Path, attributes: str, children: dict[str, str])
 def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[list[str]], Path]:
     """Both parts run in the model: their readings and the folder their files are in."""
     folder = tmp_path_factory.mktemp("page_headers").resolve()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(portable(RECORD["build"]), name="Build")
     made = str(app.run("Build.Build", str(folder)))
@@ -102,17 +102,17 @@ def test_each_save_writes_excels_header_element(replayed: tuple[list[list[str]],
 def test_a_header_longer_than_excel_opens_is_refused(name: str, tmp_path: Path) -> None:
     length, excel = RECORD["too_long"][name]
     assert excel == "E1004:Method 'Open' of object 'Workbooks' failed"
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.save(tmp_path / "base.xlsx")
     written(tmp_path / "base.xlsx", tmp_path / "long.xlsx", "", {"oddHeader": "&C" + "a" * (length - 2)})
-    opened = ExcelApplication.open(tmp_path / "long.xlsx")
+    opened = ExcelApplication.open(tmp_path / "long.xlsx", sandbox=False)
     with pytest.raises(VBAUnsupportedError, match="longer than 255"):
         opened.evaluate("Worksheets(1).PageSetup.CenterHeader")
 
 
 def test_a_header_with_pictures_is_read_and_not_set(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.save(tmp_path / "base.xlsx")
     written(tmp_path / "base.xlsx", tmp_path / "pictures.xlsx", "", {"oddHeader": "&C&G"})
@@ -124,7 +124,7 @@ def test_a_header_with_pictures_is_read_and_not_set(tmp_path: Path) -> None:
     with zipfile.ZipFile(tmp_path / "pictures.xlsx", "w", zipfile.ZIP_DEFLATED) as package:
         for name, data in parts.items():
             package.writestr(name, data)
-    opened = ExcelApplication.open(tmp_path / "pictures.xlsx")
+    opened = ExcelApplication.open(tmp_path / "pictures.xlsx", sandbox=False)
     assert opened.evaluate("Worksheets(1).PageSetup.CenterHeader") == "&G"
     opened.add_module('Public Sub Retitle()\n    Worksheets(1).PageSetup.CenterHeader = "x"\nEnd Sub\n', name="Edit")
     with pytest.raises(VBAUnsupportedError, match="header pictures"):

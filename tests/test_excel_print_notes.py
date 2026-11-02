@@ -22,7 +22,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('print_notes')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='NotesProbe')
     return str(app.run('NotesProbe.Probe', str(folder))).split('@@@'), folder

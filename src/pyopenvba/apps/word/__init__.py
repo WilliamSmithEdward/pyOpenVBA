@@ -35,18 +35,22 @@ __all__ = ["Application", "Document", "ShapeObject", "WordApplication"]
 class WordApplication:
     """Word, in memory: documents, their text, their shapes, and macros."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, sandbox: bool = True) -> None:
+        """``sandbox`` keeps running VBA from reaching outside the engine, which raises VBASandboxError; False
+        allows what pyOpenVBA implements of it. Python's own calls are not affected."""
         self.application = Application()
         self.interpreter = Interpreter(WordBridge(self.application))
+        self.interpreter.sandbox = sandbox
+        self.application.interpreter = self.interpreter
 
     # --- state in -------------------------------------------------------------------
 
     @classmethod
-    def open(cls, path: str | Path, *, with_vba: bool = True) -> WordApplication:
+    def open(cls, path: str | Path, *, with_vba: bool = True, sandbox: bool = True) -> WordApplication:
         """Load a document, its text, its shapes and its macros."""
         from pyopenvba.apps.word._io import load_document
 
-        app = cls()
+        app = cls(sandbox=sandbox)
         document = load_document(app.application, Path(path))
         app.application.documents_.items.append(document)
         app.application.active = document

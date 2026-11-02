@@ -77,7 +77,7 @@ def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], 
     for name, saves in RECORD["sections"].items():
         if name in REFUSED:
             continue
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_workbook()
         app.add_module(RECORD["module"], name="Probe")
         answers[name] = str(app.run(name, *((str(folder) + "/",) if saves else ())))
@@ -95,7 +95,7 @@ def test_each_section_answers_as_excel_did(replayed: tuple[dict[str, str], Path]
 
 @pytest.mark.parametrize("section", list(REFUSED))
 def test_a_section_the_model_refuses_says_so(section: str) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["module"], name="Probe")
     with pytest.raises(VBAUnsupportedError):
@@ -226,7 +226,7 @@ End Function
 
 
 def _opened(workbook: str) -> ExcelApplication:
-    app = ExcelApplication.open(FIXTURES / workbook, with_vba=False)
+    app = ExcelApplication.open(FIXTURES / workbook, with_vba=False, sandbox=False)
     app.add_module(RECORD["module"] + _READ_BACK, name="Probe")
     return app
 
@@ -243,7 +243,7 @@ def test_the_workbook_excel_saved_lists_its_links_in_its_order() -> None:
 
 
 def test_the_workbook_excel_saved_saves_its_links_as_they_came(tmp_path: Path) -> None:
-    app = ExcelApplication.open(FIXTURES / "links.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / "links.xlsx", with_vba=False, sandbox=False)
     app.sheet(1).set_value("Z99", 5)
     again = _parts(app.save(tmp_path / "again.xlsx"))
     before = _parts(FIXTURES / "links.xlsx")
@@ -275,7 +275,7 @@ def test_a_dos_path_is_saved_relative_to_the_workbooks_folder() -> None:
 
 
 def test_a_dos_path_is_saved_relative_to_each_folder_the_workbook_is_saved_in(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub AddOne()\nWorksheets(1).Hyperlinks.Add Worksheets(1).Range("A1"), "C:\\docs\\file.xlsx"'
                    "\nEnd Sub\n", name="AddOne")

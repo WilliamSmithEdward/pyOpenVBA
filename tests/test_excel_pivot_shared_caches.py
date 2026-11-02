@@ -43,7 +43,7 @@ def built(folder: Path) -> ExcelApplication:
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     code = (RECORD["build"].replace("{steps}", RECORD["steps"]).replace("{scenarios}", body)
             .replace('folder & "\\" & name', f'folder & "{os.sep}" & name'))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     return app
 
@@ -107,7 +107,7 @@ def test_a_refresh_raises_the_events_excel_raises(how: str) -> None:
     """Each table of the cache, on whatever sheet, changes, is calculated and updates as Excel's do, and
     RefreshAll refreshes the caches from the last to the first."""
     measured = RECORD["events"]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module("Public Log As String\n", name="EventLog")
     app.add_module(measured["sink"], name="SharedSink", kind="class")
     app.add_module(measured["watch"], name="Watcher")

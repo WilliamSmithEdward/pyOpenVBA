@@ -73,7 +73,7 @@ def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[list[str]],
     here = Path.cwd()
     os.chdir(folder)
     try:
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_workbook()
         app.freeze_clock(NOW)
         app.add_module(RECORD["log"], name="CopyLog")
@@ -114,7 +114,7 @@ def test_a_copy_is_the_save_that_follows_it(replayed: tuple[list[list[str]], Pat
 
 def test_a_copy_elsewhere_of_a_workbook_linking_to_files_is_refused(tmp_path: Path) -> None:
     (tmp_path / "sub").mkdir()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Made(folder As String)\n'
                    '    Worksheets(1).Hyperlinks.Add Worksheets(1).Range("A3"), folder & "\\target.txt"\n'
@@ -147,7 +147,7 @@ def test_a_copy_elsewhere_of_a_workbook_linking_to_other_workbooks_is_refused(tm
                 else text.replace("<folder>", str(tmp_path)).encode("utf-8")
             package.writestr(name, data)
     (tmp_path / "sub").mkdir()
-    app = ExcelApplication.open(path)
+    app = ExcelApplication.open(path, sandbox=False)
     assert app.workbook.linked_books
     app.workbook.SaveCopyAs(str(tmp_path / "beside.xlsx"))
     with pytest.raises(VBAUnsupportedError, match="links to files"):
@@ -156,7 +156,7 @@ def test_a_copy_elsewhere_of_a_workbook_linking_to_other_workbooks_is_refused(tm
 
 
 def test_save_copy_as_without_a_name_text_gives_is_not_implemented(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     with pytest.raises(VBAUnsupportedError, match="without a filename"):
         app.workbook.SaveCopyAs()

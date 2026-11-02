@@ -51,7 +51,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], dict
                    .replace("{steps}", layout["steps"]) for layout in LAYOUTS)
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     code = RECORD["build"].replace("{layouts}", body).replace("{folder}\\", str(folder) + os.sep)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     session, reopened = str(app.run("Build")).split("~", 1)
     entries = [one.split("^", 1) for one in session.split("|") if "^" in one]
@@ -94,7 +94,7 @@ def test_the_file_holds_each_date_filter_as_excel_saved_it(
 def test_a_classic_date_filter_reads_and_saves_as_excel_does(case: dict[str, Any], tmp_path: Path) -> None:
     """A file's filters element of dates reads back as xlFilterValues with the values beside it, shows the rows
     Excel showed, and is saved again as the file had it."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(RECORD["read"], name="Reader")
     saved = tmp_path / "resaved.xlsx"
     shown = dict(one.split("^", 1) for one in str(app.run("Read", str(FIXTURES / f"{case['name']}.xlsx"),

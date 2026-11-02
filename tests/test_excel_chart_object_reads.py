@@ -25,7 +25,7 @@ REOPEN = ('Public Function Reopen(ByVal path As String) As String\n    Dim wb As
 
 @pytest.fixture(scope='module')
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_workbook()
     made.add_module(SOURCE, name='ObjectReadsProbe')
     made.add_module(REOPEN, name='ObjectReadsReopen')

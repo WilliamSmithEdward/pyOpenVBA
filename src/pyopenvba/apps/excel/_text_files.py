@@ -189,6 +189,7 @@ def open_text(application: Application, path: Path, format_code: int | None) -> 
     from pyopenvba.apps.excel._model import Range, Workbook
     from pyopenvba.apps.excel._text_columns import typed_field
 
+    application.outside("Opening a text file")
     if not path.is_file():
         raise WorkbookFileError(f"there is no file at {path}")
     data = path.read_bytes()
@@ -245,6 +246,7 @@ def open_text_with(application: Application, path: Path, *, origin: object, star
     if origin is not MISSING:
         code = int(to_integer(origin, "Long"))
         settings.origin = _ORIGINS.get(code, code)
+    application.outside("Opening a text file")
     if not path.is_file():
         raise WorkbookFileError(f"there is no file at {path}")
     if path.suffix.lower() == ".csv":
@@ -518,6 +520,7 @@ def save_text(book: Workbook, target: Path, file_format: int, sheet: Worksheet |
                                                for column in range(left, right + 1)))
     text = "".join(f"{line}\r\n" for line in lines)
     errors = "surrogatepass" if writer.encoding == "utf-16-le" else "pyopenvba.question_marks"
+    book.application.outside("Saving a text file")
     target.write_bytes(writer.bom + text.encode(writer.encoding, errors=errors))
 
 

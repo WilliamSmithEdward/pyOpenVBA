@@ -30,7 +30,7 @@ REFUSED = {index for index, case in enumerate(RECORD['cases']) if 'ws.Range("A1:
 
 @pytest.fixture(scope='module')
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_workbook()
     made.add_module(RECORD['source'].replace('Private Function Tried', 'Public Function Tried')
                     .replace('folder & "\\', f'folder & "{os.sep}'), name='TableProbe')

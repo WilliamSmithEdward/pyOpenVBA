@@ -36,7 +36,7 @@ def shape_markup(path: Path) -> str:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[ExcelApplication, list[str], Path]:
     folder = tmp_path_factory.mktemp('shape_properties')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE + REOPEN, name='ShapeProbe')
     return app, str(app.run('ShapeProbe.Probe', str(folder))).split('@@@'), folder

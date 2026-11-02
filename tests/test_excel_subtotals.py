@@ -129,7 +129,7 @@ def cell_formats(path: Path, sheet: str) -> dict[str, str]:
 
 @pytest.fixture(scope="module")
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_module(ONE, name="Cases")
     return made
 
@@ -179,7 +179,7 @@ def test_the_file_formats_each_cell_as_excels_does(made: dict[str, tuple[Any, ..
 @pytest.fixture(scope="module")
 def excels_file_read() -> dict[str, str]:
     """Every sheet of the workbook Excel saved, as the model reads it."""
-    reader = ExcelApplication()
+    reader = ExcelApplication(sandbox=False)
     reader.add_module(RECORD["build"].split("Public Function Build", 1)[0] + '''
 Public Function ReadBack(path As String) As String
     Dim wb As Object, ws As Object, out As String
@@ -203,7 +203,7 @@ def test_excels_file_reads_as_excel_reads_it(excels_file_read: dict[str, str], n
 @pytest.mark.parametrize("dependent", [True, False], ids=["dependent", "plain"])
 def test_subtotal_raises_calculate_and_no_change(dependent: bool) -> None:
     """One Calculate for each Subtotal; RemoveSubtotal raises one only where a formula reads the list."""
-    watcher = ExcelApplication()
+    watcher = ExcelApplication(sandbox=False)
     watcher.add_module("Public Log As String\n", name="EventLog")
     watcher.add_module(RECORD["sink"], name="SubtotalSink", kind="class")
     watcher.add_module(RECORD["watch"], name="Watcher")

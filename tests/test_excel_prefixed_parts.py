@@ -69,7 +69,7 @@ def test_each_copy_spelled_again_is_the_workbook_it_was_made_from(case: dict[str
 @pytest.mark.parametrize("case", CASES, ids=lambda case: case["name"])
 def test_a_copy_reads_as_excel_reads_it(case: dict[str, Any]) -> None:
     """Every cell's formula, number format, bold and fill, each sheet's rules and tables, as Excel read them."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(RECORD["read"], name="Reader")
     assert app.run("Read", str(FOLDER / f"{case['name']}.xlsx"), "") == case["answer"]
 
@@ -77,7 +77,7 @@ def test_a_copy_reads_as_excel_reads_it(case: dict[str, Any]) -> None:
 def _saved(path: Path, target: Path) -> Path:
     """A workbook opened and saved, its clock held still, so its save time is the same however long the save
     takes."""
-    app = ExcelApplication.open(path, with_vba=False)
+    app = ExcelApplication.open(path, with_vba=False, sandbox=False)
     app.freeze_clock(datetime.datetime(2026, 10, 25, 12))
     return app.save(target)
 

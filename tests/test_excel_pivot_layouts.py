@@ -191,7 +191,7 @@ def built(folder: Path) -> ExcelApplication:
     # The macro Excel ran names its file under a Windows folder; here it goes under this system's.
     code = (RECORD["build"].replace("{steps}", RECORD["steps"]).replace("{source}", RECORD["source"])
             .replace("{layouts}", body).replace("{folder}\\", str(folder) + os.sep))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     return app
 
@@ -254,7 +254,7 @@ def test_the_cells_keep_excels_formats(formats: tuple[dict[str, dict[str, tuple[
 @pytest.fixture(scope="module")
 def excel_file_read() -> dict[str, str]:
     """Every table of the file Excel saved, as the model reads it."""
-    app = ExcelApplication.open(FIXTURES / "pivot_layouts.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / "pivot_layouts.xlsx", with_vba=False, sandbox=False)
     app.add_module(HELPER + "Public Function Read() As String\nDim ws As Object, out As String\n"
                    "For Each ws In ActiveWorkbook.Worksheets\n"
                    "If ws.PivotTables.Count > 0 Then out = out & ws.Name & \"^\" & Dump(ws.PivotTables(1)) & \"|\"\n"
@@ -268,7 +268,7 @@ def test_the_model_reads_excels_file_as_excel_does(excel_file_read: dict[str, st
 
 
 def test_merging_the_labels_reports_itself_unsupported() -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(
         "Public Sub Run()\nDim wb As Object, ws As Object, pt As Object\nSet wb = Workbooks.Add\n"
         'Set ws = wb.Worksheets(1)\nws.Range("A1:B1").Value = Array("Region", "Amount")\n'

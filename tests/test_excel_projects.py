@@ -17,7 +17,7 @@ MEASURED = json.loads((Path(__file__).parent / "fixtures/excel_projects.json").r
 
 @pytest.mark.parametrize("probe", MEASURED["probes"], ids=lambda probe: probe["name"])
 def test_excel_project_lookup(probe: dict[str, str], tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.save(tmp_path / "caller.xlsm")
     for name in ("alpha", "beta"):
@@ -41,12 +41,12 @@ def test_excel_project_lookup(probe: dict[str, str], tmp_path: Path) -> None:
 def test_opened_projects_keep_globals_documents_and_saved_source_separate(tmp_path: Path) -> None:
     paths: list[Path] = []
     for name, increment in (("alpha", 1), ("beta", 10)):
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_workbook()
         app.add_module(f'Public Count As Long\nPublic Function NextValue() As Long\nCount = Count + {increment}\nNextValue = Count\nEnd Function\nPublic Function DocumentIdentity() As String\nDocumentIdentity = Sheet1.Identity\nEnd Function', name="Counter")
         app.add_module('Public Function Identity() As String\nIdentity = Me.Name & ":" & ThisWorkbook.Name\nEnd Function', name="Sheet1", kind="document")
         paths.append(app.save(tmp_path / f"{name}.xlsm"))
-    app = ExcelApplication.open(paths[0])
+    app = ExcelApplication.open(paths[0], sandbox=False)
     other = app.open_workbook(paths[1])
     assert app.run("'alpha.xlsm'!NextValue") == 1
     assert app.run("'beta.xlsm'!NextValue") == 10
@@ -56,12 +56,12 @@ def test_opened_projects_keep_globals_documents_and_saved_source_separate(tmp_pa
     assert app.run("'beta.xlsm'!DocumentIdentity") == "Sheet1:beta.xlsm"
     app.add_module('Public Function NextValue() As Long\nNextValue = 99\nEnd Function', name="Counter", workbook=other)
     app.save(paths[1])
-    assert ExcelApplication.open(paths[1]).run("NextValue") == 99
-    assert ExcelApplication.open(paths[0]).run("NextValue") == 1
+    assert ExcelApplication.open(paths[1], sandbox=False).run("NextValue") == 99
+    assert ExcelApplication.open(paths[0], sandbox=False).run("NextValue") == 1
 
 
 def test_nested_project_error_restores_the_caller(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.save(tmp_path / "caller.xlsm")
     other = app.add_workbook()
@@ -78,7 +78,7 @@ def test_invalid_project_opens_as_a_complete_editable_project(tmp_path: Path) ->
         host.set_module("Module1", 'Public Function ValidAnswer() As Long\nValidAnswer = 42\nEnd Function')
         host.vba_project().add_module("BrokenModule", 'Public Function Broken(\nEnd Function')
         host.save()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     original = app.add_workbook()
     opened = app.open_workbook(path)
     assert app.workbooks() == [original, opened]
@@ -90,14 +90,14 @@ def test_invalid_project_opens_as_a_complete_editable_project(tmp_path: Path) ->
     assert {'module1', 'brokenmodule'} <= {entry.name.casefold() for entry in project.components.entries}
     with pytest.raises(VBACompileError):
         app.run("'broken.xlsm'!ValidAnswer")
-    blank = ExcelApplication()
+    blank = ExcelApplication(sandbox=False)
     other = blank.open_workbook(path)
     assert blank.workbooks() == [other]
     assert blank.interpreter.bridge.workbook is other
 
 
 def test_closed_workbook_cannot_be_called_by_name(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     book = app.add_workbook()
     app.add_module('Public Function Answer() As Long\nAnswer = 42\nEnd Function', name="Code")
     path = app.save(tmp_path / "closed.xlsm")
@@ -108,7 +108,7 @@ def test_closed_workbook_cannot_be_called_by_name(tmp_path: Path) -> None:
 
 
 def test_invalid_document_name_does_not_modify_project(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     book = app.add_workbook()
     app.save(tmp_path / "original.xlsm")
     with pytest.raises(ValueError, match="code name"):
@@ -123,12 +123,12 @@ OPEN = json.loads((Path(__file__).parent / "fixtures/workbook_open.json").read_t
 
 @pytest.mark.parametrize("probe", OPEN["probes"], ids=lambda probe: probe["name"])
 def test_workbook_open_events(probe: dict[str, str], tmp_path: Path) -> None:
-    target = ExcelApplication()
+    target = ExcelApplication(sandbox=False)
     book = target.add_workbook()
     target.add_module(OPEN["book"], name=book.code_name, kind="document")
     target.add_module(OPEN["sheet"], name="Sheet1", kind="document")
     target_path = target.save(tmp_path / "target.xlsm")
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.save(tmp_path / "caller.xlsm")
     app.add_module(OPEN["log"], name="EventLogModule")
@@ -161,7 +161,7 @@ End Function
 def watcher_files(tmp_path: Path) -> tuple[Path, Path]:
     paths: list[Path] = []
     for name in ("caller", "alpha"):
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_workbook()
         app.add_module(WATCHER, name="Listener", kind="class")
         app.add_module(WATCH_STATE, name="State")
@@ -171,7 +171,7 @@ def watcher_files(tmp_path: Path) -> tuple[Path, Path]:
 
 def test_shared_events_execute_in_each_subscribers_project(tmp_path: Path) -> None:
     caller, alpha = watcher_files(tmp_path)
-    app = ExcelApplication.open(caller)
+    app = ExcelApplication.open(caller, sandbox=False)
     app.open_workbook(alpha)
     target = app.add_workbook()
     sheet = target.sheets_[0]
@@ -210,7 +210,7 @@ def test_native_excel_executes_persisted_project_subscriptions(tmp_path: Path) -
 @pytest.mark.skipif(os.environ.get("RUN_LIVE_EXCEL") != "1", reason="requires isolated real Excel")
 def test_native_excel_executes_persisted_open_handlers(tmp_path: Path) -> None:
     harness = importlib.import_module("pyvbaharness")
-    target = ExcelApplication()
+    target = ExcelApplication(sandbox=False)
     book = target.add_workbook()
     target.add_module(OPEN["book"], name=book.code_name, kind="document")
     target.add_module(OPEN["sheet"], name="Sheet1", kind="document")

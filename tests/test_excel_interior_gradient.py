@@ -29,7 +29,7 @@ def _fills(path: Path) -> list[str]:
 @pytest.mark.parametrize("index", range(len(FIXTURE["cases"])))
 def test_interior_gradient_answers_as_live_excel_did(index: int, tmp_path: Path) -> None:
     statements, saved, answer = FIXTURE["cases"][index]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name="Measure")
     got = str(app.run("Measure.Probe", str(tmp_path), index, index))

@@ -535,6 +535,12 @@ number `Err` would hold, and `VBAUnsupportedError` for real VBA that
 pyOpenVBA does not implement. The third is never trappable by
 `On Error`: a gap here must not be swallowed and reported as a result.
 
+VBA runs in a sandbox by default: a macro that would touch a file, the
+network or another program raises `VBASandboxError`, while Python's own
+`app.save` and `open` work as ever. `ExcelApplication(sandbox=False)` lets
+VBA reach out through what pyOpenVBA implements. See
+[The sandbox](docs/vba_runtime.md#the-sandbox).
+
 Formulas are calculated, not just carried: write one from a macro and
 read the answer back.
 

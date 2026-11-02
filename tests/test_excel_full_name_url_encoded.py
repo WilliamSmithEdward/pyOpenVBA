@@ -19,7 +19,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 
 @pytest.fixture(scope='module')
 def answers(tmp_path_factory: pytest.TempPathFactory) -> list[str]:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='FullNameProbe')
     return str(app.run('FullNameProbe.Probe', str(tmp_path_factory.mktemp('full_name')))).split('@@@')

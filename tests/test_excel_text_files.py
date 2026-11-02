@@ -32,7 +32,7 @@ def replayed(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
     for steps in RECORD["sequences"].values():
         for file, _ in steps:
             (folder / file).write_bytes(RECORD["mixed"].encode("cp1252"))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["probe"], name="Probe")
     answers: dict[str, str] = {}

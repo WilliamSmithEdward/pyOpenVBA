@@ -29,7 +29,7 @@ def answered(text: str) -> list[list[str]]:
 @pytest.fixture(scope="module")
 def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[list[str]], Path]:
     folder = tmp_path_factory.mktemp("worksheet_settings").resolve()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["probe"], name="Settings")
     answer = str(app.run("Settings.Probe"))

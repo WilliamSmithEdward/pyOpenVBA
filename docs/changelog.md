@@ -5,6 +5,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Changed
+
+- VBA runs in a sandbox by default. Running VBA can no longer save, open or
+  export a file, which raises `VBASandboxError`. Pass `sandbox=False` to
+  `ExcelApplication`, `WordApplication` or `PowerPointApplication`, or to their
+  `open`, to allow it as before. Python's own `app.save` and `open` are not
+  affected. This breaks a macro that saves or opens files under the defaults.
+
 ### Added
 
 - Font on a chart's text: the chart title, axis titles, tick labels, legend,

@@ -36,7 +36,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> Path:
                    .replace("{saves}", saves[layout["name"]]) for layout in RECORD["layouts"])
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     code = RECORD["build"].replace("{layouts}", body).replace("{folder}\\", str(folder) + os.sep)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     assert app.run("Build") == "ok"
     return folder

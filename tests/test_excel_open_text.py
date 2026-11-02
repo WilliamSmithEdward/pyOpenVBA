@@ -31,7 +31,7 @@ def replayed(tmp_path_factory: pytest.TempPathFactory) -> dict[str, str]:
         (folder / file).write_bytes(RECORD["mixed"].encode("cp1252"))
     for file in RECORD["shared"]:
         (folder / file).write_bytes(base64.b64decode(RECORD["shared_text"]))
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["probe"], name="Probe")
 

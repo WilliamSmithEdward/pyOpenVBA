@@ -117,6 +117,7 @@ def load_workbook(application: Application, path: Path) -> Workbook:
     """A workbook read from an xlsx, xlsm, xlsb or xlam package."""
     from pyopenvba.apps.excel._model import Workbook
 
+    application.outside("Opening a workbook")
     if not path.exists():
         raise WorkbookFileError(f"there is no file at {path}")
     if path.suffix.lower() == ".xlsb":
@@ -1642,6 +1643,7 @@ def save_workbook(book: Workbook, target: Path, *, fresh_suffix: str | None = No
     from pyopenvba.apps.excel._document_properties import write as write_properties
 
     write_properties(book, package)
+    book.application.outside("Saving a workbook")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(package.serialize())
     book.package = package

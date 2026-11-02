@@ -26,7 +26,7 @@ RECORDS = sorted((FIXTURES / "pivot_cells").glob("*.json"))
 
 def dumped(record: dict[str, Any], path: Path) -> dict[str, list[str]]:
     """Each table's cells as the macro Excel ran dumps them in the model, from the workbook at ``path``."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(record["dump"], name="PivotCells")
     text = str(app.run("Dump", str(path)))
     return {key: cells.split("~") for key, cells in (one.split("^", 1) for one in text.split("`") if "^" in one)}
@@ -62,7 +62,7 @@ def test_the_models_own_layouts_answer_as_excels_do(tmp_path: Path) -> None:
 
 def test_a_cell_outside_every_pivot_table_has_no_pivot_cell() -> None:
     """Error 1004 from Range.PivotCell, PivotTable, PivotField and PivotItem where no table is."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(
         "Public Function Run() As String\nDim out As String, name As Variant, x As Object\nOn Error Resume Next\n"
         'For Each name In Array("PivotCell", "PivotTable", "PivotField", "PivotItem")\nErr.Clear\n'

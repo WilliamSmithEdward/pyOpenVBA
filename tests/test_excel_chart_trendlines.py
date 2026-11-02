@@ -28,7 +28,7 @@ REOPEN = ('Public Function Reopen(ByVal path As String) As String\n'
 
 @pytest.fixture(scope='module')
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_workbook()
     made.add_module(SOURCE, name='TrendlinesProbe')
     made.add_module(REOPEN, name='TrendlinesReopen')

@@ -34,7 +34,7 @@ def anchor_settings(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('chart_object_more')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='ChartObjectProbe')
     return str(app.run('ChartObjectProbe.Probe', str(folder))).split('@@@'), folder

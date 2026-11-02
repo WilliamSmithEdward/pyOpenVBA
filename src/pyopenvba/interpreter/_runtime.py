@@ -26,7 +26,7 @@ from functools import lru_cache
 from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
-from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBAUnsupportedError
+from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
@@ -1086,6 +1086,8 @@ class Interpreter:
         self.console: list[str] = []
         self.assertions: list[str] = []
         self.frames: list[Frame] = []
+        #: Whether running VBA is kept from reaching outside the engine (see outside).
+        self.sandbox = True
         #: Every MsgBox and InputBox the run put up, in order.
         self.dialogs: list[tuple[str, str, str, int]] = []
         #: What the next dialog answers with, oldest first.
@@ -1177,12 +1179,13 @@ class Interpreter:
     def create_com(self, class_name: str) -> object:
         from pyopenvba.interpreter._scripting import in_memory
 
-        found = in_memory(class_name, program=True)
+        found = in_memory(class_name, program=True, interpreter=self)
         if found is not None:
             return found
         made = self.host.create(class_name)
         if made is not UNRESOLVED:
             return made
+        self.outside(f"CreateObject({class_name!r})")
         raise VBAUnsupportedError(
             f"CreateObject({class_name!r}) needs a real COM server, which pyOpenVBA does not start"
         )
@@ -1194,6 +1197,13 @@ class Interpreter:
         return f"{frame.module.name}.{frame.procedure.name}"
 
     # --- running ---------------------------------------------------------------------
+
+    def outside(self, what: str) -> None:
+        """The gate on everything that reaches outside the engine, to run before it looks at anything out there:
+        refused while VBA is running with the sandbox on. Python calling the same code is not VBA, and passes."""
+        if self.sandbox and self.frames:
+            raise VBASandboxError(f"{what} reaches outside the engine, which is not supported with sandbox on; "
+                                  "sandbox=False allows what pyOpenVBA implements of it", where=self.current_where())
 
     def run(self, procedure_name: str, args: Sequence[object] = (), *, module: str = "",
             preserve_error: bool = False) -> object:
@@ -1931,6 +1941,8 @@ class Interpreter:
                    for held, key in self.event_sinks for owner in (held(),))
 
     def _do_unsupported(self, statement: A.Unsupported, frame: Frame) -> None:
+        if statement.reason != "the PC speaker":
+            self.outside(statement.text.split(" ")[0])
         raise VBAUnsupportedError(
             f"{statement.text.split(' ')[0]} is {statement.reason}, which pyOpenVBA does not implement",
             where=f"{frame.module.name}.{frame.procedure.name} line {statement.line}",
@@ -2272,6 +2284,7 @@ class Interpreter:
                 positional, named = self._arguments(args, frame, target=host, name=key)
                 return _dispatch_get(host, key, positional, named)
             if key in module.declares:
+                self.outside(f"{module.declares[key].name}, a Declare,")
                 raise VBAUnsupportedError(
                     f"{module.declares[key].name} is a Declare into "
                     f"{module.declares[key].library or 'a library'}, which pyOpenVBA cannot call"
@@ -2287,6 +2300,7 @@ class Interpreter:
                 positional, named = self._arguments(args, frame, procedure=procedure)
                 return self.call_value(procedure, runtime, positional, named)
             if key in runtime.declares and runtime.declares[key].name:
+                self.outside(f"{runtime.declares[key].name}, a Declare,")
                 raise VBAUnsupportedError(
                     f"{runtime.declares[key].name} is a Declare into "
                     f"{runtime.declares[key].library or 'a library'}, which pyOpenVBA cannot call"
@@ -2453,7 +2467,7 @@ class Interpreter:
         from pyopenvba.interpreter._scripting import in_memory
 
         # New Dictionary or New RegExp, with a reference to their library; a class module of that name comes first.
-        found = in_memory(key, program=False)
+        found = in_memory(key, program=False, interpreter=self)
         if found is not None:
             return found
         made = self.host.create(type_name_)

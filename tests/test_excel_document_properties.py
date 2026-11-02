@@ -135,7 +135,7 @@ def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, tuple[
 
 def _run(name: str, code: str, macro: str, *args: object) -> dict[str, tuple[str, str, str | None]]:
     """A case run in a model of its own; a failure stands in for its readings."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.application.user_name = USER
     app.freeze_clock(NOW)
     app.add_module(code, name="Cases")
@@ -184,7 +184,7 @@ def test_a_new_xlsx_declares_the_defaults_excels_does(replayed: tuple[dict[str, 
 
 
 def test_an_xlsm_declares_its_project(tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module("Public Sub Go()\nEnd Sub\n", name="Kept")
     app.save(tmp_path / "kept.xlsm")
@@ -194,7 +194,7 @@ def test_an_xlsm_declares_its_project(tmp_path: Path) -> None:
 
 
 def _saved_by(code: str, path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(code, name="Saver")
     app.run("Go", str(path))
@@ -215,7 +215,7 @@ def test_another_writers_value_type_keeps_custom_xml_as_it_is(tmp_path: Path) ->
             if info.filename == properties.CUSTOM_PART:
                 data = odd = data.replace(b"<vt:lpwstr>x</vt:lpwstr>", b"<vt:i8>5000000000</vt:i8>")
             package.writestr(info, data)
-    app = ExcelApplication.open(first)
+    app = ExcelApplication.open(first, sandbox=False)
     app.add_module("Public Function Count() As Long\nCount = ActiveWorkbook.CustomDocumentProperties.Count\n"
                    "End Function\nPublic Function Title() As String\nActiveWorkbook.BuiltinDocumentProperties"
                    '("Title").Value = "kept"\nTitle = ActiveWorkbook.BuiltinDocumentProperties("Title").Value\n'
@@ -252,7 +252,7 @@ def test_half_a_surrogate_pair_reports_itself(tmp_path: Path) -> None:
 @pytest.mark.parametrize("name", sorted(UNSUPPORTED))
 def test_what_the_model_does_not_do_reports_itself(tmp_path: Path, name: str) -> None:
     """A chart sheet among them, which Excel lists under a heading of its own, Charts, after the worksheets."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(ONE, name="Cases")
     with pytest.raises(VBAUnsupportedError):
         app.run("One", MADE.index(name), str(tmp_path))

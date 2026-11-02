@@ -98,6 +98,15 @@ class VBAUnsupportedError(VBAError):
     """
 
 
+class VBASandboxError(VBAUnsupportedError):
+    """Raised for VBA that would reach outside the engine while the sandbox is on.
+
+    Files, the network, other programs, the machine's settings.  The
+    application takes ``sandbox=False`` to allow what pyOpenVBA implements
+    of them.  Like its base it cannot be trapped by ``On Error``.
+    """
+
+
 class PowerQueryError(PyOpenVBAError):
     """Raised when a workbook's Power Query package cannot be read or written.
 

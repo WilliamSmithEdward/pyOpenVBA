@@ -35,7 +35,7 @@ def display_markup(path: Path) -> str:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[ExcelApplication, list[str], Path]:
     folder = tmp_path_factory.mktemp('chart_display')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='DisplayProbe')
     return app, str(app.run('DisplayProbe.Probe', str(folder))).split('@@@'), folder

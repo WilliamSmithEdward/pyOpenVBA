@@ -17,7 +17,7 @@ RECORD: dict[str, Any] = json.loads((FIXTURES / 'connections.json').read_text(en
 
 @pytest.fixture(scope='module')
 def answers() -> list[str]:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['source'], name='ConnectionsProbe')
     return str(app.run('ConnectionsProbe.Probe', str(FIXTURES / RECORD['file']))).split('~')

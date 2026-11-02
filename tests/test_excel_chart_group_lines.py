@@ -28,7 +28,7 @@ ELEMENTS = ('<c:dropLines/>', '<c:hiLowLines/>', '<c:upDownBars>', '<c:serLines/
 
 @pytest.fixture(scope='module')
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_workbook()
     made.add_module(SOURCE, name='GroupLinesProbe')
     made.add_module(REOPEN, name='GroupLinesReopen')

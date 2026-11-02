@@ -24,7 +24,7 @@ IGNORED = ('xr:uid', 'refreshedDate', 'refreshedBy', 'cacheId', 'r:id')
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], list[str], Path]:
     folder = tmp_path_factory.mktemp('pivot_properties')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='PropertiesProbe')
     reads, *answers = str(app.run('PropertiesProbe.Probe', str(folder))).split('@@@')

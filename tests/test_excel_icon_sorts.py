@@ -57,7 +57,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], dict
                    for layout in LAYOUTS)
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     code = RECORD["build"].replace("{layouts}", body).replace("{folder}\\", str(folder) + os.sep)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     session, reopened = str(app.run("Build")).split("~", 1)
     return (dict(one.split("^", 1) for one in session.split("|") if "^" in one),
@@ -91,7 +91,7 @@ def test_the_file_keeps_each_sort_on_icons_as_excel_does(made: tuple[dict[str, s
 
 
 def test_a_table_sort_on_icons_reports_itself() -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Probe()\nDim t As Object\nActiveSheet.Range("A1:A3").Value = 1\n'
                    'Set t = ActiveSheet.ListObjects.Add(xlSrcRange, ActiveSheet.Range("A1:A3"), , xlYes)\n'

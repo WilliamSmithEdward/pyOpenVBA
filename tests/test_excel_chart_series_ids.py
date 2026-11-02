@@ -30,7 +30,7 @@ def series_ids(path: Path) -> list[list[int]]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('chart_series_ids')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='IdsProbe')
     return str(app.run('IdsProbe.Probe', str(folder))).split('@@@'), folder

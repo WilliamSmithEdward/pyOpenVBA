@@ -52,7 +52,7 @@ def made(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], dict
     # The macro Excel ran names its files under a Windows folder; here they go under this system's.
     code = RECORD["build"].replace("{cases}", RECORD["cases"]).replace("{layouts}", body).replace(
         "{folder}\\", str(folder) + os.sep)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_module(code, name="Builder")
     session, reopened = str(app.run("Build")).split("~", 1)
     return (dict(one.split("^", 1) for one in session.split("|") if "^" in one),

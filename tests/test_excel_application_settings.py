@@ -33,7 +33,7 @@ def answered(text: str) -> list[list[str]]:
 @pytest.fixture(scope="module")
 def replayed(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[list[str]], Path]:
     folder = tmp_path_factory.mktemp("application_settings").resolve()
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     assert app.evaluate("Application.AskToUpdateLinks") is True
     app.add_module("Public Sub AsTheHarnessStarts()\n    Application.AskToUpdateLinks = False\nEnd Sub\n", name="Start")

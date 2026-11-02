@@ -27,6 +27,7 @@ from __future__ import annotations
 
 from collections.abc import Hashable, Iterator
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from pyopenvba.exceptions import VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBAObject, member, method, setter
@@ -42,6 +43,9 @@ from pyopenvba.interpreter._values import (
     to_number,
     type_name,
 )
+
+if TYPE_CHECKING:
+    from pyopenvba.interpreter._runtime import Interpreter
 
 #: The error for a key the dictionary has not got, which Remove and Key raise.
 ERR_NOT_FOUND = 32811
@@ -160,7 +164,7 @@ class Dictionary(VBAObject):
         yield from [key for key, _ in self._entries.values()]
 
 
-def in_memory(name: str, *, program: bool) -> VBAObject | None:
+def in_memory(name: str, *, program: bool, interpreter: Interpreter) -> VBAObject | None:
     """The object CreateObject makes for a program's name, or New for a class's, where pyOpenVBA makes it in
     memory; None for any other."""
     from pyopenvba.interpreter._regexp import RegExp
@@ -173,7 +177,12 @@ def in_memory(name: str, *, program: bool) -> VBAObject | None:
         made = {"scripting.dictionary": Dictionary, "dictionary": Dictionary,
                 "scripting.filesystemobject": FileSystemObject, "filesystemobject": FileSystemObject,
                 "vbscript_regexp_55.regexp": RegExp, "regexp": RegExp}.get(key)
-    return None if made is None else made()
+    if made is None:
+        return None
+    created = made()
+    if isinstance(created, FileSystemObject):
+        created.interpreter = interpreter
+    return created
 
 
 _SEPARATORS = "\\/"
@@ -203,6 +212,9 @@ class FileSystemObject(VBAObject):
 
     vba_type_name = "FileSystemObject"
     vba_library = "scripting"
+
+    #: Whose sandbox it answers to.
+    interpreter: Interpreter
 
     @method
     def GetFileName(self, Path: object = MISSING) -> object:
@@ -252,6 +264,7 @@ class FileSystemObject(VBAObject):
         from pyopenvba.interpreter._inventory import member_exists
 
         if member_exists(self.vba_type_name, name, self.vba_library):
+            self.interpreter.outside(f"FileSystemObject.{name}")
             return VBAUnsupportedError(f"FileSystemObject.{name} reaches the real file system, which pyOpenVBA "
                                        "does not do")
         return super().vba_no_member(name)

@@ -26,7 +26,7 @@ REOPEN = ('Public Function Reopen(ByVal path As String) As String\n    Dim wb As
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[ExcelApplication, list[str], Path]:
     folder = tmp_path_factory.mktemp('chart_data_labels')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE + REOPEN, name='LabelsProbe')
     return app, str(app.run('LabelsProbe.Probe', str(folder))).split('@@@'), folder

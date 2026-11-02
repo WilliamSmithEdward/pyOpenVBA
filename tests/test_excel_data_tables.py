@@ -37,7 +37,7 @@ GAPS: dict[str, str] = {}
     for name in PROBES])
 def test_a_data_table(name: str) -> None:
     probe = PROBES[name]
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(probe['macro'], name='Harness')
     if 'error' in probe:
@@ -53,7 +53,7 @@ _CELL = re.compile(r'<c r="([A-Z]+[0-9]+)"[^>]*?(?:/>|>.*?</c>)', re.DOTALL)
 
 def _saved(tmp_path: Path, name: str) -> tuple[dict[str, str], str]:
     """The cells and calcPr of the workbook Build fills, saved by the model after what Excel's was saved after."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(BUILD + f'\nSub Save()\nDim wb As Workbook\nSet wb = ActiveWorkbook\nBuild wb.Worksheets(1)\n'
                    f'{RECORD["files"][name]["step"]}\nEnd Sub\n', name='Harness')
@@ -111,7 +111,7 @@ UNSUPPORTED = {
 
 @pytest.mark.parametrize('name', list(UNSUPPORTED))
 def test_an_edit_the_model_does_not_carry_through_a_table(name: str) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(BUILD + f'\nSub Edit()\nDim ws As Worksheet\nSet ws = ActiveWorkbook.Worksheets(1)\nBuild ws\n'
                    f'ws.Range("A3").Value = 2000\n{UNSUPPORTED[name]}\nEnd Sub\n', name='Harness')
@@ -130,7 +130,7 @@ def _reader(app: ExcelApplication) -> str:
 
 def test_a_saved_table_opens_and_works_again(tmp_path: Path) -> None:
     _saved(tmp_path, 'tables')
-    app = ExcelApplication.open(tmp_path / 'tables.xlsx')
+    app = ExcelApplication.open(tmp_path / 'tables.xlsx', sandbox=False)
     model_changes = PROBES['model_changes']['result'].split('|')
     assert _reader(app) == '|'.join(['=TABLE(,A1)', '=TABLE(R2C1,R1C1)', model_changes[0], model_changes[4],
                                      '$G$2:$K$3', '-4105'])
@@ -141,7 +141,7 @@ def test_excel_finds_what_the_model_saved(tmp_path: Path) -> None:
     # the same way finds every cell's formula and value as Excel did, and after the model changes.
     for name in RECORD['files']:
         _saved(tmp_path, name)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['opened']['macro'].replace('{folder}', f'{tmp_path}{os.sep}'), name='Opening')
     assert app.run('Opening.Probe') == RECORD['opened']['result']
@@ -149,7 +149,7 @@ def test_excel_finds_what_the_model_saved(tmp_path: Path) -> None:
 
 def test_a_semiautomatic_workbook_opens_waiting(tmp_path: Path) -> None:
     _saved(tmp_path, 'semiautomatic')
-    app = ExcelApplication.open(tmp_path / 'semiautomatic.xlsx')
+    app = ExcelApplication.open(tmp_path / 'semiautomatic.xlsx', sandbox=False)
     values = PROBES['values']['result'].split('#')
     # Opened alone it brings its calculation, and the tables keep what the file holds when the model changes.
     assert _reader(app) == '|'.join(['=TABLE(,A1)', '=TABLE(R2C1,R1C1)', values[0].split('|')[0],

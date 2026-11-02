@@ -27,6 +27,7 @@ from pyopenvba.exceptions import (
     VBACompileError,
     VBAError,
     VBARuntimeError,
+    VBASandboxError,
     VBAUnsupportedError,
 )
 from pyopenvba.interpreter._lex import tokenize
@@ -72,6 +73,7 @@ __all__ = [
     "VBAInt",
     "VBAObject",
     "VBARuntimeError",
+    "VBASandboxError",
     "VBASingle",
     "VBAUnsupportedError",
     "member",

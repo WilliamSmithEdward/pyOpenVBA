@@ -24,7 +24,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('sparklines')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='SparklineProbe')
     return str(app.run('SparklineProbe.Probe', str(folder))).split('@@@'), folder
@@ -51,7 +51,7 @@ def test_each_save_writes_the_extension_excel_wrote(run: tuple[list[str], Path],
 @pytest.mark.parametrize('saved', ['two.xlsx', 'three.xlsx', 'styled.xlsx', 'elsewhere.xlsx'])
 def test_a_saved_file_gives_its_groups_back(run: tuple[list[str], Path], saved: str) -> None:
     """Reopened, a file's groups read as they did before the save, and an unchanged save keeps the extension."""
-    app = ExcelApplication.open(run[1] / saved)
+    app = ExcelApplication.open(run[1] / saved, sandbox=False)
     app.add_module('Function P() As String\n    Dim g As Object, s As String\n'
                    '    For Each g In Worksheets(1).Cells.SparklineGroups\n'
                    '        s = s & "|" & g.Type & " " & g.SourceData & " " & g.Location.Address & " " & g.LineWeight & '
@@ -64,7 +64,7 @@ def test_a_saved_file_gives_its_groups_back(run: tuple[list[str], Path], saved: 
 
 def test_a_row_put_in_on_a_sheet_with_sparklines_is_refused() -> None:
     """The model moves no sparkline."""
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Sub S()\n    ActiveSheet.Range("E1").SparklineGroups.Add xlSparkLine, "A1:D1"\n'
                    '    ActiveSheet.Rows(1).Insert\nEnd Sub\n', name='Edit')

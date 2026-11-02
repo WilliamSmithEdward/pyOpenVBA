@@ -20,7 +20,7 @@ CASES = {name: file for name, file, _ in RECORD["cases"]}
 
 @pytest.mark.parametrize("name", list(CASES))
 def test_each_save_is_excels(name: str, tmp_path: Path) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD["probe"], name="Probe")
     assert str(app.run("Probe.Probe", name, str(tmp_path / CASES[name]))) == RECORD["answers"][name]

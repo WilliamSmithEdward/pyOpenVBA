@@ -35,7 +35,7 @@ def saved(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('remove_document_information')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.application.vba_set('UserName', 'William Smith')
     app.add_workbook()
     app.add_module(SOURCE, name='RemovalProbe')

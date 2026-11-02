@@ -26,7 +26,7 @@ def test_native_source_file_operations(probe: dict[str, str | None], tmp_path: P
         # Native measurements use Windows separators. Keep the missing
         # parent-directory condition on POSIX runners as well.
         source = source.replace('\\missing\\source.bas', os.sep + 'missing' + os.sep + 'source.bas')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(source, name='Harness')
     result = app.run('Harness.Probe')
@@ -39,7 +39,7 @@ def test_native_source_file_operations(probe: dict[str, str | None], tmp_path: P
 
 
 def imported_workbook(tmp_path: Path) -> Path:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     project = app.workbook.VBProject()
     assert isinstance(project, VBProject)
@@ -56,7 +56,7 @@ def imported_workbook(tmp_path: Path) -> Path:
 
 def test_imported_standard_and_class_sources_persist_and_execute(tmp_path: Path) -> None:
     path = imported_workbook(tmp_path)
-    reopened = ExcelApplication.open(path)
+    reopened = ExcelApplication.open(path, sandbox=False)
     assert reopened.run('RunImports.Combined') == 84
     with ExcelFile(path) as host:
         assert 'VERSION 1.0 CLASS' not in host.get_module('ImportedClass')
@@ -64,7 +64,7 @@ def test_imported_standard_and_class_sources_persist_and_execute(tmp_path: Path)
 
 
 def test_python_source_edit_refreshes_existing_editor_buffer() -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     project = app.workbook.VBProject()
     assert isinstance(project, VBProject)

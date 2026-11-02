@@ -35,7 +35,7 @@ def drawing(path: Path) -> list[list[str]]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('shape_flip_order')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='FlipProbe')
     return str(app.run('FlipProbe.Probe', str(folder))).split('@@@'), folder
@@ -53,7 +53,7 @@ def test_each_drawing_as_excel_saved_it(run: tuple[list[str], Path], index: int)
 
 @pytest.mark.parametrize('index', range(len(RECORD['cases'])))
 def test_a_reopened_drawing_keeps_its_order_and_flips(run: tuple[list[str], Path], index: int) -> None:
-    reopened = ExcelApplication.open(run[1] / f'c{index}.xlsx', with_vba=False)
+    reopened = ExcelApplication.open(run[1] / f'c{index}.xlsx', with_vba=False, sandbox=False)
     again = run[1] / f'again{index}.xlsx'
     reopened.save(again)
     assert drawing(again) == RECORD['cases'][index][2]

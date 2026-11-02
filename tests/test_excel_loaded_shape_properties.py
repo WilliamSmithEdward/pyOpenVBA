@@ -34,7 +34,7 @@ def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('loaded_shape')
     for base in ('plain', 'set'):
         shutil.copyfile(FOLDER / f'{base}.xlsx', folder / f'{base}.xlsx')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='LoadedProbe')
     return str(app.run('LoadedProbe.Probe', str(folder))).split('@@@'), folder

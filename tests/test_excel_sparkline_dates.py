@@ -23,7 +23,7 @@ SOURCE = RECORD['source'].replace('folder & "\\', f'folder & "{os.sep}')
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('sparkline_dates')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='DatesProbe')
     return str(app.run('DatesProbe.Probe', str(folder))).split('@@@'), folder
@@ -45,7 +45,7 @@ def test_each_save_writes_the_group_excel_wrote(run: tuple[list[str], Path], sav
 
 @pytest.mark.parametrize('saved', ['dated.xlsx', 'cell.xlsx', 'absolute.xlsx'])
 def test_a_saved_date_range_reads_back(run: tuple[list[str], Path], saved: str) -> None:
-    app = ExcelApplication.open(run[1] / saved)
+    app = ExcelApplication.open(run[1] / saved, sandbox=False)
     app.add_module('Function P() As String\n    With Worksheets(1).Range("E1").SparklineGroups(1)\n'
                    '        P = .DateRange & " " & .Axes.Horizontal.IsDateAxis\n    End With\nEnd Function\n',
                    name='Reading')

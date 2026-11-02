@@ -136,8 +136,14 @@ def intrinsic(name: str, *parameters: str, minimum: int = 0) -> Callable[..., An
     return register
 
 
+#: What in an UNIMPLEMENTED reason says the name reaches outside the engine.
+_OUTSIDE: Final = ("real file", "registry", "environment", "another program", "running application")
+
+
 def _unimplemented(name: str, reason: str) -> Intrinsic:
     def refuse(interpreter: Interpreter, args: list[object], named: dict[str, object]) -> object:
+        if any(word in reason for word in _OUTSIDE):
+            interpreter.outside(name)
         raise VBAUnsupportedError(f"{name} {reason}, so pyOpenVBA does not implement it")
 
     return refuse

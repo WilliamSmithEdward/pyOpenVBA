@@ -30,6 +30,7 @@ def load_presentation(application: Application, path: Path) -> Presentation:
     """A presentation read from a pptx, pptm, potm or ppsm package."""
     from pyopenvba.apps.powerpoint._model import Presentation
 
+    application.outside("Opening a presentation")
     if not path.exists():
         raise PresentationFileError(f"there is no file at {path}")
     if path.suffix.lower() == ".ppt":
@@ -99,6 +100,7 @@ def _resolved(target: str, base: str) -> str:
 
 def save_presentation(presentation: Presentation, target: Path) -> None:
     """Write the presentation out, rewriting only the slides that changed."""
+    presentation.application.outside("Saving a presentation")
     package = presentation.package
     if package is None:
         raise PresentationFileError(

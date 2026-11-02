@@ -29,7 +29,7 @@ def geometries(path: Path) -> list[str]:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('shape_range_more')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='RangeProbe')
     return str(app.run('RangeProbe.Probe', str(folder))).split('@@@'), folder

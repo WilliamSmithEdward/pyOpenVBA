@@ -72,7 +72,7 @@ def model(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str], Pat
             "Calibri": (str(DIMENSIONS) + os.sep, target)}
     answers: dict[str, str] = {}
     for name, args in plan.items():
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_workbook()
         app.add_module(RECORD["module"], name="Probe")
         answers[name] = str(app.run(name, *args))
@@ -107,7 +107,7 @@ def test_a_saved_workbook_is_written_as_excel_wrote_it(model: tuple[dict[str, st
 
 
 def test_an_edge_two_cells_draw_reads_as_excel_reads_it() -> None:
-    app = ExcelApplication.open(FIXTURES / "shared_edges.xlsx", with_vba=False)
+    app = ExcelApplication.open(FIXTURES / "shared_edges.xlsx", with_vba=False, sandbox=False)
     app.add_module(EDGES["reader"] + "Public Function Run() As String\nRun = Edges(ActiveWorkbook.Worksheets(1))\n"
                    "End Function\n", name="Reader")
     ours = str(app.run("Run")).split("|")[: len(EDGES["pairs"])]
@@ -121,7 +121,7 @@ def test_an_edge_two_cells_draw_reads_as_excel_reads_it() -> None:
     'Dim v As Variant\nv = ActiveWorkbook.Styles("Input").Borders.LineStyle',
     'ActiveWorkbook.Styles("Good").Font.ThemeFont = 0'])
 def test_what_is_not_modelled_reports_itself(statement: str) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(f"Public Sub Run()\n{statement}\nEnd Sub\n", name="Probe")
     with pytest.raises(VBAUnsupportedError):
@@ -136,7 +136,7 @@ def changes(tmp_path_factory: pytest.TempPathFactory) -> tuple[dict[str, str | N
     target, source = str(folder) + os.sep, str(FIXTURES) + os.sep
     answers: dict[str, str | None] = {}
     for name, folders in CHANGES["sections"].items():
-        app = ExcelApplication()
+        app = ExcelApplication(sandbox=False)
         app.add_workbook()
         app.add_module(CHANGES["module"], name="Probe")
         try:

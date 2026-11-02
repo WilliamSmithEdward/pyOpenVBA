@@ -1064,6 +1064,11 @@ class Application(ExcelObject):
             raise error(ERR_APPLICATION_DEFINED, "no sheet is active")
         return sheet
 
+    def outside(self, what: str) -> None:
+        """The interpreter's gate on reaching outside the engine."""
+        if self.interpreter is not None:
+            self.interpreter.outside(what)
+
     def activate_book(self, book: Workbook, *, events: bool = True) -> None:
         from pyopenvba.apps.excel._windows import brought_forward
 
@@ -1168,6 +1173,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
             raise VBAUnsupportedError("Workbooks.Open with a CorruptLoad other than xlNormalLoad is not implemented")
         if Converter is not MISSING:
             raise VBAUnsupportedError("Workbooks.Open with a Converter is not implemented")
+        self.application.outside("Workbooks.Open")
         given = to_text(Filename)
         path = Path(given)
         if not path.is_file():
@@ -1206,6 +1212,7 @@ class Workbooks(VBACollection, ItemDefault, ExcelObject):
 
         if Filename is MISSING:
             raise error(449)
+        self.application.outside("Workbooks.OpenText")
         given = to_text(Filename)
         arguments = (Origin, StartRow, DataType, TextQualifier, ConsecutiveDelimiter, Tab, Semicolon, Comma, Space,
                      Other, OtherChar, FieldInfo, TextVisualLayout, DecimalSeparator, ThousandsSeparator,
@@ -2007,6 +2014,7 @@ class Workbook(ExcelObject):
         return EMPTY
 
     def _save(self) -> bool:
+        self.application.outside("Workbook.Save")
         if not self.path:
             if not _events.before_save(self, save_as_ui=True):
                 _events.after_save(self, False)
@@ -2043,6 +2051,7 @@ class Workbook(ExcelObject):
         """SaveAs; ``sheet`` is the sheet a text format writes, the active one where it is None."""
         from pyopenvba.apps.excel._text_files import text_writer
 
+        self.application.outside("Workbook.SaveAs")
         if Filename is MISSING:
             if not _events.before_save(self):
                 _events.after_save(self, False)
@@ -2084,6 +2093,7 @@ class Workbook(ExcelObject):
         from pyopenvba.apps.excel._io import prepare_format, save_workbook
         from pyopenvba.apps.excel._text_files import save_text, saved_as_text, text_writer
 
+        self.application.outside("Saving a workbook")
         if before and not _events.before_save(self):
             _events.after_save(self, False)
             return False
@@ -3372,6 +3382,7 @@ class Worksheet(ExcelObject):
         if not name:
             self.background, self.background_changed = None, True
             return EMPTY
+        self.book.application.outside("Worksheet.SetBackgroundPicture")
         path = Path(name)
         if not path.is_file():
             raise error(1004, "Method 'SetBackgroundPicture' of object '_Worksheet' failed")

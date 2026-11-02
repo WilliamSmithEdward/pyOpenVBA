@@ -80,7 +80,7 @@ def sheet_breaks(path: Path) -> dict[str, list[str]]:
 
 @pytest.fixture(scope="module")
 def app() -> ExcelApplication:
-    made = ExcelApplication()
+    made = ExcelApplication(sandbox=False)
     made.add_module(ONE, name="Cases")
     return made
 
@@ -127,7 +127,7 @@ def test_the_file_keeps_the_breaks_as_excels_does(made: dict[str, tuple[Any, ...
 @pytest.fixture(scope="module")
 def excels_file_read() -> dict[str, str]:
     """Every sheet of the workbook Excel saved but those with a print area, as the model reads it."""
-    reader = ExcelApplication()
+    reader = ExcelApplication(sandbox=False)
     skip = " ".join(UNSUPPORTED)
     reader.add_module(RECORD["build"].split("Public Function Build", 1)[0] + f'''
 Public Function ReadBack(path As String) As String

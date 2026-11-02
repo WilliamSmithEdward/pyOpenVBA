@@ -75,7 +75,7 @@ def _app(folder: Path, module: str = RECORD['module']) -> ExcelApplication:
     ``folder``."""
     for file in ('Dest.xlsx', 'Alpha.xlsx', 'Beta.xlsx', 'Plain.xlsx', 'Blank.xlsx', 'NamedAgain.xlsx'):
         _write(folder, file)
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(RECORD['sink'], name='LinkSink', kind='class')
     app.add_module(module, name='LinksProbe')
@@ -257,7 +257,7 @@ def test_a_save_writes_the_links_as_excel(file: str, tmp_path: Path) -> None:
     """Saved again with its links' workbooks closed, a link one of whose workbook's names a formula reads gains a
     sheet named after that workbook, once; and after a break the other link keeps only the cells still read."""
     source = _write(tmp_path, RESAVED[file])
-    app = ExcelApplication.open(source)
+    app = ExcelApplication.open(source, sandbox=False)
     if file == 'MixedAgain.xlsx':
         app.add_module(BREAK, name='Breaking')
         app.run('Breaking.Break')
@@ -285,7 +285,7 @@ BREAK = ('Sub Break()\nDim v As Variant\nv = ActiveWorkbook.LinkSources()\n'
 
 def test_a_protected_sheets_formulas_are_refused(tmp_path: Path) -> None:
     """Excel stops a break over a protected sheet's formulas with an alert DisplayAlerts does not hold back."""
-    app = ExcelApplication.open(_write(tmp_path, 'Dest.xlsx'))
+    app = ExcelApplication.open(_write(tmp_path, 'Dest.xlsx'), sandbox=False)
     app.add_module(BREAK.replace('v = ActiveWorkbook', 'ActiveWorkbook.Worksheets("Second").Protect\n'
                                                        'v = ActiveWorkbook', 1), name='Breaking')
     with pytest.raises(VBAUnsupportedError, match='protected'):
@@ -297,7 +297,7 @@ def test_a_link_a_validation_reads_is_refused(tmp_path: Path) -> None:
     from pyopenvba._a1 import Area
     from pyopenvba.apps.excel._validation import Rule
 
-    app = ExcelApplication.open(_write(tmp_path, 'Dest.xlsx'))
+    app = ExcelApplication.open(_write(tmp_path, 'Dest.xlsx'), sandbox=False)
     app.workbook.sheets_[0].validations.append(Rule([Area(1, 6, 1, 6)], kind=3, formula1='[2]Sheet1!$B$1:$B$5'))
     app.add_module(BREAK, name='Breaking')
     with pytest.raises(VBAUnsupportedError, match='validation'):
@@ -305,7 +305,7 @@ def test_a_link_a_validation_reads_is_refused(tmp_path: Path) -> None:
 
 
 def test_link_info_of_an_edition_is_refused(tmp_path: Path) -> None:
-    app = ExcelApplication.open(_write(tmp_path, 'Dest.xlsx'))
+    app = ExcelApplication.open(_write(tmp_path, 'Dest.xlsx'), sandbox=False)
     app.add_module('Function Edition() As Variant\nEdition = ActiveWorkbook.LinkInfo("Alpha.xlsx", 3, 1, 1)\n'
                    'End Function\n', name='Asking')
     with pytest.raises(VBAUnsupportedError, match='EditionRef'):
@@ -330,7 +330,7 @@ def test_a_workbook_with_a_dde_link(tmp_path: Path) -> None:
     with zipfile.ZipFile(path, 'w') as package:
         for name, data in parts.items():
             package.writestr(name, data)
-    app = ExcelApplication.open(path)
+    app = ExcelApplication.open(path, sandbox=False)
     app.add_module('Function Listed() As Long\nListed = UBound(ActiveWorkbook.LinkSources(xlExcelLinks))\n'
                    'End Function\nFunction Others() As Variant\nOthers = ActiveWorkbook.LinkSources(xlOLELinks)\n'
                    'End Function\n' + BREAK, name='Asking')

@@ -48,7 +48,7 @@ def drawn(path: Path) -> str:
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('shape_range_fill_line')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(_source(), name='RangeFillProbe')
     return str(app.run('RangeFillProbe.Probe', str(folder))).split('@@@'), folder
@@ -67,7 +67,7 @@ def test_each_shape_as_excel_saved_it(run: tuple[list[str], Path], index: int) -
 @pytest.mark.parametrize('statements', [*REFUSED, 'Set sr = ws.Shapes.Range(Array(d.Name, a.Name)): '
                                                   'sr.Fill.Visible = msoFalse'])
 def test_a_follow_up_too_strange_to_generalise_is_refused(statements: str) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Go()\n    Dim ws As Object, a As Object, b As Object, d As Object, sr As Object\n'
                    '    Set ws = ActiveSheet\n    Set a = ws.Shapes.AddShape(1, 10, 10, 100, 40)\n'

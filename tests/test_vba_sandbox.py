@@ -161,8 +161,8 @@ def test_a_declare_is_refused() -> None:
 
 
 #: The calls that reach the file system.
-_REACHING = {'read_bytes', 'write_bytes', 'read_text', 'write_text', 'is_file', 'is_dir', 'exists', 'mkdir', 'unlink',
-             'rmdir', 'stat', 'ZipFile', 'urlopen', 'socket', 'Popen', 'system', 'getenv'}
+_REACHING = {'open', 'read_bytes', 'write_bytes', 'read_text', 'write_text', 'is_file', 'is_dir', 'exists', 'mkdir',
+             'unlink', 'rmdir', 'stat', 'ZipFile', 'urlopen', 'socket', 'Popen', 'system', 'getenv'}
 #: Functions that reach out behind a gate in every caller VBA can get to.
 _BEHIND_A_GATE = {
     ('apps/excel/_vbide.py', 'read_source_file'),  # VBComponents.Import, CodeModule.AddFromFile

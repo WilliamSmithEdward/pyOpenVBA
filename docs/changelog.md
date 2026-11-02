@@ -15,6 +15,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Font on a chart's text: the chart title, axis titles, tick labels, legend,
+  data labels and chart area. It reads the theme's body font, at 18 point bold
+  on the chart title, 10 point bold on an axis title and 10 point elsewhere.
+  Name, Size, Bold, Italic, FontStyle, single Underline, Strikethrough, Color
+  and ColorIndex save as Excel writes them. Superscript is refused because
+  Excel reads it back and saves nothing. A chart area font beside another
+  element's font is refused because whether it reaches them was not measured.
 - Series.Points and Point, on the chart kinds the model makes. A point reads
   what its series gives until something is set of it, and a save writes a
   dPt for it in index order. Its Format, Explosion, InvertIfNegative and

@@ -485,6 +485,26 @@ def refresh(sheet: Worksheet, package: OpcFile) -> None:
         if updated != original:
             package.write(chart.part, updated.encode('utf-8'))
 
+def numeric_categories(categories: list[object], levels: list[list[str]]) -> bool:
+    """Whether a series' categories are numbers, which blanks leave them, all of them blank too
+    (tests/fixtures/chart_multilevel_categories.json)."""
+    return not levels and bool(categories) and all(
+        value is EMPTY or isinstance(value, (int, float)) and not isinstance(value, bool) for value in categories)
+
+
+def linked_formats(chart: Chart) -> tuple[str, str]:
+    """The number formats the category and value axes show while linked to their source: a category axis over numbers
+    takes the first category cell's, otherwise General, and the value axis the first series' first value cell's
+    (tests/fixtures/chart_category_type.json, tests/fixtures/chart_axis_parts.json)."""
+    if not chart.state.series:
+        return 'General', 'General'
+    item = chart.state.series[0]
+    categories = Series(chart, item).categories()
+    numeric = numeric_categories(categories, category_levels(chart.sheet, item) or [])
+    return (source_format(chart.sheet, item.category_reference) if numeric else 'General',
+            source_format(chart.sheet, item.value_reference))
+
+
 def markup(sheet: Worksheet, shape_id: int) -> str:
     shape = next(item for item in sheet.shapes_ if item.shape_id == shape_id)
     chart = Chart(sheet, shape)
@@ -493,9 +513,7 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         series = Series(chart, item)
         categories = series.categories()
         levels = category_levels(sheet, item) or []
-        # Blanks leave categories numbers, all of them blank too (tests/fixtures/chart_multilevel_categories.json).
-        numeric = not levels and bool(categories) and all(
-            value is EMPTY or isinstance(value, (int, float)) and not isinstance(value, bool) for value in categories)
+        numeric = numeric_categories(categories, levels)
         name_points = [text for row in shown_cells(sheet, item.name_reference) for text in row] if (
             item.name_reference and len(referenced_values(sheet, item.name_reference)) > 1) else []
         data.append(SeriesData(values=item.value_reference, value_cache=[_number(value) for value in series.values()],
@@ -540,6 +558,13 @@ def markup(sheet: Worksheet, shape_id: int) -> str:
         xml = re.sub(r'<c:(catAx|dateAx)>.*?</c:\1>', lambda found: found.group(0).replace(
             '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1),
             xml, count=1)
+    if data and data[0].value_format != 'General':
+        # The value axis shows its first value cell's format while linked (tests/fixtures/chart_axis_parts.json).
+        code = escape_attribute(data[0].value_format)
+        identifier = f'<c:axId val="{state.axis_ids[1]}"/>'
+        xml = re.sub(r'<c:valAx>.*?</c:valAx>', lambda found: found.group(0).replace(
+            '<c:numFmt formatCode="General" sourceLinked="1"/>', f'<c:numFmt formatCode="{code}" sourceLinked="1"/>', 1)
+            if found.group(0).startswith('<c:valAx>' + identifier) else found.group(0), xml)
     if state.data_table:
         # The data table closes the plot area, after the axes, on every kind (tests/fixtures/chart_series_more.json).
         xml = xml.replace('</c:plotArea>', DATA_TABLE + '</c:plotArea>', 1)

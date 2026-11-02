@@ -5,6 +5,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Added
+
+- One point's `DataLabel`: `Text`, `Caption`, `AutoText`, the `Show` members, `Position`,
+  `NumberFormat`, `Separator`, `Orientation`, `HorizontalAlignment`, `ReadingOrder`,
+  `Shadow`, `Font`, `Characters`, `Delete`, and a fill through `Format`. What is set of a
+  label stands apart from its series' labels and saves as Excel writes it. `AutoText =
+  False`, a formula, and a label's place and size are refused.
+
 ### Fixed
 
 - `StrConv(text, vbFromUnicode)` is a String, as in Excel, not a Byte array. A String

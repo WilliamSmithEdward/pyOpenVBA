@@ -5,11 +5,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, LabelLook
+from pyopenvba.apps.excel._chart_format import unmeasured
+from pyopenvba.apps.excel._chart_xml import LABEL_POSITIONS, LabelLook, TextLook
+from pyopenvba.apps.excel._charts import PointLabel, PointState
 from pyopenvba.apps.excel._creator import Created, ItemDefault
-from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.exceptions import VBARuntimeError, VBAUnsupportedError
 from pyopenvba.interpreter._objects import VBACollection, member, method, setter
-from pyopenvba.interpreter._values import VBAInt, error, to_bool, to_integer, to_text
+from pyopenvba.interpreter._format import vba_format
+from pyopenvba.interpreter._values import VBAInt, error, to_bool, to_integer, to_number, to_text
 
 if TYPE_CHECKING:
     from pyopenvba.apps.excel._charts import Series
@@ -18,7 +21,7 @@ if TYPE_CHECKING:
 #: areas and doughnuts, right of a line's or scatter's points, and best fit on a pie.
 DEFAULT_POSITIONS = {51: 2, 57: 2, 52: -4108, 4: -4152, 65: -4152, 5: 5, -4120: -4108, -4169: -4152, 1: -4108}
 #: The positions each measured chart type takes; another raises -2147467259 where the type was measured refusing one.
-TAKEN = {51: {3, -4108, 4, 2}, 57: {3, -4108, 4, 2}, 4: {0, 1, -4131, -4152}, 65: {0, 1, -4131, -4152}, 5: {5, 2}}
+TAKEN = {51: {3, -4108, 4, 2}, 57: {3, -4108, 4, 2}, 4: {0, 1, -4131, -4152}, 65: {0, 1, -4131, -4152}, 5: {5, 2, 3, -4108}}
 REFUSING = {51: {0}, 57: {0}, 1: {-4108}}
 
 
@@ -35,7 +38,7 @@ class DataLabels(VBACollection, ItemDefault, Created):
         entry = self.series.entry
         if self.series.chart.state.original:
             raise VBAUnsupportedError('The data labels of an imported chart are not implemented')
-        if not entry.data_labels or entry.label_generation != self.generation:
+        if not self.series.has_labels() or entry.label_generation != self.generation:
             if name == 'Parent':
                 raise error(-2147417848, 'Automation error\nThe object invoked has disconnected from its clients.')
             if name == 'Position':
@@ -45,6 +48,8 @@ class DataLabels(VBACollection, ItemDefault, Created):
 
     def change(self) -> LabelLook:
         look = self.look()
+        if not self.series.entry.data_labels:
+            raise unmeasured("Changing the labels of a series whose labels are on some points alone")
         self.series.chart.changed()
         return look
 
@@ -53,7 +58,7 @@ class DataLabels(VBACollection, ItemDefault, Created):
 
     def vba_items(self) -> list[object]:
         self.look()
-        return [DataLabel(self, index) for index in range(1, len(self.series.values()) + 1)]
+        return [DataLabel(self.series, index, self.generation) for index in range(1, len(self.series.values()) + 1)]
 
     def vba_lookup(self, index: object, items: list[object]) -> object:
         place = int(to_integer(index, 'Long'))
@@ -270,9 +275,615 @@ class DataLabels(VBACollection, ItemDefault, Created):
 
 
 class DataLabel(Created):
-    """One point's label, which the model reaches but does not read yet."""
+    """One point's label, as tests/fixtures/data_label.json measured it. What is set of it stands apart from its series'
+    labels, whatever is not set following them, and a label showing nothing is a deleted one.
 
-    vba_type_name = 'DataLabel'
+    AutoText = False and a formula write a field with a random id, and the place and size of a label depend on the
+    display, so they are refused."""
 
-    def __init__(self, labels: DataLabels | None, index: int) -> None:
-        self.labels, self.index = labels, index
+    vba_type_name = "DataLabel"
+
+    def __init__(self, series: Series, index: int, generation: int) -> None:
+        self.series, self.index, self.generation = series, index, generation
+
+    # -- where it stands
+
+    def _state(self) -> PointState | None:
+        return self.series.entry.points.get(self.index - 1)
+
+    def _stale(self) -> bool:
+        return self.series.entry.label_generation != self.generation
+
+    def _own(self) -> PointLabel:
+        state = self._state()
+        return state.label_own if state is not None else PointLabel()
+
+    def _held(self) -> PointLabel:
+        """Its state, made if it had none, with the unique id its dLbl takes."""
+        chart = self.series.chart
+        chart.changed()
+        state = self.series.entry.points.setdefault(self.index - 1, PointState())
+        if state.label_unique < 0:
+            state.label_unique, chart.state.next_unique = chart.state.next_unique, chart.state.next_unique + 1
+        return state.label_own
+
+    def _touched(self) -> None:
+        """Characters reads back from now on, with nothing in the file to show for it."""
+        self.series.entry.points.setdefault(self.index - 1, PointState()).label_own.touched = True
+
+    def _shown(self) -> bool:
+        state = self._state()
+        if state is not None and state.label is False:
+            return False
+        return any(self._flags().values())
+
+    def _flags(self) -> dict[str, bool]:
+        state = self._state()
+        look = self.series.entry.label_look
+        if state is not None and state.label is False:
+            return dict.fromkeys(("value", "category", "series", "legend_key", "percent", "bubble"), False)
+        base = {"value": look.value, "category": look.category, "series": look.series, "legend_key": look.legend_key,
+                "percent": look.percent, "bubble": look.bubble}
+        if state is not None and state.label is True and not self.series.entry.data_labels:
+            base = {"value": True, "category": False, "series": False, "legend_key": False, "percent": False,
+                    "bubble": False}
+        return {**base, **self._own().shows}
+
+    def _alive(self, name: str = "") -> None:
+        """The errors of a label that has gone: its series' labels taken away, or this one showing nothing."""
+        if self._stale():
+            if name == "Position":
+                raise error(-2147467259, "Automation error\nUnspecified error")
+            raise error(-2147467261, "Automation error\nInvalid pointer")
+
+    def _showing(self, name: str = "") -> None:
+        self._alive(name)
+        if not self._shown():
+            if name == "Position":
+                raise error(-2147467259, "Automation error\nUnspecified error")
+            raise error(-2147024809, "The parameter is incorrect.")
+
+    def _formatted(self) -> None:
+        if self._stale() or not self._shown():
+            raise error(1004, "Application-defined or object-defined error")
+
+    def _flag(self, field: str) -> object:
+        self._alive()
+        return self._flags()[field]
+
+    def _set_flag(self, field: str, value: object) -> None:
+        self._alive()
+        wanted = to_bool(value)
+        if wanted == self._flags()[field] and field not in self._own().shows and self._state() is None:
+            return
+        own = self._held()
+        own.shows[field] = wanted
+        own.touched = True
+        state = self._state()
+        if state is not None and not wanted and not any(self._flags().values()):
+            state.label = False
+            state.label_own = PointLabel()
+
+    def _point(self) -> object:
+        return self.series.vba_get("Points", [VBAInt(self.index, "Long")])
+
+    # -- identity
+
+    @member
+    def Parent(self) -> object:
+        self._alive()
+        return self._point()
+
+    @member
+    def Application(self) -> object:
+        return self.series.chart.sheet.book.application
+
+    @member
+    def Name(self) -> object:
+        self._alive()
+        return f"Text S{self.series.position()}P{self.index}"
+
+    # -- what it says
+
+    def _automatic(self) -> str:
+        flags = self._flags()
+        parts: list[str] = []
+        if flags["series"]:
+            parts.append(to_text(self.series.vba_get("Name", [])))
+        if flags["category"]:
+            categories = self.series.categories()
+            parts.append(to_text(categories[self.index - 1]))
+        value = self.series.values()[self.index - 1]
+        if flags["value"]:
+            parts.append(self._number(value))
+        if flags["percent"]:
+            total = sum(float(to_number(one)) for one in self.series.values())
+            parts.append(f"{round(float(to_number(value)) / total * 100)}%" if total else "0%")
+        separator = self._separator()
+        return (", " if separator is None else separator).join(parts)
+
+    def _number(self, value: object) -> str:
+        code = self._number_format()
+        return to_text(value) if code == "General" else to_text(vba_format(value, code))
+
+    def _number_format(self) -> str:
+        own = self._own().number_format
+        return own if own is not None else self.series.entry.label_look.number_format or "General"
+
+    def _linked(self) -> bool:
+        own = self._own()
+        return own.linked if own.linked is not None else self.series.entry.label_look.linked
+
+    def _separator(self) -> str | None:
+        own = self._own().separator
+        return own if own is not None else self.series.entry.label_look.separator
+
+    def _text(self) -> str:
+        own = self._own()
+        return own.text if own.text is not None else self._automatic()
+
+    @member
+    def Text(self) -> object:
+        self._showing()
+        return self._text()
+
+    @setter("Text")
+    def _set_text(self, value: object) -> None:
+        self._showing()
+        self._type(to_text(value))
+
+    def _type(self, text: str) -> None:
+        if self._own().plain_format is False:
+            raise unmeasured("Typing a label's text once its look is set")
+        own = self._held()
+        own.text, own.touched = text, True
+
+    @member
+    def Caption(self) -> object:
+        return self.Text()
+
+    @setter("Caption")
+    def _set_caption(self, value: object) -> None:
+        self._set_text(value)
+
+    @member
+    def AutoText(self) -> object:
+        self._showing()
+        own = self._own()
+        return own.text is None
+
+    @setter("AutoText")
+    def _set_auto_text(self, value: object) -> None:
+        self._showing()
+        if not to_bool(value):
+            raise unmeasured("AutoText = False, which writes a field with a random id,")
+        own = self._own()
+        if own.text is not None:
+            own.text, own.touched = None, False
+            self.series.chart.changed()
+
+    @member
+    def Formula(self) -> object:
+        self._showing()
+        return self._text()
+
+    @setter("Formula")
+    def _set_formula(self, value: object) -> None:
+        self._showing()
+        text = to_text(value)
+        if not text.startswith("="):
+            self._type(text)
+            return
+        raise unmeasured("A label's formula, whose file part has a random id,")
+
+    @member
+    def FormulaLocal(self) -> object:
+        return self.Formula()
+
+    @setter("FormulaLocal")
+    def _set_formula_local(self, value: object) -> None:
+        self._set_formula(value)
+
+    @member
+    def FormulaR1C1(self) -> object:
+        self._showing()
+        return self._text()
+
+    @setter("FormulaR1C1")
+    def _set_formula_r1c1(self, value: object) -> None:
+        self._set_formula(value)
+
+    @member
+    def FormulaR1C1Local(self) -> object:
+        return self.FormulaR1C1()
+
+    @setter("FormulaR1C1Local")
+    def _set_formula_r1c1_local(self, value: object) -> None:
+        self._set_formula_r1c1(value)
+
+    @member
+    def Characters(self) -> object:
+        self._alive()
+        return LabelCharacters(self)
+
+    # -- the parts shown
+
+    @member
+    def ShowValue(self) -> object:
+        return self._flag("value")
+
+    @setter("ShowValue")
+    def _show_value(self, value: object) -> None:
+        self._set_flag("value", value)
+
+    @member
+    def ShowCategoryName(self) -> object:
+        return self._flag("category")
+
+    @setter("ShowCategoryName")
+    def _show_category_name(self, value: object) -> None:
+        self._set_flag("category", value)
+
+    @member
+    def ShowSeriesName(self) -> object:
+        return self._flag("series")
+
+    @setter("ShowSeriesName")
+    def _show_series_name(self, value: object) -> None:
+        self._set_flag("series", value)
+
+    @member
+    def ShowLegendKey(self) -> object:
+        return self._flag("legend_key")
+
+    @setter("ShowLegendKey")
+    def _show_legend_key(self, value: object) -> None:
+        self._set_flag("legend_key", value)
+
+    @member
+    def ShowPercentage(self) -> object:
+        return self._flag("percent")
+
+    @setter("ShowPercentage")
+    def _show_percentage(self, value: object) -> None:
+        self._only_on("percent", {5}, value)
+
+    @member
+    def ShowBubbleSize(self) -> object:
+        return self._flag("bubble")
+
+    @setter("ShowBubbleSize")
+    def _show_bubble_size(self, value: object) -> None:
+        self._only_on("bubble", set(), value)
+
+    def _only_on(self, field: str, kinds: set[int], value: object) -> None:
+        self._alive()
+        kind = self.series.chart.state.chart_type
+        if to_bool(value) and kind not in kinds:
+            if kind in (5, 51, 57):
+                raise error(-2147024809, "The parameter is incorrect.")
+            raise VBAUnsupportedError(f"DataLabel.{field} on this chart type is not implemented")
+        self._set_flag(field, value)
+
+    @member
+    def ShowRange(self) -> object:
+        self._alive()
+        return self._own().show_range
+
+    @setter("ShowRange")
+    def _show_range(self, value: object) -> None:
+        self._alive()
+        own = self._held()
+        own.show_range, own.touched = to_bool(value), True
+
+    # -- where it stands and how it reads
+
+    @member
+    def Position(self) -> object:
+        self._showing("Position")
+        own = self._own().position
+        look = self.series.entry.label_look.position
+        kind = self.series.chart.state.chart_type
+        if own is None and look is None and kind not in DEFAULT_POSITIONS:
+            raise VBAUnsupportedError("DataLabel.Position on this chart type is not implemented")
+        return VBAInt(own if own is not None else look if look is not None else DEFAULT_POSITIONS[kind], "Long")
+
+    @setter("Position")
+    def _position(self, value: object) -> None:
+        self._showing("Position")
+        wanted = int(to_integer(value, "Long"))
+        kind = self.series.chart.state.chart_type
+        if kind not in _POINT_POSITIONS:
+            raise VBAUnsupportedError("DataLabel.Position on this chart type is not implemented")
+        if wanted not in _POINT_POSITIONS[kind]:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        own = self._held()
+        own.position, own.touched = wanted, True
+
+    @member
+    def NumberFormat(self) -> object:
+        self._showing()
+        return self._number_format()
+
+    @setter("NumberFormat")
+    def _set_number_format(self, value: object) -> None:
+        from pyopenvba.apps.excel._number_format import normalized
+
+        self._showing()
+        try:
+            code = normalized(to_text(value))
+        except VBARuntimeError:
+            raise error(1004, "Unable to set the NumberFormat property of the DataLabel class") from None
+        own = self._held()
+        own.number_format, own.linked = code, False
+
+    @member
+    def NumberFormatLocal(self) -> object:
+        from pyopenvba.apps.excel._number_format import to_local
+
+        self._showing()
+        return to_local(self._number_format(), self.series.chart.sheet.book.application.locale)
+
+    @setter("NumberFormatLocal")
+    def _set_number_format_local(self, value: object) -> None:
+        from pyopenvba.apps.excel._number_format import from_local
+
+        self._set_number_format(from_local(to_text(value), self.series.chart.sheet.book.application.locale))
+
+    @member
+    def NumberFormatLinked(self) -> object:
+        self._showing()
+        return self._linked()
+
+    @setter("NumberFormatLinked")
+    def _set_number_format_linked(self, value: object) -> None:
+        self._showing()
+        wanted = to_bool(value)
+        if wanted:
+            own = self._own()
+            if own.number_format is not None or own.linked is not None:
+                own.number_format, own.linked = None, None
+                self.series.chart.changed()
+            return
+        own = self._held()
+        own.linked = False
+        own.number_format = own.number_format or "General"
+
+    @member
+    def Separator(self) -> object:
+        self._showing()
+        separator = self._separator()
+        return VBAInt(1, "Long") if separator is None else separator
+
+    @setter("Separator")
+    def _set_separator(self, value: object) -> None:
+        self._showing()
+        if isinstance(value, str):
+            own = self._held()
+            own.separator, own.touched = value, True
+        else:
+            self._touched()
+
+    @member
+    def Orientation(self) -> object:
+        self._alive()
+        return VBAInt(self._own().orientation, "Long")
+
+    @setter("Orientation")
+    def _set_orientation(self, value: object) -> None:
+        self._alive()
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in _ROTATIONS and not -90 <= wanted <= 90:
+            raise error(-2147467259, "Automation error\nUnspecified error")
+        self._held().orientation = wanted
+
+    @member
+    def HorizontalAlignment(self) -> object:
+        self._alive()
+        return VBAInt(self._own().horizontal, "Long")
+
+    @setter("HorizontalAlignment")
+    def _set_horizontal(self, value: object) -> None:
+        self._alive()
+        wanted = int(to_integer(value, "Long"))
+        if wanted not in _ALIGNED:
+            raise unmeasured("This DataLabel.HorizontalAlignment")
+        self._held().horizontal = wanted
+
+    @member
+    def VerticalAlignment(self) -> object:
+        self._alive()
+        return VBAInt(-4108, "Long")
+
+    @setter("VerticalAlignment")
+    def _set_vertical(self, value: object) -> None:
+        self._alive()
+        to_integer(value, "Long")
+
+    @member
+    def ReadingOrder(self) -> object:
+        self._alive()
+        return VBAInt(self._own().reading, "Long")
+
+    @setter("ReadingOrder")
+    def _set_reading(self, value: object) -> None:
+        self._alive()
+        self._held().reading = int(to_integer(value, "Long"))
+
+    @member
+    def Shadow(self) -> object:
+        self._alive()
+        return self._own().shadow
+
+    @setter("Shadow")
+    def _set_shadow(self, value: object) -> None:
+        self._alive()
+        self._held().shadow = to_bool(value)
+
+    # -- its look
+
+    @member
+    def Font(self) -> object:
+        self._formatted()
+        return self.series.chart.font_of(self, "label", labels=self)
+
+    @property
+    def font(self) -> TextLook | None:
+        """What Font reads: its own, or else what its series' labels set."""
+        return self._own().font or self.series.entry.label_look.font
+
+    @font.setter
+    def font(self, look: TextLook | None) -> None:
+        self._held().font = look
+
+    @member
+    def Format(self) -> object:
+        self._alive("Position")
+        return _LabelFormat(self)
+
+    @member
+    def Border(self) -> object:
+        self._formatted()
+        return _Unmodelled("Border")
+
+    @member
+    def Interior(self) -> object:
+        if self._stale():
+            raise error(1004, "Application-defined or object-defined error")
+        return _Unmodelled("Interior")
+
+    @member
+    def Fill(self) -> object:
+        if self._stale():
+            raise error(1004, "Application-defined or object-defined error")
+        return _Unmodelled("ChartFillFormat")
+
+    # -- what it does
+
+    @method
+    def Delete(self) -> object:
+        self._showing()
+        chart = self.series.chart
+        chart.changed()
+        state = self.series.entry.points.setdefault(self.index - 1, PointState())
+        if state.label_unique < 0:
+            state.label_unique, chart.state.next_unique = chart.state.next_unique, chart.state.next_unique + 1
+        state.label, state.label_own = False, PointLabel()
+        return True
+
+    @method
+    def Select(self) -> object:
+        self._showing()
+        if self.series.chart.state.chart_type == 5:
+            # On a pie it brings the chart a title (tests/fixtures/data_label.json).
+            raise unmeasured("Selecting a pie's label")
+        return True
+
+
+#: The places a point's label can take, by chart type (tests/fixtures/data_label.json).
+_POINT_POSITIONS = {51: {3, -4108, 4, 2}, 5: {3, -4108, 2, 5}}
+_ROTATIONS = {-4171: 90, -4170: -90, -4128: 0}
+_ALIGNED = {-4131: "l", -4152: "r", -4108: "ctr"}
+
+
+class LabelCharacters(Created):
+    """A label's Characters, whose text it reads back only once something has been set of the label."""
+
+    vba_type_name = "Characters"
+
+    def __init__(self, label: DataLabel) -> None:
+        self.label = label
+
+    @member
+    def Text(self) -> object:
+        return self._read()
+
+    def _read(self) -> str:
+        label = self.label
+        if not label._shown():
+            return ""
+        state = label._state()
+        live = (state is not None and state.label is True) or label._own().touched
+        return label._text() if live else ""
+
+    @setter("Text")
+    def _set_text(self, value: object) -> None:
+        self.label._set_text(value)
+
+    @member
+    def Count(self) -> object:
+        return VBAInt(len(self._read()), "Long")
+
+
+class _Unmodelled(Created):
+    """Reached for what it is, and not modelled further."""
+
+    def __init__(self, type_name: str) -> None:
+        self.vba_type_name = type_name
+
+
+class _LabelFormat(Created):
+    vba_type_name = "ChartFormat"
+
+    def __init__(self, label: DataLabel) -> None:
+        self.label = label
+
+    @member
+    def Fill(self) -> object:
+        return _LabelFill(self.label)
+
+    @member
+    def Line(self) -> object:
+        return _LabelLine(self.label)
+
+
+class _LabelFill(Created):
+    vba_type_name = "FillFormat"
+
+    def __init__(self, label: DataLabel) -> None:
+        self.label = label
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(-1 if self.label._own().fill_rgb is not None else 0, "Long")
+
+    @member
+    def ForeColor(self) -> object:
+        return _LabelColour(self.label)
+
+
+class _LabelColour(Created):
+    vba_type_name = "ColorFormat"
+
+    def __init__(self, label: DataLabel) -> None:
+        self.label = label
+
+    @setter("RGB")
+    def _rgb(self, value: object) -> None:
+        colour = int(to_integer(value, "Long")) & 0xFFFFFF
+        self.label._held().fill_rgb = f"{colour & 0xFF:02X}{colour >> 8 & 0xFF:02X}{colour >> 16 & 0xFF:02X}"
+
+
+class _LabelLine(Created):
+    """A label's outline, which is not there, and colouring it does not bring it (tests/fixtures/data_label.json)."""
+
+    vba_type_name = "LineFormat"
+
+    def __init__(self, label: DataLabel) -> None:
+        self.label = label
+
+    @member
+    def Visible(self) -> object:
+        return VBAInt(0, "Long")
+
+    @member
+    def ForeColor(self) -> object:
+        return _LabelLineColour()
+
+
+class _LabelLineColour(Created):
+    vba_type_name = "ColorFormat"
+
+    @setter("RGB")
+    def _rgb(self, value: object) -> None:
+        to_integer(value, "Long")

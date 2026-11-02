@@ -7,9 +7,9 @@ back and writes nothing, so setting it is refused, as are the settings no case m
 reaches the other elements was not measured, so reading or setting one beside the other is refused."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from pyopenvba.apps.excel._chart_xml import LabelLook, TextLook
+from pyopenvba.apps.excel._chart_xml import TextLook
 from pyopenvba.apps.excel._creator import Created
 from pyopenvba.apps.excel._styles import bgr
 from pyopenvba.exceptions import VBAUnsupportedError
@@ -34,7 +34,7 @@ class ChartFont(Created):
     vba_type_name = "Font"
 
     def __init__(self, element: object, chart: Chart, key: str, size: float, bold: bool,
-                 labels: LabelLook | None = None) -> None:
+                 labels: Any = None) -> None:
         self.element, self.chart, self.key, self.size, self.bold = element, chart, key, size, bold
         #: A data labels' font is kept with their look; the rest in the chart's fonts.
         self.labels = labels

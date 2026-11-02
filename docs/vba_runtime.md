@@ -91,17 +91,37 @@ That covers `Workbook.Save`, `SaveAs` and `SaveCopyAs`, `Workbooks.Open` and
 `OpenText`, `Worksheet.SetBackgroundPicture`, `VBComponent.Export`,
 `VBComponents.Import`, `CodeModule.AddFromFile`, a workbook link's status, and
 the same open and save members in Word and PowerPoint. It also covers what
-pyOpenVBA does not implement at all: `Open`, `Kill`, `Dir`, `Environ`, `Shell`,
-`GetSetting`, a `Declare`, `FileSystemObject`'s file members, and `CreateObject`
-for anything that needs a COM server, or the HTTP objects below. With the sandbox off
-the HTTP objects work and the rest stay `VBAUnsupportedError` until they are
-implemented.
+pyOpenVBA implements only with it off, such as `Open`, `Kill`, `Dir`, `Environ` and the HTTP
+objects, and what it does not implement at all: `Shell`, `GetSetting`, a `Declare`,
+`FileSystemObject`'s file members, and `CreateObject` for anything else that needs a COM
+server. With the sandbox off those last stay `VBAUnsupportedError`.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
 The sandbox governs VBA only: Python's own `app.save` and
 `ExcelApplication.open` work either way. Every path out goes through
 `Interpreter.outside`, and `tests/test_vba_sandbox.py` fails on a call into the
 file system that does not.
+
+## Files
+
+With `sandbox=False`, VBA reads and writes text files and works on the file system:
+`Open` for Input, Output and Append, `Print #`, `Write #`, `Input #`, `Line Input #`,
+`Close`, `Reset`, `Seek`, `Width #`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `FileAttr`,
+`Kill`, `MkDir`, `RmDir`, `ChDir`, `CurDir`, `FileCopy`, `Name`, `Dir`, `FileLen`,
+`FileDateTime`, `GetAttr`, `SetAttr` and `Environ`. `tests/fixtures/file_statements.json`
+measured them in live Excel, errors included.
+
+Excel's rules are kept. Text is Windows-1252, with `?` for what it lacks. A CR ends a line
+and a lone LF does not, Ctrl-Z ends the file, and `Line Input #` drops a NUL. `Input #`
+types what it reads into a Variant by its look: `1` is an Integer, `1.5` a Currency and
+`1.23456` a Decimal. A file being written reads as empty from outside until `Close`. `Dir`
+takes its list when given a path, so a file killed afterwards still comes back.
+
+Not implemented yet: `Open` for Binary and Random, `Get`, `Put`, `Lock`, `Unlock`,
+`ChDrive`, `CurDir` of another drive, and `FileSystemObject`'s file members. `SetAttr`'s
+hidden, system and archive bits are kept for the session, and only read-only reaches the
+file. `ChDir` moves the VBA's own current folder, and the Excel object model's relative
+paths do not follow it.
 
 ## HTTP
 

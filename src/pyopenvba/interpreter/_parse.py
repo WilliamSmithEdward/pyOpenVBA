@@ -70,6 +70,14 @@ _UNSUPPORTED: Final[dict[str, str]] = {
     "beep": "the PC speaker",
 }
 
+#: Statements that are real VBA and that run: the parser method for each.
+_FILE_STATEMENTS: Final[dict[str, str]] = {
+    "open": "_file_open", "close": "_file_close", "reset": "_file_close", "print": "_file_output",
+    "write": "_file_output", "input": "_file_input", "seek": "_file_commands", "width": "_file_commands",
+    "kill": "_file_commands", "mkdir": "_file_commands", "rmdir": "_file_commands", "chdir": "_file_commands",
+    "filecopy": "_file_commands", "setattr": "_file_commands", "name": "_file_commands",
+}
+
 #: The types a declaration may name, beyond the classes a host provides.
 BUILTIN_TYPES: Final = frozenset(
     """
@@ -659,6 +667,9 @@ class Parser:
                 self.advance()
                 self.advance()
                 return A.Label(line=line, name=token.text)
+            if lower in _FILE_STATEMENTS and (self._opens_a_statement() or (
+                    lower in ("close", "reset") and self.peek().kind in ("eos", "eof"))):
+                return getattr(self, _FILE_STATEMENTS[lower])(line)
             handler = getattr(self, f"_stmt_{lower}", None)
             if handler is not None and lower in STATEMENT_KEYWORDS:
                 return handler(line)
@@ -694,6 +705,78 @@ class Parser:
             words.append(self.advance().text)
         self.end_statement()
         return A.Unsupported(line=line, text=" ".join(words), reason=reason)
+
+    # File statements.
+
+    def _file_number(self) -> A.Expr:
+        """A file number, its # optional here as VBA has it."""
+        self.accept_op("#")
+        return self._parse_expression()
+
+    def _file_comma(self) -> None:
+        self.expect_op(",")
+
+    def _file_open(self, line: int) -> A.Stmt:
+        self.advance()
+        path = self._parse_expression()
+        mode = "random"
+        if self.accept_word("for"):
+            mode = self.advance().lower
+        if self.accept_word("access"):
+            self.advance()
+            if self.at_word("write"):
+                self.advance()
+        if self.accept_word("shared"):
+            pass
+        elif self.accept_word("lock"):
+            self.advance()
+            if self.at_word("write"):
+                self.advance()
+        self.expect_word("as")
+        number = self._file_number()
+        if self.accept_word("len"):
+            self.expect_op("=")
+            self._parse_expression()
+        self.end_statement()
+        return A.OpenFile(line=line, path=path, mode=mode, number=number)
+
+    def _file_close(self, line: int) -> A.Stmt:
+        verb = self.advance().lower
+        numbers: list[A.Expr] = []
+        while not self.at_eos():
+            numbers.append(self._file_number())
+            if not self.accept_op(","):
+                break
+        self.end_statement()
+        return A.FileCommand(line=line, verb=verb, args=numbers)
+
+    def _file_output(self, line: int) -> A.Stmt:
+        kind = self.advance().lower
+        number = self._file_number()
+        args: list[A.Argument] = []
+        if self.accept_op(","):
+            args = self._parse_print_arguments()
+        self.end_statement()
+        return A.FileOutput(line=line, kind=kind, number=number, args=args)
+
+    def _file_input(self, line: int) -> A.Stmt:
+        self.advance()
+        number = self._file_number()
+        self._file_comma()
+        targets = [self._parse_expression()]
+        while self.accept_op(","):
+            targets.append(self._parse_expression())
+        self.end_statement()
+        return A.FileInput(line=line, number=number, targets=targets)
+
+    def _file_commands(self, line: int) -> A.Stmt:
+        """Seek #, Width # and the statements that take paths."""
+        verb = self.advance().lower
+        args = [self._file_number() if verb in ("seek", "width") else self._parse_expression()]
+        while self.accept_op(",") or (verb == "name" and self.accept_word("as")):
+            args.append(self._parse_expression())
+        self.end_statement()
+        return A.FileCommand(line=line, verb=verb, args=args)
 
     # Declarations inside a procedure.
 
@@ -1134,9 +1217,16 @@ class Parser:
         return A.CallStmt(line=line, callee=callee, args=args, explicit=True)
 
     def _stmt_line(self, line: int) -> A.Stmt:
-        # "Line Input #1, s" is file I/O; "Line" alone is a drawing method
-        # on a Form, which this does not have either.
-        return self._unsupported(line, "file I/O")
+        # "Line" alone is a drawing method on a Form, which this does not have.
+        if self.peek().kind != "ident" or self.peek().lower != "input":
+            return self._unsupported(line, "file I/O")
+        self.advance()
+        self.advance()
+        number = self._file_number()
+        self._file_comma()
+        target = self._parse_expression()
+        self.end_statement()
+        return A.LineInput(line=line, number=number, target=target)
 
     def _stmt_randomize(self, line: int) -> A.Stmt:
         self.advance()
@@ -1247,6 +1337,10 @@ class Parser:
 
     def _parse_unary(self) -> A.Expr:
         token = self.token
+        if token.kind == "op" and token.text == "#":
+            # A file number among arguments: Input(2, #1).
+            self.advance()
+            return self._parse_unary()
         if token.kind == "op" and token.text == "-":
             self.advance()
             return A.Unary(line=token.line, op="-", operand=self._parse_expression(_PRECEDENCE["^"]))

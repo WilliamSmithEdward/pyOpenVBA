@@ -5,6 +5,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Added
+
+- Text files and the file system from VBA with `sandbox=False`: `Open` for Input,
+  Output and Append, `Print #`, `Write #`, `Input #`, `Line Input #`, `Close`,
+  `Seek`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `Kill`, `MkDir`, `RmDir`,
+  `ChDir`, `CurDir`, `FileCopy`, `Name`, `Dir`, `FileLen`, `FileDateTime`, `GetAttr`,
+  `SetAttr` and `Environ`, as live Excel answers them.
+
 ### Changed
 
 - VBA runs in a sandbox by default. Running VBA can no longer save, open or

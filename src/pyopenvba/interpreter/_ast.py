@@ -341,6 +341,42 @@ class OptionStmt(Stmt):
 
 
 @dataclass(slots=True)
+class OpenFile(Stmt):
+    path: Expr | None = None
+    mode: str = ""
+    number: Expr | None = None
+
+
+@dataclass(slots=True)
+class FileOutput(Stmt):
+    """Print # or Write #."""
+
+    kind: str = ""
+    number: Expr | None = None
+    args: list[Argument] = field(default_factory=lambda: [])
+
+
+@dataclass(slots=True)
+class FileInput(Stmt):
+    number: Expr | None = None
+    targets: list[Expr] = field(default_factory=lambda: [])
+
+
+@dataclass(slots=True)
+class LineInput(Stmt):
+    number: Expr | None = None
+    target: Expr | None = None
+
+
+@dataclass(slots=True)
+class FileCommand(Stmt):
+    """Close, Reset, Seek #, Width #, and the statements that take paths."""
+
+    verb: str = ""
+    args: list[Expr] = field(default_factory=lambda: [])
+
+
+@dataclass(slots=True)
 class Unsupported(Stmt):
     """A statement this recognises as VBA and does not implement.
 

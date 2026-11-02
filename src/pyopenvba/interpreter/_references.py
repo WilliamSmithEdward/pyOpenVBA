@@ -10,6 +10,7 @@ from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter._compile import Info, nodes, variables
 from pyopenvba.interpreter._flow import Program
 from pyopenvba.interpreter._financial import SIGNATURES as FINANCIAL_SIGNATURES
+from pyopenvba.interpreter._intrinsics import INTRINSICS
 from pyopenvba.interpreter._lex import SUFFIX_TYPES, default_type, strip_suffix
 from pyopenvba.interpreter._values import type_name
 
@@ -278,7 +279,8 @@ def validate_references(interpreter: Interpreter, module: ModuleRuntime, procedu
             return value.type_name, False, module
         if isinstance(value, A.Name):
             key = strip_suffix(value.name).lower()
-            info = name_info(value.name, declare=not callee or lvalue)
+            # A bare CurDir is the function, so a CurDir$ beside it is not a Variant's mismatched type character.
+            info = name_info(value.name, declare=(not callee and key not in INTRINSICS) or lvalue)
             suffix = SUFFIX_TYPES.get(value.name[-1:])
             # These measured library functions have compiler-enforced suffix
             # rules. Other core intrinsics can ignore arbitrary type characters.

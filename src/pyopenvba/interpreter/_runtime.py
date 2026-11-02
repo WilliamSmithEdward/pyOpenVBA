@@ -30,6 +30,7 @@ from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBASandboxErr
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
+from pyopenvba.interpreter._files import FileTable, Spaces, TabTo
 from pyopenvba.interpreter._http import Sessions
 from pyopenvba.interpreter._lex import default_type, strip_suffix
 from pyopenvba.interpreter._objects import VBACollection, VBAObject, member, method, setter
@@ -1089,6 +1090,8 @@ class Interpreter:
         self.console: list[str] = []
         self.assertions: list[str] = []
         self.frames: list[Frame] = []
+        #: The file numbers, current folder and Dir's list.
+        self.files = FileTable(self)
         #: What is left to do when VBA pumps messages at DoEvents: asynchronous HTTP requests (see _http).
         self.pumped: list[Callable[[], None]] = []
         #: XMLHTTP's cookies and logins, which all the objects of one program name share (see _http).
@@ -1690,6 +1693,11 @@ class Interpreter:
             A.ReDim: cls._do_redim,
             A.Erase: cls._do_erase,
             A.ExitStmt: cls._do_exit,
+            A.OpenFile: cls._do_open_file,
+            A.FileOutput: cls._do_file_output,
+            A.FileInput: cls._do_file_input,
+            A.LineInput: cls._do_line_input,
+            A.FileCommand: cls._do_file_command,
             A.Label: cls._do_label,
             A.ProcedureAttribute: cls._do_procedure_attribute,
             A.OnError: cls._do_on_error,
@@ -1946,6 +1954,76 @@ class Interpreter:
         return any(owner is not None and owner.variables[key].get() is source
                    and owner.module.procedure(f"{key}_{name}") is not None
                    for held, key in self.event_sinks for owner in (held(),))
+
+    def _do_open_file(self, statement: A.OpenFile, frame: Frame) -> None:
+        self.outside("Open")
+        path = self.evaluate(statement.path, frame)
+        self.files.open(path, statement.mode, self.evaluate(statement.number, frame))
+
+    def _do_file_output(self, statement: A.FileOutput, frame: Frame) -> None:
+        name = "Print #" if statement.kind == "print" else "Write #"
+        self.outside(name)
+        handle = self.files.writing(self.evaluate(statement.number, frame))
+        args = statement.args
+        hold = bool(args) and isinstance(args[-1].value, A.Literal) and args[-1].value.value is PRINT_CONTINUE
+        if statement.kind == "write":
+            items = [self.files.written(self.evaluate(one.value, frame, want_object=True)) for one in args
+                     if not (isinstance(one.value, A.Literal) and one.value.value in (PRINT_ZONE, PRINT_CONTINUE))]
+            self.files.write_items(handle, items, hold)
+            return
+        for one in args:
+            value = one.value
+            if isinstance(value, A.Literal) and value.value is PRINT_ZONE:
+                self.files.print_zone(handle)
+            elif isinstance(value, A.Literal) and value.value is PRINT_CONTINUE:
+                continue
+            else:
+                self.files.print_item(handle, self._print_item(value, frame))
+        if not hold:
+            self.files.end_line(handle)
+
+    def _print_item(self, value: A.Expr | None, frame: Frame) -> object:
+        """A value of a Print #, or its Tab or Spc, which only mean that here."""
+        target = value.target if isinstance(value, A.Index) else value
+        if isinstance(target, A.Name) and _bare(target.name) in ("tab", "spc"):
+            given = value.args if isinstance(value, A.Index) else []
+            amount = int(to_integer(self.evaluate(given[0].value, frame), "Long")) if given else None
+            if _bare(target.name) == "tab":
+                return TabTo(amount)
+            if amount is not None:
+                return Spaces(amount)
+        return self.evaluate(value, frame, want_object=True)
+
+    def _do_file_input(self, statement: A.FileInput, frame: Frame) -> None:
+        self.outside("Input #")
+        handle = self.files.reading(self.evaluate(statement.number, frame))
+        for target in statement.targets:
+            quoted, text = self.files.read_field(handle)
+            value = self.files.field_value(quoted, text, self._loop_declaration(target, frame))
+            self.resolve_target(target, frame).put(value, False)
+
+    def _do_line_input(self, statement: A.LineInput, frame: Frame) -> None:
+        self.outside("Line Input #")
+        declared = self._loop_declaration(statement.target, frame).lower()
+        if declared not in ("variant", "string"):
+            raise VBACompileError("Type mismatch", where=self.current_where())
+        text = self.files.read_line(self.evaluate(statement.number, frame))
+        self.resolve_target(statement.target, frame).put(text, False)
+
+    def _do_file_command(self, statement: A.FileCommand, frame: Frame) -> None:
+        names = {"close": "Close", "reset": "Reset", "seek": "Seek #", "width": "Width #", "kill": "Kill",
+                 "mkdir": "MkDir", "rmdir": "RmDir", "chdir": "ChDir", "filecopy": "FileCopy", "setattr": "SetAttr",
+                 "name": "Name"}
+        self.outside(names[statement.verb])
+        args = [self.evaluate(one, frame) for one in statement.args]
+        files = self.files
+        commands = {"close": lambda: files.close(args), "reset": lambda: files.close([]),
+                    "seek": lambda: files.seek_to(*args), "width": lambda: files.set_width(*args),
+                    "kill": lambda: files.kill(*args), "mkdir": lambda: files.make_folder(*args),
+                    "rmdir": lambda: files.remove_folder(*args), "chdir": lambda: files.change_folder(*args),
+                    "filecopy": lambda: files.copy(*args), "setattr": lambda: files.set_attributes(*args),
+                    "name": lambda: files.rename(*args)}
+        commands[statement.verb]()
 
     def _do_unsupported(self, statement: A.Unsupported, frame: Frame) -> None:
         if statement.reason != "the PC speaker":

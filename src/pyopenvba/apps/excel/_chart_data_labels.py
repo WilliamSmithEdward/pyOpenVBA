@@ -819,6 +819,8 @@ class LabelCharacters(Created):
 class _Unmodelled(Created):
     """Reached for what it is, and not modelled further."""
 
+    vba_type_name = ""
+
     def __init__(self, type_name: str) -> None:
         self.vba_type_name = type_name
 

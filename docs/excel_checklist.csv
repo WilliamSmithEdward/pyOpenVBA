@@ -923,13 +923,13 @@ DataBarBorder,Parent,"property, read-only",As Object,,MISSING,,
 DataBarBorder,Type,property,As XlDataBarBorderType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 DataLabel,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Read.
 DataLabel,AutoText,property,As Boolean,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Reads and goes back; False writes a random id and is refused.
-DataLabel,Border,not in the type library,,,UNASSESSED,,
+DataLabel,Border,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its type name alone.
 DataLabel,Caption,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,As Text.
 DataLabel,Characters,"property, read-only",As Characters,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Reads back once the label is touched.
 DataLabel,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Read.
 DataLabel,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,A dLbl with delete.
-DataLabel,Fill,not in the type library,,,UNASSESSED,,
-DataLabel,Font,not in the type library,,,UNASSESSED,,
+DataLabel,Fill,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its type name alone.
+DataLabel,Font,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own or its series'; error 1004 once deleted.
 DataLabel,Format,"property, read-only",As ChartFormat,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Fill colour; the line is not there.
 DataLabel,Formula,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Reads its text; setting a reference is refused.
 DataLabel,FormulaLocal,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,As Formula.
@@ -938,7 +938,7 @@ DataLabel,FormulaR1C1Local,property,As String,,PARTIAL,tests/fixtures/data_label
 DataLabel,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
 DataLabel,Height,property,As Double,,MISSING,,
 DataLabel,HorizontalAlignment,property,As Variant,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,"Left, right, centre in the txPr."
-DataLabel,Interior,not in the type library,,,UNASSESSED,,
+DataLabel,Interior,not in the type library,,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its type name alone.
 DataLabel,Left,property,As Double,,MISSING,,
 DataLabel,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Text SnPm.
 DataLabel,NumberFormat,property,As String,,PARTIAL,tests/fixtures/data_label.json; tests/test_excel_data_label.py,Its own or its series'.
@@ -3862,4 +3862,3 @@ WorksheetView,DisplayZeros,property,As Boolean,,PARTIAL,tests/fixtures/sheet_vie
 WorksheetView,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The window.
 WorksheetView,Sheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The sheet it shows.
 _Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-_Unmodelled,Creator,not in the type library,,,UNASSESSED,,

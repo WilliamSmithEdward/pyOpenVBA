@@ -5,6 +5,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Changed
+
+- VBA runs in a sandbox by default. Running VBA can no longer save, open or
+  export a file, which raises `VBASandboxError`. Pass `sandbox=False` to
+  `ExcelApplication`, `WordApplication` or `PowerPointApplication`, or to their
+  `open`, to allow it as before. Python's own `app.save` and `open` are not
+  affected. This breaks a macro that saves or opens files under the defaults.
+
 ### Added
 
 - One point's `DataLabel`: `Text`, `Caption`, `AutoText`, the `Show` members, `Position`,
@@ -12,17 +20,6 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Shadow`, `Font`, `Characters`, `Delete`, and a fill through `Format`. What is set of a
   label stands apart from its series' labels and saves as Excel writes it. `AutoText =
   False`, a formula, and a label's place and size are refused.
-
-### Fixed
-
-- `StrConv(text, vbFromUnicode)` is a String, as in Excel, not a Byte array. A String
-  can now hold an odd count of bytes, so `LenB`, `MidB`, `LeftB`, `RightB`, `AscB`,
-  `InStrB` and `&` count the last byte. `ChrB` exists. `StrConv(x, vbUnicode)` reads a
-  String's own bytes. `AscB` answers a Byte, `VarType` a Long, and `LenB` of a
-  fixed-length string an Integer.
-
-### Added
-
 - Text files and the file system from VBA with `sandbox=False`: `Open` for Input,
   Output and Append, `Print #`, `Write #`, `Input #`, `Line Input #`, `Close`,
   `Seek`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `Kill`, `MkDir`, `RmDir`,
@@ -34,17 +31,6 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Binary and Random files from VBA with `sandbox=False`: `Open` in those modes,
   `Get`, `Put`, `Lock` and `Unlock`, with each type laid out byte for byte as
   Excel lays it out.
-
-### Changed
-
-- VBA runs in a sandbox by default. Running VBA can no longer save, open or
-  export a file, which raises `VBASandboxError`. Pass `sandbox=False` to
-  `ExcelApplication`, `WordApplication` or `PowerPointApplication`, or to their
-  `open`, to allow it as before. Python's own `app.save` and `open` are not
-  affected. This breaks a macro that saves or opens files under the defaults.
-
-### Added
-
 - HTTP from VBA with `sandbox=False`: `CreateObject` makes `MSXML2.XMLHTTP`,
   `MSXML2.ServerXMLHTTP` and `WinHttp.WinHttpRequest.5.1` on Python's own
   sockets, on any platform. Each sends and answers as its Windows stack does,
@@ -761,6 +747,11 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Fixed
 
+- `StrConv(text, vbFromUnicode)` is a String, as in Excel, not a Byte array. A String
+  can now hold an odd count of bytes, so `LenB`, `MidB`, `LeftB`, `RightB`, `AscB`,
+  `InStrB` and `&` count the last byte. `ChrB` exists. `StrConv(x, vbUnicode)` reads a
+  String's own bytes. `AscB` answers a Byte, `VarType` a Long, and `LenB` of a
+  fixed-length string an Integer.
 - A saved line takes the style Excel gives a line. It was written with an
   AutoShape's style: a dark outline, a fill reference and light text.
 

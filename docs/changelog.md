@@ -7,6 +7,12 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- 19 more Application properties read as Excel starts: DisplayRecentFiles,
+  ShowDevTools, CommandUnderlines, DataEntryMode, DefaultSaveFormat,
+  CanPlaySounds, Ready and the rest. The writable ones read only, since
+  measuring their setters would change the user's Excel profile. Measured
+  in `tests/fixtures/application_settings_more.json`.
+
 - Threaded comments: Range.AddCommentThreaded, Range.CommentThreaded,
   Worksheet.CommentsThreaded and the CommentThreaded and Author objects.
   A thread's text, replies, Resolved, Date, author, Parent, Next and

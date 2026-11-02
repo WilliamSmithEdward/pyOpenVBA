@@ -1,0 +1,810 @@
+{
+ "measured_at": "2026-11-02T22:10:49.578166+00:00",
+ "source": "\nPrivate gFolder As String, gSep As String, gCell(1) As Variant\n\nPrivate Function P(ByVal name As String) As String\n    If gSep <> \"\\\" Then name = Replace(name, \"\\\", gSep)\n    P = gFolder & gSep & name\nEnd Function\n\nPrivate Function Esc(ByVal text As Variant) As String\n    Dim i As Long, code As Long, out As String\n    For i = 1 To Len(text)\n        code = AscW(Mid$(text, i, 1)) And &HFFFF&\n        If code < 32 Or code > 126 Or code = 92 Or code = 124 Or code = 64 Then\n            out = out & \"\\u\" & Right$(\"000\" & Hex$(code), 4)\n        Else\n            out = out & Mid$(text, i, 1)\n        End If\n    Next\n    Esc = out\nEnd Function\n\nPrivate Function Show(ByVal value As Variant) As String\n    If IsNull(value) Then\n        Show = \"Null\"\n    ElseIf IsEmpty(value) Then\n        Show = \"Empty\"\n    ElseIf IsError(value) Then\n        Show = \"Error \" & CStr(CLng(value))\n    ElseIf IsDate(value) And VarType(value) = vbDate Then\n        Show = \"Date \" & Format(value, \"yyyy-mm-dd hh:nn:ss\")\n    Else\n        Show = TypeName(value) & \" \" & Esc(CStr(value))\n    End If\nEnd Function\n\nPrivate Function CStrOf(ByVal value As Variant) As String\n    If VarType(value) = vbString Then\n        CStrOf = value\n    Else\n        CStrOf = Show(value)\n    End If\nEnd Function\n\nPrivate Sub Mark(ByRef s As String, ByVal number As Long, ByVal description As String)\n    s = s & \"[E\" & number & \":\" & Esc(description) & \"]\"\nEnd Sub\n\nPrivate Function Case0() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FileExists(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FileExists(P(\"A.TXT\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FileExists(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FileExists(P(\"none\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(P(\"none\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(P(\"d\\\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FileExists(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FileExists(Null): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(Null): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case0 = s\nEnd Function\n\nPrivate Function Case1() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(st): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Write \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine \"def\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteBlankLines 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine 5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write 1.5: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case1 = s\nEnd Function\n\nPrivate Function Case2() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Write \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.WriteLine \"d\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Write \"x\" & vbCrLf & \"yz\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Write \"x\" & vbLf: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Write \"x\" & vbCr: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case2 = s\nEnd Function\n\nPrivate Function Case3() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case3 = s\nEnd Function\n\nPrivate Function Case4() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\"), False): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(st): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case4 = s\nEnd Function\n\nPrivate Function Case5() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\"), Overwrite:=True): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case5 = s\nEnd Function\n\nPrivate Function Case6() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"none\\a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case6 = s\nEnd Function\n\nPrivate Function Case7() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.CreateTextFile(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case7 = s\nEnd Function\n\nPrivate Function Case8() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case8 = s\nEnd Function\n\nPrivate Function Case9() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case9 = s\nEnd Function\n\nPrivate Function Case10() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\"), True, True): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine \"a\" & ChrW(233) & ChrW(1234): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case10 = s\nEnd Function\n\nPrivate Function Case11() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine ChrW(233): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine ChrW(8364): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine ChrW(1234): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine \"after\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case11 = s\nEnd Function\n\nPrivate Function Case12() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"a\" & vbLf & \"b\" & vbCr & \"c\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case12 = s\nEnd Function\n\nPrivate Function Case13() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write Null: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine Null: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write Empty: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteLine Empty: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case13 = s\nEnd Function\n\nPrivate Function Case14() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteBlankLines -1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.WriteBlankLines 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case14 = s\nEnd Function\n\nPrivate Function Case15() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Skip 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.SkipLine: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case15 = s\nEnd Function\n\nPrivate Function Case16() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case16 = s\nEnd Function\n\nPrivate Function Case17() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"abc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = FileLen(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case17 = s\nEnd Function\n\nPrivate Function Case18() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.CreateTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case18 = s\nEnd Function\n\nPrivate Function Case19() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case19 = s\nEnd Function\n\nPrivate Function Case20() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case20 = s\nEnd Function\n\nPrivate Function Case21() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case21 = s\nEnd Function\n\nPrivate Function Case22() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case22 = s\nEnd Function\n\nPrivate Function Case23() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Do While Not st.AtEndOfStream\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear\n    Loop\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case23 = s\nEnd Function\n\nPrivate Function Case24() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case24 = s\nEnd Function\n\nPrivate Function Case25() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Read(2): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(2): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(9): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case25 = s\nEnd Function\n\nPrivate Function Case26() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Read(0): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(-1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case26 = s\nEnd Function\n\nPrivate Function Case27() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Skip 2: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.SkipLine: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Skip 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Skip -1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.SkipLine: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.SkipLine: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Skip 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case27 = s\nEnd Function\n\nPrivate Function Case28() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.SkipLine: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.SkipLine: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case28 = s\nEnd Function\n\nPrivate Function Case29() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Read(1): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.AtEndOfLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case29 = s\nEnd Function\n\nPrivate Function Case30() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"none\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(st): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case30 = s\nEnd Function\n\nPrivate Function Case31() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"none\\a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case31 = s\nEnd Function\n\nPrivate Function Case32() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case32 = s\nEnd Function\n\nPrivate Function Case33() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case33 = s\nEnd Function\n\nPrivate Function Case34() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case34 = s\nEnd Function\n\nPrivate Function Case35() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 8): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.Line: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.Column: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = st.ReadLine: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case35 = s\nEnd Function\n\nPrivate Function Case36() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case36 = s\nEnd Function\n\nPrivate Function Case37() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 3): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 0): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 4): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case37 = s\nEnd Function\n\nPrivate Function Case38() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 2, True): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"b.txt\"), 8, True): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"c.txt\"), 1, True): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.AtEndOfStream: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case38 = s\nEnd Function\n\nPrivate Function Case39() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 2, False): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 8): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case39 = s\nEnd Function\n\nPrivate Function Case40() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 1, False, -1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 1, False, 0): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 1, False, -2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"b.txt\"), 1, False, -2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"b.txt\"), 1, False, -1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 1, False, 5): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case40 = s\nEnd Function\n\nPrivate Function Case41() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 2, True, -1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"a\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 8, True, -1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case41 = s\nEnd Function\n\nPrivate Function Case42() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 8, False, -2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 2, False, -2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"b\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case42 = s\nEnd Function\n\nPrivate Function Case43() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Set o2 = fso.OpenTextFile(P(\"a.txt\"), 2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case43 = s\nEnd Function\n\nPrivate Function Case44() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Open P(\"a.txt\") For Output As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 2, True): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case44 = s\nEnd Function\n\nPrivate Function Case45() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(o): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Size: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.Size): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.Attributes): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.DateCreated): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.DateLastModified): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.DateLastAccessed): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.ParentFolder): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.ParentFolder.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case45 = s\nEnd Function\n\nPrivate Function Case46() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: v = fso.GetFile(P(\"A.TXT\")).Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetFile(P(\"A.TXT\")).Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case46 = s\nEnd Function\n\nPrivate Function Case47() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"none\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(o): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case47 = s\nEnd Function\n\nPrivate Function Case48() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFile(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case48 = s\nEnd Function\n\nPrivate Function Case49() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case49 = s\nEnd Function\n\nPrivate Function Case50() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Name = \"b.txt\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Size: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Name = \"b.txt\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Name = \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Name = \"x\\y\": If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case50 = s\nEnd Function\n\nPrivate Function Case51() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Name = \"b.txt\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case51 = s\nEnd Function\n\nPrivate Function Case52() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Attributes = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = GetAttr(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Attributes = 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Attributes = 16: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Attributes = 2048: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Attributes = 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case52 = s\nEnd Function\n\nPrivate Function Case53() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Kill P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Size: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Delete: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(o.ParentFolder): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case53 = s\nEnd Function\n\nPrivate Function Case54() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Size: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Set st = fso.OpenTextFile(P(\"a.txt\"), 8): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"bc\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Size: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case54 = s\nEnd Function\n\nPrivate Function Case55() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Delete: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FileExists(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Delete: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case55 = s\nEnd Function\n\nPrivate Function Case56() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Delete: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FileExists(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: SetAttr P(\"b.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFile(P(\"b.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Delete True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FileExists(P(\"b.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case56 = s\nEnd Function\n\nPrivate Function Case57() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"b.txt\"), False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"b.txt\"), True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"none\\b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case57 = s\nEnd Function\n\nPrivate Function Case58() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Move P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Move P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Move P(\"none\\b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case58 = s\nEnd Function\n\nPrivate Function Case59() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = o.OpenAsTextStream: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = st.ReadAll: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = o.OpenAsTextStream(2): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"z\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = o.OpenAsTextStream(8, -1): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Write \"y\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = o.OpenAsTextStream(3): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case59 = s\nEnd Function\n\nPrivate Function Case60() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(o): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Size: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.Size): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.IsRootFolder: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.ParentFolder): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.ParentFolder.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.DateCreated): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.Files): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.SubFolders): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Files.Count: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.SubFolders.Count: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.Files.Count): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case60 = s\nEnd Function\n\nPrivate Function Case61() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.GetFolder(P(\"d\\\")).Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetFolder(P(\"d\\\")).Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetFolder(P(\"D\")).Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case61 = s\nEnd Function\n\nPrivate Function Case62() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"none\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case62 = s\nEnd Function\n\nPrivate Function Case63() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case63 = s\nEnd Function\n\nPrivate Function Case64() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case64 = s\nEnd Function\n\nPrivate Function Case65() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Dim f\n    For Each f In o.Files\n    Err.Clear: v = f.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Next\n    Err.Clear: v = o.Files.Item(\"a.txt\").Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Files(\"A.TXT\").Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Files.Item(\"none\").Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Files.Item(1).Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Files(1).Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case65 = s\nEnd Function\n\nPrivate Function Case66() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Dim f\n    For Each f In o.SubFolders\n    Err.Clear: v = f.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Next\n    Err.Clear: v = o.SubFolders.Item(\"a\").Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.SubFolders(\"A\").Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.SubFolders.Item(\"none\").Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.SubFolders.Item(1).Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.SubFolders(\"a\").Files): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case66 = s\nEnd Function\n\nPrivate Function Case67() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o2 = o.Files: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o2.Count: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Kill P(\"d\\a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o2.Count: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case67 = s\nEnd Function\n\nPrivate Function Case68() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o2 = o.SubFolders.Add(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(o2): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o2.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.SubFolders.Count: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Set o2 = o.SubFolders.Add(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o2 = o.SubFolders.Add(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o2 = o.SubFolders.Add(\"x\\y\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case68 = s\nEnd Function\n\nPrivate Function Case69() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = o.CreateTextFile(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(st): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: st.Write \"x\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = o.CreateTextFile(\"a.txt\", False): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = o.CreateTextFile(\"b.txt\", True, True): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case69 = s\nEnd Function\n\nPrivate Function Case70() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Name = \"e\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(P(\"e\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: MkDir P(\"f\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Name = \"f\": If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case70 = s\nEnd Function\n\nPrivate Function Case71() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Attributes = 1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Attributes = 0: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Attributes: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case71 = s\nEnd Function\n\nPrivate Function Case72() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Delete: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FolderExists(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Delete: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case72 = s\nEnd Function\n\nPrivate Function Case73() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"e\"), False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"f\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Copy P(\"g\\h\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case73 = s\nEnd Function\n\nPrivate Function Case74() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: o.Move P(\"f\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Move P(\"e\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.Path: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: o.Move P(\"none\\g\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case74 = s\nEnd Function\n\nPrivate Function Case75() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFolder(Left(P(\"\"), 3)): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = o.IsRootFolder: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(o.ParentFolder): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.ParentFolder Is Nothing: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case75 = s\nEnd Function\n\nPrivate Function Case76() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.CreateFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = TypeName(o): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = o.Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: Set o = fso.CreateFolder(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.CreateFolder(P(\"none\\e\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.CreateFolder(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.CreateFolder(P(\"f\\\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FolderExists(P(\"f\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case76 = s\nEnd Function\n\nPrivate Function Case77() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.CreateFolder(P(\"a.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case77 = s\nEnd Function\n\nPrivate Function Case78() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.DeleteFile P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case78 = s\nEnd Function\n\nPrivate Function Case79() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.DeleteFile P(\"*.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"*.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"?.log\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"none\\*\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case79 = s\nEnd Function\n\nPrivate Function Case80() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"a.txt\"), False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"a.txt\"), True: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case80 = s\nEnd Function\n\nPrivate Function Case81() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Open P(\"a.txt\") For Input As #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Close #1: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(P(\"b.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: st.Close: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case81 = s\nEnd Function\n\nPrivate Function Case82() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.DeleteFolder P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFolder P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFolder \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFolder P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case82 = s\nEnd Function\n\nPrivate Function Case83() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.DeleteFolder P(\"d*\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFolder P(\"d*\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case83 = s\nEnd Function\n\nPrivate Function Case84() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFolder P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FolderExists(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case84 = s\nEnd Function\n\nPrivate Function Case85() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: SetAttr P(\"d\\a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFolder P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FolderExists(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: fso.DeleteFolder P(\"d\"), True: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.FolderExists(P(\"d\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case85 = s\nEnd Function\n\nPrivate Function Case86() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"c.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"c.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"c.txt\"), False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"none\"), P(\"e.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"none\\e.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile \"\", P(\"e.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case86 = s\nEnd Function\n\nPrivate Function Case87() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"*.txt\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"*.txt\"), P(\"d\"), False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"*.none\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"*.txt\"), P(\"none\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"*.txt\"), P(\"e.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case87 = s\nEnd Function\n\nPrivate Function Case88() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: SetAttr P(\"b.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"b.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"b.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"a.txt\"), vbReadOnly: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"c.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = GetAttr(P(\"c.txt\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: SetAttr P(\"a.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: SetAttr P(\"c.txt\"), vbNormal: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case88 = s\nEnd Function\n\nPrivate Function Case89() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case89 = s\nEnd Function\n\nPrivate Function Case90() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: MkDir P(\"d\\a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFile P(\"a.txt\"), P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case90 = s\nEnd Function\n\nPrivate Function Case91() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"f\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"f\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"f\"), False: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"g\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"none\"), P(\"h\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"none\\x\\y\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder \"\", P(\"h\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), \"\": If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case91 = s\nEnd Function\n\nPrivate Function Case92() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"t\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d*\"), P(\"t\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"*none\"), P(\"t\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case92 = s\nEnd Function\n\nPrivate Function Case93() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"d\\e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case93 = s\nEnd Function\n\nPrivate Function Case94() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"a.txt\"), P(\"c.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"a.txt\"), P(\"c.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"b.txt\"), P(\"c.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"b.txt\"), P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"c.txt\"), P(\"none\\e.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile \"\", P(\"e.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"c.txt\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case94 = s\nEnd Function\n\nPrivate Function Case95() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"*.txt\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFile P(\"*.txt\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case95 = s\nEnd Function\n\nPrivate Function Case96() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"d\"), P(\"f\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"d\"), P(\"f\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"f\"), P(\"e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"f\"), P(\"e\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"e\\f\"), P(\"none\\g\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder \"\", P(\"g\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case96 = s\nEnd Function\n\nPrivate Function Case97() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: MkDir P(\"t\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"d*\"), P(\"t\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case97 = s\nEnd Function\n\nPrivate Function Case98() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: old = CurDir: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: ChDir P(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = fso.GetAbsolutePathName(\"a.txt\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetAbsolutePathName(\".\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetAbsolutePathName(\"..\\b\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetAbsolutePathName(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetAbsolutePathName(\"a\\..\\b\\\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetAbsolutePathName(P(\"x\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: ChDir old: If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case98 = s\nEnd Function\n\nPrivate Function Case99() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: t = fso.GetTempName: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: v = Len(t): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Left(t, 3): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = Right(t, 4): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(t): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case99 = s\nEnd Function\n\nPrivate Function Case100() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: v = TypeName(fso.GetSpecialFolder(0)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(fso.GetSpecialFolder(1)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetSpecialFolder(0).Name: If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case100 = s\nEnd Function\n\nPrivate Function Case101() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: v = TypeName(fso.GetSpecialFolder(2)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.GetSpecialFolder(3): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.FolderExists(fso.GetSpecialFolder(2).Path): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case101 = s\nEnd Function\n\nPrivate Function Case102() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: v = TypeName(fso.DriveExists(\"C:\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.DriveExists(\"\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.DriveExists(Left(P(\"\"), 2)): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = fso.DriveExists(\"?:\"): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case102 = s\nEnd Function\n\nPrivate Function Case103() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: Set o = fso.GetFile(Null): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.GetFolder(Null): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set o = fso.CreateFolder(Null): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile Null: If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.OpenTextFile(Null): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: Set st = fso.CreateTextFile(Null): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case103 = s\nEnd Function\n\nPrivate Function Case104() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.DeleteFile P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"none\\*\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"none\\x\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.DeleteFile P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case104 = s\nEnd Function\n\nPrivate Function Case105() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"d\\e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\"), P(\"d\\\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.CopyFolder P(\"d\\\"), P(\"f\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"d\"), P(\"d\\e\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    Err.Clear: fso.MoveFolder P(\"d\"), P(\"d\"): If Err.Number Then Mark s, Err.Number, Err.Description\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case105 = s\nEnd Function\n\nPrivate Function Case106() As String\n    Dim s As String, v As Variant, t As Variant, old As Variant\n    Dim fso As Object, st As Object, o As Object, o2 As Object\n    On Error Resume Next\n    Set fso = CreateObject(\"Scripting.FileSystemObject\")\n    Err.Clear: v = TypeName(fso.GetFolder(P(\"\")).Files): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(fso): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(fso.GetFileName(\"a\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    Err.Clear: v = TypeName(fso.FileExists(\"a\")): If Err.Number Then Mark s, Err.Number, Err.Description Else s = s & \"|\" & Esc(CStrOf(v))\n    If Not st Is Nothing Then st.Close\n    Close\n    Err.Clear\n    Case106 = s\nEnd Function\n\nPublic Function Probe(ByVal folder As String, ByVal sep As String, ByVal which As Long) As String\n    gFolder = folder: gSep = sep\n    Select Case which\n        Case 0: Probe = Case0()\n        Case 1: Probe = Case1()\n        Case 2: Probe = Case2()\n        Case 3: Probe = Case3()\n        Case 4: Probe = Case4()\n        Case 5: Probe = Case5()\n        Case 6: Probe = Case6()\n        Case 7: Probe = Case7()\n        Case 8: Probe = Case8()\n        Case 9: Probe = Case9()\n        Case 10: Probe = Case10()\n        Case 11: Probe = Case11()\n        Case 12: Probe = Case12()\n        Case 13: Probe = Case13()\n        Case 14: Probe = Case14()\n        Case 15: Probe = Case15()\n        Case 16: Probe = Case16()\n        Case 17: Probe = Case17()\n        Case 18: Probe = Case18()\n        Case 19: Probe = Case19()\n        Case 20: Probe = Case20()\n        Case 21: Probe = Case21()\n        Case 22: Probe = Case22()\n        Case 23: Probe = Case23()\n        Case 24: Probe = Case24()\n        Case 25: Probe = Case25()\n        Case 26: Probe = Case26()\n        Case 27: Probe = Case27()\n        Case 28: Probe = Case28()\n        Case 29: Probe = Case29()\n        Case 30: Probe = Case30()\n        Case 31: Probe = Case31()\n        Case 32: Probe = Case32()\n        Case 33: Probe = Case33()\n        Case 34: Probe = Case34()\n        Case 35: Probe = Case35()\n        Case 36: Probe = Case36()\n        Case 37: Probe = Case37()\n        Case 38: Probe = Case38()\n        Case 39: Probe = Case39()\n        Case 40: Probe = Case40()\n        Case 41: Probe = Case41()\n        Case 42: Probe = Case42()\n        Case 43: Probe = Case43()\n        Case 44: Probe = Case44()\n        Case 45: Probe = Case45()\n        Case 46: Probe = Case46()\n        Case 47: Probe = Case47()\n        Case 48: Probe = Case48()\n        Case 49: Probe = Case49()\n        Case 50: Probe = Case50()\n        Case 51: Probe = Case51()\n        Case 52: Probe = Case52()\n        Case 53: Probe = Case53()\n        Case 54: Probe = Case54()\n        Case 55: Probe = Case55()\n        Case 56: Probe = Case56()\n        Case 57: Probe = Case57()\n        Case 58: Probe = Case58()\n        Case 59: Probe = Case59()\n        Case 60: Probe = Case60()\n        Case 61: Probe = Case61()\n        Case 62: Probe = Case62()\n        Case 63: Probe = Case63()\n        Case 64: Probe = Case64()\n        Case 65: Probe = Case65()\n        Case 66: Probe = Case66()\n        Case 67: Probe = Case67()\n        Case 68: Probe = Case68()\n        Case 69: Probe = Case69()\n        Case 70: Probe = Case70()\n        Case 71: Probe = Case71()\n        Case 72: Probe = Case72()\n        Case 73: Probe = Case73()\n        Case 74: Probe = Case74()\n        Case 75: Probe = Case75()\n        Case 76: Probe = Case76()\n        Case 77: Probe = Case77()\n        Case 78: Probe = Case78()\n        Case 79: Probe = Case79()\n        Case 80: Probe = Case80()\n        Case 81: Probe = Case81()\n        Case 82: Probe = Case82()\n        Case 83: Probe = Case83()\n        Case 84: Probe = Case84()\n        Case 85: Probe = Case85()\n        Case 86: Probe = Case86()\n        Case 87: Probe = Case87()\n        Case 88: Probe = Case88()\n        Case 89: Probe = Case89()\n        Case 90: Probe = Case90()\n        Case 91: Probe = Case91()\n        Case 92: Probe = Case92()\n        Case 93: Probe = Case93()\n        Case 94: Probe = Case94()\n        Case 95: Probe = Case95()\n        Case 96: Probe = Case96()\n        Case 97: Probe = Case97()\n        Case 98: Probe = Case98()\n        Case 99: Probe = Case99()\n        Case 100: Probe = Case100()\n        Case 101: Probe = Case101()\n        Case 102: Probe = Case102()\n        Case 103: Probe = Case103()\n        Case 104: Probe = Case104()\n        Case 105: Probe = Case105()\n        Case 106: Probe = Case106()\n    End Select\nEnd Function\n",
+ "seeds": {
+  "exists": [
+   "@seed a.txt 61"
+  ],
+  "create": [],
+  "create line and column": [],
+  "create overwrite": [
+   "@seed a.txt 61"
+  ],
+  "create no overwrite": [
+   "@seed a.txt 61"
+  ],
+  "create overwrite named": [
+   "@seed a.txt 61"
+  ],
+  "create no folder": [],
+  "create over folder": [],
+  "create read only": [
+   "@seed a.txt 61"
+  ],
+  "create empty name": [],
+  "create unicode": [],
+  "create accented": [],
+  "create line feed": [],
+  "create write null": [],
+  "create negative blanks": [],
+  "create read": [],
+  "create twice": [],
+  "visible before close": [],
+  "after close": [],
+  "read all": [
+   "@seed a.txt 610D0A620A630D64"
+  ],
+  "read all ctrl z": [
+   "@seed a.txt 611A62"
+  ],
+  "read all nul": [
+   "@seed a.txt 610062"
+  ],
+  "read all empty": [
+   "@seed a.txt "
+  ],
+  "read lines": [
+   "@seed a.txt 610D0A620A630D640D0A0D0A65"
+  ],
+  "read line latin": [
+   "@seed a.txt E98081FF"
+  ],
+  "read chars": [
+   "@seed a.txt 6162630D0A64"
+  ],
+  "read bad count": [
+   "@seed a.txt 61"
+  ],
+  "skip": [
+   "@seed a.txt 6162630D0A64650D0A66"
+  ],
+  "at end of line": [
+   "@seed a.txt 610D0A0D0A62"
+  ],
+  "at end lf": [
+   "@seed a.txt 610A62"
+  ],
+  "open missing": [],
+  "open no folder": [],
+  "open folder": [],
+  "open empty": [],
+  "open write": [
+   "@seed a.txt 61"
+  ],
+  "open append": [
+   "@seed a.txt 61"
+  ],
+  "open read write": [
+   "@seed a.txt 61"
+  ],
+  "open bad mode": [
+   "@seed a.txt 61"
+  ],
+  "open create": [],
+  "open no create": [],
+  "open formats": [
+   "@seed a.txt FFFE61006200",
+   "@seed b.txt 6162"
+  ],
+  "open unicode write": [],
+  "open default write": [
+   "@seed a.txt FFFE6100"
+  ],
+  "open twice": [
+   "@seed a.txt 61"
+  ],
+  "open with statement": [
+   "@seed a.txt 61"
+  ],
+  "get file": [
+   "@seed a.txt 616263"
+  ],
+  "get file case": [
+   "@seed a.txt 61"
+  ],
+  "get file missing": [],
+  "get file folder": [],
+  "get file empty": [],
+  "file rename": [
+   "@seed a.txt 61"
+  ],
+  "file rename exists": [
+   "@seed a.txt 61",
+   "@seed b.txt 61"
+  ],
+  "file attributes": [
+   "@seed a.txt 61"
+  ],
+  "file gone": [
+   "@seed a.txt 61"
+  ],
+  "file grows": [
+   "@seed a.txt 61"
+  ],
+  "file delete": [
+   "@seed a.txt 61"
+  ],
+  "file delete read only": [
+   "@seed a.txt 61",
+   "@seed b.txt 61"
+  ],
+  "file copy": [
+   "@seed a.txt 616263"
+  ],
+  "file move": [
+   "@seed a.txt 616263"
+  ],
+  "file stream": [
+   "@seed a.txt 616263"
+  ],
+  "get folder": [
+   "@seed d/a.txt 61",
+   "@seed d/b.txt 61",
+   "@seed d/e/c.txt 61"
+  ],
+  "get folder slash": [],
+  "get folder missing": [],
+  "get folder file": [
+   "@seed a.txt 61"
+  ],
+  "get folder empty": [],
+  "files": [
+   "@seed d/b.txt 61",
+   "@seed d/a.txt 61",
+   "@seed d/C.txt 61",
+   "@seed d/e/x.txt 61"
+  ],
+  "sub folders": [
+   "@seed d/b/x.txt 61",
+   "@seed d/a/x.txt 61",
+   "@seed d/C/x.txt 61",
+   "@seed d/f.txt 61"
+  ],
+  "files live": [
+   "@seed d/a.txt 61"
+  ],
+  "sub folders add": [],
+  "folder create file": [],
+  "folder rename": [],
+  "folder attributes": [],
+  "folder delete": [
+   "@seed d/e/a.txt 61"
+  ],
+  "folder copy": [
+   "@seed d/a.txt 61"
+  ],
+  "folder move": [
+   "@seed d/a.txt 61"
+  ],
+  "root": [],
+  "create folder": [],
+  "create folder over file": [
+   "@seed a.txt 61"
+  ],
+  "delete file": [
+   "@seed a.txt 61"
+  ],
+  "delete file pattern": [
+   "@seed a.txt 61",
+   "@seed b.txt 61",
+   "@seed c.log 61",
+   "@seed d/x.txt 61"
+  ],
+  "delete file read only": [
+   "@seed a.txt 61"
+  ],
+  "delete file open": [
+   "@seed a.txt 61",
+   "@seed b.txt 61"
+  ],
+  "delete folder": [
+   "@seed d/e/a.txt 61"
+  ],
+  "delete folder pattern": [
+   "@seed da/x.txt 61",
+   "@seed db/x.txt 61",
+   "@seed e/x.txt 61"
+  ],
+  "delete folder slash": [],
+  "delete folder read only": [
+   "@seed d/a.txt 61"
+  ],
+  "copy file": [
+   "@seed a.txt 61",
+   "@seed b.txt 61"
+  ],
+  "copy file pattern": [
+   "@seed a.txt 61",
+   "@seed b.txt 61",
+   "@seed c.log 61"
+  ],
+  "copy file read only": [
+   "@seed a.txt 61",
+   "@seed b.txt 62"
+  ],
+  "copy file over itself": [
+   "@seed a.txt 61"
+  ],
+  "copy file over folder": [
+   "@seed a.txt 61"
+  ],
+  "copy folder": [
+   "@seed d/a.txt 61",
+   "@seed d/e/b.txt 62"
+  ],
+  "copy folder pattern": [
+   "@seed da/x.txt 61",
+   "@seed db/y.txt 61",
+   "@seed e/z.txt 61"
+  ],
+  "copy folder over itself": [
+   "@seed d/a.txt 61"
+  ],
+  "move file": [
+   "@seed a.txt 61",
+   "@seed b.txt 62"
+  ],
+  "move file pattern": [
+   "@seed a.txt 61",
+   "@seed b.txt 61",
+   "@seed c.log 61"
+  ],
+  "move folder": [
+   "@seed d/a.txt 61"
+  ],
+  "move folder pattern": [
+   "@seed da/x.txt 61",
+   "@seed db/y.txt 61"
+  ],
+  "absolute": [],
+  "temp name": [],
+  "special folder": [],
+  "temp folder": [],
+  "drive exists": [],
+  "nulls": [],
+  "names of folders": [
+   "@seed d/a.txt 61"
+  ],
+  "folder onto itself": [
+   "@seed d/a.txt 61"
+  ],
+  "kinds": []
+ },
+ "cases": [
+  [
+   "exists",
+   "|Boolean True|Boolean True|Boolean False|Boolean False|Boolean True|Boolean False|Boolean False|Boolean True|Boolean False|Boolean False[E13:Type mismatch][E13:Type mismatch]",
+   "a.txt=61 d/"
+  ],
+  [
+   "create",
+   "|TextStream",
+   "a.txt=6162636465660d0a0d0a0d0a0d0a350d0a312e3554727565"
+  ],
+  [
+   "create line and column",
+   "|Long 1|Long 1|Long 1|Long 4|Long 2|Long 1|Long 3|Long 3|Long 4|Long 1|Long 4|Long 3",
+   "a.txt=616263640d0a780d0a797a780a780d"
+  ],
+  [
+   "create overwrite",
+   "",
+   "a.txt="
+  ],
+  [
+   "create no overwrite",
+   "[E58:File already exists]|Nothing",
+   "a.txt=61"
+  ],
+  [
+   "create overwrite named",
+   "",
+   "a.txt="
+  ],
+  [
+   "create no folder",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "create over folder",
+   "[E70:Permission denied]",
+   "d/"
+  ],
+  [
+   "create read only",
+   "[E70:Permission denied]",
+   "a.txt=61"
+  ],
+  [
+   "create empty name",
+   "[E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "create unicode",
+   "",
+   "a.txt=fffe6100e900d2040d000a00"
+  ],
+  [
+   "create accented",
+   "[E5:Invalid procedure call or argument]",
+   "a.txt=e90d0a800d0a61667465720d0a"
+  ],
+  [
+   "create line feed",
+   "",
+   "a.txt=610a620d63"
+  ],
+  [
+   "create write null",
+   "[E13:Type mismatch][E13:Type mismatch]",
+   "a.txt=0d0a"
+  ],
+  [
+   "create negative blanks",
+   "[E5:Invalid procedure call or argument]",
+   "a.txt="
+  ],
+  [
+   "create read",
+   "[E54:Bad file mode][E54:Bad file mode][E54:Bad file mode][E54:Bad file mode][E54:Bad file mode][E54:Bad file mode][E54:Bad file mode]",
+   "a.txt="
+  ],
+  [
+   "create twice",
+   "[E70:Permission denied]",
+   "a.txt="
+  ],
+  [
+   "visible before close",
+   "|Long 0|Long 3",
+   "a.txt=616263"
+  ],
+  [
+   "after close",
+   "[E91:Object variable or With block variable not set][E91:Object variable or With block variable not set][E91:Object variable or With block variable not set]",
+   "a.txt="
+  ],
+  [
+   "read all",
+   "|Boolean False|a\\u000D\\u000Ab\\u000Ac\\u000Dd|Boolean True",
+   "a.txt=610d0a620a630d64"
+  ],
+  [
+   "read all ctrl z",
+   "|Boolean False|a\\u001Ab|Boolean True",
+   "a.txt=611a62"
+  ],
+  [
+   "read all nul",
+   "|Boolean False|a\\u0000b|Boolean True",
+   "a.txt=610062"
+  ],
+  [
+   "read all empty",
+   "|Boolean True|Boolean True[E62:Input past end of file]",
+   "a.txt="
+  ],
+  [
+   "read lines",
+   "|a|Long 2|b|Long 3|c\\u000Dd|Long 4||Long 5|e|Long 5[E62:Input past end of file]|Long 5",
+   "a.txt=610d0a620a630d640d0a0d0a65"
+  ],
+  [
+   "read line latin",
+   "|\\u00E9\\u20AC\\u0081\\u00FF",
+   "a.txt=e98081ff"
+  ],
+  [
+   "read chars",
+   "|ab|Long 3|c\\u000D|Long 1|Long 5|\\u000A|Long 2|Long 1|d|Boolean True[E62:Input past end of file]",
+   "a.txt=6162630d0a64"
+  ],
+  [
+   "read bad count",
+   "|[E5:Invalid procedure call or argument]",
+   "a.txt=61"
+  ],
+  [
+   "skip",
+   "|Long 3|c|Long 2|de[E5:Invalid procedure call or argument]|f[E62:Input past end of file][E62:Input past end of file][E62:Input past end of file]|Boolean True",
+   "a.txt=6162630d0a64650d0a66"
+  ],
+  [
+   "at end of line",
+   "|Boolean False|a|Boolean True|Boolean True|Boolean False|b|Boolean True|Boolean True",
+   "a.txt=610d0a0d0a62"
+  ],
+  [
+   "at end lf",
+   "|a|Boolean True||Long 2",
+   "a.txt=610a62"
+  ],
+  [
+   "open missing",
+   "[E53:File not found]|Nothing",
+   ""
+  ],
+  [
+   "open no folder",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "open folder",
+   "[E70:Permission denied]",
+   "d/"
+  ],
+  [
+   "open empty",
+   "[E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "open write",
+   "[E54:Bad file mode]",
+   "a.txt=62"
+  ],
+  [
+   "open append",
+   "|Long 1|Long 3[E54:Bad file mode]",
+   "a.txt=6162"
+  ],
+  [
+   "open read write",
+   "[E54:Bad file mode]",
+   "a.txt=61"
+  ],
+  [
+   "open bad mode",
+   "[E5:Invalid procedure call or argument][E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   "a.txt=61"
+  ],
+  [
+   "open create",
+   "|Boolean True",
+   "a.txt=62 b.txt= c.txt="
+  ],
+  [
+   "open no create",
+   "[E53:File not found][E53:File not found]",
+   ""
+  ],
+  [
+   "open formats",
+   "|ab|\\u00FF\\u00FEa\\u0000b\\u0000|ab|ab|\\u6261[E5:Invalid procedure call or argument]",
+   "a.txt=fffe61006200 b.txt=6162"
+  ],
+  [
+   "open unicode write",
+   "",
+   "a.txt=fffe61006200"
+  ],
+  [
+   "open default write",
+   "",
+   "a.txt=62"
+  ],
+  [
+   "open twice",
+   "|a",
+   "a.txt="
+  ],
+  [
+   "open with statement",
+   "[E70:Permission denied][E70:Permission denied]",
+   "a.txt="
+  ],
+  [
+   "get file",
+   "|File|a.txt|FOLDER/a.txt|FOLDER/a.txt|Long 3|Long|Long 32|Long|Date|Date|Date|Folder|FOLDER",
+   "a.txt=616263"
+  ],
+  [
+   "get file case",
+   "|a.txt|FOLDER/a.txt",
+   "a.txt=61"
+  ],
+  [
+   "get file missing",
+   "[E53:File not found]|Nothing",
+   ""
+  ],
+  [
+   "get file folder",
+   "[E53:File not found]",
+   "d/"
+  ],
+  [
+   "get file empty",
+   "[E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "file rename",
+   "|b.txt|FOLDER/b.txt|Long 1[E58:File already exists][E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   "b.txt=61"
+  ],
+  [
+   "file rename exists",
+   "[E58:File already exists]|a.txt",
+   "a.txt=61 b.txt=61"
+  ],
+  [
+   "file attributes",
+   "|Long 1|Long 1|Long 0|Long 0|Long 0",
+   "a.txt=61"
+  ],
+  [
+   "file gone",
+   "[E53:File not found][E53:File not found][E53:File not found][E53:File not found][E53:File not found][E53:File not found]",
+   ""
+  ],
+  [
+   "file grows",
+   "|Long 1|Long 3",
+   "a.txt=616263"
+  ],
+  [
+   "file delete",
+   "|Boolean False[E53:File not found][E53:File not found]",
+   ""
+  ],
+  [
+   "file delete read only",
+   "[E70:Permission denied]|Boolean True|Boolean False",
+   "a.txt=61"
+  ],
+  [
+   "file copy",
+   "[E70:Permission denied][E58:File already exists][E76:Path not found]|a.txt",
+   "a.txt=616263 b.txt=616263 d/ d/a.txt=616263"
+  ],
+  [
+   "file move",
+   "|b.txt|FOLDER/b.txt|FOLDER/d/b.txt[E76:Path not found]|FOLDER/d/b.txt",
+   "d/ d/b.txt=616263"
+  ],
+  [
+   "file stream",
+   "|abc[E5:Invalid procedure call or argument]",
+   "a.txt=7a007900"
+  ],
+  [
+   "get folder",
+   "|Folder|d|FOLDER/d|FOLDER/d|Long 3|Long|Long 16|Boolean False|Folder|FOLDER|Date|Files|Folders|Long 2|Long 1|Long",
+   "d/ d/a.txt=61 d/b.txt=61 d/e/ d/e/c.txt=61"
+  ],
+  [
+   "get folder slash",
+   "|FOLDER/d|d|d",
+   "d/"
+  ],
+  [
+   "get folder missing",
+   "[E76:Path not found]",
+   ""
+  ],
+  [
+   "get folder file",
+   "[E76:Path not found]",
+   "a.txt=61"
+  ],
+  [
+   "get folder empty",
+   "[E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "files",
+   "|a.txt|b.txt|C.txt|a.txt|a.txt[E53:File not found][E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   "d/ d/a.txt=61 d/b.txt=61 d/C.txt=61 d/e/ d/e/x.txt=61"
+  ],
+  [
+   "sub folders",
+   "|a|b|C|a|FOLDER/d/a[E76:Path not found][E5:Invalid procedure call or argument]|Files",
+   "d/ d/a/ d/a/x.txt=61 d/b/ d/b/x.txt=61 d/C/ d/C/x.txt=61 d/f.txt=61"
+  ],
+  [
+   "files live",
+   "|Long 1|Long 0",
+   "d/"
+  ],
+  [
+   "sub folders add",
+   "|Folder|e|Long 1[E58:File already exists][E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   "d/ d/e/"
+  ],
+  [
+   "folder create file",
+   "|TextStream[E58:File already exists]",
+   "d/ d/a.txt=78 d/b.txt=fffe"
+  ],
+  [
+   "folder rename",
+   "|e|FOLDER/e|Boolean True[E58:File already exists]",
+   "e/ f/"
+  ],
+  [
+   "folder attributes",
+   "|Long 17|Long 16",
+   "d/"
+  ],
+  [
+   "folder delete",
+   "|Boolean False[E76:Path not found][E76:Path not found]",
+   ""
+  ],
+  [
+   "folder copy",
+   "[E58:File already exists][E76:Path not found][E76:Path not found]",
+   "d/ d/a.txt=61 e/ e/a.txt=61"
+  ],
+  [
+   "folder move",
+   "|FOLDER/f|FOLDER/e/f[E76:Path not found]",
+   "e/ e/f/ e/f/a.txt=61"
+  ],
+  [
+   "root",
+   "|Boolean True||Nothing|Boolean True",
+   ""
+  ],
+  [
+   "create folder",
+   "|Folder|d[E58:File already exists][E76:Path not found][E5:Invalid procedure call or argument]|Boolean True",
+   "d/ f/"
+  ],
+  [
+   "create folder over file",
+   "[E58:File already exists]",
+   "a.txt=61"
+  ],
+  [
+   "delete file",
+   "[E53:File not found][E5:Invalid procedure call or argument]",
+   ""
+  ],
+  [
+   "delete file pattern",
+   "[E53:File not found][E53:File not found]",
+   "d/ d/x.txt=61"
+  ],
+  [
+   "delete file read only",
+   "[E70:Permission denied][E70:Permission denied]",
+   ""
+  ],
+  [
+   "delete file open",
+   "[E70:Permission denied][E70:Permission denied]",
+   "a.txt=61 b.txt=61"
+  ],
+  [
+   "delete folder",
+   "[E76:Path not found][E5:Invalid procedure call or argument][E76:Path not found]",
+   ""
+  ],
+  [
+   "delete folder pattern",
+   "[E76:Path not found]",
+   "e/ e/x.txt=61"
+  ],
+  [
+   "delete folder slash",
+   "[E76:Path not found]|Boolean True",
+   "d/"
+  ],
+  [
+   "delete folder read only",
+   "[E70:Permission denied]|Boolean True|Boolean False",
+   ""
+  ],
+  [
+   "copy file",
+   "[E58:File already exists][E70:Permission denied][E53:File not found][E76:Path not found][E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   "a.txt=61 b.txt=61 c.txt=61 d/ d/a.txt=61"
+  ],
+  [
+   "copy file pattern",
+   "[E58:File already exists][E53:File not found][E76:Path not found][E76:Path not found]",
+   "a.txt=61 b.txt=61 c.log=61 d/ d/a.txt=61 d/b.txt=61"
+  ],
+  [
+   "copy file read only",
+   "[E70:Permission denied]|Long 33",
+   "a.txt=61 b.txt=62 c.txt=61"
+  ],
+  [
+   "copy file over itself",
+   "",
+   "a.txt=61"
+  ],
+  [
+   "copy file over folder",
+   "[E70:Permission denied][E70:Permission denied]",
+   "a.txt=61 d/ d/a.txt/"
+  ],
+  [
+   "copy folder",
+   "[E58:File already exists][E76:Path not found][E76:Path not found][E76:Path not found][E5:Invalid procedure call or argument][E5:Invalid procedure call or argument]",
+   "d/ d/a.txt=61 d/e/ d/e/b.txt=62 f/ f/a.txt=61 f/e/ f/e/b.txt=62"
+  ],
+  [
+   "copy folder pattern",
+   "[E76:Path not found]",
+   "da/ da/x.txt=61 db/ db/y.txt=61 e/ e/z.txt=61 t/ t/da/ t/da/x.txt=61 t/db/ t/db/y.txt=61"
+  ],
+  [
+   "copy folder over itself",
+   "[E5:Invalid procedure call or argument]",
+   "d/ d/a.txt=61"
+  ],
+  [
+   "move file",
+   "[E53:File not found][E58:File already exists][E76:Path not found][E5:Invalid procedure call or argument][E58:File already exists]",
+   "c.txt=61 d/ d/b.txt=62"
+  ],
+  [
+   "move file pattern",
+   "[E53:File not found]",
+   "c.log=61 d/ d/a.txt=61 d/b.txt=61"
+  ],
+  [
+   "move folder",
+   "[E76:Path not found][E58:File already exists][E76:Path not found][E5:Invalid procedure call or argument]",
+   "e/ e/f/ e/f/a.txt=61"
+  ],
+  [
+   "move folder pattern",
+   "",
+   "t/ t/da/ t/da/x.txt=61 t/db/ t/db/y.txt=61"
+  ],
+  [
+   "absolute",
+   "|FOLDER/a.txt|FOLDER|ROOT/b|FOLDER|FOLDER/b|FOLDER/x",
+   ""
+  ],
+  [
+   "temp name",
+   "|Long 12|rad|.tmp|String",
+   ""
+  ],
+  [
+   "special folder",
+   "|Folder|Folder|Windows",
+   ""
+  ],
+  [
+   "temp folder",
+   "|Folder[E5:Invalid procedure call or argument]|Boolean True",
+   ""
+  ],
+  [
+   "drive exists",
+   "|Boolean|Boolean False|Boolean True|Boolean False",
+   ""
+  ],
+  [
+   "nulls",
+   "[E13:Type mismatch][E13:Type mismatch][E13:Type mismatch][E13:Type mismatch][E13:Type mismatch][E13:Type mismatch]",
+   ""
+  ],
+  [
+   "names of folders",
+   "[E53:File not found][E53:File not found][E53:File not found]",
+   "d/ d/a.txt=61"
+  ],
+  [
+   "folder onto itself",
+   "[E5:Invalid procedure call or argument][E5:Invalid procedure call or argument][E76:Path not found][E5:Invalid procedure call or argument]",
+   "d/ d/a.txt=61"
+  ],
+  [
+   "kinds",
+   "|Files|FileSystemObject|String|Boolean",
+   ""
+  ]
+ ]
+}

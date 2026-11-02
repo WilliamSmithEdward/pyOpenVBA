@@ -92,9 +92,9 @@ That covers `Workbook.Save`, `SaveAs` and `SaveCopyAs`, `Workbooks.Open` and
 `VBComponents.Import`, `CodeModule.AddFromFile`, a workbook link's status, and
 the same open and save members in Word and PowerPoint. It also covers what
 pyOpenVBA implements only with it off, such as `Open`, `Kill`, `Dir`, `Environ` and the HTTP
-objects, and what it does not implement at all: `Shell`, `GetSetting`, a `Declare`,
-`FileSystemObject`'s file members, and `CreateObject` for anything else that needs a COM
-server. With the sandbox off those last stay `VBAUnsupportedError`.
+objects, and what it does not implement at all: `Shell`, `GetSetting`, a `Declare`, and
+`CreateObject` for anything else that needs a COM server. With the sandbox off those
+last stay `VBAUnsupportedError`.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
 The sandbox governs VBA only: Python's own `app.save` and
@@ -124,9 +124,19 @@ dynamic array with its dimensions first except at the top of a Binary file. A re
 the end gets zeros, and `EOF` then says so. `Lock` and `Unlock` keep their ranges and
 raise error 70 as Excel does, without locking the file against another process.
 
+`Scripting.FileSystemObject` has its files, folders and text streams too, as
+`tests/fixtures/file_system_object.json` measured: `FileExists`, `FolderExists`, `GetFile`,
+`GetFolder`, `CreateFolder`, `CreateTextFile`, `OpenTextFile`, the copy, move and delete
+members, `GetAbsolutePathName`, `GetTempName`, `GetSpecialFolder`, and the `File`, `Folder`,
+`Files`, `Folders` and `TextStream` objects. Its errors are its own: 70 where a statement
+says 75 or 55, and error 5 for a character Windows-1252 lacks, where `Print #` writes a
+question mark. Its path functions, such as `GetBaseName`, reach nothing and work with the
+sandbox on. `Drive` objects, `ShortName`, `ShortPath` and `Type` come from the machine and
+are refused.
+
 Not implemented yet: `ChDrive`, `CurDir` of another drive, `Get` of an array into a
-Variant or of a dynamic array with its dimensions, a dynamic array of more than one
-dimension in a record, and `FileSystemObject`'s file members. `SetAttr`'s
+Variant or of a dynamic array with its dimensions, and a dynamic array of more than one
+dimension in a record. `SetAttr`'s
 hidden, system and archive bits are kept for the session, and only read-only reaches the
 file. `ChDir` moves the VBA's own current folder, and the Excel object model's relative
 paths do not follow it.

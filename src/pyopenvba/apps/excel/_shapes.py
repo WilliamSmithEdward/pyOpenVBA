@@ -603,6 +603,18 @@ class ShapeRange(VBACollection, Created):
     def Connector(self) -> object:
         return self.shared("Connector")
 
+    @member
+    def Fill(self) -> object:
+        from pyopenvba.apps.excel._shape_format import RangeFill
+
+        return RangeFill(self)
+
+    @member
+    def Line(self) -> object:
+        from pyopenvba.apps.excel._shape_format import RangeLine
+
+        return RangeLine(self)
+
     def mixed(self, name: str) -> object:
         """What every shape reads for ``name``, or -2, Excel's mixed value, where they differ
         (tests/fixtures/shape_scale.json)."""
@@ -1206,16 +1218,23 @@ class ShapeObject(_Drawn):
             raise _unsupported("Hyperlink of a loaded shape")
         raise error(1004, "Unable to get the Hyperlink property of the Shape class")
 
+    def on_sheet(self) -> None:
+        # A deleted shape has nothing to answer with (tests/fixtures/shape_range_fill_line.json).
+        if not any(shape is self.shape for shape in self.sheet.shapes_):
+            raise error(424, "Object required")
+
     @member
     def Fill(self) -> object:
         from pyopenvba.apps.excel._shape_format import FillFormat
 
+        self.on_sheet()
         return FillFormat(self)
 
     @member
     def Line(self) -> object:
         from pyopenvba.apps.excel._shape_format import LineFormat
 
+        self.on_sheet()
         return LineFormat(self)
 
     def _measured_kind(self, what: str) -> str:

@@ -233,6 +233,8 @@ class FillLine:
     frozen_dash: str | None = None
     #: A fill colour set while the line is hidden loses the hidden line.
     line_lost: bool = False
+    #: Hidden through a range, after its first shape: a noFill and no copy of the colour, which is gone.
+    fill_bare: bool = False
 
 
 @dataclass(slots=True)

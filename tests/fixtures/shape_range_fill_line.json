@@ -1,0 +1,346 @@
+{
+ "measured_at": "2026-11-02T17:40:51.631737+00:00",
+ "reads": [
+  "sr.Fill.Visible",
+  "sr.Fill.ForeColor.RGB",
+  "sr.Fill.Transparency",
+  "sr.Fill.Type",
+  "sr.Fill.BackColor.RGB",
+  "sr.Fill.ForeColor.ObjectThemeColor",
+  "sr.Fill.ForeColor.Type",
+  "sr.Line.Visible",
+  "sr.Line.ForeColor.RGB",
+  "sr.Line.Weight",
+  "sr.Line.DashStyle",
+  "sr.Line.Style",
+  "sr.Line.Transparency",
+  "sr.Line.ForeColor.ObjectThemeColor",
+  "sr.Line.ForeColor.Type",
+  "TypeName(sr.Fill)",
+  "TypeName(sr.Line)",
+  "TypeName(sr.Fill.ForeColor)",
+  "TypeName(sr.Fill.Parent)",
+  "TypeName(sr.Line.Parent)",
+  "TypeName(sr.Fill.Application)",
+  "s0",
+  "a.Fill.ForeColor.RGB",
+  "b.Fill.ForeColor.RGB",
+  "a.Line.Weight",
+  "b.Line.Weight",
+  "d.Line.Weight",
+  "a.Fill.Visible",
+  "a.Fill.Transparency",
+  "a.Fill.Type",
+  "a.Fill.BackColor.RGB",
+  "a.Fill.ForeColor.ObjectThemeColor",
+  "a.Fill.ForeColor.Type",
+  "b.Fill.Visible",
+  "b.Fill.Transparency",
+  "b.Fill.Type",
+  "b.Fill.BackColor.RGB",
+  "b.Fill.ForeColor.ObjectThemeColor",
+  "b.Fill.ForeColor.Type",
+  "c.Fill.Visible",
+  "c.Fill.ForeColor.RGB",
+  "d.Fill.Visible",
+  "d.Fill.ForeColor.RGB"
+ ],
+ "source": "Private Function Tried(ByVal which As Long, ByVal folder As String) As String\n    Dim wb As Workbook, ws As Worksheet, a As Object, b As Object, c As Object, d As Object\n    Dim sr As Object, kept As Object, s As String, v As String, s0 As String\n    Set wb = Workbooks.Add(xlWBATWorksheet): Set ws = wb.Worksheets(1)\n    Set a = ws.Shapes.AddShape(msoShapeRectangle, 10, 10, 100, 40)\n    Set b = ws.Shapes.AddShape(msoShapeRectangle, 10, 60, 100, 40)\n    Set c = ws.Shapes.AddTextbox(msoTextOrientationHorizontal, 10, 110, 100, 40)\n    Set d = ws.Shapes.AddLine(10, 160, 110, 200)\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n    Case 1\n        Set sr = ws.Shapes.Range(Array(a.Name, c.Name))\n    Case 2\n        Set sr = ws.Shapes.Range(Array(a.Name, d.Name))\n    Case 3\n        Set sr = ws.Shapes.Range(Array(a.Name))\n    Case 4\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Fill.ForeColor.RGB = 255\n    Case 5\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Fill.ForeColor.RGB = 255: b.Fill.ForeColor.RGB = 255\n    Case 6\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Fill.Transparency = 0.5\n    Case 7\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Fill.Visible = msoFalse\n    Case 8\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Line.ForeColor.RGB = 255\n    Case 9\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Line.Weight = 3\n    Case 10\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Line.DashStyle = msoLineDash\n    Case 11\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Line.Visible = msoFalse\n    Case 12\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Line.Transparency = 0.5\n    Case 13\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.ForeColor.RGB = 255\n    Case 14\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Transparency = 0.5\n    Case 15\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Visible = msoFalse\n    Case 16\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Solid\n    Case 17\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.ForeColor.RGB = 255\n    Case 18\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Weight = 3\n    Case 19\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.DashStyle = msoLineDash\n    Case 20\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Visible = msoFalse\n    Case 21\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Transparency = 0.5\n    Case 22\n        Set sr = ws.Shapes.Range(Array(a.Name, c.Name))\n        sr.Fill.ForeColor.RGB = 255\n    Case 23\n        Set sr = ws.Shapes.Range(Array(a.Name, c.Name))\n        sr.Fill.Visible = msoFalse\n    Case 24\n        Set sr = ws.Shapes.Range(Array(a.Name, c.Name))\n        sr.Line.Weight = 3\n    Case 25\n        Set sr = ws.Shapes.Range(Array(a.Name, d.Name))\n        sr.Fill.ForeColor.RGB = 255\n    Case 26\n        Set sr = ws.Shapes.Range(Array(d.Name, a.Name))\n        sr.Fill.ForeColor.RGB = 255\n    Case 27\n        Set sr = ws.Shapes.Range(Array(a.Name, d.Name))\n        sr.Fill.Visible = msoFalse\n    Case 28\n        Set sr = ws.Shapes.Range(Array(a.Name, d.Name))\n        sr.Fill.Visible = msoTrue\n    Case 29\n        Set sr = ws.Shapes.Range(Array(a.Name, d.Name))\n        sr.Line.Weight = 3\n    Case 30\n        Set sr = ws.Shapes.Range(Array(a.Name, d.Name))\n        sr.Line.ForeColor.RGB = 255\n    Case 31\n        Set sr = ws.Shapes.Range(Array(a.Name))\n        sr.Fill.ForeColor.RGB = 255\n    Case 32\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        Set kept = sr.Fill: a.Fill.ForeColor.RGB = 255: s0 = kept.ForeColor.RGB\n    Case 33\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        Set kept = sr.Fill: a.Delete: s0 = kept.ForeColor.RGB\n    Case 34\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Weight = -1\n    Case 35\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Transparency = 2\n    Case 36\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Visible = msoFalse: sr.Fill.Visible = msoTrue\n    Case 37\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Visible = msoFalse: b.Fill.Visible = msoTrue\n    Case 38\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Visible = msoFalse: a.Fill.Visible = msoTrue\n    Case 39\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Visible = msoFalse: b.Fill.ForeColor.RGB = 255\n    Case 40\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Visible = msoFalse: b.Fill.Transparency = 0.5\n    Case 41\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Visible = msoFalse: sr.Fill.ForeColor.RGB = 255\n    Case 42\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Fill.Visible = msoFalse: b.Fill.Visible = msoFalse\n    Case 43\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Fill.Visible = msoFalse: sr.Fill.Visible = msoFalse\n    Case 44\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        b.Fill.Visible = msoFalse: sr.Fill.Visible = msoFalse\n    Case 45\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse\n    Case 46\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        b.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse\n    Case 47\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse\n    Case 48\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse: sr.Fill.Visible = msoTrue\n    Case 49\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.Transparency = 0.5: sr.Fill.Visible = msoFalse\n    Case 50\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Weight = 3: sr.Fill.Visible = msoFalse\n    Case 51\n        Set sr = ws.Shapes.Range(Array(d.Name, a.Name))\n        sr.Fill.Visible = msoFalse\n    Case 52\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name, c.Name))\n        sr.Fill.Visible = msoFalse\n    Case 53\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Visible = msoFalse: sr.Line.Visible = msoTrue\n    Case 54\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Line.Visible = msoFalse: b.Line.Visible = msoFalse\n    Case 55\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        a.Line.Visible = msoFalse: sr.Line.Visible = msoFalse\n    Case 56\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Visible = msoFalse: sr.Line.Weight = 3\n    Case 57\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Line.Visible = msoFalse: sr.Fill.ForeColor.RGB = 255\n    Case 58\n        Set sr = ws.Shapes.Range(Array(a.Name, b.Name))\n        sr.Fill.BackColor.RGB = 255\n    End Select\n    s = \"ok \"\nAnswered:\n    On Error Resume Next\n    Err.Clear\n    v = \"\"\n    v = sr.Fill.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Fill.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Fill.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Fill.BackColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Fill.ForeColor.ObjectThemeColor\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Fill.ForeColor.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.Weight\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.DashStyle\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.Style\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.ForeColor.ObjectThemeColor\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = sr.Line.ForeColor.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sr.Fill)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sr.Line)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sr.Fill.ForeColor)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sr.Fill.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sr.Line.Parent)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = TypeName(sr.Fill.Application)\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = s0\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Line.Weight\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Line.Weight\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = d.Line.Weight\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Fill.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Fill.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Fill.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Fill.BackColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Fill.ForeColor.ObjectThemeColor\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = a.Fill.ForeColor.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Fill.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Fill.Transparency\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Fill.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Fill.BackColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Fill.ForeColor.ObjectThemeColor\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = b.Fill.ForeColor.Type\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Fill.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = c.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = d.Fill.Visible\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    Err.Clear\n    v = \"\"\n    v = d.Fill.ForeColor.RGB\n    If Err.Number Then v = \"E\" & Err.Number\n    s = s & \",\" & v\n    On Error GoTo 0\n    Tried = s\n    wb.SaveAs folder & \"\\c\" & which & \".xlsx\", xlOpenXMLWorkbook\n    wb.Close False\n    Exit Function\nFailed:\n    s = \"Err \" & Err.Number & \" \"\n    Resume Answered\nEnd Function\n\nPublic Function Probe(ByVal folder As String) As String\n    Dim i As Long, s As String\n    Application.DisplayAlerts = False\n    For i = 0 To 58\n        s = s & \"@@@\" & Tried(i, folder)\n    Next\n    Application.DisplayAlerts = True\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "rects: ",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "text: ",
+   "ok ,-1,-2147483648,0,1,16777215,-2,-2,-1,-2147483648,-2.147484E+09,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "line: ",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,-2147483648,1.5,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "one: ",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Fill.ForeColor.RGB = 255",
+   "ok ,-1,-2147483648,0,1,16777215,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,8544277,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Fill.ForeColor.RGB = 255: b.Fill.ForeColor.RGB = 255",
+   "ok ,-1,255,0,1,16777215,0,1,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,255,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,0,1,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>|<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Fill.Transparency = 0.5",
+   "ok ,-1,8544277,-2.147484E+09,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0.5,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,0,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Line.ForeColor.RGB = 255",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,-2147483648,1.5,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a:ln>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Line.Weight = 3",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,-2.147484E+09,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,3,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln w=\"38100\"/>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Line.DashStyle = msoLineDash",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,-2,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln><a:prstDash val=\"dash\"/></a:ln>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Line.Visible = msoFalse",
+   "ok ,-1,8544277,0,1,16777215,5,2,0,-2147483648,1.5,1,1,-2.147484E+09,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Line.Transparency = 0.5",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,-2.147484E+09,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/><a:headEnd type=\"none\" w=\"med\" len=\"med\"/><a:tailEnd type=\"none\" w=\"med\" len=\"med\"/></a:ln>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.ForeColor.RGB = 255",
+   "ok ,-1,255,0,1,16777215,0,1,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,255,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,0,1,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>|<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Transparency = 0.5",
+   "ok ,-1,8544277,0.5,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0.5,1,16777215,5,2,-1,0.5,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill>|<a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,16777215,1.5,1.5,1.5,0,0,1,16777215,5,2,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Solid",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.ForeColor.RGB = 255",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,255,1.5,1,1,0,0,1,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a:ln>|<a:ln><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a:ln>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Weight = 3",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,3,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,3,3,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln w=\"38100\"/>|<a:ln w=\"38100\"/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.DashStyle = msoLineDash",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,4,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln><a:prstDash val=\"dash\"/></a:ln>|<a:ln><a:prstDash val=\"dash\"/></a:ln>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Visible = msoFalse",
+   "ok ,-1,8544277,0,1,16777215,5,2,0,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Transparency = 0.5",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0.5,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/><a:headEnd type=\"none\" w=\"med\" len=\"med\"/><a:tailEnd type=\"none\" w=\"med\" len=\"med\"/></a:ln>|<a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/><a:headEnd type=\"none\" w=\"med\" len=\"med\"/><a:tailEnd type=\"none\" w=\"med\" len=\"med\"/></a:ln>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "text: sr.Fill.ForeColor.RGB = 255",
+   "ok ,-1,255,0,1,16777215,0,1,-1,-2147483648,-2.147484E+09,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,8544277,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,5,2,-1,255,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>||<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "text: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,-2147483648,-2.147484E+09,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,0,0,1,16777215,5,2,-1,0,1,16777215,5,2,0,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>||<a:noFill/><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "text: sr.Line.Weight = 3",
+   "ok ,-1,-2147483648,0,1,16777215,-2,-2,-1,-2147483648,3,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,3,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln w=\"38100\"/>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"38100\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "line: sr.Fill.ForeColor.RGB = 255",
+   "ok ,-1,255,0,1,16777215,0,1,-1,-2147483648,1.5,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,8544277,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "lineb: sr.Fill.ForeColor.RGB = 255",
+   "ok ,-1,255,0,1,16777215,0,1,-1,-2147483648,1.5,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,8544277,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "line: sr.Fill.Visible = msoFalse",
+   "ok ,0,8544277,0,1,16777215,5,2,-1,-2147483648,1.5,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,0,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|<a:noFill/>"
+  ],
+  [
+   "line: sr.Fill.Visible = msoTrue",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,-2147483648,1.5,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "line: sr.Line.Weight = 3",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,-2147483648,3,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,3,1.5,3,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln w=\"38100\"/>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|<a:ln w=\"38100\"/>"
+  ],
+  [
+   "line: sr.Line.ForeColor.RGB = 255",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,255,1.5,1,1,0,0,1,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:ln><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a:ln>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|<a:ln><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a:ln>"
+  ],
+  [
+   "one: sr.Fill.ForeColor.RGB = 255",
+   "ok ,-1,255,0,1,16777215,0,1,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,8544277,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: Set kept = sr.Fill: a.Fill.ForeColor.RGB = 255: s0 = kept.ForeColor.RGB",
+   "ok ,-1,-2147483648,0,1,16777215,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,-2147483648,255,8544277,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: Set kept = sr.Fill: a.Delete: s0 = kept.ForeColor.RGB",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,8544277,E424,8544277,E424,1.5,1.5,E424,E424,E424,E424,E424,E424,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Weight = -1",
+   "Err -2147024809 ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Transparency = 2",
+   "Err -2147024809 ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Visible = msoFalse: sr.Fill.Visible = msoTrue",
+   "ok ,-1,-2147483648,0,1,16777215,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,14934203,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,0,1,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/>|<a:solidFill><a:srgbClr val=\"BBE0E3\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Visible = msoFalse: b.Fill.Visible = msoTrue",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,14934203,1.5,1.5,1.5,0,0,1,16777215,5,2,-1,0,1,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:solidFill><a:srgbClr val=\"BBE0E3\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Visible = msoFalse: a.Fill.Visible = msoTrue",
+   "ok ,-1,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,16777215,1.5,1.5,1.5,-1,0,1,16777215,5,2,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/>|<a:noFill/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Visible = msoFalse: b.Fill.ForeColor.RGB = 255",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,255,1.5,1.5,1.5,0,0,1,16777215,5,2,-1,0,1,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Visible = msoFalse: b.Fill.Transparency = 0.5",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,0,1.5,1.5,1.5,0,0,1,16777215,5,2,-1,0.5,1,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:solidFill><a:scrgbClr r=\"0\" g=\"0\" b=\"0\"><a:alpha val=\"50000\"/></a:scrgbClr></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Visible = msoFalse: sr.Fill.ForeColor.RGB = 255",
+   "ok ,0,16777215,1,-2,16777215,0,1,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,16777215,16777215,1.5,1.5,1.5,0,1,-2,16777215,0,1,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/>|<a:noFill/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Fill.Visible = msoFalse: b.Fill.Visible = msoFalse",
+   "ok ,0,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,0,0,1,16777215,5,2,0,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Fill.Visible = msoFalse: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,0,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: b.Fill.Visible = msoFalse: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,0,0,1,16777215,5,2,-1,16777215,0,0",
+   "|<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,16777215,1.5,1.5,1.5,0,0,1,16777215,0,1,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: b.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,16777215,1.5,1.5,1.5,0,0,1,16777215,5,2,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,16777215,1.5,1.5,1.5,0,0,1,16777215,0,1,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.ForeColor.RGB = 255: sr.Fill.Visible = msoFalse: sr.Fill.Visible = msoTrue",
+   "ok ,-1,-2147483648,0,1,16777215,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,14934203,1.5,1.5,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,0,1,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill>|<a:solidFill><a:srgbClr val=\"BBE0E3\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.Transparency = 0.5: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,16777215,1.5,1.5,1.5,0,0.5,1,16777215,5,2,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"><a:alpha val=\"50000\"/></a:schemeClr></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Weight = 3: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,3351556,3,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,16777215,3,3,1.5,0,0,1,16777215,5,2,0,1,-2,16777215,0,1,-1,16777215,0,0",
+   "<a:noFill/><a:ln w=\"38100\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/><a:ln w=\"38100\"/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "lineb: sr.Fill.Visible = msoFalse",
+   "ok ,0,16777215,1,-2,16777215,0,1,-1,-2147483648,1.5,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,16777215,8544277,1.5,1.5,1.5,0,1,-2,16777215,0,1,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:noFill/>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:noFill/></a14:hiddenFill></a:ext></a:extLst>"
+  ],
+  [
+   "three: sr.Fill.Visible = msoFalse",
+   "ok ,0,-2147483648,-2.147484E+09,-2,-2147483648,-2,-2,-1,-2147483648,-2.147484E+09,1,1,0,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,16777215,1.5,1.5,1.5,0,0,1,16777215,5,2,0,1,-2,16777215,0,1,0,16777215,0,0",
+   "<a:noFill/><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}\"><a14:hiddenFill xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\"><a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill></a14:hiddenFill></a:ext></a:extLst>|<a:noFill/>|<a:noFill/><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Visible = msoFalse: sr.Line.Visible = msoTrue",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/>|<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Line.Visible = msoFalse: b.Line.Visible = msoFalse",
+   "ok ,-1,8544277,0,1,16777215,5,2,0,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: a.Line.Visible = msoFalse: sr.Line.Visible = msoFalse",
+   "ok ,-1,8544277,0,1,16777215,5,2,0,-2147483648,1.5,1,1,-2.147484E+09,-2,-2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>||<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Visible = msoFalse: sr.Line.Weight = 3",
+   "ok ,-1,8544277,0,1,16777215,5,2,0,3351556,3,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,3,3,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"38100\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/><a:extLst><a:ext uri=\"{91240B29-F687-4F45-9708-019B960494DF}\"><a14:hiddenLine xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" w=\"38100\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:solidFill><a:schemeClr val=\"accent1\"><a:shade val=\"15000\"/></a:schemeClr></a:solidFill><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a14:hiddenLine></a:ext></a:extLst>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Line.Visible = msoFalse: sr.Fill.ForeColor.RGB = 255",
+   "ok ,-1,255,0,1,16777215,0,1,0,16777215,-2.147484E+09,-2,-2,-2.147484E+09,0,1,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,255,255,-2.147484E+09,-2.147484E+09,1.5,-1,0,1,16777215,0,1,-1,0,1,16777215,0,1,-1,16777215,0,0",
+   "<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/>|<a:solidFill><a:srgbClr val=\"FF0000\"/></a:solidFill><a:ln w=\"19050\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\"><a:noFill/><a:prstDash val=\"solid\"/><a:miter lim=\"800000\"/></a:ln><a:effectLst/>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ],
+  [
+   "rects: sr.Fill.BackColor.RGB = 255",
+   "ok ,-1,8544277,0,1,16777215,5,2,-1,3351556,1.5,1,1,0,5,2,FillFormat,LineFormat,ColorFormat,ShapeRange,ShapeRange,Application,,8544277,8544277,1.5,1.5,1.5,-1,0,1,16777215,5,2,-1,0,1,16777215,5,2,-1,16777215,0,0",
+   "<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"accent1\"/></a:solidFill>|<a:solidFill><a:schemeClr val=\"lt1\"/></a:solidFill><a:ln w=\"9525\" cmpd=\"sng\"><a:solidFill><a:schemeClr val=\"lt1\"><a:shade val=\"50000\"/></a:schemeClr></a:solidFill></a:ln>|"
+  ]
+ ]
+}

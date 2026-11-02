@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Worksheet.QueryTables, OLEObjects and NamedSheetViews, Workbook.XmlMaps,
+  XmlNamespaces, CustomViews, PublishObjects, SlicerCaches, Charts and the
+  Excel 4 macro sheet collections, and Application.Charts. Each is empty as
+  on a new workbook, its items raising the errors Excel raises. A loaded
+  workbook holding any of these is refused rather than read as empty.
+  Measured in `tests/fixtures/empty_collections.json`.
+
 - 19 more Application properties read as Excel starts: DisplayRecentFiles,
   ShowDevTools, CommandUnderlines, DataEntryMode, DefaultSaveFormat,
   CanPlaySounds, Ready and the rest. The writable ones read only, since

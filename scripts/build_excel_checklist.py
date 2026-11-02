@@ -41,6 +41,9 @@ def bound_classes() -> dict[str, type]:
         _cell_format,
         _cell_styles,
         _chart_axes,
+        _chart_data_labels,
+        _chart_error_bars,
+        _chart_trendlines,
         _charts,
         _colour_scales,
         _conditional,
@@ -61,6 +64,7 @@ def bound_classes() -> dict[str, type]:
         _pivot_calculated,
         _pivot_cells,
         _pivot_criteria,
+        _pivot_items,
         _pivots,
         _protection,
         _rich_text,
@@ -70,8 +74,10 @@ def bound_classes() -> dict[str, type]:
         _sparklines,
         _sort,
         _tables,
+        _threads,
         _validation,
         _windows,
+        _workbook_settings,
     )
     from pyopenvba.interpreter._objects import VBAObject
 
@@ -81,7 +87,8 @@ def bound_classes() -> dict[str, type]:
                    _pivot_cells, _sheet_tabs, _conditional,
                    _conditional_display, _colour_scales, _data_bars, _icon_sets, _page_setup, _page_breaks, _outline,
                    _document_properties, _rich_text, _custom_properties, _error_checks,
-                   _scenarios, _cell_format, _sparklines, _connections):
+                   _scenarios, _cell_format, _sparklines, _connections, _chart_data_labels, _chart_error_bars,
+                   _chart_trendlines, _pivot_items, _threads, _workbook_settings):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

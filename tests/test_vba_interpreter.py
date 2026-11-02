@@ -625,3 +625,10 @@ def test_a_class_module_called_dictionary_comes_before_the_scripting_one() -> No
     vba.add_module("Function Main()\n    Dim d As New Dictionary\n    d.Name = \"mine\"\n    Main = d.Name\n"
                    "End Function\n", name="Module1")
     assert vba.run("Main") == "mine"
+
+
+def test_calling_an_object_variable_set_to_nothing_is_error_91() -> None:
+    # tests/fixtures/data_labels_object.json: dl(1) and dl(4).Name with dl Nothing raise 91, not 9.
+    with pytest.raises(VBARuntimeError) as raised:
+        run("Sub Main()\n    Dim o As Object, x As Variant\n    x = o(1)\nEnd Sub\n")
+    assert raised.value.number == 91

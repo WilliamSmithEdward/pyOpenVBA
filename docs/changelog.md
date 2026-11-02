@@ -7,6 +7,13 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ### Added
 
+- Series.DataLabels and the DataLabels object. It reads and sets which
+  parts the labels show, their position, number format and separator, and
+  writes each in the series' dLbls as Excel does. Each chart type's default
+  position and the positions it takes are measured. Labels showing nothing
+  read HasDataLabels False and write none. A DataLabels kept after its
+  labels go raises Excel's errors. Measured in
+  `tests/fixtures/data_labels_object.json`.
 - Chart.Elevation, Rotation, Perspective, RightAngleAxes, DepthPercent,
   HeightPercent, GapDepth, AutoScaling, BarShape, ChartStyle, ChartColor,
   CategoryLabelLevel and SeriesNameLevel, as every chart type the model
@@ -663,6 +670,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
   reads them in the sheet part.
 
 ### Fixed
+
+- Calling an object variable set to Nothing with arguments, as `o(1)`,
+  raises error 91, as VBA does, not 9.
+
+- The Excel checklist now lists ErrorBars, Trendlines, Trendline,
+  CommentThreaded, CommentsThreaded, Author, CalculatedItems and
+  TableStyle, which the model implements, and checks the chart classes
+  against what they register.
 
 - Assigning to a property the model only reads no longer raises a
   trappable error 438 when Excel lets a macro set that property. It

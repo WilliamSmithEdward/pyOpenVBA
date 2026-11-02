@@ -17,7 +17,7 @@ import random
 import math
 import uuid
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 from pyopenvba._xml import escape as escape_attribute, escape_text
@@ -77,6 +77,7 @@ class SeriesData:
     #: HasDataLabels and HasLeaderLines (tests/fixtures/chart_data_labels.json).
     labels: bool = False
     leader_lines: bool = True
+    label_look: LabelLook = field(default_factory=lambda: LabelLook())
     #: The series' errBars elements, written between its data labels and its categories
     #: (tests/fixtures/chart_error_bars.json).
     error_bars: str = ""
@@ -223,7 +224,32 @@ def _reference(element: str, formula: str, cache: str, *, numbers: bool) -> str:
     return f"<c:{element}><c:{kind}><c:f>{escape_text(formula)}</c:f>{cache}</c:{kind}></c:{element}>"
 
 
-def _series_labels(kind: ChartKind, leader_lines: bool) -> str:
+#: DataLabels.Position and how the file spells it (tests/fixtures/data_labels_object.json).
+LABEL_POSITIONS = {3: "inEnd", -4108: "ctr", 4: "inBase", 2: "outEnd", 0: "t", 1: "b", -4131: "l", -4152: "r",
+                   5: "bestFit"}
+
+
+@dataclass
+class LabelLook:
+    """What a series' data labels show and how: the parts shown, a position once set, a number format once set or
+    unlinked, and a separator once set (tests/fixtures/data_labels_object.json)."""
+
+    value: bool = True
+    category: bool = False
+    series: bool = False
+    percent: bool = False
+    legend_key: bool = False
+    bubble: bool = False
+    position: int | None = None
+    number_format: str | None = None
+    linked: bool = True
+    separator: str | None = None
+
+    def shown(self) -> bool:
+        return any((self.value, self.category, self.series, self.percent, self.legend_key, self.bubble))
+
+
+def _series_labels(kind: ChartKind, leader_lines: bool, look: LabelLook) -> str:
     """A series' dLbls once HasDataLabels is on, as Excel writes them; a pie's or doughnut's extension is empty."""
     shown = int(leader_lines)
     extension = ("" if kind in ("pie", "doughnut")
@@ -231,9 +257,17 @@ def _series_labels(kind: ChartKind, leader_lines: bool) -> str:
     tail = (f'<c:ext uri="{{CE6537A1-D6FC-4f65-9D91-7224C49458BB}}"'
             ' xmlns:c15="http://schemas.microsoft.com/office/drawing/2012/chart"'
             + (f">{extension}</c:ext>" if extension else "/>"))
-    return ('<c:dLbls><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr><c:showLegendKey val="0"/>'
-            '<c:showVal val="1"/><c:showCatName val="0"/><c:showSerName val="0"/><c:showPercent val="0"/>'
-            f'<c:showBubbleSize val="0"/><c:showLeaderLines val="{shown}"/><c:extLst>{tail}</c:extLst></c:dLbls>')
+    from pyopenvba.apps.excel._number_format import to_file
+
+    code = escape_attribute(to_file(look.number_format or "General"))
+    number = "" if look.number_format is None and look.linked else f'<c:numFmt formatCode="{code}" sourceLinked="0"/>'
+    place = "" if look.position is None else f'<c:dLblPos val="{LABEL_POSITIONS[look.position]}"/>'
+    flags = "".join(f'<c:{tag} val="{int(on)}"/>' for tag, on in (
+        ("showLegendKey", look.legend_key), ("showVal", look.value), ("showCatName", look.category),
+        ("showSerName", look.series), ("showPercent", look.percent), ("showBubbleSize", look.bubble)))
+    separator = "" if look.separator is None else f"<c:separator>{escape_text(look.separator)}</c:separator>"
+    return (f'<c:dLbls>{number}<c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/></c:spPr>{place}{flags}'
+            f'{separator}<c:showLeaderLines val="{shown}"/><c:extLst>{tail}</c:extLst></c:dLbls>')
 
 
 def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
@@ -264,9 +298,10 @@ def _series(kind: ChartKind, index: int, data: SeriesData, unique: str) -> str:
         element = "xVal" if kind == "scatter" else "cat"
         categories = _reference(element, data.categories, cache, numbers=data.numeric_categories)
     categories = data.trendlines + data.error_bars + categories
-    if data.labels:
-        # A series' data labels come just before its categories, on every kind (tests/fixtures/chart_data_labels.json).
-        categories = _series_labels(kind, data.leader_lines) + categories
+    if data.labels and data.label_look.shown():
+        # A series' data labels come just before its categories, on every kind (tests/fixtures/chart_data_labels.json);
+        # labels showing nothing write none (tests/fixtures/data_labels_object.json).
+        categories = _series_labels(kind, data.leader_lines, data.label_look) + categories
     values = _reference(
         "yVal" if kind == "scatter" else "val",
         data.values,

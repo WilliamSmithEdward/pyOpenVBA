@@ -18,6 +18,10 @@ from pyopenvba.apps.excel import (
     _autofilter,
     _cell_format,
     _chart_axes,
+    _chart_data_labels,
+    _chart_error_bars,
+    _chart_trendlines,
+    _charts,
     _colour_scales,
     _connections,
     _custom_properties,
@@ -35,6 +39,7 @@ from pyopenvba.apps.excel import (
     _pivot_calculated,
     _pivot_cells,
     _pivot_criteria,
+    _pivot_items,
     _pivots,
     _protection,
     _rich_text,
@@ -44,8 +49,10 @@ from pyopenvba.apps.excel import (
     _sparklines,
     _sort,
     _tables,
+    _threads,
     _validation,
     _windows,
+    _workbook_settings,
 )
 from pyopenvba.interpreter._inventory_data import MEMBERS
 from pyopenvba.interpreter._objects import MemberSpec, VBAObject
@@ -78,7 +85,8 @@ def _classes() -> dict[str, type[VBAObject]]:
                    _hyperlinks, _chart_axes, _pivots, _pivot_criteria, _pivot_calculated, _pivot_cells, _sheet_tabs, _page_setup,
                    _page_breaks, _outline, _colour_scales, _data_bars, _icon_sets, _document_properties, _rich_text,
                    _custom_properties, _error_checks, _scenarios, _cell_format, _sparklines,
-                   _connections):
+                   _connections, _charts, _chart_data_labels, _chart_error_bars, _chart_trendlines, _pivot_items,
+                   _threads, _workbook_settings):
         for cls in vars(module).values():
             if not inspect.isclass(cls) or cls.__module__ != module.__name__:
                 continue

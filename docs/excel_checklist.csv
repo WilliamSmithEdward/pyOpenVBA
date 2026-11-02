@@ -341,6 +341,12 @@ Areas,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/core_reads.jso
 Areas,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Areas,Item,"property, read-only",As Range,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
 Areas,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The range of every area.
+Author,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+Author,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+Author,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+Author,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+Author,ProviderID,"property, read-only",As String,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+Author,UserID,"property, read-only",As String,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
 AutoFilter,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_parents.json; tests/test_excel_object_parents.py,The application.
 AutoFilter,ApplyFilter,method,ApplyFilter(),,PARTIAL,tests/fixtures/autofilter.json; tests/fixtures/autofilter_file/autofilter_file.json; tests/test_live_excel_model_gate.py; tests/fixtures/autofilter_edits.json; tests/fixtures/full_calculation.json; tests/test_excel_autofilter_wildcards.py; tests/fixtures/table_autofilter/table_autofilter.json,"Filters again, taking in the rows of data that have grown on below the range. Native calculation probes cover visibility invalidation, cached manual values and unrelated UDF call counts. Wildcard matching uses bounded state transitions while preserving prior literal, tilde, Unicode case, newline and type-admission behavior; no new criterion-length cap."
 AutoFilter,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
@@ -468,6 +474,14 @@ CalculatedFields,Count,"property, read-only",As Long,,PARTIAL,tests/test_excel_p
 CalculatedFields,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 CalculatedFields,Item,method,Item(Index As Variant) As PivotField,,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,"A calculated field by its place or its name, else error 1004."
 CalculatedFields,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_pivot_calculated_fields.py; tests/fixtures/pivot_calculated_fields/pivot_calculated_fields.json; scripts/measure_pivot_calculated_fields.py; tests/test_live_excel_model_gate.py,The table.
+CalculatedItems,_Default,"property, read-only",As PivotItem,,MISSING,,
+CalculatedItems,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+CalculatedItems,Add,method,"Add(Name As String, Formula As String, [UseStandardFormula As Variant]) As PivotItem",,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
+CalculatedItems,Application,"property, read-only",As Application,,MISSING,,
+CalculatedItems,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
+CalculatedItems,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
+CalculatedItems,Item,method,Item(Index As Variant) As PivotItem,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
+CalculatedItems,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/pivot_calculated_items; tests/test_excel_pivot_calculated_items.py,Measured with pivot calculated items.
 CellFormat,AddIndent,property,As Variant,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,"Reads Null; a set, whose finding is not measured, is unsupported."
 CellFormat,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,The application.
 CellFormat,Borders,property,As Borders,no setter,PARTIAL,tests/fixtures/find_format.json; tests/test_excel_find_format.py,Unsupported.
@@ -799,6 +813,18 @@ Comment,Previous,method,Previous() As Comment,,VERIFIED,tests/fixtures/excel_mod
 Comment,Shape,"property, read-only",As Shape,,PARTIAL,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,"Name, Type, Left, Top, Width, Height, Visible, Delete and TextFrame.Characters.Text; the rest of Shape reports itself unsupported."
 Comment,Text,method,"Text([Text As Variant], [Start As Variant], [Overwrite As Variant]) As String",,VERIFIED,tests/fixtures/excel_model/probes.txt,"Given text it replaces the text from Start on, or goes in at Start with Overwrite False; Overwrite True and a Start below 1 are error 5."
 Comment,Visible,property,As Boolean,,VERIFIED,tests/fixtures/excel_model/probes.txt; tests/fixtures/notes.json,
+CommentThreaded,AddReply,method,AddReply([Text As Variant]) As CommentThreaded,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Author,"property, read-only",As Author,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Date,"property, read-only",As Variant,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Delete,method,Delete(),,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Next,method,Next() As CommentThreaded,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Previous,method,Previous() As CommentThreaded,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Replies,"property, read-only",As CommentsThreaded,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Resolved,property,As Boolean,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentThreaded,Text,method,"Text([Text As Variant], [Start As Variant], [Overwrite As Variant]) As String",,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
 Comments,_Default,"property, read-only",As Comment,,PARTIAL,tests/fixtures/hidden_defaults_more.json; tests/test_excel_hidden_defaults_more.py,"Item, bound early; 1004 out of range. Bound late Excel raises 438, which the model does not tell apart."
 Comments,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
 Comments,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -806,6 +832,13 @@ Comments,Count,"property, read-only",As Long,,VERIFIED,tests/fixtures/excel_mode
 Comments,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 Comments,Item,method,Item(Index As Long) As Comment,,VERIFIED,tests/fixtures/excel_model/probes.txt,Row by row; 0 is error 9 and past the last error 1004.
 Comments,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
+CommentsThreaded,_Default,"property, read-only",As CommentThreaded,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentsThreaded,_NewEnum,"property, read-only",As IUnknown,,MISSING,,
+CommentsThreaded,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentsThreaded,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentsThreaded,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentsThreaded,Item,method,Item(Index As Long) As CommentThreaded,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
+CommentsThreaded,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/threaded_comments.json; tests/test_excel_threaded_comments.py,"Measured with threaded comments; files keep the threads, persons and stand-in notes."
 ConditionValue,Application,"property, read-only",As Application,,MISSING,,
 ConditionValue,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 ConditionValue,Modify,method,"Modify(newtype As XlConditionValueTypes, [newvalue As Variant])",,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -863,6 +896,76 @@ DataBarBorder,Color,"property, read-only",As Object,,PARTIAL,tests/fixtures/data
 DataBarBorder,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
 DataBarBorder,Parent,"property, read-only",As Object,,MISSING,,
 DataBarBorder,Type,property,As XlDataBarBorderType,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
+DataLabel,Application,"property, read-only",As Application,,MISSING,,
+DataLabel,AutoText,property,As Boolean,,MISSING,,
+DataLabel,Caption,property,As String,,MISSING,,
+DataLabel,Characters,"property, read-only",As Characters,,MISSING,,
+DataLabel,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,Read.
+DataLabel,Delete,method,Delete() As Variant,,MISSING,,
+DataLabel,Format,"property, read-only",As ChartFormat,,MISSING,,
+DataLabel,Formula,property,As String,,MISSING,,
+DataLabel,FormulaLocal,property,As String,,MISSING,,
+DataLabel,FormulaR1C1,property,As String,,MISSING,,
+DataLabel,FormulaR1C1Local,property,As String,,MISSING,,
+DataLabel,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+DataLabel,Height,property,As Double,,MISSING,,
+DataLabel,HorizontalAlignment,property,As Variant,,MISSING,,
+DataLabel,Left,property,As Double,,MISSING,,
+DataLabel,Name,"property, read-only",As String,,MISSING,,
+DataLabel,NumberFormat,property,As String,,MISSING,,
+DataLabel,NumberFormatLinked,property,As Boolean,,MISSING,,
+DataLabel,NumberFormatLocal,property,As Variant,,MISSING,,
+DataLabel,Orientation,property,As Variant,,MISSING,,
+DataLabel,Parent,"property, read-only",As Object,,MISSING,,
+DataLabel,Position,property,As XlDataLabelPosition,,MISSING,,
+DataLabel,ReadingOrder,property,As Long,,MISSING,,
+DataLabel,Select,method,Select() As Variant,,MISSING,,
+DataLabel,Separator,property,As Variant,,MISSING,,
+DataLabel,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+DataLabel,Shadow,property,As Boolean,,MISSING,,
+DataLabel,ShowBubbleSize,property,As Boolean,,MISSING,,
+DataLabel,ShowCategoryName,property,As Boolean,,MISSING,,
+DataLabel,ShowLegendKey,property,As Boolean,,MISSING,,
+DataLabel,ShowPercentage,property,As Boolean,,MISSING,,
+DataLabel,ShowRange,property,As Boolean,,MISSING,,
+DataLabel,ShowSeriesName,property,As Boolean,,MISSING,,
+DataLabel,ShowValue,property,As Boolean,,MISSING,,
+DataLabel,Text,property,As String,,MISSING,,
+DataLabel,Top,property,As Double,,MISSING,,
+DataLabel,VerticalAlignment,property,As Variant,,MISSING,,
+DataLabel,Width,property,As Double,,MISSING,,
+DataLabels,_Default,method,_Default(Index As Variant) As DataLabel,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,As Item.
+DataLabels,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+DataLabels,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,Read.
+DataLabels,AutoText,property,As Boolean,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
+DataLabels,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,One per point.
+DataLabels,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,Read.
+DataLabels,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,As HasDataLabels set False.
+DataLabels,Format,"property, read-only",As ChartFormat,,MISSING,,
+DataLabels,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+DataLabels,HorizontalAlignment,property,As Variant,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
+DataLabels,Item,method,Item(Index As Variant) As DataLabel,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"A point's label, -2147024809 out of range."
+DataLabels,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,Text S and the series' number.
+DataLabels,NumberFormat,property,As String,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,A set unlinks it; written as the numFmt.
+DataLabels,NumberFormatLinked,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,Linking drops the format; unlinking writes General unlinked.
+DataLabels,NumberFormatLocal,property,As Variant,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,NumberFormat in the Regional format.
+DataLabels,Orientation,property,As Variant,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
+DataLabels,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,The series; -2147417848 once the labels have gone.
+DataLabels,Position,property,As XlDataLabelPosition,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Each type's default and the positions it takes, measured per type; others refused."
+DataLabels,Propagate,method,Propagate(Index As Variant),,MISSING,,
+DataLabels,ReadingOrder,property,As Long,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
+DataLabels,Select,method,Select() As Variant,,MISSING,,
+DataLabels,Separator,property,As Variant,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Reads 1 until set to text, then written; constants are refused."
+DataLabels,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+DataLabels,Shadow,property,As Boolean,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
+DataLabels,ShowBubbleSize,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False. A clustered column or bar raises -2147024809."
+DataLabels,ShowCategoryName,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False."
+DataLabels,ShowLegendKey,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False."
+DataLabels,ShowPercentage,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False. Only a pie takes it; a clustered column or bar raises -2147024809."
+DataLabels,ShowRange,property,As Boolean,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
+DataLabels,ShowSeriesName,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False."
+DataLabels,ShowValue,property,As Boolean,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"Read and set, written in the series' dLbls; labels showing nothing read HasDataLabels False."
+DataLabels,VerticalAlignment,property,As Variant,no setter,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,What new labels read; imported charts are refused. No setter.
 Databar,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 Databar,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
 Databar,AxisColor,"property, read-only",As Object,,PARTIAL,tests/fixtures/data_bars_icons/data_bars_icons.json,
@@ -948,6 +1051,18 @@ Error,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/range_e
 Error,Ignore,property,As Boolean,,PARTIAL,tests/fixtures/range_errors.json; tests/test_excel_range_errors.py,"Kept until the cell is written or cleared; saved as ignoredErrors, neighbours in one sqref, a cell ignoring two checks or more saved with none as Excel saves it. A sheet holding more than one kind, or read with ignoredErrors, reports unsupported."
 Error,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/range_errors.json; tests/test_excel_range_errors.py,The Errors collection.
 Error,Value,"property, read-only",As Boolean,,PARTIAL,tests/fixtures/range_errors.json; tests/test_excel_range_errors.py,"Whether the check flags the cell, whatever ErrorCheckingOptions says: an error other than #N/A, text typing as a number or as an m/d/yy date, a formula between two that agree in R1C1, a row or column read with a number just past its end, an unlocked formula, a reference to an empty cell. List validation and table formulas report unsupported on validated or table cells; misleading formats never flag."
+ErrorBars,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
+ErrorBars,Border,"property, read-only",As Border,,MISSING,,
+ErrorBars,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+ErrorBars,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
+ErrorBars,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
+ErrorBars,EndStyle,property,As XlEndStyleCap,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
+ErrorBars,Format,"property, read-only",As ChartFormat,,MISSING,,
+ErrorBars,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+ErrorBars,Name,"property, read-only",As String,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
+ErrorBars,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,Measured with chart error bars.
+ErrorBars,Select,method,Select() As Variant,,MISSING,,
+ErrorBars,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
 ErrorCheckingOptions,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/error_checking_options.json; tests/test_excel_error_checking_options.py,The application.
 ErrorCheckingOptions,BackgroundChecking,property,As Boolean,,PARTIAL,tests/fixtures/error_checking_options.json; tests/test_excel_error_checking_options.py,"What a new Excel session read on the measuring machine; set, kept for the session. Range.Errors answers whatever it says, as Excel does."
 ErrorCheckingOptions,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/error_checking_options.json; tests/test_excel_error_checking_options.py,xlCreatorCode.
@@ -2108,7 +2223,7 @@ Series,ChartType,property,As XlChartType,no setter,PARTIAL,tests/fixtures/chart_
 Series,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
 Series,Copy,method,Copy() As Variant,,MISSING,,
 Series,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-Series,DataLabels,method,DataLabels([Index As Variant]) As Object,,MISSING,,
+Series,DataLabels,method,DataLabels([Index As Variant]) As Object,,PARTIAL,tests/fixtures/data_labels_object.json; tests/test_excel_data_labels_object.py,"The labels while there, else -2147467259; an index gives one label."
 Series,Delete,method,Delete() As Variant,,PARTIAL,tests/test_excel_chart_lifecycle.py; tests/fixtures/chart_lifecycle/native.json; tests/fixtures/chart_lifecycle/series-default-persistence-native.json,"Measured ordinary embedded-chart deletion/order and held-series reads; native runtime projection plus native import/model save-reopen; imported mutation, complete argument audits and parent graph remain incomplete; stable native series IDs/default names survive order/deletion/save; direct versus CallByName deleted Name errors measured; imported mutation and broader conformance remain incomplete"
 Series,ErrorBar,method,"ErrorBar(Direction As XlErrorBarDirection, Include As XlErrorBarInclude, Type As XlErrorBarType, [Amount As Variant], [MinusValues As Variant]) As Variant",,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,"Every Include and Type; an X bar outside a scatter chart is its Y bar; IncludeNone removes the bar; a bad Include or Type, a negative amount or a fixed bar with none raises 1004. Custom bars take ranges, arrays or numbers for both plus and minus; one side only is refused, as are area charts."
 Series,ErrorBars,"property, read-only",As ErrorBars,,PARTIAL,tests/fixtures/chart_error_bars.json; tests/test_excel_chart_error_bars.py,"Parent, Application, Name (S, the series' place, E), EndStyle and Delete; members of a series with no bars raise -2147467259. Border, Format, ClearFormats and Select are not implemented."
@@ -2548,6 +2663,20 @@ Tab,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/small_mem
 Tab,Parent,"property, read-only",As Object,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,The worksheet.
 Tab,ThemeColor,property,As XlThemeColor,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"xlThemeColorDark1 to xlThemeColorFollowedHyperlink, error 9 beyond; 0 for any other colour."
 Tab,TintAndShade,property,As Variant,,PARTIAL,tests/test_excel_sheet_tabs.py; tests/fixtures/sheet_tabs; scripts/measure_sheet_tabs.py,"False for no colour; a tint cut toward zero to n / 32767 and kept in 16 bits, so 1.5 reads -0.5000763; a tab with no colour takes none."
+TableStyle,_Default,"property, read-only",As String,,MISSING,,
+TableStyle,Application,"property, read-only",As Application,,MISSING,,
+TableStyle,BuiltIn,"property, read-only",As Boolean,,UNASSESSED,,
+TableStyle,Creator,"property, read-only",As XlCreator,,UNASSESSED,,
+TableStyle,Delete,method,Delete(),,MISSING,,
+TableStyle,Duplicate,method,Duplicate([NewTableStyleName As Variant]) As TableStyle,,MISSING,,
+TableStyle,Name,"property, read-only",As String,,UNASSESSED,,
+TableStyle,NameLocal,"property, read-only",As String,,UNASSESSED,,
+TableStyle,Parent,"property, read-only",As Object,,UNASSESSED,,
+TableStyle,ShowAsAvailablePivotTableStyle,property,As Boolean,,MISSING,,
+TableStyle,ShowAsAvailableSlicerStyle,property,As Boolean,,MISSING,,
+TableStyle,ShowAsAvailableTableStyle,property,As Boolean,,MISSING,,
+TableStyle,ShowAsAvailableTimelineStyle,property,As Boolean,,MISSING,,
+TableStyle,TableStyleElements,"property, read-only",As TableStyleElements,,MISSING,,
 TextFrame,Application,"property, read-only",As Application,,MISSING,,
 TextFrame,AutoMargins,property,As Boolean,,PARTIAL,tests/fixtures/text_frame.json; tests/test_excel_text_frame.py,"Excel raises 1004 reading or setting it, on a rectangle and a text box alike."
 TextFrame,AutoSize,property,As Boolean,no setter,PARTIAL,tests/fixtures/core_reads.json; tests/test_excel_core_reads.py,Reads as Excel does on a new workbook.
@@ -2624,6 +2753,39 @@ Top10,SetLastPriority,method,SetLastPriority(),,PARTIAL,tests/test_excel_conditi
 Top10,StopIfTrue,property,As Boolean,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 Top10,TopBottom,property,As XlTopBottom,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
 Top10,Type,"property, read-only",As Long,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation."
+Trendline,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Backward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Backward2,property,As Double,,MISSING,,
+Trendline,Border,"property, read-only",As Border,,MISSING,,
+Trendline,ClearFormats,method,ClearFormats() As Variant,,MISSING,,
+Trendline,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,DataLabel,"property, read-only",As DataLabel,,MISSING,,
+Trendline,Delete,method,Delete() As Variant,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,DisplayEquation,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,DisplayRSquared,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Format,"property, read-only",As ChartFormat,,MISSING,,
+Trendline,Forward,not in the type library,,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Forward2,property,As Double,,MISSING,,
+Trendline,GetProperty,method,GetProperty(ID As String) As Variant,,MISSING,,
+Trendline,Index,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Intercept,property,As Double,no setter,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,InterceptIsAuto,property,As Boolean,no setter,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Name,property,As String,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,NameIsAuto,property,As Boolean,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Order,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Period,property,As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendline,Select,method,Select() As Variant,,MISSING,,
+Trendline,SetProperty,method,"SetProperty(ID As String, Value As Variant)",,MISSING,,
+Trendline,Type,property,As XlTrendlineType,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendlines,_Default,method,_Default([Index As Variant]) As Trendline,,MISSING,,
+Trendlines,_NewEnum,method,_NewEnum() As IUnknown,,MISSING,,
+Trendlines,Add,method,"Add([Type As XlTrendlineType], [Order As Variant], [Period As Variant], [Forward As Variant], [Backward As Variant], [Intercept As Variant], [DisplayEquation As Variant], [DisplayRSquared As Variant], [Name As Variant]) As Trendline",,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendlines,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendlines,Count,"property, read-only",As Long,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendlines,Creator,"property, read-only",As XlCreator,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendlines,Item,method,Item([Index As Variant]) As Trendline,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
+Trendlines,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/chart_trendlines.json; tests/test_excel_chart_trendlines.py,Measured with chart trendlines.
 UniqueValues,Application,"property, read-only",As Application,,PARTIAL,tests/fixtures/object_members.json; tests/test_excel_object_members.py,The application.
 UniqueValues,AppliesTo,"property, read-only",As Range,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_api_projection.py; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Native conditional API projections preserve stored XML: measured escaped-space/hyphen number-format spelling and row-first generic applicability on plain loads (including measured FileFormat52 packages without VBA), raw statistical applicability, and serialized ordering on VBA-bearing macro-enabled imports. Native plain-load and VBA-bearing load controls cover family-specific area projection, full ordered population keys and loaded group identity; generic supplied union order is retained after ModifyAppliesToRange."
 UniqueValues,Borders,"property, read-only",As Borders,,PARTIAL,tests/test_excel_conditional_statistics.py; tests/test_excel_conditional_stats_eval.py; tests/test_excel_conditional_statistics_native_import.py; tests/test_excel_conditional_statistics_copy.py; tests/test_excel_conditional_statistics_reads.py; tests/fixtures/conditional; tests/test_excel_conditional_loaded.py; tests/test_excel_conditional_loaded_lifecycle.py; tests/fixtures/conditional_loaded; tests/test_excel_conditional_sheet_copy.py; tests/fixtures/conditional_sheet_copy,"Native controls cover specialized identity, defaults, property coercions/errors, lifecycle, statistical populations, displayed matches, copying and persistence. Pivot-specific scope remains unsupported. Color scales, bars and icon sets still need implementation. Foreign statistical border-color lookups select the matching group and compact captured child position while every rule retains its own stored style. Worksheet.Copy initializes independent dense groups and recaptures child order by priority. Three initial copy-context snapshots, broader retained-proxy behavior and post-deletion contexts remain partial; foreign reads of absent group members report unsupported because native defaults are inconsistent. Missing group identities retain error 440. A worksheet-local group member/rank index is invalidated on successful mutations; repeated foreign reads and failed mutation staging have count-based/atomicity controls."
@@ -3562,11 +3724,6 @@ WorksheetView,DisplayZeros,property,As Boolean,,PARTIAL,tests/fixtures/sheet_vie
 WorksheetView,Parent,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The window.
 WorksheetView,Sheet,"property, read-only",As Object,,PARTIAL,tests/fixtures/sheet_views.json; tests/test_excel_sheet_views.py,The sheet it shows.
 _Drawn,Creator,not in the type library,,,PARTIAL,tests/fixtures/small_members.json; tests/test_excel_small_members.py,"xlCreatorCode, 1480803660, which every object of Excel's answers, measured on 34 objects."
-_GroupLines,Application,not in the type library,,,UNASSESSED,,
-_GroupLines,Creator,not in the type library,,,UNASSESSED,,
-_GroupLines,Delete,not in the type library,,,UNASSESSED,,
-_GroupLines,Name,not in the type library,,,UNASSESSED,,
-_GroupLines,Parent,not in the type library,,,UNASSESSED,,
 _Part,Application,not in the type library,,,UNASSESSED,,
 _Part,Creator,not in the type library,,,UNASSESSED,,
 _TextLayout,Creator,not in the type library,,,UNASSESSED,,

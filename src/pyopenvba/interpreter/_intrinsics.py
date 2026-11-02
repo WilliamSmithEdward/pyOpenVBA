@@ -100,7 +100,6 @@ UNIMPLEMENTED: Final[dict[str, str]] = {
     "imestatus": "reports the input method editor",
     "command": "reads the command line Office was started with",
     "environ": "reads the machine's environment",
-    "doevents": "yields to a message pump this does not have",
     "getobject": "attaches to a running application",
     "qbcolor": "is not implemented yet",
     "partition": "is not implemented yet",
@@ -1511,6 +1510,14 @@ def vba_inputbox(
         to_text(title) if title is not MISSING else "",
         to_text(default) if default is not MISSING else "",
     )
+
+
+@intrinsic("DoEvents")
+def vba_doevents(interpreter: Interpreter) -> object:
+    """Pump messages: what an asynchronous HTTP request waits for. Answers 0, the forms open here."""
+    for job in list(interpreter.pumped):
+        job()
+    return VBAInt(0, "Integer")
 
 
 @intrinsic("CreateObject", "Class", "ServerName", minimum=1)

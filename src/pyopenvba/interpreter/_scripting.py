@@ -167,9 +167,13 @@ class Dictionary(VBAObject):
 def in_memory(name: str, *, program: bool, interpreter: Interpreter) -> VBAObject | None:
     """The object CreateObject makes for a program's name, or New for a class's, where pyOpenVBA makes it in
     memory; None for any other."""
+    from pyopenvba.interpreter._http import PROGRAMS as HTTP_PROGRAMS, HttpRequest
     from pyopenvba.interpreter._regexp import RegExp
 
     key = name.lower()
+    if program and key in HTTP_PROGRAMS:
+        interpreter.outside(f"CreateObject({name!r})")
+        return HttpRequest(HTTP_PROGRAMS[key], interpreter)
     if program:
         made = {"scripting.dictionary": Dictionary, "scripting.filesystemobject": FileSystemObject,
                 "vbscript.regexp": RegExp}.get(key)

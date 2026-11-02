@@ -27,6 +27,7 @@ from typing import Any, Callable, Final
 from weakref import ReferenceType, ref
 
 from pyopenvba.exceptions import VBACompileError, VBARuntimeError, VBASandboxError, VBAUnsupportedError
+from pyopenvba.interpreter._http import _Sessions
 from pyopenvba.interpreter import _ast as A
 from pyopenvba.interpreter import _flow as F
 from pyopenvba.interpreter import _locale
@@ -1086,6 +1087,10 @@ class Interpreter:
         self.console: list[str] = []
         self.assertions: list[str] = []
         self.frames: list[Frame] = []
+        #: What is left to do when VBA pumps messages at DoEvents: asynchronous HTTP requests (see _http).
+        self.pumped: list[Callable[[], None]] = []
+        #: WinINet's cookies and logins, which every XMLHTTP in the process shares (see _http).
+        self.internet_sessions = _Sessions()
         #: Whether running VBA is kept from reaching outside the engine (see outside).
         self.sandbox = True
         #: Every MsgBox and InputBox the run put up, in order.
@@ -2371,7 +2376,8 @@ class Interpreter:
                     continue
                 positional.append(MISSING)
                 continue
-            wants_slot = procedure is not None and by_ref(index, argument.name) and not argument.by_value
+            wants_slot = (name.lower() in getattr(target, "vba_slot_arguments", ()) and isinstance(
+                argument.value, A.Name)) or procedure is not None and by_ref(index, argument.name) and not argument.by_value
             value: object
             if wants_slot and isinstance(argument.value, A.Name):
                 value = self.lookup(argument.value.name, frame, want_slot=True)

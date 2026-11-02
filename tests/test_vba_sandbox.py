@@ -160,6 +160,7 @@ _BEHIND_A_GATE = {
     ('apps/excel/_vbide.py', 'read_source_file'),  # VBComponents.Import, CodeModule.AddFromFile
     ('apps/excel/_workbook_links.py', '_sheet_names'),  # status
     ('interpreter/_files.py', 'flush'),  # a file that Open let through
+    ('interpreter/_files.py', 'spelled'),  # full, which every caller reaches through its gate
     ('interpreter/_fso.py', '_flush'),  # a stream that Open let through
     ('interpreter/_fso.py', 'DriveExists'),  # _table, which runs it first
     ('interpreter/_fso.py', '_actual'),  # GetFile, GetFolder, GetSpecialFolder

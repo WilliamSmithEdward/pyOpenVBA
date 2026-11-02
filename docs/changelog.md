@@ -20,6 +20,8 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Seek`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `Kill`, `MkDir`, `RmDir`,
   `ChDir`, `CurDir`, `FileCopy`, `Name`, `Dir`, `FileLen`, `FileDateTime`, `GetAttr`,
   `SetAttr` and `Environ`, as live Excel answers them.
+- `ADODB.Stream`: bytes and text in memory through its charsets, as live Excel
+  answers them. `SaveToFile` and `LoadFromFile` need `sandbox=False`.
 - `Scripting.FileSystemObject` with `sandbox=False`: its files, folders and text
   streams, with the errors live Excel gives. Its path functions still work in the
   sandbox.

@@ -35,7 +35,7 @@ NOT_YET = [
     'x = Shell("cmd")',
     'x = GetSetting("a", "b", "c")',
     'Set x = GetObject("", "Excel.Application")',
-    'Set x = CreateObject("ADODB.Stream")',
+    'Set x = CreateObject("Shell.Application")',
 ]
 
 

@@ -134,6 +134,15 @@ question mark. Its path functions, such as `GetBaseName`, reach nothing and work
 sandbox on. `Drive` objects, `ShortName`, `ShortPath` and `Type` come from the machine and
 are refused.
 
+`ADODB.Stream` holds bytes or text in memory, as `tests/fixtures/adodb_stream.json` measured.
+It reaches nothing until `SaveToFile` or `LoadFromFile`, so it works in the sandbox for
+converting between charsets, and only those two are refused there. Text written to an
+empty stream starts with a byte order mark in UTF-8 and UTF-16, and `LoadFromFile` of a text
+stream adds one to a file that has none. `SaveToFile` saves everything wherever the place
+is, and leaves the place at 0. The known charsets are Unicode, utf-16, unicodeFFFE, utf-8,
+us-ascii, iso-8859-1, shift_jis and the windows- code pages. `_autodetect`,
+`_autodetect_all` and `x-user-defined` answer by the machine and are refused.
+
 Not implemented yet: `ChDrive`, `CurDir` of another drive, `Get` of an array into a
 Variant or of a dynamic array with its dimensions, and a dynamic array of more than one
 dimension in a record. `SetAttr`'s

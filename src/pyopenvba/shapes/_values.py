@@ -217,6 +217,22 @@ class FillLine:
     line_width: int | None = None
     line_dash: str | None = None
     line_cap: str | None = None
+    #: Whether the fill or line is hidden, each kept in the spPr's extLst meanwhile.
+    fill_hidden: bool = False
+    line_hidden: bool = False
+    #: Hiding a fill the style gave, or any line, writes the line out in full with an effectLst, for good.
+    line_full: bool = False
+    effects: bool = False
+    #: A line that has been hidden writes a line shape's absent fill as noFill.
+    no_fill: bool = False
+    #: Line.Transparency writes the line out in full with its ends, and this alpha, None at 0.
+    line_ends: bool = False
+    line_alpha: int | None = None
+    #: The width and dash a hidden line had when it was hidden, which its ln goes on holding.
+    frozen_width: int | None = None
+    frozen_dash: str | None = None
+    #: A fill colour set while the line is hidden loses the hidden line.
+    line_lost: bool = False
 
 
 @dataclass(slots=True)

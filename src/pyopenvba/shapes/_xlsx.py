@@ -1005,27 +1005,60 @@ def _fill_line(shape: Shape) -> str:
     text_box = shape.kind == "textBox"
     if look is None:
         return _TEXT_BOX_FILL if text_box else ""
+    fill_colour = _colour(look.fill_rgb, "lt1" if text_box else "accent1", 0, look.fill_alpha)
     fill = ""
-    if look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box:
-        alpha = "" if look.fill_alpha is None else f'<a:alpha val="{look.fill_alpha}"/>'
-        if look.fill_rgb is not None:
-            colour = f'<a:srgbClr val="{look.fill_rgb}"{">" + alpha + "</a:srgbClr>" if alpha else "/>"}'
-        else:
-            scheme = "lt1" if text_box else "accent1"
-            colour = f'<a:schemeClr val="{scheme}"{">" + alpha + "</a:schemeClr>" if alpha else "/>"}'
-        fill = f"<a:solidFill>{colour}</a:solidFill>"
-    if text_box:
-        width = 9525 if look.line_width is None else look.line_width
-        return (f'{fill}<a:ln w="{width}" cmpd="sng"><a:solidFill><a:schemeClr val="lt1"><a:shade val="50000"/>'
-                "</a:schemeClr></a:solidFill></a:ln>")
+    if look.fill_hidden:
+        fill = "<a:noFill/>"
+    elif look.fill_rgb is not None or look.fill_alpha is not None or look.fill_solid or text_box:
+        fill = f"<a:solidFill>{fill_colour}</a:solidFill>"
+    elif look.no_fill:
+        fill = "<a:noFill/>"
+    scheme, shade = {"textBox": ("lt1", 50000), "line": ("accent1", 0)}.get(shape.kind, ("accent1", 15000))
+    paint = f"<a:solidFill>{_colour(look.line_rgb, scheme, shade, look.line_alpha)}</a:solidFill>"
     line = ""
-    if look.line_rgb is not None or look.line_width is not None or look.line_dash is not None:
+    if text_box or look.line_full or look.line_ends:
+        width = (look.frozen_width if look.line_hidden else look.line_width) or (9525 if text_box else 19050)
+        dash = (look.frozen_dash if look.line_hidden else look.line_dash) or "solid"
+        line = _stroke("a:ln", "", width, "<a:noFill/>" if look.line_hidden else paint, dash, text_box, look.line_ends)
+    elif look.line_rgb is not None or look.line_width is not None or look.line_dash is not None:
         attributes = ("" if look.line_width is None else f' w="{look.line_width}"') + (
             "" if look.line_cap is None else f' cap="{look.line_cap}"')
-        inside = ("" if look.line_rgb is None else f'<a:solidFill><a:srgbClr val="{look.line_rgb}"/></a:solidFill>') + (
+        inside = ("" if look.line_rgb is None else paint) + (
             "" if look.line_dash is None else f'<a:prstDash val="{look.line_dash}"/>')
         line = f"<a:ln{attributes}>{inside}</a:ln>" if inside else f"<a:ln{attributes}/>"
-    return fill + line
+    extensions = ""
+    if look.fill_hidden:
+        extensions += (f'<a:ext uri="{{909E8E84-426E-40DD-AFC4-6F175D3DCCD1}}"><a14:hiddenFill {_A14}><a:solidFill>'
+                       f"{fill_colour}</a:solidFill></a14:hiddenFill></a:ext>")
+    if look.line_hidden and not look.line_lost:
+        width = look.line_width or (9525 if text_box else 19050)
+        extensions += ('<a:ext uri="{91240B29-F687-4F45-9708-019B960494DF}">'
+                       + _stroke("a14:hiddenLine", f" {_A14}", width, paint, look.line_dash or "solid", text_box, False)
+                       + "</a:ext>")
+    return (fill + line + ("<a:effectLst/>" if look.effects else "")
+            + (f"<a:extLst>{extensions}</a:extLst>" if extensions else ""))
+
+
+_A14 = 'xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"'
+
+
+def _colour(rgb: str | None, scheme: str, shade: int, alpha: int | None) -> str:
+    """A colour of the file's: its own, else a theme colour at its shade, either at its alpha."""
+    inside = (f'<a:shade val="{shade}"/>' if shade and rgb is None else "") + (
+        "" if alpha is None else f'<a:alpha val="{alpha}"/>')
+    tag, value = ("a:srgbClr", rgb) if rgb is not None else ("a:schemeClr", scheme)
+    return f'<{tag} val="{value}">{inside}</{tag}>' if inside else f'<{tag} val="{value}"/>'
+
+
+def _stroke(tag: str, namespace: str, width: int, paint: str, dash: str, text_box: bool, ends: bool) -> str:
+    """A line written out in full: as a text box has it, with no dash or join until its ends are written, or as the
+    style gives any other shape's."""
+    if text_box and not ends:
+        return f'<{tag}{namespace} w="{width}" cmpd="sng">{paint}</{tag}>'
+    join = "<a:round/>" if text_box else '<a:miter lim="800000"/>'
+    tail = '<a:headEnd type="none" w="med" len="med"/><a:tailEnd type="none" w="med" len="med"/>' if ends else ""
+    return (f'<{tag}{namespace} w="{width}" cap="flat" cmpd="sng" algn="ctr">{paint}<a:prstDash val="{dash}"/>{join}'
+            f"{tail}</{tag}>")
 
 
 def _free_geometry(shape: Shape) -> str:

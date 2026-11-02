@@ -10,10 +10,10 @@ All notable changes to pyOpenVBA are documented here. This project follows
 - Shape.Fill and Shape.Line on a new AutoShape, text box or line, with the
   FillFormat, LineFormat and ColorFormat objects. They read what the
   shape's style gives in the default theme. A macro can set the fill's
-  colour and transparency, Solid, and the line's colour, weight and two
-  dash styles, and a save writes only what was set, as Excel does. Hiding
-  a fill or line, and a line's transparency, are refused for now, since
-  Excel then writes out the whole style. Measured in
+  colour, transparency and Visible, Solid, and the line's colour, weight,
+  two dash styles, transparency and Visible. A save writes only what was
+  set until a setting makes Excel write out the style, as hiding a line
+  does, and that stays once it is shown again. Measured in
   `tests/fixtures/shape_fill_line.json`.
 - Workbook.TableStyles as a collection: the 170 built-in styles in Excel's
   order, by number or by name in any case, error 9 for neither.

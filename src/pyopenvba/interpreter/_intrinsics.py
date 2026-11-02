@@ -515,7 +515,7 @@ def vba_len(interpreter: Interpreter, value: object) -> object:
     from pyopenvba.interpreter._runtime import UserTypeValue
 
     if isinstance(value, UserTypeValue):
-        return VBAInt(value.record_layout(binary=False)[0], 'Long')
+        return VBAInt(value.record_layout(binary=False)[0], 'Integer')
     if value is NULL:
         return NULL
     if isinstance(value, VBAObject):
@@ -1563,6 +1563,7 @@ def vba_getattr(interpreter: Interpreter, path: object) -> object:
 @intrinsic("Environ", "Expression", minimum=1)
 def vba_environ(interpreter: Interpreter, value: object) -> object:
     return interpreter.files.environment(value)
+
 
 @intrinsic("DoEvents")
 def vba_doevents(interpreter: Interpreter) -> object:

@@ -50,11 +50,7 @@ _UNSUPPORTED: Final[dict[str, str]] = {
     "print": "file I/O",
     "write": "file I/O",
     "input": "file I/O",
-    "get": "file I/O",
-    "put": "file I/O",
     "seek": "file I/O",
-    "lock": "file I/O",
-    "unlock": "file I/O",
     "reset": "file I/O",
     "width": "file I/O",
     "kill": "file system access",
@@ -75,7 +71,8 @@ _FILE_STATEMENTS: Final[dict[str, str]] = {
     "open": "_file_open", "close": "_file_close", "reset": "_file_close", "print": "_file_output",
     "write": "_file_output", "input": "_file_input", "seek": "_file_commands", "width": "_file_commands",
     "kill": "_file_commands", "mkdir": "_file_commands", "rmdir": "_file_commands", "chdir": "_file_commands",
-    "filecopy": "_file_commands", "setattr": "_file_commands", "name": "_file_commands",
+    "filecopy": "_file_commands", "setattr": "_file_commands", "name": "_file_commands", "get": "_file_record",
+    "put": "_file_record", "lock": "_file_lock", "unlock": "_file_lock",
 }
 
 #: The types a declaration may name, beyond the classes a host provides.
@@ -722,10 +719,11 @@ class Parser:
         mode = "random"
         if self.accept_word("for"):
             mode = self.advance().lower
+        access = ""
         if self.accept_word("access"):
-            self.advance()
+            access = self.advance().lower
             if self.at_word("write"):
-                self.advance()
+                access = f"{access} {self.advance().lower}"
         if self.accept_word("shared"):
             pass
         elif self.accept_word("lock"):
@@ -734,11 +732,12 @@ class Parser:
                 self.advance()
         self.expect_word("as")
         number = self._file_number()
+        length = None
         if self.accept_word("len"):
             self.expect_op("=")
-            self._parse_expression()
+            length = self._parse_expression()
         self.end_statement()
-        return A.OpenFile(line=line, path=path, mode=mode, number=number)
+        return A.OpenFile(line=line, path=path, mode=mode, number=number, access=access, length=length)
 
     def _file_close(self, line: int) -> A.Stmt:
         verb = self.advance().lower
@@ -768,6 +767,32 @@ class Parser:
             targets.append(self._parse_expression())
         self.end_statement()
         return A.FileInput(line=line, number=number, targets=targets)
+
+    def _file_record(self, line: int) -> A.Stmt:
+        kind = self.advance().lower
+        number = self._file_number()
+        self._file_comma()
+        position = None if self.at_op(",") else self._parse_expression()
+        self._file_comma()
+        target = self._parse_expression()
+        self.end_statement()
+        return A.FileRecord(line=line, kind=kind, number=number, position=position, target=target)
+
+    def _file_lock(self, line: int) -> A.Stmt:
+        kind = self.advance().lower
+        number = self._file_number()
+        first = last = None
+        has_range = False
+        if self.accept_op(","):
+            has_range = True
+            if not self.at_word("to"):
+                first = self._parse_expression()
+            if self.accept_word("to"):
+                last = self._parse_expression()
+            else:
+                last = first
+        self.end_statement()
+        return A.FileLock(line=line, kind=kind, number=number, first=first, last=last, has_range=has_range)
 
     def _file_commands(self, line: int) -> A.Stmt:
         """Seek #, Width # and the statements that take paths."""

@@ -1698,6 +1698,8 @@ class Interpreter:
             A.FileInput: cls._do_file_input,
             A.LineInput: cls._do_line_input,
             A.FileCommand: cls._do_file_command,
+            A.FileRecord: cls._do_file_record,
+            A.FileLock: cls._do_file_lock,
             A.Label: cls._do_label,
             A.ProcedureAttribute: cls._do_procedure_attribute,
             A.OnError: cls._do_on_error,
@@ -1958,7 +1960,9 @@ class Interpreter:
     def _do_open_file(self, statement: A.OpenFile, frame: Frame) -> None:
         self.outside("Open")
         path = self.evaluate(statement.path, frame)
-        self.files.open(path, statement.mode, self.evaluate(statement.number, frame))
+        length = MISSING if statement.length is None else self.evaluate(statement.length, frame)
+        number = self.evaluate(statement.number, frame)
+        self.files.open(path, statement.mode, number, access=statement.access, length=length)
 
     def _do_file_output(self, statement: A.FileOutput, frame: Frame) -> None:
         name = "Print #" if statement.kind == "print" else "Write #"
@@ -2024,6 +2028,59 @@ class Interpreter:
                     "filecopy": lambda: files.copy(*args), "setattr": lambda: files.set_attributes(*args),
                     "name": lambda: files.rename(*args)}
         commands[statement.verb]()
+
+    def _do_file_record(self, statement: A.FileRecord, frame: Frame) -> None:
+        name = "Get #" if statement.kind == "get" else "Put #"
+        self.outside(name)
+        handle = self.files.record_handle(self.evaluate(statement.number, frame))
+        where = MISSING if statement.position is None else self.evaluate(statement.position, frame)
+        declared, value = self._file_target(statement.target, frame)
+        if statement.kind == "put":
+            self.files.put(handle, where, value, declared)
+            return
+        result = self.files.get(handle, where, value, declared)
+        if not isinstance(value, VBAArray) and not isinstance(value, UserTypeValue):
+            self.resolve_target(statement.target, frame).put(result, False)
+
+    def _file_target(self, target: A.Expr | None, frame: Frame) -> tuple[str, object]:
+        """What Get and Put are given: the type its declaration says, "" for a value that has none, and the value. A
+        Variant's array keeps "variant", which its declared kin do not."""
+        value = self.evaluate(target, frame, want_object=True)
+        slot = None
+        if isinstance(target, A.Name):
+            slot = self._variable_named(target.name, frame)
+        elif isinstance(target, A.Member):
+            slot = self.member_variable(self._member_target(target, frame), target.name, frame)
+        if isinstance(slot, Slot):
+            if isinstance(value, VBAArray) and (slot.array_of or slot.fixed_array):
+                return "", value
+            return slot.declared, value
+        if isinstance(target, A.Index) and isinstance(target.target, A.Name):
+            owner = self._variable_named(target.target.name, frame)
+            array = owner.get() if owner is not None else None
+            if isinstance(array, VBAArray):
+                return array.element_type, value
+        return "", value
+
+    def _variable_named(self, name: str, frame: Frame) -> Slot | None:
+        """The variable of this name, if it is one: a function of the name is not called to find out."""
+        key = _bare(name)
+        slot = frame.locals.get(key)
+        if slot is None and isinstance(frame.me, UserClassInstance):
+            slot = frame.me.variables.get(key)
+        if slot is None:
+            slot = frame.module.variables.get(key)
+        if slot is None:
+            slot = next((runtime.variables[key] for runtime in self.modules.values()
+                         if not runtime.is_class and key in runtime.variables), None)
+        return slot
+
+    def _do_file_lock(self, statement: A.FileLock, frame: Frame) -> None:
+        self.outside("Lock #" if statement.kind == "lock" else "Unlock #")
+        number = self.evaluate(statement.number, frame)
+        first = MISSING if statement.first is None else self.evaluate(statement.first, frame)
+        last = MISSING if statement.last is None else self.evaluate(statement.last, frame)
+        self.files.lock(statement.kind == "lock", number, first, last, statement.has_range)
 
     def _do_unsupported(self, statement: A.Unsupported, frame: Frame) -> None:
         if statement.reason != "the PC speaker":

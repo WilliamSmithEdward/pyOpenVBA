@@ -12,6 +12,9 @@ All notable changes to pyOpenVBA are documented here. This project follows
   `Seek`, `Input()`, `EOF`, `LOF`, `Loc`, `FreeFile`, `Kill`, `MkDir`, `RmDir`,
   `ChDir`, `CurDir`, `FileCopy`, `Name`, `Dir`, `FileLen`, `FileDateTime`, `GetAttr`,
   `SetAttr` and `Environ`, as live Excel answers them.
+- Binary and Random files from VBA with `sandbox=False`: `Open` in those modes,
+  `Get`, `Put`, `Lock` and `Unlock`, with each type laid out byte for byte as
+  Excel lays it out.
 
 ### Changed
 

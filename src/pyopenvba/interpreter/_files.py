@@ -6,7 +6,7 @@ then, as the measurements show. Text goes through Windows-1252. A CR ends a line
 file, and a NUL in a line is dropped. Dir takes its list when it is given a path, so what later goes from the folder
 still comes back. SetAttr's hidden, system and archive bits are kept for the session, and read-only reaches the file.
 
-Get, Put, Lock, Unlock and ChDrive, and the Binary and Random modes, are refused for now."""
+A Binary or Random file reads and writes through _file_records. ChDrive is refused for now."""
 from __future__ import annotations
 
 import datetime as _dt
@@ -22,6 +22,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Final
 
 from pyopenvba.exceptions import VBAUnsupportedError
+from pyopenvba.interpreter._file_records import ERR_RECORD_LENGTH, Reader, decode, encode, fill_array, fill_record
 from pyopenvba.interpreter._objects import VBAObject
 from pyopenvba.interpreter._values import (
     EMPTY,
@@ -50,6 +51,8 @@ ERR_ALREADY_OPEN = 55
 ERR_EXISTS = 58
 ERR_PAST_END = 62
 ERR_BAD_RECORD = 63
+ERR_DENIED = 70
+ERR_NO_MODE = ERR_BAD_MODE
 ERR_ACCESS = 75
 ERR_NO_PATH = 76
 ERR_INVALID = 5
@@ -59,7 +62,10 @@ ERR_NO_OBJECT = 91
 
 _CTRL_Z: Final = 0x1A
 _ZONE: Final = 14
-_MODES: Final = {"input": 1, "output": 2, "append": 8}
+_MODES: Final = {"input": 1, "output": 2, "random": 4, "append": 8, "binary": 32}
+_DEFAULT_RECORD: Final = 128
+#: The modes that may share a file: Input with Input, and Binary and Random with each other.
+_FAMILIES: Final = {"input": 0, "binary": 1, "random": 1}
 #: SetAttr's bits: read-only, hidden, system, archive.
 _SETTABLE: Final = 1 | 2 | 4 | 32
 _DIR_BITS: Final = 1 | 2 | 4 | 8 | 16 | 32 | 64
@@ -119,7 +125,12 @@ class OpenFile:
         self.column = 0
         self.width = 0
         self.changed = False
-        self.pending_comma = False
+        #: What the Access clause, or a read-only file, rules out.
+        self.can_read, self.can_write = True, True
+        self.record = _DEFAULT_RECORD
+        #: A Get or a read of text that ran off the end, which is what EOF reports in these modes.
+        self.ran_out = False
+        self.locks: list[tuple[int, int]] = []
 
     def write(self, data: bytes) -> None:
         end = self.position + len(data)
@@ -129,7 +140,12 @@ class OpenFile:
         self.position = end
         self.changed = True
 
+    def exhausted(self) -> bool:
+        return self.position >= len(self.data) or (self.mode == "input" and self.data[self.position] == _CTRL_Z)
+
     def at_end(self) -> bool:
+        if self.mode in ("binary", "random"):
+            return self.ran_out
         if self.mode != "input":
             return True
         return self.position >= len(self.data) or self.data[self.position] == _CTRL_Z
@@ -202,20 +218,26 @@ class FileTable:
 
     def reading(self, value: object) -> OpenFile:
         found = self.handle(value)
-        if found.mode != "input":
+        if found.mode not in ("input", "binary"):
             raise error(ERR_BAD_MODE)
         return found
 
     def writing(self, value: object) -> OpenFile:
         found = self.handle(value)
-        if found.mode == "input":
+        if found.mode not in ("output", "append"):
             raise error(ERR_BAD_MODE)
         return found
 
-    def open(self, path_value: object, mode: str, number_value: object) -> None:
+    def open(self, path_value: object, mode: str, number_value: object, *, access: str = "",
+             length: object = MISSING) -> None:
         self.interpreter.outside("Open")
         if mode not in _MODES:
             raise VBAUnsupportedError(f"Open for {mode} is not implemented")
+        record = _DEFAULT_RECORD if length is MISSING else int(to_integer(length, "Integer"))
+        if record == 0:
+            raise error(ERR_INVALID)
+        # A negative Len was taken as it stood in 16 bits (tests/fixtures/binary_files.json).
+        record &= 0xFFFF
         given = to_text(path_value)
         number = self.number(number_value)
         if number in self.handles:
@@ -223,10 +245,14 @@ class FileTable:
         if not given:
             raise error(ERR_ACCESS)
         path = self.full(given)
-        if self._is_open(path, for_writing=mode == "input") or (mode != "input" and self._is_open(path)):
+        if self._conflicts(path, mode):
             raise error(ERR_ALREADY_OPEN)
-        if os.path.isdir(path) or (mode != "input" and self._read_only(path)):
+        shared = mode in ("binary", "random")
+        if os.path.isdir(path) or (mode != "input" and not shared and self._read_only(path)):
             raise error(ERR_ACCESS)
+        if shared:
+            self._open_shared(number, path, mode, access, record)
+            return
         try:
             if mode == "input":
                 with open(path, "rb") as stream:
@@ -246,6 +272,111 @@ class FileTable:
         except OSError:
             raise error(ERR_ACCESS) from None
         self.handles[number] = OpenFile(path, mode, data, len(data), len(data))
+
+    def _conflicts(self, path: str, mode: str) -> bool:
+        """Whether a file open already rules this mode out."""
+        key = self._key(path)
+        family = _FAMILIES.get(mode)
+        return any(self._key(one.path) == key and (family is None or _FAMILIES.get(one.mode) != family)
+                   for one in self.handles.values())
+
+    def _open_shared(self, number: int, path: str, mode: str, access: str, record: int) -> None:
+        self.interpreter.outside("Open")
+        read_only = self._read_only(path)
+        try:
+            if os.path.exists(path):
+                with open(path, "rb") as stream:
+                    data = bytearray(stream.read())
+            else:
+                data = bytearray()
+                with open(path, "wb"):
+                    pass
+        except FileNotFoundError:
+            raise error(ERR_NO_PATH) from None
+        except OSError:
+            raise error(ERR_ACCESS) from None
+        handle = OpenFile(path, mode, data, 0, 0)
+        handle.record = record
+        handle.can_read = access != "write"
+        handle.can_write = access != "read" and not read_only
+        self.handles[number] = handle
+
+    def record_handle(self, number_value: object) -> OpenFile:
+        found = self.handle(number_value)
+        if found.mode not in ("binary", "random"):
+            raise error(ERR_BAD_MODE)
+        return found
+
+    def _place(self, handle: OpenFile, where: object) -> int:
+        """Where a Get or Put starts: a byte in a Binary file, a record in a Random one."""
+        if where is MISSING:
+            return handle.position
+        place = int(to_integer(where, "Long"))
+        if place < 1:
+            raise error(ERR_BAD_RECORD)
+        return place - 1 if handle.mode == "binary" else (place - 1) * handle.record
+
+    def put(self, handle: OpenFile, where: object, value: object, declared: str) -> None:
+        self.interpreter.outside("Put #")
+        random = handle.mode == "random"
+        place = self._place(handle, where)
+        if random and isinstance(value, VBAArray) and not value.fixed and len(value.bounds) > 1:
+            # Its dimensions take eight bytes each, whose order was not measured: only a record too short answers.
+            body = b"".join(encode(one, value.element_type, nested=True) for one in value.items)
+            if 2 + 8 * len(value.bounds) + len(body) > handle.record:
+                raise error(ERR_RECORD_LENGTH)
+            raise VBAUnsupportedError("Put of a dynamic array of more than one dimension is not implemented")
+        data = encode(value, declared, nested=random)
+        if not handle.can_write:
+            raise error(ERR_ACCESS)
+        if random and len(data) > handle.record:
+            raise error(ERR_RECORD_LENGTH)
+        handle.position = place
+        handle.write(data)
+        handle.ran_out = False
+        handle.relative = 0
+        if random:
+            handle.position = place + handle.record
+
+    def get(self, handle: OpenFile, where: object, value: object, declared: str) -> object:
+        self.interpreter.outside("Get #")
+        random = handle.mode == "random"
+        place = self._place(handle, where)
+        if not handle.can_read:
+            raise error(ERR_ACCESS)
+        reader = Reader(handle.data, place, handle.record if random else None)
+        handle.position = place
+        result: object = None
+        if isinstance(value, VBAArray):
+            plan: list[tuple[VBAArray, int, object]] = []
+            fill_array(reader, value, describe=random, plan=plan)
+            for array, index, item in plan:
+                array.items[index] = item
+        elif hasattr(value, "fields") and hasattr(value, "defined"):
+            fill_record(reader, value)
+        else:
+            result = decode(reader, declared or "variant", value, nested=random)
+        handle.position = place + handle.record if random else reader.at
+        handle.ran_out = reader.short
+        return result
+
+    def lock(self, locking: bool, number_value: object, first_value: object, last_value: object,
+             has_range: bool) -> None:
+        self.interpreter.outside("Lock #" if locking else "Unlock #")
+        handle = self.handle(number_value)
+        first = 1 if first_value is MISSING else int(to_integer(first_value, "Long"))
+        last = 0x7FFFFFFF if not has_range else first if last_value is MISSING else int(to_integer(last_value, "Long"))
+        if first < 1 or last < first:
+            raise error(ERR_BAD_RECORD)
+        span = (first, last)
+        if locking:
+            if any(one[0] <= last and first <= one[1] for one in handle.locks):
+                raise error(ERR_DENIED)
+            handle.locks.append(span)
+        elif span in handle.locks:
+            handle.locks.remove(span)
+        else:
+            raise error(ERR_DENIED)
 
     def close(self, numbers: list[object]) -> None:
         self.interpreter.outside("Close")
@@ -338,7 +469,9 @@ class FileTable:
 
     def set_width(self, number_value: object, width_value: object) -> None:
         self.interpreter.outside("Width #")
-        handle = self.writing(number_value)
+        handle = self.handle(number_value)
+        if handle.mode == "input":
+            raise error(ERR_BAD_MODE)
         width = int(to_integer(width_value, "Integer"))
         if not 0 <= width <= 255:
             raise error(ERR_INVALID)
@@ -349,7 +482,7 @@ class FileTable:
     def read_line(self, number_value: object) -> str:
         self.interpreter.outside("Line Input #")
         handle = self.reading(number_value)
-        if handle.at_end():
+        if handle.exhausted():
             raise error(ERR_PAST_END)
         data, position = handle.data, handle.position
         out = bytearray()
@@ -363,6 +496,7 @@ class FileTable:
             if byte:
                 out.append(byte)
         handle.position = position
+        handle.ran_out = position >= len(data)
         return _decode(bytes(out))
 
     def read_chars(self, count_value: object, number_value: object) -> str:
@@ -371,7 +505,7 @@ class FileTable:
         handle = self.reading(number_value)
         if count < 0:
             raise error(ERR_INVALID)
-        if count and handle.at_end():
+        if count and handle.exhausted():
             raise error(ERR_PAST_END)
         piece = handle.data[handle.position:handle.position + count]
         if len(piece) < count:
@@ -383,7 +517,7 @@ class FileTable:
         """The next field of an Input #: whether it was quoted, and its text. A quote ends its field at once, and a
         number with spaces after it ends there too, so what follows either is the next field."""
         data = handle.data
-        if handle.at_end():
+        if handle.exhausted():
             raise error(ERR_PAST_END)
         position = handle.position
         while position < len(data) and data[position] == 32:
@@ -406,6 +540,7 @@ class FileTable:
             handle.position = after
             return False, number.group()
         handle.position = self._past_delimiter(data, end)
+        handle.ran_out = end >= len(data)
         return False, raw.rstrip(" ")
 
     @staticmethod
@@ -512,11 +647,17 @@ class FileTable:
         handle = self.handle(number_value)
         if handle.mode == "input":
             return max(1, math.ceil(handle.position / 128))
+        if handle.mode == "binary":
+            return handle.position
+        if handle.mode == "random":
+            return handle.position // handle.record
         return (handle.position - handle.relative) // 128
 
     def seek_read(self, number_value: object) -> int:
         self.interpreter.outside("Seek")
         handle = self.handle(number_value)
+        if handle.mode == "random":
+            return handle.position // handle.record + 1
         return handle.position - handle.relative + 1
 
     def seek_to(self, number_value: object, position_value: object) -> None:
@@ -525,7 +666,9 @@ class FileTable:
         position = int(to_integer(position_value, "Long"))
         if position < 1:
             raise error(ERR_BAD_RECORD)
-        handle.position, handle.relative = position - 1, 0
+        handle.position = (position - 1) * (handle.record if handle.mode == "random" else 1)
+        handle.relative = 0
+        handle.ran_out = False
 
     def free_number(self, range_value: object) -> int:
         self.interpreter.outside("FreeFile")

@@ -117,8 +117,16 @@ types what it reads into a Variant by its look: `1` is an Integer, `1.5` a Curre
 `1.23456` a Decimal. A file being written reads as empty from outside until `Close`. `Dir`
 takes its list when given a path, so a file killed afterwards still comes back.
 
-Not implemented yet: `Open` for Binary and Random, `Get`, `Put`, `Lock`, `Unlock`,
-`ChDrive`, `CurDir` of another drive, and `FileSystemObject`'s file members. `SetAttr`'s
+`Open` for Binary and Random, with `Get`, `Put`, `Lock` and `Unlock`, lay values out as
+`tests/fixtures/binary_files.json` measured: numbers at their own size, a String with a
+two-byte length except at the top of a Binary file, a Variant with its type first, and a
+dynamic array with its dimensions first except at the top of a Binary file. A read past
+the end gets zeros, and `EOF` then says so. `Lock` and `Unlock` keep their ranges and
+raise error 70 as Excel does, without locking the file against another process.
+
+Not implemented yet: `ChDrive`, `CurDir` of another drive, `Get` of an array into a
+Variant or of a dynamic array with its dimensions, a dynamic array of more than one
+dimension in a record, and `FileSystemObject`'s file members. `SetAttr`'s
 hidden, system and archive bits are kept for the session, and only read-only reaches the
 file. `ChDir` moves the VBA's own current folder, and the Excel object model's relative
 paths do not follow it.

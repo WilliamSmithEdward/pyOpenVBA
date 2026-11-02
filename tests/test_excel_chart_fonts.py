@@ -24,7 +24,7 @@ KEPT = [index for index, (case, _, _) in enumerate(RECORD['cases']) if REFUSED n
 @pytest.fixture(scope='module')
 def run(tmp_path_factory: pytest.TempPathFactory) -> tuple[list[str], Path]:
     folder = tmp_path_factory.mktemp('chart_fonts')
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module(SOURCE, name='FontsProbe')
     return str(app.run('FontsProbe.Probe', str(folder), 0, len(RECORD['cases']) - 1)).split('@@@'), folder
@@ -64,7 +64,7 @@ def test_each_chart_part_as_excel_saved_it(run: tuple[list[str], Path], index: i
     'ch.Legend.Font.Strikethrough = False',
 ])
 def test_an_unmeasured_step_is_refused(statements: str) -> None:
-    app = ExcelApplication()
+    app = ExcelApplication(sandbox=False)
     app.add_workbook()
     app.add_module('Public Sub Go()\n    Dim ch As Object, x As Variant\n    ActiveSheet.Range("B1:B3").Value = 1\n'
                    '    Set ch = ActiveSheet.ChartObjects.Add(10, 10, 200, 100).Chart\n'

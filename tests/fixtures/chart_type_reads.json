@@ -1,0 +1,127 @@
+{
+ "measured_at": "2026-11-02T04:47:50.412615+00:00",
+ "reads": [
+  "ch.Elevation",
+  "ch.Rotation",
+  "ch.Perspective",
+  "ch.RightAngleAxes",
+  "ch.DepthPercent",
+  "ch.HeightPercent",
+  "ch.GapDepth",
+  "ch.AutoScaling",
+  "ch.BarShape",
+  "ch.ChartStyle",
+  "ch.ChartColor",
+  "ch.CategoryLabelLevel",
+  "ch.SeriesNameLevel",
+  "cg.DropLines.Name",
+  "TypeName(cg.DropLines.Parent)",
+  "cg.HiLoLines.Name",
+  "cg.UpBars.Name",
+  "cg.DownBars.Name",
+  "TypeName(cg.UpBars.Parent)",
+  "cg.SeriesLines.Name",
+  "TypeName(cg.SeriesLines.Application)",
+  "cg.HasDropLines",
+  "cg.HasUpDownBars"
+ ],
+ "source": "Private Function Tried(ByVal which As Long) As String\n    Dim wb As Workbook, ws As Worksheet, ch As Object, cg As Object, s As String\n    Set wb = Workbooks.Add(xlWBATWorksheet)\n    Set ws = wb.Worksheets(1)\n    Set ch = ws.ChartObjects.Add(100, 10, 300, 200).Chart\n    ws.Range(\"A1:A4\").Value = Application.Transpose(Array(\"k\", \"a\", \"b\", \"c\"))\n    ws.Range(\"B1:B4\").Value = Application.Transpose(Array(\"v\", 1, 2, 3))\n    ws.Range(\"C1:C4\").Value = Application.Transpose(Array(\"w\", 4, 5, 6))\n    ch.SetSourceData ws.Range(\"A1:C4\")\n    On Error GoTo Failed\n    Select Case which\n    Case 0\n        ch.ChartType = 51\n        Set cg = ch.ChartGroups(1)\n    Case 1\n        ch.ChartType = 52\n        Set cg = ch.ChartGroups(1)\n    Case 2\n        ch.ChartType = 53\n        Set cg = ch.ChartGroups(1)\n    Case 3\n        ch.ChartType = 57\n        Set cg = ch.ChartGroups(1)\n    Case 4\n        ch.ChartType = 58\n        Set cg = ch.ChartGroups(1)\n    Case 5\n        ch.ChartType = 59\n        Set cg = ch.ChartGroups(1)\n    Case 6\n        ch.ChartType = 4\n        Set cg = ch.ChartGroups(1)\n    Case 7\n        ch.ChartType = 63\n        Set cg = ch.ChartGroups(1)\n    Case 8\n        ch.ChartType = 64\n        Set cg = ch.ChartGroups(1)\n    Case 9\n        ch.ChartType = 65\n        Set cg = ch.ChartGroups(1)\n    Case 10\n        ch.ChartType = 66\n        Set cg = ch.ChartGroups(1)\n    Case 11\n        ch.ChartType = 67\n        Set cg = ch.ChartGroups(1)\n    Case 12\n        ch.ChartType = 5\n        Set cg = ch.ChartGroups(1)\n    Case 13\n        ch.ChartType = -4120\n        Set cg = ch.ChartGroups(1)\n    Case 14\n        ch.ChartType = -4169\n        Set cg = ch.ChartGroups(1)\n    Case 15\n        ch.ChartType = 1\n        Set cg = ch.ChartGroups(1)\n    Case 16\n        ch.ChartType = 76\n        Set cg = ch.ChartGroups(1)\n    Case 17\n        ch.ChartType = 77\n        Set cg = ch.ChartGroups(1)\n    Case 18\n        ch.ChartType = 4\n        Set cg = ch.ChartGroups(1)\n        cg.HasDropLines = True\n    Case 19\n        ch.ChartType = 4\n        Set cg = ch.ChartGroups(1)\n        cg.HasHiLoLines = True\n    Case 20\n        ch.ChartType = 4\n        Set cg = ch.ChartGroups(1)\n        cg.HasUpDownBars = True\n    Case 21\n        ch.ChartType = 52\n        Set cg = ch.ChartGroups(1)\n        cg.HasSeriesLines = True\n    Case 22\n        ch.ChartType = 4\n        Set cg = ch.ChartGroups(1)\n        cg.HasDropLines = True: cg.DropLines.Delete\n    Case 23\n        ch.ChartType = 4\n        Set cg = ch.ChartGroups(1)\n        cg.HasUpDownBars = True: cg.UpBars.Delete\n    End Select\n    On Error Resume Next\n    Err.Clear\n    s = s & \",\" & ch.Elevation\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.Rotation\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.Perspective\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.RightAngleAxes\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.DepthPercent\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.HeightPercent\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.GapDepth\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.AutoScaling\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.BarShape\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.ChartStyle\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.ChartColor\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.CategoryLabelLevel\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & ch.SeriesNameLevel\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & cg.DropLines.Name\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & TypeName(cg.DropLines.Parent)\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & cg.HiLoLines.Name\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & cg.UpBars.Name\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & cg.DownBars.Name\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & TypeName(cg.UpBars.Parent)\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & cg.SeriesLines.Name\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & TypeName(cg.SeriesLines.Application)\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & cg.HasDropLines\n    If Err.Number Then s = s & \"E\" & Err.Number\n    Err.Clear\n    s = s & \",\" & cg.HasUpDownBars\n    If Err.Number Then s = s & \"E\" & Err.Number\n    On Error GoTo 0\n    Tried = \"ok \" & Mid(s, 2)\nClosed:\n    wb.Close False\n    Exit Function\nFailed:\n    Tried = \"Err \" & Err.Number\n    Resume Closed\nEnd Function\n\nPublic Function Probe() As String\n    Dim i As Long, s As String\n    For i = 0 To 23\n        s = s & \"@@@\" & Tried(i)\n    Next\n    Probe = Mid(s, 4)\nEnd Function\n",
+ "cases": [
+  [
+   "51: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "52: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "53: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "57: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "58: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "59: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "4: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "63: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "64: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "65: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "66: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "67: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "5: ",
+   "ok 75,0,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "-4120: ",
+   "ok 75,0,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "-4169: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "1: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "76: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "77: ",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "4: cg.HasDropLines = True",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0,Dropline 1,ChartGroupE424E424E424E424E424E424,True,False"
+  ],
+  [
+   "4: cg.HasHiLoLines = True",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424,HiLoline 1E424E424E424E424E424,False,False"
+  ],
+  [
+   "4: cg.HasUpDownBars = True",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424,UpBar 1E-2147467259,ChartGroupE424E424,False,True"
+  ],
+  [
+   "52: cg.HasSeriesLines = True",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424,Seriesline 1,Application,False,False"
+  ],
+  [
+   "4: cg.HasDropLines = True: cg.DropLines.Delete",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ],
+  [
+   "4: cg.HasUpDownBars = True: cg.UpBars.Delete",
+   "ok 15,20,30,False,100,100,150,True,0,2,2,0,0E424E424E424E424E424E424E424E424,False,False"
+  ]
+ ]
+}

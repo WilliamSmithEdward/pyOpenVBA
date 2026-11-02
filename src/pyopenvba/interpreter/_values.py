@@ -895,15 +895,37 @@ def to_text(value: object, *, context: str = "") -> str:
     raise error(ERR_TYPE_MISMATCH, f"cannot read {type_name(value)} as a string{context}")
 
 
+class OddText(str):
+    """A String with an odd count of bytes, which StrConv, MidB, LeftB and ChrB can make: as text it is its whole
+    characters, and its last byte counts only to what works in bytes (tests/fixtures/strconv_bytes.json)."""
+
+    last: int
+
+    def __new__(cls, data: bytes) -> OddText:
+        made = super().__new__(cls, data[:-1].decode("utf-16-le", errors="surrogatepass"))
+        made.last = data[-1]
+        return made
+
+
+def string_bytes(text: str) -> bytes:
+    """A String's own bytes."""
+    data = text.encode("utf-16-le", errors="surrogatepass")
+    return data + bytes([text.last]) if isinstance(text, OddText) else data
+
+
+def bytes_string(data: bytes) -> str:
+    """The String of these bytes, two to a character."""
+    return OddText(data) if len(data) % 2 else data.decode("utf-16-le", errors="surrogatepass")
+
+
 def bytes_text(array: VBAArray) -> str:
     """A Byte array as a String: its bytes read as UTF-16LE, two to a character (native probe)."""
-    data = bytes(int(to_integer(item, "Byte")) for item in array.items)
-    return data[: len(data) // 2 * 2].decode("utf-16-le", errors="surrogatepass")
+    return bytes_string(bytes(int(to_integer(item, "Byte")) for item in array.items))
 
 
 def text_bytes(text: str) -> VBAArray:
     """A String as a Byte array: two UTF-16LE bytes per character (native probe)."""
-    data = text.encode("utf-16-le", errors="surrogatepass")
+    data = string_bytes(text)
     return VBAArray([(0, len(data) - 1)] if data else [(0, -1)], element_type="Byte",
                     items=[VBAInt(byte, "Byte") for byte in data])
 
@@ -1639,6 +1661,8 @@ def concat(left: object, right: object) -> object:
         return NULL
     first = "" if left is NULL else to_text(left)
     second = "" if right is NULL else to_text(right)
+    if isinstance(first, OddText) or isinstance(second, OddText):
+        return bytes_string(string_bytes(first) + string_bytes(second))
     return first + second
 
 

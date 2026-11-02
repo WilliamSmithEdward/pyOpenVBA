@@ -5,6 +5,14 @@ All notable changes to pyOpenVBA are documented here. This project follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `StrConv(text, vbFromUnicode)` is a String, as in Excel, not a Byte array. A String
+  can now hold an odd count of bytes, so `LenB`, `MidB`, `LeftB`, `RightB`, `AscB`,
+  `InStrB` and `&` count the last byte. `ChrB` exists. `StrConv(x, vbUnicode)` reads a
+  String's own bytes. `AscB` answers a Byte, `VarType` a Long, and `LenB` of a
+  fixed-length string an Integer.
+
 ### Added
 
 - Text files and the file system from VBA with `sandbox=False`: `Open` for Input,

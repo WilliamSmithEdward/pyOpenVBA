@@ -2391,7 +2391,7 @@ class Interpreter:
                     f"{runtime.declares[key].library or 'a library'}, which pyOpenVBA cannot call"
                 )
         if key in ("len", "lenb"):
-            measured = self._len_of_declared(args, frame)
+            measured = self._len_of_declared(args, frame, in_bytes=key == "lenb")
             if measured is not None:
                 return measured
         if key in self._intrinsics:
@@ -2414,7 +2414,8 @@ class Interpreter:
                                       "UserForms do not run")
         raise VBARuntimeError(35, f"Sub or Function not defined: {callee.name}")
 
-    def _len_of_declared(self, args: list[A.Argument], frame: Frame | None) -> object | None:
+    def _len_of_declared(self, args: list[A.Argument], frame: Frame | None, *,
+                         in_bytes: bool = False) -> object | None:
         """Len of a variable that is not a String is its size in bytes.
 
         VBA settles this at compile time from the declaration, which is
@@ -2426,6 +2427,8 @@ class Interpreter:
         slot = self.lookup(args[0].value.name, frame, want_slot=True)
         if not isinstance(slot, Slot):
             return None
+        if in_bytes and slot.declared.lower().replace(" ", "").startswith("string*"):
+            return VBAInt(len(to_text(slot.get())) * 2, "Integer")
         width = STORAGE_WIDTH.get(slot.declared)
         return VBAInt(width, "Integer") if width is not None else None
 

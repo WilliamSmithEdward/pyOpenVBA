@@ -93,14 +93,44 @@ That covers `Workbook.Save`, `SaveAs` and `SaveCopyAs`, `Workbooks.Open` and
 the same open and save members in Word and PowerPoint. It also covers what
 pyOpenVBA does not implement at all: `Open`, `Kill`, `Dir`, `Environ`, `Shell`,
 `GetSetting`, a `Declare`, `FileSystemObject`'s file members, and `CreateObject`
-for anything that needs a COM server. With the sandbox off those stay
-`VBAUnsupportedError` until they are implemented.
+for anything that needs a COM server, or the HTTP objects below. With the sandbox off
+the HTTP objects work and the rest stay `VBAUnsupportedError` until they are
+implemented.
 
 `VBASandboxError` is a `VBAUnsupportedError`, so `On Error` cannot trap it.
 The sandbox governs VBA only: Python's own `app.save` and
 `ExcelApplication.open` work either way. Every path out goes through
 `Interpreter.outside`, and `tests/test_vba_sandbox.py` fails on a call into the
 file system that does not.
+
+## HTTP
+
+With `sandbox=False`, `CreateObject` makes `MSXML2.XMLHTTP`, `Microsoft.XMLHTTP`,
+`MSXML2.XMLHTTP.3.0` and `.6.0`, `MSXML2.ServerXMLHTTP`, its `.3.0` and `.6.0`, and
+`WinHttp.WinHttpRequest.5.1`, all on Python's own sockets with no COM and no DLL. They
+work on any platform, and each sends the headers its Windows stack sends, in that order,
+as `tests/fixtures/http_requests.json` measured them against a server on 127.0.0.1.
+
+```vb
+Set h = CreateObject("MSXML2.XMLHTTP")
+h.Open "GET", url, False
+h.Send
+Debug.Print h.status, h.responseText
+```
+
+The three stacks differ, and the objects keep the differences. XMLHTTP adds a browser's
+headers, unpacks gzip, and reports a 204 as status 1223 with an error. It shares cookies
+and Basic logins between objects made under one program name. ServerXMLHTTP and
+WinHttpRequest list response headers in WinHTTP's order and keep cookies per object.
+WinHttpRequest reads text with no charset as Latin-1, adds a Content-Type to plain ASCII
+text, and needs `SetCredentials` for a login. An asynchronous request finishes at
+`DoEvents` or `WaitForResponse`.
+
+Only `Option(0)`, `(1)`, `(2)` and `(6)` are implemented, `(2)` read-only. Refused or
+not modelled: `responseXML`, `responseStream`, `onreadystatechange`, proxies, Digest and
+Windows logins, WinINet's disk cache, and `New` with a reference to the library. The
+aliases were measured on two cases only, and take their stack's other rules on trust.
+A TLS failure raises `VBAUnsupportedError`, since no case reached one.
 
 ## How the semantics were settled
 

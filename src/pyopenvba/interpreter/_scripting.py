@@ -173,7 +173,7 @@ def in_memory(name: str, *, program: bool, interpreter: Interpreter) -> VBAObjec
     key = name.lower()
     if program and key in HTTP_PROGRAMS:
         interpreter.outside(f"CreateObject({name!r})")
-        return HttpRequest(HTTP_PROGRAMS[key], interpreter)
+        return HttpRequest(key, interpreter)
     if program:
         made = {"scripting.dictionary": Dictionary, "scripting.filesystemobject": FileSystemObject,
                 "vbscript.regexp": RegExp}.get(key)

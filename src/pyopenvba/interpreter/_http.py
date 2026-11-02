@@ -1,10 +1,11 @@
-"""HTTP from VBA without COM: MSXML2.XMLHTTP, MSXML2.ServerXMLHTTP and WinHttp.WinHttpRequest on Python's own sockets, as
-tests/fixtures/http_requests.json measured them against a server on 127.0.0.1.
+"""HTTP from VBA without COM: MSXML2.XMLHTTP, MSXML2.ServerXMLHTTP and WinHttp.WinHttpRequest on Python's own sockets,
+as tests/fixtures/http_requests.json measured them against a server on 127.0.0.1.
 
 They are three stacks underneath, and it shows. XMLHTTP is WinINet: it adds a browser's headers, unpacks gzip, answers a
-204 with status 1223, and shares its cookies and its Basic logins across every object in the process. ServerXMLHTTP and
-WinHttpRequest are WinHTTP: their headers go out and come back in WinHTTP's own order, and each object keeps its own
-cookies. WinHttpRequest alone decodes text with no charset as Latin-1, and adds a Content-Type to plain text.
+204 with status 1223, and shares its cookies and its Basic logins across every object of one program name.
+ServerXMLHTTP and WinHttpRequest are WinHTTP: their headers go out and come back in WinHTTP's own order, and each object
+keeps its own cookies. WinHttpRequest alone decodes text with no charset as Latin-1, and adds a Content-Type to plain
+text.
 
 An asynchronous request finishes when VBA pumps messages, at DoEvents or WaitForResponse: a loop that only polls never
 sees it end, as in Excel. A CreateObject of any of them is refused with the sandbox on.
@@ -87,18 +88,22 @@ class _Stack:
     bad_charset: _Failure
     has_ready_state: bool = True
     async_by_default: bool = False
+    #: GetResponseHeader of a repeated header answers its last, not its first.
+    last_header: bool = False
 
 
 _XML30 = _Stack("IServerXMLHTTPRequest2", True, (_UNSPECIFIED, _PENDING, _UNSPECIFIED),
                 (_UNSPECIFIED, _UNSPECIFIED, _UNSPECIFIED), (_UNSPECIFIED, _PENDING, _UNSPECIFIED), _UNSPECIFIED,
                 _UNSPECIFIED, _UNSPECIFIED, _ARGUMENT,
                 (-2147012890, "Method 'open' of object 'IServerXMLHTTPRequest2' failed"), _PARAMETER,
-                (-1072896658, "System does not support the specified encoding.\r\n"), async_by_default=True)
+                (-1072896658, "System error: -1072896658.\r\n"), async_by_default=True)
 _XML60 = _Stack("IServerXMLHTTPRequest2", True, (_XML_SEND, _XML_SEND, _XML_SEND), (_XML_SEND, _XML_SEND, _XML_SEND),
                 (_PENDING, _PENDING, _PENDING), _XML_OPEN, _XML_SENT, _XML_SENT, _PARAMETER,
                 (-2147012890, "System error: -2147012890.\r\n"), _PARAMETER,
-                (-1072896658, "System error: -1072896658.\r\n"), async_by_default=True)
-_SERVER = _Stack("IServerXMLHTTPRequest2", False, (_XML_OPEN, _XML_SEND, _XML_OPEN), (_HTTP_SEND, _XML_SEND, _HTTP_SEND),
+                (-1072896658, "System does not support the specified encoding.\r\n"), async_by_default=True,
+                last_header=True)
+_SERVER = _Stack("IServerXMLHTTPRequest2", False, (_XML_OPEN, _XML_SEND, _XML_OPEN),
+                 (_HTTP_SEND, _XML_SEND, _HTTP_SEND),
                  (_PENDING, _PENDING, _WRONG_STATE), _XML_OPEN, _XML_SENT, _XML_SENT, _PARAMETER,
                  (-2147012890, "System error: -2147012890.\r\n"), _PARAMETER,
                  (-1072896658, "System does not support the specified encoding.\r\n"))
@@ -120,8 +125,9 @@ _HTTP_AGENT = "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
 _LANGUAGE = "en-US,en;q=0.5"
 _STANDARD_METHODS = {"get", "post", "put", "delete", "head", "options", "patch", "trace"}
 #: The order WinHTTP lists a response's headers in; any other follows them as it came.
-_WINHTTP_ORDER = ("cache-control", "connection", "date", "pragma", "transfer-encoding", "content-length", "content-type",
-                  "content-encoding", "content-language", "expires", "last-modified", "accept-ranges", "etag",
+_WINHTTP_ORDER = ("cache-control", "connection", "date", "pragma", "transfer-encoding", "content-length",
+                  "content-type", "content-encoding", "content-language", "expires", "last-modified",
+                  "accept-ranges", "etag",
                   "location", "server", "set-cookie", "vary", "www-authenticate")
 _REDIRECTS = {301, 302, 303, 307, 308}
 _HOPS = 10
@@ -140,7 +146,7 @@ class _Response:
 
 @dataclass
 class Sessions:
-    """What WinINet keeps for the whole process: cookies and logins, by host."""
+    """What XMLHTTP keeps for all the objects of one program name: cookies and logins, by host."""
 
     cookies: dict[str, dict[str, tuple[str, str]]] = field(default_factory=lambda: {})
     logins: dict[str, str] = field(default_factory=lambda: {})
@@ -153,7 +159,9 @@ def _msxml_utf8(data: bytes) -> str:
     index = 0
     while index < len(data):
         byte = data[index]
-        length = 1 if byte < 0x80 else 2 if 0xC0 <= byte < 0xE0 else 3 if 0xE0 <= byte < 0xF0 else 4 if 0xF0 <= byte else 0
+        length = 1 if byte < 0x80 else 0
+        if 0xC0 <= byte < 0xF8:
+            length = 2 if byte < 0xE0 else 3 if byte < 0xF0 else 4
         if length == 1:
             out.append(chr(byte))
             index += 1
@@ -197,9 +205,9 @@ class HttpRequest(VBAObject):
     #: Send needs to know a byte array's variable: see _body.
     vba_slot_arguments = frozenset({"send"})
 
-    def __init__(self, stack: _Stack, interpreter: Interpreter) -> None:
-        self.stack, self.interpreter = stack, interpreter
-        self.vba_type_name = stack.type_name
+    def __init__(self, program: str, interpreter: Interpreter) -> None:
+        self.program, self.stack, self.interpreter = program, PROGRAMS[program], interpreter
+        self.vba_type_name = self.stack.type_name
         self.stage = "new"
         self.response: _Response | None = None
         self.failed_headers: list[tuple[str, str]] = []
@@ -312,7 +320,8 @@ class HttpRequest(VBAObject):
     def GetResponseHeader(self, Header: object = MISSING) -> object:
         self._read_headers()
         wanted = to_text(Header).lower()
-        found = next((value for name, value in self._header_list() if name.lower() == wanted), None)
+        values = [value for name, value in self._header_list() if name.lower() == wanted]
+        found = (values[-1] if self.stack.last_header else values[0]) if values else None
         if found is not None:
             return found
         if self.stack is _WINHTTP:
@@ -338,6 +347,9 @@ class HttpRequest(VBAObject):
         if not verb.isascii() or " " in verb:
             raise VBAUnsupportedError("An HTTP method that is not a single word is not implemented")
         scheme = address.partition("://")[0].lower() if "://" in address else ""
+        if self.stack is _SERVER and scheme == "ftp":
+            self._forget()
+            raise error(*_WINHTTP.open_bad_url)
         if scheme not in ("http", "https", "ftp", "file") or (not self.stack.inet and scheme not in ("http", "https")):
             self._forget()
             raise error(*self.stack.open_bad_url)
@@ -385,9 +397,6 @@ class HttpRequest(VBAObject):
             raise error(438)
         connect, receive = float(to_number(ConnectTimeout)) / 1000, float(to_number(ReceiveTimeout)) / 1000
         del ResolveTimeout, SendTimeout
-        # WinHttpRequest set this way before Open went on to wait out 1.5 seconds on 0.5 (tests/fixtures).
-        if self.stack is _WINHTTP and self.stage == "new":
-            return EMPTY
         self.connect_wait = connect if connect > 0 else _CONNECT_WAIT
         self.receive_wait = receive if receive > 0 else _RECEIVE_WAIT
         return EMPTY
@@ -434,7 +443,7 @@ class HttpRequest(VBAObject):
 
         direct = False
         if isinstance(given, Slot):
-            direct = bool(given.array_of) or given.declared != "Variant"
+            direct = bool(given.array_of) or given.fixed_array
             given = given.get()
         if given is MISSING or given is EMPTY:
             return b"", False
@@ -501,7 +510,7 @@ class HttpRequest(VBAObject):
     # -- the exchange
 
     def _sessions(self) -> Sessions:
-        return self.interpreter.internet_sessions
+        return self.interpreter.internet_sessions.setdefault(self.program, Sessions())
 
     def _jar(self) -> dict[str, dict[str, tuple[str, str]]]:
         return self._sessions().cookies if self.stack.inet else self.cookies
@@ -590,7 +599,9 @@ class HttpRequest(VBAObject):
         connection = socket.create_connection((host, port), timeout=self.connect_wait)
         try:
             connection.settimeout(self.receive_wait)
-            stream = ssl.create_default_context().wrap_socket(connection, server_hostname=host) if secure else connection
+            stream = connection
+            if secure:
+                stream = ssl.create_default_context().wrap_socket(connection, server_hostname=host)
             stream.sendall(request)
             reply = http.client.HTTPResponse(stream, method=verb)
             reply.begin()
@@ -613,8 +624,8 @@ class HttpRequest(VBAObject):
         answer.headers = [one for one in answer.headers if one[0].lower() not in ("content-encoding", "content-length")]
 
     def _target(self, url: str) -> bytes | str:
-        """What the request line asks for: spaces escaped; a # goes as %23 in WinINet and as itself in WinHTTP; beyond
-        ASCII goes as Latin-1 in WinINet and as UTF-8 in WinHTTP. A later % escape is left as it is."""
+        """What the request line asks for: spaces escaped; a # goes as %23, except after a query in WinHTTP; beyond
+        ASCII goes as Latin-1 in WinINet and as UTF-8 in WinHTTP. A % escape is left as it is."""
         after = url.partition("://")[2]
         slash = after.find("/")
         query = after.find("?")
@@ -624,14 +635,11 @@ class HttpRequest(VBAObject):
             path = "/" + path
         path = path or "/"
         if self.stack.inet:
-            question = path.find("?")
-            if question >= 0:
-                path = path[:question] + path[question:].replace("#", "%23")
-            else:
-                path = path.partition("#")[0]
-            path = path.replace(" ", "%20")
+            path = path.replace(" ", "%20").replace("#", "%23")
             return "".join(char if ord(char) < 256 else "?" for char in path)
         path = path.replace(" ", "%20")
+        if "?" not in path:
+            path = path.replace("#", "%23")
         return path.encode("utf-8", errors="surrogatepass").decode("latin-1")
 
     def _cookie_line(self, host: str, url_path: str) -> str:
@@ -675,11 +683,11 @@ class HttpRequest(VBAObject):
         if verb != "GET":
             lines.append("Cache-Control: no-cache")
         login = self._basic(self.login) if self.login else self._sessions().logins.get(self._host(self.url))
-        if login:
-            lines.append(f"Authorization: {login}")
         cookies = self._cookie_line(self._host(self.url), str(path))
         if cookies:
             lines.append(f"Cookie: {cookies}")
+        if login:
+            lines.append(f"Authorization: {login}")
         return lines
 
     def _http_lines(self, verb: str, address: str, path: object, body: bytes, is_text: bool) -> list[str]:

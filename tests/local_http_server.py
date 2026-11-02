@@ -6,7 +6,7 @@ import gzip
 import socket
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -41,10 +41,12 @@ ANSWERS: dict[str, tuple[int, list[tuple[str, str]], bytes]] = {
     '/nowhere': (302, [], b'no location'),
     '/odd-charset': (200, [('Content-Type', 'text/plain; charset=nonsense')], TEXT.encode('utf-8')),
     '/quoted-charset': (200, [('Content-Type', 'text/plain; charset="iso-8859-1"')], TEXT.encode('latin-1')),
-    '/many': (200, [('Server', 'probe'), ('Date', 'Mon, 02 Nov 2026 00:00:00 GMT'), ('Set-Cookie', 'many=1; Path=/many'),
+    '/many': (200, [('Server', 'probe'), ('Date', 'Mon, 02 Nov 2026 00:00:00 GMT'),
+                    ('Set-Cookie', 'many=1; Path=/many'),
                     ('ETag', '"x"'), ('Cache-Control', 'no-store'), ('Expires', '0'), ('Vary', 'Accept'),
                     ('Last-Modified', 'Mon, 02 Nov 2026 00:00:00 GMT'), ('X-Zed', 'z'), ('Content-Language', 'en'),
-                    ('Accept-Ranges', 'bytes'), ('Pragma', 'no-cache'), ('X-Alpha', 'a'), ('Content-Type', 'text/plain'),
+                    ('Accept-Ranges', 'bytes'), ('Pragma', 'no-cache'), ('X-Alpha', 'a'),
+                    ('Content-Type', 'text/plain'),
                     ('Connection', 'keep-alive')], b'ok'),
 }
 
@@ -61,7 +63,7 @@ class _Handler(BaseHTTPRequestHandler):
         path = self.path.split('?', 1)[0]
         if path == '/echo':
             lines = [f'{self.command} {path} {self.request_version}']
-            own = f'127.0.0.1:{self.server.server_address[1]}'
+            own = f'127.0.0.1:{self.connection.getsockname()[1]}'
             lines += [f'{name}: {value}'.replace(own, 'SERVER') for name, value in self.headers.items()]
             lines.append(f'BODY={sent.hex()}')
             status, headers, body = 200, [('Content-Type', 'text/plain')], '\n'.join(lines).encode('utf-8')
@@ -104,7 +106,7 @@ class _Server(ThreadingHTTPServer):
 
 
 @contextmanager
-def local_server() -> Iterator[tuple[str, int]]:
+def local_server() -> Generator[tuple[str, int], None, None]:
     """The server's address, and a port on which nothing listens."""
     server = _Server(('127.0.0.1', 0), _Handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)

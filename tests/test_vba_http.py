@@ -21,15 +21,16 @@ INET = ('MSXML2.XMLHTTP', 'MSXML2.XMLHTTP.6.0')
 HANGS = {'redirect put'}
 #: XMLHTTP opens these schemes and fails on no server here; the model refuses them.
 SCHEMES = {'open ftp', 'open file'}
-#: A timing race in Excel: how far the request got in the time the reads took.
+#: A timing race in Excel: how far the request got in the time the reads took, and 0.5 seconds against 1.5, which
+#: Excel answered both ways across runs.
 RACES = {(program, name) for program in ('MSXML2.ServerXMLHTTP.6.0', 'WinHttp.WinHttpRequest.5.1')
-         for name in ('async spun', 'async at once')}
+         for name in ('async spun', 'async at once', 'too slow')}
 #: StrConv to a Variant holds a String of bytes in Excel, and a Byte array in the model: that gap is not HTTP's.
 STRCONV = {'post strconv'}
 
 
 def skipped(program: str, name: str) -> bool:
-    return (program in INET and name in HANGS) or (program in INET + ('MSXML2.XMLHTTP',) and name in SCHEMES) or (
+    return (program in INET and name in HANGS) or (program in INET and name in SCHEMES) or (
         (program, name) in RACES) or name in STRCONV
 
 
@@ -58,7 +59,7 @@ def answers() -> dict[int, str]:
         return found
 
 
-@pytest.mark.parametrize('index', KEPT, ids=[f'{RECORD["cases"][index][0]}-{RECORD["cases"][index][1]}' for index in KEPT])
+@pytest.mark.parametrize('index', KEPT, ids=[' '.join(RECORD['cases'][index][:2]) for index in KEPT])
 def test_each_case_as_excel_answered(answers: dict[int, str], index: int) -> None:
     assert answers[index] == RECORD['cases'][index][2]
 
